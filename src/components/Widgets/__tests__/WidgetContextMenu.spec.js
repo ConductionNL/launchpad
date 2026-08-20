@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `WidgetContextMenu.vue`. Covers REQ-WDG-015..017
  * — render of three buttons, position-style derivation, z-index and
@@ -8,8 +8,8 @@
  * also emits `close` so the popover is always single-instance).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import WidgetContextMenu from '../WidgetContextMenu.vue'
 
 beforeEach(() => {
@@ -34,12 +34,28 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
-	it('REQ-WDG-015: renders four items — Edit, Visibility rules…, Remove, Cancel', () => {
+	it('REQ-WDG-015: renders five items — Edit, Move, Visibility rules…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
-		expect(buttons.length).toBe(4)
-		const labels = buttons.wrappers.map((b) => b.text().trim())
-		expect(labels).toEqual(['Edit', 'Visibility rules…', 'Remove', 'Cancel'])
+		expect(buttons.length).toBe(5)
+		const labels = buttons.map((b) => b.text().trim())
+		expect(labels).toEqual([
+			'Edit',
+			'Move',
+			'Visibility rules…',
+			'Remove',
+			'Cancel',
+		])
+	})
+
+	it('grid-layout: clicking Move emits move then close (single-instance)', async () => {
+		const wrapper = mountMenu()
+		const moveBtn = wrapper.find('[data-testid="ctx-move"]')
+		await moveBtn.trigger('click')
+		expect(wrapper.emitted('move')).toHaveLength(1)
+		expect(wrapper.emitted('close')).toHaveLength(1)
+		expect(wrapper.emitted('edit')).toBeFalsy()
+		expect(wrapper.emitted('remove')).toBeFalsy()
 	})
 
 	it('REQ-WDG-017: applies top / left from props as fixed positioning', () => {
@@ -70,7 +86,7 @@ describe('WidgetContextMenu', () => {
 		const wrapper = mountMenu()
 		const btn = wrapper.find('[data-testid="ctx-visibility-rules"]')
 		await btn.trigger('click')
-		expect(wrapper.emitted('visibility-rules')).toHaveLength(1)
+		expect(wrapper.emitted('visibilityRules')).toHaveLength(1)
 		expect(wrapper.emitted('close')).toHaveLength(1)
 		expect(wrapper.emitted('edit')).toBeFalsy()
 		expect(wrapper.emitted('remove')).toBeFalsy()
@@ -99,11 +115,13 @@ describe('WidgetContextMenu', () => {
 		// NOT bubble to the document.
 		const wrapper = mountMenu({ attachTo: document.body })
 		let bubbled = false
-		const handler = () => { bubbled = true }
+		const handler = () => {
+			bubbled = true
+		}
 		document.addEventListener('click', handler)
 		await wrapper.find('.widget-context-menu').trigger('click')
 		expect(bubbled).toBe(false)
 		document.removeEventListener('click', handler)
-		wrapper.destroy()
+		wrapper.unmount()
 	})
 })

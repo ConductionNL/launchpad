@@ -63,3 +63,26 @@
 	gap: 12px;
 }
 
+/* =========================================================
+   REQ-LBL-003 — long single words must wrap inside the label
+   widget cell, not overflow it.
+
+   `@conduction/nextcloud-vue`'s CnLabelWidget renders
+   `.cn-label-widget` (display:flex) > `.cn-label-widget__text`
+   (a <span>, so a flex ITEM) and sets `overflow-wrap: break-word`
+   on the span — but flex items default to `min-width: auto`,
+   which floors their size at the longest unbreakable content run
+   (here, one very long word) REGARDLESS of overflow-wrap. The span
+   never shrinks below that intrinsic width, so it overflows
+   `.cn-label-widget` by exactly the excess. This is the classic
+   "flexbox ignores your wrap" trap — the fix is `min-width: 0` on
+   the flex item, which nc-vue's scoped style doesn't set. Patched
+   here (unscoped, additive — only sets `min-width`, doesn't
+   conflict with nc-vue's own `overflow-wrap`/`word-wrap`/`max-width`
+   rules) rather than in the vendored component, matching the same
+   min-width:0-on-a-flex-child pattern already used above for
+   `.launchpad-workspace`.
+   ========================================================= */
+.cn-label-widget__text {
+	min-width: 0;
+}

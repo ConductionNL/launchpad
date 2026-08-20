@@ -5,15 +5,23 @@ title: Sharing dashboards publicly
 
 # Sharing dashboards publicly
 
-LaunchPad lets you share a read-only view of any dashboard you own via a
-URL-safe token — no Nextcloud login required.
+LaunchPad can mint a read-only, URL-safe token for any dashboard you own —
+no Nextcloud login required to view it.
 
-## Creating a public share
+:::warning Feature status — API only for now
+The public-share **HTTP API described below is live and stable**, but the
+in-app UI for creating and managing public links is **not yet shipped**. The
+dashboard **Share** button currently opens the *user &amp; group* sharing tab
+only (see [Bookmark or share a dashboard URL](08-deep-link.md) for logged-in
+sharing). Public links are therefore created via the API (or automation)
+today; the point-and-click **Create public link** control, and the anonymous
+rendered view at `/s/{token}`, are on the roadmap. Until then, treat this page
+as the integrator's reference for the endpoints.
+:::
 
-1. Open the dashboard you want to share.
-2. Click **Share** → **Public share** in the dashboard menu.
-3. (Optional) Enter a password and/or an expiry date.
-4. Click **Create share**. A shareable URL is displayed.
+## Creating a public share (API)
+
+Call the create endpoint on the dashboard's UUID:
 
 ### API
 

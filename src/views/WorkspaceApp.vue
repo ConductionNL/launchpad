@@ -14,9 +14,7 @@
 		     sidebar panel itself uses @click.stop so clicks inside never
 		     propagate to the backdrop. Starts at top:50px to clear the
 		     Nextcloud header chrome. -->
-		<SidebarBackdrop
-			v-if="sidebarOpen"
-			@close="closeSidebar" />
+		<SidebarBackdrop v-if="sidebarOpen" @close="closeSidebar" />
 
 		<!-- Region 2: hamburger + active-dashboard label strip
 		     (REQ-SHELL-004). Always visible regardless of canEdit.
@@ -30,7 +28,7 @@
 		     (top-right) is the only entry point. -->
 		<div v-if="sidebarOpen" class="workspace-shell__strip">
 			<NcButton
-				type="tertiary"
+				variant="tertiary"
 				:aria-label="t('launchpad', 'Open menu')"
 				class="workspace-shell__hamburger"
 				@click="toggleSidebar">
@@ -47,21 +45,28 @@
 		     dashboard, Add custom widget) live in the per-dashboard cog
 		     menu (DashboardRowActions) so the page chrome stays clean. -->
 
+		<!-- Region 3.5 (quick-search bar) removed: quick search is now the
+		     `search` widget type, placed on the grid like any other widget
+		     (tile-quick-search REQ-QSEARCH-001). The shell no longer renders
+		     one, so a dashboard has search only where an author put it. -->
+
 		<!-- Region 4: grid surface (or empty state).
 		     The empty state branches on `allowUserDashboards`
 		     (REQ-SHELL-005). When an active dashboard is resolved we
 		     defer to the existing Views component which owns the
 		     grid + per-widget modals — runtime-shell does not duplicate
-		     widget machinery. -->
-		<div class="workspace-shell__grid">
-			<Views
-				v-if="hasActiveDashboard"
-				ref="viewsRef" />
+		     widget machinery. `tabindex="-1"` makes the grid a valid
+		     programmatic focus target for the quick-search Esc contract
+		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
+		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
+			<Views v-if="hasActiveDashboard" />
 			<div v-else class="workspace-shell__empty">
 				<p class="workspace-shell__empty-title">
 					{{ t('launchpad', 'No dashboards available') }}
 				</p>
-				<p v-if="injectedAllowUserDashboards" class="workspace-shell__empty-hint">
+				<p
+					v-if="injectedAllowUserDashboards"
+					class="workspace-shell__empty-hint">
 					{{ t('launchpad', 'Create your first dashboard') }}
 				</p>
 				<p v-else class="workspace-shell__empty-hint">
@@ -81,24 +86,21 @@
 		     dashboard grid. Renders nothing when `effectiveFooter` is
 		     null (REQ-FTR-001 disabled scenario, REQ-FTR-006 hidden
 		     mode). -->
-		<DashboardFooter
-			:footer="effectiveFooter"
-			:locale="injectedLocale" />
+		<DashboardFooter :footer="effectiveFooter" :locale="injectedLocale" />
 	</div>
 </template>
 
 <script>
-import { NcButton } from '@nextcloud/vue'
 import { t } from '@nextcloud/l10n'
+import { NcButton } from '@nextcloud/vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
-
-import Views from './Views.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
-
+import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
+import { logger } from '../utils/logger.js'
 
 /**
  * WorkspaceApp — the runtime-shell page-level orchestrator (REQ-SHELL-001..007).
@@ -119,7 +121,7 @@ import { useOrgNavigationStore } from '../stores/orgNavigation.js'
  * Lifecycle (REQ-SHELL-007):
  *  - `mounted()` registers `document.click` after `nextTick()` so the
  *    grid-container ref is non-null before the listener fires.
- *  - `beforeDestroy()` removes the listener.
+ *  - `beforeUnmount()` removes the listener.
  *  - GridStack is owned by Views.vue; its destroy hook fires when Views
  *    unmounts (satisfying REQ-SHELL-007 grid-destroy scenario).
  *
@@ -142,42 +144,56 @@ export default {
 			from: 'isAdmin',
 			default: false,
 		},
+
 		injectedDashboardSource: {
 			from: 'dashboardSource',
 			default: 'group',
 		},
+
 		injectedActiveDashboardId: {
 			from: 'activeDashboardId',
 			default: '',
 		},
+
 		injectedAllowUserDashboards: {
 			from: 'allowUserDashboards',
 			default: false,
 		},
+
 		injectedLayout: {
 			from: 'layout',
 			default: () => [],
 		},
+
 		injectedWidgets: {
 			from: 'widgets',
 			default: () => [],
 		},
+
 		injectedUserDashboards: {
 			from: 'userDashboards',
 			default: () => [],
 		},
+
 		injectedGroupDashboards: {
 			from: 'groupDashboards',
 			default: () => [],
 		},
+
 		injectedPrimaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
 		},
+
 		injectedEffectiveFooter: {
 			from: 'effectiveFooter',
 			default: null,
 		},
+
+		// tile-quick-search REQ-QSEARCH-004: `quicksearchFallbackTarget` is no
+		// longer injected here — the `search` widget reads it directly (see
+		// SearchWidget.vue). The initial-state key and the admin setting are
+		// unchanged; only the consumer moved.
 		injectedLocale: {
 			from: 'viewerLocale',
 			default: 'en',
@@ -199,7 +215,10 @@ export default {
 		 * @spec openspec/changes/runtime-shell/tasks.md#task-3
 		 */
 		canEdit() {
-			return Boolean(this.injectedIsAdmin) || this.injectedDashboardSource === 'user'
+			return (
+				Boolean(this.injectedIsAdmin)
+				|| this.injectedDashboardSource === 'user'
+			)
 		},
 
 		/**
@@ -228,14 +247,23 @@ export default {
 				...(this.injectedUserDashboards || []),
 				...(this.injectedGroupDashboards || []),
 			]
-			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
-			return match ? (match.name || '') : ''
+			const match = all.find(
+				(d) => d && d.id === this.injectedActiveDashboardId,
+			)
+			return match ? match.name || '' : ''
 		},
 
 		/**
 		 * Effective footer payload (REQ-FTR-001, REQ-FTR-004, REQ-FTR-006).
 		 *
 		 * @return {object | null}
+		 */
+		/**
+		 * Resolve the footer for the active dashboard, falling back to the
+		 * injected global footer when no dashboard is active.
+		 *
+		 * @spec openspec/specs/footer-customization/spec.md#requirement-req-ftr-006-per-dashboard-footer-override
+		 * @return {object|null} The footer to render.
 		 */
 		effectiveFooter() {
 			if (!this.injectedActiveDashboardId) {
@@ -245,8 +273,10 @@ export default {
 				...(this.injectedUserDashboards || []),
 				...(this.injectedGroupDashboards || []),
 			]
-			const match = all.find(d => d && d.id === this.injectedActiveDashboardId)
-			if (match && Object.prototype.hasOwnProperty.call(match, 'effectiveFooter')) {
+			const match = all.find(
+				(d) => d && d.id === this.injectedActiveDashboardId,
+			)
+			if (match && Object.hasOwn(match, 'effectiveFooter')) {
 				return match.effectiveFooter
 			}
 			return this.injectedEffectiveFooter
@@ -265,18 +295,54 @@ export default {
 		/**
 		 * REQ-ONAV-005 — flex direction follows the rail position.
 		 *
+		 * @spec openspec/specs/navigation-editor-org/spec.md#req-onav-005
 		 * @return {string[]}
 		 */
 		orgNavWrapperClass() {
 			if (!this.orgNavStore.shouldRender) {
 				return []
 			}
-			return ['workspace-shell--org-nav-' + (this.orgNavStore.position || 'hidden')]
+			return [
+				'workspace-shell--org-nav-'
+					+ (this.orgNavStore.position || 'hidden'),
+			]
 		},
+	},
+
+	mounted() {
+		document.addEventListener('keydown', this.onDocumentKeydown)
+	},
+
+	beforeUnmount() {
+		document.removeEventListener('keydown', this.onDocumentKeydown)
 	},
 
 	methods: {
 		t,
+
+		/**
+		 * Escape closes the slide-in sidebar (WCAG 2.2 AA SC 2.1.1 Keyboard).
+		 *
+		 * The sidebar could be dismissed two ways, and both needed a mouse:
+		 * clicking the backdrop, or clicking the hamburger again. The
+		 * backdrop is a `role="presentation"` overlay that never takes focus,
+		 * so a `@keydown` bound to the backdrop element itself could never
+		 * fire — the listener has to be on the document to be reachable at
+		 * all, whatever happens to hold focus when the sidebar opens.
+		 *
+		 * Guarded on `sidebarOpen` so this does not swallow Escape from the
+		 * quick-search bar (REQ-QSEARCH-003), which owns its own Escape
+		 * contract and is only reachable while the sidebar is closed.
+		 *
+		 * @param {KeyboardEvent} event the document keydown.
+		 * @return {void}
+		 * @spec openspec/specs/runtime-shell/spec.md
+		 */
+		onDocumentKeydown(event) {
+			if (event.key === 'Escape' && this.sidebarOpen) {
+				this.closeSidebar()
+			}
+		},
 
 		/** @spec openspec/changes/runtime-shell/tasks.md#task-6 */
 		toggleSidebar() {
@@ -303,9 +369,22 @@ export default {
 					name: this.t('launchpad', 'My dashboard'),
 				})
 			} catch (error) {
-				console.error('[WorkspaceApp] Failed to create first dashboard:', error)
+				logger.error(
+					'[WorkspaceApp] Failed to create first dashboard:',
+					error,
+				)
 			}
 		},
+
+		/*
+		 * tile-quick-search host wiring (label resolution, dimming,
+		 * activation, fallback, focus-grid) used to live here, when the
+		 * search bar was page chrome this component owned. Search is now a
+		 * placeable widget: the effects live in
+		 * `src/composables/useTileSearchHost.js`, dimming is reactive state
+		 * in `src/stores/tileSearch.js`, and `SearchWidget.vue` wires them
+		 * together.
+		 */
 	},
 }
 </script>
@@ -408,6 +487,18 @@ export default {
 	overflow: auto;
 }
 
+/* `tabindex="-1"` makes the grid a programmatic-only focus target (REQ-
+   QSEARCH-003 Esc-returns-focus scenario) — it never joins the tab order,
+   so it needs no visible focus ring for keyboard *tabbing* users, but a
+   ring on programmatic focus still helps orient someone who just pressed
+   Esc from the search bar. */
+.workspace-shell__grid:focus-visible {
+	outline: 2px solid var(--color-primary-element, #0082c9);
+	outline-offset: -2px;
+}
+
+/* tile-quick-search REQ-QSEARCH-001: the bar sits above the tile grid,
+   full width, matching the title-strip's horizontal padding. */
 .workspace-shell__empty {
 	display: flex;
 	flex-direction: column;

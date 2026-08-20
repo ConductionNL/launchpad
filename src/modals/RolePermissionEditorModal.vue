@@ -1,35 +1,50 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<NcModal @close="$emit('close')">
 		<div class="launchpad-admin__editor">
-			<h3>{{ row.id ? t('launchpad', 'Edit role permission') : t('launchpad', 'Add role permission') }}</h3>
-			<NcTextField :value="row.name"
+			<h3>
+				{{
+					row.id
+						? t('launchpad', 'Edit role permission')
+						: t('launchpad', 'Add role permission')
+				}}
+			</h3>
+			<!-- @nextcloud/vue@9: `value` + `update:value` became
+			     `modelValue` + `update:modelValue`; the old pair is a
+			     silent no-op under Vue 3. Listener stays camelCase. -->
+			<NcTextField
+				:modelValue="row.name"
 				:label="t('launchpad', 'Name')"
 				required
-				@update:value="updateRow('name', $event)" />
-			<NcTextField :value="row.groupId"
+				@update:modelValue="updateRow('name', $event)" />
+			<NcTextField
+				:modelValue="row.groupId"
 				:label="t('launchpad', 'Nextcloud group ID')"
 				required
 				:disabled="!!row.id"
-				@update:value="updateRow('groupId', $event)" />
-			<NcTextField :value="row.description"
+				@update:modelValue="updateRow('groupId', $event)" />
+			<NcTextField
+				:modelValue="row.description"
 				:label="t('launchpad', 'Description (optional)')"
-				@update:value="updateRow('description', $event)" />
-			<NcTextField :value="allowedWidgetsCsv"
+				@update:modelValue="updateRow('description', $event)" />
+			<NcTextField
+				:modelValue="allowedWidgetsCsv"
 				:label="t('launchpad', 'Allowed widget IDs (comma separated)')"
-				@update:value="$emit('update:allowedWidgetsCsv', $event)" />
-			<NcTextField :value="deniedWidgetsCsv"
+				@update:modelValue="$emit('update:allowedWidgetsCsv', $event)" />
+			<NcTextField
+				:modelValue="deniedWidgetsCsv"
 				:label="t('launchpad', 'Denied widget IDs (comma separated)')"
-				@update:value="$emit('update:deniedWidgetsCsv', $event)" />
+				@update:modelValue="$emit('update:deniedWidgetsCsv', $event)" />
 			<div class="launchpad-admin__editor-actions">
-				<NcButton type="tertiary" @click="$emit('close')">
+				<NcButton variant="tertiary" @click="$emit('close')">
 					{{ t('launchpad', 'Cancel') }}
 				</NcButton>
-				<NcButton type="primary"
+				<NcButton
+					variant="primary"
 					:disabled="saving || !row.name || !row.groupId"
 					@click="$emit('save')">
 					{{ t('launchpad', 'Save') }}
@@ -40,11 +55,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcModal,
-	NcTextField,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcModal, NcTextField } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'RolePermissionEditorModal',
@@ -60,14 +71,17 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		allowedWidgetsCsv: {
 			type: String,
 			default: '',
 		},
+
 		deniedWidgetsCsv: {
 			type: String,
 			default: '',
 		},
+
 		saving: {
 			type: Boolean,
 			default: false,
@@ -83,7 +97,14 @@ export default {
 	],
 
 	methods: {
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Emit the edited row with one field replaced. The row prop is
+		 * never mutated in place.
+		 *
+		 * @param {string} key Field to change.
+		 * @param {string|number|boolean|string[]} value New value for that field.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		updateRow(key, value) {
 			this.$emit('update:row', { ...this.row, [key]: value })
 		},

@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -39,233 +39,229 @@ use Throwable;
 /**
  * `launchpad:setup` console command.
  */
-class SetupCommand extends Command
-{
-    /**
-     * Constructor.
-     *
-     * @param SetupWizardService   $wizardService Wizard orchestrator.
-     * @param AdminSettingsService $settings      Group-order persistence
-     *                                            (Step 3 in the YAML
-     *                                            schema).
-     */
-    public function __construct(
-        private readonly SetupWizardService $wizardService,
-        private readonly AdminSettingsService $settings,
-    ) {
-        parent::__construct();
-    }//end __construct()
+class SetupCommand extends Command {
+	/**
+	 * Constructor.
+	 *
+	 * @param SetupWizardService $wizardService Wizard orchestrator.
+	 * @param AdminSettingsService $settings Group-order persistence
+	 *                                       (Step 3 in the YAML
+	 *                                       schema).
+	 */
+	public function __construct(
+		private readonly SetupWizardService $wizardService,
+		private readonly AdminSettingsService $settings,
+	) {
+		parent::__construct();
+	}//end __construct()
 
-    /**
-     * Configure CLI options.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/setup-wizard/spec.md
-     */
-    protected function configure(): void
-    {
-        $this->setName(name: 'launchpad:setup')
-            ->setDescription(
-                description: 'Run the LaunchPad setup wizard non-interactively from a YAML config (REQ-WIZ-010).'
-            )
-            ->addOption(
-                name: 'config',
-                shortcut: 'c',
-                mode: InputOption::VALUE_REQUIRED,
-                description: 'Path to the YAML config file describing every step.'
-            );
-    }//end configure()
+	/**
+	 * Configure CLI options.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	protected function configure(): void {
+		$this->setName(name: 'launchpad:setup')
+			->setDescription(
+				description: 'Run the LaunchPad setup wizard non-interactively from a YAML config (REQ-WIZ-010).'
+			)
+			->addOption(
+				name: 'config',
+				shortcut: 'c',
+				mode: InputOption::VALUE_REQUIRED,
+				description: 'Path to the YAML config file describing every step.'
+			);
+	}//end configure()
 
-    /**
-     * Execute the wizard from a YAML file.
-     *
-     * @param InputInterface  $input  CLI input.
-     * @param OutputInterface $output CLI output.
-     *
-     * @return int Exit code (0 success, 1 error).
-     *
-     * @spec openspec/specs/setup-wizard/spec.md
-     */
-    protected function execute(
-        InputInterface $input,
-        OutputInterface $output
-    ): int {
-        $configPath = (string) ($input->getOption(name: 'config') ?? '');
+	/**
+	 * Execute the wizard from a YAML file.
+	 *
+	 * @param InputInterface $input CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return int Exit code (0 success, 1 error).
+	 *
+	 * @spec openspec/specs/setup-wizard/spec.md
+	 */
+	protected function execute(
+		InputInterface $input,
+		OutputInterface $output,
+	): int {
+		$configPath = (string)($input->getOption(name: 'config') ?? '');
 
-        if ($configPath === '') {
-            $output->writeln(messages: '<error>--config parameter is required</error>');
-            return self::FAILURE;
-        }
+		if ($configPath === '') {
+			$output->writeln(messages: '<error>--config parameter is required</error>');
+			return self::FAILURE;
+		}
 
-        if (file_exists(filename: $configPath) === false) {
-            $output->writeln(messages: '<error>File not found: '.$configPath.'</error>');
-            return self::FAILURE;
-        }
+		if (file_exists(filename: $configPath) === false) {
+			$output->writeln(messages: '<error>File not found: ' . $configPath . '</error>');
+			return self::FAILURE;
+		}
 
-        try {
-            $config = Yaml::parseFile(filename: $configPath);
-        } catch (ParseException $e) {
-            $output->writeln(
-                messages: '<error>Invalid setup.yaml: '.$e->getMessage().'</error>'
-            );
-            return self::FAILURE;
-        }
+		try {
+			$config = Yaml::parseFile(filename: $configPath);
+		} catch (ParseException $e) {
+			$output->writeln(
+				messages: '<error>Invalid setup.yaml: ' . $e->getMessage() . '</error>'
+			);
+			return self::FAILURE;
+		}
 
-        if (is_array($config) === false) {
-            $output->writeln(
-                messages: '<error>Invalid setup.yaml: top-level structure must be a map.</error>'
-            );
-            return self::FAILURE;
-        }
+		if (is_array($config) === false) {
+			$output->writeln(
+				messages: '<error>Invalid setup.yaml: top-level structure must be a map.</error>'
+			);
+			return self::FAILURE;
+		}
 
-        if (isset($config['storage_backend']) === false
-            || is_string($config['storage_backend']) === false
-        ) {
-            $output->writeln(
-                messages: "<error>Invalid setup.yaml: missing field 'storage_backend'</error>"
-            );
-            return self::FAILURE;
-        }
+		if (isset($config['storage_backend']) === false
+			|| is_string($config['storage_backend']) === false
+		) {
+			$output->writeln(
+				messages: "<error>Invalid setup.yaml: missing field 'storage_backend'</error>"
+			);
+			return self::FAILURE;
+		}
 
-        try {
-            $this->applySteps(config: $config, output: $output);
-        } catch (InvalidArgumentException $e) {
-            $output->writeln(messages: '<error>'.$e->getMessage().'</error>');
-            return self::FAILURE;
-        } catch (Throwable $e) {
-            $output->writeln(
-                messages: '<error>Setup failed: '.$e->getMessage().'</error>'
-            );
-            return self::FAILURE;
-        }
+		try {
+			$this->applySteps(config: $config, output: $output);
+		} catch (InvalidArgumentException $e) {
+			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
+			return self::FAILURE;
+		} catch (Throwable $e) {
+			$output->writeln(
+				messages: '<error>Setup failed: ' . $e->getMessage() . '</error>'
+			);
+			return self::FAILURE;
+		}
 
-        $this->wizardService->markWizardComplete();
-        $output->writeln(messages: 'Setup wizard completed successfully.');
-        return self::SUCCESS;
-    }//end execute()
+		$this->wizardService->markWizardComplete();
+		$output->writeln(messages: 'Setup wizard completed successfully.');
+		return self::SUCCESS;
+	}//end execute()
 
-    /**
-     * Apply each non-Welcome step in order, logging progress + idempotency.
-     *
-     * @param array<string,mixed> $config Parsed YAML config.
-     * @param OutputInterface     $output CLI output for progress logging.
-     *
-     * @return void
-     */
-    private function applySteps(array $config, OutputInterface $output): void
-    {
-        $output->writeln(messages: 'Step 1: Welcome... done');
+	/**
+	 * Apply each non-Welcome step in order, logging progress + idempotency.
+	 *
+	 * @param array<string,mixed> $config Parsed YAML config.
+	 * @param OutputInterface $output CLI output for progress logging.
+	 *
+	 * @return void
+	 */
+	private function applySteps(array $config, OutputInterface $output): void {
+		$output->writeln(messages: 'Step 1: Welcome... done');
 
-        $this->applyStorageStep(config: $config, output: $output);
-        $this->applyGroupOrderStep(config: $config, output: $output);
-        $this->skipUnimplementedStep(
-            stepNumber: 4,
-            stepName: 'Demo data',
-            present: array_key_exists(key: 'demo_packages', array: $config),
-            output: $output
-        );
-        $this->skipUnimplementedStep(
-            stepNumber: 5,
-            stepName: 'Admin roles',
-            present: array_key_exists(key: 'admin_role_group', array: $config),
-            output: $output
-        );
-        $this->skipUnimplementedStep(
-            stepNumber: 6,
-            stepName: 'Footer config',
-            present: array_key_exists(key: 'footer_config', array: $config),
-            output: $output
-        );
+		$this->applyStorageStep(config: $config, output: $output);
+		$this->applyGroupOrderStep(config: $config, output: $output);
+		$this->skipUnimplementedStep(
+			stepNumber: 4,
+			stepName: 'Demo data',
+			present: array_key_exists(key: 'demo_packages', array: $config),
+			output: $output
+		);
+		$this->skipUnimplementedStep(
+			stepNumber: 5,
+			stepName: 'Admin roles',
+			present: array_key_exists(key: 'admin_role_group', array: $config),
+			output: $output
+		);
+		$this->skipUnimplementedStep(
+			stepNumber: 6,
+			stepName: 'Footer config',
+			present: array_key_exists(key: 'footer_config', array: $config),
+			output: $output
+		);
 
-        $output->writeln(messages: 'Step 7: Done... done');
-    }//end applySteps()
+		$output->writeln(messages: 'Step 7: Done... done');
+	}//end applySteps()
 
-    /**
-     * Apply Step 2 — storage backend (REQ-WIZ-003).
-     *
-     * @param array<string,mixed> $config Parsed YAML.
-     * @param OutputInterface     $output CLI output.
-     *
-     * @return void
-     */
-    private function applyStorageStep(array $config, OutputInterface $output): void
-    {
-        $current = $this->wizardService->getContentStorage();
-        $target  = (string) $config['storage_backend'];
+	/**
+	 * Apply Step 2 — storage backend (REQ-WIZ-003).
+	 *
+	 * @param array<string,mixed> $config Parsed YAML.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return void
+	 */
+	private function applyStorageStep(array $config, OutputInterface $output): void {
+		$current = $this->wizardService->getContentStorage();
+		$target = (string)$config['storage_backend'];
 
-        if ($current === $target) {
-            $output->writeln(
-                messages: 'Step 2: Storage backend... already configured, skipping'
-            );
-            return;
-        }
+		if ($current === $target) {
+			$output->writeln(
+				messages: 'Step 2: Storage backend... already configured, skipping'
+			);
+			return;
+		}
 
-        $this->wizardService->setContentStorage(value: $target);
-        $output->writeln(messages: 'Step 2: Storage backend... done');
-    }//end applyStorageStep()
+		$this->wizardService->setContentStorage(value: $target);
+		$output->writeln(messages: 'Step 2: Storage backend... done');
+	}//end applyStorageStep()
 
-    /**
-     * Apply Step 3 — group priority order (REQ-WIZ-004).
-     *
-     * @param array<string,mixed> $config Parsed YAML.
-     * @param OutputInterface     $output CLI output.
-     *
-     * @return void
-     */
-    private function applyGroupOrderStep(
-        array $config,
-        OutputInterface $output
-    ): void {
-        if (array_key_exists(key: 'group_priority_order', array: $config) === false) {
-            $output->writeln(messages: 'Step 3: Group order... skipped (not in config)');
-            return;
-        }
+	/**
+	 * Apply Step 3 — group priority order (REQ-WIZ-004).
+	 *
+	 * @param array<string,mixed> $config Parsed YAML.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return void
+	 */
+	private function applyGroupOrderStep(
+		array $config,
+		OutputInterface $output,
+	): void {
+		if (array_key_exists(key: 'group_priority_order', array: $config) === false) {
+			$output->writeln(messages: 'Step 3: Group order... skipped (not in config)');
+			return;
+		}
 
-        $groups = $config['group_priority_order'];
-        if (is_array($groups) === false) {
-            throw new InvalidArgumentException(
-                message: "Invalid setup.yaml: 'group_priority_order' must be a list of strings"
-            );
-        }
+		$groups = $config['group_priority_order'];
+		if (is_array($groups) === false) {
+			throw new InvalidArgumentException(
+				message: "Invalid setup.yaml: 'group_priority_order' must be a list of strings"
+			);
+		}
 
-        $current = $this->settings->getGroupOrder();
-        if ($current === array_values(array: $groups)) {
-            $output->writeln(
-                messages: 'Step 3: Group order... already configured, skipping'
-            );
-            return;
-        }
+		$current = $this->settings->getGroupOrder();
+		if ($current === array_values(array: $groups)) {
+			$output->writeln(
+				messages: 'Step 3: Group order... already configured, skipping'
+			);
+			return;
+		}
 
-        $this->settings->setGroupOrder(groupIds: $groups);
-        $output->writeln(messages: 'Step 3: Group order... done');
-    }//end applyGroupOrderStep()
+		$this->settings->setGroupOrder(groupIds: $groups);
+		$output->writeln(messages: 'Step 3: Group order... done');
+	}//end applyGroupOrderStep()
 
-    /**
-     * Log a placeholder for steps whose sibling capabilities ship later.
-     *
-     * @param int             $stepNumber Step index for the log line.
-     * @param string          $stepName   Human-readable step name.
-     * @param bool            $present    Whether the YAML key was provided.
-     * @param OutputInterface $output     CLI output.
-     *
-     * @return void
-     */
-    private function skipUnimplementedStep(
-        int $stepNumber,
-        string $stepName,
-        bool $present,
-        OutputInterface $output
-    ): void {
-        if ($present === false) {
-            $output->writeln(
-                messages: 'Step '.$stepNumber.': '.$stepName.'... skipped (not in config)'
-            );
-            return;
-        }
+	/**
+	 * Log a placeholder for steps whose sibling capabilities ship later.
+	 *
+	 * @param int $stepNumber Step index for the log line.
+	 * @param string $stepName Human-readable step name.
+	 * @param bool $present Whether the YAML key was provided.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return void
+	 */
+	private function skipUnimplementedStep(
+		int $stepNumber,
+		string $stepName,
+		bool $present,
+		OutputInterface $output,
+	): void {
+		if ($present === false) {
+			$output->writeln(
+				messages: 'Step ' . $stepNumber . ': ' . $stepName . '... skipped (not in config)'
+			);
+			return;
+		}
 
-        $output->writeln(
-            messages: 'Step '.$stepNumber.': '.$stepName.'... skipped (capability pending)'
-        );
-    }//end skipUnimplementedStep()
+		$output->writeln(
+			messages: 'Step ' . $stepNumber . ': ' . $stepName . '... skipped (capability pending)'
+		);
+	}//end skipUnimplementedStep()
 }//end class

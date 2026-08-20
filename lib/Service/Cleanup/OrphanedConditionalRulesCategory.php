@@ -20,8 +20,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -33,90 +33,83 @@ use OCA\LaunchPad\Db\ConditionalRuleMapper;
 /**
  * Sweeps conditional-rule rows whose placement no longer exists.
  */
-class OrphanedConditionalRulesCategory implements CleanupCategoryInterface
-{
-    /**
-     * Stable category identifier.
-     *
-     * @var string
-     */
-    public const NAME = 'orphaned_conditional_rules';
+class OrphanedConditionalRulesCategory implements CleanupCategoryInterface {
+	/**
+	 * Stable category identifier.
+	 *
+	 * @var string
+	 */
+	public const NAME = 'orphaned_conditional_rules';
 
-    /**
-     * Constructor.
-     *
-     * @param ConditionalRuleMapper $ruleMapper The rule mapper.
-     */
-    public function __construct(
-        private readonly ConditionalRuleMapper $ruleMapper,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param ConditionalRuleMapper $ruleMapper The rule mapper.
+	 */
+	public function __construct(
+		private readonly ConditionalRuleMapper $ruleMapper,
+	) {
+	}//end __construct()
 
-    /**
-     * Stable identifier.
-     *
-     * @return string The identifier.
-     */
-    public function getName(): string
-    {
-        return self::NAME;
-    }//end getName()
+	/**
+	 * Stable identifier.
+	 *
+	 * @return string The identifier.
+	 */
+	public function getName(): string {
+		return self::NAME;
+	}//end getName()
 
-    /**
-     * Human-readable label.
-     *
-     * @return string The label.
-     */
-    public function getDisplayName(): string
-    {
-        return 'Conditional rules without a parent placement';
-    }//end getDisplayName()
+	/**
+	 * Human-readable label.
+	 *
+	 * @return string The label.
+	 */
+	public function getDisplayName(): string {
+		return 'Conditional rules without a parent placement';
+	}//end getDisplayName()
 
-    /**
-     * Tier-B — admin-authored visibility logic is potentially worth
-     * recovering, so this category is opt-in only.
-     *
-     * @return bool False.
-     */
-    public function getSafeToPurgeAutomatically(): bool
-    {
-        return false;
-    }//end getSafeToPurgeAutomatically()
+	/**
+	 * Tier-B — admin-authored visibility logic is potentially worth
+	 * recovering, so this category is opt-in only.
+	 *
+	 * @return bool False.
+	 */
+	public function getSafeToPurgeAutomatically(): bool {
+		return false;
+	}//end getSafeToPurgeAutomatically()
 
-    /**
-     * Always available — `launchpad_conditional_rules` ships in the core
-     * schema.
-     *
-     * @return bool True.
-     */
-    public function isAvailable(): bool
-    {
-        return true;
-    }//end isAvailable()
+	/**
+	 * Always available — `launchpad_conditional_rules` ships in the core
+	 * schema.
+	 *
+	 * @return bool True.
+	 */
+	public function isAvailable(): bool {
+		return true;
+	}//end isAvailable()
 
-    /**
-     * Count orphan conditional-rule rows.
-     *
-     * @return int The orphan count.
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    public function scan(): int
-    {
-        return $this->ruleMapper->countOrphaned();
-    }//end scan()
+	/**
+	 * Count orphan conditional-rule rows.
+	 *
+	 * @return int The orphan count.
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	public function scan(): int {
+		return $this->ruleMapper->countOrphaned();
+	}//end scan()
 
-    /**
-     * Delete orphan conditional-rule rows.
-     *
-     * @param bool $dryRun True for dry-run.
-     *
-     * @return int The number of rows deleted.
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    public function purge(bool $dryRun=false): int
-    {
-        return $this->ruleMapper->deleteOrphaned();
-    }//end purge()
+	/**
+	 * Delete orphan conditional-rule rows.
+	 *
+	 * @param bool $dryRun True for dry-run.
+	 *
+	 * @return int The number of rows deleted.
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	public function purge(bool $dryRun = false): int {
+		return $this->ruleMapper->deleteOrphaned();
+	}//end purge()
 }//end class

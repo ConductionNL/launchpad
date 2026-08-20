@@ -14,7 +14,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -32,59 +32,56 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for WidgetPlacementsListener stub.
  */
-class WidgetPlacementsListenerTest extends TestCase
-{
-    /**
-     * The stub handles a DashboardDeletedEvent without throwing.
-     *
-     * REQ-CSC-003 stub registration; live cleanup is owned by the
-     * placements subsystem (downstream proposal).
-     *
-     * @return void
-     */
-    public function testHandlesDashboardDeletedEventWithoutThrowing(): void
-    {
-        $logger         = $this->createMock(originalClassName: LoggerInterface::class);
-        $placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-        $placementMapper->method('deleteByDashboardUuid')->willReturn(0);
-        $listener = new WidgetPlacementsListener(
-            placementMapper: $placementMapper,
-            logger: $logger
-        );
+class WidgetPlacementsListenerTest extends TestCase {
+	/**
+	 * The stub handles a DashboardDeletedEvent without throwing.
+	 *
+	 * REQ-CSC-003 stub registration; live cleanup is owned by the
+	 * placements subsystem (downstream proposal).
+	 *
+	 * @return void
+	 */
+	public function testHandlesDashboardDeletedEventWithoutThrowing(): void {
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+		$placementMapper->method('deleteByDashboardUuid')->willReturn(0);
+		$listener = new WidgetPlacementsListener(
+			placementMapper: $placementMapper,
+			logger: $logger
+		);
 
-        $event = new DashboardDeletedEvent(
-            dashboardUuid: 'abc-123',
-            ownerUserId: 'alice',
-            type: 'user',
-            deletedAt: new DateTimeImmutable(),
-        );
+		$event = new DashboardDeletedEvent(
+			dashboardUuid: 'abc-123',
+			ownerUserId: 'alice',
+			type: 'user',
+			deletedAt: new DateTimeImmutable(),
+		);
 
-        $listener->handle(event: $event);
+		$listener->handle(event: $event);
 
-        $this->expectNotToPerformAssertions();
-    }//end testHandlesDashboardDeletedEventWithoutThrowing()
+		$this->expectNotToPerformAssertions();
+	}//end testHandlesDashboardDeletedEventWithoutThrowing()
 
-    /**
-     * The stub silently ignores events of a foreign type — the
-     * `instanceof` guard short-circuits.
-     *
-     * @return void
-     */
-    public function testIgnoresForeignEventTypes(): void
-    {
-        $logger          = $this->createMock(originalClassName: LoggerInterface::class);
-        $placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
-        $listener        = new WidgetPlacementsListener(
-            placementMapper: $placementMapper,
-            logger: $logger
-        );
+	/**
+	 * The stub silently ignores events of a foreign type — the
+	 * `instanceof` guard short-circuits.
+	 *
+	 * @return void
+	 */
+	public function testIgnoresForeignEventTypes(): void {
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+		$listener = new WidgetPlacementsListener(
+			placementMapper: $placementMapper,
+			logger: $logger
+		);
 
-        $foreignEvent = new class extends Event {
-        };
+		$foreignEvent = new class extends Event {
+		};
 
-        $logger->expects($this->never())->method(constraint: 'debug');
-        $logger->expects($this->never())->method(constraint: 'warning');
+		$logger->expects($this->never())->method(constraint: 'debug');
+		$logger->expects($this->never())->method(constraint: 'warning');
 
-        $listener->handle(event: $foreignEvent);
-    }//end testIgnoresForeignEventTypes()
+		$listener->handle(event: $foreignEvent);
+	}//end testIgnoresForeignEventTypes()
 }//end class

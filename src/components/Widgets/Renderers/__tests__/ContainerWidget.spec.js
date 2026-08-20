@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `ContainerWidget.vue` covering REQ-CONT-001
  * (registration), REQ-CONT-002 (inner grid bounded), REQ-CONT-003
@@ -10,15 +10,15 @@
  * cleanup contract on beforeDestroy.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import ContainerWidget from '../ContainerWidget.vue'
 
 beforeEach(() => {
 	globalThis.t = (_app, key, vars) => {
 		if (vars && typeof key === 'string') {
 			return key.replace(/\{(\w+)\}/g, (_, name) =>
-				Object.prototype.hasOwnProperty.call(vars, name) ? vars[name] : `{${name}}`,
+				Object.hasOwn(vars, name) ? vars[name] : `{${name}}`,
 			)
 		}
 		return key
@@ -40,8 +40,24 @@ describe('ContainerWidget — REQ-CONT-002 inner grid surface', () => {
 			propsData: {
 				content: {
 					placements: [
-						{ id: 1, type: 'label', content: { text: 'Hi' }, gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 },
-						{ id: 2, type: 'label', content: { text: 'There' }, gridX: 2, gridY: 0, gridWidth: 2, gridHeight: 2 },
+						{
+							id: 1,
+							type: 'label',
+							content: { text: 'Hi' },
+							gridX: 0,
+							gridY: 0,
+							gridWidth: 2,
+							gridHeight: 2,
+						},
+						{
+							id: 2,
+							type: 'label',
+							content: { text: 'There' },
+							gridX: 2,
+							gridY: 0,
+							gridWidth: 2,
+							gridHeight: 2,
+						},
 					],
 				},
 			},
@@ -57,7 +73,15 @@ describe('ContainerWidget — REQ-CONT-003 recursive dispatch', () => {
 			propsData: {
 				content: {
 					placements: [
-						{ id: 1, type: 'label', content: { text: 'A' }, gridX: 0, gridY: 0, gridWidth: 2, gridHeight: 2 },
+						{
+							id: 1,
+							type: 'label',
+							content: { text: 'A' },
+							gridX: 0,
+							gridY: 0,
+							gridWidth: 2,
+							gridHeight: 2,
+						},
 					],
 				},
 			},
@@ -125,13 +149,13 @@ describe('ContainerWidget — content rendering', () => {
 })
 
 describe('ContainerWidget — cleanup', () => {
-	it('beforeDestroy nulls the gridInstance reference (idempotent)', () => {
+	it('beforeUnmount nulls the gridInstance reference (idempotent)', () => {
 		const wrapper = mount(ContainerWidget, {
 			propsData: { content: { placements: [] } },
 		})
 		// We don't actually init GridStack in JSDOM (the dynamic import
-		// silently bails) — but the destroy path still runs and must
+		// silently bails) — but the teardown path still runs and must
 		// remain a no-op.
-		expect(() => wrapper.destroy()).not.toThrow()
+		expect(() => wrapper.unmount()).not.toThrow()
 	})
 })

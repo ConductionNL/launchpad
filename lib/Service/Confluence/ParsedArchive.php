@@ -15,8 +15,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -26,47 +26,44 @@ namespace OCA\LaunchPad\Service\Confluence;
 /**
  * Structured representation of a Confluence HTML export archive.
  */
-class ParsedArchive
-{
-    /**
-     * Constructor.
-     *
-     * @param ParsedPage[]      $pages       Every parsed page.
-     * @param array<int,string> $attachments In-archive paths under
-     *                                       `attachments/`.
-     * @param array<int,string> $images      In-archive paths under
-     *                                       `images/`.
-     * @param array<int,string> $warnings    Non-fatal parsing warnings.
-     */
-    public function __construct(
-        public readonly array $pages,
-        public readonly array $attachments,
-        public readonly array $images,
-        public readonly array $warnings,
-    ) {
-    }//end __construct()
+class ParsedArchive {
+	/**
+	 * Constructor.
+	 *
+	 * @param ParsedPage[] $pages Every parsed page.
+	 * @param array<int,string> $attachments In-archive paths under
+	 *                                       `attachments/`.
+	 * @param array<int,string> $images In-archive paths under
+	 *                                  `images/`.
+	 * @param array<int,string> $warnings Non-fatal parsing warnings.
+	 */
+	public function __construct(
+		public readonly array $pages,
+		public readonly array $attachments,
+		public readonly array $images,
+		public readonly array $warnings,
+	) {
+	}//end __construct()
 
-    /**
-     * Number of parsed pages.
-     *
-     * @return int The page count.
-     *
-     * @spec openspec/specs/confluence-html-import/spec.md
-     */
-    public function pageCount(): int
-    {
-        return count(value: $this->pages);
-    }//end pageCount()
+	/**
+	 * Number of parsed pages.
+	 *
+	 * @return int The page count.
+	 *
+	 * @spec openspec/specs/confluence-html-import/spec.md
+	 */
+	public function pageCount(): int {
+		return count(value: $this->pages);
+	}//end pageCount()
 
-    /**
-     * Number of attachments + shared images.
-     *
-     * @return int The asset count.
-     *
-     * @spec openspec/specs/confluence-html-import/spec.md
-     */
-    public function attachmentCount(): int
-    {
-        return (count(value: $this->attachments) + count(value: $this->images));
-    }//end attachmentCount()
+	/**
+	 * Number of attachments + shared images.
+	 *
+	 * @return int The asset count.
+	 *
+	 * @spec openspec/specs/confluence-html-import/spec.md
+	 */
+	public function attachmentCount(): int {
+		return (count(value: $this->attachments) + count(value: $this->images));
+	}//end attachmentCount()
 }//end class

@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -39,148 +39,142 @@ use OCP\IGroupManager;
 use OCP\Settings\IDelegatedSettings;
 use OCP\Util;
 
-class LaunchPadAdmin implements IDelegatedSettings
-{
-    /**
-     * Constructor.
-     *
-     * @param IInitialState        $initialState     The Nextcloud initial-state service.
-     * @param IGroupManager        $groupManager     Group manager (full group list).
-     * @param WidgetService        $widgetService    Available-widgets descriptor formatter.
-     * @param AdminSettingMapper   $settingMapper    Admin settings store
-     *                                               (legacy configured-groups list).
-     * @param AdminSettingsService $settingsService  Admin-settings service exposing
-     *                                               the `group_order` setting
-     *                                               (REQ-ASET-012).
-     * @param DashboardService     $dashboardService Dashboard service exposing
-     *                                               the `allow_user_dashboards`
-     *                                               flag (REQ-ASET-003).
-     * @param FileService          $fileService      link-button-widget extension
-     *                                               allow-list reader.
-     */
-    public function __construct(
-        private readonly IInitialState $initialState,
-        private readonly IGroupManager $groupManager,
-        private readonly WidgetService $widgetService,
-        private readonly AdminSettingMapper $settingMapper,
-        private readonly AdminSettingsService $settingsService,
-        private readonly DashboardService $dashboardService,
-        private readonly FileService $fileService,
-    ) {
-    }//end __construct()
+class LaunchPadAdmin implements IDelegatedSettings {
+	/**
+	 * Constructor.
+	 *
+	 * @param IInitialState $initialState The Nextcloud initial-state service.
+	 * @param IGroupManager $groupManager Group manager (full group list).
+	 * @param WidgetService $widgetService Available-widgets descriptor formatter.
+	 * @param AdminSettingMapper $settingMapper Admin settings store
+	 *                                          (legacy configured-groups list).
+	 * @param AdminSettingsService $settingsService Admin-settings service exposing
+	 *                                              the `group_order` setting
+	 *                                              (REQ-ASET-012).
+	 * @param DashboardService $dashboardService Dashboard service exposing
+	 *                                           the `allow_user_dashboards`
+	 *                                           flag (REQ-ASET-003).
+	 * @param FileService $fileService link-button-widget extension
+	 *                                 allow-list reader.
+	 */
+	public function __construct(
+		private readonly IInitialState $initialState,
+		private readonly IGroupManager $groupManager,
+		private readonly WidgetService $widgetService,
+		private readonly AdminSettingMapper $settingMapper,
+		private readonly AdminSettingsService $settingsService,
+		private readonly DashboardService $dashboardService,
+		private readonly FileService $fileService,
+	) {
+	}//end __construct()
 
-    /**
-     * Get the admin settings form.
-     *
-     * Wires the full admin initial-state contract (REQ-INIT-002) before
-     * rendering the template — every required key is set on the builder
-     * so the page never renders with a partial payload.
-     *
-     * NOTE: Nextcloud admin-UI registration boilerplate; behaviour defined
-     * by the OCP\Settings\ISettings contract, not a LaunchPad spec. Intentionally
-     * left without an `@spec` tag (see
-     * `openspec/changes/archive/2026-05-03-spec-annotation-pass/design.md`).
-     *
-     * @return TemplateResponse The template response.
-     */
-    public function getForm(): TemplateResponse
-    {
-        Util::addScript(
-            application: Application::APP_ID,
-            file: 'launchpad-admin'
-        );
+	/**
+	 * Get the admin settings form.
+	 *
+	 * Wires the full admin initial-state contract (REQ-INIT-002) before
+	 * rendering the template — every required key is set on the builder
+	 * so the page never renders with a partial payload.
+	 *
+	 * NOTE: Nextcloud admin-UI registration boilerplate; behaviour defined
+	 * by the OCP\Settings\ISettings contract, not a LaunchPad spec. Intentionally
+	 * left without an `@spec` tag (see
+	 * `openspec/changes/archive/2026-05-03-spec-annotation-pass/design.md`).
+	 *
+	 * @return TemplateResponse The template response.
+	 */
+	public function getForm(): TemplateResponse {
+		Util::addScript(
+			application: Application::APP_ID,
+			file: 'launchpad-admin'
+		);
 
-        $allGroups = [];
-        foreach ($this->groupManager->search(search: '') as $group) {
-            $allGroups[] = [
-                'id'          => $group->getGID(),
-                'displayName' => $group->getDisplayName(),
-            ];
-        }
+		$allGroups = [];
+		foreach ($this->groupManager->search(search: '') as $group) {
+			$allGroups[] = [
+				'id' => $group->getGID(),
+				'displayName' => $group->getDisplayName(),
+			];
+		}
 
-        // REQ-ASET-012: prefer the new `group_order` setting (defensive
-        // read returns []). Falls back to the legacy `configured_groups`
-        // key for installs that wrote it before the cutover so the
-        // initial render still shows the admin's previous selection.
-        $configuredGroups = $this->settingsService->getGroupOrder();
-        if ($configuredGroups === []) {
-            $legacy = $this->settingMapper->getValue(
-                key: 'configured_groups',
-                default: []
-            );
-            if (is_array($legacy) === true) {
-                $filtered         = array_filter(
-                    array: $legacy,
-                    callback: static function ($entry) {
-                        return is_string($entry) === true && $entry !== '';
-                    }
-                );
-                $configuredGroups = array_values(array: $filtered);
-            }
-        }
+		// REQ-ASET-012: prefer the new `group_order` setting (defensive
+		// read returns []). Falls back to the legacy `configured_groups`
+		// key for installs that wrote it before the cutover so the
+		// initial render still shows the admin's previous selection.
+		$configuredGroups = $this->settingsService->getGroupOrder();
+		if ($configuredGroups === []) {
+			$legacy = $this->settingMapper->getValue(
+				key: 'configured_groups',
+				default: []
+			);
+			if (is_array($legacy) === true) {
+				$filtered = array_filter(
+					array: $legacy,
+					callback: static function ($entry) {
+						return is_string($entry) === true && $entry !== '';
+					}
+				);
+				$configuredGroups = array_values(array: $filtered);
+			}
+		}
 
-        $allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
+		$allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
 
-        (new InitialStateBuilder(
-            initialState: $this->initialState,
-            page: Page::ADMIN
-        ))
-            ->setAllGroups($allGroups)
-            ->setConfiguredGroups($configuredGroups)
-            ->setWidgets($this->widgetService->getAvailableWidgets())
-            ->setAllowUserDashboards($allowUserDashboards)
-            ->setLinkCreateFileExtensions(
-                $this->fileService->getAllowedExtensions()
-            )
-            ->apply();
+		(new InitialStateBuilder(
+			initialState: $this->initialState,
+			page: Page::ADMIN
+		))
+			->setAllGroups($allGroups)
+			->setConfiguredGroups($configuredGroups)
+			->setWidgets($this->widgetService->getAvailableWidgets())
+			->setAllowUserDashboards($allowUserDashboards)
+			->setLinkCreateFileExtensions(
+				$this->fileService->getAllowedExtensions()
+			)
+			->apply();
 
-        return new TemplateResponse(
-            appName: Application::APP_ID,
-            templateName: 'settings/admin'
-        );
-    }//end getForm()
+		return new TemplateResponse(
+			appName: Application::APP_ID,
+			templateName: 'settings/admin'
+		);
+	}//end getForm()
 
-    /**
-     * Get the settings section ID.
-     *
-     * @return string The section ID.
-     */
-    public function getSection(): string
-    {
-        return 'launchpad';
-    }//end getSection()
+	/**
+	 * Get the settings section ID.
+	 *
+	 * @return string The section ID.
+	 */
+	public function getSection(): string {
+		return 'launchpad';
+	}//end getSection()
 
-    /**
-     * Get the settings priority.
-     *
-     * @return int The priority.
-     */
-    public function getPriority(): int
-    {
-        return 10;
-    }//end getPriority()
+	/**
+	 * Get the settings priority.
+	 *
+	 * @return int The priority.
+	 */
+	public function getPriority(): int {
+		return 10;
+	}//end getPriority()
 
-    /**
-     * Human-readable name of the delegated settings section.
-     *
-     * @return string|null The section name, or null to use the section default.
-     */
-    public function getName(): ?string
-    {
-        return null;
-    }//end getName()
+	/**
+	 * Human-readable name of the delegated settings section.
+	 *
+	 * @return string|null The section name, or null to use the section default.
+	 */
+	public function getName(): ?string {
+		return null;
+	}//end getName()
 
-    /**
-     * App config keys an authorized (delegated) admin may manage.
-     *
-     * Returned as a map of appId => list of allowed config keys. LaunchPad
-     * exposes no delegatable sub-keys yet, so this is intentionally empty;
-     * the attribute still scopes the endpoint to full admins.
-     *
-     * @return array<string,string[]> Map of appId to allowed config keys.
-     */
-    public function getAuthorizedAppConfig(): array
-    {
-        return [];
-    }//end getAuthorizedAppConfig()
+	/**
+	 * App config keys an authorized (delegated) admin may manage.
+	 *
+	 * Returned as a map of appId => list of allowed config keys. LaunchPad
+	 * exposes no delegatable sub-keys yet, so this is intentionally empty;
+	 * the attribute still scopes the endpoint to full admins.
+	 *
+	 * @return array<string,string[]> Map of appId to allowed config keys.
+	 */
+	public function getAuthorizedAppConfig(): array {
+		return [];
+	}//end getAuthorizedAppConfig()
 }//end class

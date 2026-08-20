@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -10,7 +10,12 @@
 				{{ t('launchpad', 'Group dashboards') }}
 			</h3>
 			<p class="group-dashboards-tab__lead">
-				{{ t('launchpad', 'Manage dashboards shared with a Nextcloud group. The “Default group” row controls the org-wide default dashboard set.') }}
+				{{
+					t(
+						'launchpad',
+						'Manage dashboards shared with a Nextcloud group. The “Default group” row controls the org-wide default dashboard set.',
+					)
+				}}
 			</p>
 		</div>
 
@@ -27,13 +32,21 @@
 			v-else-if="groups.length === 0"
 			data-test="group-dashboards-empty"
 			:name="t('launchpad', 'No groups configured')"
-			:description="t('launchpad', 'Add Nextcloud groups via the Sharing tab to start managing per-group dashboards.')">
+			:description="
+				t(
+					'launchpad',
+					'Add Nextcloud groups via the Sharing tab to start managing per-group dashboards.',
+				)
+			">
 			<template #icon>
 				<AccountMultipleIcon :size="48" />
 			</template>
 		</NcEmptyContent>
 
-		<ul v-else class="group-dashboards-tab__list" data-test="group-dashboards-list">
+		<ul
+			v-else
+			class="group-dashboards-tab__list"
+			data-test="group-dashboards-list">
 			<li
 				v-for="group in groups"
 				:key="group.id"
@@ -54,19 +67,19 @@
 				</div>
 				<div class="group-dashboards-tab__row-actions">
 					<NcButton
-						type="tertiary"
+						variant="tertiary"
 						:data-test="`group-dashboards-view-${group.id}`"
 						@click="onView(group)">
 						{{ t('launchpad', 'View') }}
 					</NcButton>
 					<NcButton
-						type="secondary"
+						variant="secondary"
 						:data-test="`group-dashboards-create-${group.id}`"
 						@click="onCreate(group)">
 						{{ t('launchpad', 'Create group dashboard') }}
 					</NcButton>
 					<NcButton
-						type="primary"
+						variant="primary"
 						:data-test="`group-dashboards-manage-${group.id}`"
 						@click="onManage(group)">
 						{{ t('launchpad', 'Manage') }}
@@ -89,16 +102,11 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-	NcLoadingIcon,
-} from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import AccountMultipleIcon from 'vue-material-design-icons/AccountMultiple.vue'
-
+import CreateGroupDashboardModal from '../../../dialogs/CreateGroupDashboardModal.vue'
+import ManageGroupDashboardsModal from '../../../dialogs/ManageGroupDashboardsModal.vue'
 import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
-import CreateGroupDashboardModal from '../group/CreateGroupDashboardModal.vue'
-import ManageGroupDashboardsModal from '../group/ManageGroupDashboardsModal.vue'
 
 /**
  * GroupDashboardsTab — Beheer ▸ Group dashboards (admin-group-management
@@ -134,18 +142,28 @@ export default {
 		groups() {
 			return this.store.groups
 		},
+
 		loading() {
 			return this.store.loading
 		},
 	},
 
+	/**
+	 * Load the group list and their dashboard counts on mount, so the tab's
+	 * badges are populated on first paint.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md#req-dash-015-admin-group-management-ui
+	 * @return {Promise<void>}
+	 */
 	async created() {
 		await this.store.fetchGroups()
 		// Eagerly fetch dashboard counts so the badges render on first
 		// paint. Per-group requests run in parallel; the per-group endpoint
 		// is already paginated server side so this stays cheap.
 		await Promise.all(
-			this.groups.map((g) => this.store.fetchGroupDashboards(g.id).catch(() => null)),
+			this.groups.map((g) =>
+				this.store.fetchGroupDashboards(g.id).catch(() => null),
+			),
 		)
 	},
 

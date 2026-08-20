@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -25,9 +25,7 @@
 -->
 
 <template>
-	<footer
-		class="dashboard-switcher-sidebar-footer"
-		data-testid="sidebar-footer">
+	<footer class="dashboard-switcher-sidebar-footer" data-testid="sidebar-footer">
 		<a
 			class="dashboard-switcher-sidebar-footer__doc-link"
 			:href="docsUrl"
@@ -53,7 +51,7 @@
 					<img
 						:src="sendentLogo"
 						alt="Sendent"
-						class="dashboard-switcher-sidebar-footer__brand-image">
+						class="dashboard-switcher-sidebar-footer__brand-image" />
 				</a>
 				<a
 					class="dashboard-switcher-sidebar-footer__brand-link"
@@ -64,7 +62,7 @@
 					<img
 						:src="conductionLogo"
 						alt="Conduction"
-						class="dashboard-switcher-sidebar-footer__brand-image dashboard-switcher-sidebar-footer__brand-image--invert">
+						class="dashboard-switcher-sidebar-footer__brand-image dashboard-switcher-sidebar-footer__brand-image--invert" />
 				</a>
 			</div>
 		</div>
@@ -74,7 +72,6 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { generateFilePath } from '@nextcloud/router'
-
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
 
 /**
@@ -100,6 +97,7 @@ export default {
 		docsUrl() {
 			return DOCS_URL
 		},
+
 		/** @spec openspec/specs/footer-customization/spec.md */
 		sendentLogo() {
 			// App Store id is `launchpad` (info.xml) — `launchpad` is only the
@@ -107,6 +105,7 @@ export default {
 			// degrades the URL to /img/... and the logo 404s.
 			return generateFilePath('launchpad', 'img', 'sendent-logo.png')
 		},
+
 		/** @spec openspec/specs/footer-customization/spec.md */
 		conductionLogo() {
 			return generateFilePath('launchpad', 'img', 'conduction-logo.png')
@@ -214,5 +213,17 @@ export default {
  */
 .dashboard-switcher-sidebar-footer__brand-image--invert {
 	filter: var(--background-invert-if-bright, none);
+}
+
+/* WCAG 2.2 AA SC 2.3.3 (Animation from Interactions). Honour the OS-level
+   "reduce motion" setting on both hover transitions in this footer: the
+   colour still changes, only the interpolation between the two colours is
+   dropped. `0.01ms` rather than `0` keeps `transitionend` firing for any
+   listener that depends on it. */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar-footer__doc-link,
+	.dashboard-switcher-sidebar-footer__brand-link {
+		transition-duration: 0.01ms;
+	}
 }
 </style>

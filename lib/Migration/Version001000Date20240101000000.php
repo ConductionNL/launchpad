@@ -26,34 +26,33 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Initial migration to create all LaunchPad database tables.
  */
-class Version001000Date20240101000000 extends SimpleMigrationStep
-{
-    /**
-     * Create the initial database schema.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        // Get the schema wrapper.
-        $schema = $schemaClosure();
+class Version001000Date20240101000000 extends SimpleMigrationStep {
+	/**
+	 * Create the initial database schema.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		// Get the schema wrapper.
+		$schema = $schemaClosure();
 
-        MigrationTableBuilder::createDashboardsTable(schema: $schema);
-        MigrationTableBuilder::createWidgetPlacementsTable(
-            schema: $schema
-        );
-        MigrationTableBuilder::createAdminSettingsTable(schema: $schema);
-        MigrationTableBuilder::createConditionalRulesTable(
-            schema: $schema
-        );
+		MigrationTableBuilder::createDashboardsTable(schema: $schema);
+		MigrationTableBuilder::createWidgetPlacementsTable(
+			schema: $schema
+		);
+		MigrationTableBuilder::createAdminSettingsTable(schema: $schema);
+		MigrationTableBuilder::createConditionalRulesTable(
+			schema: $schema
+		);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

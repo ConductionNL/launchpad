@@ -29,30 +29,28 @@ namespace OCA\LaunchPad\Exception;
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-4
  */
-class ShareNotFoundException extends ResourceException
-{
+class ShareNotFoundException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'share_not_found';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'share_not_found';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 404;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 404;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Share not found')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Share not found') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

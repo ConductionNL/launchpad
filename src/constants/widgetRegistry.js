@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Widget registry — LaunchPad's view onto the COMMUNAL dashboard widget
  * catalog. The single source of truth for "what widget types exist" is
@@ -36,25 +36,55 @@
  */
 
 import {
-	dashboardWidgetRegistry,
-	registerDashboardWidget,
-	listWidgetTypes as cnListWidgetTypes,
-	getWidgetTypeEntry as cnGetWidgetTypeEntry,
-	getDefaultContent as cnGetDefaultContent,
 	// Forms for types the communal registry leaves `form: null` (renderer-only
 	// in OpenBuild) but which LaunchPad configures — they rely on LaunchPad-
 	// injected context (NC widget catalog, people API, calendar/graphql sources).
 	CnCalendarWidgetForm as CalendarForm,
-	CnPeopleWidgetForm as PeopleForm,
-	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
+	getDefaultContent as cnGetDefaultContent,
+	getWidgetTypeEntry as cnGetWidgetTypeEntry,
+	listWidgetTypes as cnListWidgetTypes,
+	// Renderer for the `nc-widget` proxy type. The shared bundle exports the
+	// component but (as of beta.155) does NOT self-register the type — see the
+	// registration guard below.
+	CnNcWidgetWidget,
+	dashboardWidgetRegistry,
 	CnNcDashboardWidgetForm as NcDashboardForm,
+	CnPeopleWidgetForm as PeopleForm,
+	registerDashboardWidget,
+	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
+import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+// `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
+// communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
+// self-register into the shared `dashboardWidgetRegistry` below, exactly
+// like the `nc-widget` escape-hatch above, so they flow through the same
+// `CnAddWidgetModal` type picker and `WidgetRenderer` dispatch as every
+// communal type — no LaunchPad-side branching needed.
+import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
+import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
+import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+// `iframe` — embeds an admin-allow-listed external URL in a sandboxed
+// frame, with a client-side graceful-degradation fallback for targets that
+// refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
+// Same LaunchPad-only registration pattern as `clock`/`weather`/`livetile`.
+import IframeWidget from '../components/Widgets/Renderers/IframeWidget.vue'
+import IframeWidgetForm from '../components/Widgets/Renderers/IframeWidgetForm.vue'
 // LaunchPad-specific host wrappers (app-side orchestration, NOT generic
 // dashboard widgets — see docs/migration/widget-library-to-ncvue.md).
 import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue'
-import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
-import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
+// `livetile` — server-fetched, ICache-cached data-bound tile
+// (REQ-LIVETILE-001..005, openspec/specs/live-data-tile-widget/spec.md). Same
+// LaunchPad-only registration pattern as `clock`/`weather`.
+import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
+import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+// `search` — the quick-search / launcher bar, formerly runtime-shell chrome
+// (openspec/specs/tile-quick-search). Registered below like the other
+// LaunchPad-only types.
+import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
+import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
+import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
 /**
  * @typedef {object} WidgetRegistryEntry
@@ -92,6 +122,117 @@ const FORM_OVERRIDES = {
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,
 }
+
+// The shared bundle (beta.155) exports CnNcWidgetWidget but its self-
+// registration side-effect is absent from the published dist, so
+// `getWidgetTypeEntry('nc-widget')` resolves to null. That drops every existing
+// `nc-widget` placement onto WidgetRenderer's legacy callback path — which keys
+// the OCA.Dashboard callback on the literal id `nc-widget` (never registered) —
+// so proxied Nextcloud dashboard widgets (Recommended files, Activity, Deals…)
+// render as blank cards. Register the renderer here so the placements resolve to
+// CnNcWidgetWidget (native callback + OCS item-list fallback). Guarded on the
+// live catalog so this becomes a no-op once nc-vue ships the registration; the
+// FORM_OVERRIDES loop below then layers LaunchPad's config form on top.
+if (!cnGetWidgetTypeEntry('nc-widget')) {
+	registerDashboardWidget('nc-widget', {
+		renderer: CnNcWidgetWidget,
+		form: null,
+		defaultContent: {
+			widgetId: '',
+			displayMode: 'vertical',
+		},
+		displayName: 'Nextcloud widget',
+		icon: 'ViewDashboard',
+	})
+}
+
+// `clock` — fully client-side ambient tile (REQ-CLOCK-001..003). Always
+// (re-)registered here since it is a LaunchPad-only type, never supplied by
+// the communal nc-vue catalog.
+registerDashboardWidget('clock', {
+	renderer: ClockWidget,
+	form: ClockWidgetForm,
+	defaultContent: {
+		style: 'digital',
+		hourFormat: 'auto',
+		timezone: '',
+		showDate: true,
+	},
+	displayName: 'Clock',
+	icon: 'ClockOutline',
+})
+
+// `weather` — server-fetched, ICache-cached ambient tile (REQ-WEATHER-
+// 001..003). Same LaunchPad-only registration pattern as `clock`.
+registerDashboardWidget('weather', {
+	renderer: WeatherWidget,
+	form: WeatherWidgetForm,
+	defaultContent: {
+		location: '',
+		unitsOverride: '',
+	},
+	displayName: 'Weather',
+	icon: 'WeatherPartlyCloudy',
+})
+
+// `livetile` — server-fetched, ICache-cached data-bound tile (REQ-LIVETILE-
+// 001..005). Same LaunchPad-only registration pattern as `clock`/`weather`.
+registerDashboardWidget('livetile', {
+	renderer: LiveTileWidget,
+	form: LiveTileWidgetForm,
+	defaultContent: {
+		label: '',
+		sourceMode: 'url',
+		url: '',
+		sourceId: '',
+		valueExpr: '',
+		refresh: 300,
+		format: { prefix: '', suffix: '', thousands: false },
+		badge: { thresholds: [] },
+		linkUrl: '',
+		linkTarget: 'same-tab',
+	},
+	displayName: 'Live-data tile',
+	icon: 'ChartLine',
+})
+
+// `iframe` — embeds an admin-allow-listed external URL in a sandboxed
+// frame (REQ-IFRAME-001..004). Same LaunchPad-only registration pattern as
+// `clock`/`weather`/`livetile`.
+registerDashboardWidget('iframe', {
+	renderer: IframeWidget,
+	form: IframeWidgetForm,
+	defaultContent: {
+		url: '',
+		title: '',
+		height: 400,
+		aspect: 'none',
+		sandbox: ['allow-scripts', 'allow-same-origin'],
+		allowListChecked: false,
+	},
+	displayName: 'Embedded page',
+	icon: 'Web',
+})
+
+// `search` — the dashboard quick-search / launcher bar (REQ-QSEARCH-001,
+// REQ-QSEARCH-005). Until this change it was page chrome rendered
+// unconditionally by `WorkspaceApp.vue`; it is now placed like any other
+// widget, so an author decides whether a dashboard has one at all and where it
+// sits. Same LaunchPad-only registration pattern as `clock`/`weather`/
+// `livetile`/`iframe`.
+registerDashboardWidget('search', {
+	renderer: SearchWidget,
+	form: SearchWidgetForm,
+	defaultContent: {
+		// Empty = the built-in placeholder, which advertises / and Ctrl+K.
+		placeholder: '',
+		// Empty = inherit the admin `quicksearch_fallback_target` setting, so
+		// a freshly-placed widget matches the old shell bar's behaviour.
+		fallbackTarget: '',
+	},
+	displayName: 'Search',
+	icon: 'Magnify',
+})
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal
 // CnAddWidgetModal (which reads `dashboardWidgetRegistry` directly) can offer +
@@ -157,7 +298,10 @@ function offerableTypes() {
  * @type {Record<string, WidgetRegistryEntry>}
  */
 export const widgetRegistry = Object.fromEntries(
-	offerableTypes().map((type) => [type, decorate(type, dashboardWidgetRegistry[type])]),
+	offerableTypes().map((type) => [
+		type,
+		decorate(type, dashboardWidgetRegistry[type]),
+	]),
 )
 
 /**

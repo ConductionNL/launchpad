@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end tests for AddWidgetModal close-discipline and
  * stale-state scenarios. Covers REQ-WDG-013 (close triggers) and the
@@ -13,13 +13,50 @@
  *   @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request, type APIRequestContext } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
+import { BASE_URL } from './support/baseUrl'
+
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let api: APIRequestContext
+let seeded: SeededDashboard | null = null
 
 // Install a restrictive `default` role-feature-permission; the admin
 // break-glass bypass lets the admin still add widgets (see fixtures helper).
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
+
+	/*
+	 * SEED A DASHBOARD. `gotoLaunchPad()` below waits for
+	 * `.launchpad-sidebar-toggle`, which only renders once a dashboard is
+	 * ACTIVE. `tests/e2e/seed.sh` creates only the `e2e-grantee` user, never a
+	 * dashboard, so on a fresh instance LaunchPad renders its empty state and
+	 * that wait times out — all 4 tests here failed that way in CI run
+	 * 32308042394, each at ~48s.
+	 *
+	 * The spec was depending on a dashboard some earlier spec happened to leave
+	 * behind, which is why it passed on a warm rig and failed on a cold one.
+	 */
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	seeded = await seedActiveDashboard(api, `E2E AddWidget ${Date.now()}`)
+})
+
+test.afterAll(async () => {
+	await removeSeededDashboard(api, seeded)
+	await api?.dispose()
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -34,7 +71,9 @@ async function gotoLaunchPad(page: any) {
 		await page.goto('/index.php/apps/launchpad')
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
 	}
-	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
+	const isSidebarOpen = await page
+		.locator('.dashboard-switcher-sidebar.open')
+		.count()
 	if (isSidebarOpen > 0) {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) {
@@ -51,15 +90,21 @@ async function gotoLaunchPad(page: any) {
 
 async function openSidebar(page: any) {
 	await page.locator('.launchpad-sidebar-toggle').first().click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+		timeout: 8_000,
+	})
 }
 
 async function openAddWidgetModal(page: any) {
-	const sidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
+	const sidebarOpen = await page
+		.locator('.dashboard-switcher-sidebar.open')
+		.count()
 	if (sidebarOpen === 0) {
 		await openSidebar(page)
 	}
-	const personalRow = page.locator('[data-source="user"].dashboard-switcher-sidebar__item').first()
+	const personalRow = page
+		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+		.first()
 	await expect(personalRow).toBeVisible({ timeout: 5_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 
@@ -82,7 +127,9 @@ test.describe('add-widget-modal close discipline', () => {
 	})
 
 	// @e2e add-widget-modal::cancel-closes-without-submit
-	test('Cancel button closes the modal without placing a widget', async ({ page }) => {
+	test('Cancel button closes the modal without placing a widget', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
@@ -91,10 +138,7 @@ test.describe('add-widget-modal close discipline', () => {
 		// Intercept any POST to the placement API — there must be none on cancel.
 		const submissions: string[] = []
 		page.on('request', (req) => {
-			if (
-				req.method() === 'POST'
-				&& /placements|widgets/i.test(req.url())
-			) {
+			if (req.method() === 'POST' && /placements|widgets/i.test(req.url())) {
 				submissions.push(req.url())
 			}
 		})
@@ -109,7 +153,9 @@ test.describe('add-widget-modal close discipline', () => {
 	})
 
 	// @e2e add-widget-modal::esc-closes-without-submit
-	test('Escape key closes the modal without placing a widget', async ({ page }) => {
+	test('Escape key closes the modal without placing a widget', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
@@ -117,10 +163,7 @@ test.describe('add-widget-modal close discipline', () => {
 
 		const submissions: string[] = []
 		page.on('request', (req) => {
-			if (
-				req.method() === 'POST'
-				&& /placements|widgets/i.test(req.url())
-			) {
+			if (req.method() === 'POST' && /placements|widgets/i.test(req.url())) {
 				submissions.push(req.url())
 			}
 		})
@@ -131,7 +174,9 @@ test.describe('add-widget-modal close discipline', () => {
 	})
 
 	// @e2e add-widget-modal::backdrop-click-closes-without-submit
-	test('Clicking the backdrop closes the modal without placing a widget', async ({ page }) => {
+	test('Clicking the backdrop closes the modal without placing a widget', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
@@ -139,10 +184,7 @@ test.describe('add-widget-modal close discipline', () => {
 
 		const submissions: string[] = []
 		page.on('request', (req) => {
-			if (
-				req.method() === 'POST'
-				&& /placements|widgets/i.test(req.url())
-			) {
+			if (req.method() === 'POST' && /placements|widgets/i.test(req.url())) {
 				submissions.push(req.url())
 			}
 		})
@@ -151,7 +193,11 @@ test.describe('add-widget-modal close discipline', () => {
 		// NcModal renders a `.modal-wrapper` or `.nc-modal__wrapper` overlay;
 		// clicking it at the top-left corner (which is outside the dialog box)
 		// triggers the backdrop-click close handler.
-		const backdrop = page.locator('.modal-wrapper, .nc-modal__wrapper, [class*="modal-container"]').first()
+		const backdrop = page
+			.locator(
+				'.modal-wrapper, .nc-modal__wrapper, [class*="modal-container"]',
+			)
+			.first()
 		if (await backdrop.isVisible().catch(() => false)) {
 			const box = await backdrop.boundingBox()
 			if (box) {
@@ -189,7 +235,9 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 	})
 
 	// @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
-	test('right-click Edit reaches the content editor pre-filled with the placement content', async ({ page }) => {
+	test('right-click Edit reaches the content editor pre-filled with the placement content', async ({
+		page,
+	}) => {
 		// FIXED 2026-06-07: the right-click context-menu "Edit" now resolves
 		// the placement's type from its `widgetId` via the registry and opens
 		// the AddWidgetModal in CONTENT edit mode (was: always fell through to
@@ -202,7 +250,10 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		await openAddWidgetModal(page)
 		const addDialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await addDialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
-		await addDialog.getByLabel(/label text/i).first().fill(text)
+		await addDialog
+			.getByLabel(/label text/i)
+			.first()
+			.fill(text)
 		const addBtn = addDialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
 		await addBtn.click()
@@ -210,7 +261,7 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 
 		// Close the sidebar so the placement is interactable.
 		const sidebar = page.locator('.dashboard-switcher-sidebar.open')
-		if (await sidebar.count() > 0) {
+		if ((await sidebar.count()) > 0) {
 			await page.locator('.launchpad-sidebar-toggle').first().click()
 			await page.waitForFunction(
 				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
@@ -218,34 +269,52 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 			)
 		}
 
-		const placement = page.locator('.label-widget').filter({ hasText: text }).first()
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: text })
+			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 
 		// Enter edit mode via the sidebar cog → "Edit dashboard" (cog action,
 		// data-testid="cog-edit-dashboard") so the right-click popover is
 		// available, then close the sidebar.
-		if (await page.locator('.launchpad-edit-mode').count() === 0) {
+		if ((await page.locator('.launchpad-edit-mode').count()) === 0) {
 			await openSidebar(page)
-			const activeRow = page.locator(
-				'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-			).first()
+			const activeRow = page
+				.locator(
+					'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
+				)
+				.first()
 			await activeRow.locator('.dashboard-row-actions button').first().click()
 			await page.locator('[data-testid="cog-edit-dashboard"]').click()
 			await page.waitForSelector('.launchpad-edit-mode', { timeout: 8_000 })
-			const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
+			const closeBtn = page
+				.locator('.dashboard-switcher-sidebar__close')
+				.first()
 			if (await closeBtn.isVisible().catch(() => false)) {
 				await closeBtn.click()
-				await page.waitForFunction(
-					() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-					{ timeout: 5_000 },
-				).catch(() => null)
+				await page
+					.waitForFunction(
+						() =>
+							!document.querySelector(
+								'.dashboard-switcher-sidebar.open',
+							),
+						{ timeout: 5_000 },
+					)
+					.catch(() => null)
 			}
 		}
 
 		// Right-click the rendered widget content to open the popover, then Edit.
-		const cell = page.locator('.grid-stack-item').filter({ hasText: text }).first()
+		const cell = page
+			.locator('.grid-stack-item')
+			.filter({ hasText: text })
+			.first()
 		await expect(cell).toBeVisible({ timeout: 8_000 })
-		await cell.locator('.launchpad-widget__content').first().click({ button: 'right' })
+		await cell
+			.locator('.cn-widget-wrapper__content')
+			.first()
+			.click({ button: 'right' })
 		const menu = page.locator('[data-testid="widget-context-menu"]')
 		await expect(menu).toBeVisible({ timeout: 5_000 })
 		await page.locator('[data-testid="ctx-edit"]').click()
@@ -253,11 +322,16 @@ test.describe('add-widget-modal edit-mode stale-state', () => {
 		// The CONTENT editor opens (primary button reads "Save"), pre-filled
 		// with the saved label text — the no-stale-state contract. Previously
 		// this routed to the STYLE editor (no label-text field, no Save button).
-		const editDialog = page.getByRole('dialog', { name: /(edit|add) widget/i }).first()
+		const editDialog = page
+			.getByRole('dialog', { name: /(edit|add) widget/i })
+			.first()
 		await expect(editDialog).toBeVisible({ timeout: 8_000 })
-		await expect(editDialog.getByLabel(/label text/i).first())
-			.toHaveValue(text, { timeout: 5_000 })
-		await expect(editDialog.getByRole('button', { name: /^save$/i }))
-			.toBeVisible({ timeout: 5_000 })
+		await expect(editDialog.getByLabel(/label text/i).first()).toHaveValue(
+			text,
+			{ timeout: 5_000 },
+		)
+		await expect(
+			editDialog.getByRole('button', { name: /^save$/i }),
+		).toBeVisible({ timeout: 5_000 })
 	})
 })

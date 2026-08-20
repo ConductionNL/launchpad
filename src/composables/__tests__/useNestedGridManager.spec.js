@@ -1,20 +1,20 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `useNestedGridManager.js` covering REQ-CONT-002
  * (inner-grid constants: 4 cols / 40px / 4px / disableOneColumnMode) and
  * REQ-CONT-005 (persistence callback fires when child placements change).
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
-	NESTED_COLUMNS,
-	NESTED_CELL_HEIGHT,
-	NESTED_MARGIN,
-	NESTED_DEFAULT_W,
-	NESTED_DEFAULT_H,
 	getNestedGridOptions,
+	NESTED_CELL_HEIGHT,
+	NESTED_COLUMNS,
+	NESTED_DEFAULT_H,
+	NESTED_DEFAULT_W,
+	NESTED_MARGIN,
 	placeNewWidget,
 	useNestedGridManager,
 } from '../useNestedGridManager.js'

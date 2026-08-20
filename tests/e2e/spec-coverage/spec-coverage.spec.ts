@@ -36,8 +36,20 @@
  *   @e2e label-widget::newly-added-label-uses-registry-defaults
  */
 
-import { test, expect } from '@playwright/test'
+import {
+	test,
+	expect,
+	request as pwRequest,
+	type APIRequestContext,
+} from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl'
+
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+
+const ADMIN_CREDS = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -56,7 +68,9 @@ test.beforeAll(async () => {
 // The sidebar-toggle button is the first stable landmark injected by the Vue
 // bootstrap; we also ensure the sidebar is closed before returning so that
 // the grid and workspace elements are not occluded by the slide-in panel.
-async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? never : any) {
+async function gotoLaunchPad(
+	page: Parameters<typeof test>[1] extends never ? never : any,
+) {
 	// The dev Nextcloud occasionally returns a transient 503 (recurring
 	// needsDbUpgrade blip) right after a write-heavy step; retry the
 	// navigation once so a single blip does not fail an otherwise-green test.
@@ -69,7 +83,9 @@ async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? ne
 	}
 	// Close sidebar if it happened to be open from a prior test run (or from
 	// a redirect that lands with the sidebar pre-open).
-	const isSidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
+	const isSidebarOpen = await page
+		.locator('.dashboard-switcher-sidebar.open')
+		.count()
 	if (isSidebarOpen > 0) {
 		// Click the close button inside the sidebar.
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
@@ -79,7 +95,10 @@ async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? ne
 			// Toggle with the hamburger.
 			await page.locator('.launchpad-sidebar-toggle').first().click()
 		}
-		await page.waitForFunction(() => !document.querySelector('.dashboard-switcher-sidebar.open'), { timeout: 5_000 })
+		await page.waitForFunction(
+			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+			{ timeout: 5_000 },
+		)
 	}
 }
 
@@ -87,21 +106,27 @@ async function gotoLaunchPad(page: Parameters<typeof test>[1] extends never ? ne
 async function openSidebar(page: any) {
 	const toggle = page.locator('.launchpad-sidebar-toggle').first()
 	await toggle.click()
-	await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+	await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+		timeout: 8_000,
+	})
 }
 
 // Open the Add-Widget modal via the per-row cog ("Dashboard menu") on the
 // first personal dashboard row, then wait for the dialog to be visible.
 async function openAddWidgetModal(page: any) {
 	// Ensure the sidebar is open.
-	const sidebarOpen = await page.locator('.dashboard-switcher-sidebar.open').count()
+	const sidebarOpen = await page
+		.locator('.dashboard-switcher-sidebar.open')
+		.count()
 	if (sidebarOpen === 0) {
 		await openSidebar(page)
 	}
 
 	// Click the "Dashboard menu" cog on the first personal dashboard row.
 	// The row attribute is data-source="user".
-	const personalRow = page.locator('[data-source="user"].dashboard-switcher-sidebar__item').first()
+	const personalRow = page
+		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+		.first()
 	await expect(personalRow).toBeVisible({ timeout: 5_000 })
 	await personalRow.locator('.dashboard-row-actions button').first().click()
 
@@ -113,7 +138,9 @@ async function openAddWidgetModal(page: any) {
 	// Wait for the Add Widget dialog to be visible.
 	// Two elements carry role="dialog" for this modal (outer mask + inner pane);
 	// use .first() to avoid strict-mode violations, then assert visibility.
-	await expect(page.getByRole('dialog', { name: /add widget/i }).first()).toBeVisible({ timeout: 10_000 })
+	await expect(
+		page.getByRole('dialog', { name: /add widget/i }).first(),
+	).toBeVisible({ timeout: 10_000 })
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -127,7 +154,9 @@ test.describe('dashboard-switcher sidebar', () => {
 
 	// @e2e dashboard-switcher::all-three-sections-present
 	// @e2e dashboard-switcher::only-personal-dashboards-section-visible
-	test('sidebar opens and shows at least one dashboard section', async ({ page }) => {
+	test('sidebar opens and shows at least one dashboard section', async ({
+		page,
+	}) => {
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
 		await expect(sidebar).toBeVisible()
@@ -142,7 +171,9 @@ test.describe('dashboard-switcher sidebar', () => {
 	})
 
 	// @e2e dashboard-switcher::personal-section-visible-when-allowed-even-with-empty-list
-	test('personal section is visible in admin fixture (allowUserDashboards implied true)', async ({ page }) => {
+	test('personal section is visible in admin fixture (allowUserDashboards implied true)', async ({
+		page,
+	}) => {
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
 		// Admin fixture always has user dashboards; verify the section renders rows.
@@ -150,40 +181,154 @@ test.describe('dashboard-switcher sidebar', () => {
 		await expect(rows.first()).toBeVisible()
 	})
 
+	/*
+	 * BOTH TESTS BELOW USED TO INHERIT THE FLAG THEY NAME, AND BOTH WERE GREEN
+	 * FOR A REASON THAT HAD NOTHING TO DO WITH THEM.
+	 *
+	 * `allow_user_dashboards` is OFF on a fresh instance. The first test
+	 * asserted the card is visible "when personal dashboards are enabled"
+	 * without enabling anything; the second read `GET /api/admin/settings` and
+	 * branched on it, falling through to `allowed = true` whenever the read
+	 * FAILED — so an unreadable settings response silently became "expect the
+	 * card to be visible", which is a check that cannot report its own
+	 * blindness.
+	 *
+	 * They passed because `allow-personal-dashboards-flag.spec.ts` runs
+	 * earlier in alphabetical order and switches the flag on. Measured in run
+	 * 31388540423: with that spec excluded (it is red in the CI fixture), both
+	 * of these went red — while the product was fine.
+	 *
+	 * A test that asserts behaviour under an admin flag has to SET that flag.
+	 * Each now establishes its own precondition and restores it, so the pair
+	 * is a real A/B: the two arms differ only in the setting, which is what
+	 * makes either of them evidence about the setting.
+	 */
+	const SETTINGS_API = '/index.php/apps/launchpad/api/admin/settings'
+
+	/*
+	 * `page.request` is the WRONG CLIENT for the admin API and this is the
+	 * second thing these two tests got wrong. It shares the page's cookie jar,
+	 * so it authenticates by session — and a session-authenticated call to
+	 * these endpoints needs Nextcloud's `requesttoken`, which the fixture does
+	 * not attach. Measured in run 31389746411: `GET /api/admin/settings`
+	 * through `page.request` answered NOT OK, and the previous version of this
+	 * test treated exactly that response as "personal dashboards are enabled".
+	 *
+	 * Every other spec in this repo talks to the API through an explicit
+	 * `Authorization: Basic` context for the same reason. So does this one now.
+	 * `storageState: undefined` keeps the admin session out of it, so the
+	 * header is what decides the caller.
+	 */
+	async function adminApi(): Promise<APIRequestContext> {
+		return pwRequest.newContext({
+			baseURL: BASE,
+			storageState: undefined,
+			extraHTTPHeaders: {
+				'OCS-APIRequest': 'true',
+				Authorization: `Basic ${Buffer.from(`${ADMIN_CREDS.user}:${ADMIN_CREDS.pass}`).toString('base64')}`,
+			},
+		})
+	}
+
+	/** Set `allowUserDashboards` and return the value it had before. */
+	async function setAllowUserDashboards(value: boolean): Promise<boolean> {
+		const api = await adminApi()
+		try {
+			const before = await api.get(SETTINGS_API)
+			expect(
+				before.status(),
+				'the admin settings must be readable — an unreadable response used to be read as "enabled"',
+			).toBe(200)
+			const prior = (await before.json()).allowUserDashboards === true
+			const put = await api.put(SETTINGS_API, {
+				data: { allowUserDash: value },
+			})
+			expect(put.status(), await put.text()).toBeLessThan(300)
+			return prior
+		} finally {
+			await api.dispose()
+		}
+	}
+
 	// @e2e dashboard-switcher::card-visible-with-personal-dashboards-enabled
-	test('Add-Dashboard card renders in sidebar when personal dashboards are enabled', async ({ page }) => {
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
-		await expect(addCard).toBeVisible()
+	test('Add-Dashboard card renders in sidebar when personal dashboards are enabled', async ({
+		page,
+	}) => {
+		const prior = await setAllowUserDashboards(true)
+		try {
+			await gotoLaunchPad(page)
+			await openSidebar(page)
+			const sidebar = page.locator('.dashboard-switcher-sidebar')
+			const addCard = sidebar.getByRole('button', {
+				name: /add dashboard|dashboard toevoegen/i,
+			})
+			await expect(addCard).toBeVisible()
+		} finally {
+			await setAllowUserDashboards(prior)
+		}
 	})
 
 	// @e2e dashboard-switcher::card-hidden-when-personal-dashboards-disabled
-	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({ page }) => {
-		// Check the current admin setting and assert the card visibility matches.
-		const settingsResp = await page.request.get('/index.php/apps/launchpad/api/admin/settings')
-		const settings = settingsResp.ok() ? await settingsResp.json() : {}
-		await openSidebar(page)
-		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
-		const allowed = settings?.allowUserDashboards !== false
-		if (allowed) {
-			await expect(addCard).toBeVisible()
-		} else {
+	test('workspace renders without Add-Dashboard card when allowUserDashboards is false (admin setting)', async ({
+		page,
+	}) => {
+		const prior = await setAllowUserDashboards(false)
+		try {
+			await gotoLaunchPad(page)
+			await openSidebar(page)
+			const sidebar = page.locator('.dashboard-switcher-sidebar')
+			const addCard = sidebar.getByRole('button', {
+				name: /add dashboard|dashboard toevoegen/i,
+			})
+			// Absent from the DOM, not merely hidden — a `display:none` card is
+			// still a create affordance to anything that walks the tree.
 			await expect(addCard).toHaveCount(0)
+		} finally {
+			await setAllowUserDashboards(prior)
 		}
 	})
 
+	/*
+	 * THIRD TEST WITH THE SAME DEFECT, AND THE MOST EXPENSIVE VERSION OF IT.
+	 *
+	 * This one inherited `allowUserDashboards` like the two above, but instead
+	 * of failing when the flag was off it SKIPPED — `test.skip(true,
+	 * 'allowUserDashboards is false in this environment')`. A skip is not a
+	 * neutral outcome here: the `@e2e` annotation on the line above keeps
+	 * claiming `dashboard-switcher::click-invokes-create-flow` as covered, so
+	 * the scenario counted while nothing exercised it. Measured in run
+	 * 31390900033: `65 tests … 64 passed, 1 skipped`, and this was the one.
+	 *
+	 * The environment it was describing is the DEFAULT one — the flag is off on
+	 * a fresh instance — so the skip was not a rare escape hatch, it was the
+	 * normal path. It sets the flag it needs, like its two siblings.
+	 */
 	// @e2e dashboard-switcher::click-invokes-create-flow
-	test('clicking Add-Dashboard card opens the Create dashboard dialog', async ({ page }) => {
+	test('clicking Add-Dashboard card opens the Create dashboard dialog', async ({
+		page,
+	}) => {
+		const prior = await setAllowUserDashboards(true)
+		try {
+			await gotoLaunchPad(page)
+			await runCreateFlowAssertions(page)
+		} finally {
+			await setAllowUserDashboards(prior)
+		}
+	})
+
+	async function runCreateFlowAssertions(page: any) {
 		await openSidebar(page)
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
-		const addCard = sidebar.getByRole('button', { name: /add dashboard|dashboard toevoegen/i })
+		const addCard = sidebar.getByRole('button', {
+			name: /add dashboard|dashboard toevoegen/i,
+		})
 
-		if (!await addCard.isVisible().catch(() => false)) {
-			test.skip(true, 'allowUserDashboards is false in this environment')
-			return
-		}
+		// No conditional skip. The precondition is established above, so an
+		// absent card is now a failure — which is what it always meant.
+		await expect(
+			addCard,
+			'the Add-Dashboard card must be present once personal dashboards are enabled',
+		).toBeVisible()
 
 		// Clicking "Add dashboard" either opens a "Create dashboard" dialog or
 		// fires a create POST immediately — the current UI forks the active
@@ -191,11 +336,16 @@ test.describe('dashboard-switcher sidebar', () => {
 		// (POST /api/dashboards/{uuid}/fork). Both are valid create flows, so
 		// arm the request listener BEFORE the click and accept either a
 		// create POST (`…/dashboard` | `…/dashboards`) or a fork POST.
-		const createRequestPromise = page.waitForRequest(
-			req => req.method() === 'POST'
-				&& /\/api\/dashboard(?:s)?(?:\/[0-9a-f-]+\/fork)?(?:\?|$)/.test(req.url()),
-			{ timeout: 8_000 },
-		).catch(() => null)
+		const createRequestPromise = page
+			.waitForRequest(
+				(req) =>
+					req.method() === 'POST'
+					&& /\/api\/dashboard(?:s)?(?:\/[0-9a-f-]+\/fork)?(?:\?|$)/.test(
+						req.url(),
+					),
+				{ timeout: 8_000 },
+			)
+			.catch(() => null)
 
 		await addCard.click()
 
@@ -207,10 +357,13 @@ test.describe('dashboard-switcher sidebar', () => {
 		if (!dialogVisible) {
 			// No dialog — a create/fork POST must have fired instead.
 			const req = await createRequestPromise
-			expect(req).not.toBeNull()
+			expect(
+				req,
+				'clicking Add-Dashboard must either open the dialog or fire a create/fork POST',
+			).not.toBeNull()
 		}
 		// If dialog IS visible, the create flow is working.
-	})
+	}
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -221,7 +374,9 @@ test.describe('divider widget discovery', () => {
 	// @e2e divider-widget::widget-appears-in-discovery
 	// @e2e divider-widget::widget-registration-via-imanager
 	// @e2e divider-widget::widget-appears-alongside-standard-widgets
-	test('divider widget appears in the Add-Widget modal picker', async ({ page }) => {
+	test('divider widget appears in the Add-Widget modal picker', async ({
+		page,
+	}) => {
 		await gotoLaunchPad(page)
 		await openAddWidgetModal(page)
 
@@ -230,12 +385,16 @@ test.describe('divider widget discovery', () => {
 		const widgetType = page.getByLabel(/widget type/i).first()
 		await expect(widgetType).toBeVisible({ timeout: 5_000 })
 
-		const dividerOption = page.getByRole('option', { name: /divider|scheidingslijn/i })
+		const dividerOption = page.getByRole('option', {
+			name: /divider|scheidingslijn/i,
+		})
 		await expect(dividerOption).toBeAttached({ timeout: 5_000 })
 
 		// At least two other widget types must also exist in the same select,
 		// confirming the modal lists multiple widgets.
-		const optionCount = await page.locator('select[aria-label*="Widget type"] option, #widget-type option').count()
+		const optionCount = await page
+			.locator('select[aria-label*="Widget type"] option, #widget-type option')
+			.count()
 		// Fall back to counting combobox options if we can't find the select directly.
 		const comboCount = await page.locator('option').count()
 		expect(optionCount + comboCount).toBeGreaterThan(2)
@@ -250,23 +409,27 @@ test.describe('grid layout initialisation and edit mode', () => {
 	test.beforeEach(async ({ page }) => {
 		await gotoLaunchPad(page)
 		// Ensure the sidebar is fully closed so the grid is not occluded.
-		await page.waitForFunction(
-			() => !document.querySelector('.dashboard-switcher-sidebar.open'),
-			{ timeout: 5_000 },
-		).catch(() => null)
+		await page
+			.waitForFunction(
+				() => !document.querySelector('.dashboard-switcher-sidebar.open'),
+				{ timeout: 5_000 },
+			)
+			.catch(() => null)
 	})
 
 	// @e2e grid-layout::initialize-grid-with-default-12-column-layout
 	// @e2e grid-layout::grid-initialization-options-match-configuration
-	test('grid initialises with the GridStack container present', async ({ page }) => {
+	test('grid initialises with the GridStack container present', async ({
+		page,
+	}) => {
 		// The .grid-stack element may have height:0 when there are no placements
 		// (GridStack collapses empty containers). We assert DOM presence + the
 		// parent container being visible instead.
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		await expect(page.locator('.launchpad-grid').first()).toBeVisible()
+		await expect(page.locator('.launchpad-container').first()).toBeVisible()
 		// GridStack uses a class like `gs-12` to indicate the column count.
-		const gridClass = await grid.getAttribute('class') ?? ''
+		const gridClass = (await grid.getAttribute('class')) ?? ''
 		const hasColumnClass = /gs-\d+/.test(gridClass)
 		if (hasColumnClass) {
 			const match = gridClass.match(/gs-(\d+)/)
@@ -284,7 +447,9 @@ test.describe('grid layout initialisation and edit mode', () => {
 	})
 
 	// @e2e grid-layout::grid-renders-placements-in-correct-positions
-	test('grid container is a descendant of the launchpad workspace', async ({ page }) => {
+	test('grid container is a descendant of the launchpad workspace', async ({
+		page,
+	}) => {
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
 		// The runtime-shell root renders `.workspace-shell` (the page chrome),
@@ -297,14 +462,16 @@ test.describe('grid layout initialisation and edit mode', () => {
 
 	// @e2e grid-layout::initialize-grid-with-custom-column-count
 	test('grid column count matches dashboard configuration', async ({ page }) => {
-		const resp = await page.request.get('/index.php/apps/launchpad/api/dashboard')
+		const resp = await page.request.get(
+			'/index.php/apps/launchpad/api/dashboard',
+		)
 		if (!resp.ok()) return
 		const dashData = await resp.json().catch(() => null)
 		if (!dashData) return
 		const configuredCols = dashData?.gridColumns ?? 12
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
-		const gridClass = await grid.getAttribute('class') ?? ''
+		const gridClass = (await grid.getAttribute('class')) ?? ''
 		const match = gridClass.match(/gs-(\d+)/)
 		if (match) {
 			expect(Number(match[1])).toBeLessThanOrEqual(configuredCols)
@@ -312,11 +479,15 @@ test.describe('grid layout initialisation and edit mode', () => {
 	})
 
 	// @e2e grid-layout::view-mode-is-the-default
-	test('grid starts in view mode (no edit-mode class on initial load)', async ({ page }) => {
+	test('grid starts in view mode (no edit-mode class on initial load)', async ({
+		page,
+	}) => {
 		const grid = page.locator('.grid-stack').first()
 		await expect(grid).toBeAttached({ timeout: 10_000 })
 		const hasEditClass = await grid.evaluate(
-			el => el.classList.contains('edit-mode') || el.getAttribute('data-edit-mode') === 'true',
+			(el) =>
+				el.classList.contains('edit-mode')
+				|| el.getAttribute('data-edit-mode') === 'true',
 		)
 		expect(hasEditClass).toBe(false)
 	})
@@ -324,15 +495,21 @@ test.describe('grid layout initialisation and edit mode', () => {
 	// @e2e grid-layout::enter-edit-mode
 	// @e2e grid-layout::exit-edit-mode
 	// @e2e grid-layout::edit-mode-watcher-responds-to-prop-changes
-	test('edit mode can be entered via the row-cog "Add custom widget" action', async ({ page }) => {
+	test('edit mode can be entered via the row-cog "Add custom widget" action', async ({
+		page,
+	}) => {
 		await openSidebar(page)
-		const personalRow = page.locator('[data-source="user"].dashboard-switcher-sidebar__item').first()
-		if (!await personalRow.isVisible().catch(() => false)) {
+		const personalRow = page
+			.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+			.first()
+		if (!(await personalRow.isVisible().catch(() => false))) {
 			return // No personal dashboard — skip gracefully.
 		}
 		await personalRow.locator('.dashboard-row-actions button').first().click()
-		const addWidgetItem = page.getByRole('menuitem', { name: /add custom widget/i })
-		if (!await addWidgetItem.isVisible().catch(() => false)) {
+		const addWidgetItem = page.getByRole('menuitem', {
+			name: /add custom widget/i,
+		})
+		if (!(await addWidgetItem.isVisible().catch(() => false))) {
 			return
 		}
 		await addWidgetItem.click()
@@ -341,7 +518,9 @@ test.describe('grid layout initialisation and edit mode', () => {
 	})
 
 	// @e2e grid-layout::view-only-permission-prevents-edit-mode
-	test('non-admin cannot see Add-widget entry (canEdit=false guard is visible)', async ({ page }) => {
+	test('non-admin cannot see Add-widget entry (canEdit=false guard is visible)', async ({
+		page,
+	}) => {
 		// For admin the sidebar toggle is always visible (canEdit=true).
 		// The wave3 tests assert exactly 1 floating button for admin which indirectly
 		// verifies the guard — this test just confirms the toggle renders.
@@ -368,7 +547,9 @@ test.describe('label widget – additional scenarios', () => {
 	})
 
 	// @e2e label-widget::defaults-applied-to-bare-content
-	test('label widget with default settings renders in a grid cell', async ({ page }) => {
+	test('label widget with default settings renders in a grid cell', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		const typeSelect = dialog.getByLabel(/widget type/i)
@@ -384,18 +565,25 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: `${TS}-defaults` })
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: `${TS}-defaults` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 	})
 
 	// @e2e label-widget::override-with-custom-values-leaves-untouched-defaults-intact
-	test('label widget with custom font size renders the custom size', async ({ page }) => {
+	test('label widget with custom font size renders the custom size', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		const typeSelect = dialog.getByLabel(/widget type/i)
 		await typeSelect.selectOption({ label: 'Label' })
 
-		await dialog.getByLabel(/label text/i).first().fill(`${TS}-custom`)
+		await dialog
+			.getByLabel(/label text/i)
+			.first()
+			.fill(`${TS}-custom`)
 		const fontInput = dialog.getByLabel(/font size/i).first()
 		if (await fontInput.isVisible().catch(() => false)) {
 			await fontInput.fill('22px')
@@ -407,13 +595,17 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: `${TS}-custom` })
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: `${TS}-custom` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 	})
 
 	// @e2e label-widget::empty-text-shows-translated-fallback
 	// @e2e label-widget::whitespace-only-text-shows-translated-fallback
-	test('empty label content shows a placeholder or the save button is disabled', async ({ page }) => {
+	test('empty label content shows a placeholder or the save button is disabled', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		const typeSelect = dialog.getByLabel(/widget type/i)
@@ -423,31 +615,43 @@ test.describe('label widget – additional scenarios', () => {
 		await textInput.fill('')
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		const isDisabled = await addBtn.isDisabled().catch(() => false)
-		const hasError = await dialog.locator('[class*="error"], [class*="validation"]').count() > 0
+		const hasError =
+			(await dialog.locator('[class*="error"], [class*="validation"]').count())
+			> 0
 		expect(isDisabled || hasError).toBe(true)
 	})
 
 	// @e2e label-widget::form-rejects-empty-text
-	test('label form disables the Add button when label text is empty', async ({ page }) => {
+	test('label form disables the Add button when label text is empty', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		const typeSelect = dialog.getByLabel(/widget type/i)
 		await typeSelect.selectOption({ label: 'Label' })
 
-		await dialog.getByLabel(/label text/i).first().fill('')
+		await dialog
+			.getByLabel(/label text/i)
+			.first()
+			.fill('')
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeDisabled()
 	})
 
 	// @e2e label-widget::very-long-word-wraps-within-narrow-cell
-	test('very long label text does not overflow the widget cell', async ({ page }) => {
+	test('very long label text does not overflow the widget cell', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		const typeSelect = dialog.getByLabel(/widget type/i)
 		await typeSelect.selectOption({ label: 'Label' })
 
 		const longWord = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-		await dialog.getByLabel(/label text/i).first().fill(longWord)
+		await dialog
+			.getByLabel(/label text/i)
+			.first()
+			.fill(longWord)
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 3_000 })
 		await addBtn.click()
@@ -455,23 +659,33 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: longWord.slice(0, 10) }).first()
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: longWord.slice(0, 10) })
+			.first()
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		// REQ-LBL-003: the long single word must wrap, not overflow — the
 		// rendered content must not be wider than its widget container
 		// (allow a 2px sub-pixel rounding tolerance).
-		const overflowPx = await placement.evaluate((el) => el.scrollWidth - el.clientWidth)
+		const overflowPx = await placement.evaluate(
+			(el) => el.scrollWidth - el.clientWidth,
+		)
 		expect(overflowPx).toBeLessThanOrEqual(2)
 	})
 
 	// @e2e label-widget::centred-in-cell-with-padding
-	test('label widget content is centred inside the grid cell', async ({ page }) => {
+	test('label widget content is centred inside the grid cell', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		const typeSelect = dialog.getByLabel(/widget type/i)
 		await typeSelect.selectOption({ label: 'Label' })
 
-		await dialog.getByLabel(/label text/i).first().fill(`${TS}-centred`)
+		await dialog
+			.getByLabel(/label text/i)
+			.first()
+			.fill(`${TS}-centred`)
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 3_000 })
 		await addBtn.click()
@@ -479,7 +693,9 @@ test.describe('label widget – additional scenarios', () => {
 		const closeBtn = page.locator('.dashboard-switcher-sidebar__close').first()
 		if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click()
 
-		const placement = page.locator('.label-widget').filter({ hasText: `${TS}-centred` })
+		const placement = page
+			.locator('.cn-label-widget')
+			.filter({ hasText: `${TS}-centred` })
 		await expect(placement).toBeVisible({ timeout: 8_000 })
 		const hasCenter = await placement.evaluate((el) => {
 			const cs = window.getComputedStyle(el)

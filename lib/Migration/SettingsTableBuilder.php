@@ -24,87 +24,83 @@ use OCP\DB\Types;
 /**
  * Builder for the admin settings database table schema.
  */
-class SettingsTableBuilder
-{
-    /**
-     * Create the launchpad_admin_settings table.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function create(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable(
-            'launchpad_admin_settings'
-        ) === true
-        ) {
-            return;
-        }
+class SettingsTableBuilder {
+	/**
+	 * Create the launchpad_admin_settings table.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function create(ISchemaWrapper $schema): void {
+		if ($schema->hasTable(
+			'launchpad_admin_settings'
+		) === true
+		) {
+			return;
+		}
 
-        $table = $schema->createTable(
-            'launchpad_admin_settings'
-        );
+		$table = $schema->createTable(
+			'launchpad_admin_settings'
+		);
 
-        self::addColumns(table: $table);
-        self::addIndexes(table: $table);
-    }//end create()
+		self::addColumns(table: $table);
+		self::addIndexes(table: $table);
+	}//end create()
 
-    /**
-     * Add columns to the admin settings table.
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
-     *
-     * @return void
-     */
-    private static function addColumns($table): void
-    {
-        $table->addColumn(
-            'id',
-            Types::BIGINT,
-            [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            'setting_key',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 255,
-            ]
-        );
-        $table->addColumn(
-            'setting_value',
-            Types::TEXT,
-            [
-                'notnull' => false,
-            ]
-        );
-        $table->addColumn(
-            'updated_at',
-            Types::DATETIME,
-            [
-                'notnull' => true,
-            ]
-        );
-    }//end addColumns()
+	/**
+	 * Add columns to the admin settings table.
+	 *
+	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 *
+	 * @return void
+	 */
+	private static function addColumns($table): void {
+		$table->addColumn(
+			'id',
+			Types::BIGINT,
+			[
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'setting_key',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 255,
+			]
+		);
+		$table->addColumn(
+			'setting_value',
+			Types::TEXT,
+			[
+				'notnull' => false,
+			]
+		);
+		$table->addColumn(
+			'updated_at',
+			Types::DATETIME,
+			[
+				'notnull' => true,
+			]
+		);
+	}//end addColumns()
 
-    /**
-     * Add indexes to the admin settings table.
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
-     *
-     * @return void
-     */
-    private static function addIndexes($table): void
-    {
-        $table->setPrimaryKey(['id']);
-        $table->addUniqueIndex(
-            ['setting_key'],
-            'launchpad_setting_key'
-        );
-    }//end addIndexes()
+	/**
+	 * Add indexes to the admin settings table.
+	 *
+	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 *
+	 * @return void
+	 */
+	private static function addIndexes($table): void {
+		$table->setPrimaryKey(['id']);
+		$table->addUniqueIndex(
+			['setting_key'],
+			'launchpad_setting_key'
+		);
+	}//end addIndexes()
 }//end class

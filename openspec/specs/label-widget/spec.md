@@ -108,6 +108,8 @@ The label sub-form for `AddWidgetModal` MUST expose six controls: a required tex
 - **WHEN** the user opens that widget in the edit modal
 - **THEN** every one of the six form controls MUST display its corresponding value from `content`
 
+@e2e exclude the browser path to this scenario is `tests/e2e/label-widget-content-edit.spec.ts` — right-click a placed label, Edit, read the form back — and that test is RED in the CI fixture: measured in run 31367057618, "2 of 3 pass" in the old combined file with this one failing. It is kept and still runnable (`npm run test:e2e:excluded`), not skipped and not deleted, but a test CI does not execute is not coverage and is not annotated as such here. Two things are true and both are recorded rather than hidden: the test needs fixing before it can be promoted, and even green it would not prove this scenario, because it asserts ONE field (`label text`) where the scenario names six.
+
 ### Requirement: REQ-LBL-006 Layout fills cell with centred content
 
 The renderer wrapper MUST occupy the full grid cell using `width: 100%; height: 100%` and use flexbox to centre the inner `<span>` both vertically and horizontally. The wrapper MUST apply `padding: 12px`.

@@ -20,8 +20,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -44,125 +44,123 @@ use Throwable;
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  * @spec                                          openspec/specs/background-job-feed-refresh/spec.md
  */
-class FeedRefreshJob extends TimedJob
-{
-    /**
-     * App config key — admin-tunable refresh interval in seconds
-     * (REQ-FRJ-002). Clamped to [300, 86400] (5 min .. 24 h).
-     *
-     * @var string
-     */
-    public const CONFIG_KEY_INTERVAL = 'feed_refresh_interval_seconds';
+class FeedRefreshJob extends TimedJob {
+	/**
+	 * App config key — admin-tunable refresh interval in seconds
+	 * (REQ-FRJ-002). Clamped to [300, 86400] (5 min .. 24 h).
+	 *
+	 * @var string
+	 */
+	public const CONFIG_KEY_INTERVAL = 'feed_refresh_interval_seconds';
 
-    /**
-     * Default refresh interval in seconds (60 minutes).
-     *
-     * @var integer
-     */
-    public const DEFAULT_INTERVAL = 3600;
+	/**
+	 * Default refresh interval in seconds (60 minutes).
+	 *
+	 * @var integer
+	 */
+	public const DEFAULT_INTERVAL = 3600;
 
-    /**
-     * Minimum refresh interval clamp (5 minutes).
-     *
-     * @var integer
-     */
-    public const MIN_INTERVAL = 300;
+	/**
+	 * Minimum refresh interval clamp (5 minutes).
+	 *
+	 * @var integer
+	 */
+	public const MIN_INTERVAL = 300;
 
-    /**
-     * Maximum refresh interval clamp (24 hours).
-     *
-     * @var integer
-     */
-    public const MAX_INTERVAL = 86400;
+	/**
+	 * Maximum refresh interval clamp (24 hours).
+	 *
+	 * @var integer
+	 */
+	public const MAX_INTERVAL = 86400;
 
-    /**
-     * Global cluster lock id — only one job instance runs at a time
-     * (REQ-FRJ-007).
-     *
-     * @var string
-     */
-    public const LOCK_ID = 'launchpad_feed_refresh_running';
+	/**
+	 * Global cluster lock id — only one job instance runs at a time
+	 * (REQ-FRJ-007).
+	 *
+	 * @var string
+	 */
+	public const LOCK_ID = 'launchpad_feed_refresh_running';
 
-    /**
-     * Constructor — clamps the configured interval and registers it
-     * with the parent TimedJob.
-     *
-     * @param ITimeFactory       $time            The TimedJob clock.
-     * @param IAppConfig         $appConfig       The app config reader.
-     * @param FeedRefreshService $refreshService  The refresh worker.
-     * @param ILockingProvider   $lockingProvider The cluster lock provider.
-     * @param LoggerInterface    $logger          The diagnostic logger.
-     */
-    public function __construct(
-        ITimeFactory $time,
-        private readonly IAppConfig $appConfig,
-        private readonly FeedRefreshService $refreshService,
-        private readonly ILockingProvider $lockingProvider,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(time: $time);
+	/**
+	 * Constructor — clamps the configured interval and registers it
+	 * with the parent TimedJob.
+	 *
+	 * @param ITimeFactory $time The TimedJob clock.
+	 * @param IAppConfig $appConfig The app config reader.
+	 * @param FeedRefreshService $refreshService The refresh worker.
+	 * @param ILockingProvider $lockingProvider The cluster lock provider.
+	 * @param LoggerInterface $logger The diagnostic logger.
+	 */
+	public function __construct(
+		ITimeFactory $time,
+		private readonly IAppConfig $appConfig,
+		private readonly FeedRefreshService $refreshService,
+		private readonly ILockingProvider $lockingProvider,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(time: $time);
 
-        $configured = $this->appConfig->getValueInt(
-            Application::APP_ID,
-            self::CONFIG_KEY_INTERVAL,
-            self::DEFAULT_INTERVAL
-        );
-        if ($configured <= 0) {
-            $configured = self::DEFAULT_INTERVAL;
-        }
+		$configured = $this->appConfig->getValueInt(
+			Application::APP_ID,
+			self::CONFIG_KEY_INTERVAL,
+			self::DEFAULT_INTERVAL
+		);
+		if ($configured <= 0) {
+			$configured = self::DEFAULT_INTERVAL;
+		}
 
-        $clamped = max(self::MIN_INTERVAL, min(self::MAX_INTERVAL, $configured));
+		$clamped = max(self::MIN_INTERVAL, min(self::MAX_INTERVAL, $configured));
 
-        $this->setInterval(seconds: $clamped);
-    }//end __construct()
+		$this->setInterval(seconds: $clamped);
+	}//end __construct()
 
-    /**
-     * Execute one tick of the refresh job.
-     *
-     * @param mixed $argument The TimedJob argument (unused).
-     *
-     * @return void
-     */
-    protected function run(mixed $argument): void
-    {
-        try {
-            $this->lockingProvider->acquireLock(
-                path: self::LOCK_ID,
-                type: ILockingProvider::LOCK_EXCLUSIVE
-            );
-        } catch (LockedException) {
-            $this->logger->warning(
-                message: 'FeedRefreshJob already running; skipping this tick',
-                context: ['app' => Application::APP_ID]
-            );
-            return;
-        }
+	/**
+	 * Execute one tick of the refresh job.
+	 *
+	 * @param mixed $argument The TimedJob argument (unused).
+	 *
+	 * @return void
+	 */
+	protected function run(mixed $argument): void {
+		try {
+			$this->lockingProvider->acquireLock(
+				path: self::LOCK_ID,
+				type: ILockingProvider::LOCK_EXCLUSIVE
+			);
+		} catch (LockedException) {
+			$this->logger->warning(
+				message: 'FeedRefreshJob already running; skipping this tick',
+				context: ['app' => Application::APP_ID]
+			);
+			return;
+		}
 
-        try {
-            $result = $this->refreshService->refreshAll();
-            $this->logger->info(
-                message: 'FeedRefreshJob tick completed',
-                context: [
-                    'app'            => Application::APP_ID,
-                    'processedCount' => $result['processedCount'],
-                    'successCount'   => $result['successCount'],
-                    'failureCount'   => $result['failureCount'],
-                    'durationMs'     => $result['durationMs'],
-                ]
-            );
-        } catch (Throwable $exception) {
-            $this->logger->error(
-                message: 'FeedRefreshJob tick raised an unexpected exception',
-                context: [
-                    'app'       => Application::APP_ID,
-                    'exception' => $exception->getMessage(),
-                ]
-            );
-        } finally {
-            $this->lockingProvider->releaseLock(
-                path: self::LOCK_ID,
-                type: ILockingProvider::LOCK_EXCLUSIVE
-            );
-        }//end try
-    }//end run()
+		try {
+			$result = $this->refreshService->refreshAll();
+			$this->logger->info(
+				message: 'FeedRefreshJob tick completed',
+				context: [
+					'app' => Application::APP_ID,
+					'processedCount' => $result['processedCount'],
+					'successCount' => $result['successCount'],
+					'failureCount' => $result['failureCount'],
+					'durationMs' => $result['durationMs'],
+				]
+			);
+		} catch (Throwable $exception) {
+			$this->logger->error(
+				message: 'FeedRefreshJob tick raised an unexpected exception',
+				context: [
+					'app' => Application::APP_ID,
+					'exception' => $exception->getMessage(),
+				]
+			);
+		} finally {
+			$this->lockingProvider->releaseLock(
+				path: self::LOCK_ID,
+				type: ILockingProvider::LOCK_EXCLUSIVE
+			);
+		}//end try
+	}//end run()
 }//end class

@@ -19,8 +19,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -37,180 +37,176 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * `launchpad:i18n:export-strings` console command.
  */
-class I18nExportStringsCommand extends CommandBase
-{
-    /**
-     * Translation marker patterns. Each entry produces a captured
-     * single- or double-quoted string literal.
-     *
-     * @var list<string>
-     */
-    private const MARKER_PATTERNS = [
-        '/->t\(\s*[\'"]([^\'"]+)[\'"]/',
-        '/\bt\(\s*[\'"]([^\'"]+)[\'"]/',
-        '/\bn\(\s*[\'"]([^\'"]+)[\'"]/',
-    ];
+class I18nExportStringsCommand extends CommandBase {
+	/**
+	 * Translation marker patterns. Each entry produces a captured
+	 * single- or double-quoted string literal.
+	 *
+	 * @var list<string>
+	 */
+	private const MARKER_PATTERNS = [
+		'/->t\(\s*[\'"]([^\'"]+)[\'"]/',
+		'/\bt\(\s*[\'"]([^\'"]+)[\'"]/',
+		'/\bn\(\s*[\'"]([^\'"]+)[\'"]/',
+	];
 
-    /**
-     * Constructor.
-     *
-     * @param CommandService $commandService Shared CLI helper.
-     * @param IUserSession   $userSession    Caller resolution.
-     */
-    public function __construct(
-        CommandService $commandService,
-        IUserSession $userSession
-    ) {
-        parent::__construct(commandService: $commandService, userSession: $userSession);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param CommandService $commandService Shared CLI helper.
+	 * @param IUserSession $userSession Caller resolution.
+	 */
+	public function __construct(
+		CommandService $commandService,
+		IUserSession $userSession,
+	) {
+		parent::__construct(commandService: $commandService, userSession: $userSession);
+	}//end __construct()
 
-    /**
-     * Wire command name, description, and per-command options.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    protected function configureCommand(): void
-    {
-        $this->setName(name: 'launchpad:i18n:export-strings')
-            ->setDescription(description: 'Extract translatable strings to l10n/launchpad.pot.')
-            ->setHelp(
-                help: implode(
-                    separator: "\n",
-                    array: [
-                        'Scan lib/ and src/ for translatable strings and write them to l10n/launchpad.pot.',
-                        'Idempotent — overwrites the existing POT file.',
-                        '',
-                        'Examples:',
-                        '  php occ launchpad:i18n:export-strings',
-                        '  php occ launchpad:i18n:export-strings --json',
-                    ]
-                )
-            );
-    }//end configureCommand()
+	/**
+	 * Wire command name, description, and per-command options.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	protected function configureCommand(): void {
+		$this->setName(name: 'launchpad:i18n:export-strings')
+			->setDescription(description: 'Extract translatable strings to l10n/launchpad.pot.')
+			->setHelp(
+				help: implode(
+					separator: "\n",
+					array: [
+						'Scan lib/ and src/ for translatable strings and write them to l10n/launchpad.pot.',
+						'Idempotent — overwrites the existing POT file.',
+						'',
+						'Examples:',
+						'  php occ launchpad:i18n:export-strings',
+						'  php occ launchpad:i18n:export-strings --json',
+					]
+				)
+			);
+	}//end configureCommand()
 
-    /**
-     * Execute the extraction.
-     *
-     * @param InputInterface  $input  CLI input.
-     * @param OutputInterface $output CLI output.
-     *
-     * @return int
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    protected function handle(
-        InputInterface $input,
-        OutputInterface $output
-    ): int {
-        $appRoot = (string) realpath(path: __DIR__.'/../..');
-        if ($appRoot === '') {
-            return $this->emitError(
-                input: $input,
-                output: $output,
-                exitCode: CommandService::EXIT_ERROR,
-                code: 'INTERNAL_ERROR',
-                message: 'Could not resolve app root directory.'
-            );
-        }
+	/**
+	 * Execute the extraction.
+	 *
+	 * @param InputInterface $input CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	protected function handle(
+		InputInterface $input,
+		OutputInterface $output,
+	): int {
+		$appRoot = (string)realpath(path: __DIR__ . '/../..');
+		if ($appRoot === '') {
+			return $this->emitError(
+				input: $input,
+				output: $output,
+				exitCode: CommandService::EXIT_ERROR,
+				code: 'INTERNAL_ERROR',
+				message: 'Could not resolve app root directory.'
+			);
+		}
 
-        $strings = [];
-        foreach (['lib', 'src'] as $sub) {
-            $path = $appRoot.'/'.$sub;
-            if (is_dir(filename: $path) === false) {
-                continue;
-            }
+		$strings = [];
+		foreach (['lib', 'src'] as $sub) {
+			$path = $appRoot . '/' . $sub;
+			if (is_dir(filename: $path) === false) {
+				continue;
+			}
 
-            $this->collectFromDir(directory: $path, sink: $strings);
-        }
+			$this->collectFromDir(directory: $path, sink: $strings);
+		}
 
-        ksort(array: $strings);
-        $this->writePot(strings: array_keys(array: $strings), outPath: $appRoot.'/l10n/launchpad.pot');
+		ksort(array: $strings);
+		$this->writePot(strings: array_keys(array: $strings), outPath: $appRoot . '/l10n/launchpad.pot');
 
-        $this->emitSuccess(
-            input: $input,
-            output: $output,
-            data: ['count' => count(value: $strings), 'output' => 'l10n/launchpad.pot'],
-            human: 'Wrote '.count(value: $strings).' strings to l10n/launchpad.pot'
-        );
+		$this->emitSuccess(
+			input: $input,
+			output: $output,
+			data: ['count' => count(value: $strings), 'output' => 'l10n/launchpad.pot'],
+			human: 'Wrote ' . count(value: $strings) . ' strings to l10n/launchpad.pot'
+		);
 
-        return CommandService::EXIT_SUCCESS;
-    }//end handle()
+		return CommandService::EXIT_SUCCESS;
+	}//end handle()
 
-    /**
-     * Recursively scan `$directory` for translatable markers and
-     * accumulate them into `$sink` (using the string as key for
-     * dedup).
-     *
-     * @param string             $directory Directory to scan.
-     * @param array<string,bool> $sink      Accumulator (modified by reference).
-     *
-     * @return void
-     */
-    private function collectFromDir(string $directory, array &$sink): void
-    {
-        $iterator = new RecursiveIteratorIterator(
-            iterator: new RecursiveDirectoryIterator(
-                $directory,
-                RecursiveDirectoryIterator::SKIP_DOTS
-            )
-        );
+	/**
+	 * Recursively scan `$directory` for translatable markers and
+	 * accumulate them into `$sink` (using the string as key for
+	 * dedup).
+	 *
+	 * @param string $directory Directory to scan.
+	 * @param array<string,bool> $sink Accumulator (modified by reference).
+	 *
+	 * @return void
+	 */
+	private function collectFromDir(string $directory, array &$sink): void {
+		$iterator = new RecursiveIteratorIterator(
+			iterator: new RecursiveDirectoryIterator(
+				$directory,
+				RecursiveDirectoryIterator::SKIP_DOTS
+			)
+		);
 
-        foreach ($iterator as $file) {
-            if ($file->isFile() === false) {
-                continue;
-            }
+		foreach ($iterator as $file) {
+			if ($file->isFile() === false) {
+				continue;
+			}
 
-            $ext = strtolower(string: $file->getExtension());
-            if (in_array(needle: $ext, haystack: ['php', 'vue', 'js', 'ts'], strict: true) === false) {
-                continue;
-            }
+			$ext = strtolower(string: $file->getExtension());
+			if (in_array(needle: $ext, haystack: ['php', 'vue', 'js', 'ts'], strict: true) === false) {
+				continue;
+			}
 
-            $contents = (string) file_get_contents(filename: $file->getPathname());
-            foreach (self::MARKER_PATTERNS as $pattern) {
-                $matches = [];
-                $found   = preg_match_all(pattern: $pattern, subject: $contents, matches: $matches);
-                if ($found === false || $found === 0) {
-                    continue;
-                }
+			$contents = (string)file_get_contents(filename: $file->getPathname());
+			foreach (self::MARKER_PATTERNS as $pattern) {
+				$matches = [];
+				$found = preg_match_all(pattern: $pattern, subject: $contents, matches: $matches);
+				if ($found === false || $found === 0) {
+					continue;
+				}
 
-                foreach ($matches[1] as $string) {
-                    $sink[(string) $string] = true;
-                }
-            }
-        }//end foreach
-    }//end collectFromDir()
+				foreach ($matches[1] as $string) {
+					$sink[(string)$string] = true;
+				}
+			}
+		}//end foreach
+	}//end collectFromDir()
 
-    /**
-     * Write the POT file at `$outPath`. Missing parent directories
-     * are created.
-     *
-     * @param list<string> $strings Sorted, unique source strings.
-     * @param string       $outPath Target file path.
-     *
-     * @return void
-     */
-    private function writePot(array $strings, string $outPath): void
-    {
-        $dir = dirname(path: $outPath);
-        if (is_dir(filename: $dir) === false) {
-            mkdir(directory: $dir, permissions: 0775, recursive: true);
-        }
+	/**
+	 * Write the POT file at `$outPath`. Missing parent directories
+	 * are created.
+	 *
+	 * @param list<string> $strings Sorted, unique source strings.
+	 * @param string $outPath Target file path.
+	 *
+	 * @return void
+	 */
+	private function writePot(array $strings, string $outPath): void {
+		$dir = dirname(path: $outPath);
+		if (is_dir(filename: $dir) === false) {
+			mkdir(directory: $dir, permissions: 0775, recursive: true);
+		}
 
-        $lines   = [];
-        $lines[] = '# LaunchPad translatable strings — generated by `launchpad:i18n:export-strings`.';
-        $lines[] = 'msgid ""';
-        $lines[] = 'msgstr ""';
-        $lines[] = '"Content-Type: text/plain; charset=UTF-8\n"';
-        $lines[] = '';
-        foreach ($strings as $string) {
-            $escaped = str_replace(search: ['\\', '"'], replace: ['\\\\', '\\"'], subject: $string);
-            $lines[] = 'msgid "'.$escaped.'"';
-            $lines[] = 'msgstr ""';
-            $lines[] = '';
-        }
+		$lines = [];
+		$lines[] = '# LaunchPad translatable strings — generated by `launchpad:i18n:export-strings`.';
+		$lines[] = 'msgid ""';
+		$lines[] = 'msgstr ""';
+		$lines[] = '"Content-Type: text/plain; charset=UTF-8\n"';
+		$lines[] = '';
+		foreach ($strings as $string) {
+			$escaped = str_replace(search: ['\\', '"'], replace: ['\\\\', '\\"'], subject: $string);
+			$lines[] = 'msgid "' . $escaped . '"';
+			$lines[] = 'msgstr ""';
+			$lines[] = '';
+		}
 
-        file_put_contents(filename: $outPath, data: implode(separator: "\n", array: $lines));
-    }//end writePot()
+		file_put_contents(filename: $outPath, data: implode(separator: "\n", array: $lines));
+	}//end writePot()
 }//end class

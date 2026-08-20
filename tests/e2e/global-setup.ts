@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright globalSetup — logs into Nextcloud once and persists the
  * resulting cookie jar / localStorage to `tests/e2e/.auth/admin.json`.
@@ -20,6 +20,7 @@ import { chromium, request, type FullConfig } from '@playwright/test'
 import { execSync } from 'child_process'
 import * as path from 'path'
 import * as fs from 'fs'
+import { BASE_URL } from './support/baseUrl'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -48,18 +49,22 @@ function ensureBundleBuilt(): void {
 		return
 	}
 	// eslint-disable-next-line no-console
-	console.log(`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`)
+	console.log(
+		`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`,
+	)
 	execSync('npm run build', { cwd: APP_ROOT, stdio: 'inherit' })
 }
 
 async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 	const ctx = await request.newContext()
 	try {
-		const res = await ctx.get(`${baseURL}/status.php`, { failOnStatusCode: false })
+		const res = await ctx.get(`${baseURL}/status.php`, {
+			failOnStatusCode: false,
+		})
 		if (!res.ok()) {
 			throw new Error(
-				`Nextcloud status.php returned ${res.status()} at ${baseURL}. ` +
-				`Make sure the docker container is running and reachable.`,
+				`Nextcloud status.php returned ${res.status()} at ${baseURL}. `
+					+ `Make sure the docker container is running and reachable.`,
 			)
 		}
 		const body = await res.json().catch(() => ({}))
@@ -74,9 +79,11 @@ async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 }
 
 export default async function globalSetup(config: FullConfig): Promise<void> {
-	const baseURL = (config.projects[0]?.use?.baseURL as string | undefined)
-		?? process.env.NC_BASE_URL
-		?? 'http://localhost:8080'
+	// `config.projects[0].use.baseURL` is itself resolved from support/baseUrl,
+	// so the `??` is only a guard against a project that overrides `use` — it
+	// can no longer fall through to a hardcoded shared-container default.
+	const baseURL =
+		(config.projects[0]?.use?.baseURL as string | undefined) ?? BASE_URL
 	const username = process.env.NC_ADMIN_USER ?? 'admin'
 	const password = process.env.NC_ADMIN_PASS ?? 'admin'
 
@@ -103,12 +110,74 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	const currentUrl = page.url()
 	if (/\/login(\?|$|\/)/.test(currentUrl)) {
 		throw new Error(
-			`Login appears to have failed — still on ${currentUrl}. ` +
-			`Check NC_ADMIN_USER / NC_ADMIN_PASS (defaults admin/admin).`,
+			`Login appears to have failed — still on ${currentUrl}. `
+				+ `Check NC_ADMIN_USER / NC_ADMIN_PASS (defaults admin/admin).`,
 		)
 	}
+
+	await dismissFirstRunWizard(page)
 
 	// Persist the storage state so individual specs reuse the session.
 	await context.storageState({ path: STORAGE_STATE })
 	await browser.close()
+}
+
+/**
+ * Dismiss Nextcloud's first-run wizard for the test user.
+ *
+ * WHY THIS IS NOT OPTIONAL
+ * ------------------------
+ * `firstrunwizard` ships enabled by default. On a FRESH instance — which is
+ * exactly what CI provisions and what a disposable local rig is — it renders a
+ * full-screen modal ("A collaboration platform that puts you in control") over
+ * the app on first load.
+ *
+ * Measured 2026-08-19 against a clean rig: 7 of 9 `tile-quick-search` specs
+ * failed with it up. It does not merely obscure the page, it EATS KEYSTROKES —
+ * Escape closes the wizard instead of clearing the search bar, so
+ * "Escape clears the query" failed with the query still present. Any spec that
+ * types, clicks the grid, or asserts focus is affected, and the failure never
+ * names the modal, so it reads as a broken feature.
+ *
+ * It survives a fresh browser context because the dismissal is a SERVER-SIDE
+ * user preference, not localStorage — which is also why one call here fixes
+ * every spec rather than needing per-test handling.
+ *
+ * `DELETE /apps/firstrunwizard/wizard` is the app's own dismissal route. It is
+ * best-effort: an instance with the app disabled returns 404, which is fine.
+ *
+ * @param {import('@playwright/test').Page} page an authenticated page.
+ * @return {Promise<void>}
+ */
+async function dismissFirstRunWizard(
+	page: import('@playwright/test').Page,
+): Promise<void> {
+	try {
+		const status = await page.evaluate(async () => {
+			const token =
+				document
+					.querySelector('head[data-requesttoken]')
+					?.getAttribute('data-requesttoken')
+				?? document.getElementById('requesttoken')?.getAttribute('value')
+				?? ''
+			const res = await fetch('/index.php/apps/firstrunwizard/wizard', {
+				method: 'DELETE',
+				headers: { requesttoken: token, 'OCS-APIRequest': 'true' },
+			})
+			return res.status
+		})
+		if (status >= 400 && status !== 404) {
+			// eslint-disable-next-line no-console
+			console.warn(
+				`[playwright globalSetup] first-run wizard dismissal returned ${status}; `
+					+ 'specs may hit a modal over the app.',
+			)
+		}
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			'[playwright globalSetup] could not dismiss the first-run wizard:',
+			error,
+		)
+	}
 }

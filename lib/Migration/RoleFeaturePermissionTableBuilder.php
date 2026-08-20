@@ -13,8 +13,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -27,120 +27,116 @@ use OCP\DB\Types;
 /**
  * Schema builder for the role-feature-permissions table.
  */
-class RoleFeaturePermissionTableBuilder
-{
-    /**
-     * Create the table when missing.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function create(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable(tableName: 'launchpad_role_feat_perms') === true) {
-            return;
-        }
+class RoleFeaturePermissionTableBuilder {
+	/**
+	 * Create the table when missing.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function create(ISchemaWrapper $schema): void {
+		if ($schema->hasTable(tableName: 'launchpad_role_feat_perms') === true) {
+			return;
+		}
 
-        $table = $schema->createTable(tableName: 'launchpad_role_feat_perms');
+		$table = $schema->createTable(tableName: 'launchpad_role_feat_perms');
 
-        self::addColumns(table: $table);
-        self::addIndexes(table: $table);
-    }//end create()
+		self::addColumns(table: $table);
+		self::addIndexes(table: $table);
+	}//end create()
 
-    /**
-     * Add columns to the table.
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
-     *
-     * @return void
-     */
-    private static function addColumns($table): void
-    {
-        $table->addColumn(
-            name: 'id',
-            typeName: Types::BIGINT,
-            options: [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            name: 'name',
-            typeName: Types::STRING,
-            options: [
-                'notnull' => true,
-                'length'  => 255,
-            ]
-        );
-        $table->addColumn(
-            name: 'description',
-            typeName: Types::TEXT,
-            options: [
-                'notnull' => false,
-            ]
-        );
-        $table->addColumn(
-            name: 'group_id',
-            typeName: Types::STRING,
-            options: [
-                'notnull' => true,
-                'length'  => 255,
-            ]
-        );
-        $table->addColumn(
-            name: 'allowed_widgets',
-            typeName: Types::TEXT,
-            options: [
-                'notnull' => false,
-            ]
-        );
-        $table->addColumn(
-            name: 'denied_widgets',
-            typeName: Types::TEXT,
-            options: [
-                'notnull' => false,
-            ]
-        );
-        $table->addColumn(
-            name: 'priority_weights',
-            typeName: Types::TEXT,
-            options: [
-                'notnull' => false,
-            ]
-        );
-        $table->addColumn(
-            name: 'created_at',
-            typeName: Types::STRING,
-            options: [
-                'notnull' => false,
-                'length'  => 32,
-            ]
-        );
-        $table->addColumn(
-            name: 'updated_at',
-            typeName: Types::STRING,
-            options: [
-                'notnull' => false,
-                'length'  => 32,
-            ]
-        );
-    }//end addColumns()
+	/**
+	 * Add columns to the table.
+	 *
+	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 *
+	 * @return void
+	 */
+	private static function addColumns($table): void {
+		$table->addColumn(
+			name: 'id',
+			typeName: Types::BIGINT,
+			options: [
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			name: 'name',
+			typeName: Types::STRING,
+			options: [
+				'notnull' => true,
+				'length' => 255,
+			]
+		);
+		$table->addColumn(
+			name: 'description',
+			typeName: Types::TEXT,
+			options: [
+				'notnull' => false,
+			]
+		);
+		$table->addColumn(
+			name: 'group_id',
+			typeName: Types::STRING,
+			options: [
+				'notnull' => true,
+				'length' => 255,
+			]
+		);
+		$table->addColumn(
+			name: 'allowed_widgets',
+			typeName: Types::TEXT,
+			options: [
+				'notnull' => false,
+			]
+		);
+		$table->addColumn(
+			name: 'denied_widgets',
+			typeName: Types::TEXT,
+			options: [
+				'notnull' => false,
+			]
+		);
+		$table->addColumn(
+			name: 'priority_weights',
+			typeName: Types::TEXT,
+			options: [
+				'notnull' => false,
+			]
+		);
+		$table->addColumn(
+			name: 'created_at',
+			typeName: Types::STRING,
+			options: [
+				'notnull' => false,
+				'length' => 32,
+			]
+		);
+		$table->addColumn(
+			name: 'updated_at',
+			typeName: Types::STRING,
+			options: [
+				'notnull' => false,
+				'length' => 32,
+			]
+		);
+	}//end addColumns()
 
-    /**
-     * Add primary key + uniqueness index on group_id.
-     *
-     * @param \Doctrine\DBAL\Schema\Table $table The table instance.
-     *
-     * @return void
-     */
-    private static function addIndexes($table): void
-    {
-        $table->setPrimaryKey(columnNames: ['id']);
-        $table->addUniqueIndex(
-            columnNames: ['group_id'],
-            indexName: 'launchpad_rfp_group'
-        );
-    }//end addIndexes()
+	/**
+	 * Add primary key + uniqueness index on group_id.
+	 *
+	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 *
+	 * @return void
+	 */
+	private static function addIndexes($table): void {
+		$table->setPrimaryKey(columnNames: ['id']);
+		$table->addUniqueIndex(
+			columnNames: ['group_id'],
+			indexName: 'launchpad_rfp_group'
+		);
+	}//end addIndexes()
 }//end class

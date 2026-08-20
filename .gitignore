@@ -71,3 +71,7 @@ bom-npm.cdx.json
 /docs/sendent-analysis.md
 /sendent-workspace-main/
 /2026.*_sendent-workspace-main.zip
+
+# Local MCP server configuration — carries API keys, must never be committed.
+# A live n8n API key reached the tip tree of 37 local branches before this was added.
+.mcp.json

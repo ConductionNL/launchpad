@@ -21,7 +21,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -38,148 +38,139 @@ use OCP\Files\SimpleFS\ISimpleFolder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class ResourceServiceSvgIntegrationTest extends TestCase
-{
-    private ResourceService $service;
+class ResourceServiceSvgIntegrationTest extends TestCase {
+	private ResourceService $service;
 
-    /** @var IAppData&MockObject */
-    private $appData;
+	/** @var IAppData&MockObject */
+	private $appData;
 
-    /** @var ISimpleFolder&MockObject */
-    private $folder;
+	/** @var ISimpleFolder&MockObject */
+	private $folder;
 
-    /** Captures whatever bytes the service writes to disk. */
-    private string $persistedBytes = '';
+	/** Captures whatever bytes the service writes to disk. */
+	private string $persistedBytes = '';
 
-    protected function setUp(): void
-    {
-        $this->appData = $this->createMock(IAppData::class);
-        $this->folder  = $this->createMock(ISimpleFolder::class);
-        $this->appData->method('getFolder')->willReturn($this->folder);
+	protected function setUp(): void {
+		$this->appData = $this->createMock(IAppData::class);
+		$this->folder = $this->createMock(ISimpleFolder::class);
+		$this->appData->method('getFolder')->willReturn($this->folder);
 
-        $this->folder->method('newFile')->willReturnCallback(
-            function (string $name, $content): ISimpleFile {
-                $this->persistedBytes = (string) $content;
-                return $this->createMock(ISimpleFile::class);
-            }
-        );
+		$this->folder->method('newFile')->willReturnCallback(
+			function (string $name, $content): ISimpleFile {
+				$this->persistedBytes = (string)$content;
+				return $this->createMock(ISimpleFile::class);
+			}
+		);
 
-        $this->service = new ResourceService(
-            appData: $this->appData,
-            mimeValidator: new ImageMimeValidator(),
-            svgSanitiser: new SvgSanitiser(),
-        );
-    }
+		$this->service = new ResourceService(
+			appData: $this->appData,
+			mimeValidator: new ImageMimeValidator(),
+			svgSanitiser: new SvgSanitiser(),
+		);
+	}
 
-    private function dataUrl(string $bytes): string
-    {
-        return 'data:image/svg+xml;base64,' . base64_encode($bytes);
-    }
+	private function dataUrl(string $bytes): string {
+		return 'data:image/svg+xml;base64,' . base64_encode($bytes);
+	}
 
-    public function testMaliciousSvgUploadStripsScriptAndPersists(): void
-    {
-        $svg = '<svg xmlns="http://www.w3.org/2000/svg">'
-             . '<script>alert(1)</script>'
-             . '<circle r="5"/>'
-             . '</svg>';
+	public function testMaliciousSvgUploadStripsScriptAndPersists(): void {
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg">'
+			 . '<script>alert(1)</script>'
+			 . '<circle r="5"/>'
+			 . '</svg>';
 
-        $result = $this->service->upload(
-            base64DataUrl: $this->dataUrl($svg)
-        );
+		$result = $this->service->upload(
+			base64DataUrl: $this->dataUrl($svg)
+		);
 
-        $this->assertStringStartsWith('/apps/launchpad/resource/resource_', $result['url']);
-        $this->assertStringNotContainsString('<script', $this->persistedBytes);
-        $this->assertStringNotContainsString('alert', $this->persistedBytes);
-        $this->assertStringContainsString('<circle', $this->persistedBytes);
-    }
+		$this->assertStringStartsWith('/apps/launchpad/resource/resource_', $result['url']);
+		$this->assertStringNotContainsString('<script', $this->persistedBytes);
+		$this->assertStringNotContainsString('alert', $this->persistedBytes);
+		$this->assertStringContainsString('<circle', $this->persistedBytes);
+	}
 
-    public function testGarbagePayloadThrowsInvalidSvg(): void
-    {
-        $this->folder->expects($this->never())->method('newFile');
+	public function testGarbagePayloadThrowsInvalidSvg(): void {
+		$this->folder->expects($this->never())->method('newFile');
 
-        $this->expectException(InvalidSvgException::class);
-        $this->service->upload(
-            base64DataUrl: $this->dataUrl('<not xml')
-        );
-    }
+		$this->expectException(InvalidSvgException::class);
+		$this->service->upload(
+			base64DataUrl: $this->dataUrl('<not xml')
+		);
+	}
 
-    public function testInvalidSvgExceptionCarriesStableErrorCode(): void
-    {
-        try {
-            $this->service->upload(
-                base64DataUrl: $this->dataUrl('<not xml')
-            );
-            $this->fail('Expected InvalidSvgException');
-        } catch (InvalidSvgException $exception) {
-            $this->assertSame('invalid_svg', $exception->getErrorCode());
-            $this->assertSame(400, $exception->getHttpStatus());
-        }
-    }
+	public function testInvalidSvgExceptionCarriesStableErrorCode(): void {
+		try {
+			$this->service->upload(
+				base64DataUrl: $this->dataUrl('<not xml')
+			);
+			$this->fail('Expected InvalidSvgException');
+		} catch (InvalidSvgException $exception) {
+			$this->assertSame('invalid_svg', $exception->getErrorCode());
+			$this->assertSame(400, $exception->getHttpStatus());
+		}
+	}
 
-    public function testOversizeSvgBelowCapAfterSanitisationIsAccepted(): void
-    {
-        // Build an SVG whose original bytes exceed 5 MB but whose
-        // sanitised form (script stripped) drops below the cap. Pad
-        // a stripped-out <script> block with ~5.4 MB of payload then
-        // append a tiny circle.
-        $payload = str_repeat('A', (int) (5.4 * 1024 * 1024));
-        $svg     = '<svg xmlns="http://www.w3.org/2000/svg">'
-                 . '<script>' . $payload . '</script>'
-                 . '<circle r="5"/>'
-                 . '</svg>';
+	public function testOversizeSvgBelowCapAfterSanitisationIsAccepted(): void {
+		// Build an SVG whose original bytes exceed 5 MB but whose
+		// sanitised form (script stripped) drops below the cap. Pad
+		// a stripped-out <script> block with ~5.4 MB of payload then
+		// append a tiny circle.
+		$payload = str_repeat('A', (int)(5.4 * 1024 * 1024));
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg">'
+				 . '<script>' . $payload . '</script>'
+				 . '<circle r="5"/>'
+				 . '</svg>';
 
-        $this->assertGreaterThan(
-            (5 * 1024 * 1024),
-            strlen($svg),
-            'Original payload must exceed the 5 MB cap'
-        );
+		$this->assertGreaterThan(
+			(5 * 1024 * 1024),
+			strlen($svg),
+			'Original payload must exceed the 5 MB cap'
+		);
 
-        $result = $this->service->upload(
-            base64DataUrl: $this->dataUrl($svg)
-        );
+		$result = $this->service->upload(
+			base64DataUrl: $this->dataUrl($svg)
+		);
 
-        // Sanitised result MUST be under the cap.
-        $this->assertLessThan(
-            ResourceService::MAX_BYTES,
-            $result['size'],
-            'Sanitised payload size must be under 5 MB'
-        );
-        $this->assertStringNotContainsString($payload, $this->persistedBytes);
-        $this->assertStringContainsString('<circle', $this->persistedBytes);
-    }
+		// Sanitised result MUST be under the cap.
+		$this->assertLessThan(
+			ResourceService::MAX_BYTES,
+			$result['size'],
+			'Sanitised payload size must be under 5 MB'
+		);
+		$this->assertStringNotContainsString($payload, $this->persistedBytes);
+		$this->assertStringContainsString('<circle', $this->persistedBytes);
+	}
 
-    public function testNearCapCleanSvgIsAccepted(): void
-    {
-        // A clean 4.9 MB-ish SVG whose sanitised output is roughly the
-        // same size — must succeed, well under the 5 MB cap.
-        $padding = str_repeat(' ', (int) (4.8 * 1024 * 1024));
-        $svg     = '<svg xmlns="http://www.w3.org/2000/svg">'
-                 . '<title>' . $padding . '</title>'
-                 . '<circle r="5"/>'
-                 . '</svg>';
+	public function testNearCapCleanSvgIsAccepted(): void {
+		// A clean 4.9 MB-ish SVG whose sanitised output is roughly the
+		// same size — must succeed, well under the 5 MB cap.
+		$padding = str_repeat(' ', (int)(4.8 * 1024 * 1024));
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg">'
+				 . '<title>' . $padding . '</title>'
+				 . '<circle r="5"/>'
+				 . '</svg>';
 
-        $result = $this->service->upload(
-            base64DataUrl: $this->dataUrl($svg)
-        );
+		$result = $this->service->upload(
+			base64DataUrl: $this->dataUrl($svg)
+		);
 
-        $this->assertLessThan(ResourceService::MAX_BYTES, $result['size']);
-        $this->assertStringContainsString('<circle', $this->persistedBytes);
-    }
+		$this->assertLessThan(ResourceService::MAX_BYTES, $result['size']);
+		$this->assertStringContainsString('<circle', $this->persistedBytes);
+	}
 
-    public function testPersistedBytesAreSanitisedNotOriginal(): void
-    {
-        $svg = '<svg xmlns="http://www.w3.org/2000/svg">'
-             . '<script>EVIL_MARKER_42</script>'
-             . '<rect x="1" y="2" width="3" height="4"/>'
-             . '</svg>';
+	public function testPersistedBytesAreSanitisedNotOriginal(): void {
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg">'
+			 . '<script>EVIL_MARKER_42</script>'
+			 . '<rect x="1" y="2" width="3" height="4"/>'
+			 . '</svg>';
 
-        $this->service->upload(
-            base64DataUrl: $this->dataUrl($svg)
-        );
+		$this->service->upload(
+			base64DataUrl: $this->dataUrl($svg)
+		);
 
-        // Persisted bytes MUST NOT be byte-equal to the original.
-        $this->assertNotSame($svg, $this->persistedBytes);
-        $this->assertStringNotContainsString('EVIL_MARKER_42', $this->persistedBytes);
-        $this->assertStringContainsString('<rect', $this->persistedBytes);
-    }
+		// Persisted bytes MUST NOT be byte-equal to the original.
+		$this->assertNotSame($svg, $this->persistedBytes);
+		$this->assertStringNotContainsString('EVIL_MARKER_42', $this->persistedBytes);
+		$this->assertStringContainsString('<rect', $this->persistedBytes);
+	}
 }

@@ -1,10 +1,13 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
-	<div class="roles-permissions-tab" data-test="roles-permissions-tab" data-testid="admin-roles-section">
+	<div
+		class="roles-permissions-tab"
+		data-test="roles-permissions-tab"
+		data-testid="admin-roles-section">
 		<RolePermissionsSection />
 		<div class="roles-permissions-tab__spacer" />
 		<RoleLayoutDefaultsSection data-testid="admin-layout-defaults-section" />
@@ -14,9 +17,9 @@
 </template>
 
 <script>
-import RolePermissionsSection from '../RolePermissionsSection.vue'
-import RoleLayoutDefaultsSection from '../RoleLayoutDefaultsSection.vue'
 import ActionAuthMatrix from '../ActionAuthMatrix.vue'
+import RoleLayoutDefaultsSection from '../RoleLayoutDefaultsSection.vue'
+import RolePermissionsSection from '../RolePermissionsSection.vue'
 
 /**
  * RolesPermissionsTab — Beheer ▸ Roles & Permissions tab (permissions spec).

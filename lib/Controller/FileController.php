@@ -23,8 +23,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -47,132 +47,127 @@ use Throwable;
 
 /**
  * Controller for the link-button-widget createFile flow.
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class FileController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest        $request     The HTTP request.
-     * @param FileService     $fileService File-creation pipeline.
-     * @param IUserSession    $userSession Session accessor.
-     * @param LoggerInterface $logger      PSR logger.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly FileService $fileService,
-        private readonly IUserSession $userSession,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class FileController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The HTTP request.
+	 * @param FileService $fileService File-creation pipeline.
+	 * @param IUserSession $userSession Session accessor.
+	 * @param LoggerInterface $logger PSR logger.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly FileService $fileService,
+		private readonly IUserSession $userSession,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Handle `POST /api/files/create` (REQ-LBN-004).
-     *
-     * @param string|null $filename Leaf filename.
-     * @param string|null $dir      Target subdirectory (default `/`).
-     * @param string|null $content  Bytes to write (default empty).
-     *
-     * @return JSONResponse Either `{status, fileId, url}` on HTTP 200
-     *                      or `{status, error, message}` on failure.
-     *
-     * @NoCSRFRequired
-         *
-     * @spec openspec/specs/resource-uploads/spec.md
- */
-    #[NoAdminRequired]
-    public function createFile(
-        ?string $filename=null,
-        ?string $dir='/',
-        ?string $content=''
-    ): JSONResponse {
-        try {
-            $userId = $this->resolveUserId();
+	/**
+	 * Handle `POST /api/files/create` (REQ-LBN-004).
+	 *
+	 * @param string|null $filename Leaf filename.
+	 * @param string|null $dir Target subdirectory (default `/`).
+	 * @param string|null $content Bytes to write (default empty).
+	 *
+	 * @return JSONResponse Either `{status, fileId, url}` on HTTP 200
+	 *                      or `{status, error, message}` on failure.
+	 *
+	 * @NoCSRFRequired
+	 *
+	 * @spec openspec/specs/resource-uploads/spec.md
+	 */
+	#[NoAdminRequired]
+	public function createFile(
+		?string $filename = null,
+		?string $dir = '/',
+		?string $content = '',
+	): JSONResponse {
+		try {
+			$userId = $this->resolveUserId();
 
-            $result = $this->fileService->createFile(
-                userId: $userId,
-                filename: ($filename ?? ''),
-                dir: ($dir ?? '/'),
-                content: ($content ?? '')
-            );
+			$result = $this->fileService->createFile(
+				userId: $userId,
+				filename: ($filename ?? ''),
+				dir: ($dir ?? '/'),
+				content: ($content ?? '')
+			);
 
-            return new JSONResponse(
-                data: $result,
-                statusCode: Http::STATUS_OK
-            );
-        } catch (ForbiddenException $e) {
-            return new JSONResponse(
-                data: [
-                    'status'  => 'error',
-                    'error'   => 'forbidden',
-                    'message' => 'Authentication required',
-                ],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        } catch (ResourceException $e) {
-            if ($e instanceof StorageFailureException) {
-                $this->logger->error(
-                    message: 'File create storage failure',
-                    context: ['exception' => $e->getMessage()]
-                );
-            }
+			return new JSONResponse(
+				data: $result,
+				statusCode: Http::STATUS_OK
+			);
+		} catch (ForbiddenException $e) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'forbidden',
+					'message' => 'Authentication required',
+				],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		} catch (ResourceException $e) {
+			if ($e instanceof StorageFailureException) {
+				$this->logger->error(
+					message: 'File create storage failure',
+					context: ['exception' => $e->getMessage()]
+				);
+			}
 
-            return $this->errorResponse(exception: $e);
-        } catch (Throwable $e) {
-            // Defence in depth — never leak raw messages on
-            // truly unexpected paths.
-            $this->logger->error(
-                message: 'Unexpected file create failure',
-                context: ['exception' => $e->getMessage()]
-            );
+			return $this->errorResponse(exception: $e);
+		} catch (Throwable $e) {
+			// Defence in depth — never leak raw messages on
+			// truly unexpected paths.
+			$this->logger->error(
+				message: 'Unexpected file create failure',
+				context: ['exception' => $e->getMessage()]
+			);
 
-            $fallback = new StorageFailureException(
-                message: 'Failed to create file'
-            );
+			$fallback = new StorageFailureException(
+				message: 'Failed to create file'
+			);
 
-            return $this->errorResponse(exception: $fallback);
-        }//end try
-    }//end createFile()
+			return $this->errorResponse(exception: $fallback);
+		}//end try
+	}//end createFile()
 
-    /**
-     * Resolve the logged-in user's ID.
-     *
-     * @return string The user's UID.
-     *
-     * @throws ForbiddenException When the request is not authenticated.
-     */
-    private function resolveUserId(): string
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            throw new ForbiddenException();
-        }
+	/**
+	 * Resolve the logged-in user's ID.
+	 *
+	 * @return string The user's UID.
+	 *
+	 * @throws ForbiddenException When the request is not authenticated.
+	 */
+	private function resolveUserId(): string {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			throw new ForbiddenException();
+		}
 
-        return $user->getUID();
-    }//end resolveUserId()
+		return $user->getUID();
+	}//end resolveUserId()
 
-    /**
-     * Build the standardised error envelope from a typed exception.
-     *
-     * @param ResourceException $exception The typed exception.
-     *
-     * @return JSONResponse The error response.
-     */
-    private function errorResponse(ResourceException $exception): JSONResponse
-    {
-        return new JSONResponse(
-            data: [
-                'status'  => 'error',
-                'error'   => $exception->getErrorCode(),
-                'message' => $exception->getDisplayMessage(),
-            ],
-            statusCode: $exception->getHttpStatus()
-        );
-    }//end errorResponse()
+	/**
+	 * Build the standardised error envelope from a typed exception.
+	 *
+	 * @param ResourceException $exception The typed exception.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function errorResponse(ResourceException $exception): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'error',
+				'error' => $exception->getErrorCode(),
+				'message' => $exception->getDisplayMessage(),
+			],
+			statusCode: $exception->getHttpStatus()
+		);
+	}//end errorResponse()
 }//end class

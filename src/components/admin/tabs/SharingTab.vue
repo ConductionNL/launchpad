@@ -1,13 +1,13 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="sharing-tab" data-test="sharing-tab">
 		<DashboardSharingPolicy :groups="groups" />
 		<div class="sharing-tab__spacer" />
-		<GroupPriorityOrder :initial-active="configuredGroups" />
+		<GroupPriorityOrder :initialActive="configuredGroups" />
 	</div>
 </template>
 
@@ -34,6 +34,7 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+
 		/** Initial configured groups seed for GroupPriorityOrder. */
 		configuredGroups: {
 			type: Array,

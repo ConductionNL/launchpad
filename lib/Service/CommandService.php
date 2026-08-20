@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -32,224 +32,222 @@ use Psr\Log\LoggerInterface;
  * The class is intentionally stateless: it holds only the platform
  * logger and exposes pure helpers so individual commands stay thin.
  */
-class CommandService
-{
-    /**
-     * Exit code for successful execution (REQ-CLI-006).
-     *
-     * @var integer
-     */
-    public const EXIT_SUCCESS = 0;
+class CommandService {
+	/**
+	 * Exit code for successful execution (REQ-CLI-006).
+	 *
+	 * @var integer
+	 */
+	public const EXIT_SUCCESS = 0;
 
-    /**
-     * Exit code for unhandled exceptions / generic errors (REQ-CLI-006).
-     *
-     * @var integer
-     */
-    public const EXIT_ERROR = 1;
+	/**
+	 * Exit code for unhandled exceptions / generic errors (REQ-CLI-006).
+	 *
+	 * @var integer
+	 */
+	public const EXIT_ERROR = 1;
 
-    /**
-     * Exit code for invalid / malformed CLI arguments (REQ-CLI-006).
-     *
-     * @var integer
-     */
-    public const EXIT_INVALID_ARGS = 2;
+	/**
+	 * Exit code for invalid / malformed CLI arguments (REQ-CLI-006).
+	 *
+	 * @var integer
+	 */
+	public const EXIT_INVALID_ARGS = 2;
 
-    /**
-     * Exit code for permission / authorization failures (REQ-CLI-006).
-     *
-     * @var integer
-     */
-    public const EXIT_PERMISSION_DENIED = 3;
+	/**
+	 * Exit code for permission / authorization failures (REQ-CLI-006).
+	 *
+	 * @var integer
+	 */
+	public const EXIT_PERMISSION_DENIED = 3;
 
-    /**
-     * Exit code for "resource not found" lookups (REQ-CLI-006).
-     *
-     * @var integer
-     */
-    public const EXIT_NOT_FOUND = 4;
+	/**
+	 * Exit code for "resource not found" lookups (REQ-CLI-006).
+	 *
+	 * @var integer
+	 */
+	public const EXIT_NOT_FOUND = 4;
 
-    /**
-     * Exit code for batch operations that partially succeeded
-     * (REQ-CLI-006).
-     *
-     * @var integer
-     */
-    public const EXIT_PARTIAL_SUCCESS = 5;
+	/**
+	 * Exit code for batch operations that partially succeeded
+	 * (REQ-CLI-006).
+	 *
+	 * @var integer
+	 */
+	public const EXIT_PARTIAL_SUCCESS = 5;
 
-    /**
-     * Maximum number of characters of the args string written to the
-     * audit log line (REQ-CLI-010).
-     *
-     * @var integer
-     */
-    public const AUDIT_ARGS_MAX = 100;
+	/**
+	 * Maximum number of characters of the args string written to the
+	 * audit log line (REQ-CLI-010).
+	 *
+	 * @var integer
+	 */
+	public const AUDIT_ARGS_MAX = 100;
 
-    /**
-     * Constructor.
-     *
-     * @param LoggerInterface $logger Platform logger used for audit
-     *                                lines (REQ-CLI-010).
-     */
-    public function __construct(private readonly LoggerInterface $logger)
-    {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param LoggerInterface $logger Platform logger used for audit
+	 *                                lines (REQ-CLI-010).
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Build a successful JSON envelope (REQ-CLI-007).
-     *
-     * @param array<string,mixed>|list<mixed>|null $data Command payload.
-     *
-     * @return array<string,mixed>
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function envelopeSuccess(array|null $data): array
-    {
-        return [
-            'success'  => true,
-            'exitCode' => self::EXIT_SUCCESS,
-            'data'     => $data,
-            'errors'   => [],
-        ];
-    }//end envelopeSuccess()
+	/**
+	 * Build a successful JSON envelope (REQ-CLI-007).
+	 *
+	 * @param array<string,mixed>|list<mixed>|null $data Command payload.
+	 *
+	 * @return array<string,mixed>
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function envelopeSuccess(?array $data): array {
+		return [
+			'success' => true,
+			'exitCode' => self::EXIT_SUCCESS,
+			'data' => $data,
+			'errors' => [],
+		];
+	}//end envelopeSuccess()
 
-    /**
-     * Build an error JSON envelope (REQ-CLI-007).
-     *
-     * @param int                      $exitCode Command exit code.
-     * @param string                   $code     Stable error identifier.
-     * @param string                   $message  Human-readable text.
-     * @param array<string,mixed>|null $context  Optional metadata.
-     *
-     * @return array<string,mixed>
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function envelopeError(
-        int $exitCode,
-        string $code,
-        string $message,
-        array|null $context=null
-    ): array {
-        $error = [
-            'code'    => $code,
-            'message' => $message,
-        ];
-        if ($context !== null) {
-            $error['context'] = $context;
-        }
+	/**
+	 * Build an error JSON envelope (REQ-CLI-007).
+	 *
+	 * @param int $exitCode Command exit code.
+	 * @param string $code Stable error identifier.
+	 * @param string $message Human-readable text.
+	 * @param array<string,mixed>|null $context Optional metadata.
+	 *
+	 * @return array<string,mixed>
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function envelopeError(
+		int $exitCode,
+		string $code,
+		string $message,
+		?array $context = null,
+	): array {
+		$error = [
+			'code' => $code,
+			'message' => $message,
+		];
+		if ($context !== null) {
+			$error['context'] = $context;
+		}
 
-        return [
-            'success'  => false,
-            'exitCode' => $exitCode,
-            'data'     => null,
-            'errors'   => [$error],
-        ];
-    }//end envelopeError()
+		return [
+			'success' => false,
+			'exitCode' => $exitCode,
+			'data' => null,
+			'errors' => [$error],
+		];
+	}//end envelopeError()
 
-    /**
-     * Encode an envelope to a single JSON line (REQ-CLI-007).
-     *
-     * @param array<string,mixed> $envelope The envelope to encode.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function encodeEnvelope(array $envelope): string
-    {
-        return (string) json_encode(
-            value: $envelope,
-            flags: (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-        );
-    }//end encodeEnvelope()
+	/**
+	 * Encode an envelope to a single JSON line (REQ-CLI-007).
+	 *
+	 * @param array<string,mixed> $envelope The envelope to encode.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function encodeEnvelope(array $envelope): string {
+		return (string)json_encode(
+			value: $envelope,
+			flags: (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+		);
+	}//end encodeEnvelope()
 
-    /**
-     * Format an audit-log line per REQ-CLI-010.
-     *
-     * Format: `[launchpad] cli <command> <args> exitCode=<n>
-     * durationMs=<ms> byUser=<uid|cli>`
-     *
-     * @param string      $command    Full command name without the
-     *                                `launchpad:` prefix (e.g.
-     *                                `dashboard:list`).
-     * @param string      $args       Space-joined argv tail. May be
-     *                                truncated to {@see AUDIT_ARGS_MAX}.
-     * @param int         $exitCode   Final exit code.
-     * @param int         $durationMs Wall-clock execution time.
-     * @param string|null $byUser     Caller user id or null for `cli`.
-     *
-     * @return string
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function formatAuditLine(
-        string $command,
-        string $args,
-        int $exitCode,
-        int $durationMs,
-        string|null $byUser
-    ): string {
-        $argsClean = trim(string: $args);
-        if (mb_strlen(string: $argsClean) > self::AUDIT_ARGS_MAX) {
-            $argsClean = mb_substr(
-                string: $argsClean,
-                start: 0,
-                length: (self::AUDIT_ARGS_MAX - 3)
-            ).'...';
-        }
+	/**
+	 * Format an audit-log line per REQ-CLI-010.
+	 *
+	 * Format: `[launchpad] cli <command> <args> exitCode=<n>
+	 * durationMs=<ms> byUser=<uid|cli>`
+	 *
+	 * @param string $command Full command name without the
+	 *                        `launchpad:` prefix (e.g.
+	 *                        `dashboard:list`).
+	 * @param string $args Space-joined argv tail. May be
+	 *                     truncated to {@see AUDIT_ARGS_MAX}.
+	 * @param int $exitCode Final exit code.
+	 * @param int $durationMs Wall-clock execution time.
+	 * @param string|null $byUser Caller user id or null for `cli`.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function formatAuditLine(
+		string $command,
+		string $args,
+		int $exitCode,
+		int $durationMs,
+		?string $byUser,
+	): string {
+		$argsClean = trim(string: $args);
+		if (mb_strlen(string: $argsClean) > self::AUDIT_ARGS_MAX) {
+			$argsClean = mb_substr(
+				string: $argsClean,
+				start: 0,
+				length: (self::AUDIT_ARGS_MAX - 3)
+			) . '...';
+		}
 
-        $user = $byUser;
-        if ($user === null || $user === '') {
-            $user = 'cli';
-        }
+		$user = $byUser;
+		if ($user === null || $user === '') {
+			$user = 'cli';
+		}
 
-        return sprintf(
-            '[launchpad] cli %s %s exitCode=%d durationMs=%d byUser=%s',
-            $command,
-            $argsClean,
-            $exitCode,
-            $durationMs,
-            $user
-        );
-    }//end formatAuditLine()
+		return sprintf(
+			'[launchpad] cli %s %s exitCode=%d durationMs=%d byUser=%s',
+			$command,
+			$argsClean,
+			$exitCode,
+			$durationMs,
+			$user
+		);
+	}//end formatAuditLine()
 
-    /**
-     * Write the audit-log line to the platform logger (REQ-CLI-010).
-     *
-     * @param string      $command    Command name.
-     * @param string      $args       Argument string.
-     * @param int         $exitCode   Exit code.
-     * @param int         $durationMs Wall-clock duration.
-     * @param string|null $byUser     Caller user id.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    public function audit(
-        string $command,
-        string $args,
-        int $exitCode,
-        int $durationMs,
-        string|null $byUser
-    ): void {
-        $this->logger->info(
-            message: $this->formatAuditLine(
-                command: $command,
-                args: $args,
-                exitCode: $exitCode,
-                durationMs: $durationMs,
-                byUser: $byUser
-            ),
-            context: [
-                'app'        => 'launchpad',
-                'command'    => $command,
-                'exitCode'   => $exitCode,
-                'durationMs' => $durationMs,
-                'byUser'     => ($byUser ?? 'cli'),
-            ]
-        );
-    }//end audit()
+	/**
+	 * Write the audit-log line to the platform logger (REQ-CLI-010).
+	 *
+	 * @param string $command Command name.
+	 * @param string $args Argument string.
+	 * @param int $exitCode Exit code.
+	 * @param int $durationMs Wall-clock duration.
+	 * @param string|null $byUser Caller user id.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	public function audit(
+		string $command,
+		string $args,
+		int $exitCode,
+		int $durationMs,
+		?string $byUser,
+	): void {
+		$this->logger->info(
+			message: $this->formatAuditLine(
+				command: $command,
+				args: $args,
+				exitCode: $exitCode,
+				durationMs: $durationMs,
+				byUser: $byUser
+			),
+			context: [
+				'app' => 'launchpad',
+				'command' => $command,
+				'exitCode' => $exitCode,
+				'durationMs' => $durationMs,
+				'byUser' => ($byUser ?? 'cli'),
+			]
+		);
+	}//end audit()
 }//end class

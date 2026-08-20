@@ -39,246 +39,229 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class PublicShareControllerTest extends TestCase
-{
+class PublicShareControllerTest extends TestCase {
 
-    /** @var IRequest&MockObject */
-    private $request;
+	/** @var IRequest&MockObject */
+	private $request;
 
-    /** @var PublicShareService&MockObject */
-    private $shareService;
+	/** @var PublicShareService&MockObject */
+	private $shareService;
 
-    /** @var PublicShareContext&MockObject */
-    private $shareContext;
+	/** @var PublicShareContext&MockObject */
+	private $shareContext;
 
-    /** @var LoggerInterface&MockObject */
-    private $logger;
+	/** @var LoggerInterface&MockObject */
+	private $logger;
 
-    private function makeController(?string $userId='alice'): PublicShareController
-    {
-        return new PublicShareController(
-            request: $this->request,
-            shareService: $this->shareService,
-            shareContext: $this->shareContext,
-            logger: $this->logger,
-            userId: $userId,
-        );
-    }
+	private function makeController(?string $userId = 'alice'): PublicShareController {
+		return new PublicShareController(
+			request: $this->request,
+			shareService: $this->shareService,
+			shareContext: $this->shareContext,
+			logger: $this->logger,
+			userId: $userId,
+		);
+	}
 
-    protected function setUp(): void
-    {
-        $this->request      = $this->createMock(IRequest::class);
-        $this->shareService = $this->createMock(PublicShareService::class);
-        $this->shareContext = $this->createMock(PublicShareContext::class);
-        $this->logger       = $this->createMock(LoggerInterface::class);
-    }
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->shareService = $this->createMock(PublicShareService::class);
+		$this->shareContext = $this->createMock(PublicShareContext::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+	}
 
-    // -------------------------------------------------------------------------
-    // create
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// create
+	// -------------------------------------------------------------------------
 
-    public function testCreateReturns401WhenNotLoggedIn(): void
-    {
-        $controller = $this->makeController(userId: null);
-        $response   = $controller->create(uuid: 'some-uuid');
+	public function testCreateReturns401WhenNotLoggedIn(): void {
+		$controller = $this->makeController(userId: null);
+		$response = $controller->create(uuid: 'some-uuid');
 
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+	}
 
-    public function testCreateReturns403WhenNotOwner(): void
-    {
-        $this->shareService
-            ->method('createPublicShare')
-            ->willThrowException(new OCSForbiddenException('Not authorized'));
+	public function testCreateReturns403WhenNotOwner(): void {
+		$this->shareService
+			->method('createPublicShare')
+			->willThrowException(new OCSForbiddenException('Not authorized'));
 
-        $response = $this->makeController()->create(uuid: 'some-uuid');
+		$response = $this->makeController()->create(uuid: 'some-uuid');
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testCreateReturns404WhenDashboardMissing(): void
-    {
-        $this->shareService
-            ->method('createPublicShare')
-            ->willThrowException(new DoesNotExistException('not found'));
+	public function testCreateReturns404WhenDashboardMissing(): void {
+		$this->shareService
+			->method('createPublicShare')
+			->willThrowException(new DoesNotExistException('not found'));
 
-        $response = $this->makeController()->create(uuid: 'missing-uuid');
+		$response = $this->makeController()->create(uuid: 'missing-uuid');
 
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
 
-    public function testCreateReturns201OnSuccess(): void
-    {
-        $share = new PublicShare();
-        $share->setToken(str_repeat('a', 64));
-        $share->setViewCount(0);
+	public function testCreateReturns201OnSuccess(): void {
+		$share = new PublicShare();
+		$share->setToken(str_repeat('a', 64));
+		$share->setViewCount(0);
 
-        $this->shareService->method('createPublicShare')->willReturn($share);
+		$this->shareService->method('createPublicShare')->willReturn($share);
 
-        $response = $this->makeController()->create(uuid: 'some-uuid');
+		$response = $this->makeController()->create(uuid: 'some-uuid');
 
-        $this->assertSame(Http::STATUS_CREATED, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
+	}
 
-    // -------------------------------------------------------------------------
-    // index
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// index
+	// -------------------------------------------------------------------------
 
-    public function testIndexReturns403ForNonOwner(): void
-    {
-        $this->shareService
-            ->method('listActiveShares')
-            ->willThrowException(new OCSForbiddenException('Not authorized'));
+	public function testIndexReturns403ForNonOwner(): void {
+		$this->shareService
+			->method('listActiveShares')
+			->willThrowException(new OCSForbiddenException('Not authorized'));
 
-        $response = $this->makeController()->index(uuid: 'some-uuid');
+		$response = $this->makeController()->index(uuid: 'some-uuid');
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testIndexReturnsEmptyArrayWhenNoShares(): void
-    {
-        $this->shareService->method('listActiveShares')->willReturn([]);
+	public function testIndexReturnsEmptyArrayWhenNoShares(): void {
+		$this->shareService->method('listActiveShares')->willReturn([]);
 
-        $response = $this->makeController()->index(uuid: 'some-uuid');
+		$response = $this->makeController()->index(uuid: 'some-uuid');
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertSame([], $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame([], $response->getData());
+	}
 
-    // -------------------------------------------------------------------------
-    // destroy (revoke)
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// destroy (revoke)
+	// -------------------------------------------------------------------------
 
-    public function testDestroyReturns403ForNonOwner(): void
-    {
-        $this->shareService
-            ->method('revokeShare')
-            ->willThrowException(new OCSForbiddenException('Not authorized'));
+	public function testDestroyReturns403ForNonOwner(): void {
+		$this->shareService
+			->method('revokeShare')
+			->willThrowException(new OCSForbiddenException('Not authorized'));
 
-        $response = $this->makeController()->destroy(uuid: 'some-uuid', id: 7);
+		$response = $this->makeController()->destroy(uuid: 'some-uuid', id: 7);
 
-        $this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
 
-    public function testDestroyReturns204OnSuccess(): void
-    {
-        $this->shareService->method('revokeShare');
+	public function testDestroyReturns204OnSuccess(): void {
+		$this->shareService->method('revokeShare');
 
-        $response = $this->makeController()->destroy(uuid: 'some-uuid', id: 7);
+		$response = $this->makeController()->destroy(uuid: 'some-uuid', id: 7);
 
-        $this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
+	}
 
-    public function testDestroyIsIdempotentOnAlreadyRevoked(): void
-    {
-        // revokeShare is a no-op on already-revoked shares.
-        $this->shareService->method('revokeShare');
+	public function testDestroyIsIdempotentOnAlreadyRevoked(): void {
+		// revokeShare is a no-op on already-revoked shares.
+		$this->shareService->method('revokeShare');
 
-        $response = $this->makeController()->destroy(uuid: 'some-uuid', id: 7);
+		$response = $this->makeController()->destroy(uuid: 'some-uuid', id: 7);
 
-        $this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NO_CONTENT, $response->getStatus());
+	}
 
-    // -------------------------------------------------------------------------
-    // show (public render)
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// show (public render)
+	// -------------------------------------------------------------------------
 
-    public function testShowReturns401WhenPasswordRequired(): void
-    {
-        $this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
-        $this->request->method('getHeader')->willReturn('');
+	public function testShowReturns401WhenPasswordRequired(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+		$this->request->method('getHeader')->willReturn('');
 
-        $this->shareService
-            ->method('renderShareContent')
-            ->willThrowException(new SharePasswordRequiredException());
+		$this->shareService
+			->method('renderShareContent')
+			->willThrowException(new SharePasswordRequiredException());
 
-        $response = $this->makeController()->show(token: 'tok');
+		$response = $this->makeController()->show(token: 'tok');
 
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-        $this->assertTrue($response->getData()['passwordRequired']);
-    }
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertTrue($response->getData()['passwordRequired']);
+	}
 
-    public function testShowReturns404ForInvalidToken(): void
-    {
-        $this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
-        $this->request->method('getHeader')->willReturn('');
+	public function testShowReturns404ForInvalidToken(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+		$this->request->method('getHeader')->willReturn('');
 
-        $this->shareService
-            ->method('renderShareContent')
-            ->willThrowException(new ShareNotFoundException());
+		$this->shareService
+			->method('renderShareContent')
+			->willThrowException(new ShareNotFoundException());
 
-        $response = $this->makeController()->show(token: 'invalid');
+		$response = $this->makeController()->show(token: 'invalid');
 
-        $this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
 
-    public function testShowReturns200WithDashboardData(): void
-    {
-        $this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
-        $this->request->method('getHeader')->willReturn('');
+	public function testShowReturns200WithDashboardData(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+		$this->request->method('getHeader')->willReturn('');
 
-        $share     = new PublicShare();
-        $share->setToken('tok');
-        $share->setViewCount(1);
-        $dashboard = new Dashboard();
-        $dashboard->setUserId('alice');
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setViewCount(1);
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
 
-        $this->shareService
-            ->method('renderShareContent')
-            ->willReturn(['share' => $share, 'dashboard' => $dashboard]);
+		$this->shareService
+			->method('renderShareContent')
+			->willReturn(['share' => $share, 'dashboard' => $dashboard, 'placements' => []]);
 
-        $response = $this->makeController()->show(token: 'tok');
+		$response = $this->makeController()->show(token: 'tok');
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertArrayHasKey('share', $response->getData());
-        $this->assertArrayHasKey('dashboard', $response->getData());
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertArrayHasKey('share', $response->getData());
+		$this->assertArrayHasKey('dashboard', $response->getData());
+		$this->assertArrayHasKey('placements', $response->getData());
+	}
 
-    // -------------------------------------------------------------------------
-    // unlock (password verification)
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// unlock (password verification)
+	// -------------------------------------------------------------------------
 
-    public function testUnlockReturns429WhenThrottled(): void
-    {
-        $this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+	public function testUnlockReturns429WhenThrottled(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
 
-        $this->shareService
-            ->method('unlockShare')
-            ->willThrowException(new MaxDelayReached('throttled'));
+		$this->shareService
+			->method('unlockShare')
+			->willThrowException(new MaxDelayReached('throttled'));
 
-        $response = $this->makeController()->unlock(
-            token: 'tok',
-            password: 'WrongPass'
-        );
+		$response = $this->makeController()->unlock(
+			token: 'tok',
+			password: 'WrongPass'
+		);
 
-        $this->assertSame(Http::STATUS_TOO_MANY_REQUESTS, $response->getStatus());
-    }
+		$this->assertSame(Http::STATUS_TOO_MANY_REQUESTS, $response->getStatus());
+	}
 
-    public function testUnlockReturns200WithAccessTrueOnCorrectPassword(): void
-    {
-        $this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
-        $this->shareService->method('unlockShare')->willReturn(true);
+	public function testUnlockReturns200WithAccessTrueOnCorrectPassword(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+		$this->shareService->method('unlockShare')->willReturn(true);
 
-        $response = $this->makeController()->unlock(
-            token: 'tok',
-            password: 'SecurePass123!'
-        );
+		$response = $this->makeController()->unlock(
+			token: 'tok',
+			password: 'SecurePass123!'
+		);
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $this->assertTrue($response->getData()['access']);
-    }
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertTrue($response->getData()['access']);
+	}
 
-    public function testUnlockReturns401WithAccessFalseOnWrongPassword(): void
-    {
-        $this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
-        $this->shareService->method('unlockShare')->willReturn(false);
+	public function testUnlockReturns401WithAccessFalseOnWrongPassword(): void {
+		$this->request->method('getRemoteAddress')->willReturn('127.0.0.1');
+		$this->shareService->method('unlockShare')->willReturn(false);
 
-        $response = $this->makeController()->unlock(
-            token: 'tok',
-            password: 'WrongPassword'
-        );
+		$response = $this->makeController()->unlock(
+			token: 'tok',
+			password: 'WrongPassword'
+		);
 
-        $this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-        $this->assertFalse($response->getData()['access']);
-    }
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertFalse($response->getData()['access']);
+	}
 }//end class

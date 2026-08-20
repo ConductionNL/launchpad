@@ -15,7 +15,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -28,179 +28,170 @@ use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCP\AppFramework\Services\IInitialState;
 use PHPUnit\Framework\TestCase;
 
-class InitialStateBuilderTest extends TestCase
-{
-    /**
-     * In-memory IInitialState stub that records every push.
-     *
-     * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject
-     */
-    private function makeRecordingState(array &$sink): IInitialState
-    {
-        $stub = $this->createMock(IInitialState::class);
-        $stub->method('provideInitialState')
-            ->willReturnCallback(static function (string $key, mixed $value) use (&$sink): void {
-                $sink[$key] = $value;
-            });
-        return $stub;
-    }
+class InitialStateBuilderTest extends TestCase {
+	/**
+	 * In-memory IInitialState stub that records every push.
+	 *
+	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject
+	 */
+	private function makeRecordingState(array &$sink): IInitialState {
+		$stub = $this->createMock(IInitialState::class);
+		$stub->method('provideInitialState')
+			->willReturnCallback(static function (string $key, mixed $value) use (&$sink): void {
+				$sink[$key] = $value;
+			});
+		return $stub;
+	}
 
-    public function testWorkspaceBuilderRejectsMissingRequiredKey(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
+	public function testWorkspaceBuilderRejectsMissingRequiredKey(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
 
-        $builder
-            ->setWidgets([])
-            // Deliberately omit setLayout() — the spec requires it.
-            ->setPrimaryGroup('default')
-            ->setPrimaryGroupName('')
-            ->setIsAdmin(false)
-            ->setActiveDashboardId('')
-            ->setDashboardSource('group')
-            ->setGroupDashboards([])
-            ->setUserDashboards([])
-            ->setAllowUserDashboards(false);
+		$builder
+			->setWidgets([])
+			// Deliberately omit setLayout() — the spec requires it.
+			->setPrimaryGroup('default')
+			->setPrimaryGroupName('')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false);
 
-        $this->expectException(MissingInitialStateException::class);
-        $this->expectExceptionMessageMatches('/page "workspace".*"layout"/');
-        $builder->apply();
-    }
+		$this->expectException(MissingInitialStateException::class);
+		$this->expectExceptionMessageMatches('/page "workspace".*"layout"/');
+		$builder->apply();
+	}
 
-    public function testAdminBuilderRejectsMissingRequiredKey(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::ADMIN);
+	public function testAdminBuilderRejectsMissingRequiredKey(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::ADMIN);
 
-        $builder
-            ->setAllGroups([])
-            ->setConfiguredGroups([])
-            // Deliberately omit setWidgets()
-            ->setAllowUserDashboards(false)
-            ->setLinkCreateFileExtensions(['txt']);
+		$builder
+			->setAllGroups([])
+			->setConfiguredGroups([])
+			// Deliberately omit setWidgets()
+			->setAllowUserDashboards(false)
+			->setLinkCreateFileExtensions(['txt']);
 
-        $this->expectException(MissingInitialStateException::class);
-        $this->expectExceptionMessageMatches('/page "admin".*"widgets"/');
-        $builder->apply();
-    }
+		$this->expectException(MissingInitialStateException::class);
+		$this->expectExceptionMessageMatches('/page "admin".*"widgets"/');
+		$builder->apply();
+	}
 
-    public function testWorkspaceBuilderWritesEveryKeyWithCorrectValues(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
+	public function testWorkspaceBuilderWritesEveryKeyWithCorrectValues(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
 
-        $widgets         = [['id' => 'cal', 'title' => 'Calendar']];
-        $layout          = [['widgetId' => 'cal', 'x' => 0, 'y' => 0]];
-        $groupDashboards = [['id' => 'gd1', 'name' => 'Team', 'icon' => '']];
-        $userDashboards  = [['id' => 'ud1', 'name' => 'Mine', 'icon' => '']];
+		$widgets = [['id' => 'cal', 'title' => 'Calendar']];
+		$layout = [['widgetId' => 'cal', 'x' => 0, 'y' => 0]];
+		$groupDashboards = [['id' => 'gd1', 'name' => 'Team', 'icon' => '']];
+		$userDashboards = [['id' => 'ud1', 'name' => 'Mine', 'icon' => '']];
 
-        $builder
-            ->setWidgets($widgets)
-            ->setLayout($layout)
-            ->setPrimaryGroup('engineering')
-            ->setPrimaryGroupName('Engineering')
-            ->setIsAdmin(true)
-            ->setActiveDashboardId('uuid-1')
-            ->setDashboardSource('user')
-            ->setGroupDashboards($groupDashboards)
-            ->setUserDashboards($userDashboards)
-            ->setAllowUserDashboards(true)
-            ->setAllowedWidgets(null)
-            ->apply();
+		$builder
+			->setWidgets($widgets)
+			->setLayout($layout)
+			->setPrimaryGroup('engineering')
+			->setPrimaryGroupName('Engineering')
+			->setIsAdmin(true)
+			->setActiveDashboardId('uuid-1')
+			->setDashboardSource('user')
+			->setGroupDashboards($groupDashboards)
+			->setUserDashboards($userDashboards)
+			->setAllowUserDashboards(true)
+			->setAllowedWidgets(null)
+			->apply();
 
-        $this->assertSame($widgets, $sink['widgets']);
-        $this->assertSame($layout, $sink['layout']);
-        $this->assertSame('engineering', $sink['primaryGroup']);
-        $this->assertSame('Engineering', $sink['primaryGroupName']);
-        $this->assertTrue($sink['isAdmin']);
-        $this->assertSame('uuid-1', $sink['activeDashboardId']);
-        $this->assertSame('user', $sink['dashboardSource']);
-        $this->assertSame($groupDashboards, $sink['groupDashboards']);
-        $this->assertSame($userDashboards, $sink['userDashboards']);
-        $this->assertTrue($sink['allowUserDashboards']);
-    }
+		$this->assertSame($widgets, $sink['widgets']);
+		$this->assertSame($layout, $sink['layout']);
+		$this->assertSame('engineering', $sink['primaryGroup']);
+		$this->assertSame('Engineering', $sink['primaryGroupName']);
+		$this->assertTrue($sink['isAdmin']);
+		$this->assertSame('uuid-1', $sink['activeDashboardId']);
+		$this->assertSame('user', $sink['dashboardSource']);
+		$this->assertSame($groupDashboards, $sink['groupDashboards']);
+		$this->assertSame($userDashboards, $sink['userDashboards']);
+		$this->assertTrue($sink['allowUserDashboards']);
+	}
 
-    public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::ADMIN);
+	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::ADMIN);
 
-        $allGroups = [['id' => 'admin', 'displayName' => 'admin']];
-        $widgets   = [['id' => 'cal', 'title' => 'Calendar']];
+		$allGroups = [['id' => 'admin', 'displayName' => 'admin']];
+		$widgets = [['id' => 'cal', 'title' => 'Calendar']];
 
-        $builder
-            ->setAllGroups($allGroups)
-            ->setConfiguredGroups(['admin', 'users'])
-            ->setWidgets($widgets)
-            ->setAllowUserDashboards(true)
-            ->setLinkCreateFileExtensions(['txt', 'md'])
-            ->apply();
+		$builder
+			->setAllGroups($allGroups)
+			->setConfiguredGroups(['admin', 'users'])
+			->setWidgets($widgets)
+			->setAllowUserDashboards(true)
+			->setLinkCreateFileExtensions(['txt', 'md'])
+			->apply();
 
-        $this->assertSame($allGroups, $sink['allGroups']);
-        $this->assertSame(['admin', 'users'], $sink['configuredGroups']);
-        $this->assertSame($widgets, $sink['widgets']);
-        $this->assertTrue($sink['allowUserDashboards']);
-        $this->assertSame(['txt', 'md'], $sink['linkCreateFileExtensions']);
-    }
+		$this->assertSame($allGroups, $sink['allGroups']);
+		$this->assertSame(['admin', 'users'], $sink['configuredGroups']);
+		$this->assertSame($widgets, $sink['widgets']);
+		$this->assertTrue($sink['allowUserDashboards']);
+		$this->assertSame(['txt', 'md'], $sink['linkCreateFileExtensions']);
+	}
 
-    public function testSchemaVersionAlwaysPushedForWorkspace(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
+	public function testSchemaVersionAlwaysPushedForWorkspace(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
 
-        $builder
-            ->setWidgets([])
-            ->setLayout([])
-            ->setPrimaryGroup('default')
-            ->setPrimaryGroupName('')
-            ->setIsAdmin(false)
-            ->setActiveDashboardId('')
-            ->setDashboardSource('group')
-            ->setGroupDashboards([])
-            ->setUserDashboards([])
-            ->setAllowUserDashboards(false)
-            ->setAllowedWidgets(null)
-            ->apply();
+		$builder
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('default')
+			->setPrimaryGroupName('')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->apply();
 
-        $this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
-        $this->assertSame(
-            InitialStateBuilder::INITIAL_STATE_SCHEMA_VERSION,
-            $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]
-        );
-    }
+		$this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
+		$this->assertSame(
+			InitialStateBuilder::INITIAL_STATE_SCHEMA_VERSION,
+			$sink[InitialStateBuilder::KEY_SCHEMA_VERSION]
+		);
+	}
 
-    public function testSchemaVersionAlwaysPushedForAdmin(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::ADMIN);
+	public function testSchemaVersionAlwaysPushedForAdmin(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::ADMIN);
 
-        $builder
-            ->setAllGroups([])
-            ->setConfiguredGroups([])
-            ->setWidgets([])
-            ->setAllowUserDashboards(false)
-            ->setLinkCreateFileExtensions(['txt'])
-            ->apply();
+		$builder
+			->setAllGroups([])
+			->setConfiguredGroups([])
+			->setWidgets([])
+			->setAllowUserDashboards(false)
+			->setLinkCreateFileExtensions(['txt'])
+			->apply();
 
-        $this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
-        $this->assertSame(2, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
-    }
+		$this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
+		$this->assertSame(2, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
+	}
 
-    public function testMissingFirstKeyExceptionMessageNamesTheFirstMissingKey(): void
-    {
-        $sink    = [];
-        $state   = $this->makeRecordingState($sink);
-        $builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
+	public function testMissingFirstKeyExceptionMessageNamesTheFirstMissingKey(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE);
 
-        // Set nothing — apply should fail on the first required key.
-        $this->expectException(MissingInitialStateException::class);
-        $this->expectExceptionMessage('"widgets"');
-        $builder->apply();
-    }
+		// Set nothing — apply should fail on the first required key.
+		$this->expectException(MissingInitialStateException::class);
+		$this->expectExceptionMessage('"widgets"');
+		$builder->apply();
+	}
 }

@@ -5,13 +5,13 @@
  * endpoints introduced by `lib/Controller/RoleFeaturePermissionApiController.php`
  * (REQ-RFP-001..010).
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
-import { defineStore } from 'pinia'
-import { generateUrl } from '@nextcloud/router'
 import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
+import { defineStore } from 'pinia'
 
 const PERMS_URL = generateUrl('/apps/launchpad/api/role-feature-permissions')
 const DEFAULTS_URL = generateUrl('/apps/launchpad/api/role-layout-defaults')
@@ -28,8 +28,9 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 	actions: {
 		/**
 		 * Fetch all RoleFeaturePermission rows.
+		 *
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async loadPermissions() {
 			this.loading = true
 			this.error = null
@@ -47,8 +48,9 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 
 		/**
 		 * Fetch all RoleLayoutDefault rows.
+		 *
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async loadLayoutDefaults() {
 			this.loading = true
 			this.error = null
@@ -68,8 +70,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Upsert a RoleFeaturePermission keyed by groupId.
 		 *
 		 * @param {object} permission The permission payload.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async savePermission(permission) {
 			this.saving = true
 			this.error = null
@@ -97,8 +99,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Delete a RoleFeaturePermission row by id.
 		 *
 		 * @param {number} id The row id.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async deletePermission(id) {
 			this.saving = true
 			this.error = null
@@ -117,8 +119,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Upsert a RoleLayoutDefault keyed by (groupId, widgetId).
 		 *
 		 * @param {object} layoutDefault The layout-default payload.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async saveLayoutDefault(layoutDefault) {
 			this.saving = true
 			this.error = null
@@ -126,7 +128,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 				const response = await axios.post(DEFAULTS_URL, layoutDefault)
 				const saved = response.data?.data ?? response.data
 				const idx = this.layoutDefaults.findIndex(
-					(d) => d.groupId === saved.groupId && d.widgetId === saved.widgetId,
+					(d) =>
+						d.groupId === saved.groupId && d.widgetId === saved.widgetId,
 				)
 				if (idx >= 0) {
 					this.layoutDefaults.splice(idx, 1, saved)
@@ -146,8 +149,8 @@ export const useRoleFeaturePermissionStore = defineStore('roleFeaturePermissions
 		 * Delete a RoleLayoutDefault row by id.
 		 *
 		 * @param {number} id The row id.
+		 * @spec openspec/specs/admin-roles/spec.md
 		 */
-		/** @spec openspec/specs/admin-roles/spec.md */
 		async deleteLayoutDefault(id) {
 			this.saving = true
 			this.error = null

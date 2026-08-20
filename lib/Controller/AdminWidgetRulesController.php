@@ -35,44 +35,42 @@ use OCP\IRequest;
  *
  * @spec openspec/specs/conditional-visibility/spec.md
  */
-class AdminWidgetRulesController extends Controller
-{
-    /**
-     * Constructor
-     *
-     * @param IRequest           $request            The request.
-     * @param ConditionalService $conditionalService The conditional service.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly ConditionalService $conditionalService,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class AdminWidgetRulesController extends Controller {
+	/**
+	 * Constructor
+	 *
+	 * @param IRequest $request The request.
+	 * @param ConditionalService $conditionalService The conditional service.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly ConditionalService $conditionalService,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * List every widget placement that carries at least one conditional rule.
-     *
-     * Admin-only — the overview discloses every user's dashboard names and
-     * widget types, so it is gated with `#[AuthorizedAdminSetting]` like the
-     * rest of the Beheer surface (ADR-005).
-     *
-     * @return JSONResponse The overview rows (placement + dashboard + counts).
-     *
-     * @spec openspec/specs/conditional-visibility/spec.md
-     */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function index(): JSONResponse
-    {
-        try {
-            return ResponseHelper::success(
-                data: $this->conditionalService->listAllRules()
-            );
-        } catch (\Exception $e) {
-            return ResponseHelper::error(exception: $e);
-        }
-    }//end index()
+	/**
+	 * List every widget placement that carries at least one conditional rule.
+	 *
+	 * Admin-only — the overview discloses every user's dashboard names and
+	 * widget types, so it is gated with `#[AuthorizedAdminSetting]` like the
+	 * rest of the Beheer surface (ADR-005).
+	 *
+	 * @return JSONResponse The overview rows (placement + dashboard + counts).
+	 *
+	 * @spec openspec/specs/conditional-visibility/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function index(): JSONResponse {
+		try {
+			return ResponseHelper::success(
+				data: $this->conditionalService->listAllRules()
+			);
+		} catch (\Exception $e) {
+			return ResponseHelper::error(exception: $e);
+		}
+	}//end index()
 }//end class

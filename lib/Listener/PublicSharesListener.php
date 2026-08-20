@@ -38,59 +38,57 @@ use Throwable;
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
  */
-class PublicSharesListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param PublicShareMapper $shareMapper Public share mapper.
-     * @param LoggerInterface   $logger      PSR-3 logger.
-     */
-    public function __construct(
-        private readonly PublicShareMapper $shareMapper,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class PublicSharesListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param PublicShareMapper $shareMapper Public share mapper.
+	 * @param LoggerInterface $logger PSR-3 logger.
+	 */
+	public function __construct(
+		private readonly PublicShareMapper $shareMapper,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent by soft-revoking all active shares.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent by soft-revoking all active shares.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid = $event->getDashboardUuid();
+		$uuid = $event->getDashboardUuid();
 
-        try {
-            $count = $this->shareMapper->revokeByDashboardUuid(
-                dashboardUuid: $uuid
-            );
+		try {
+			$count = $this->shareMapper->revokeByDashboardUuid(
+				dashboardUuid: $uuid
+			);
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
-                    $count,
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad PublicSharesListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
+					$count,
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad PublicSharesListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

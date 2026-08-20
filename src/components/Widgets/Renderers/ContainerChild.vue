@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -9,7 +9,7 @@
 		v-if="childRenderer"
 		:content="childContent"
 		:placement="placement"
-		:edit-mode="editMode"
+		:editMode="editMode"
 		v-bind="extraProps" />
 	<div v-else class="container-child container-child--unknown">
 		<span class="container-child__missing">{{ unknownLabel }}</span>
@@ -18,7 +18,10 @@
 
 <script>
 import { getWidgetTypeEntry } from '../../../constants/widgetRegistry.js'
-import { buildWidgetDataProvide, buildRendererExtraProps } from '../../../services/widgetDataAdapters.js'
+import {
+	buildRendererExtraProps,
+	buildWidgetDataProvide,
+} from '../../../services/widgetDataAdapters.js'
 
 /**
  * ContainerChild — registry-driven dispatcher for a single child placement
@@ -42,19 +45,30 @@ import { buildWidgetDataProvide, buildRendererExtraProps } from '../../../servic
 export default {
 	name: 'ContainerChild',
 
+	/**
+	 * Bridge the nc-vue data widgets' injected sources to launchpad's
+	 * endpoints, scoped to this child's placement. Without this a nested
+	 * data widget would inherit the container's placement id (or none) and
+	 * fetch the wrong rows, so "child widgets render via the registry
+	 * dispatcher" would hold structurally but not behaviourally.
+	 *
+	 * @spec openspec/specs/container-widget/spec.md#req-cont-003
+	 * @return {object} the injected data-source adapters.
+	 */
+	provide() {
+		return buildWidgetDataProvide(() => this.placement?.id)
+	},
+
 	props: {
 		placement: {
 			type: Object,
 			required: true,
 		},
+
 		editMode: {
 			type: Boolean,
 			default: false,
 		},
-	},
-
-	provide() {
-		return buildWidgetDataProvide(() => this.placement?.id)
 	},
 
 	computed: {

@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -30,12 +30,11 @@ use Exception;
  * Lock operation refused — caller is neither owner nor admin
  * (REQ-LOCK-002, REQ-LOCK-003, REQ-LOCK-006).
  */
-class LockForbiddenException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'lock_forbidden';
+class LockForbiddenException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'lock_forbidden';
 }//end class

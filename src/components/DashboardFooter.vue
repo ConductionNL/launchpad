@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -9,13 +9,17 @@
 		class="launchpad-footer"
 		:style="footerStyle"
 		role="contentinfo">
-		<!-- HTML mode (REQ-FTR-002): server-sanitised payload rendered
-		     directly. The string already passed FooterService::sanitiseHtml
-		     server-side so v-html is the documented integration point. -->
+		<!-- HTML mode (REQ-FTR-002): rich HTML is the point of the feature,
+		     and this string is admin-authored, not user-supplied. It is
+		     sanitised server-side on write by FooterService::sanitiseHtml()
+		     (lib/Service/FooterService.php), which is the only path that can
+		     store it — so v-html is the documented integration point. -->
+		<!-- eslint-disable vue/no-v-html -->
 		<div
 			v-if="resolvedHtml !== null"
 			class="launchpad-footer__html"
 			v-html="resolvedHtml" />
+		<!-- eslint-enable vue/no-v-html -->
 
 		<!-- Structured mode (REQ-FTR-003 / REQ-FTR-004). Layout switches
 		     on the layoutMode field — `columns` for a 3-column grid,
@@ -27,25 +31,36 @@
 				'launchpad-footer__config--columns': layoutMode === 'columns',
 				'launchpad-footer__config--inline': layoutMode === 'inline',
 			}">
-			<div v-if="resolvedConfig.logoUrl || resolvedConfig.organisation" class="launchpad-footer__col">
+			<div
+				v-if="resolvedConfig.logoUrl || resolvedConfig.organisation"
+				class="launchpad-footer__col">
 				<img
 					v-if="resolvedConfig.logoUrl"
 					class="launchpad-footer__logo"
 					:src="resolvedConfig.logoUrl"
-					alt="">
+					alt="" />
 				<div v-if="orgName" class="launchpad-footer__org">
 					{{ orgName }}
 				</div>
 			</div>
-			<div v-if="addressLines.length > 0" class="launchpad-footer__col launchpad-footer__address">
+			<div
+				v-if="addressLines.length > 0"
+				class="launchpad-footer__col launchpad-footer__address">
 				<div v-for="(line, idx) in addressLines" :key="idx">
 					{{ line }}
 				</div>
 			</div>
 			<div v-if="hasLinksOrLegal" class="launchpad-footer__col">
-				<ul v-if="(resolvedConfig.links || []).length > 0" class="launchpad-footer__links">
+				<ul
+					v-if="(resolvedConfig.links || []).length > 0"
+					class="launchpad-footer__links">
 					<li v-for="(link, idx) in resolvedConfig.links" :key="idx">
-						<a :href="link.url" rel="noopener noreferrer" target="_blank">{{ link.label }}</a>
+						<a
+							:href="link.url"
+							rel="noopener noreferrer"
+							target="_blank"
+							>{{ link.label }}</a
+						>
 					</li>
 				</ul>
 				<div v-if="legalText" class="launchpad-footer__legal">
@@ -93,6 +108,7 @@ export default {
 			type: Object,
 			default: null,
 		},
+
 		locale: {
 			type: String,
 			default: 'en',
@@ -143,7 +159,12 @@ export default {
 			const out = {}
 			for (const key of Object.keys(config)) {
 				const value = config[key]
-				if (value && typeof value === 'object' && !Array.isArray(value) && !('label' in value)) {
+				if (
+					value
+					&& typeof value === 'object'
+					&& !Array.isArray(value)
+					&& !('label' in value)
+				) {
 					// Plain locale map — pick a variant.
 					out[key] = this.pickVariant(value)
 				} else {
@@ -193,8 +214,11 @@ export default {
 			if (!this.resolvedConfig) {
 				return false
 			}
-			const hasLinks = Array.isArray(this.resolvedConfig.links) && this.resolvedConfig.links.length > 0
-			const hasLegal = Boolean(this.legalText) || Boolean(this.resolvedConfig.copyrightYear)
+			const hasLinks =
+				Array.isArray(this.resolvedConfig.links)
+				&& this.resolvedConfig.links.length > 0
+			const hasLegal =
+				Boolean(this.legalText) || Boolean(this.resolvedConfig.copyrightYear)
 			return hasLinks || hasLegal
 		},
 
@@ -217,14 +241,15 @@ export default {
 		 * empty string. The parent layer is responsible for inserting the
 		 * dashboard primary-language fallback before this component sees
 		 * the map.
-		 * @param map
+		 *
+		 * @param {Record<string, string>} map Locale-keyed variants.
+		 * @spec openspec/specs/footer-customization/spec.md
 		 */
-		/** @spec openspec/specs/footer-customization/spec.md */
 		pickVariant(map) {
 			if (!map || typeof map !== 'object') {
 				return ''
 			}
-			if (Object.prototype.hasOwnProperty.call(map, this.locale)) {
+			if (Object.hasOwn(map, this.locale)) {
 				return map[this.locale]
 			}
 			const keys = Object.keys(map)
@@ -267,7 +292,9 @@ export default {
 	gap: 1rem;
 }
 
-.launchpad-footer__config--inline .launchpad-footer__col + .launchpad-footer__col::before {
+.launchpad-footer__config--inline
+	.launchpad-footer__col
+	+ .launchpad-footer__col::before {
 	content: '·';
 	margin-right: 1rem;
 	opacity: 0.5;

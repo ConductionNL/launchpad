@@ -19,7 +19,10 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\AppInfo;
 
 use OCA\LaunchPad\Activity\DebounceHelper;
+use OCA\LaunchPad\Controller\HealthController;
+use OCA\LaunchPad\Controller\MetricsController;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
+use OCA\LaunchPad\Listener\CspListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
@@ -39,6 +42,7 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Group\Events\GroupDeletedEvent;
+use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use OCP\User\Events\UserDeletedEvent;
 
 /**
@@ -53,217 +57,308 @@ use OCP\User\Events\UserDeletedEvent;
  *                                                  coupling count beyond
  *                                                  the default threshold.
  */
-class Application extends App implements IBootstrap
-{
-    public const APP_ID = 'launchpad';
+class Application extends App implements IBootstrap {
+	public const APP_ID = 'launchpad';
 
-    /**
-     * Constructor
-     *
-     * @param array $urlParams The URL parameters.
-     */
-    public function __construct(array $urlParams=[])
-    {
-        parent::__construct(appName: self::APP_ID, urlParams: $urlParams);
-    }//end __construct()
+	/**
+	 * Constructor
+	 *
+	 * @param array $urlParams The URL parameters.
+	 */
+	public function __construct(array $urlParams = []) {
+		parent::__construct(appName: self::APP_ID, urlParams: $urlParams);
+	}//end __construct()
 
-    /**
-     * Register services, event listeners, etc.
-     *
-     * @param IRegistrationContext $context The registration context.
-     *
-     * @return void
-     */
-    public function register(IRegistrationContext $context): void
-    {
-        // Render `dashboard_shared` and `dashboard_ownership_transferred`
-        // notifications via our INotifier. REQ-SHARE-011.
-        $context->registerNotifierService(notifierClass: Notifier::class);
+	/**
+	 * Register services, event listeners, etc.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 */
+	public function register(IRegistrationContext $context): void {
+		$this->registerUserLifecycle(context: $context);
+		$this->registerSharedServices(context: $context);
+		$this->registerCascadeListeners(context: $context);
+		$this->registerIntegrations(context: $context);
 
-        // Cascade share cleanup + admin-retention transfer on user deletion.
-        // Also fires the role-assignment cleanup. REQ-SHARE-012,
-        // REQ-SHARE-013, REQ-ROLE-010. The same listener also satisfies the
-        // owned-dashboard enumeration mandated by REQ-CSC-004 — every owned
-        // dashboard is routed through the deletion path that dispatches
-        // DashboardDeletedEvent below, triggering the full cascade stack.
-        $context->registerEventListener(
-            event: UserDeletedEvent::class,
-            listener: UserDeletedListener::class
-        );
+		// Observability (ADR-040): re-point the unchanged /api/health and
+		// /api/metrics routes at thin subclasses of the OpenRegister AppHost
+		// generic controllers, which render the declarative observability block
+		// of src/manifest.json. The factories below are lazy — they reference
+		// no OCA\OpenRegister\… symbol until a request resolves the controller,
+		// so a disabled/absent OpenRegister never fatals NC bootstrap (the route
+		// then surfaces the degraded OR-unavailable state instead). $appId is the
+		// runtime app id `launchpad`; the engine reads the manifest under it and
+		// emits the launchpad_ Prometheus prefix, preserving the contract.
+		$this->registerObservability(context: $context);
+	}//end register()
 
-        // REQ-ACT-007: register DebounceHelper as a shared singleton
-        // so the in-memory fallback store (used when APCu is absent in
-        // CLI / test runs) survives across all callers within a single
-        // request. ActivityPublisher autowires from the app namespace
-        // — no explicit binding needed (referenced here in this
-        // docblock for the cross-capability discoverability contract:
-        // {@see ActivityPublisher}).
-        $context->registerService(
-            name: DebounceHelper::class,
-            factory: static fn(): DebounceHelper => new DebounceHelper(),
-            shared: true
-        );
+	/**
+	 * Register the notifier and the user-deletion cascade listener.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 */
+	private function registerUserLifecycle(IRegistrationContext $context): void {
+		// Render `dashboard_shared` and `dashboard_ownership_transferred`
+		// notifications via our INotifier. REQ-SHARE-011.
+		$context->registerNotifierService(notifierClass: Notifier::class);
 
-        // Task-7 of dashboard-public-share — request-scoped bearer marker
-        // shared across the entire request so mutation services can
-        // assert read-only context without middleware plumbing.
-        $context->registerService(
-            name: PublicShareContext::class,
-            factory: static fn(): PublicShareContext => new PublicShareContext(),
-            shared: true
-        );
+		// Cascade share cleanup + admin-retention transfer on user deletion.
+		// Also fires the role-assignment cleanup. REQ-SHARE-012,
+		// REQ-SHARE-013, REQ-ROLE-010. The same listener also satisfies the
+		// owned-dashboard enumeration mandated by REQ-CSC-004 — every owned
+		// dashboard is routed through the deletion path that dispatches
+		// DashboardDeletedEvent below, triggering the full cascade stack.
+		$context->registerEventListener(
+			event: UserDeletedEvent::class,
+			listener: UserDeletedListener::class
+		);
+	}//end registerUserLifecycle()
 
-        // Role-assignment cascade on group deletion. REQ-ROLE-011.
-        // Group lifecycle cleanup. REQ-CSC-005.
-        $context->registerEventListener(
-            event: GroupDeletedEvent::class,
-            listener: GroupDeletedListener::class
-        );
+	/**
+	 * Register the request- and instance-scoped shared services.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 */
+	private function registerSharedServices(IRegistrationContext $context): void {
+		// REQ-ACT-007/REQ-ACT-008: register DebounceHelper as a shared
+		// singleton and inject the distributed cache. The PHP singleton
+		// alone only lives for one request (PHP-FPM rebuilds the DI
+		// container every request); it is the shared *distributed cache*
+		// — not the singleton — that makes the 900-second debounce
+		// guarantee hold across requests and workers when APCu is
+		// absent. ActivityPublisher autowires from the app namespace —
+		// no explicit binding needed (referenced here in this docblock
+		// for the cross-capability discoverability contract:
+		// {@see ActivityPublisher}).
+		$context->registerService(
+			name: DebounceHelper::class,
+			factory: static fn (\Psr\Container\ContainerInterface $c): DebounceHelper => new DebounceHelper(
+				cache: $c->get(\OCP\ICacheFactory::class)->createDistributed('launchpad_activity_debounce')
+			),
+			shared: true
+		);
 
-        // DashboardDeletedEvent listener registry. REQ-CSC-002.
-        // Each listener owns one dependent table (or, for TreeListener,
-        // recursive child dispatch). Adding a new listener requires only
-        // appending one registration line below — no edits to existing
-        // listener classes, the event, or DashboardService.
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: WidgetPlacementsListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: ReactionsListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: LocksListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: VersionsListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: PublicSharesListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: MetadataValuesListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: TranslationsListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: ViewAnalyticsListener::class
-        );
-        $context->registerEventListener(
-            event: DashboardDeletedEvent::class,
-            listener: TreeListener::class
-        );
+		// Task-7 of dashboard-public-share — request-scoped bearer marker
+		// shared across the entire request so mutation services can
+		// assert read-only context without middleware plumbing.
+		$context->registerService(
+			name: PublicShareContext::class,
+			factory: static fn (): PublicShareContext => new PublicShareContext(),
+			shared: true
+		);
+	}//end registerSharedServices()
 
-        // Surface dashboards, widget content, and metadata values in
-        // Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
-        $context->registerSearchProvider(class: LaunchPadSearchProvider::class);
+	/**
+	 * Register the group- and dashboard-deletion cascade listeners.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 */
+	private function registerCascadeListeners(IRegistrationContext $context): void {
+		// Role-assignment cascade on group deletion. REQ-ROLE-011.
+		// Group lifecycle cleanup. REQ-CSC-005.
+		$context->registerEventListener(
+			event: GroupDeletedEvent::class,
+			listener: GroupDeletedListener::class
+		);
 
-        // Observability (ADR-040): re-point the unchanged /api/health and
-        // /api/metrics routes at thin subclasses of the OpenRegister AppHost
-        // generic controllers, which render the declarative observability block
-        // of src/manifest.json. The factories below are lazy — they reference
-        // no OCA\OpenRegister\… symbol until a request resolves the controller,
-        // so a disabled/absent OpenRegister never fatals NC bootstrap (the route
-        // then surfaces the degraded OR-unavailable state instead). $appId is the
-        // runtime app id `launchpad`; the engine reads the manifest under it and
-        // emits the launchpad_ Prometheus prefix, preserving the contract.
-        $this->registerObservability(context: $context);
-    }//end register()
+		// DashboardDeletedEvent listener registry. REQ-CSC-002.
+		// Each listener owns one dependent table (or, for TreeListener,
+		// recursive child dispatch). Adding a new listener requires only
+		// appending one registration line below — no edits to existing
+		// listener classes, the event, or DashboardService.
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: WidgetPlacementsListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: ReactionsListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: LocksListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: VersionsListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: PublicSharesListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: MetadataValuesListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: TranslationsListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: ViewAnalyticsListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: TreeListener::class
+		);
+	}//end registerCascadeListeners()
 
-    /**
-     * Wire the AppHost observability controllers (ADR-040).
-     *
-     * Aliases the unchanged `health#index` / `metrics#index` route targets at
-     * the OpenRegister AppHost generic controllers, per the documented leaf
-     * adoption pattern (docs/Technical/declarative-observability.md). The
-     * controller's `$appName` resolves to this leaf's app id, so the engine
-     * loads `src/manifest.json`'s `observability` block under `launchpad` and
-     * renders the `launchpad_`-prefixed Prometheus output. The generic
-     * controllers own the auth posture: health is public (`#[PublicPage]`),
-     * metrics admin-only.
-     *
-     * LaunchPad keeps its own bespoke Dashboard/Preferences/Settings/
-     * AdminSettings boilerplate — entangled with the dashboard lifecycle,
-     * permission matrix and DoS-guarded preferences (see
-     * openspec/changes/adopt-apphost/design.md). The aliases are class-string
-     * registrations, so a disabled/absent OpenRegister never fatals NC
-     * bootstrap; the first request to an aliased route surfaces the degraded
-     * OR-unavailable state instead.
-     *
-     * @param IRegistrationContext $context The registration context.
-     *
-     * @return void
-     */
-    private function registerObservability(IRegistrationContext $context): void
-    {
-        // Health controller. The generic class is referenced only as a string
-        // and instantiated inside the closure, so no OCA\OpenRegister symbol is
-        // touched until a request resolves the controller — keeping NC bootstrap
-        // fatal-free when OpenRegister is disabled/absent. $appName is pinned to
-        // this leaf's runtime app id (`launchpad`) so the engine loads the right
-        // manifest and emits the `launchpad_` prefix, exactly as before adoption.
-        $context->registerService(
-            \OCA\LaunchPad\Controller\HealthController::class,
-            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\HealthController {
-                return new \OCA\LaunchPad\Controller\HealthController(
-                    appName: self::APP_ID,
-                    request: $c->get(\OCP\IRequest::class),
-                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
-                    executor: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
-                );
-            }
-        );
+	/**
+	 * Register the Nextcloud-surface integrations — unified search and the
+	 * content-security-policy contribution.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 */
+	private function registerIntegrations(IRegistrationContext $context): void {
+		// Surface dashboards, widget content, and metadata values in
+		// Nextcloud's unified search (Ctrl+K). REQ-SRCH-001.
+		$context->registerSearchProvider(class: LaunchPadSearchProvider::class);
 
-        // Metrics controller (admin-only — the subclass omits #[NoAdminRequired]).
-        $context->registerService(
-            \OCA\LaunchPad\Controller\MetricsController::class,
-            static function (\Psr\Container\ContainerInterface $c): \OCA\LaunchPad\Controller\MetricsController {
-                return new \OCA\LaunchPad\Controller\MetricsController(
-                    appName: self::APP_ID,
-                    request: $c->get(\OCP\IRequest::class),
-                    manifestLoader: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
-                    engine: $c->get('OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
-                );
-            }
-        );
-    }//end registerObservability()
+		// `iframe` widget — contribute the admin allow-listed embed hosts
+		// to LaunchPad's own `frame-src` CSP directive so the instance CSP
+		// never blocks an otherwise-permitted embed (REQ-IFRAME-003).
+		$context->registerEventListener(
+			event: AddContentSecurityPolicyEvent::class,
+			listener: CspListener::class
+		);
+	}//end registerIntegrations()
 
-    /**
-     * App initialization after all apps are registered.
-     *
-     * @param IBootContext $context The boot context.
-     *
-     * @return void
-     */
-    public function boot(IBootContext $context): void
-    {
-        // C2: block all external XML entity resolution at the process level.
-        // LIBXML_NOENT in simplexml_load_string / DOMDocument::loadXML does
-        // NOT disable entity substitution — it enables it. The only reliable
-        // defence is to install a null entity loader here at boot time. This
-        // is safe because Nextcloud itself does not rely on external XML
-        // entities in its own code.
-        if (function_exists('libxml_set_external_entity_loader') === true) {
-            // @psalm-suppress UnusedFunctionCall
-            libxml_set_external_entity_loader(static fn (): null => null);
-        }
+	/**
+	 * Wire the AppHost observability controllers (ADR-040).
+	 *
+	 * Aliases the unchanged `health#index` / `metrics#index` route targets at
+	 * the OpenRegister AppHost generic controllers, per the documented leaf
+	 * adoption pattern (docs/Technical/declarative-observability.md). The
+	 * controller's `$appName` resolves to this leaf's app id, so the engine
+	 * loads `src/manifest.json`'s `observability` block under `launchpad` and
+	 * renders the `launchpad_`-prefixed Prometheus output. The generic
+	 * controllers own the auth posture: health is public (`#[PublicPage]`),
+	 * metrics admin-only.
+	 *
+	 * LaunchPad keeps its own bespoke Dashboard/Preferences/Settings/
+	 * AdminSettings boilerplate — entangled with the dashboard lifecycle,
+	 * permission matrix and DoS-guarded preferences (see
+	 * openspec/changes/adopt-apphost/design.md). The aliases are class-string
+	 * registrations, so a disabled/absent OpenRegister never fatals NC
+	 * bootstrap; the first request to an aliased route surfaces the degraded
+	 * OR-unavailable state instead.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 */
+	private function registerObservability(IRegistrationContext $context): void {
+		// Health controller. The generic class is referenced only as a string
+		// and instantiated inside the closure, so no OCA\OpenRegister symbol is
+		// touched until a request resolves the controller — keeping NC bootstrap
+		// fatal-free when OpenRegister is disabled/absent. $appName is pinned to
+		// this leaf's runtime app id (`launchpad`) so the engine loads the right
+		// manifest and emits the `launchpad_` prefix, exactly as before adoption.
+		$context->registerService(
+			HealthController::class,
+			// @psalm-suppress UnusedClosureParam,TooManyArguments
+			static function (\Psr\Container\ContainerInterface $c): HealthController {
+				return new HealthController(
+					appName: self::APP_ID,
+					request: $c->get(\OCP\IRequest::class),
+					manifestLoader: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+					executor: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\HealthCheckExecutor')
+				);
+			}
+		);
 
-        // App initialization after all apps are registered.
-        \OCP\Util::addStyle(application: self::APP_ID, file: 'launchpad');
+		// Metrics controller (admin-only — it omits #[NoAdminRequired]).
+		$context->registerService(
+			MetricsController::class,
+			// @psalm-suppress UnusedClosureParam,TooManyArguments
+			static function (\Psr\Container\ContainerInterface $c): MetricsController {
+				return new MetricsController(
+					appName: self::APP_ID,
+					request: $c->get(\OCP\IRequest::class),
+					manifestLoader: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\ManifestLoader'),
+					engine: self::optional(container: $c, id: 'OCA\\OpenRegister\\AppHost\\Observability\\MetricsEngine')
+				);
+			}
+		);
+	}//end registerObservability()
 
-        // The dashboard view-analytics jobs (REQ-ANLT-003 design D2 +
-        // REQ-ANLT-009) and the external-feed refresh job (REQ-FRJ-002) are
-        // registered once via the RegisterBackgroundJobs repair step (install +
-        // post-migration), NOT on every request. Registering them here issued a
-        // JobList::has() SELECT against oc_jobs on each web request and tripped
-        // Nextcloud's "dirty table reads" diagnostic.
-    }//end boot()
+	/**
+	 * Resolve an OpenRegister collaborator, or null when it is unavailable.
+	 *
+	 * The class names are passed as STRINGS and the failure is swallowed, so
+	 * nothing here touches an `OCA\OpenRegister\…` symbol at load time and an
+	 * absent OpenRegister yields a degraded endpoint rather than an exception.
+	 *
+	 * This is the second half of the fix for a real outage mode: the controllers
+	 * used to EXTEND the OpenRegister generic controllers, and Nextcloud's router
+	 * reflects every controller class while scanning attribute routes — so a
+	 * missing parent class was a fatal during route matching that made every
+	 * route in this app return 500. Lazy DI cannot make an `extends` lazy, which
+	 * is why the controllers now inherit from OCP's Controller and take these as
+	 * nullable, untyped collaborators.
+	 *
+	 * @param \Psr\Container\ContainerInterface $container The DI container.
+	 * @param string $id Fully-qualified class name.
+	 *
+	 * @return object|null The service, or null when it cannot be resolved.
+	 */
+	private static function optional(\Psr\Container\ContainerInterface $container, string $id): ?object {
+		try {
+			$service = $container->get($id);
+			if (is_object($service) === true) {
+				return $service;
+			}
+
+			return null;
+		} catch (\Throwable) {
+			return null;
+		}
+	}//end optional()
+
+	/**
+	 * App initialization after all apps are registered.
+	 *
+	 * @param IBootContext $context The boot context (unused; required by IBootstrap).
+	 *
+	 * @return void
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 *      `IBootstrap::boot()` mandates the `IBootContext $context`
+	 *      parameter. This boot step only installs a process-level libxml
+	 *      entity loader, which needs nothing from the context, but the
+	 *      parameter cannot be dropped without breaking the interface.
+	 */
+	public function boot(IBootContext $context): void {
+		// C2: block all external XML entity resolution at the process level.
+		// LIBXML_NOENT in simplexml_load_string / DOMDocument::loadXML does
+		// NOT disable entity substitution — it enables it. The only reliable
+		// defence is to install a null entity loader here at boot time. This
+		// is safe because Nextcloud itself does not rely on external XML
+		// entities in its own code.
+		if (function_exists('libxml_set_external_entity_loader') === true) {
+			// @psalm-suppress UnusedFunctionCall
+			libxml_set_external_entity_loader(static fn (): null => null);
+		}
+
+		// App initialization after all apps are registered.
+		\OCP\Util::addStyle(application: self::APP_ID, file: 'launchpad');
+
+		// The dashboard view-analytics jobs (REQ-ANLT-003 design D2 +
+		// REQ-ANLT-009) and the external-feed refresh job (REQ-FRJ-002) are
+		// registered once via the RegisterBackgroundJobs repair step (install +
+		// post-migration), NOT on every request. Registering them here issued a
+		// JobList::has() SELECT against oc_jobs on each web request and tripped
+		// Nextcloud's "dirty table reads" diagnostic.
+	}//end boot()
 }//end class

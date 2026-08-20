@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -32,37 +32,35 @@ use OCA\LaunchPad\Db\DashboardLock;
  * Lock acquisition refused — a different user already holds an active
  * lock on the dashboard (REQ-LOCK-001).
  */
-class LockConflictException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'lock_conflict';
+class LockConflictException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'lock_conflict';
 
-    /**
-     * Constructor.
-     *
-     * @param string        $message      Human-readable error message.
-     * @param DashboardLock $existingLock The existing lock that blocked
-     *                                    the acquire — surfaced verbatim
-     *                                    in the 409 response body.
-     */
-    public function __construct(
-        string $message,
-        private readonly DashboardLock $existingLock,
-    ) {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Human-readable error message.
+	 * @param DashboardLock $existingLock The existing lock that blocked
+	 *                                    the acquire — surfaced verbatim
+	 *                                    in the 409 response body.
+	 */
+	public function __construct(
+		string $message,
+		private readonly DashboardLock $existingLock,
+	) {
+		parent::__construct(message: $message);
+	}//end __construct()
 
-    /**
-     * The existing lock that triggered the conflict.
-     *
-     * @return DashboardLock The existing lock.
-     */
-    public function getExistingLock(): DashboardLock
-    {
-        return $this->existingLock;
-    }//end getExistingLock()
+	/**
+	 * The existing lock that triggered the conflict.
+	 *
+	 * @return DashboardLock The existing lock.
+	 */
+	public function getExistingLock(): DashboardLock {
+		return $this->existingLock;
+	}//end getExistingLock()
 }//end class

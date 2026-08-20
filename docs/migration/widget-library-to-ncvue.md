@@ -31,8 +31,8 @@ The nc-vue widget library is **not finished as a public API**, and **not publish
 
 So "port to nc-vue" means: finish, export, document, test, parity-audit, and
 **publish** a ~36-component library in the shared fleet lib (consumed by
-OpenRegister / OpenCatalogi / Procest / Pipelinq / LaunchPad), then migrate launchpad
-onto it. That is multi-day and has fleet-wide blast radius — it cannot be done in
+OpenRegister / OpenCatalogi / Procest / Pipelinq / LaunchPad), then migrate
+LaunchPad onto it. That is multi-day and has fleet-wide blast radius — it cannot be done in
 one pass, and a half-done state breaks both repos.
 
 ## Parity audit — current nc-vue readiness

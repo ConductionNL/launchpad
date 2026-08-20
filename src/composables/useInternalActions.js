@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * useInternalActions — singleton frontend registry for the
  * link-button-widget's `internal` action type (REQ-LBN-005).
@@ -8,7 +8,7 @@
  * Other capabilities register named functions at any time during the
  * page lifecycle; the link-button renderer looks up the persisted
  * `url` field (the action ID) and invokes the registered function.
- * Missing IDs MUST log `console.warn('Unknown internal action: <id>')`
+ * Missing IDs MUST log `logger.warn('Unknown internal action: <id>')`
  * but MUST NOT throw — a stale dashboard placement that references a
  * removed action degrades gracefully instead of breaking the page.
  *
@@ -22,6 +22,8 @@
  * the link-button widget capability has no implicit dependency on
  * any of those features being installed.
  */
+
+import { logger } from '../utils/logger.js'
 
 /**
  * Module-level registry shared across every `useInternalActions()`
@@ -40,8 +42,8 @@ const REGISTRY = new Map()
  *   invoke: (id: string) => (void|Promise<void>),
  *   has: (id: string) => boolean,
  * }} The shared `{register, invoke, has}` triple.
+ * @spec openspec/specs/widgets/spec.md
  */
-/** @spec openspec/specs/widgets/spec.md */
 export function useInternalActions() {
 	/**
 	 * Register a named action. Registering a duplicate id replaces the
@@ -73,8 +75,7 @@ export function useInternalActions() {
 	function invoke(id) {
 		const fn = REGISTRY.get(id)
 		if (!fn) {
-			// eslint-disable-next-line no-console
-			console.warn(`Unknown internal action: ${id}`)
+			logger.warn(`Unknown internal action: ${id}`)
 			return undefined
 		}
 		return fn()
@@ -100,8 +101,8 @@ export function useInternalActions() {
  * `it()` blocks.
  *
  * @return {void}
+ * @spec openspec/specs/widgets/spec.md
  */
-/** @spec openspec/specs/widgets/spec.md */
 export function __resetInternalActionsForTest() {
 	REGISTRY.clear()
 }

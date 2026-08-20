@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,13 +8,20 @@
 		<header class="launchpad-analytics__header">
 			<h3>{{ t('launchpad', 'View analytics') }}</h3>
 			<p class="launchpad-analytics__hint">
-				{{ t('launchpad', 'Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored.') }}
+				{{
+					t(
+						'launchpad',
+						'Aggregate, privacy-preserving view counts per dashboard. Unique-viewer dedup uses a daily-rotating salted hash; no user identifiers are stored.',
+					)
+				}}
 			</p>
 		</header>
 
 		<!-- Period selector -->
 		<div class="launchpad-analytics__field">
-			<label for="launchpad-analytics-period" class="launchpad-analytics__label">
+			<label
+				for="launchpad-analytics-period"
+				class="launchpad-analytics__label">
 				{{ t('launchpad', 'Period') }}
 			</label>
 			<select
@@ -78,11 +85,11 @@
 			<table v-if="topDashboards.length" class="launchpad-analytics__table">
 				<thead>
 					<tr>
-						<th>{{ t('launchpad', 'Dashboard') }}</th>
-						<th class="launchpad-analytics__num">
+						<th scope="col">{{ t('launchpad', 'Dashboard') }}</th>
+						<th scope="col" class="launchpad-analytics__num">
 							{{ t('launchpad', 'Views') }}
 						</th>
-						<th class="launchpad-analytics__num">
+						<th scope="col" class="launchpad-analytics__num">
 							{{ t('launchpad', 'Unique viewers') }}
 						</th>
 					</tr>
@@ -110,9 +117,11 @@
 					class="launchpad-analytics__button"
 					:disabled="exporting"
 					@click="exportCsv">
-					{{ exporting
-						? t('launchpad', 'Exporting…')
-						: t('launchpad', 'Export analytics (CSV)') }}
+					{{
+						exporting
+							? t('launchpad', 'Exporting…')
+							: t('launchpad', 'Export analytics (CSV)')
+					}}
 				</button>
 			</div>
 		</template>
@@ -122,6 +131,7 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'AdminAnalytics',
@@ -138,12 +148,15 @@ export default {
 				period: '30d',
 				top5: [],
 			},
+
 			topDashboards: [],
 		}
 	},
+
 	created() {
 		this.reload()
 	},
+
 	methods: {
 		t,
 		/**
@@ -151,8 +164,8 @@ export default {
 		 * dashboards for the currently selected period.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 		async reload() {
 			this.loading = true
 			this.error = null
@@ -168,11 +181,9 @@ export default {
 					period: this.period,
 					top5: [],
 				}
-				this.topDashboards = Array.isArray(topResp.data)
-					? topResp.data
-					: []
+				this.topDashboards = Array.isArray(topResp.data) ? topResp.data : []
 			} catch (e) {
-				console.error('Failed to load analytics:', e)
+				logger.error('Failed to load analytics:', e)
 				this.error = t(
 					'launchpad',
 					'Failed to load analytics data. Please try again.',
@@ -181,21 +192,19 @@ export default {
 				this.loading = false
 			}
 		},
+
 		/**
 		 * REQ-ANLT-010 — trigger a CSV export download of the
 		 * currently selected period.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 		async exportCsv() {
 			this.exporting = true
 			try {
 				const response = await api.getAnalyticsCsvExport(this.period)
-				const blob = new Blob(
-					[response.data],
-					{ type: 'text/csv' },
-				)
+				const blob = new Blob([response.data], { type: 'text/csv' })
 				const url = URL.createObjectURL(blob)
 				const today = new Date().toISOString().slice(0, 10)
 				const a = document.createElement('a')
@@ -206,7 +215,7 @@ export default {
 				document.body.removeChild(a)
 				URL.revokeObjectURL(url)
 			} catch (e) {
-				console.error('Failed to export analytics CSV:', e)
+				logger.error('Failed to export analytics CSV:', e)
 				this.error = t(
 					'launchpad',
 					'Failed to export analytics CSV. Please try again.',

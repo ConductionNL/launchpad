@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Centralised JS reader for the per-page LaunchPad initial-state contract
  * (REQ-INIT-003). The matching PHP builder lives at
@@ -15,6 +15,7 @@
  */
 
 import { loadState } from '@nextcloud/initial-state'
+import { logger } from './logger.js'
 
 /**
  * Schema version compiled into the JS bundle. Compared against the
@@ -55,6 +56,13 @@ const PAGE_KEYS = {
 		// Optional key — older servers don't push it, so the default
 		// keeps reads typed even before the deploy lands.
 		deepLinkPath: '',
+		// tile-quick-search REQ-QSEARCH-004: admin-configured no-match
+		// fallback target — 'none' | 'unified-search' | a validated
+		// `https` URL template containing `{query}`. Optional key (same
+		// rationale as `deepLinkPath`): a server that hasn't deployed the
+		// PHP side yet simply omits it, and 'none' is the safe default
+		// (no navigation on no-match Enter).
+		quicksearchFallbackTarget: 'none',
 	},
 	admin: {
 		allGroups: [],
@@ -72,12 +80,14 @@ const PAGE_KEYS = {
  * @param {('workspace'|'admin')} page Destination page identifier.
  * @return {object} Typed snapshot — never carries `undefined` values.
  * @throws {Error} When `page` is not a known page identifier.
+ * @spec openspec/specs/initial-state-contract/spec.md
  */
-/** @spec openspec/specs/initial-state-contract/spec.md */
 export function loadInitialState(page) {
 	const defaults = PAGE_KEYS[page]
 	if (!defaults) {
-		throw new Error(`loadInitialState: unknown page "${page}" — known: ${Object.keys(PAGE_KEYS).join(', ')}`)
+		throw new Error(
+			`loadInitialState: unknown page "${page}" — known: ${Object.keys(PAGE_KEYS).join(', ')}`,
+		)
 	}
 
 	const state = {}
@@ -87,8 +97,7 @@ export function loadInitialState(page) {
 
 	const serverVersion = readKey(SCHEMA_VERSION_KEY, null)
 	if (serverVersion !== null && serverVersion !== INITIAL_STATE_SCHEMA_VERSION) {
-		// eslint-disable-next-line no-console
-		console.warn(
+		logger.warn(
 			`LaunchPad initial-state schema mismatch: server v${serverVersion} vs client v${INITIAL_STATE_SCHEMA_VERSION} — refresh recommended`,
 		)
 	}
@@ -102,8 +111,9 @@ export function loadInitialState(page) {
  * `undefined` reads — the JS bundle never crashes when PHP omits a key.
  *
  * @param {string} key The initial-state key.
- * @param {*} fallback Default to use when the key is missing.
- * @return {*} The pushed value, or the fallback.
+ * @param {T} fallback Default to use when the key is missing.
+ * @return {T} The pushed value, or the fallback.
+ * @template T
  */
 function readKey(key, fallback) {
 	// The app is installed under its canonical id 'launchpad', so PHP provides
@@ -112,7 +122,7 @@ function readKey(key, fallback) {
 	// bundle never crashes if the contract is violated.
 	try {
 		return loadState('launchpad', key, fallback)
-	} catch (e) {
+	} catch {
 		return fallback
 	}
 }

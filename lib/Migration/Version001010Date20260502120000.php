@@ -23,8 +23,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -40,33 +40,32 @@ use OCP\Migration\SimpleMigrationStep;
  * Add hierarchy columns + supporting indexes to launchpad_dashboards
  * (REQ-DASH-023..030).
  */
-class Version001010Date20260502120000 extends SimpleMigrationStep
-{
-    /**
-     * Add the parent_uuid / slug / sort_order columns and indexes.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001010Date20260502120000 extends SimpleMigrationStep {
+	/**
+	 * Add the parent_uuid / slug / sort_order columns and indexes.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return $schema;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return $schema;
+		}
 
-        $table = $schema->getTable('launchpad_dashboards');
+		$table = $schema->getTable('launchpad_dashboards');
 
-        DashboardTableBuilder::addTreeColumns(table: $table);
+		DashboardTableBuilder::addTreeColumns(table: $table);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

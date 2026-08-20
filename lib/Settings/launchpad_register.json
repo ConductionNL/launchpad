@@ -3,7 +3,7 @@
   "info": {
     "title": "LaunchPad Register",
     "description": "Drag-and-drop dashboard configuration storage for LaunchPad",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "x-openregister": {
     "type": "application",
@@ -13,10 +13,21 @@
   },
   "paths": {},
   "components": {
+    "registers": {
+      "launchpad": {
+        "slug": "launchpad",
+        "title": "LaunchPad Register",
+        "version": "1.0.1",
+        "description": "LaunchPad dashboards stored as OpenRegister objects — the source of the v2 runtime manifest (ADR-036 Decision 8).",
+        "published": true,
+        "schemas": ["dashboard"],
+        "folder": "LaunchPad"
+      }
+    },
     "schemas": {
       "Dashboard": {
         "slug": "dashboard",
-        "icon": "ViewDashboard",
+        "icon": "ViewDashboardOutline",
         "version": "1.0.0",
         "title": "Dashboard",
         "description": "A user dashboard containing widget placements and layout configuration",
@@ -35,27 +46,32 @@
         ],
         "properties": {
           "slug": {
+            "title": "Slug",
             "type": "string",
             "description": "URL-safe identifier unique within the owner's space",
             "example": "sales-overview"
           },
           "title": {
+            "title": "Title",
             "type": "string",
             "description": "Human-readable dashboard title",
             "example": "Sales Overview"
           },
           "description": {
+            "title": "Description",
             "type": "string",
             "description": "Optional dashboard description",
             "example": "Key sales metrics and pipeline status"
           },
           "version": {
+            "title": "Version",
             "type": "string",
             "description": "Dashboard schema version",
             "default": "1.0.0",
             "example": "1.0.0"
           },
           "widgets": {
+            "title": "Widgets",
             "type": "array",
             "description": "Ordered list of v2 widget entries for this dashboard",
             "default": [],
@@ -65,6 +81,7 @@
             }
           },
           "sharedWith": {
+            "title": "Shared With",
             "type": "array",
             "description": "Nextcloud user IDs the dashboard is shared with",
             "default": [],
@@ -73,11 +90,13 @@
             }
           },
           "isDefault": {
+            "title": "Is Default",
             "type": "boolean",
             "description": "Whether this is the user's landing dashboard",
             "default": false
           },
           "type": {
+            "title": "Dashboard Type",
             "type": "string",
             "description": "Dashboard scope type: 'user' (personal), 'admin_template', or 'group_shared'",
             "enum": ["user", "admin_template", "group_shared"],
@@ -85,8 +104,9 @@
             "example": "group_shared"
           },
           "groupId": {
-            "type": ["string", "null"],
-            "description": "Nextcloud group ID for group_shared dashboards. Reserved value 'default' means visible to every user (REQ-DASH-012). Null for user and admin_template dashboards.",
+            "title": "Group ID",
+            "type": "string",
+            "description": "Nextcloud group ID for group_shared dashboards. Reserved value 'default' means visible to every user (REQ-DASH-012). Absent for user and admin_template dashboards — the property is not in `required`, which is how OpenRegister models optionality. A union type such as [\"string\", \"null\"] is REJECTED by the schema importer (only scalar types are accepted), and that rejection is what silently prevented this whole schema — and therefore the register's reference to it — from ever being created.",
             "example": "marketing"
           }
         },

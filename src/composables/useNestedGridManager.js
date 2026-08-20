@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * useNestedGridManager — Vue 2 composable that wraps an inner GridStack
  * instance for the `container` widget type (REQ-CONT-001..007).
@@ -25,9 +25,7 @@
  * via the existing widget-update API.
  */
 
-import {
-	placeNewWidget as outerPlaceNewWidget,
-} from './useGridManager.js'
+import { placeNewWidget as outerPlaceNewWidget } from './useGridManager.js'
 
 /**
  * Inner-grid column count (REQ-CONT-002).
@@ -69,8 +67,8 @@ export const NESTED_DEFAULT_H = 2
  * as a fresh shallow copy so callers can mutate without aliasing.
  *
  * @return {{column: number, cellHeight: number, margin: number, acceptWidgets: boolean, disableOneColumnMode: boolean}}
+ * @spec openspec/specs/container-widget/spec.md
  */
-/** @spec openspec/specs/container-widget/spec.md */
 export function getNestedGridOptions() {
 	return {
 		column: NESTED_COLUMNS,
@@ -85,31 +83,28 @@ export function getNestedGridOptions() {
  * Compute the placement coordinates for a NEW child widget inside a
  * container's inner grid, bounded to {@link NESTED_COLUMNS} columns.
  *
- * Reuses the outer-grid `placeNewWidget` algorithm (top-left + push-down
- * fallback), passing the inner-grid column count via `options.gridColumns`
- * so the scan respects the 4-column ceiling.
+ * Reuses the outer-grid `placeNewWidget` algorithm (append in a fresh row
+ * below all existing children; existing children are never moved), passing the
+ * inner-grid column count via `options.gridColumns` for caller compatibility.
  *
  * @param {object} spec target widget spec — `w`/`h` default to
  *   {@link NESTED_DEFAULT_W} / {@link NESTED_DEFAULT_H}.
  * @param {Array<object>} placements current child placements in LaunchPad
  *   field-name form (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`).
- * @param {object} [options] optional knobs
- * @param {number} [options.viewportRows] visible rows on first paint
- * @param {object} [options.grid] live inner GridStack instance
- * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
+ * @param {object} [options] optional knobs (accepted for caller compatibility)
+ * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: (number|string), gridY: number}> }}
+ *   `pushed` is always empty — existing children are never moved.
+ * @spec openspec/specs/container-widget/spec.md
  */
-/** @spec openspec/specs/container-widget/spec.md */
 export function placeNewWidget(spec, placements, options = {}) {
-	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : NESTED_DEFAULT_W
-	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : NESTED_DEFAULT_H
-	return outerPlaceNewWidget(
-		{ ...spec, w, h },
-		placements,
-		{
-			...options,
-			gridColumns: NESTED_COLUMNS,
-		},
-	)
+	const w =
+		spec && Number.isFinite(spec.w) && spec.w > 0 ? spec.w : NESTED_DEFAULT_W
+	const h =
+		spec && Number.isFinite(spec.h) && spec.h > 0 ? spec.h : NESTED_DEFAULT_H
+	return outerPlaceNewWidget({ ...spec, w, h }, placements, {
+		...options,
+		gridColumns: NESTED_COLUMNS,
+	})
 }
 
 /**
@@ -124,7 +119,7 @@ export function placeNewWidget(spec, placements, options = {}) {
  * `attach(grid)`.
  *
  * @param {object} options factory options
- * @param {Function} options.persistPlacements called with the new
+ * @param {(placements: Array<object>) => void} options.persistPlacements called with the new
  *   `placements[]` array whenever a child is added / moved / resized /
  *   removed. The renderer wires this to a `update:content` emit so the
  *   parent placement's `content.placements[]` is persisted via the
@@ -134,17 +129,25 @@ export function placeNewWidget(spec, placements, options = {}) {
  *   placeNewWidget: (spec: object, placements: Array<object>, options?: object) => object,
  *   persist: (placements: Array<object>) => void,
  * }}
+ * @spec openspec/specs/container-widget/spec.md
  */
-/** @spec openspec/specs/container-widget/spec.md */
 export function useNestedGridManager(options = {}) {
-	const persistPlacements = typeof options.persistPlacements === 'function'
-		? options.persistPlacements
-		: () => {}
+	const persistPlacements =
+		typeof options.persistPlacements === 'function'
+			? options.persistPlacements
+			: () => {}
 
 	return {
 		getOptions: getNestedGridOptions,
 		placeNewWidget,
-		/** @spec openspec/specs/container-widget/spec.md */
+		/**
+		 * Hand the container's child layout to the host's persist callback,
+		 * coercing a non-array to `[]` so a missing layout clears rather
+		 * than throws.
+		 *
+		 * @param {Array<object>} placements Child placements to store.
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
 		persist(placements) {
 			persistPlacements(Array.isArray(placements) ? placements : [])
 		},

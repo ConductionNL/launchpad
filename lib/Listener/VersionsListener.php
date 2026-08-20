@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -37,61 +37,59 @@ use Throwable;
  *
  * @implements IEventListener<DashboardDeletedEvent>
  */
-class VersionsListener implements IEventListener
-{
-    /**
-     * Constructor.
-     *
-     * @param DashboardVersionMapper $versionMapper Version row mapper.
-     * @param LoggerInterface        $logger        PSR-3 logger for
-     *                                              log-and-continue failure
-     *                                              handling per REQ-CSC-006.
-     */
-    public function __construct(
-        private readonly DashboardVersionMapper $versionMapper,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+class VersionsListener implements IEventListener {
+	/**
+	 * Constructor.
+	 *
+	 * @param DashboardVersionMapper $versionMapper Version row mapper.
+	 * @param LoggerInterface $logger PSR-3 logger for
+	 *                                log-and-continue failure
+	 *                                handling per REQ-CSC-006.
+	 */
+	public function __construct(
+		private readonly DashboardVersionMapper $versionMapper,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle the DashboardDeletedEvent.
-     *
-     * @param Event $event The event.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-cascade-events/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof DashboardDeletedEvent) === false) {
-            return;
-        }
+	/**
+	 * Handle the DashboardDeletedEvent.
+	 *
+	 * @param Event $event The event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof DashboardDeletedEvent) === false) {
+			return;
+		}
 
-        $uuid = $event->getDashboardUuid();
+		$uuid = $event->getDashboardUuid();
 
-        try {
-            $deleted = $this->versionMapper->deleteByDashboardUuid(
-                dashboardUuid: $uuid
-            );
+		try {
+			$deleted = $this->versionMapper->deleteByDashboardUuid(
+				dashboardUuid: $uuid
+			);
 
-            $this->logger->debug(
-                message: sprintf(
-                    'launchpad VersionsListener: deleted %d version rows for dashboard %s',
-                    $deleted,
-                    $uuid
-                ),
-                context: ['app' => 'launchpad']
-            );
-        } catch (Throwable $t) {
-            $this->logger->warning(
-                message: sprintf(
-                    'launchpad VersionsListener: failed for dashboard %s: %s',
-                    $uuid,
-                    $t->getMessage()
-                ),
-                context: ['app' => 'launchpad']
-            );
-        }//end try
-    }//end handle()
+			$this->logger->debug(
+				message: sprintf(
+					'launchpad VersionsListener: deleted %d version rows for dashboard %s',
+					$deleted,
+					$uuid
+				),
+				context: ['app' => 'launchpad']
+			);
+		} catch (Throwable $t) {
+			$this->logger->warning(
+				message: sprintf(
+					'launchpad VersionsListener: failed for dashboard %s: %s',
+					$uuid,
+					$t->getMessage()
+				),
+				context: ['app' => 'launchpad']
+			);
+		}//end try
+	}//end handle()
 }//end class

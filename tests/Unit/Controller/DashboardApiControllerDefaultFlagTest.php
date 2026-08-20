@@ -14,7 +14,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -42,233 +42,202 @@ use ReflectionMethod;
 /**
  * Unit tests for the default-dashboard-flag controller surface.
  */
-class DashboardApiControllerDefaultFlagTest extends TestCase
-{
-    /** @var IRequest&MockObject */
-    private $request;
-    /** @var DashboardService&MockObject */
-    private $dashboardService;
-    /** @var PermissionService&MockObject */
-    private $permissionService;
-    /** @var DashboardTreeService&MockObject */
-    private $treeService;
-    /** @var DashboardVersionService&MockObject */
-    private $versionService;
-    /** @var LoggerInterface&MockObject */
-    private $logger;
-    /** @var AnalyticsService&MockObject */
-    private $analyticsService;
-    /** @var IUserSession&MockObject */
-    private $userSession;
-    /** @var ActionAuthService&MockObject */
-    private $actionAuth;
+class DashboardApiControllerDefaultFlagTest extends TestCase {
+	/** @var IRequest&MockObject */
+	private $request;
+	/** @var DashboardService&MockObject */
+	private $dashboardService;
+	/** @var PermissionService&MockObject */
+	private $permissionService;
+	/** @var DashboardTreeService&MockObject */
+	private $treeService;
+	/** @var DashboardVersionService&MockObject */
+	private $versionService;
+	/** @var LoggerInterface&MockObject */
+	private $logger;
+	/** @var AnalyticsService&MockObject */
+	private $analyticsService;
+	/** @var IUserSession&MockObject */
+	private $userSession;
+	/** @var ActionAuthService&MockObject */
+	private $actionAuth;
 
-    protected function setUp(): void
-    {
-        $this->request           = $this->createMock(IRequest::class);
-        $this->dashboardService  = $this->createMock(DashboardService::class);
-        $this->permissionService = $this->createMock(PermissionService::class);
-        $this->treeService       = $this->createMock(DashboardTreeService::class);
-        $this->versionService    = $this->createMock(DashboardVersionService::class);
-        $this->analyticsService  = $this->createMock(AnalyticsService::class);
-        $this->logger            = $this->createMock(LoggerInterface::class);
-        $this->userSession       = $this->createMock(IUserSession::class);
-        $this->actionAuth        = $this->createMock(ActionAuthService::class);
-    }//end setUp()
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->dashboardService = $this->createMock(DashboardService::class);
+		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->treeService = $this->createMock(DashboardTreeService::class);
+		$this->versionService = $this->createMock(DashboardVersionService::class);
+		$this->analyticsService = $this->createMock(AnalyticsService::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->actionAuth = $this->createMock(ActionAuthService::class);
+	}//end setUp()
 
-    /**
-     * Build the controller with the supplied logged-in user ID (or
-     * `null` for an anonymous session).
-     */
-    private function makeController(?string $userId): DashboardApiController
-    {
-        $user = null;
-        if ($userId !== null) {
-            $user = $this->createMock(IUser::class);
-            $user->method('getUID')->willReturn($userId);
-        }
+	/**
+	 * Build the controller with the supplied logged-in user ID (or
+	 * `null` for an anonymous session).
+	 */
+	private function makeController(?string $userId): DashboardApiController {
+		$user = null;
+		if ($userId !== null) {
+			$user = $this->createMock(IUser::class);
+			$user->method('getUID')->willReturn($userId);
+		}
 
-        $this->userSession->method('getUser')->willReturn($user);
+		$this->userSession->method('getUser')->willReturn($user);
 
-        return new DashboardApiController(
-            request: $this->request,
-            dashboardService: $this->dashboardService,
-            permissionService: $this->permissionService,
-            treeService: $this->treeService,
-            versionService: $this->versionService,
-            analyticsService: $this->analyticsService,
-            logger: $this->logger,
-            userSession: $this->userSession,
-            actionAuth: $this->actionAuth,
-            userId: $userId,
-        );
-    }//end makeController()
+		return new DashboardApiController(
+			request: $this->request,
+			dashboardService: $this->dashboardService,
+			permissionService: $this->permissionService,
+			treeService: $this->treeService,
+			versionService: $this->versionService,
+			analyticsService: $this->analyticsService,
+			logger: $this->logger,
+			userSession: $this->userSession,
+			actionAuth: $this->actionAuth,
+			userId: $userId,
+		);
+	}//end makeController()
 
-    /**
-     * REQ-DASH-015: non-admin caller MUST get 403 with no service call.
-     *
-     * @return void
-     */
-    public function testSetGroupDefaultRejectsNonAdmin(): void
-    {
-        $this->dashboardService->method('isAdmin')
-            ->with('alice')
-            ->willReturn(false);
-        $this->dashboardService->expects($this->never())
-            ->method('setGroupDefault');
+	/**
+	 * `setGroupDefault()` is admin-only via the `#[AuthorizedAdminSetting]`
+	 * attribute — the framework middleware (not reachable when calling the
+	 * controller method directly in a unit test) rejects non-admins before
+	 * the method body runs. See
+	 * `DashboardApiControllerGroupSharedTest::testGroupEndpointsCarryAuthorizedAdminSettingAttribute()`
+	 * for the machine-checkable assertion, and
+	 * `openspec/changes/fix-group-dashboard-admin-auth-attribute/tasks.md#task-15`
+	 * for the manual curl/Newman verification of the actual 403 behaviour.
+	 *
+	 * @return void
+	 */
+	public function testSetGroupDefaultRejectsAnonymousWith401(): void {
+		$this->dashboardService->expects($this->never())
+			->method('setGroupDefault');
 
-        $controller = $this->makeController('alice');
-        $response   = $controller->setGroupDefault(
-            groupId: 'marketing',
-            uuid: 'uuid-a'
-        );
+		$controller = $this->makeController(null);
+		$response = $controller->setGroupDefault(
+			groupId: 'marketing',
+			uuid: 'uuid-a'
+		);
 
-        $this->assertSame(
-            Http::STATUS_FORBIDDEN,
-            $response->getStatus()
-        );
-    }//end testSetGroupDefaultRejectsNonAdmin()
+		$this->assertSame(
+			Http::STATUS_UNAUTHORIZED,
+			$response->getStatus()
+		);
+	}//end testSetGroupDefaultRejectsAnonymousWith401()
 
-    /**
-     * Anonymous caller MUST get 401 — the route attribute alone is not
-     * enough; the in-body guard runs first.
-     *
-     * @return void
-     */
-    public function testSetGroupDefaultRejectsAnonymousWith401(): void
-    {
-        $this->dashboardService->expects($this->never())
-            ->method('setGroupDefault');
+	/**
+	 * REQ-DASH-015: missing uuid in body → HTTP 400.
+	 *
+	 * @return void
+	 */
+	public function testSetGroupDefaultRejectsMissingUuid(): void {
+		$this->dashboardService->expects($this->never())
+			->method('setGroupDefault');
 
-        $controller = $this->makeController(null);
-        $response   = $controller->setGroupDefault(
-            groupId: 'marketing',
-            uuid: 'uuid-a'
-        );
+		$controller = $this->makeController('admin');
+		$response = $controller->setGroupDefault(
+			groupId: 'marketing',
+			uuid: null
+		);
 
-        $this->assertSame(
-            Http::STATUS_UNAUTHORIZED,
-            $response->getStatus()
-        );
-    }//end testSetGroupDefaultRejectsAnonymousWith401()
+		$this->assertSame(
+			Http::STATUS_BAD_REQUEST,
+			$response->getStatus()
+		);
+	}//end testSetGroupDefaultRejectsMissingUuid()
 
-    /**
-     * REQ-DASH-015: missing uuid in body → HTTP 400.
-     *
-     * @return void
-     */
-    public function testSetGroupDefaultRejectsMissingUuid(): void
-    {
-        $this->dashboardService->method('isAdmin')->willReturn(true);
-        $this->dashboardService->expects($this->never())
-            ->method('setGroupDefault');
+	/**
+	 * REQ-DASH-015 happy path — service is invoked, response is 200.
+	 *
+	 * @return void
+	 */
+	public function testSetGroupDefaultHappyPath(): void {
+		$this->dashboardService->expects($this->once())
+			->method('setGroupDefault')
+			->with(
+				actorUserId: 'admin',
+				groupId: 'marketing',
+				uuid: 'uuid-c'
+			);
 
-        $controller = $this->makeController('admin');
-        $response   = $controller->setGroupDefault(
-            groupId: 'marketing',
-            uuid: null
-        );
+		$controller = $this->makeController('admin');
+		$response = $controller->setGroupDefault(
+			groupId: 'marketing',
+			uuid: 'uuid-c'
+		);
 
-        $this->assertSame(
-            Http::STATUS_BAD_REQUEST,
-            $response->getStatus()
-        );
-    }//end testSetGroupDefaultRejectsMissingUuid()
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$body = $response->getData();
+		$this->assertSame('ok', $body['status']);
+		$this->assertSame('marketing', $body['groupId']);
+		$this->assertSame('uuid-c', $body['uuid']);
+	}//end testSetGroupDefaultHappyPath()
 
-    /**
-     * REQ-DASH-015 happy path — service is invoked, response is 200.
-     *
-     * @return void
-     */
-    public function testSetGroupDefaultHappyPath(): void
-    {
-        $this->dashboardService->method('isAdmin')->willReturn(true);
-        $this->dashboardService->expects($this->once())
-            ->method('setGroupDefault')
-            ->with(
-                actorUserId: 'admin',
-                groupId: 'marketing',
-                uuid: 'uuid-c'
-            );
+	/**
+	 * REQ-DASH-015 scenario: cross-group uuid → service throws
+	 * DoesNotExistException → controller returns HTTP 404.
+	 *
+	 * @return void
+	 */
+	public function testSetGroupDefaultMapsDoesNotExistTo404(): void {
+		$this->dashboardService->method('setGroupDefault')
+			->willThrowException(
+				new DoesNotExistException(msg: 'not in group')
+			);
 
-        $controller = $this->makeController('admin');
-        $response   = $controller->setGroupDefault(
-            groupId: 'marketing',
-            uuid: 'uuid-c'
-        );
+		$controller = $this->makeController('admin');
+		$response = $controller->setGroupDefault(
+			groupId: 'sales',
+			uuid: 'uuid-from-marketing'
+		);
 
-        $this->assertSame(Http::STATUS_OK, $response->getStatus());
-        $body = $response->getData();
-        $this->assertSame('ok', $body['status']);
-        $this->assertSame('marketing', $body['groupId']);
-        $this->assertSame('uuid-c', $body['uuid']);
-    }//end testSetGroupDefaultHappyPath()
+		$this->assertSame(
+			Http::STATUS_NOT_FOUND,
+			$response->getStatus()
+		);
+	}//end testSetGroupDefaultMapsDoesNotExistTo404()
 
-    /**
-     * REQ-DASH-015 scenario: cross-group uuid → service throws
-     * DoesNotExistException → controller returns HTTP 404.
-     *
-     * @return void
-     */
-    public function testSetGroupDefaultMapsDoesNotExistTo404(): void
-    {
-        $this->dashboardService->method('isAdmin')->willReturn(true);
-        $this->dashboardService->method('setGroupDefault')
-            ->willThrowException(
-                new DoesNotExistException(msg: 'not in group')
-            );
+	/**
+	 * REQ-DASH-016: the controller `createGroup` signature MUST NOT
+	 * expose `isDefault` as a parameter — Nextcloud's parameter binder
+	 * would otherwise pull it from the JSON body and the service would
+	 * see it. Reflection-level check for defense-in-depth.
+	 *
+	 * @return void
+	 */
+	public function testCreateGroupSignatureDoesNotExposeIsDefault(): void {
+		$reflection = new ReflectionMethod(
+			DashboardApiController::class,
+			'createGroup'
+		);
+		$paramNames = array_map(
+			static fn ($p) => $p->getName(),
+			$reflection->getParameters()
+		);
 
-        $controller = $this->makeController('admin');
-        $response   = $controller->setGroupDefault(
-            groupId: 'sales',
-            uuid: 'uuid-from-marketing'
-        );
+		$this->assertNotContains('isDefault', $paramNames);
+	}//end testCreateGroupSignatureDoesNotExposeIsDefault()
 
-        $this->assertSame(
-            Http::STATUS_NOT_FOUND,
-            $response->getStatus()
-        );
-    }//end testSetGroupDefaultMapsDoesNotExistTo404()
+	/**
+	 * REQ-DASH-017: the controller `updateGroup` signature MUST NOT
+	 * expose `isDefault` as a parameter — same reasoning.
+	 *
+	 * @return void
+	 */
+	public function testUpdateGroupSignatureDoesNotExposeIsDefault(): void {
+		$reflection = new ReflectionMethod(
+			DashboardApiController::class,
+			'updateGroup'
+		);
+		$paramNames = array_map(
+			static fn ($p) => $p->getName(),
+			$reflection->getParameters()
+		);
 
-    /**
-     * REQ-DASH-016: the controller `createGroup` signature MUST NOT
-     * expose `isDefault` as a parameter — Nextcloud's parameter binder
-     * would otherwise pull it from the JSON body and the service would
-     * see it. Reflection-level check for defense-in-depth.
-     *
-     * @return void
-     */
-    public function testCreateGroupSignatureDoesNotExposeIsDefault(): void
-    {
-        $reflection = new ReflectionMethod(
-            DashboardApiController::class,
-            'createGroup'
-        );
-        $paramNames = array_map(
-            static fn ($p) => $p->getName(),
-            $reflection->getParameters()
-        );
-
-        $this->assertNotContains('isDefault', $paramNames);
-    }//end testCreateGroupSignatureDoesNotExposeIsDefault()
-
-    /**
-     * REQ-DASH-017: the controller `updateGroup` signature MUST NOT
-     * expose `isDefault` as a parameter — same reasoning.
-     *
-     * @return void
-     */
-    public function testUpdateGroupSignatureDoesNotExposeIsDefault(): void
-    {
-        $reflection = new ReflectionMethod(
-            DashboardApiController::class,
-            'updateGroup'
-        );
-        $paramNames = array_map(
-            static fn ($p) => $p->getName(),
-            $reflection->getParameters()
-        );
-
-        $this->assertNotContains('isDefault', $paramNames);
-    }//end testUpdateGroupSignatureDoesNotExposeIsDefault()
+		$this->assertNotContains('isDefault', $paramNames);
+	}//end testUpdateGroupSignatureDoesNotExposeIsDefault()
 }//end class

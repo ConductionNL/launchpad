@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -27,26 +27,25 @@ namespace OCA\LaunchPad\Service\Confluence;
 /**
  * One Confluence page after parsing.
  */
-class ParsedPage
-{
-    /**
-     * Constructor.
-     *
-     * @param string      $relPath      The in-archive path (e.g. `SPACE/page-123.html`).
-     * @param string      $pageId       The page identifier (filename without extension).
-     * @param string      $title        The page title.
-     * @param string      $body         The cleaned body HTML (still pre-sanitisation).
-     * @param int         $sortOrder    Sibling order from `index.html`, default 0.
-     * @param string|null $parentPageId Parent pageId derived from breadcrumb /
-     *                                  directory nesting, NULL for roots.
-     */
-    public function __construct(
-        public readonly string $relPath,
-        public readonly string $pageId,
-        public readonly string $title,
-        public readonly string $body,
-        public readonly int $sortOrder,
-        public ?string $parentPageId=null,
-    ) {
-    }//end __construct()
+class ParsedPage {
+	/**
+	 * Constructor.
+	 *
+	 * @param string $relPath The in-archive path (e.g. `SPACE/page-123.html`).
+	 * @param string $pageId The page identifier (filename without extension).
+	 * @param string $title The page title.
+	 * @param string $body The cleaned body HTML (still pre-sanitisation).
+	 * @param int $sortOrder Sibling order from `index.html`, default 0.
+	 * @param string|null $parentPageId Parent pageId derived from breadcrumb /
+	 *                                  directory nesting, NULL for roots.
+	 */
+	public function __construct(
+		public readonly string $relPath,
+		public readonly string $pageId,
+		public readonly string $title,
+		public readonly string $body,
+		public readonly int $sortOrder,
+		public ?string $parentPageId = null,
+	) {
+	}//end __construct()
 }//end class

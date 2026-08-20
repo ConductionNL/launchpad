@@ -26,8 +26,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -46,43 +46,41 @@ use Psr\Log\LoggerInterface;
  * @SuppressWarnings(PHPMD.StaticAccess)          — UniqueViewerDedup uses a static factory method.
  * @spec                                          openspec/specs/dashboard-view-analytics/spec.md
  */
-class SaltRotationJob extends TimedJob
-{
-    /**
-     * Constructor.
-     *
-     * @param ITimeFactory      $time   Time factory.
-     * @param UniqueViewerDedup $dedup  Dedup service whose salt is
-     *                                  rotated.
-     * @param LoggerInterface   $logger PSR logger.
-     */
-    public function __construct(
-        ITimeFactory $time,
-        private readonly UniqueViewerDedup $dedup,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(time: $time);
-        $this->setInterval(seconds: 86400);
-    }//end __construct()
+class SaltRotationJob extends TimedJob {
+	/**
+	 * Constructor.
+	 *
+	 * @param ITimeFactory $time Time factory.
+	 * @param UniqueViewerDedup $dedup Dedup service whose salt is
+	 *                                 rotated.
+	 * @param LoggerInterface $logger PSR logger.
+	 */
+	public function __construct(
+		ITimeFactory $time,
+		private readonly UniqueViewerDedup $dedup,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(time: $time);
+		$this->setInterval(seconds: 86400);
+	}//end __construct()
 
-    /**
-     * Run the job — overwrite the persisted daily salt with a fresh
-     * 32-byte random value (no history kept).
-     *
-     * @param mixed $argument Required by the base class; unused.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-view-analytics/spec.md
-     */
-    protected function run($argument): void
-    {
-        $today = UniqueViewerDedup::utcDateFor();
-        $this->dedup->rotateSalt(viewBucketDate: $today);
+	/**
+	 * Run the job — overwrite the persisted daily salt with a fresh
+	 * 32-byte random value (no history kept).
+	 *
+	 * @param mixed $argument Required by the base class; unused.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	protected function run($argument): void {
+		$today = UniqueViewerDedup::utcDateFor();
+		$this->dedup->rotateSalt(viewBucketDate: $today);
 
-        $this->logger->info(
-            message: 'launchpad analytics salt rotated for '.$today,
-            context: ['date' => $today]
-        );
-    }//end run()
+		$this->logger->info(
+			message: 'launchpad analytics salt rotated for ' . $today,
+			context: ['date' => $today]
+		);
+	}//end run()
 }//end class

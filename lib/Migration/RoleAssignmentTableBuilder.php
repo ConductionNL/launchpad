@@ -14,8 +14,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -36,92 +36,90 @@ use OCP\DB\Types;
  * service-layer XOR validation. Either user_id OR group_id is set per
  * row, never both.
  */
-class RoleAssignmentTableBuilder
-{
-    /**
-     * Create the `launchpad_role_assignments` table when missing.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function create(ISchemaWrapper $schema): void
-    {
-        if ($schema->hasTable('launchpad_role_assignments') === true) {
-            return;
-        }
+class RoleAssignmentTableBuilder {
+	/**
+	 * Create the `launchpad_role_assignments` table when missing.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function create(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('launchpad_role_assignments') === true) {
+			return;
+		}
 
-        $table = $schema->createTable('launchpad_role_assignments');
+		$table = $schema->createTable('launchpad_role_assignments');
 
-        $table->addColumn(
-            'id',
-            Types::BIGINT,
-            [
-                'autoincrement' => true,
-                'notnull'       => true,
-                'unsigned'      => true,
-            ]
-        );
-        $table->addColumn(
-            'user_id',
-            Types::STRING,
-            [
-                'notnull' => false,
-                'length'  => 64,
-            ]
-        );
-        $table->addColumn(
-            'group_id',
-            Types::STRING,
-            [
-                'notnull' => false,
-                'length'  => 64,
-            ]
-        );
-        $table->addColumn(
-            'role',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 16,
-            ]
-        );
-        $table->addColumn(
-            'assigned_by',
-            Types::STRING,
-            [
-                'notnull' => true,
-                'length'  => 64,
-            ]
-        );
-        $table->addColumn(
-            'assigned_at',
-            Types::DATETIME,
-            ['notnull' => true]
-        );
+		$table->addColumn(
+			'id',
+			Types::BIGINT,
+			[
+				'autoincrement' => true,
+				'notnull' => true,
+				'unsigned' => true,
+			]
+		);
+		$table->addColumn(
+			'user_id',
+			Types::STRING,
+			[
+				'notnull' => false,
+				'length' => 64,
+			]
+		);
+		$table->addColumn(
+			'group_id',
+			Types::STRING,
+			[
+				'notnull' => false,
+				'length' => 64,
+			]
+		);
+		$table->addColumn(
+			'role',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 16,
+			]
+		);
+		$table->addColumn(
+			'assigned_by',
+			Types::STRING,
+			[
+				'notnull' => true,
+				'length' => 64,
+			]
+		);
+		$table->addColumn(
+			'assigned_at',
+			Types::DATETIME,
+			['notnull' => true]
+		);
 
-        $table->setPrimaryKey(['id']);
+		$table->setPrimaryKey(['id']);
 
-        // Lookup indexes for cascade and resolution paths.
-        $table->addIndex(
-            ['user_id'],
-            'launchpad_role_user_idx'
-        );
-        $table->addIndex(
-            ['group_id'],
-            'launchpad_role_group_idx'
-        );
+		// Lookup indexes for cascade and resolution paths.
+		$table->addIndex(
+			['user_id'],
+			'launchpad_role_user_idx'
+		);
+		$table->addIndex(
+			['group_id'],
+			'launchpad_role_group_idx'
+		);
 
-        // Enforce one assignment per (user, role) and per (group, role).
-        // Rows are XOR — only one of user_id / group_id is populated —
-        // so a single row never participates in both unique indexes.
-        $table->addUniqueIndex(
-            ['user_id', 'role'],
-            'launchpad_role_user_uniq'
-        );
-        $table->addUniqueIndex(
-            ['group_id', 'role'],
-            'launchpad_role_group_uniq'
-        );
-    }//end create()
+		// Enforce one assignment per (user, role) and per (group, role).
+		// Rows are XOR — only one of user_id / group_id is populated —
+		// so a single row never participates in both unique indexes.
+		$table->addUniqueIndex(
+			['user_id', 'role'],
+			'launchpad_role_user_uniq'
+		);
+		$table->addUniqueIndex(
+			['group_id', 'role'],
+			'launchpad_role_group_uniq'
+		);
+	}//end create()
 }//end class

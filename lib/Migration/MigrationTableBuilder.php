@@ -23,57 +23,56 @@ use OCP\DB\ISchemaWrapper;
 /**
  * Facade for building all database table schemas in migrations.
  */
-class MigrationTableBuilder
-{
-    /**
-     * Create the launchpad_dashboards table.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function createDashboardsTable(
-        ISchemaWrapper $schema
-    ): void {
-        DashboardTableBuilder::create(schema: $schema);
-    }//end createDashboardsTable()
+class MigrationTableBuilder {
+	/**
+	 * Create the launchpad_dashboards table.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function createDashboardsTable(
+		ISchemaWrapper $schema,
+	): void {
+		DashboardTableBuilder::create(schema: $schema);
+	}//end createDashboardsTable()
 
-    /**
-     * Create the launchpad_widget_placements table.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function createWidgetPlacementsTable(
-        ISchemaWrapper $schema
-    ): void {
-        PlacementTableBuilder::create(schema: $schema);
-    }//end createWidgetPlacementsTable()
+	/**
+	 * Create the launchpad_widget_placements table.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function createWidgetPlacementsTable(
+		ISchemaWrapper $schema,
+	): void {
+		PlacementTableBuilder::create(schema: $schema);
+	}//end createWidgetPlacementsTable()
 
-    /**
-     * Create the launchpad_admin_settings table.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function createAdminSettingsTable(
-        ISchemaWrapper $schema
-    ): void {
-        SettingsTableBuilder::create(schema: $schema);
-    }//end createAdminSettingsTable()
+	/**
+	 * Create the launchpad_admin_settings table.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function createAdminSettingsTable(
+		ISchemaWrapper $schema,
+	): void {
+		SettingsTableBuilder::create(schema: $schema);
+	}//end createAdminSettingsTable()
 
-    /**
-     * Create the launchpad_conditional_rules table.
-     *
-     * @param ISchemaWrapper $schema The schema wrapper.
-     *
-     * @return void
-     */
-    public static function createConditionalRulesTable(
-        ISchemaWrapper $schema
-    ): void {
-        RulesTableBuilder::create(schema: $schema);
-    }//end createConditionalRulesTable()
+	/**
+	 * Create the launchpad_conditional_rules table.
+	 *
+	 * @param ISchemaWrapper $schema The schema wrapper.
+	 *
+	 * @return void
+	 */
+	public static function createConditionalRulesTable(
+		ISchemaWrapper $schema,
+	): void {
+		RulesTableBuilder::create(schema: $schema);
+	}//end createConditionalRulesTable()
 }//end class

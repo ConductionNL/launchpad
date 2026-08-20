@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit test for the `Views.vue` initial-load shim.
  *
@@ -13,9 +13,9 @@
  * state stays out of the DOM.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => {
 	const actual = await importOriginal()
@@ -54,8 +54,14 @@ beforeEach(() => {
 })
 
 const childStubs = {
-	DashboardGrid: { name: 'DashboardGrid', template: '<div class="stub-dashboard-grid" />' },
-	DashboardSwitcherSidebar: { name: 'DashboardSwitcherSidebar', template: '<div />' },
+	DashboardGrid: {
+		name: 'DashboardGrid',
+		template: '<div class="stub-dashboard-grid" />',
+	},
+	DashboardSwitcherSidebar: {
+		name: 'DashboardSwitcherSidebar',
+		template: '<div />',
+	},
 	SidebarBackdrop: { name: 'SidebarBackdrop', template: '<div />' },
 	WidgetPickerModal: { name: 'WidgetPickerModal', template: '<div />' },
 	CnAddWidgetModal: { name: 'CnAddWidgetModal', template: '<div />' },
@@ -63,11 +69,15 @@ const childStubs = {
 	TileEditor: { name: 'TileEditor', template: '<div />' },
 	WidgetContextMenu: { name: 'WidgetContextMenu', template: '<div />' },
 	DashboardConfigModal: { name: 'DashboardConfigModal', template: '<div />' },
-	NcLoadingIcon: { name: 'NcLoadingIcon', template: '<span class="nc-loading-icon-stub" />' },
+	NcLoadingIcon: {
+		name: 'NcLoadingIcon',
+		template: '<span class="nc-loading-icon-stub" />',
+	},
 	NcEmptyContent: {
 		name: 'NcEmptyContent',
 		props: { name: String, description: String },
-		template: '<div class="empty-content"><slot name="icon" /><slot /><slot name="action" /></div>',
+		template:
+			'<div class="empty-content"><slot name="icon" /><slot /><slot name="action" /></div>',
 	},
 	NcButton: { name: 'NcButton', template: '<button><slot /></button>' },
 	ViewDashboard: { name: 'ViewDashboard', template: '<span />' },

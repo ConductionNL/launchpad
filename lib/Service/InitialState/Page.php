@@ -20,8 +20,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -31,8 +31,7 @@ namespace OCA\LaunchPad\Service\InitialState;
 /**
  * Page identifier for the initial-state contract (REQ-INIT-001).
  */
-enum Page: string
-{
-    case WORKSPACE = 'workspace';
-    case ADMIN     = 'admin';
+enum Page: string {
+	case WORKSPACE = 'workspace';
+	case ADMIN = 'admin';
 }//end enum

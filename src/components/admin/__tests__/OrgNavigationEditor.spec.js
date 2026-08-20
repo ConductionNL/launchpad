@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `OrgNavigationEditor.vue` (REQ-ONAV-007,
  * REQ-ONAV-012). Drives the local working-copy CRUD operations:
@@ -8,11 +8,9 @@
  * move-down, deleting nodes, and persisting via the store.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia, setActivePinia } from 'pinia'
-
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import OrgNavigationEditor from '../OrgNavigationEditor.vue'
 
 vi.mock('@nextcloud/axios', () => ({
@@ -30,14 +28,20 @@ vi.mock('@nextcloud/router', () => ({
 
 vi.mock('../../../services/api.js', () => ({
 	api: {
-		getOrgNavigation: vi.fn().mockResolvedValue({ data: { tree: [], language: 'nl' } }),
-		updateOrgNavigation: vi.fn().mockResolvedValue({ data: { tree: [], language: 'nl' } }),
-		getOrgNavigationPosition: vi.fn().mockResolvedValue({ data: { position: 'hidden' } }),
-		updateOrgNavigationPosition: vi.fn().mockResolvedValue({ data: { position: 'left' } }),
+		getOrgNavigation: vi
+			.fn()
+			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
+		updateOrgNavigation: vi
+			.fn()
+			.mockResolvedValue({ data: { tree: [], language: 'nl' } }),
+		getOrgNavigationPosition: vi
+			.fn()
+			.mockResolvedValue({ data: { position: 'hidden' } }),
+		updateOrgNavigationPosition: vi
+			.fn()
+			.mockResolvedValue({ data: { position: 'left' } }),
 	},
 }))
-
-Vue.use(PiniaVuePlugin)
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
@@ -52,8 +56,9 @@ beforeEach(() => {
 	} else {
 		// Crypto exists but possibly without randomUUID — patch it.
 		try {
-			globalThis.crypto.randomUUID = () => '11111111-1111-4111-8111-111111111111'
-		} catch (_e) {
+			globalThis.crypto.randomUUID = () =>
+				'11111111-1111-4111-8111-111111111111'
+		} catch {
 			// Read-only — leave as-is; the fallback Math.random branch is fine.
 		}
 	}
@@ -116,8 +121,9 @@ describe('OrgNavigationEditor', () => {
 		await wrapper.find('[data-test="org-nav-save"]').trigger('click')
 		await flush()
 
-		expect(wrapper.find('[data-test="org-nav-editor-error"]').text())
-			.toContain('Tree depth')
+		expect(wrapper.find('[data-test="org-nav-editor-error"]').text()).toContain(
+			'Tree depth',
+		)
 		expect(wrapper.vm.successFlag).toBe(false)
 	})
 

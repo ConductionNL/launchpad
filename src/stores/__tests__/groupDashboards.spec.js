@@ -1,14 +1,14 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for the groupDashboards Pinia store (Task 7 of the
  * admin-group-management change). Mocks the api module so the store
  * exercises its CRUD + cache logic without hitting the network.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: {
@@ -64,7 +64,8 @@ describe('useGroupDashboardsStore — fetchGroups', () => {
 		mockApi.getAdminGroups.mockResolvedValueOnce({
 			data: { data: [{ id: 'admins', displayName: 'Admins' }] },
 		})
-		const { useGroupDashboardsStore, DEFAULT_GROUP_ID } = await import('../groupDashboards.js')
+		const { useGroupDashboardsStore, DEFAULT_GROUP_ID } =
+			await import('../groupDashboards.js')
 		const store = useGroupDashboardsStore()
 		await store.fetchGroups()
 		expect(store.groups[0].id).toBe(DEFAULT_GROUP_ID)
@@ -110,7 +111,12 @@ describe('useGroupDashboardsStore — CRUD', () => {
 		})
 		const { useGroupDashboardsStore } = await import('../groupDashboards.js')
 		const store = useGroupDashboardsStore()
-		store.dashboardsByGroup = { admins: [{ uuid: 'u1', name: 'A' }, { uuid: 'u2', name: 'B' }] }
+		store.dashboardsByGroup = {
+			admins: [
+				{ uuid: 'u1', name: 'A' },
+				{ uuid: 'u2', name: 'B' },
+			],
+		}
 		await store.update('admins', 'u1', { name: 'A renamed' })
 		expect(store.dashboardsFor('admins')[0].name).toBe('A renamed')
 		expect(store.dashboardsFor('admins')[1].name).toBe('B')
@@ -120,7 +126,12 @@ describe('useGroupDashboardsStore — CRUD', () => {
 		mockApi.deleteGroupDashboard.mockResolvedValueOnce({ data: {} })
 		const { useGroupDashboardsStore } = await import('../groupDashboards.js')
 		const store = useGroupDashboardsStore()
-		store.dashboardsByGroup = { admins: [{ uuid: 'u1', name: 'A' }, { uuid: 'u2', name: 'B' }] }
+		store.dashboardsByGroup = {
+			admins: [
+				{ uuid: 'u1', name: 'A' },
+				{ uuid: 'u2', name: 'B' },
+			],
+		}
 		await store.delete('admins', 'u1')
 		expect(store.dashboardsFor('admins')).toHaveLength(1)
 		expect(store.dashboardsFor('admins')[0].uuid).toBe('u2')

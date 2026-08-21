@@ -282,6 +282,14 @@ class ManifestController extends Controller {
 	 *                      already normalised
 	 *                      them.
 	 *
+	 * @param-out array<int|string, bool> $seen The key type WIDENS on write: the
+	 *        identity key is a string, but PHP coerces a CANONICAL NUMERIC string
+	 *        array key to an integer, so a dashboard identity of "42" lands under
+	 *        the int key 42. Lookups coerce the same way, so the dedupe still
+	 *        works; only code testing is_string() on the key would be misled.
+	 * @param-out array<int, array<int|string, mixed>> $dashboards Same coercion,
+	 *        one level down: the per-dashboard arrays are keyed by column name.
+	 *
 	 * @return void
 	 */
 	private function foldInto(array $rows, array &$dashboards, array &$seen, bool $extract): void {

@@ -265,11 +265,14 @@ class SvgSanitiser {
 			return;
 		}
 
+		// No instanceof DOMAttr filter: DOMElement::$attributes is a
+		// DOMNamedNodeMap of DOMAttr, so the check is always true (PHPStan 2:
+		// instanceof.alwaysTrue). Kept as a copy into a plain array because the
+		// caller mutates attributes while iterating, and mutating a live
+		// DOMNamedNodeMap mid-loop skips nodes.
 		$attributes = [];
 		foreach ($element->attributes as $attribute) {
-			if ($attribute instanceof DOMAttr) {
-				$attributes[] = $attribute;
-			}
+			$attributes[] = $attribute;
 		}
 
 		foreach ($attributes as $attribute) {

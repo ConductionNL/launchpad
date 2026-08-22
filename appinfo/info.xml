@@ -57,20 +57,20 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
 	<documentation>
-		<user>https://codeberg.org/Conduction/launchpad</user>
-		<admin>https://codeberg.org/Conduction/launchpad</admin>
-		<developer>https://codeberg.org/Conduction/launchpad</developer>
+		<user>https://github.com/ConductionNL/launchpad</user>
+		<admin>https://github.com/ConductionNL/launchpad</admin>
+		<developer>https://github.com/ConductionNL/launchpad</developer>
 	</documentation>
 	<category>customization</category>
 	<category>organization</category>
 	<category>dashboard</category>
-	<website>https://codeberg.org/Conduction/launchpad</website>
-	<bugs>https://codeberg.org/Conduction/launchpad/issues</bugs>
-	<repository>https://codeberg.org/Conduction/launchpad</repository>
+	<website>https://github.com/ConductionNL/launchpad</website>
+	<bugs>https://github.com/ConductionNL/launchpad/issues</bugs>
+	<repository>https://github.com/ConductionNL/launchpad</repository>
 
-	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-dashboard.png</screenshot>
-	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-widgets.png</screenshot>
-	<screenshot>https://codeberg.org/Conduction/launchpad/raw/branch/main/img/screenshot-admin.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot-dashboard.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot-widgets.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot-admin.png</screenshot>
 
 	<!-- ADR: LaunchPad is an OR-free app (docs/architecture.md "Runtime-only
 	     OR consumption policy"). It MUST boot and function fully on a

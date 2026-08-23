@@ -12,6 +12,7 @@
 		"build": "webpack --config webpack.config.js --progress --mode production",
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
+		"check:schema-l10n": "node scripts/check-schema-l10n.js",
 		"check:manifest": "node scripts/check-manifest.js",
 		"lint": "eslint src && npm run check:manifest && npm run lint:initial-state && npm run lint:translation-domain",
 		"lint:fix": "eslint src --fix",

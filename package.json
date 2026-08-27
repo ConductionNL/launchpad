@@ -12,6 +12,7 @@
 		"build": "webpack --config webpack.config.js --progress --mode production",
 		"dev": "NODE_ENV=development webpack --config webpack.config.js --progress",
 		"watch": "NODE_ENV=development webpack --config webpack.config.js --progress --watch",
+		"check:schema-l10n": "node scripts/check-schema-l10n.js",
 		"check:manifest": "node scripts/check-manifest.js",
 		"lint": "eslint src && npm run check:manifest && npm run lint:initial-state && npm run lint:translation-domain",
 		"lint:fix": "eslint src --fix",
@@ -33,7 +34,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^2.3.0",
+		"@conduction/nextcloud-vue": "^2.19.0",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^7.4.1",
@@ -52,7 +53,7 @@
 		"vuedraggable": "^4.1.0"
 	},
 	"devDependencies": {
-		"@cyclonedx/cyclonedx-npm": "^4.2.1",
+		"@cyclonedx/cyclonedx-npm": "^5.0.0",
 		"@nextcloud/babel-config": "^1.2.0",
 		"@nextcloud/browserslist-config": "^2.3.0",
 		"@nextcloud/eslint-config": "^9.0.1",
@@ -63,7 +64,8 @@
 		"@playwright/test": "^1.59.1",
 		"@typescript-eslint/parser": "^8.67.0",
 		"@vitejs/plugin-vue": "^5.2.1",
-		"@vitest/ui": "^1.6.1",
+		"@vitest/coverage-v8": "^3.2.7",
+		"@vitest/ui": "^3.2.7",
 		"@vue/compiler-sfc": "^3.5.13",
 		"@vue/test-utils": "^2.4.6",
 		"@vue/tsconfig": "^0.5.1",
@@ -74,7 +76,7 @@
 		"stylelint": "^15.11.0",
 		"terser-webpack-plugin": "^5.3.11",
 		"typescript": "^5.4.0",
-		"vitest": "^1.6.1",
+		"vitest": "^3.2.7",
 		"vue-eslint-parser": "^10.3.0"
 	},
 	"browserslist": [

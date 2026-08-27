@@ -478,7 +478,8 @@ class NewsWidgetService {
 		return [
 			'items' => $sliced,
 			'feedsFailed' => count(value: $failedUrls),
-			'failedUrls' => array_values(array: $failedUrls),
+			// No array_values(): $failedUrls is already a list.
+			'failedUrls' => $failedUrls,
 		];
 	}//end fetchAndMergeFeeds()
 

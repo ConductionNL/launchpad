@@ -1,0 +1,51 @@
+name: OpenSpec Sync
+
+# RESTORED, on evidence that the condition which justified dropping it is gone.
+#
+# This caller was removed from `development` in #42 on 2026-08-04 for a good
+# reason: every run in its history was a startup failure reporting `jobs=0`.
+# That is the signature of a reusable workflow that never resolved — no log, no
+# step, no verdict, just a permanently red branch. As #42 put it, a
+# permanently-red workflow is worse than an absent one, because the next
+# genuine failure lands on an already-red branch and cannot be told apart from
+# the standing noise. That argument was correct.
+#
+# What has changed since:
+#
+#   1. The unresolvable ref was FIXED — on `main`, by 9a695ae on 2026-08-03
+#      ("fix all 8 shared-workflow callers on main (wrong org)"), one day
+#      BEFORE #42 dropped this file from development. The fix and the removal
+#      crossed: `main` got the repair, `development` got the deletion, and
+#      because main is 345 commits behind development the two never met.
+#
+#   2. It has now been observed working. Dispatched against main on
+#      2026-08-21, this exact caller ran to success and created 12 OpenSpec
+#      issues — the first non-zero result this workflow has ever produced.
+#
+# On the PROJECT_TOKEN: #42 and openregister#2111 both attributed the failure
+# to an expired project-board PAT. That is not what blocks it here — launchpad
+# has no PROJECT_TOKEN secret at all, and the 2026-08-21 run succeeded anyway.
+# The token is for the project BOARD; the issues themselves are written with
+# the workflow's own github.token. The line below is kept so the board sync
+# starts working by itself if a token is ever added, and is harmless while the
+# secret is absent.
+#
+# Why it belongs on `development` and not only on `main`: the push trigger
+# below watches `development`, and GitHub reads the workflow file from the
+# branch being pushed. With the file only on main, that trigger could never
+# fire — which is why the sync had to be kicked by hand and why only main's 16
+# changes were covered while development's 28 went unsynced.
+
+on:
+  push:
+    branches: [development]
+    paths: ['openspec/**']
+  workflow_dispatch:
+
+jobs:
+  sync:
+    uses: ConductionNL/.github/.github/workflows/openspec-sync.yml@main
+    with:
+      app-name: launchpad
+    secrets:
+      PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}

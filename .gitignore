@@ -75,3 +75,9 @@ bom-npm.cdx.json
 # Local MCP server configuration — carries API keys, must never be committed.
 # A live n8n API key reached the tip tree of 37 local branches before this was added.
 .mcp.json
+
+# Agent/test scratch and tool caches — generated, never source.
+# Added by the 2026-08-25 fleet hygiene sweep (ADR-100 Decision 2).
+.stale/
+/.e2e-state/
+.phpunit.cache

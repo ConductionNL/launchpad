@@ -628,7 +628,10 @@ class DemoShowcasesService {
 
 		$name = (string)($payload['name'] ?? $showcaseId);
 		$description = null;
-		if (isset($payload['description']) === true && $payload['description'] !== null) {
+		// `isset()` is already false for a null value, so a trailing `!== null`
+		// can never be false. PHPStan 2 reports it as notIdentical.alwaysTrue.
+		// The same redundancy was removed from the tile block below.
+		if (isset($payload['description']) === true) {
 			$description = (string)$payload['description'];
 		}
 
@@ -717,35 +720,35 @@ class DemoShowcasesService {
 			$placement->setStyleConfigArray(config: $payload['styleConfig']);
 		}
 
-		if (isset($payload['customTitle']) === true && $payload['customTitle'] !== null) {
+		if (isset($payload['customTitle']) === true) {
 			$placement->setCustomTitle((string)$payload['customTitle']);
 		}
 
 		// Tile fields — see WidgetPlacement::jsonSerialize().
-		if (isset($payload['tileType']) === true && $payload['tileType'] !== null) {
+		if (isset($payload['tileType']) === true) {
 			$placement->setTileType((string)$payload['tileType']);
 			$placement->setTileTitle((string)($payload['tileTitle'] ?? ''));
-			if (isset($payload['tileIcon']) === true && $payload['tileIcon'] !== null) {
+			if (isset($payload['tileIcon']) === true) {
 				$placement->setTileIcon((string)$payload['tileIcon']);
 			}
 
-			if (isset($payload['tileIconType']) === true && $payload['tileIconType'] !== null) {
+			if (isset($payload['tileIconType']) === true) {
 				$placement->setTileIconType((string)$payload['tileIconType']);
 			}
 
-			if (isset($payload['tileBackgroundColor']) === true && $payload['tileBackgroundColor'] !== null) {
+			if (isset($payload['tileBackgroundColor']) === true) {
 				$placement->setTileBackgroundColor((string)$payload['tileBackgroundColor']);
 			}
 
-			if (isset($payload['tileTextColor']) === true && $payload['tileTextColor'] !== null) {
+			if (isset($payload['tileTextColor']) === true) {
 				$placement->setTileTextColor((string)$payload['tileTextColor']);
 			}
 
-			if (isset($payload['tileLinkType']) === true && $payload['tileLinkType'] !== null) {
+			if (isset($payload['tileLinkType']) === true) {
 				$placement->setTileLinkType((string)$payload['tileLinkType']);
 			}
 
-			if (isset($payload['tileLinkValue']) === true && $payload['tileLinkValue'] !== null) {
+			if (isset($payload['tileLinkValue']) === true) {
 				$placement->setTileLinkValue((string)$payload['tileLinkValue']);
 			}
 		}//end if

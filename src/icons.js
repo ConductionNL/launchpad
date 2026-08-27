@@ -5,6 +5,7 @@
 
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
+import Sitemap from 'vue-material-design-icons/Sitemap.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 
 /**
@@ -28,6 +29,7 @@ import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline
 export const LAUNCHPAD_ICONS = {
 	// Menu: "Dashboards" + the register's Dashboard schema (ADR-077 Tier A
 	// concept `dashboard`).
+	Sitemap,
 	ViewDashboardOutline,
 	// Menu: "Templates" (Tier B concept `template`).
 	FileReplaceOutline,

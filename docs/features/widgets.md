@@ -3,9 +3,9 @@
 Widgets are the primary content blocks on LaunchPad dashboards. LaunchPad combines two widget sources:
 
 - **Nextcloud Dashboard API widgets** — every widget registered by an installed Nextcloud app, exposed via the v1 (`IAPIWidget`) or v2 (`IAPIWidgetV2`) interface, plus the legacy callback-based widgets.
-- **Registry-driven custom widgets** — **25** in-app widget types. 17 are LaunchPad-native (defined in [`src/constants/widgetRegistry.js`](../../src/constants/widgetRegistry.js)); the other 8 are **OpenRegister analytics widgets** contributed by the communal `dashboardWidgetRegistry` in [`@conduction/nextcloud-vue`](https://codeberg.org/Conduction/nextcloud-vue) and overlaid by LaunchPad's registry. Each entry pairs a Vue renderer with an Add Widget sub-form and a `defaultContent` shape.
+- **Registry-driven custom widgets** — **25** in-app widget types. 17 are LaunchPad-native (defined in [`src/constants/widgetRegistry.js`](../../src/constants/widgetRegistry.js)); the other 8 are **OpenRegister analytics widgets** contributed by the communal `dashboardWidgetRegistry` in [`@conduction/nextcloud-vue`](https://github.com/ConductionNL/nextcloud-vue) and overlaid by LaunchPad's registry. Each entry pairs a Vue renderer with an Add Widget sub-form and a `defaultContent` shape.
 
-This page documents the **registry-driven** catalog. For the full shared catalog (all 25 types with screenshots), see the [Dashboard Widget Catalog](https://codeberg.org/Conduction/nextcloud-vue) in `@conduction/nextcloud-vue` (`docs/components/dashboard-widget-catalog.md`). For app-level Dashboard API widgets, see the host app's documentation.
+This page documents the **registry-driven** catalog. For the full shared catalog (all 25 types with screenshots), see the [Dashboard Widget Catalog](https://github.com/ConductionNL/nextcloud-vue) in `@conduction/nextcloud-vue` (`docs/components/dashboard-widget-catalog.md`). For app-level Dashboard API widgets, see the host app's documentation.
 
 ## Widget catalog
 
@@ -416,7 +416,7 @@ The registry-driven replacement for the deprecated standalone tile-creation flow
 # OpenRegister analytics widgets
 
 These 8 types are contributed by the communal `dashboardWidgetRegistry` in
-[`@conduction/nextcloud-vue`](https://codeberg.org/Conduction/nextcloud-vue) and
+[`@conduction/nextcloud-vue`](https://github.com/ConductionNL/nextcloud-vue) and
 resolve their data from **OpenRegister at render time** — so they need OpenRegister
 installed with data. Their renderers and sub-forms live in `@conduction/nextcloud-vue`
 (`CnStatWidget`, `CnChartWidget`, …), not in `src/components/Widgets/`. They share a

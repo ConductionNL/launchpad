@@ -551,12 +551,11 @@ class HealthPingService {
 	 * @return array<string,mixed>
 	 */
 	private function readPlacementConfig(WidgetPlacement $placement): array {
-		$content = $placement->getContentArray();
-		if (is_array(value: $content) === true) {
-			return $content;
-		}
-
-		return [];
+		// No is_array() probe and no [] fallback: getContentArray() is declared
+		// `: array` and already returns [] when the column is null, so the check
+		// was always true (PHPStan 2: function.alreadyNarrowedType) and the
+		// fallback unreachable.
+		return $placement->getContentArray();
 	}//end readPlacementConfig()
 
 	/**

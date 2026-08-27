@@ -33,3 +33,18 @@ parameters:
         # Dynamic HTTP status codes from business rule validation results. The base covers
         # the JSONResponse half; this app also passes them to DataResponse.
         - '#Parameter (\#\d+ )?\$statusCode of class OCP\\AppFramework\\Http\\(JSON|Data)Response constructor expects#'
+        # HealthController takes OpenRegister's ManifestLoader/HealthCheckExecutor
+        # as `?object` ON PURPOSE — a parameter TYPE is itself a compile-time
+        # reference to a class that may not be installed, which is the whole point
+        # of the soft dependency (see the constructor docblock). The cost is that
+        # `$this->executor->execute(...)` returns mixed, so the JSONResponse payload
+        # built from `$result->checks` "contains unresolvable type".
+        #
+        # PHPStan 2 raises this as argument.unresolvableType where PHPStan 1 did
+        # not. Typing the parameters to fix it would reintroduce the hard
+        # dependency the design deliberately avoids, so the ignore is scoped to
+        # the one file and identifier rather than the app.
+        -
+            message: '#Parameter \#1 \$data of class OCP\\AppFramework\\Http\\JSONResponse constructor contains unresolvable type#'
+            identifier: argument.unresolvableType
+            path: lib/Controller/HealthController.php

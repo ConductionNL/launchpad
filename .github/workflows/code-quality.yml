@@ -217,6 +217,22 @@ jobs:
       # test less than it appears to.
       additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
       enable-playwright: true
+      # Turn the E2E skip-discipline check into a hard failure here.
+      #
+      # This input exists in the shared workflow and is enabled in ZERO of the
+      # 21 fleet apps — it has never been on anywhere. Its own description says
+      # to flip it per app once that app is worked down, so that it "can then
+      # only stay clean". launchpad is the app to start with: its last E2E run
+      # was 137 passed and 0 skipped.
+      #
+      # It reads the RUN's Playwright report, which is the only place a runtime
+      # `test.skip(cond, reason)` is visible at all — the CI log prints skip
+      # COUNTS with no reasons, so today a broken fixture and a legitimate skip
+      # are indistinguishable after the fact. Measured fleet-wide today: 178
+      # skipped specs across five apps, including 21 in one decidiq file that
+      # skip when no meeting object exists, which is a seeding-order problem
+      # reported as 21 passes.
+      e2e-skip-blocking: true
       # Names the real suite directory. It holds no config of its own, so the
       # workflow falls back to the root `playwright.config.ts` — which is the
       # file gate-19 reads. Same file, same testIgnore, no drift.

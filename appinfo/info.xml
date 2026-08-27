@@ -114,6 +114,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     the same descriptor. Idempotent — the importer is version- and
 			     content-gated. -->
 			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
+			<!-- Provision the shipped default dashboard when the instance has
+			     no default template. Idempotent, so an instance that already
+			     has dashboards is untouched. -->
+			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
 		</post-migration>
 		<install>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
@@ -130,6 +134,11 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			     fresh install had no register and every OR-backed feature — the
 			     v2 manifest above all — failed with "Register not found". -->
 			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
+			<!-- Ship a dashboard out of the box. `allowUserDashboards` defaults
+			     to false, so without a default template a fresh install has no
+			     dashboard at all and renders the "contact your administrator"
+			     empty state. -->
+			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
 		</install>
 	</repair-steps>
 

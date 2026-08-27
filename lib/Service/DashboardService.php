@@ -486,6 +486,38 @@ class DashboardService {
 			return $result;
 		}
 
+		// Instance-wide dashboards on the reserved `default` group.
+		//
+		// This rung exists because the two resolution chains disagreed, and
+		// the disagreement was silent. The page shell resolves through
+		// resolveActiveDashboard(), whose steps 2-5 land on a
+		// `group_shared` row — including the `default` sentinel that means
+		// "everyone" (REQ-DASH-012). This method had no equivalent rung at
+		// all: with no preference set it went straight from the owned
+		// dashboards to shares and templates. So an instance whose only
+		// dashboard is the shipped `default`-group one rendered fine in the
+		// shell while `GET /api/dashboard` answered
+		// `{"error": "No dashboard available"}` for the same user, and the
+		// grid drew its empty state on top of a dashboard the sidebar was
+		// already listing.
+		//
+		// Only the DEFAULT_GROUP_ID sentinel is resolved here — rungs 3 and
+		// 5 of resolveGroupSharedDashboard(). A per-group default needs the
+		// caller's primary group, which this signature does not carry, and
+		// guessing one would make the two chains disagree in a new way.
+		$groupShared = $this->resolveGroupSharedDashboard(
+			visible: $this->getVisibleToUser(userId: $userId),
+			groupId: Dashboard::DEFAULT_GROUP_ID
+		);
+		if ($groupShared !== null) {
+			return $this->dashResolver->buildResult(
+				dashboard: $groupShared['dashboard'],
+				placements: $this->placementMapper->findByDashboardId(
+					dashboardId: $groupShared['dashboard']->getId()
+				)
+			);
+		}
+
 		// REQ-SHARE-002: a dashboard someone deliberately shared with this
 		// user beats auto-provisioning a brand-new one from a template.
 		// Placed AFTER both owned-dashboard steps (same precedence as
@@ -2564,6 +2596,78 @@ class DashboardService {
 			dashboardId: $dashboardId
 		);
 	}//end findPlacements()
+
+	/**
+	 * Provision the shipped default dashboard when the instance has none.
+	 *
+	 * WHY A FRESH INSTALL WAS EMPTY. `allowUserDashboards` deliberately
+	 * defaults to `false` (REQ-ASET-003: an admin must opt in before users
+	 * may create personal dashboards). That default closes the only
+	 * branch of {@see self::tryCreateFromTemplate()} that WRITES, so on a
+	 * brand-new instance nothing ever created a dashboard — not the app,
+	 * not the user. `oc_launchpad_dashboards` stayed empty, every rung of
+	 * {@see self::resolveActiveDashboard()} returned null, and
+	 * `/apps/launchpad/` rendered "No dashboards available — contact your
+	 * administrator". The default widget bundle
+	 * ({@see self::defaultWidgetSeeds()}) had shipped and had unit tests
+	 * the whole time; nothing ever called it, because nothing ever created
+	 * the dashboard it seeds.
+	 *
+	 * THE SHAPE MATTERS, AND AN ADMIN TEMPLATE IS THE WRONG ONE. This app
+	 * has two resolution chains and they do not agree.
+	 * {@see self::getEffectiveDashboard()} consults admin templates via
+	 * `tryCreateFromTemplate()`; the page shell
+	 * ({@see \OCA\LaunchPad\Controller\PageController::index()}) calls
+	 * `resolveActiveDashboard()`, which reads only
+	 * {@see self::getVisibleToUser()} and never looks at a template at all.
+	 * Seeding a default admin template therefore writes four placements the
+	 * workspace still will not render. The shape the SHELL resolves is a
+	 * `group_shared` dashboard on the reserved `default` group sentinel
+	 * (REQ-DASH-012) with `isDefault = 1` — rung 3 of
+	 * `resolveGroupSharedDashboard()`, which fires for every user whether or
+	 * not they are in any Nextcloud group.
+	 *
+	 * It is created `published`, not `draft`: `filterByPublicationState()`
+	 * hides drafts from everyone but the owner, and this row has no owner.
+	 *
+	 * Idempotent — it does nothing once a `default`-group dashboard exists,
+	 * so it is safe on both `install` and `post-migration`. An admin who
+	 * deletes it gets it back on the next upgrade; that is the same
+	 * trade-off the app's other seeding repair steps make, and the reason
+	 * this ships as shared instance content rather than as user content.
+	 *
+	 * @return Dashboard|null The provisioned dashboard, or null when one
+	 *                        already existed.
+	 *
+	 * @spec openspec/specs/default-widget-bundle/spec.md
+	 */
+	public function ensureDefaultDashboard(): ?Dashboard {
+		$existing = $this->dashboardMapper->findByGroup(
+			groupId: Dashboard::DEFAULT_GROUP_ID
+		);
+		if (count(value: $existing) > 0) {
+			return null;
+		}
+
+		$dashboard = $this->dashboardFactory->create(
+			userId: null,
+			name: 'Dashboard',
+			description: 'The dashboard everyone starts on. Edit it to change what your whole organisation sees.',
+			type: Dashboard::TYPE_GROUP_SHARED,
+			groupId: Dashboard::DEFAULT_GROUP_ID,
+			permissionLevel: Dashboard::PERMISSION_VIEW_ONLY
+		);
+		// Rung 3 of resolveGroupSharedDashboard() requires isDefault; without
+		// it the row is only reachable through the weaker rung-5 fallback.
+		$dashboard->setIsDefault(1);
+		// Drafts are hidden from every non-owner, and this row has no owner.
+		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+
+		$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+		$this->seedDefaultWidgets(dashboardId: $persisted->getId());
+
+		return $persisted;
+	}//end ensureDefaultDashboard()
 
 	/**
 	 * Seed the default widget bundle on a freshly-created dashboard.

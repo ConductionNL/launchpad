@@ -100,11 +100,25 @@ test.describe('active-dashboard-resolution — empty state', () => {
 			const { context, page } = await loginAs(browser, username, password)
 			try {
 				await page.goto('/index.php/apps/launchpad')
+				// INVERTED by #361 (c9e58089, "ship a dashboard"). This asserted
+				// the empty state for a fresh account. `SeedDefaultDashboard`
+				// now provisions an INSTANCE-WIDE, group-shared dashboard on
+				// install and after every upgrade, precisely so that
+				// "No dashboards available" can no longer greet a new user —
+				// that message was the defect the commit set out to remove.
+				//
+				// So the empty state is unreachable by construction, and the
+				// valuable assertion is its opposite: a brand-new account, which
+				// owns nothing, must still resolve to the seeded dashboard.
 				const empty = page.locator('.workspace-shell__empty')
-				await expect(empty).toBeVisible({ timeout: 15_000 })
 				await expect(
-					empty.locator('.workspace-shell__empty-title'),
-				).toHaveText(/no dashboards available/i)
+					empty,
+					'a fresh account must NOT see the empty state — the seeder ships an instance-wide dashboard',
+				).toBeHidden({ timeout: 15_000 })
+				await expect(
+					page.locator('.workspace-shell'),
+					'the shell must resolve the seeded dashboard for an account that owns none',
+				).toBeVisible({ timeout: 15_000 })
 			} finally {
 				await context.close()
 			}

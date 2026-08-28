@@ -172,6 +172,10 @@ test.describe('REQ-SHELL-005: empty state', () => {
 	test('empty state renders with Create CTA when allowUserDashboards is true', async ({
 		browser,
 	}) => {
+		test.fixme(
+			true,
+			'the empty state this asserts is unreachable since #361 (c9e58089): SeedDefaultDashboard provisions an instance-wide, group-shared dashboard on install and after every upgrade, so no account resolves to zero dashboards. The underlying rule (REQ-ASET-003 — allowUserDashboards gates whether a user may create one) is still worth covering, but it needs an assertion that does not route through the empty state.',
+		)
 		await setAllowUserDashboards(true)
 		const { username, password } = await provisionThrowawayUser()
 		throwawayUser = username
@@ -197,6 +201,10 @@ test.describe('REQ-SHELL-005: empty state', () => {
 	test('empty state renders without Create CTA when allowUserDashboards is false', async ({
 		browser,
 	}) => {
+		test.fixme(
+			true,
+			'same as the sibling above: the empty state is unreachable since #361 (c9e58089), so this cannot assert the absence of a CTA inside it. REQ-ASET-003 needs covering without the empty state.',
+		)
 		await setAllowUserDashboards(false)
 		const { username, password } = await provisionThrowawayUser()
 		throwawayUser = username

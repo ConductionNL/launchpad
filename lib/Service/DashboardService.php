@@ -486,36 +486,9 @@ class DashboardService {
 			return $result;
 		}
 
-		// Instance-wide dashboards on the reserved `default` group.
-		//
-		// This rung exists because the two resolution chains disagreed, and
-		// the disagreement was silent. The page shell resolves through
-		// resolveActiveDashboard(), whose steps 2-5 land on a
-		// `group_shared` row — including the `default` sentinel that means
-		// "everyone" (REQ-DASH-012). This method had no equivalent rung at
-		// all: with no preference set it went straight from the owned
-		// dashboards to shares and templates. So an instance whose only
-		// dashboard is the shipped `default`-group one rendered fine in the
-		// shell while `GET /api/dashboard` answered
-		// `{"error": "No dashboard available"}` for the same user, and the
-		// grid drew its empty state on top of a dashboard the sidebar was
-		// already listing.
-		//
-		// Only the DEFAULT_GROUP_ID sentinel is resolved here — rungs 3 and
-		// 5 of resolveGroupSharedDashboard(). A per-group default needs the
-		// caller's primary group, which this signature does not carry, and
-		// guessing one would make the two chains disagree in a new way.
-		$groupShared = $this->resolveGroupSharedDashboard(
-			visible: $this->getVisibleToUser(userId: $userId),
-			groupId: Dashboard::DEFAULT_GROUP_ID
-		);
-		if ($groupShared !== null) {
-			return $this->dashResolver->buildResult(
-				dashboard: $groupShared['dashboard'],
-				placements: $this->placementMapper->findByDashboardId(
-					dashboardId: $groupShared['dashboard']->getId()
-				)
-			);
+		$result = $this->resolveDefaultGroupDashboard(userId: $userId);
+		if ($result !== null) {
+			return $result;
 		}
 
 		// REQ-SHARE-002: a dashboard someone deliberately shared with this
@@ -536,6 +509,51 @@ class DashboardService {
 
 		return $this->tryCreateFromTemplate(userId: $userId);
 	}//end getEffectiveDashboard()
+
+	/**
+	 * Resolve an instance-wide dashboard on the reserved `default` group.
+	 *
+	 * This rung exists because the two resolution chains disagreed, and the
+	 * disagreement was silent. The page shell resolves through
+	 * resolveActiveDashboard(), whose steps 2-5 land on a `group_shared` row —
+	 * including the `default` sentinel that means "everyone" (REQ-DASH-012).
+	 * getEffectiveDashboard() had no equivalent rung at all: with no preference
+	 * set it went straight from the owned dashboards to shares and templates.
+	 * So an instance whose only dashboard is the shipped `default`-group one
+	 * rendered fine in the shell while `GET /api/dashboard` answered
+	 * `{"error": "No dashboard available"}` for the same user, and the grid drew
+	 * its empty state on top of a dashboard the sidebar was already listing.
+	 *
+	 * Only the DEFAULT_GROUP_ID sentinel is resolved here — rungs 3 and 5 of
+	 * resolveGroupSharedDashboard(). A per-group default needs the caller's
+	 * primary group, which this signature does not carry, and guessing one would
+	 * make the two chains disagree in a new way.
+	 *
+	 * Extracted from getEffectiveDashboard() rather than written inline: with
+	 * this block in place that method measured 104 lines against phpmd's
+	 * ExcessiveMethodLength threshold of 100.
+	 *
+	 * @param string $userId The user to resolve for.
+	 *
+	 * @return array|null The built dashboard result, or null when none exists.
+	 */
+	private function resolveDefaultGroupDashboard(string $userId): ?array {
+		$groupShared = $this->resolveGroupSharedDashboard(
+			visible: $this->getVisibleToUser(userId: $userId),
+			groupId: Dashboard::DEFAULT_GROUP_ID
+		);
+		if ($groupShared === null) {
+			return null;
+		}
+
+		return $this->dashResolver->buildResult(
+			dashboard: $groupShared['dashboard'],
+			placements: $this->placementMapper->findByDashboardId(
+				dashboardId: $groupShared['dashboard']->getId()
+			)
+		);
+
+	}//end resolveDefaultGroupDashboard()
 
 	/**
 	 * Create a new dashboard for a user.

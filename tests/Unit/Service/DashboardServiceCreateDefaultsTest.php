@@ -198,4 +198,73 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 			name: 'My Dashboard'
 		);
 	}//end testCreateWithoutSeedFlagInsertsNoPlacements()
+
+	/**
+	 * On an instance with no `default`-group dashboard,
+	 * `ensureDefaultDashboard()` MUST provision one and seed it with the
+	 * same four-widget bundle.
+	 *
+	 * The SHAPE is the assertion that matters. The page shell resolves
+	 * through `resolveActiveDashboard()`, whose only ownerless rung is a
+	 * `group_shared` row on the reserved `default` group with
+	 * `isDefault = 1` — an admin template, a personal dashboard or a
+	 * `draft` row would all be seeded successfully and still leave the
+	 * workspace on its empty state.
+	 *
+	 * @return void
+	 */
+	public function testEnsureDefaultDashboardProvisionsAndSeedsWhenAbsent(): void {
+		$dashboard = $this->makeDashboard();
+
+		$this->dashboardMapper->expects($this->once())
+			->method('findByGroup')
+			->with(Dashboard::DEFAULT_GROUP_ID)
+			->willReturn([]);
+
+		$captured = null;
+		$this->dashboardFactory->expects($this->once())
+			->method('create')
+			->willReturnCallback(
+				static function (...$args) use ($dashboard, &$captured) {
+					$captured = $args;
+					return $dashboard;
+				}
+			);
+		$this->dashboardMapper->expects($this->once())
+			->method('insert')
+			->willReturn($dashboard);
+		$this->placementMapper->expects($this->exactly(4))
+			->method('insert')
+			->willReturnArgument(0);
+
+		$result = $this->service->ensureDefaultDashboard();
+
+		$this->assertSame($dashboard, $result);
+		$this->assertSame(1, $dashboard->getIsDefault());
+		// A draft is hidden from every non-owner, and this row has none.
+		$this->assertSame(
+			Dashboard::STATUS_PUBLISHED,
+			$dashboard->getPublicationStatus()
+		);
+	}//end testEnsureDefaultDashboardProvisionsAndSeedsWhenAbsent()
+
+	/**
+	 * `ensureDefaultDashboard()` MUST be a no-op once the instance already
+	 * has a `default`-group dashboard — it runs on every upgrade, so a
+	 * second row (or a second set of placements) would accumulate.
+	 *
+	 * @return void
+	 */
+	public function testEnsureDefaultDashboardIsIdempotent(): void {
+		$this->dashboardMapper->expects($this->once())
+			->method('findByGroup')
+			->with(Dashboard::DEFAULT_GROUP_ID)
+			->willReturn([$this->makeDashboard()]);
+
+		$this->dashboardFactory->expects($this->never())->method('create');
+		$this->dashboardMapper->expects($this->never())->method('insert');
+		$this->placementMapper->expects($this->never())->method('insert');
+
+		$this->assertNull($this->service->ensureDefaultDashboard());
+	}//end testEnsureDefaultDashboardIsIdempotent()
 }//end class

@@ -228,6 +228,25 @@ jobs:
       # test less than it appears to.
       additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
       enable-playwright: true
+      # Enforce E2E skip discipline. Re-added: #354 set this and #356 removed
+      # it 16 minutes later while rewriting this file's triggers -- not a
+      # revert, just a casualty of two edits landing together.
+      #
+      # It is now backed by a real measurement rather than an assumption. The
+      # gate finally EXECUTES here (it needed hydra-gates v1.10.0 via #359 and
+      # the path fix in ConductionNL/.github#595), and on development's current
+      # head it reported:
+      #
+      #   0/137 tests skipped (0.0%) across 30 spec files
+      #     V1 spec files executing ZERO tests            : 0
+      #     V2 skips deferring to a deploy state CI decides: 0
+      #     V3 skips/fixmes with no reason recorded       : 0
+      #   Every skip names a real absence and every spec file ran something.
+      #
+      # So launchpad passes the gate on real data, and turning it on can only
+      # keep it that way. tests/e2e/docs-screenshots.spec.ts does NOT trip the
+      # zero-test rule, which was the open question when this was first tried.
+      e2e-skip-blocking: true
       # Names the real suite directory. It holds no config of its own, so the
       # workflow falls back to the root `playwright.config.ts` — which is the
       # file gate-19 reads. Same file, same testIgnore, no drift.

@@ -348,11 +348,31 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 		const { context, page } = await loginAs(browser, username, password)
 		try {
 			await page.goto(APP_URL)
-			const cta = page.locator('.workspace-shell__empty-cta')
+
+			// NOT through the empty state. #361 (SeedDefaultDashboard)
+			// provisions an instance-wide, group-shared dashboard on install,
+			// so a brand-new non-admin resolves to THAT and never sees
+			// `.workspace-shell__empty-cta` — the container this test used to
+			// click. #373 excluded the two REQ-SHELL-005 specs for the same
+			// reason and noted the rule underneath still needed an assertion
+			// that does not route through the empty state. This is that
+			// assertion: the create affordance the app offers a non-admin
+			// today is the sidebar's Add dashboard button, gated on the same
+			// `allowUserDashboards` this test already sets.
+			const ham = page.locator('.launchpad-sidebar-toggle').first()
+			await ham.click()
+			await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+				timeout: 20_000,
+			})
+			const cta = page.locator('[data-testid="add-dashboard-button"]')
 			await expect(cta).toBeVisible({ timeout: 20_000 })
+			await expect(
+				cta,
+				'the Add dashboard button must be offered, not merely present',
+			).toBeEnabled()
 
 			// Pre-baseline this click 403'd on `dashboard.create` and the
-			// user stayed stranded on the empty state forever.
+			// user stayed stranded with no dashboard of their own.
 			const [res] = await Promise.all([
 				page.waitForResponse(
 					(r) =>
@@ -371,14 +391,19 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 				'the Create CTA the app itself offers must not be forbidden',
 			).toContain(res.status())
 
-			// `hasActiveDashboard` comes from the server-rendered initial
-			// state, so the empty state only clears on the next load — which
-			// is also the honest end-to-end check that the row persisted.
+			// The honest end-to-end check that the row persisted: after a
+			// reload the user's own dashboard is listed in the switcher
+			// alongside the seeded one. Asserting the absence of the empty
+			// state would prove nothing now — #361 means it was never there.
 			await page.reload()
+			await page.locator('.launchpad-sidebar-toggle').first().click()
+			await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+				timeout: 20_000,
+			})
 			await expect(
-				page.locator('.workspace-shell__empty'),
-				'after creating a dashboard the user must not land on the empty state again',
-			).toHaveCount(0, { timeout: 25_000 })
+				page.locator('.dashboard-switcher-sidebar__item--personal'),
+				'the dashboard the user just created must be listed as theirs',
+			).not.toHaveCount(0, { timeout: 25_000 })
 		} finally {
 			await context.close()
 		}

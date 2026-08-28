@@ -538,7 +538,7 @@
         "e.g. /Documents/Marketing": "bijv. /Documenten/Marketing",
         "Folder ID (optional, preferred)": "Map-ID (optioneel, voorkeur)",
         "Numeric file id of the folder": "Numeriek bestand-id van de map",
-        "View mode": "Weergave",
+        "View mode": "Weergavemodus",
         "Sort by": "Sorteer op",
         "Sort descending": "Aflopend sorteren",
         "Show thumbnails": "Miniaturen tonen",
@@ -1005,7 +1005,10 @@
         "Kiosk playlists": "Kioskafspeellijsten",
         "New playlist": "Nieuwe afspeellijst",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Richt een wanddisplay of receptiescherm op een afspeellijst-URL om dashboards onbemand en zonder schermrand te laten roteren.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboards"
+        ],
         "refresh every {seconds}s": "ververst elke {seconds}s",
         "Copy URL": "URL kopiëren",
         "Revoke": "Intrekken",
@@ -1030,8 +1033,6 @@
         "Reconnecting…": "Opnieuw verbinden…",
         "Waiting for content…": "Wachten op inhoud…",
         "Spend analytics": "Uitgavenanalyse",
-        "View mode": "Weergavemodus",
-        "Period": "Periode",
         "Summary": "Samenvatting",
         "Trend": "Trend",
         "Top vendors": "Belangrijkste leveranciers",
@@ -1070,16 +1071,26 @@
         "Deadline: {date}": "Deadline: {date}",
         "Could not record your acknowledgement. Please try again.": "Je bevestiging kon niet worden vastgelegd. Probeer het opnieuw.",
         "You have items awaiting acknowledgement": "Je hebt items die op bevestiging wachten",
-        "_%n item to acknowledge_::_%n items to acknowledge_": ["%n item te bevestigen", "%n items te bevestigen"],
+        "_%n item to acknowledge_::_%n items to acknowledge_": [
+            "%n item te bevestigen",
+            "%n items te bevestigen"
+        ],
         "Read receipts": "Leesbevestigingen",
         "Read-receipt report": "Leesbevestigingsrapport",
         "Acknowledged": "Bevestigd",
         "Pending": "In afwachting",
         "Overdue": "Te laat",
-        "User": "Gebruiker",
         "Status": "Status",
         "Acknowledged at": "Bevestigd op",
         "Export CSV": "CSV exporteren",
-        "Could not load the read-receipt report.": "Het leesbevestigingsrapport kon niet worden geladen."
+        "Could not load the read-receipt report.": "Het leesbevestigingsrapport kon niet worden geladen.",
+        "Flow": "Flow",
+        "Flows": "Flows",
+        "launchpad.menu.dashboards": "Dashboards",
+        "launchpad.menu.adminTemplates": "Sjablonen",
+        "launchpad.menu.adminSettings": "Instellingen",
+        "launchpad.pages.dashboard": "Dashboard",
+        "launchpad.pages.adminTemplates": "Sjablonen beheren",
+        "launchpad.pages.adminSettings": "Instellingen beheren"
     }
 }

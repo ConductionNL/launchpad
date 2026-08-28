@@ -335,52 +335,48 @@ test.describe('ADR-023: fresh install is usable by non-admins', () => {
 	})
 
 	// @e2e action-authorization::fresh-install-is-usable-by-non-admins
-	test('the empty-state Create CTA it is offered actually works', async ({
-		browser,
-	}) => {
+	// @e2e action-authorization::fresh-install-is-usable-by-non-admins
+	test('an ordinary user may create a dashboard (REQ-ASET-003)', async () => {
 		test.setTimeout(90_000)
 
+		// This used to drive the empty-state Create CTA. That CTA is
+		// unreachable since #361 (c9e58089): SeedDefaultDashboard provisions an
+		// instance-wide, group-shared dashboard on install and after every
+		// upgrade, so no account resolves to zero dashboards. The two sibling
+		// tests above were fixme'd for exactly that reason in #362; this third
+		// one was missed and kept failing on `.workspace-shell__empty-cta`.
+		//
+		// The CTA was never the claim. The claim is REQ-ASET-003 — an ordinary
+		// user may create a dashboard when allowUserDashboards is on — and it
+		// is what regressed before: `dashboard.create` 403'd and the user was
+		// stranded. Asserting it against the endpoint keeps that coverage and
+		// stops routing it through a UI state that no longer occurs.
 		await setAllowUserDashboards(true)
 		const { username, password } =
-			await provisionThrowawayUser('e2e-nonadmin-cta')
+			await provisionThrowawayUser('e2e-nonadmin-create')
 		throwawayUser = username
 
-		const { context, page } = await loginAs(browser, username, password)
+		// Basic-Auth + OCS-APIRequest, like every other write in this file: a
+		// cookie-authenticated POST with no `requesttoken` is rejected by
+		// Nextcloud's CSRF check before it reaches the controller, which would
+		// fail this test for a reason that has nothing to do with authorization.
+		const api = await userApi(username, password)
 		try {
-			await page.goto(APP_URL)
-			const cta = page.locator('.workspace-shell__empty-cta')
-			await expect(cta).toBeVisible({ timeout: 20_000 })
-
-			// Pre-baseline this click 403'd on `dashboard.create` and the
-			// user stayed stranded on the empty state forever.
-			const [res] = await Promise.all([
-				page.waitForResponse(
-					(r) =>
-						r.url().includes('/apps/launchpad/api/dashboard')
-						&& r.request().method() === 'POST',
-					{ timeout: 25_000 },
-				),
-				cta.click(),
-			])
-			// 201 Created is the correct result for this POST; 200 is accepted
-			// too so the assertion tracks "the create succeeded" rather than
-			// one exact code. Still strict where it matters — 401, 403, 404
-			// and every 5xx all fail, which is the whole point of the test.
+			const res = await api.post('/index.php/apps/launchpad/api/dashboard', {
+				data: { name: `e2e create ${Date.now()}` },
+			})
+			// `toContain([200, 201])`, deliberately not `not.toBe(403)`: the
+			// weaker form also passes on 401 (never authenticated) and 404
+			// (wrong URL), neither of which proves an ordinary user may create.
+			// The route is dashboardApi#create, POST /api/dashboard, verified
+			// against appinfo/routes.php — a made-up path would 404 and sail
+			// through a weaker assertion.
 			expect(
 				[200, 201],
-				'the Create CTA the app itself offers must not be forbidden',
+				'an ordinary user must be able to create a dashboard when allowUserDashboards is on',
 			).toContain(res.status())
-
-			// `hasActiveDashboard` comes from the server-rendered initial
-			// state, so the empty state only clears on the next load — which
-			// is also the honest end-to-end check that the row persisted.
-			await page.reload()
-			await expect(
-				page.locator('.workspace-shell__empty'),
-				'after creating a dashboard the user must not land on the empty state again',
-			).toHaveCount(0, { timeout: 25_000 })
 		} finally {
-			await context.close()
+			await api.dispose()
 		}
 	})
 })

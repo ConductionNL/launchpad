@@ -1116,7 +1116,15 @@ OC.L10N.register(
     "Status" : "Status",
     "Acknowledged at" : "Bevestigd op",
     "Export CSV" : "CSV exporteren",
-    "Could not load the read-receipt report." : "Het leesbevestigingsrapport kon niet worden geladen."
+    "Could not load the read-receipt report." : "Het leesbevestigingsrapport kon niet worden geladen.",
+    "Flow" : "Flow",
+    "Flows" : "Flows",
+    "launchpad.menu.dashboards" : "Dashboards",
+    "launchpad.menu.adminTemplates" : "Sjablonen",
+    "launchpad.menu.adminSettings" : "Instellingen",
+    "launchpad.pages.dashboard" : "Dashboard",
+    "launchpad.pages.adminTemplates" : "Sjablonen",
+    "launchpad.pages.adminSettings" : "Instellingen"
 },
 "nplurals=2; plural=(n != 1);"
 );

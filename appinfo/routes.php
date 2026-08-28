@@ -11,6 +11,9 @@ return [
 	'routes' => [
 		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
 		// literal '/api/manifest' segment is matched before any wildcard.
+		// First-time setup wizard (ADR-042) — the standard CnSetupWizard contract.
+		['name' => 'setup#status',    'url' => '/api/setup/status',            'verb' => 'GET'],
+		['name' => 'setup#runAction', 'url' => '/api/setup/action/{actionId}', 'verb' => 'POST', 'requirements' => ['actionId' => '[a-z0-9\\-]+']],
 		['name' => 'manifest#index', 'url' => '/api/manifest', 'verb' => 'GET'],
 
 		// Metrics and health

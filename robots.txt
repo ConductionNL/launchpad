@@ -85,4 +85,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://mydash.conduction.nl/sitemap.xml
+Sitemap: https://launchpad.conduction.nl/sitemap.xml

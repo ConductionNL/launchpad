@@ -437,27 +437,33 @@ export default {
 .launchpad-bulk-ops {
 	margin-top: 1rem;
 }
+
 .launchpad-bulk-ops__table {
 	width: 100%;
 	border-collapse: collapse;
 	margin-bottom: 0.75rem;
 }
+
 .launchpad-bulk-ops__table th,
 .launchpad-bulk-ops__table td {
 	padding: 0.25rem 0.5rem;
 	text-align: left;
 }
+
 .launchpad-bulk-ops__col-select {
 	width: 2rem;
 }
+
 .launchpad-bulk-ops__row--selected {
 	background-color: var(--color-background-hover, #eee);
 }
+
 .launchpad-bulk-ops__actions {
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 0.75rem;
 }
+
 .launchpad-bulk-ops__modal {
 	position: fixed;
 	inset: 0;
@@ -467,26 +473,31 @@ export default {
 	justify-content: center;
 	z-index: 1000;
 }
+
 .launchpad-bulk-ops__modal-inner {
 	background-color: var(--color-main-background, #fff);
 	padding: 1rem;
 	border-radius: 8px;
 	min-width: 320px;
 }
+
 .launchpad-bulk-ops__field {
 	margin: 0.5rem 0;
 }
+
 .launchpad-bulk-ops__dryrun {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 	margin: 0.5rem 0;
 }
+
 .launchpad-bulk-ops__modal-actions {
 	display: flex;
 	gap: 0.5rem;
 	justify-content: flex-end;
 }
+
 .launchpad-bulk-ops__error {
 	color: var(--color-error, #c00);
 }

@@ -50,3 +50,32 @@
  * math and produced double-stacking artefacts. The `c: 1` entry in the
  * BREAKPOINTS table already gives every widget the full row at <= 480 px.
  */
+
+/**
+ * Restore the NcSelect dropdown's stacking, which @nextcloud/vue 9.10 broke.
+ *
+ * NcSelect renders its menu with `appendToBody: true` (the default in both
+ * 9.9 and 9.11), so the menu is a child of <body>, NOT of the select. Its
+ * z-index comes from the `--vs-dropdown-z-index` custom property, which the
+ * menu can only pick up by INHERITANCE.
+ *
+ * 9.9.0 declared it on `body`, which the appended menu inherits:
+ *
+ *     body { --vs-dropdown-z-index: 9999 }
+ *
+ * 9.11.0 moved the declaration onto the select root:
+ *
+ *     .nc-select.v-select.select { --vs-dropdown-z-index: 9999 }
+ *
+ * The menu is not a descendant of that element, so it inherits nothing and
+ * falls back to vue-select's own default — which sits BELOW Nextcloud's modal
+ * backdrop. The dropdown then renders visibly but cannot be clicked: the
+ * Playwright trace shows the option "visible, enabled and stable" with
+ * `class="modal-mask"` intercepting the pointer, 70 times across 11 tests.
+ *
+ * Re-declaring it on `body` restores exactly what 9.9.0 did, and is harmless
+ * once upstream fixes the scope: the value is identical either way.
+ */
+body {
+	--vs-dropdown-z-index: 9999;
+}

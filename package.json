@@ -43,7 +43,7 @@
 		"@nextcloud/router": "^3.1.0",
 		"@nextcloud/vue": "^9.5.0",
 		"dexie": "^4.4.5",
-		"dompurify": "^3.4.1",
+		"dompurify": "^3.4.14",
 		"gridstack": "^12.2.1",
 		"marked": "^18.0.3",
 		"pinia": "~2.1.7",

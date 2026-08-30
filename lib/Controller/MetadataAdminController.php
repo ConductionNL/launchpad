@@ -18,8 +18,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -51,336 +51,364 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
-class MetadataAdminController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest          $request         The HTTP request.
-     * @param MetadataService   $metadataService The metadata service facade.
-     * @param IGroupManager     $groupManager    Admin checker.
-     * @param IUserSession      $userSession     Current user session.
-     * @param ActionAuthService $actionAuth      ADR-023 action authorization.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly MetadataService $metadataService,
-        private readonly IGroupManager $groupManager,
-        private readonly IUserSession $userSession,
-        private readonly ActionAuthService $actionAuth,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class MetadataAdminController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The HTTP request.
+	 * @param MetadataService $metadataService The metadata service facade.
+	 * @param IGroupManager $groupManager Admin checker.
+	 * @param IUserSession $userSession Current user session.
+	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly MetadataService $metadataService,
+		private readonly IGroupManager $groupManager,
+		private readonly IUserSession $userSession,
+		private readonly ActionAuthService $actionAuth,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Inline admin guard.
-     *
-     * @return JSONResponse|null Non-null = caller must be rejected.
-     */
-    private function assertAdmin(): ?JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(
-                data: ['error' => 'Not authenticated'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Inline admin guard.
+	 *
+	 * @return JSONResponse|null Non-null = caller must be rejected.
+	 */
+	private function assertAdmin(): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(
+				data: ['error' => 'Not authenticated'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-            return new JSONResponse(
-                data: ['error' => 'Admin required'],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }
+		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
+			return new JSONResponse(
+				data: ['error' => 'Admin required'],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}
 
-        return null;
-    }//end assertAdmin()
+		return null;
+	}//end assertAdmin()
 
-    /**
-     * `GET /api/admin/metadata-fields` — list all field definitions
-     * (REQ-MDFL-001).
-     *
-     * @return JSONResponse The fields array + count, or 403.
-         *
-     * @spec openspec/specs/dashboard-metadata-fields/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function listFields(): JSONResponse
-    {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `GET /api/admin/metadata-fields` — list all field definitions
+	 * (REQ-MDFL-001).
+	 *
+	 * @return JSONResponse The fields array + count, or 403.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function listFields(): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        try {
-            $this->actionAuth->requireAction(
-                $this->userSession->getUser(),
-                'metadata-admin.list-fields'
-            );
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction(
+				$this->userSession->getUser(),
+				'metadata-admin.list-fields'
+			);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        $fields = $this->metadataService->listFields();
+		$fields = $this->metadataService->listFields();
 
-        return ResponseHelper::success(
-            data: [
-                'fields' => ResponseHelper::serializeList(entities: $fields),
-                'count'  => count($fields),
-            ]
-        );
-    }//end listFields()
+		return ResponseHelper::success(
+			data: [
+				'fields' => ResponseHelper::serializeList(entities: $fields),
+				'count' => count($fields),
+			]
+		);
+	}//end listFields()
 
-    /**
-     * `POST /api/admin/metadata-fields` — create a new field definition
-     * (REQ-MDFL-001).
-     *
-     * @param string                  $key       The slug.
-     * @param string                  $label     The display label.
-     * @param string                  $type      The field type.
-     * @param array<int, string>|null $options   Option set (select types).
-     * @param int                     $required  0 / 1.
-     * @param int                     $sortOrder UI sort order.
-     *
-     * @return JSONResponse 201 + field, 400 on validation failure,
-     *                      403 for non-admins.
-         *
-     * @spec openspec/specs/dashboard-metadata-fields/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function createField(
-        string $key='',
-        string $label='',
-        string $type='',
-        ?array $options=null,
-        int $required=0,
-        int $sortOrder=0
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `POST /api/admin/metadata-fields` — create a new field definition
+	 * (REQ-MDFL-001).
+	 *
+	 * @param string $key The slug.
+	 * @param string $label The display label.
+	 * @param string $type The field type.
+	 * @param array<int, string>|null $options Option set (select types).
+	 * @param int $required 0 / 1.
+	 * @param int $sortOrder UI sort order.
+	 *
+	 * @return JSONResponse 201 + field, 400 on validation failure,
+	 *                      403 for non-admins.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function createField(
+		string $key = '',
+		string $label = '',
+		string $type = '',
+		?array $options = null,
+		int $required = 0,
+		int $sortOrder = 0,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        try {
-            $this->actionAuth->requireAction(
-                $this->userSession->getUser(),
-                'metadata-admin.create-field'
-            );
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction(
+				$this->userSession->getUser(),
+				'metadata-admin.create-field'
+			);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $field = $this->metadataService->createFieldDefinition(
-                key: $key,
-                label: $label,
-                type: $type,
-                options: $options,
-                required: $required,
-                sortOrder: $sortOrder
-            );
-        } catch (InvalidMetadataFieldException $exception) {
-            return self::badRequest(message: $exception->getMessage());
-        }
+		try {
+			$field = $this->metadataService->createFieldDefinition(
+				key: $key,
+				label: $label,
+				type: $type,
+				options: $options,
+				required: $required,
+				sortOrder: $sortOrder
+			);
+		} catch (InvalidMetadataFieldException $exception) {
+			return self::badRequest(message: $exception->getMessage());
+		}
 
-        return new JSONResponse(
-            data: $field->jsonSerialize(),
-            statusCode: Http::STATUS_CREATED
-        );
-    }//end createField()
+		return new JSONResponse(
+			data: $field->jsonSerialize(),
+			statusCode: Http::STATUS_CREATED
+		);
+	}//end createField()
 
-    /**
-     * `GET /api/admin/metadata-fields/{id}` — fetch a single field
-     * definition (REQ-MDFL-001).
-     *
-     * @param int $id The field id.
-     *
-     * @return JSONResponse 200 + field, 404 when missing, 403 for non-admins.
-         *
-     * @spec openspec/specs/dashboard-metadata-fields/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function getField(int $id): JSONResponse
-    {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `GET /api/admin/metadata-fields/{id}` — fetch a single field
+	 * definition (REQ-MDFL-001).
+	 *
+	 * @param int $id The field id.
+	 *
+	 * @return JSONResponse 200 + field, 404 when missing, 403 for non-admins.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function getField(int $id): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        try {
-            $this->actionAuth->requireAction(
-                $this->userSession->getUser(),
-                'metadata-admin.get-field'
-            );
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction(
+				$this->userSession->getUser(),
+				'metadata-admin.get-field'
+			);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $field = $this->metadataService->getField(id: $id);
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Field not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        }
+		try {
+			$field = $this->metadataService->getField(id: $id);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Field not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		}
 
-        return ResponseHelper::success(data: $field->jsonSerialize());
-    }//end getField()
+		return ResponseHelper::success(data: $field->jsonSerialize());
+	}//end getField()
 
-    /**
-     * `PUT /api/admin/metadata-fields/{id}` — update label / sortOrder
-     * / required / options. Forbids `key` rename (REQ-MDFL-002).
-     *
-     * @param int                     $id        The field id.
-     * @param string|null             $label     The new label.
-     * @param int|null                $sortOrder The new sort order.
-     * @param int|null                $required  The new required flag.
-     * @param array<int, string>|null $options   The new option set.
-     * @param string|null             $key       Forbidden — triggers 400.
-     *
-     * @return JSONResponse 200 + field, 400 on validation failure,
-     *                      404 when missing, 403 for non-admins.
-         *
-     * @spec openspec/specs/dashboard-metadata-fields/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function updateField(
-        int $id,
-        ?string $label=null,
-        ?int $sortOrder=null,
-        ?int $required=null,
-        ?array $options=null,
-        ?string $key=null
-    ): JSONResponse {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * `PUT /api/admin/metadata-fields/{id}` — update label / sortOrder
+	 * / required / options. Forbids `key` rename (REQ-MDFL-002).
+	 *
+	 * @param int $id The field id.
+	 * @param string|null $label The new label.
+	 * @param int|null $sortOrder The new sort order.
+	 * @param int|null $required The new required flag.
+	 * @param array<int, string>|null $options The new option set.
+	 * @param string|null $key Forbidden — triggers 400.
+	 *
+	 * @return JSONResponse 200 + field, 400 on validation failure,
+	 *                      404 when missing, 403 for non-admins.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function updateField(
+		int $id,
+		?string $label = null,
+		?int $sortOrder = null,
+		?int $required = null,
+		?array $options = null,
+		?string $key = null,
+	): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        try {
-            $this->actionAuth->requireAction(
-                $this->userSession->getUser(),
-                'metadata-admin.update-field'
-            );
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction(
+				$this->userSession->getUser(),
+				'metadata-admin.update-field'
+			);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        $patch = [];
-        if ($key !== null) {
-            $patch['key'] = $key;
-        }
+		$patch = self::buildPatch(
+			key: $key,
+			label: $label,
+			sortOrder: $sortOrder,
+			required: $required,
+			options: $options
+		);
 
-        if ($label !== null) {
-            $patch['label'] = $label;
-        }
+		try {
+			$field = $this->metadataService->updateFieldDefinition(
+				id: $id,
+				patch: $patch
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Field not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (InvalidMetadataFieldException $exception) {
+			return self::badRequest(message: $exception->getMessage());
+		}
 
-        if ($sortOrder !== null) {
-            $patch['sortOrder'] = $sortOrder;
-        }
+		return ResponseHelper::success(data: $field->jsonSerialize());
+	}//end updateField()
 
-        if ($required !== null) {
-            $patch['required'] = $required;
-        }
+	/**
+	 * `DELETE /api/admin/metadata-fields/{id}?cascade=true` —
+	 * REQ-MDFL-003.
+	 *
+	 * @param int $id The field id.
+	 * @param bool $cascade Whether to cascade-delete dependent values.
+	 *
+	 * @return JSONResponse 200 on success, 409 when soft-deletion blocked,
+	 *                      404 when missing, 403 for non-admins.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function deleteField(int $id, bool $cascade = false): JSONResponse {
+		$guard = $this->assertAdmin();
+		if ($guard !== null) {
+			return $guard;
+		}
 
-        // Distinguish "not supplied" from "null to clear". The router
-        // delivers `null` when the body omits the key; treat any
-        // explicit array (including empty) as "set options" so admins
-        // can clear an option set on non-select types.
-        if ($options !== null) {
-            $patch['options'] = $options;
-        }
+		try {
+			$this->actionAuth->requireAction(
+				$this->userSession->getUser(),
+				'metadata-admin.delete-field'
+			);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        try {
-            $field = $this->metadataService->updateFieldDefinition(
-                id: $id,
-                patch: $patch
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Field not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (InvalidMetadataFieldException $exception) {
-            return self::badRequest(message: $exception->getMessage());
-        }
+		try {
+			$this->metadataService->deleteFieldDefinition(
+				id: $id,
+				cascade: $cascade
+			);
+		} catch (DoesNotExistException) {
+			return new JSONResponse(
+				data: ['error' => 'Field not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (MetadataFieldHasValuesException $exception) {
+			return new JSONResponse(
+				data: [
+					'error' => MetadataFieldHasValuesException::ERROR_CODE,
+					'message' => $exception->getMessage(),
+					'valueCount' => $exception->getValueCount(),
+				],
+				statusCode: Http::STATUS_CONFLICT
+			);
+		}
 
-        return ResponseHelper::success(data: $field->jsonSerialize());
-    }//end updateField()
+		return ResponseHelper::success(data: ['status' => 'ok']);
+	}//end deleteField()
 
-    /**
-     * `DELETE /api/admin/metadata-fields/{id}?cascade=true` —
-     * REQ-MDFL-003.
-     *
-     * @param int  $id      The field id.
-     * @param bool $cascade Whether to cascade-delete dependent values.
-     *
-     * @return JSONResponse 200 on success, 409 when soft-deletion blocked,
-     *                      404 when missing, 403 for non-admins.
-         *
-     * @spec openspec/specs/dashboard-metadata-fields/spec.md
- */
-    #[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-    public function deleteField(int $id, bool $cascade=false): JSONResponse
-    {
-        $guard = $this->assertAdmin();
-        if ($guard !== null) {
-            return $guard;
-        }
+	/**
+	 * Build the update patch from the individual nullable parameters.
+	 *
+	 * `null` means "not supplied" and the key is left out entirely, so
+	 * the service can distinguish an omitted field from an explicit
+	 * value. The router delivers `null` when the body omits the key;
+	 * any explicit array (including an empty one) counts as "set
+	 * options", so admins can clear an option set on non-select types.
+	 *
+	 * The forbidden `key` rename is deliberately forwarded rather than
+	 * dropped — the service rejects it with the documented 400.
+	 *
+	 * @param string|null $key The (forbidden) new slug.
+	 * @param string|null $label The new label.
+	 * @param int|null $sortOrder The new sort order.
+	 * @param int|null $required The new required flag.
+	 * @param array<int, string>|null $options The new option set.
+	 *
+	 * @return array<string, mixed> The patch payload.
+	 */
+	private static function buildPatch(
+		?string $key,
+		?string $label,
+		?int $sortOrder,
+		?int $required,
+		?array $options,
+	): array {
+		$patch = [];
+		if ($key !== null) {
+			$patch['key'] = $key;
+		}
 
-        try {
-            $this->actionAuth->requireAction(
-                $this->userSession->getUser(),
-                'metadata-admin.delete-field'
-            );
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		if ($label !== null) {
+			$patch['label'] = $label;
+		}
 
-        try {
-            $this->metadataService->deleteFieldDefinition(
-                id: $id,
-                cascade: $cascade
-            );
-        } catch (DoesNotExistException) {
-            return new JSONResponse(
-                data: ['error' => 'Field not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (MetadataFieldHasValuesException $exception) {
-            return new JSONResponse(
-                data: [
-                    'error'      => MetadataFieldHasValuesException::ERROR_CODE,
-                    'message'    => $exception->getMessage(),
-                    'valueCount' => $exception->getValueCount(),
-                ],
-                statusCode: Http::STATUS_CONFLICT
-            );
-        }
+		if ($sortOrder !== null) {
+			$patch['sortOrder'] = $sortOrder;
+		}
 
-        return ResponseHelper::success(data: ['status' => 'ok']);
-    }//end deleteField()
+		if ($required !== null) {
+			$patch['required'] = $required;
+		}
 
-    /**
-     * Build a 400-with-error envelope.
-     *
-     * @param string $message The validation message.
-     *
-     * @return JSONResponse The 400 response.
-     */
-    private static function badRequest(string $message): JSONResponse
-    {
-        return new JSONResponse(
-            data: [
-                'error'   => InvalidMetadataFieldException::ERROR_CODE,
-                'message' => $message,
-            ],
-            statusCode: Http::STATUS_BAD_REQUEST
-        );
-    }//end badRequest()
+		if ($options !== null) {
+			$patch['options'] = $options;
+		}
+
+		return $patch;
+	}//end buildPatch()
+
+	/**
+	 * Build a 400-with-error envelope.
+	 *
+	 * @param string $message The validation message.
+	 *
+	 * @return JSONResponse The 400 response.
+	 */
+	private static function badRequest(string $message): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => InvalidMetadataFieldException::ERROR_CODE,
+				'message' => $message,
+			],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end badRequest()
 }//end class

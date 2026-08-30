@@ -9,7 +9,7 @@
  * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
- * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  */
@@ -47,110 +47,107 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
-class Tile extends Entity implements JsonSerializable
-{
+class Tile extends Entity implements JsonSerializable {
 
-    /**
-     * The user ID.
-     *
-     * @var string
-     */
-    protected string $userId = '';
+	/**
+	 * The user ID.
+	 *
+	 * @var string
+	 */
+	protected string $userId = '';
 
-    /**
-     * The tile title.
-     *
-     * @var string
-     */
-    protected string $title = '';
+	/**
+	 * The tile title.
+	 *
+	 * @var string
+	 */
+	protected string $title = '';
 
-    /**
-     * The tile icon.
-     *
-     * @var string
-     */
-    protected string $icon = '';
+	/**
+	 * The tile icon.
+	 *
+	 * @var string
+	 */
+	protected string $icon = '';
 
-    /**
-     * The icon type.
-     *
-     * @var string
-     */
-    protected string $iconType = '';
+	/**
+	 * The icon type.
+	 *
+	 * @var string
+	 */
+	protected string $iconType = '';
 
-    /**
-     * The background color.
-     *
-     * @var string
-     */
-    protected string $backgroundColor = '';
+	/**
+	 * The background color.
+	 *
+	 * @var string
+	 */
+	protected string $backgroundColor = '';
 
-    /**
-     * The text color.
-     *
-     * @var string
-     */
-    protected string $textColor = '';
+	/**
+	 * The text color.
+	 *
+	 * @var string
+	 */
+	protected string $textColor = '';
 
-    /**
-     * The link type.
-     *
-     * @var string
-     */
-    protected string $linkType = '';
+	/**
+	 * The link type.
+	 *
+	 * @var string
+	 */
+	protected string $linkType = '';
 
-    /**
-     * The link value.
-     *
-     * @var string
-     */
-    protected string $linkValue = '';
+	/**
+	 * The link value.
+	 *
+	 * @var string
+	 */
+	protected string $linkValue = '';
 
-    /**
-     * The creation timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * The creation timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * The update timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $updatedAt = null;
+	/**
+	 * The update timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $updatedAt = null;
 
-    /**
-     * Constructor
-     *
-     * Registers column types for proper ORM handling.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor
+	 *
+	 * Registers column types for proper ORM handling.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Serialize to JSON.
-     *
-     * @return array The serialized tile.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'              => $this->getId(),
-            'userId'          => $this->userId,
-            'title'           => $this->title,
-            'icon'            => $this->icon,
-            'iconType'        => $this->iconType,
-            'backgroundColor' => $this->backgroundColor,
-            'textColor'       => $this->textColor,
-            'linkType'        => $this->linkType,
-            'linkValue'       => $this->linkValue,
-            'createdAt'       => $this->createdAt,
-            'updatedAt'       => $this->updatedAt,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON.
+	 *
+	 * @return array The serialized tile.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'userId' => $this->userId,
+			'title' => $this->title,
+			'icon' => $this->icon,
+			'iconType' => $this->iconType,
+			'backgroundColor' => $this->backgroundColor,
+			'textColor' => $this->textColor,
+			'linkType' => $this->linkType,
+			'linkValue' => $this->linkValue,
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
+	}//end jsonSerialize()
 }//end class

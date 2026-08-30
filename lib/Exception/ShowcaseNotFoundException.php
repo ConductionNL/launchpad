@@ -15,8 +15,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -28,6 +28,5 @@ use RuntimeException;
 /**
  * Raised when a showcase ID is unknown.
  */
-class ShowcaseNotFoundException extends RuntimeException
-{
+class ShowcaseNotFoundException extends RuntimeException {
 }//end class

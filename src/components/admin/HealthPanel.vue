@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -61,7 +61,7 @@ export default {
 				const { data } = await api.getHealth()
 				const payload = data?.data ?? data ?? {}
 				this.healthy = payload.status === 'ok'
-			} catch (e) {
+			} catch {
 				// Non-200 / network error → degraded.
 				this.healthy = false
 			} finally {

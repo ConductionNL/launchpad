@@ -19,8 +19,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -36,81 +36,79 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * `launchpad:cleanup:scan` CLI command.
  */
-class CleanupScanCommand extends Command
-{
-    /**
-     * Constructor.
-     *
-     * @param OrphanedDataCleanupService $cleanupService The orchestrator.
-     */
-    public function __construct(
-        private readonly OrphanedDataCleanupService $cleanupService,
-    ) {
-        parent::__construct();
-    }//end __construct()
+class CleanupScanCommand extends Command {
+	/**
+	 * Constructor.
+	 *
+	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
+	 */
+	public function __construct(
+		private readonly OrphanedDataCleanupService $cleanupService,
+	) {
+		parent::__construct();
+	}//end __construct()
 
-    /**
-     * Configure the command name + description.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    protected function configure(): void
-    {
-        $this->setName(name: 'launchpad:cleanup:scan')
-            ->setDescription(
-                description: 'Scan LaunchPad storage for orphans by category. Exits non-zero when any are found.'
-            );
-    }//end configure()
+	/**
+	 * Configure the command name + description.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	protected function configure(): void {
+		$this->setName(name: 'launchpad:cleanup:scan')
+			->setDescription(
+				description: 'Scan LaunchPad storage for orphans by category. Exits non-zero when any are found.'
+			);
+	}//end configure()
 
-    /**
-     * Execute the scan.
-     *
-     * @param InputInterface  $input  The console input.
-     * @param OutputInterface $output The console output.
-     *
-     * @return int 0 when no orphans, 1 otherwise.
-     *
-     * @spec openspec/specs/orphaned-data-cleanup/spec.md
-     */
-    protected function execute(
-        InputInterface $input,
-        OutputInterface $output
-    ): int {
-        $result = $this->cleanupService->scan();
+	/**
+	 * Execute the scan.
+	 *
+	 * @param InputInterface $input The console input.
+	 * @param OutputInterface $output The console output.
+	 *
+	 * @return int 0 when no orphans, 1 otherwise.
+	 *
+	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
+	 */
+	protected function execute(
+		InputInterface $input,
+		OutputInterface $output,
+	): int {
+		$result = $this->cleanupService->scan();
 
-        $table = new Table(output: $output);
-        $table->setHeaders(headers: ['Category', 'Count']);
+		$table = new Table(output: $output);
+		$table->setHeaders(headers: ['Category', 'Count']);
 
-        foreach ($result->getByCategory() as $name => $count) {
-            $table->addRow(row: [$name, (string) $count]);
-        }
+		foreach ($result->getByCategory() as $name => $count) {
+			$table->addRow(row: [$name, (string)$count]);
+		}
 
-        $table->addRow(row: ['<info>TOTAL</info>', (string) $result->getTotalRows()]);
-        $table->render();
+		$table->addRow(row: ['<info>TOTAL</info>', (string)$result->getTotalRows()]);
+		$table->render();
 
-        $skipped = $result->getSkipped();
-        if (count(value: $skipped) > 0) {
-            $output->writeln(
-                messages: sprintf(
-                    '<comment>Skipped categories (feature unavailable): %s</comment>',
-                    implode(separator: ', ', array: $skipped)
-                )
-            );
-        }
+		$skipped = $result->getSkipped();
+		if (count(value: $skipped) > 0) {
+			$output->writeln(
+				messages: sprintf(
+					'<comment>Skipped categories (feature unavailable): %s</comment>',
+					implode(separator: ', ', array: $skipped)
+				)
+			);
+		}
 
-        $output->writeln(
-            messages: sprintf(
-                '<info>Scan completed in %dms.</info>',
-                $result->getDurationMs()
-            )
-        );
+		$output->writeln(
+			messages: sprintf(
+				'<info>Scan completed in %dms.</info>',
+				$result->getDurationMs()
+			)
+		);
 
-        if ($result->getTotalRows() === 0) {
-            return 0;
-        }
+		if ($result->getTotalRows() === 0) {
+			return 0;
+		}
 
-        return 1;
-    }//end execute()
+		return 1;
+	}//end execute()
 }//end class

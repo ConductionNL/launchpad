@@ -131,3 +131,33 @@ a route to `appinfo/routes.php`, add a request to the appropriate
 capability folder before merging. Run
 `node tests/integration/.coverage-check.js` locally to verify
 coverage; missing routes fail the script with a non-zero exit.
+
+## Deliberately not covered
+
+**Dashboard comments.** The five requests that used to sit in a
+`Dashboards - Comments` folder were removed: launchpad has no comments
+implementation at all — no controller, no service, no route (nor attribute
+route), no `launchpad_dashboard_comments` table and no migration creating one.
+The endpoints returned 404 because there is nothing behind them, so the folder
+was asserting against an API that was never built.
+
+If comments are implemented later, re-add the folder alongside the controller —
+per "When to update this collection" above.
+
+`lib/actions.seed.json` is clean — it carries no `dashboard-comments.*` entries,
+so there is nothing to prune alongside this. (An earlier version of this note
+claimed otherwise. The four `dashboard-comments.*` entries do exist, but only in a
+long-lived instance's *stored* action matrix — `occ config:app:get launchpad
+actions` — left behind by an older seed. That is instance state, not shipped
+configuration, and it is harmless: an action entry for a route that does not exist
+authorizes nothing.)
+
+**Feed tokens.** The five requests that used to sit in a `Feeds` folder were
+removed for the same reason as comments: `appinfo/routes.php` declares no
+`/api/feed/token`, no `/api/feed/token/regenerate` and no `/feed/{token}.xml`.
+The feature is part-scaffolded — `FeedTokenTableBuilder` and its migration exist —
+but there is no controller and no route, so every request 404'd and the `.xml`
+assertions received Nextcloud's HTML error page.
+
+`POST /api/admin/feeds/refresh-now` DOES exist and is still covered, under
+`Admin - Export / Import / Feeds`.

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
@@ -23,6 +23,9 @@
 - **Widget styling** — Customize colors, borders, and titles for each individual widget
 - **Compulsory widgets** — Admins can pin important widgets that users cannot remove
 - **Full Nextcloud compatibility** — Works with every existing Nextcloud dashboard widget out of the box
+- **Role-based widget access** — Restrict which widget types a group of users may add, resolved from Nextcloud group membership
+- **Dashboard sharing** — Share a dashboard with specific users or groups, or publish a brute-force-protected read-only public link
+- **Group dashboards** — One shared dashboard per group, in addition to personal dashboards
 
 Perfect for organizations that want consistent, curated dashboards for their teams while still giving users freedom to personalize.
 
@@ -41,13 +44,16 @@ Free and open source under the EUPL-1.2 license.
 - **Widget-styling** — Pas kleuren, randen en titels aan voor elke individuele widget
 - **Verplichte widgets** — Beheerders kunnen belangrijke widgets vastzetten die gebruikers niet kunnen verwijderen
 - **Volledige Nextcloud-compatibiliteit** — Werkt direct met elke bestaande Nextcloud dashboard-widget
+- **Rolgebaseerde widget-toegang** — Beperk welke widget-types een gebruikersgroep mag toevoegen, op basis van Nextcloud-groepslidmaatschap
+- **Dashboards delen** — Deel een dashboard met specifieke gebruikers of groepen, of publiceer een tegen brute-force beveiligde alleen-lezen publieke link
+- **Groepsdashboards** — Eén gedeeld dashboard per groep, naast persoonlijke dashboards
 
 Ideaal voor organisaties die consistente, samengestelde dashboards willen voor hun teams, terwijl gebruikers de vrijheid houden om te personaliseren.
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.0.5-unstable.11</version>
-	<licence>agpl</licence>
+	<version>1.0.16-unstable.20260829173006</version>
+	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
 	<documentation>
@@ -59,13 +65,19 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	<category>organization</category>
 	<category>dashboard</category>
 	<website>https://github.com/ConductionNL/launchpad</website>
-	<discussion>https://github.com/ConductionNL/launchpad/discussions</discussion>
 	<bugs>https://github.com/ConductionNL/launchpad/issues</bugs>
 	<repository>https://github.com/ConductionNL/launchpad</repository>
 
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/app-store.svg</screenshot>
-	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot-dashboard.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot-widgets.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/ConductionNL/launchpad/main/img/screenshot-admin.png</screenshot>
 
+	<!-- ADR: LaunchPad is an OR-free app (docs/architecture.md "Runtime-only
+	     OR consumption policy"). It MUST boot and function fully on a
+	     Nextcloud instance with no OpenRegister installed; any OR data is
+	     consumed optionally at runtime and feature-detected per widget.
+	     OpenRegister therefore MUST NOT be declared as an install-time
+	     dependency here. -->
 	<dependencies>
 		<!--
 			Nextcloud floor raised to 32 fleet-wide (product directive): standardising on
@@ -76,40 +88,66 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		-->
 		<php min-version="8.3"/>
 		<nextcloud min-version="32" max-version="34"/>
-		<app>openregister</app>
 	</dependencies>
 
-	<!-- Surface dashboards, widget content, and metadata in NC unified search. REQ-SRCH-001. -->
-	<types>
-		<search/>
-	</types>
+	<!-- Surface dashboards, widget content, and metadata in NC unified search
+	     (REQ-SRCH-001). Registered in PHP via
+	     IRegistrationContext::registerSearchProvider(LaunchPadSearchProvider) in
+	     lib/AppInfo/Application.php — there is no `search` app type: the App
+	     Store schema allows only prelogin, filesystem, authentication,
+	     extended_authentication, logging, dav, prevent_group_restriction and
+	     session under <types>, and Nextcloud does nothing with an unknown one. -->
 
 	<background-jobs>
 		<job>OCA\LaunchPad\BackgroundJob\OrphanedDataCleanupJob</job>
+		<!-- service-health-ping REQ-HPING-003: refresh due ping-enabled tiles. -->
+		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 	</background-jobs>
 
 	<repair-steps>
 		<!-- ADR-023: seed the action-authorization matrix (default admin-only). -->
-		<install>
-			<step>OCA\LaunchPad\Repair\InitializeActions</step>
-			<!-- role-based-content task-2: seed default role-feature permissions. -->
-			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
-			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
-			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
-		</install>
 		<post-migration>
 			<step>OCA\LaunchPad\Repair\InitializeActions</step>
+			<!-- ADR-023: instances installed before the baseline shipped are
+			     stuck on the all-admin seed — broaden the untouched entries
+			     once (version-gated). Must run AFTER InitializeActions. -->
+			<step>OCA\LaunchPad\Repair\ApplyActionBaseline</step>
 			<!-- C4: purge orphaned cascade rows from deleted dashboards (REQ-CSC-003). -->
 			<step>OCA\LaunchPad\Repair\PurgeOrphanedCascadeData</step>
 			<!-- Ensure background jobs are registered after every upgrade. -->
 			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
+			<!-- Also on upgrade: instances that were installed before this step
+			     existed have no register at all, and schema edits ship through
+			     the same descriptor. Idempotent — the importer is version- and
+			     content-gated. -->
+			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
+			<!-- Provision the shipped default dashboard when the instance has
+			     no default template. Idempotent, so an instance that already
+			     has dashboards is untouched. -->
+			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
 		</post-migration>
+		<install>
+			<step>OCA\LaunchPad\Repair\InitializeActions</step>
+			<!-- ADR-023: broaden pristine admin-only entries to the shipped
+			     non-admin baseline so a fresh install is usable by ordinary
+			     users. Must run AFTER InitializeActions. -->
+			<step>OCA\LaunchPad\Repair\ApplyActionBaseline</step>
+			<!-- role-based-content task-2: seed default role-feature permissions. -->
+			<step>OCA\LaunchPad\Repair\SeedRolePermissions</step>
+			<!-- Register background jobs once (not per-request) — see RegisterBackgroundJobs. -->
+			<step>OCA\LaunchPad\Repair\RegisterBackgroundJobs</step>
+			<!-- Provision the `launchpad` register + `dashboard` schema in
+			     OpenRegister. Nothing imported the descriptor before this, so a
+			     fresh install had no register and every OR-backed feature — the
+			     v2 manifest above all — failed with "Register not found". -->
+			<step>OCA\LaunchPad\Repair\ImportLaunchpadRegister</step>
+			<!-- Ship a dashboard out of the box. `allowUserDashboards` defaults
+			     to false, so without a default template a fresh install has no
+			     dashboard at all and renders the "contact your administrator"
+			     empty state. -->
+			<step>OCA\LaunchPad\Repair\SeedDefaultDashboard</step>
+		</install>
 	</repair-steps>
-
-	<settings>
-		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
-		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
-	</settings>
 
 	<commands>
 		<!-- REQ-EXIM-010: dashboard export / import via `php occ`. -->
@@ -133,11 +171,24 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
 		<!-- REQ-WIZ-010: setup wizard via `php occ launchpad:setup`. -->
 		<command>OCA\LaunchPad\Command\SetupCommand</command>
-		<!-- REQ-GFSB-008: one-time DB→GroupFolder content migration. -->
-		<command>OCA\LaunchPad\Command\MigrateStorageToGroupFolder</command>
-		<!-- REQ-GFSB-010: toggle the active storage backend. -->
-		<command>OCA\LaunchPad\Command\ToggleStorageSetting</command>
 	</commands>
+
+	<settings>
+		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
+		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
+	</settings>
+
+	<activity>
+		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
+		     surfaces the 13-event catalogue defined in
+		     OCA\LaunchPad\Activity\Extension. The <provider> entry must be
+		     wrapped in <providers>: that is what the App Store schema declares
+		     and what Nextcloud's InfoParser reads
+		     ($info['activity']['providers']['provider']). -->
+		<providers>
+			<provider>OCA\LaunchPad\Activity\Extension</provider>
+		</providers>
+	</activity>
 
 	<navigations>
 		<navigation>
@@ -147,11 +198,4 @@ Vrij en open source onder de EUPL-1.2-licentie.
 			<order>-5</order>
 		</navigation>
 	</navigations>
-
-	<activity>
-		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
-		     surfaces the 13-event catalogue defined in
-		     OCA\LaunchPad\Activity\Extension. -->
-		<provider>OCA\LaunchPad\Activity\Extension</provider>
-	</activity>
 </info>

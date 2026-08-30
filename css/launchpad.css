@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * --launchpad-cell-height is set by `useGridManager.syncCellHeightCssVar()` at
  * grid-init time from the JS `CELL_HEIGHT` constant (REQ-GRID-012). The

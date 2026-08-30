@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -44,167 +44,226 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 /**
  * `launchpad:dashboard:delete` console command.
  */
-class DashboardDeleteCommand extends CommandBase
-{
-    /**
-     * Constructor.
-     *
-     * @param CommandService        $commandService  Shared CLI helper.
-     * @param IUserSession          $userSession     Caller resolution.
-     * @param DashboardMapper       $dashboardMapper Dashboard mapper.
-     * @param WidgetPlacementMapper $placementMapper Widget mapper.
-     * @param DashboardTreeService  $treeService     Tree service for
-     *                                               cascading delete.
-     * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
-     *                                               DashboardDeletedEvent
-     *                                               (SB1 fix, REQ-CSC-001).
-     */
-    public function __construct(
-        CommandService $commandService,
-        IUserSession $userSession,
-        private readonly DashboardMapper $dashboardMapper,
-        private readonly WidgetPlacementMapper $placementMapper,
-        private readonly DashboardTreeService $treeService,
-        private readonly ?IEventDispatcher $eventDispatcher=null,
-    ) {
-        parent::__construct(commandService: $commandService, userSession: $userSession);
-    }//end __construct()
+class DashboardDeleteCommand extends CommandBase {
+	/**
+	 * Constructor.
+	 *
+	 * @param CommandService $commandService Shared CLI helper.
+	 * @param IUserSession $userSession Caller resolution.
+	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
+	 * @param WidgetPlacementMapper $placementMapper Widget mapper.
+	 * @param DashboardTreeService $treeService Tree service for
+	 *                                          cascading delete.
+	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
+	 *                                               DashboardDeletedEvent
+	 *                                               (SB1 fix, REQ-CSC-001).
+	 */
+	public function __construct(
+		CommandService $commandService,
+		IUserSession $userSession,
+		private readonly DashboardMapper $dashboardMapper,
+		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly DashboardTreeService $treeService,
+		private readonly ?IEventDispatcher $eventDispatcher = null,
+	) {
+		parent::__construct(commandService: $commandService, userSession: $userSession);
+	}//end __construct()
 
-    /**
-     * Wire command name, description, and per-command options.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    protected function configureCommand(): void
-    {
-        $this->setName(name: 'launchpad:dashboard:delete')
-            ->setDescription(description: 'Delete a dashboard by UUID.')
-            ->setHelp(
-                help: implode(
-                    separator: "\n",
-                    array: [
-                        'Delete a dashboard. Refuses when children exist unless --cascade is set.',
-                        '',
-                        'Examples:',
-                        '  php occ launchpad:dashboard:delete a1b2c3d4-... --no-interaction',
-                        '  php occ launchpad:dashboard:delete a1b2c3d4-... --cascade --no-interaction',
-                    ]
-                )
-            )
-            ->addArgument(
-                name: 'uuid',
-                mode: InputArgument::REQUIRED,
-                description: 'Dashboard UUID to delete.'
-            )
-            ->addOption(
-                name: 'cascade',
-                shortcut: null,
-                mode: InputOption::VALUE_NONE,
-                description: 'Recursively delete child dashboards as well.'
-            );
-    }//end configureCommand()
+	/**
+	 * Wire command name, description, and per-command options.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	protected function configureCommand(): void {
+		$this->setName(name: 'launchpad:dashboard:delete')
+			->setDescription(description: 'Delete a dashboard by UUID.')
+			->setHelp(
+				help: implode(
+					separator: "\n",
+					array: [
+						'Delete a dashboard. Refuses when children exist unless --cascade is set.',
+						'',
+						'Examples:',
+						'  php occ launchpad:dashboard:delete a1b2c3d4-... --no-interaction',
+						'  php occ launchpad:dashboard:delete a1b2c3d4-... --cascade --no-interaction',
+					]
+				)
+			)
+			->addArgument(
+				name: 'uuid',
+				mode: InputArgument::REQUIRED,
+				description: 'Dashboard UUID to delete.'
+			)
+			->addOption(
+				name: 'cascade',
+				shortcut: null,
+				mode: InputOption::VALUE_NONE,
+				description: 'Recursively delete child dashboards as well.'
+			);
+	}//end configureCommand()
 
-    /**
-     * Execute the deletion.
-     *
-     * @param InputInterface  $input  CLI input.
-     * @param OutputInterface $output CLI output.
-     *
-     * @return int
-     *
-     * @spec openspec/specs/cli-commands/spec.md
-     */
-    protected function handle(
-        InputInterface $input,
-        OutputInterface $output
-    ): int {
-        $uuid    = (string) $input->getArgument(name: 'uuid');
-        $cascade = (bool) $input->getOption(name: 'cascade');
+	/**
+	 * Execute the deletion.
+	 *
+	 * @param InputInterface $input CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	protected function handle(
+		InputInterface $input,
+		OutputInterface $output,
+	): int {
+		$uuid = (string)$input->getArgument(name: 'uuid');
+		$cascade = (bool)$input->getOption(name: 'cascade');
 
-        try {
-            $dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
-        } catch (DoesNotExistException) {
-            return $this->emitError(
-                input: $input,
-                output: $output,
-                exitCode: CommandService::EXIT_NOT_FOUND,
-                code: 'NOT_FOUND',
-                message: 'Dashboard not found',
-                context: ['uuid' => $uuid]
-            );
-        }
+		try {
+			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+		} catch (DoesNotExistException) {
+			return $this->emitError(
+				input: $input,
+				output: $output,
+				exitCode: CommandService::EXIT_NOT_FOUND,
+				code: 'NOT_FOUND',
+				message: 'Dashboard not found',
+				context: ['uuid' => $uuid]
+			);
+		}
 
-        $childCount = $this->dashboardMapper->countChildrenByParent(parentUuid: $uuid);
-        if ($childCount > 0 && $cascade === false) {
-            return $this->emitError(
-                input: $input,
-                output: $output,
-                exitCode: CommandService::EXIT_INVALID_ARGS,
-                code: 'CHILDREN_EXIST',
-                message: 'Use --cascade to also delete child dashboards',
-                context: ['uuid' => $uuid, 'childCount' => $childCount]
-            );
-        }
+		$childCount = $this->dashboardMapper->countChildrenByParent(parentUuid: $uuid);
+		if ($childCount > 0 && $cascade === false) {
+			return $this->emitError(
+				input: $input,
+				output: $output,
+				exitCode: CommandService::EXIT_INVALID_ARGS,
+				code: 'CHILDREN_EXIST',
+				message: 'Use --cascade to also delete child dashboards',
+				context: ['uuid' => $uuid, 'childCount' => $childCount]
+			);
+		}
 
-        if ($this->isNoInteraction(input: $input) === false
-            && $this->isJson(input: $input) === false
-        ) {
-            $helper   = new QuestionHelper();
-            $question = new ConfirmationQuestion(
-                question: sprintf(
-                    'Delete dashboard "%s" (%s)? [y/N] ',
-                    (string) $dashboard->getName(),
-                    $uuid
-                ),
-                default: false
-            );
-            if ((bool) $helper->ask(input: $input, output: $output, question: $question) === false) {
-                return $this->emitError(
-                    input: $input,
-                    output: $output,
-                    exitCode: CommandService::EXIT_INVALID_ARGS,
-                    code: 'ABORTED',
-                    message: 'Deletion aborted by user.'
-                );
-            }
-        }
+		if ($this->confirmDeletion(
+			input: $input,
+			output: $output,
+			dashboard: $dashboard,
+			uuid: $uuid
+		) === false
+		) {
+			return $this->emitError(
+				input: $input,
+				output: $output,
+				exitCode: CommandService::EXIT_INVALID_ARGS,
+				code: 'ABORTED',
+				message: 'Deletion aborted by user.'
+			);
+		}
 
-        if ($cascade === true) {
-            $this->treeService->deleteSubtree(dashboard: $dashboard);
-        }
+		$this->applyDeletion(
+			dashboard: $dashboard,
+			uuid: $uuid,
+			cascade: $cascade
+		);
 
-        if ($cascade === false) {
-            $this->placementMapper->deleteByDashboardId(dashboardId: (int) $dashboard->getId());
-            $this->dashboardMapper->delete(entity: $dashboard);
+		$cascadeNote = '';
+		if ($cascade === true) {
+			$cascadeNote = ' and ' . $childCount . ' descendant(s)';
+		}
 
-            // SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
-            // (REQ-CSC-001).
-            if ($this->eventDispatcher !== null && $uuid !== '') {
-                $this->eventDispatcher->dispatchTyped(
-                    new DashboardDeletedEvent(
-                        dashboardUuid: $uuid,
-                        ownerUserId:   (string) ($dashboard->getUserId() ?? ''),
-                        type:          (string) ($dashboard->getType() ?? Dashboard::TYPE_USER),
-                        deletedAt:     new DateTimeImmutable()
-                    )
-                );
-            }
-        }
+		$this->emitSuccess(
+			input: $input,
+			output: $output,
+			data: ['uuid' => $uuid, 'cascade' => $cascade, 'childCount' => $childCount],
+			human: 'Deleted dashboard ' . $uuid . $cascadeNote
+		);
 
-        $cascadeNote = '';
-        if ($cascade === true) {
-            $cascadeNote = ' and '.$childCount.' descendant(s)';
-        }
+		return CommandService::EXIT_SUCCESS;
+	}//end handle()
 
-        $this->emitSuccess(
-            input: $input,
-            output: $output,
-            data: ['uuid' => $uuid, 'cascade' => $cascade, 'childCount' => $childCount],
-            human: 'Deleted dashboard '.$uuid.$cascadeNote
-        );
+	/**
+	 * Ask the operator to confirm the deletion.
+	 *
+	 * The prompt is skipped entirely — and the deletion allowed — when
+	 * `--no-interaction` was supplied or the caller asked for JSON
+	 * output, because neither mode can service a terminal question.
+	 *
+	 * @param InputInterface $input CLI input.
+	 * @param OutputInterface $output CLI output.
+	 * @param Dashboard $dashboard The dashboard being deleted (its
+	 *                             name appears in the prompt).
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return bool True when the deletion may proceed.
+	 */
+	private function confirmDeletion(
+		InputInterface $input,
+		OutputInterface $output,
+		Dashboard $dashboard,
+		string $uuid,
+	): bool {
+		if ($this->isNoInteraction(input: $input) === true
+			|| $this->isJson(input: $input) === true
+		) {
+			return true;
+		}
 
-        return CommandService::EXIT_SUCCESS;
-    }//end handle()
+		$helper = new QuestionHelper();
+		$question = new ConfirmationQuestion(
+			question: sprintf(
+				'Delete dashboard "%s" (%s)? [y/N] ',
+				(string)$dashboard->getName(),
+				$uuid
+			),
+			default: false
+		);
+
+		return (bool)$helper->ask(input: $input, output: $output, question: $question);
+	}//end confirmDeletion()
+
+	/**
+	 * Delete the dashboard, honouring the `--cascade` flag.
+	 *
+	 * The cascading path delegates to
+	 * {@see DashboardTreeService::deleteSubtree()}, which removes the
+	 * descendants and dispatches its own events. The non-cascading path
+	 * removes this dashboard's widget placements, deletes the row, and
+	 * dispatches {@see DashboardDeletedEvent} itself.
+	 *
+	 * @param Dashboard $dashboard The dashboard to delete.
+	 * @param string $uuid The dashboard UUID.
+	 * @param bool $cascade Whether `--cascade` was supplied.
+	 *
+	 * @return void
+	 */
+	private function applyDeletion(
+		Dashboard $dashboard,
+		string $uuid,
+		bool $cascade,
+	): void {
+		if ($cascade === true) {
+			$this->treeService->deleteSubtree(dashboard: $dashboard);
+			return;
+		}
+
+		$this->placementMapper->deleteByDashboardId(dashboardId: (int)$dashboard->getId());
+		$this->dashboardMapper->delete(entity: $dashboard);
+
+		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+		// (REQ-CSC-001).
+		if ($this->eventDispatcher === null || $uuid === '') {
+			return;
+		}
+
+		$this->eventDispatcher->dispatchTyped(
+			new DashboardDeletedEvent(
+				dashboardUuid: $uuid,
+				ownerUserId:   (string)($dashboard->getUserId() ?? ''),
+				type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
+				deletedAt:     new DateTimeImmutable()
+			)
+		);
+	}//end applyDeletion()
 }//end class

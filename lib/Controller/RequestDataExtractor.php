@@ -24,98 +24,103 @@ use OCP\IRequest;
 
 /**
  * Helper for extracting typed data from controller requests.
+ *
+ * @spec openspec/specs/widgets/spec.md
  */
-class RequestDataExtractor
-{
-    /**
-     * Extract tile data from the request parameters.
-     *
-     * @param IRequest $request The request.
-     *
-     * @return array The tile configuration data.
-     *
-     * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
-     */
-    public static function extractTileData(IRequest $request): array
-    {
-        return [
-            'title'    => $request->getParam(
-                key: 'title',
-                default: 'New Tile'
-            ),
-            'icon'     => $request->getParam(
-                key: 'icon',
-                default: 'icon-link'
-            ),
-            'iconType' => $request->getParam(
-                key: 'iconType',
-                default: 'class'
-            ),
-            'bgColor'  => $request->getParam(
-                key: 'bgColor',
-                default: '#0082c9'
-            ),
-            'txtColor' => $request->getParam(
-                key: 'textColor',
-                default: '#ffffff'
-            ),
-            'linkType' => $request->getParam(
-                key: 'linkType',
-                default: 'app'
-            ),
-            'linkVal'  => $request->getParam(
-                key: 'linkValue',
-                default: ''
-            ),
-            'gridX'    => (int) $request->getParam(
-                key: 'gridX',
-                default: 0
-            ),
-            'gridY'    => (int) $request->getParam(
-                key: 'gridY',
-                default: 0
-            ),
-        ];
-    }//end extractTileData()
+class RequestDataExtractor {
+	/**
+	 * Extract tile data from the request parameters.
+	 *
+	 * @param IRequest $request The request.
+	 *
+	 * @return array The tile configuration data.
+	 *
+	 * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
+	 */
+	public static function extractTileData(IRequest $request): array {
+		return [
+			'title' => $request->getParam(
+				key: 'title',
+				default: 'New Tile'
+			),
+			'icon' => $request->getParam(
+				key: 'icon',
+				default: 'icon-link'
+			),
+			'iconType' => $request->getParam(
+				key: 'iconType',
+				default: 'class'
+			),
+			'bgColor' => $request->getParam(
+				key: 'bgColor',
+				default: '#0082c9'
+			),
+			'txtColor' => $request->getParam(
+				key: 'textColor',
+				default: '#ffffff'
+			),
+			'linkType' => $request->getParam(
+				key: 'linkType',
+				default: 'app'
+			),
+			'linkVal' => $request->getParam(
+				key: 'linkValue',
+				default: ''
+			),
+			'gridX' => (int)$request->getParam(
+				key: 'gridX',
+				default: 0
+			),
+			'gridY' => (int)$request->getParam(
+				key: 'gridY',
+				default: 0
+			),
+		];
+	}//end extractTileData()
 
-    /**
-     * Extract placement update data from the request.
-     *
-     * @param IRequest $request The request.
-     *
-     * @return array The non-null placement field values.
-     *
-     * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
-     */
-    public static function extractPlacementData(IRequest $request): array
-    {
-        $fields = [
-            'gridX',
-            'gridY',
-            'gridWidth',
-            'gridHeight',
-            'isVisible',
-            'showTitle',
-            'customTitle',
-            'customIcon',
-            'styleConfig',
-            'tileTitle',
-            'tileIcon',
-            'tileIconType',
-            'tileBackgroundColor',
-            'tileTextColor',
-            'tileLinkType',
-            'tileLinkValue',
-        ];
+	/**
+	 * Extract placement update data from the request.
+	 *
+	 * @param IRequest $request The request.
+	 *
+	 * @return array The non-null placement field values.
+	 *
+	 * @spec openspec/changes/archive/2026-05-24-retrofit-infrastructure-helpers/tasks.md#task-3
+	 */
+	public static function extractPlacementData(IRequest $request): array {
+		$fields = [
+			'gridX',
+			'gridY',
+			'gridWidth',
+			'gridHeight',
+			'isVisible',
+			'showTitle',
+			'customTitle',
+			'customIcon',
+			'styleConfig',
+			'content',
+			'tileTitle',
+			'tileIcon',
+			'tileIconType',
+			'tileBackgroundColor',
+			'tileTextColor',
+			'tileLinkType',
+			'tileLinkValue',
+			'requiresAcknowledgement',
+			'acknowledgementPrompt',
+			'acknowledgementDeadline',
+			'reacknowledgeOnChange',
+			'acknowledgementContentVersion',
+		];
 
-        $data = [];
-        foreach ($fields as $field) {
-            $value = $request->getParam(key: $field);
-            if ($value !== null) {
-                $data[$field] = $value;
-            }
-        }
+		$data = [];
+		foreach ($fields as $field) {
+			$value = $request->getParam(key: $field);
+			if ($value !== null) {
+				$data[$field] = $value;
+			}
+		}
 
-        return $data;
-    }//end extractPlacementData()
+		return $data;
+	}//end extractPlacementData()
 }//end class

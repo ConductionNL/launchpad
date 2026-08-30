@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `DashboardFooter.vue` (REQ-FTR-004, REQ-FTR-006,
  * REQ-FTR-007). The component is a pure renderer of a server-resolved
@@ -8,8 +8,8 @@
  * locale-variant pick, hidden-when-null) is exercised here.
  */
 
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import DashboardFooter from '../DashboardFooter.vue'
 
 describe('DashboardFooter', () => {
@@ -53,7 +53,9 @@ describe('DashboardFooter', () => {
 				},
 			},
 		})
-		expect(wrapper.find('.launchpad-footer__config--columns').exists()).toBe(true)
+		expect(wrapper.find('.launchpad-footer__config--columns').exists()).toBe(
+			true,
+		)
 		expect(wrapper.text()).toContain('ACME')
 		expect(wrapper.text()).toContain('1234 AB Amsterdam')
 		expect(wrapper.text()).toContain('Privacy')

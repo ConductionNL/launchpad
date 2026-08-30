@@ -73,270 +73,264 @@ use Throwable;
  *
  * @spec openspec/changes/resource-serving/tasks.md
  */
-class ResourceServeController extends Controller
-{
-    /**
-     * Cache directive sent on every served resource (REQ-RES-006).
-     *
-     * @var string
-     */
-    private const CACHE_CONTROL = 'public, max-age=31536000';
+class ResourceServeController extends Controller {
+	/**
+	 * Cache directive sent on every served resource (REQ-RES-006).
+	 *
+	 * @var string
+	 */
+	private const CACHE_CONTROL = 'public, max-age=31536000';
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest             $request     The HTTP request.
-     * @param ResourceServeService $serve       Filesystem + formatting helper.
-     * @param ActionAuthService    $actionAuth  ADR-023 action authorization.
-     * @param LoggerInterface      $logger      PSR logger.
-     * @param IUserSession         $userSession The current user session.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly ResourceServeService $serve,
-        private readonly ActionAuthService $actionAuth,
-        private readonly LoggerInterface $logger,
-        private readonly IUserSession $userSession,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The HTTP request.
+	 * @param ResourceServeService $serve Filesystem + formatting helper.
+	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param LoggerInterface $logger PSR logger.
+	 * @param IUserSession $userSession The current user session.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly ResourceServeService $serve,
+		private readonly ActionAuthService $actionAuth,
+		private readonly LoggerInterface $logger,
+		private readonly IUserSession $userSession,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * Handle `GET /apps/launchpad/resource/{filename}` — serve raw bytes.
-     *
-     * Returns a `StreamResponse` with extension-derived `Content-Type`
-     * and a one-year immutable `Cache-Control` header. Path traversal
-     * and missing files yield a flat HTTP 404 (no detail leaked).
-     * Files larger than the 5 MB upload cap (REQ-RES-003) — only
-     * reachable via manual filesystem tampering — are refused with
-     * HTTP 413 BEFORE any bytes are loaded into memory.
-     *
-     * Cache busting: REQ-RES-004 mandates a `uniqid` suffix on every
-     * uploaded filename, so the one-year cache is safe — a logical
-     * asset change yields a brand-new filename, naturally bypassing
-     * the previously cached entry.
-     *
-     * @param string $filename The leaf filename inside the resources folder.
-     *
-     * @return StreamResponse|JSONResponse Stream on success, JSON envelope on error.
-     *
-     * @NoAdminRequired
-     * @NoCSRFRequired
-     *
-     * @spec openspec/changes/resource-serving/tasks.md#task-1
-     * @spec openspec/changes/resource-serving/tasks.md#task-2
-     * @spec openspec/changes/resource-serving/tasks.md#task-4
-     */
-    #[NoAdminRequired]
-    public function getResource(string $filename): StreamResponse|JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /apps/launchpad/resource/{filename}` — serve raw bytes.
+	 *
+	 * Returns a `StreamResponse` with extension-derived `Content-Type`
+	 * and a one-year immutable `Cache-Control` header. Path traversal
+	 * and missing files yield a flat HTTP 404 (no detail leaked).
+	 * Files larger than the 5 MB upload cap (REQ-RES-003) — only
+	 * reachable via manual filesystem tampering — are refused with
+	 * HTTP 413 BEFORE any bytes are loaded into memory.
+	 *
+	 * Cache busting: REQ-RES-004 mandates a `uniqid` suffix on every
+	 * uploaded filename, so the one-year cache is safe — a logical
+	 * asset change yields a brand-new filename, naturally bypassing
+	 * the previously cached entry.
+	 *
+	 * @param string $filename The leaf filename inside the resources folder.
+	 *
+	 * @return StreamResponse|JSONResponse Stream on success, JSON envelope on error.
+	 *
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 *
+	 * @spec openspec/changes/resource-serving/tasks.md#task-1
+	 * @spec openspec/changes/resource-serving/tasks.md#task-2
+	 * @spec openspec/changes/resource-serving/tasks.md#task-4
+	 */
+	#[NoAdminRequired]
+	public function getResource(string $filename): StreamResponse|JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'resource-serve.get-resource');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'resource-serve.get-resource');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        if ($this->isUnsafeFilename(filename: $filename) === true) {
-            return $this->notFoundResponse();
-        }
+		if ($this->isUnsafeFilename(filename: $filename) === true) {
+			return $this->notFoundResponse();
+		}
 
-        $file = $this->serve->findFile(filename: $filename);
-        if ($file === null) {
-            return $this->notFoundResponse();
-        }
+		$file = $this->serve->findFile(filename: $filename);
+		if ($file === null) {
+			return $this->notFoundResponse();
+		}
 
-        // 413 guard — refuse oversize files BEFORE pulling bytes.
-        if ((int) $file->getSize() > ResourceService::MAX_BYTES) {
-            return new JSONResponse(
-                data: [
-                    'status' => 'error',
-                    'error'  => 'file_too_large',
-                ],
-                statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE
-            );
-        }
+		// 413 guard — refuse oversize files BEFORE pulling bytes.
+		if ((int)$file->getSize() > ResourceService::MAX_BYTES) {
+			return new JSONResponse(
+				data: [
+					'status' => 'error',
+					'error' => 'file_too_large',
+				],
+				statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE
+			);
+		}
 
-        try {
-            $bytes = $file->getContent();
-        } catch (Throwable $e) {
-            $this->logger->warning(
-                message: 'Resource serve failed to read bytes',
-                context: ['exception' => $e->getMessage()]
-            );
+		try {
+			$bytes = $file->getContent();
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				message: 'Resource serve failed to read bytes',
+				context: ['exception' => $e->getMessage()]
+			);
 
-            return $this->notFoundResponse();
-        }
+			return $this->notFoundResponse();
+		}
 
-        return $this->buildStreamResponse(filename: $filename, bytes: $bytes);
-    }//end getResource()
+		return $this->buildStreamResponse(filename: $filename, bytes: $bytes);
+	}//end getResource()
 
-    /**
-     * Handle `GET /api/resources` — list uploaded resources.
-     *
-     * Returns `{status: 'success', resources: [{name, url, size,
-     * modifiedAt}, …]}` ordered by `modifiedAt` descending. When the
-     * `resources/` folder does not yet exist (or any other read error
-     * occurs) the response is HTTP 200 with `{status: 'success',
-     * resources: []}` — never a 404.
-     *
-     * The returned `url` values point at the serve route added by
-     * `getResource`. Cache busting falls out of the `uniqid` suffix
-     * REQ-RES-004 puts on every filename — a logical asset change
-     * yields a new name and a fresh cache entry.
-     *
-     * @return JSONResponse The list envelope.
-     *
-     * @NoAdminRequired
-     * @NoCSRFRequired
-     *
-     * @spec openspec/changes/resource-serving/tasks.md#task-3
-     * @spec openspec/changes/resource-serving/tasks.md#task-4
-     */
-    #[NoAdminRequired]
-    public function listResources(): JSONResponse
-    {
-        $user = $this->userSession->getUser();
-        if ($user === null) {
-            return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Handle `GET /api/resources` — list uploaded resources.
+	 *
+	 * Returns `{status: 'success', resources: [{name, url, size,
+	 * modifiedAt}, …]}` ordered by `modifiedAt` descending. When the
+	 * `resources/` folder does not yet exist (or any other read error
+	 * occurs) the response is HTTP 200 with `{status: 'success',
+	 * resources: []}` — never a 404.
+	 *
+	 * The returned `url` values point at the serve route added by
+	 * `getResource`. Cache busting falls out of the `uniqid` suffix
+	 * REQ-RES-004 puts on every filename — a logical asset change
+	 * yields a new name and a fresh cache entry.
+	 *
+	 * @return JSONResponse The list envelope.
+	 *
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 *
+	 * @spec openspec/changes/resource-serving/tasks.md#task-3
+	 * @spec openspec/changes/resource-serving/tasks.md#task-4
+	 */
+	#[NoAdminRequired]
+	public function listResources(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        try {
-            $this->actionAuth->requireAction($user, 'resource-serve.list-resources');
-        } catch (OCSForbiddenException) {
-            return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		try {
+			$this->actionAuth->requireAction($user, 'resource-serve.list-resources');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        $files = $this->serve->listFiles();
+		$files = $this->serve->listFiles();
 
-        $resources = [];
-        foreach ($files as $file) {
-            $name        = $file->getName();
-            $resources[] = [
-                'name'       => $name,
-                'url'        => ('/apps/'.Application::APP_ID.'/resource/'.$name),
-                'size'       => (int) $file->getSize(),
-                'modifiedAt' => $this->serve->formatTimestamp(epoch: $file->getMTime()),
-                '_mtime'     => $file->getMTime(),
-            ];
-        }
+		$resources = [];
+		foreach ($files as $file) {
+			$name = $file->getName();
+			$resources[] = [
+				'name' => $name,
+				'url' => ('/apps/' . Application::APP_ID . '/resource/' . $name),
+				'size' => (int)$file->getSize(),
+				'modifiedAt' => $this->serve->formatTimestamp(epoch: $file->getMTime()),
+				'_mtime' => $file->getMTime(),
+			];
+		}
 
-        // Sort newest first by mtime, then strip the helper key.
-        usort(
-            array: $resources,
-            callback: static function (array $left, array $right): int {
-                return ($right['_mtime'] <=> $left['_mtime']);
-            }
-        );
+		// Sort newest first by mtime, then strip the helper key.
+		usort(
+			array: $resources,
+			callback: static function (array $left, array $right): int {
+				return ($right['_mtime'] <=> $left['_mtime']);
+			}
+		);
 
-        $resources = array_map(
-            callback: static function (array $entry): array {
-                unset($entry['_mtime']);
-                return $entry;
-            },
-            array: $resources
-        );
+		$resources = array_map(
+			callback: static function (array $entry): array {
+				unset($entry['_mtime']);
+				return $entry;
+			},
+			array: $resources
+		);
 
-        return new JSONResponse(
-            data: [
-                'status'    => 'success',
-                'resources' => $resources,
-            ],
-            statusCode: Http::STATUS_OK
-        );
-    }//end listResources()
+		return new JSONResponse(
+			data: [
+				'status' => 'success',
+				'resources' => $resources,
+			],
+			statusCode: Http::STATUS_OK
+		);
+	}//end listResources()
 
-    /**
-     * Decide whether a route filename argument is unsafe.
-     *
-     * Treats empty values, `.`, `..`, and any value containing `/`,
-     * `\`, or `..` as unsafe. The route requirement `[^/]+` already
-     * blocks `/`, but the others are caught here as defence in depth.
-     *
-     * @param string $filename The filename argument from the route.
-     *
-     * @return bool True if the value is unsafe and MUST yield HTTP 404.
-     */
-    private function isUnsafeFilename(string $filename): bool
-    {
-        if ($filename === '' || $filename === '.' || $filename === '..') {
-            return true;
-        }
+	/**
+	 * Decide whether a route filename argument is unsafe.
+	 *
+	 * Treats empty values, `.`, `..`, and any value containing `/`,
+	 * `\`, or `..` as unsafe. The route requirement `[^/]+` already
+	 * blocks `/`, but the others are caught here as defence in depth.
+	 *
+	 * @param string $filename The filename argument from the route.
+	 *
+	 * @return bool True if the value is unsafe and MUST yield HTTP 404.
+	 */
+	private function isUnsafeFilename(string $filename): bool {
+		if ($filename === '' || $filename === '.' || $filename === '..') {
+			return true;
+		}
 
-        if (str_contains(haystack: $filename, needle: '/') === true) {
-            return true;
-        }
+		if (str_contains(haystack: $filename, needle: '/') === true) {
+			return true;
+		}
 
-        if (str_contains(haystack: $filename, needle: '\\') === true) {
-            return true;
-        }
+		if (str_contains(haystack: $filename, needle: '\\') === true) {
+			return true;
+		}
 
-        if (str_contains(haystack: $filename, needle: '..') === true) {
-            return true;
-        }
+		if (str_contains(haystack: $filename, needle: '..') === true) {
+			return true;
+		}
 
-        return false;
-    }//end isUnsafeFilename()
+		return false;
+	}//end isUnsafeFilename()
 
-    /**
-     * Build the StreamResponse for a successful serve.
-     *
-     * Allocates a `php://memory` stream, writes the bytes, rewinds,
-     * and attaches the standard headers. Streaming via `php://memory`
-     * is bounded by the 5 MB cap (REQ-RES-008).
-     *
-     * @param string $filename The filename being served (for Content-Type).
-     * @param string $bytes    The raw bytes to stream.
-     *
-     * @return StreamResponse|JSONResponse The stream, or a 404 envelope
-     *                                     if the memory stream cannot
-     *                                     be allocated.
-     */
-    private function buildStreamResponse(string $filename, string $bytes): StreamResponse|JSONResponse
-    {
-        $stream = fopen(filename: 'php://memory', mode: 'r+b');
-        if ($stream === false) {
-            return $this->notFoundResponse();
-        }
+	/**
+	 * Build the StreamResponse for a successful serve.
+	 *
+	 * Allocates a `php://memory` stream, writes the bytes, rewinds,
+	 * and attaches the standard headers. Streaming via `php://memory`
+	 * is bounded by the 5 MB cap (REQ-RES-008).
+	 *
+	 * @param string $filename The filename being served (for Content-Type).
+	 * @param string $bytes The raw bytes to stream.
+	 *
+	 * @return StreamResponse|JSONResponse The stream, or a 404 envelope
+	 *                                     if the memory stream cannot
+	 *                                     be allocated.
+	 */
+	private function buildStreamResponse(string $filename, string $bytes): StreamResponse|JSONResponse {
+		$stream = fopen(filename: 'php://memory', mode: 'r+b');
+		if ($stream === false) {
+			return $this->notFoundResponse();
+		}
 
-        fwrite(stream: $stream, data: $bytes);
-        rewind(stream: $stream);
+		fwrite(stream: $stream, data: $bytes);
+		rewind(stream: $stream);
 
-        $response = new StreamResponse(filePath: $stream);
-        $response->addHeader(
-            name: 'Content-Type',
-            value: $this->serve->contentTypeForFilename(filename: $filename)
-        );
-        $response->addHeader(name: 'Cache-Control', value: self::CACHE_CONTROL);
-        $response->addHeader(
-            name: 'Content-Length',
-            value: (string) strlen(string: $bytes)
-        );
+		$response = new StreamResponse(filePath: $stream);
+		$response->addHeader(
+			name: 'Content-Type',
+			value: $this->serve->contentTypeForFilename(filename: $filename)
+		);
+		$response->addHeader(name: 'Cache-Control', value: self::CACHE_CONTROL);
+		$response->addHeader(
+			name: 'Content-Length',
+			value: (string)strlen(string: $bytes)
+		);
 
-        return $response;
-    }//end buildStreamResponse()
+		return $response;
+	}//end buildStreamResponse()
 
-    /**
-     * Build the empty 404 envelope.
-     *
-     * Body is intentionally empty — callers MUST NOT leak which
-     * specific failure mode tripped (missing file vs. blocked
-     * traversal vs. permissions); a uniform 404 is the contract.
-     *
-     * @return JSONResponse The empty 404 envelope.
-     */
-    private function notFoundResponse(): JSONResponse
-    {
-        return new JSONResponse(
-            data: [],
-            statusCode: Http::STATUS_NOT_FOUND
-        );
-    }//end notFoundResponse()
+	/**
+	 * Build the empty 404 envelope.
+	 *
+	 * Body is intentionally empty — callers MUST NOT leak which
+	 * specific failure mode tripped (missing file vs. blocked
+	 * traversal vs. permissions); a uniform 404 is the contract.
+	 *
+	 * @return JSONResponse The empty 404 envelope.
+	 */
+	private function notFoundResponse(): JSONResponse {
+		return new JSONResponse(
+			data: [],
+			statusCode: Http::STATUS_NOT_FOUND
+		);
+	}//end notFoundResponse()
 }//end class

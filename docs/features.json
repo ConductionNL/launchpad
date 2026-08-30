@@ -1,485 +1,248 @@
 [
   {
-    "slug": "activity-feed-integration",
-    "title": "Activity Feed Integration",
-    "summary": "Surface LaunchPad events in Nextcloud's standard Activity feed so every action on a dashboard.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/activity-feed-integration/spec.md"
-  },
-  {
-    "slug": "admin-roles",
-    "title": "Admin Roles",
-    "summary": "Admin Roles provides a built-in role system scoped entirely within LaunchPad.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/admin-roles/spec.md"
-  },
-  {
-    "slug": "admin-settings",
-    "title": "Admin Settings",
-    "summary": "Admin settings provide Nextcloud administrators with global configuration options for the LaunchPad app.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/admin-settings/spec.md"
-  },
-  {
     "slug": "admin-templates",
-    "title": "Admin Templates",
-    "summary": "Admin templates allow Nextcloud administrators to create pre-configured dashboards that are automatically distributed to users based on group membership.",
+    "title": "Admin templates",
+    "summary": "You push a curated homepage to a group in minutes.",
     "status": "stable",
-    "docsUrl": "openspec/specs/admin-templates/spec.md"
-  },
-  {
-    "slug": "background-job-feed-refresh",
-    "title": "Background Job Feed Refresh",
-    "summary": "Keeps news-widget feeds fresh by running a scheduled background job that fetches, parses, and caches RSS 2.0 and Atom 1.0 feeds referenced by dashboard placements.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/background-job-feed-refresh/spec.md"
-  },
-  {
-    "slug": "calendar-widget",
-    "title": "Calendar Widget",
-    "summary": "The calendar widget is a built-in LaunchPad widget type that renders aggregated events from internal Nextcloud calendars and external ICS feeds in a single dashboard tile.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/calendar-widget/spec.md"
-  },
-  {
-    "slug": "cli-commands",
-    "title": "CLI Commands Suite",
-    "summary": "The CLI commands suite establishes a coherent, standardized operator interface for LaunchPad management tasks.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/cli-commands/spec.md"
-  },
-  {
-    "slug": "conditional-visibility",
-    "title": "Conditional Visibility",
-    "summary": "Conditional visibility allows widget placements to be shown or hidden based on dynamic rules.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/conditional-visibility/spec.md"
-  },
-  {
-    "slug": "confluence-html-import",
-    "title": "Confluence HTML Export Importer",
-    "summary": "Organisations migrating from Atlassian Confluence (or supplementing it with LaunchPad) need a one-shot bulk import that converts existing Confluence page hierarchies into LaunchPad dashboards.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/confluence-html-import/spec.md"
-  },
-  {
-    "slug": "container-widget",
-    "title": "Container Widget",
-    "summary": "The container widget hosts a sub-grid of child widget placements inside a single outer-grid cell.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/container-widget/spec.md"
-  },
-  {
-    "slug": "dashboard-bulk-operations",
-    "title": "Dashboard Bulk Operations",
-    "summary": "Dashboard bulk operations expose four batch admin endpoints for large-scale management of LaunchPad dashboards: bulk delete, bulk re-parent, bulk publication-status update, and bulk re-index.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-bulk-operations/spec.md"
-  },
-  {
-    "slug": "dashboard-cascade-events",
-    "title": "Dashboard Cascade Events",
-    "summary": "When a LaunchPad dashboard is deleted, all dependent data (widget placements, comments, reactions, locks, versions, public shares, metadata values, translations, view analytics, child-tree dashboards) MUST be automatically removed.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-cascade-events/spec.md"
-  },
-  {
-    "slug": "dashboard-deeplinking",
-    "title": "Dashboard Deep-Linking",
-    "summary": "Each dashboard has a stable, addressable URL based on its slug-chain.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-deeplinking/spec.md"
-  },
-  {
-    "slug": "dashboard-export-import",
-    "title": "Dashboard Export & Import",
-    "summary": "Dashboard export and import allow LaunchPad administrators to create versioned snapshots of dashboard configurations, widgets, metadata fields, and associated assets.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-export-import/spec.md"
-  },
-  {
-    "slug": "dashboard-icons",
-    "title": "Dashboard Icons",
-    "summary": "LaunchPad dashboards (and the dashboard-list items in the switcher sidebar and admin UI) display an icon next to their name.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-icons/spec.md"
-  },
-  {
-    "slug": "dashboard-kiosk-mode",
-    "title": "Dashboard Kiosk Mode",
-    "summary": "Turns LaunchPad dashboards into unattended signage by rendering them chrome-less and full-viewport via a kiosk=1 flag or a public playlist token.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-kiosk-mode/spec.md"
-  },
-  {
-    "slug": "dashboard-language-content",
-    "title": "Dashboard Language Content",
-    "summary": "Per-language content variants for LaunchPad dashboards.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-language-content/spec.md"
-  },
-  {
-    "slug": "dashboard-locking",
-    "title": "Dashboard Locking",
-    "summary": "Dashboard locking provides a concurrent-edit guard for dashboards.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-locking/spec.md"
-  },
-  {
-    "slug": "dashboard-metadata-fields",
-    "title": "Dashboard Metadata Fields",
-    "summary": "Dashboard Metadata Fields allow administrators to define custom, queryable attributes that can be attached to every dashboard in a LaunchPad instance.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-metadata-fields/spec.md"
-  },
-  {
-    "slug": "dashboard-public-share",
-    "title": "Dashboard Public Share",
-    "summary": "Lets dashboard owners publish read-only public links to their dashboards, optionally protected by a password and an expiry date.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-public-share/spec.md"
-  },
-  {
-    "slug": "dashboard-quota-limits",
-    "title": "Dashboard Quota Limits",
-    "summary": "Numeric admin-governance quotas for LaunchPad: maximum personal dashboards per user and maximum widget placements per dashboard.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-quota-limits/spec.md"
-  },
-  {
-    "slug": "dashboard-reactions",
-    "title": "Dashboard Reactions",
-    "summary": "Dashboard reactions enable lightweight social feedback via emoji on LaunchPad dashboards.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-reactions/spec.md"
-  },
-  {
-    "slug": "dashboard-sharing",
-    "title": "Dashboard Sharing",
-    "summary": "Dashboard sharing lets a dashboard owner grant read or edit access on a personal (type: 'user') dashboard to specific Nextcloud users or groups.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-sharing/spec.md"
-  },
-  {
-    "slug": "dashboard-switcher",
-    "title": "Dashboard Switcher",
-    "summary": "The dashboard switcher is a left-edge slide-in sidebar that lets a user see every dashboard visible to them and switch between them with a single click.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-switcher/spec.md"
-  },
-  {
-    "slug": "dashboard-versioning",
-    "title": "Dashboard Versioning",
-    "summary": "Enable version history and one-click restoration for LaunchPad dashboards.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-versioning/spec.md"
-  },
-  {
-    "slug": "dashboard-view-analytics",
-    "title": "Dashboard View Analytics",
-    "summary": "Aggregate, privacy-preserving view counts per dashboard so LaunchPad administrators can understand which dashboards are actually being used.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboard-view-analytics/spec.md"
-  },
-  {
-    "slug": "dashboards",
-    "title": "Dashboards",
-    "summary": "Dashboards are the core organizational unit in LaunchPad.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/dashboards/spec.md"
-  },
-  {
-    "slug": "default-widget-bundle",
-    "title": "Default Widget Bundle",
-    "summary": "Every newly-created personal dashboard ships with a preconfigured set of four widget placements so the user lands on a non-empty grid.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/default-widget-bundle/spec.md"
-  },
-  {
-    "slug": "demo-data-showcases",
-    "title": "Demo Data Showcases",
-    "summary": "The demo-data-showcases capability provides administrators with one-click installation of pre-built, fully populated example dashboards that illustrate different organizational use cases.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/demo-data-showcases/spec.md"
-  },
-  {
-    "slug": "divider-widget",
-    "title": "Divider Widget",
-    "summary": "The divider widget is a lightweight, configurable visual separator for LaunchPad dashboards.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/divider-widget/spec.md"
-  },
-  {
-    "slug": "effective-default-marker",
-    "title": "Effective Default Marker",
-    "summary": "The dashboard switcher sidebar marks the user's *effective default dashboard*.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/effective-default-marker/spec.md"
-  },
-  {
-    "slug": "files-widget",
-    "title": "Files Widget",
-    "summary": "The files widget is a built-in LaunchPad widget type that lets dashboard authors embed an inline Nextcloud Files browser directly on a dashboard.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/files-widget/spec.md"
-  },
-  {
-    "slug": "footer-customization",
-    "title": "Footer Customization",
-    "summary": "Footer Customization provides per-instance branding, legal disclaimers, and contact information rendered below the dashboard surface.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/footer-customization/spec.md"
-  },
-  {
-    "slug": "grid-layout",
-    "title": "Grid Layout",
-    "summary": "The grid layout system powers the drag-and-drop dashboard experience in LaunchPad.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/grid-layout/spec.md"
-  },
-  {
-    "slug": "groupfolder-storage-backend",
-    "title": "Groupfolder Storage Backend",
-    "summary": "Abstracts dashboard content storage behind a unified read/write/delete interface so operators can choose between the default database backend and an optional Nextcloud GroupFolder backend.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/groupfolder-storage-backend/spec.md"
-  },
-  {
-    "slug": "header-widget",
-    "title": "Header Widget",
-    "summary": "The header widget is a built-in LaunchPad widget type that drops a full-width banner onto a dashboard with a configurable title, optional subtitle, optional background image (URL or NC file), an optional color overlay, and an optional call-to-action button.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/header-widget/spec.md"
-  },
-  {
-    "slug": "image-widget",
-    "title": "Image Widget",
-    "summary": "The image widget is a built-in LaunchPad widget type that lets dashboard authors place a single image.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/image-widget/spec.md"
-  },
-  {
-    "slug": "infrastructure-helpers",
-    "title": "Infrastructure Helpers",
-    "summary": "The infrastructure-helpers capability collects small, pure (or nearly-pure) utility classes that are reused across multiple capability boundaries.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/infrastructure-helpers/spec.md"
-  },
-  {
-    "slug": "initial-state-contract",
-    "title": "Initial State Contract",
-    "summary": "The initial-state-contract capability formalises the precise set of keys that PHP pushes via Nextcloud's IInitialState::provideInitialState for each Vue mount in LaunchPad, and the matching provide() calls each entry point emits to expose those keys to the rest of the component tree.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/initial-state-contract/spec.md"
-  },
-  {
-    "slug": "label-widget",
-    "title": "Label Widget",
-    "summary": "The label widget is a built-in LaunchPad widget type that lets dashboard authors drop a short, single-line, plain-text heading onto a dashboard to title a row of widgets or mark a zone.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/label-widget/spec.md"
-  },
-  {
-    "slug": "launchpad-adopt-or-abstractions",
-    "title": "Launchpad Adopt OR Abstractions",
-    "summary": "Keeps LaunchPad installable and runnable without OpenRegister or OpenConnector while letting its widgets consume OR data when present.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-adopt-or-abstractions/spec.md"
-  },
-  {
-    "slug": "launchpad-ai-dashboard-assistant",
-    "title": "Launchpad AI Dashboard Assistant",
-    "summary": "Add an embedded AI assistant widget (launchpad_ai_assistant) that lets the dashboard viewer ask natural-language questions about their dashboard's data and receive a streamed reply.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-ai-dashboard-assistant/spec.md"
-  },
-  {
-    "slug": "launchpad-compliance-audit-panel",
-    "title": "Launchpad Compliance Audit Panel",
-    "summary": "Surface the organisation's compliance posture on a launchpad dashboard through one widget (launchpad_compliance_audit).",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-compliance-audit-panel/spec.md"
-  },
-  {
-    "slug": "launchpad-enterprise-security-access",
-    "title": "Launchpad Enterprise Security Access",
-    "summary": "Surface enterprise security and access posture on a launchpad dashboard through a read-only widget (launchpad_security_access).",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-enterprise-security-access/spec.md"
-  },
-  {
-    "slug": "launchpad-file-access-widget",
-    "title": "Launchpad File Access Widget",
-    "summary": "Surface dossier documents (and arbitrary Nextcloud Files objects) on a launchpad dashboard via a single widget (launchpad_file_access).",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-file-access-widget/spec.md"
-  },
-  {
-    "slug": "launchpad-meeting-calendar-actions",
-    "title": "Launchpad Meeting Calendar Actions",
-    "summary": "Surface meeting and agenda actions on a launchpad dashboard via the widget launchpad_meeting_actions.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-meeting-calendar-actions/spec.md"
-  },
-  {
-    "slug": "launchpad-mobile-remote-access",
-    "title": "Launchpad Mobile Remote Access",
-    "summary": "Define the **manifest contract** for declaring widget mobile-readiness so the launchpad workspace can render a coherent mobile + remote experience.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-mobile-remote-access/spec.md"
-  },
-  {
-    "slug": "launchpad-spend-analytics-widget",
-    "title": "Launchpad Spend Analytics Widget",
-    "summary": "Surface procurement + financial spend analytics on a launchpad dashboard as a single widget (launchpad_spend_analytics).",
-    "status": "stable",
-    "docsUrl": "openspec/specs/launchpad-spend-analytics-widget/spec.md"
-  },
-  {
-    "slug": "legacy-widget-bridge",
-    "title": "Legacy Widget Bridge",
-    "summary": "LaunchPad's grid can render widgets from two eras of the Nextcloud widget API: modern widgets that implement IAPIWidget / IAPIWidgetV2 (covered by the [widgets](./widgets/spec.md) capability), and legacy widgets that use the older callback-registration pattern by calling window.OCA.Dashboard.register(appId, callback) at bootstrap.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/legacy-widget-bridge/spec.md"
-  },
-  {
-    "slug": "link-button-widget",
-    "title": "Link-Button Widget",
-    "summary": "The link-button widget is a built-in LaunchPad widget type that lets dashboard authors drop a styled, clickable tile onto a dashboard.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/link-button-widget/spec.md"
-  },
-  {
-    "slug": "links-widget",
-    "title": "Links Widget",
-    "summary": "Provide a multi-column dashboard widget that renders a curated grid of link cards organised into named sections.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/links-widget/spec.md"
-  },
-  {
-    "slug": "menu-widget",
-    "title": "Menu Widget",
-    "summary": "The menu widget is a built-in LaunchPad widget type that renders a hierarchical, in-page navigation tree distinct from the application sidebar.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/menu-widget/spec.md"
-  },
-  {
-    "slug": "navigation-editor-org",
-    "title": "Organization-wide Navigation Editor",
-    "summary": "The navigation-editor-org capability provides a robust, admin-curated, group-aware org-wide navigation tree distinct from the personal dashboard list.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/navigation-editor-org/spec.md"
-  },
-  {
-    "slug": "nc-dashboard-widget-proxy",
-    "title": "Nc Dashboard Widget Proxy",
-    "summary": "Defines the user-facing surface of the Nextcloud Dashboard widget proxy (nc-widget placement type).",
-    "status": "stable",
-    "docsUrl": "openspec/specs/nc-dashboard-widget-proxy/spec.md"
-  },
-  {
-    "slug": "nc-unified-search-integration",
-    "title": "Nextcloud Unified Search Integration",
-    "summary": "Nextcloud's unified search (Ctrl+K / Cmd+K) provides a global discovery mechanism for content across all installed apps.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/nc-unified-search-integration/spec.md"
-  },
-  {
-    "slug": "news-widget",
-    "title": "News Widget",
-    "summary": "The news widget aggregates RSS and Atom feed items from one or more configured sources and renders them on a LaunchPad dashboard.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/news-widget/spec.md"
-  },
-  {
-    "slug": "people-widget",
-    "title": "People Widget",
-    "summary": "The people-widget capability registers a dashboard widget that displays a discoverable directory of Nextcloud users with customizable layout (card/grid/list), profile field visibility control, group filtering, and birthday tracking.",
-    "status": "stable",
-    "docsUrl": "openspec/specs/people-widget/spec.md"
+    "docsUrl": "openspec/specs/admin-templates/spec.md",
+    "title_nl": "Beheersjablonen",
+    "summary_nl": "Je rolt een ingerichte startpagina in minuten uit naar een groep."
   },
   {
     "slug": "permissions",
-    "title": "Permission Levels",
-    "summary": "Permission levels control what users can do with their dashboards.",
+    "title": "Permission tiers",
+    "summary": "People personalise their homepage without touching the locked widgets.",
     "status": "stable",
-    "docsUrl": "openspec/specs/permissions/spec.md"
+    "docsUrl": "openspec/specs/permissions/spec.md",
+    "title_nl": "Rechtenniveaus",
+    "summary_nl": "Mensen passen hun startpagina aan zonder de vergrendelde widgets te raken."
   },
   {
-    "slug": "prometheus-metrics",
-    "title": "Prometheus Metrics",
-    "summary": "Expose application metrics in Prometheus text exposition format at GET /api/metrics for monitoring, alerting, and operational dashboards.",
+    "slug": "admin-roles",
+    "title": "Role delegation",
+    "summary": "You hand a colleague dashboard admin without full Nextcloud rights.",
     "status": "stable",
-    "docsUrl": "openspec/specs/prometheus-metrics/spec.md"
+    "docsUrl": "openspec/specs/admin-roles/spec.md",
+    "title_nl": "Roldelegatie",
+    "summary_nl": "Je geeft een collega dashboardbeheer zonder volledige Nextcloud-rechten."
   },
   {
-    "slug": "quicklinks-widget",
-    "title": "Quicklinks Widget",
-    "summary": "The quicklinks widget is a built-in LaunchPad widget type that renders a flat, dense grid of icon-and-label shortcuts inside a single placement.",
+    "slug": "conditional-visibility",
+    "title": "Conditional visibility",
+    "summary": "You show finance cards to finance and banners only this week.",
     "status": "stable",
-    "docsUrl": "openspec/specs/quicklinks-widget/spec.md"
+    "docsUrl": "openspec/specs/conditional-visibility/spec.md",
+    "title_nl": "Voorwaardelijke zichtbaarheid",
+    "summary_nl": "Je toont finance-kaarten aan finance en banners alleen deze week."
   },
   {
-    "slug": "resource-uploads",
-    "title": "Resource Uploads",
-    "summary": "The resource-uploads capability owns a small mini file API for binary assets that LaunchPad widgets reference directly: dashboard icons, image-widget images, link-button icons, etc.",
+    "slug": "dashboard-kiosk-mode",
+    "title": "Kiosk and signage mode",
+    "summary": "You rotate dashboards on a lobby screen unattended.",
     "status": "stable",
-    "docsUrl": "openspec/specs/resource-uploads/spec.md"
+    "docsUrl": "openspec/specs/dashboard-kiosk-mode/spec.md",
+    "title_nl": "Kiosk- en narrowcastmodus",
+    "summary_nl": "Je laat dashboards onbemand rouleren op een lobbyscherm."
   },
   {
-    "slug": "role-feature-permissions",
-    "title": "Role Feature Permissions",
-    "summary": "This capability governs which dashboard widgets and features are visible, accessible, and default-seeded for users based on their Nextcloud group (role).",
+    "slug": "dashboard-quota-limits",
+    "title": "Dashboard quotas",
+    "summary": "You cap dashboards per user and keep the instance tidy.",
     "status": "stable",
-    "docsUrl": "openspec/specs/role-feature-permissions/spec.md"
+    "docsUrl": "openspec/specs/dashboard-quota-limits/spec.md",
+    "title_nl": "Dashboardquota",
+    "summary_nl": "Je begrenst dashboards per gebruiker en houdt de omgeving netjes."
   },
   {
-    "slug": "runtime-or-consumption",
-    "title": "Runtime OR Consumption",
-    "summary": "LaunchPad optionally surfaces data from OpenRegister (OR) in certain widgets.",
+    "slug": "dashboard-switcher",
+    "title": "Multiple dashboards",
+    "summary": "You build a homepage per role and switch in one click.",
     "status": "stable",
-    "docsUrl": "openspec/specs/runtime-or-consumption/spec.md"
+    "docsUrl": "openspec/specs/dashboard-switcher/spec.md",
+    "title_nl": "Meerdere dashboards",
+    "summary_nl": "Je bouwt een startpagina per rol en wisselt met een klik."
   },
   {
-    "slug": "runtime-shell",
-    "title": "Runtime Shell",
-    "summary": "The runtime-shell capability owns the user-facing workspace page chrome.",
+    "slug": "grid-layout",
+    "title": "Drag-and-drop grid",
+    "summary": "You drag, drop, and resize cards until the layout fits.",
     "status": "stable",
-    "docsUrl": "openspec/specs/runtime-shell/spec.md"
+    "docsUrl": "openspec/specs/grid-layout/spec.md",
+    "title_nl": "Sleep-en-neerzet raster",
+    "summary_nl": "Je sleept, plaatst en schaalt kaarten tot de indeling klopt."
   },
   {
-    "slug": "setup-wizard",
-    "title": "Setup Wizard",
-    "summary": "The Setup Wizard is a multi-step first-run configuration flow for freshly installed LaunchPad instances.",
+    "slug": "nc-dashboard-widget-proxy",
+    "title": "Nextcloud widgets",
+    "summary": "You drop in any Files, Calendar, or Talk widget you already use.",
     "status": "stable",
-    "docsUrl": "openspec/specs/setup-wizard/spec.md"
-  },
-  {
-    "slug": "text-display-widget",
-    "title": "Text-Display Widget",
-    "summary": "The text-display widget renders user-authored text content inside a dashboard cell, with limited HTML support for inline formatting (bold, italics, links, line breaks).",
-    "status": "stable",
-    "docsUrl": "openspec/specs/text-display-widget/spec.md"
+    "docsUrl": "openspec/specs/nc-dashboard-widget-proxy/spec.md",
+    "title_nl": "Nextcloud-widgets",
+    "summary_nl": "Je plaatst elke Bestanden-, Agenda- of Talk-widget die je al gebruikt."
   },
   {
     "slug": "tiles",
-    "title": "Custom Tiles",
-    "summary": "Custom tiles are user-created shortcut cards that provide quick access to Nextcloud apps or external URLs.",
+    "title": "Shortcut tiles",
+    "summary": "You pin your key tools with an icon, colour, and link.",
     "status": "stable",
-    "docsUrl": "openspec/specs/tiles/spec.md"
+    "docsUrl": "openspec/specs/tiles/spec.md",
+    "title_nl": "Snelkoppelingstegels",
+    "summary_nl": "Je pint je belangrijkste tools met een icoon, kleur en link."
   },
   {
-    "slug": "video-widget",
-    "title": "Video Widget",
-    "summary": "Embed video content directly on a LaunchPad dashboard from four source types: YouTube, Vimeo, self-hosted PeerTube instances, and Nextcloud Files.",
+    "slug": "dashboard-public-share",
+    "title": "Public share links",
+    "summary": "You share a read-only dashboard with a single link.",
     "status": "stable",
-    "docsUrl": "openspec/specs/video-widget/spec.md"
+    "docsUrl": "openspec/specs/dashboard-public-share/spec.md",
+    "title_nl": "Openbare deellinks",
+    "summary_nl": "Je deelt een alleen-lezen dashboard met een enkele link."
   },
   {
-    "slug": "widgets",
-    "title": "Widgets",
-    "summary": "Widgets are the primary content blocks on LaunchPad dashboards.",
+    "slug": "dashboard-versioning",
+    "title": "Versioning and rollback",
+    "summary": "You roll a dashboard back to last week in one step.",
     "status": "stable",
-    "docsUrl": "openspec/specs/widgets/spec.md"
+    "docsUrl": "openspec/specs/dashboard-versioning/spec.md",
+    "title_nl": "Versiebeheer en terugdraaien",
+    "summary_nl": "Je draait een dashboard in een stap terug naar vorige week."
+  },
+  {
+    "slug": "dashboard-export-import",
+    "title": "Export and import",
+    "summary": "You move a dashboard between environments from the UI or the command line.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/dashboard-export-import/spec.md",
+    "title_nl": "Exporteren en importeren",
+    "summary_nl": "Je verplaatst een dashboard tussen omgevingen via de interface of de opdrachtregel."
+  },
+  {
+    "slug": "runtime-or-consumption",
+    "title": "Live business data",
+    "summary": "You pull live figures over GraphQL when OpenRegister is present.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/runtime-or-consumption/spec.md",
+    "providedBy": "openregister",
+    "title_nl": "Live bedrijfsdata",
+    "summary_nl": "Je haalt live cijfers op via GraphQL wanneer OpenRegister aanwezig is."
+  },
+  {
+    "slug": "kpi-cards",
+    "title": "KPI cards",
+    "summary": "You show counts and charts straight on the dashboard.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/default-widget-bundle/spec.md",
+    "providedBy": "openregister",
+    "title_nl": "KPI-kaarten",
+    "summary_nl": "Je toont aantallen en grafieken direct op het dashboard."
+  },
+  {
+    "slug": "confluence-html-import",
+    "title": "Confluence import",
+    "summary": "You bring a Confluence page in as dashboard content.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/confluence-html-import/spec.md",
+    "title_nl": "Confluence-import",
+    "summary_nl": "Je haalt een Confluence-pagina binnen als dashboardinhoud."
+  },
+  {
+    "slug": "prometheus-metrics",
+    "title": "Prometheus metrics",
+    "summary": "You scrape health and usage from a standard metrics endpoint.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/prometheus-metrics/spec.md",
+    "title_nl": "Prometheus-metrieken",
+    "summary_nl": "Je leest gezondheid en gebruik uit via een standaard metrics-endpoint."
+  },
+  {
+    "slug": "orphaned-data-cleanup",
+    "title": "Data cleanup",
+    "summary": "A background job clears orphaned data on its own.",
+    "status": "stable",
+    "docsUrl": "openspec/specs/orphaned-data-cleanup/spec.md",
+    "title_nl": "Data-opschoning",
+    "summary_nl": "Een achtergrondtaak ruimt verweesde data vanzelf op."
+  },
+  {
+    "slug": "activity-feed-integration",
+    "title": "Activity feed",
+    "summary": "Core dashboard actions land in the Nextcloud activity stream.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/activity-feed-integration/spec.md",
+    "title_nl": "Activiteitenoverzicht",
+    "summary_nl": "Kerndashboardacties komen in de Nextcloud-activiteitenstroom terecht."
+  },
+  {
+    "slug": "nc-unified-search-integration",
+    "title": "Unified search",
+    "summary": "You find dashboards from the Nextcloud search bar.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/nc-unified-search-integration/spec.md",
+    "title_nl": "Geintegreerd zoeken",
+    "summary_nl": "Je vindt dashboards via de Nextcloud-zoekbalk."
+  },
+  {
+    "slug": "groupfolder-storage-backend",
+    "title": "GroupFolder storage (optional)",
+    "summary": "You optionally store dashboard content in a shared GroupFolder.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/groupfolder-storage-backend/spec.md",
+    "title_nl": "GroupFolder-opslag (optioneel)",
+    "summary_nl": "Je bewaart dashboardinhoud optioneel in een gedeelde GroupFolder."
+  },
+  {
+    "slug": "launchpad-spend-analytics-widget",
+    "title": "Spend analytics card",
+    "summary": "You preview spend from financeq and procest on a card.",
+    "status": "beta",
+    "docsUrl": "openspec/specs/launchpad-spend-analytics-widget/spec.md",
+    "providedBy": "openregister",
+    "title_nl": "Uitgavenanalyse-kaart",
+    "summary_nl": "Je bekijkt uitgaven uit financeq en procest op een kaart."
+  },
+  {
+    "slug": "launchpad-mobile-remote-access",
+    "title": "Mobile access",
+    "summary": "A responsive homepage that survives on a phone.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-mobile-remote-access/spec.md",
+    "title_nl": "Mobiele toegang",
+    "summary_nl": "Een responsieve startpagina die het op een telefoon volhoudt."
+  },
+  {
+    "slug": "launchpad-compliance-audit-panel",
+    "title": "Audit panel",
+    "summary": "A dedicated compliance and audit-trail view.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-compliance-audit-panel/spec.md",
+    "title_nl": "Auditpaneel",
+    "summary_nl": "Een eigen weergave voor compliance en het auditspoor."
+  },
+  {
+    "slug": "launchpad-enterprise-security-access",
+    "title": "SSO and access posture",
+    "summary": "You surface SAML, TOTP, and WebAuthn status on the dashboard.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-enterprise-security-access/spec.md",
+    "title_nl": "SSO en toegangsstatus",
+    "summary_nl": "Je toont de status van SAML, TOTP en WebAuthn op het dashboard."
+  },
+  {
+    "slug": "launchpad-ai-dashboard-assistant",
+    "title": "AI assistant",
+    "summary": "You ask for the widget you need and have it placed for you.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-ai-dashboard-assistant/spec.md",
+    "title_nl": "AI-assistent",
+    "summary_nl": "Je vraagt om de widget die je nodig hebt en die wordt voor je geplaatst."
+  },
+  {
+    "slug": "launchpad-meeting-calendar-actions",
+    "title": "Meeting actions",
+    "summary": "You act on the day's meetings straight from a card.",
+    "status": "soon",
+    "docsUrl": "openspec/specs/launchpad-meeting-calendar-actions/spec.md",
+    "title_nl": "Vergaderacties",
+    "summary_nl": "Je handelt de vergaderingen van de dag direct vanaf een kaart af."
   }
 ]

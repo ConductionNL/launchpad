@@ -14,7 +14,18 @@
  * openspec/changes/active-dashboard-resolution/tasks.md#task-12.
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request, type APIRequestContext } from '@playwright/test'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+	type SeededDashboard,
+} from './support/dashboardFixture'
+import { BASE_URL } from './support/baseUrl'
+import {
+	provisionThrowawayUser,
+	deprovisionUser,
+	loginAs,
+} from './fixtures/secondary-user'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -34,18 +45,86 @@ async function gotoApp(page: any) {
 // REQ-DASH-018 scenario: Empty state on a fresh user with no dashboards
 // ─────────────────────────────────────────────────────────────────────────────
 
+const ADMIN = {
+	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+let api: APIRequestContext
+const seeded: SeededDashboard[] = []
+
+/*
+ * SEED TWO DASHBOARDS FOR THE ADMIN.
+ *
+ * The switching test needs at least two rows in the sidebar, and every test
+ * outside the empty-state block reaches `.launchpad-sidebar-toggle`, which
+ * only renders once a dashboard is ACTIVE. `tests/e2e/seed.sh` creates only
+ * the `e2e-grantee` user — never a dashboard — so on a fresh instance the
+ * shell renders its empty state and those waits time out. Measured in CI run
+ * 32308042394: 2 of 3 tests here failed that way at 25.1s each.
+ *
+ * This does NOT disturb the empty-state test above: that one provisions its
+ * own throwaway account precisely because the admin fixture has dashboards.
+ */
+test.beforeAll(async () => {
+	api = await request.newContext({
+		baseURL: BASE_URL,
+		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+	})
+	const stamp = Date.now()
+	seeded.push(await seedActiveDashboard(api, `E2E Resolution A ${stamp}`))
+	seeded.push(await seedActiveDashboard(api, `E2E Resolution B ${stamp}`))
+})
+
+test.afterAll(async () => {
+	for (const d of seeded) {
+		await removeSeededDashboard(api, d)
+	}
+	await api?.dispose()
+})
+
 test.describe('active-dashboard-resolution — empty state', () => {
 	// @e2e active-dashboard-resolution::empty-state-renders-for-fresh-user
-	test('empty state renders when GET /api/dashboard returns no active dashboard', async () => {
+	test('empty state renders when GET /api/dashboard returns no active dashboard', async ({
+		browser,
+	}) => {
 		// The empty-state branch keys off the server-rendered `activeDashboardId`
 		// initial-state value, NOT the /api/dashboard fetch — so route-mocking a
 		// 404 cannot produce it. Reaching it requires a Nextcloud account that
 		// resolves to zero dashboards; the shared admin fixture always has
-		// dashboards and provisioning a throwaway zero-dashboard user is not
-		// reliable here (occ user:add hits a pre-existing Sabre/CalDAV fatal).
-		// The fresh-user empty-state is covered by the WorkspaceApp Vitest unit
-		// test; the `@e2e` annotation is kept so gate-19 traceability resolves.
-		test.skip(true, 'Empty-state requires a zero-dashboard account; not reachable from the admin fixture. Covered by WorkspaceApp Vitest.')
+		// dashboards, so provision a throwaway one via the OCS provisioning API
+		// (fixtures/secondary-user.ts) and log in as it in a fresh context.
+		const { username, password } = await provisionThrowawayUser()
+		try {
+			const { context, page } = await loginAs(browser, username, password)
+			try {
+				await page.goto('/index.php/apps/launchpad')
+				// INVERTED by #361 (c9e58089, "ship a dashboard"). This asserted
+				// the empty state for a fresh account. `SeedDefaultDashboard`
+				// now provisions an INSTANCE-WIDE, group-shared dashboard on
+				// install and after every upgrade, precisely so that
+				// "No dashboards available" can no longer greet a new user —
+				// that message was the defect the commit set out to remove.
+				//
+				// So the empty state is unreachable by construction, and the
+				// valuable assertion is its opposite: a brand-new account, which
+				// owns nothing, must still resolve to the seeded dashboard.
+				const empty = page.locator('.workspace-shell__empty')
+				await expect(
+					empty,
+					'a fresh account must NOT see the empty state — the seeder ships an instance-wide dashboard',
+				).toBeHidden({ timeout: 15_000 })
+				await expect(
+					page.locator('.workspace-shell'),
+					'the shell must resolve the seeded dashboard for an account that owns none',
+				).toBeVisible({ timeout: 15_000 })
+			} finally {
+				await context.close()
+			}
+		} finally {
+			await deprovisionUser(username)
+		}
 	})
 })
 
@@ -55,12 +134,16 @@ test.describe('active-dashboard-resolution — empty state', () => {
 
 test.describe('active-dashboard-resolution — switchDashboard wires the POST', () => {
 	// @e2e active-dashboard-resolution::switch-dashboard-posts-active-preference
-	test('clicking a sidebar row activates the chosen dashboard server-side', async ({ page }) => {
+	test('clicking a sidebar row activates the chosen dashboard server-side', async ({
+		page,
+	}) => {
 		await gotoApp(page)
 
 		// Open the sidebar so the dashboard rows are visible.
 		await page.locator('.launchpad-sidebar-toggle').first().click()
-		await page.waitForSelector('.dashboard-switcher-sidebar.open', { timeout: 8_000 })
+		await page.waitForSelector('.dashboard-switcher-sidebar.open', {
+			timeout: 8_000,
+		})
 
 		const rows = page.locator('.dashboard-switcher-sidebar__item')
 		const rowCount = await rows.count()
@@ -74,15 +157,19 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 		// preference is owned by that endpoint, not a separate body). Arm the
 		// request listener BEFORE the click.
 		const activatePromise = page.waitForRequest(
-			req => req.method() === 'POST' && /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
+			(req) =>
+				req.method() === 'POST'
+				&& /\/api\/dashboard\/\d+\/activate(?:\?|$)/.test(req.url()),
 			{ timeout: 8_000 },
 		)
 
 		// Click a non-active PERSONAL (owned) row — only owned dashboards take
 		// an active flag, so this exercises the real switch + persistence path.
-		const ownedInactiveRow = page.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
-		).first()
+		const ownedInactiveRow = page
+			.locator(
+				'[data-source="user"].dashboard-switcher-sidebar__item:not(.active)',
+			)
+			.first()
 		await expect(ownedInactiveRow).toBeVisible({ timeout: 5_000 })
 		await ownedInactiveRow.click()
 
@@ -98,7 +185,9 @@ test.describe('active-dashboard-resolution — switchDashboard wires the POST', 
 
 test.describe('active-dashboard-resolution — stale preference', () => {
 	// @e2e active-dashboard-resolution::stale-preference-falls-through-silently
-	test('a stale saved UUID is silently discarded — no error toast shown', async ({ page }) => {
+	test('a stale saved UUID is silently discarded — no error toast shown', async ({
+		page,
+	}) => {
 		// Simulate a session where the backend has already cleared the stale
 		// active_dashboard_uuid and resolved through to a group dashboard.
 		// The page initial state carries activeDashboardId from the backend resolver.
@@ -111,14 +200,18 @@ test.describe('active-dashboard-resolution — stale preference', () => {
 		await page.waitForTimeout(2_000)
 
 		// Assert no error toast or alert dialog appeared during load.
-		const errorToasts = await page.locator(
-			'[class*="toast--error"], [class*="nc-toast-error"], [role="alertdialog"]',
-		).count()
+		const errorToasts = await page
+			.locator(
+				'[class*="toast--error"], [class*="nc-toast-error"], [role="alertdialog"]',
+			)
+			.count()
 		expect(errorToasts).toBe(0)
 
 		// The workspace MUST render either a dashboard grid or the empty-state —
 		// never a blank page / loading spinner after 2 s.
-		const gridOrEmpty = page.locator('.launchpad-grid, .launchpad-empty, [class*="grid-stack"]')
+		const gridOrEmpty = page.locator(
+			'.launchpad-grid, .launchpad-empty, [class*="grid-stack"]',
+		)
 		await expect(gridOrEmpty.first()).toBeAttached({ timeout: 5_000 })
 	})
 })

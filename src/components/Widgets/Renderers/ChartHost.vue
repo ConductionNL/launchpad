@@ -1,13 +1,13 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<CnChartWidget
 		:type="chartType"
 		:data-source="dataSource"
-		:widget-id="widgetId"
+		:widgetId="widgetId"
 		v-bind="passthroughProps" />
 </template>
 
@@ -18,7 +18,20 @@ import { CnChartWidget } from '@conduction/nextcloud-vue'
 // CnChartWidget verbatim (apexcharts passthrough). `dataSource` resolves the
 // series when present, so these are optional overrides only — mirrors
 // CnDashboardPage.CHART_PROP_KEYS for the in-app-editable (ADR-041) path.
-const CHART_PROP_KEYS = ['series', 'categories', 'labels', 'options', 'colors', 'toolbar', 'legend', 'height', 'width', 'stacked', 'horizontal', 'colorScheme']
+const CHART_PROP_KEYS = [
+	'series',
+	'categories',
+	'labels',
+	'options',
+	'colors',
+	'toolbar',
+	'legend',
+	'height',
+	'width',
+	'stacked',
+	'horizontal',
+	'colorScheme',
+]
 
 /**
  * ChartHost — thin LaunchPad wrapper adapting the registry's `content` shape
@@ -38,6 +51,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** The placement record (used for a stable widget id). */
 		placement: {
 			type: Object,

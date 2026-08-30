@@ -13,7 +13,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -32,396 +32,373 @@ use OCP\IAppConfig;
 use OCP\IConfig;
 use PHPUnit\Framework\TestCase;
 
-class AnalyticsServiceTest extends TestCase
-{
-    private DashboardViewMapper $viewMapper;
-    private DashboardMapper $dashboardMapper;
-    private UniqueViewerDedup $dedup;
-    private IAppConfig $appConfig;
-    private IConfig $config;
-    private AnalyticsService $service;
+class AnalyticsServiceTest extends TestCase {
+	private DashboardViewMapper $viewMapper;
+	private DashboardMapper $dashboardMapper;
+	private UniqueViewerDedup $dedup;
+	private IAppConfig $appConfig;
+	private IConfig $config;
+	private AnalyticsService $service;
 
-    protected function setUp(): void
-    {
-        $this->viewMapper      = $this->createMock(
-            originalClassName: DashboardViewMapper::class
-        );
-        $this->dashboardMapper = $this->createMock(
-            originalClassName: DashboardMapper::class
-        );
-        $this->dedup           = $this->createMock(
-            originalClassName: UniqueViewerDedup::class
-        );
-        $this->appConfig       = $this->createMock(
-            originalClassName: IAppConfig::class
-        );
-        $this->config          = $this->createMock(
-            originalClassName: IConfig::class
-        );
+	protected function setUp(): void {
+		$this->viewMapper = $this->createMock(
+			originalClassName: DashboardViewMapper::class
+		);
+		$this->dashboardMapper = $this->createMock(
+			originalClassName: DashboardMapper::class
+		);
+		$this->dedup = $this->createMock(
+			originalClassName: UniqueViewerDedup::class
+		);
+		$this->appConfig = $this->createMock(
+			originalClassName: IAppConfig::class
+		);
+		$this->config = $this->createMock(
+			originalClassName: IConfig::class
+		);
 
-        $this->service = new AnalyticsService(
-            viewMapper: $this->viewMapper,
-            dashboardMapper: $this->dashboardMapper,
-            dedup: $this->dedup,
-            appConfig: $this->appConfig,
-            config: $this->config,
-        );
-    }
+		$this->service = new AnalyticsService(
+			viewMapper: $this->viewMapper,
+			dashboardMapper: $this->dashboardMapper,
+			dedup: $this->dedup,
+			appConfig: $this->appConfig,
+			config: $this->config,
+		);
+	}
 
-    public function testIsGloballyEnabledDefaultsTrue(): void
-    {
-        $this->appConfig->method('getValueBool')->willReturn(true);
+	public function testIsGloballyEnabledDefaultsTrue(): void {
+		$this->appConfig->method('getValueBool')->willReturn(true);
 
-        $this->assertTrue($this->service->isGloballyEnabled());
-    }
+		$this->assertTrue($this->service->isGloballyEnabled());
+	}
 
-    public function testIsGloballyEnabledFalseWhenSetFalse(): void
-    {
-        $this->appConfig->method('getValueBool')->willReturn(false);
+	public function testIsGloballyEnabledFalseWhenSetFalse(): void {
+		$this->appConfig->method('getValueBool')->willReturn(false);
 
-        $this->assertFalse($this->service->isGloballyEnabled());
-    }
+		$this->assertFalse($this->service->isGloballyEnabled());
+	}
 
-    public function testIsUserOptedOutDefaultsFalse(): void
-    {
-        $this->config->method('getUserValue')->willReturn('false');
+	public function testIsUserOptedOutDefaultsFalse(): void {
+		$this->config->method('getUserValue')->willReturn('false');
 
-        $this->assertFalse($this->service->isUserOptedOut(userId: 'alice'));
-    }
+		$this->assertFalse($this->service->isUserOptedOut(userId: 'alice'));
+	}
 
-    public function testGetRetentionDaysClampsBelowMinimum(): void
-    {
-        $this->appConfig->method('getValueInt')->willReturn(10);
+	public function testGetRetentionDaysClampsBelowMinimum(): void {
+		$this->appConfig->method('getValueInt')->willReturn(10);
 
-        $this->assertSame(
-            AnalyticsService::MIN_RETENTION_DAYS,
-            $this->service->getRetentionDays()
-        );
-    }
+		$this->assertSame(
+			AnalyticsService::MIN_RETENTION_DAYS,
+			$this->service->getRetentionDays()
+		);
+	}
 
-    public function testGetRetentionDaysClampsAboveMaximum(): void
-    {
-        $this->appConfig->method('getValueInt')->willReturn(99999);
+	public function testGetRetentionDaysClampsAboveMaximum(): void {
+		$this->appConfig->method('getValueInt')->willReturn(99999);
 
-        $this->assertSame(
-            AnalyticsService::MAX_RETENTION_DAYS,
-            $this->service->getRetentionDays()
-        );
-    }
+		$this->assertSame(
+			AnalyticsService::MAX_RETENTION_DAYS,
+			$this->service->getRetentionDays()
+		);
+	}
 
-    public function testGetRetentionDaysReturnsValueInRange(): void
-    {
-        $this->appConfig->method('getValueInt')->willReturn(100);
+	public function testGetRetentionDaysReturnsValueInRange(): void {
+		$this->appConfig->method('getValueInt')->willReturn(100);
 
-        $this->assertSame(100, $this->service->getRetentionDays());
-    }
+		$this->assertSame(100, $this->service->getRetentionDays());
+	}
 
-    public function testSetRetentionDaysClampsAndPersists(): void
-    {
-        $this->appConfig->expects($this->once())
-            ->method('setValueInt')
-            ->with(
-                $this->equalTo('launchpad'),
-                $this->equalTo(AnalyticsService::CONFIG_KEY_RETENTION_DAYS),
-                $this->equalTo(30)
-            );
+	public function testSetRetentionDaysClampsAndPersists(): void {
+		$this->appConfig->expects($this->once())
+			->method('setValueInt')
+			->with(
+				$this->equalTo('launchpad'),
+				$this->equalTo(AnalyticsService::CONFIG_KEY_RETENTION_DAYS),
+				$this->equalTo(30)
+			);
 
-        $clamped = $this->service->setRetentionDays(days: 5);
+		$clamped = $this->service->setRetentionDays(days: 5);
 
-        $this->assertSame(30, $clamped);
-    }
+		$this->assertSame(30, $clamped);
+	}
 
-    public function testRecordViewEventThrowsWhenDashboardMissing(): void
-    {
-        $this->dashboardMapper
-            ->method('findByUuid')
-            ->willThrowException(
-                exception: new DoesNotExistException(msg: 'gone')
-            );
+	public function testRecordViewEventThrowsWhenDashboardMissing(): void {
+		$this->dashboardMapper
+			->method('findByUuid')
+			->willThrowException(
+				exception: new DoesNotExistException(msg: 'gone')
+			);
 
-        $this->expectException(exception: DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
-        $this->service->recordViewEvent(
-            dashboardUuid: 'no-such-uuid',
-            userId: 'alice'
-        );
-    }
+		$this->service->recordViewEvent(
+			dashboardUuid: 'no-such-uuid',
+			userId: 'alice'
+		);
+	}
 
-    public function testRecordViewEventSkipsWhenGloballyDisabled(): void
-    {
-        $this->dashboardMapper
-            ->method('findByUuid')
-            ->willReturn(value: new Dashboard());
-        $this->appConfig->method('getValueBool')->willReturn(false);
-        $this->viewMapper->expects($this->never())->method('upsertView');
+	public function testRecordViewEventSkipsWhenGloballyDisabled(): void {
+		$this->dashboardMapper
+			->method('findByUuid')
+			->willReturn(value: new Dashboard());
+		$this->appConfig->method('getValueBool')->willReturn(false);
+		$this->viewMapper->expects($this->never())->method('upsertView');
 
-        $result = $this->service->recordViewEvent(
-            dashboardUuid: 'uuid-1',
-            userId: 'alice'
-        );
+		$result = $this->service->recordViewEvent(
+			dashboardUuid: 'uuid-1',
+			userId: 'alice'
+		);
 
-        $this->assertFalse($result);
-    }
+		$this->assertFalse($result);
+	}
 
-    public function testRecordViewEventSkipsWhenUserOptedOut(): void
-    {
-        $this->dashboardMapper
-            ->method('findByUuid')
-            ->willReturn(value: new Dashboard());
-        $this->appConfig->method('getValueBool')->willReturn(true);
-        $this->config->method('getUserValue')->willReturn('true');
-        $this->viewMapper->expects($this->never())->method('upsertView');
+	public function testRecordViewEventSkipsWhenUserOptedOut(): void {
+		$this->dashboardMapper
+			->method('findByUuid')
+			->willReturn(value: new Dashboard());
+		$this->appConfig->method('getValueBool')->willReturn(true);
+		$this->config->method('getUserValue')->willReturn('true');
+		$this->viewMapper->expects($this->never())->method('upsertView');
 
-        $result = $this->service->recordViewEvent(
-            dashboardUuid: 'uuid-1',
-            userId: 'alice'
-        );
+		$result = $this->service->recordViewEvent(
+			dashboardUuid: 'uuid-1',
+			userId: 'alice'
+		);
 
-        $this->assertFalse($result);
-    }
+		$this->assertFalse($result);
+	}
 
-    public function testRecordViewEventIncrementsBothCountersForNewViewer(): void
-    {
-        $this->dashboardMapper
-            ->method('findByUuid')
-            ->willReturn(value: new Dashboard());
-        $this->appConfig->method('getValueBool')->willReturn(true);
-        $this->config->method('getUserValue')->willReturn('false');
-        $this->dedup->method('isNewUniqueViewer')->willReturn(true);
+	public function testRecordViewEventIncrementsBothCountersForNewViewer(): void {
+		$this->dashboardMapper
+			->method('findByUuid')
+			->willReturn(value: new Dashboard());
+		$this->appConfig->method('getValueBool')->willReturn(true);
+		$this->config->method('getUserValue')->willReturn('false');
+		$this->dedup->method('isNewUniqueViewer')->willReturn(true);
 
-        $this->viewMapper->expects($this->once())
-            ->method('upsertView')
-            ->with(
-                $this->isType(type: 'string'),
-                $this->isType(type: 'string'),
-                1,
-                1
-            );
+		$this->viewMapper->expects($this->once())
+			->method('upsertView')
+			->with(
+				$this->isType(type: 'string'),
+				$this->isType(type: 'string'),
+				1,
+				1
+			);
 
-        $result = $this->service->recordViewEvent(
-            dashboardUuid: 'uuid-1',
-            userId: 'alice'
-        );
+		$result = $this->service->recordViewEvent(
+			dashboardUuid: 'uuid-1',
+			userId: 'alice'
+		);
 
-        $this->assertTrue($result);
-    }
+		$this->assertTrue($result);
+	}
 
-    public function testRecordViewEventLeavesUniqueAtZeroForRepeatViewer(): void
-    {
-        $this->dashboardMapper
-            ->method('findByUuid')
-            ->willReturn(value: new Dashboard());
-        $this->appConfig->method('getValueBool')->willReturn(true);
-        $this->config->method('getUserValue')->willReturn('false');
-        $this->dedup->method('isNewUniqueViewer')->willReturn(false);
+	public function testRecordViewEventLeavesUniqueAtZeroForRepeatViewer(): void {
+		$this->dashboardMapper
+			->method('findByUuid')
+			->willReturn(value: new Dashboard());
+		$this->appConfig->method('getValueBool')->willReturn(true);
+		$this->config->method('getUserValue')->willReturn('false');
+		$this->dedup->method('isNewUniqueViewer')->willReturn(false);
 
-        $this->viewMapper->expects($this->once())
-            ->method('upsertView')
-            ->with(
-                $this->isType(type: 'string'),
-                $this->isType(type: 'string'),
-                1,
-                0
-            );
+		$this->viewMapper->expects($this->once())
+			->method('upsertView')
+			->with(
+				$this->isType(type: 'string'),
+				$this->isType(type: 'string'),
+				1,
+				0
+			);
 
-        $result = $this->service->recordViewEvent(
-            dashboardUuid: 'uuid-1',
-            userId: 'alice'
-        );
+		$result = $this->service->recordViewEvent(
+			dashboardUuid: 'uuid-1',
+			userId: 'alice'
+		);
 
-        $this->assertTrue($result);
-    }
+		$this->assertTrue($result);
+	}
 
-    public function testPeriodToDateRangeRejectsUnknownPeriod(): void
-    {
-        $this->expectException(exception: InvalidArgumentException::class);
+	public function testPeriodToDateRangeRejectsUnknownPeriod(): void {
+		$this->expectException(exception: InvalidArgumentException::class);
 
-        AnalyticsService::periodToDateRange(period: '42d');
-    }
+		AnalyticsService::periodToDateRange(period: '42d');
+	}
 
-    public function testPeriodToDateRangeReturnsTwoDates(): void
-    {
-        [$start, $end] = AnalyticsService::periodToDateRange(period: '7d');
+	public function testPeriodToDateRangeReturnsTwoDates(): void {
+		[$start, $end] = AnalyticsService::periodToDateRange(period: '7d');
 
-        $this->assertMatchesRegularExpression(
-            pattern: '/^\d{4}-\d{2}-\d{2}$/',
-            string: $start
-        );
-        $this->assertMatchesRegularExpression(
-            pattern: '/^\d{4}-\d{2}-\d{2}$/',
-            string: $end
-        );
-        $this->assertLessThanOrEqual($end, $start);
-    }
+		$this->assertMatchesRegularExpression(
+			pattern: '/^\d{4}-\d{2}-\d{2}$/',
+			string: $start
+		);
+		$this->assertMatchesRegularExpression(
+			pattern: '/^\d{4}-\d{2}-\d{2}$/',
+			string: $end
+		);
+		$this->assertLessThanOrEqual($end, $start);
+	}
 
-    public function testGetTopDashboardsAttachesNames(): void
-    {
-        $this->viewMapper->method('findTopDashboardsInRange')
-            ->willReturn(
-                value: [
-                    [
-                        'dashboardUuid'     => 'uuid-1',
-                        'viewCount'         => 50,
-                        'uniqueViewerCount' => 20,
-                    ],
-                ]
-            );
-        $dashboard = new Dashboard();
-        $dashboard->setName('Marketing');
-        $this->dashboardMapper->method('findByUuid')->willReturn(
-            value: $dashboard
-        );
+	public function testGetTopDashboardsAttachesNames(): void {
+		$this->viewMapper->method('findTopDashboardsInRange')
+			->willReturn(
+				value: [
+					[
+						'dashboardUuid' => 'uuid-1',
+						'viewCount' => 50,
+						'uniqueViewerCount' => 20,
+					],
+				]
+			);
+		$dashboard = new Dashboard();
+		$dashboard->setName('Marketing');
+		$this->dashboardMapper->method('findByUuid')->willReturn(
+			value: $dashboard
+		);
 
-        $rows = $this->service->getTopDashboards(period: '7d', limit: 10);
+		$rows = $this->service->getTopDashboards(period: '7d', limit: 10);
 
-        $this->assertCount(1, $rows);
-        $this->assertSame('Marketing', $rows[0]['name']);
-        $this->assertSame(50, $rows[0]['viewCount']);
-    }
+		$this->assertCount(1, $rows);
+		$this->assertSame('Marketing', $rows[0]['name']);
+		$this->assertSame(50, $rows[0]['viewCount']);
+	}
 
-    public function testGetTopDashboardsHandlesOrphanRows(): void
-    {
-        $this->viewMapper->method('findTopDashboardsInRange')
-            ->willReturn(
-                value: [
-                    [
-                        'dashboardUuid'     => 'orphan-uuid',
-                        'viewCount'         => 5,
-                        'uniqueViewerCount' => 2,
-                    ],
-                ]
-            );
-        $this->dashboardMapper->method('findByUuid')
-            ->willThrowException(
-                exception: new DoesNotExistException(msg: 'gone')
-            );
+	public function testGetTopDashboardsHandlesOrphanRows(): void {
+		$this->viewMapper->method('findTopDashboardsInRange')
+			->willReturn(
+				value: [
+					[
+						'dashboardUuid' => 'orphan-uuid',
+						'viewCount' => 5,
+						'uniqueViewerCount' => 2,
+					],
+				]
+			);
+		$this->dashboardMapper->method('findByUuid')
+			->willThrowException(
+				exception: new DoesNotExistException(msg: 'gone')
+			);
 
-        $rows = $this->service->getTopDashboards(period: '30d', limit: 10);
+		$rows = $this->service->getTopDashboards(period: '30d', limit: 10);
 
-        $this->assertNull($rows[0]['name']);
-        $this->assertSame(5, $rows[0]['viewCount']);
-    }
+		$this->assertNull($rows[0]['name']);
+		$this->assertSame(5, $rows[0]['viewCount']);
+	}
 
-    public function testGetDashboardDetailReturnsArrayOfDailyRecords(): void
-    {
-        $this->dashboardMapper->method('findByUuid')->willReturn(
-            value: new Dashboard()
-        );
-        $row = new DashboardView();
-        $row->setDashboardUuid('uuid-1');
-        $row->setViewBucket('2026-05-01');
-        $row->setViewCount(8);
-        $row->setUniqueViewerCount(4);
-        $this->viewMapper->method('findByDashboardInRange')->willReturn(
-            value: [$row]
-        );
+	public function testGetDashboardDetailReturnsArrayOfDailyRecords(): void {
+		$this->dashboardMapper->method('findByUuid')->willReturn(
+			value: new Dashboard()
+		);
+		$row = new DashboardView();
+		$row->setDashboardUuid('uuid-1');
+		$row->setViewBucket('2026-05-01');
+		$row->setViewCount(8);
+		$row->setUniqueViewerCount(4);
+		$this->viewMapper->method('findByDashboardInRange')->willReturn(
+			value: [$row]
+		);
 
-        $rows = $this->service->getDashboardDetail(
-            dashboardUuid: 'uuid-1',
-            period: '7d'
-        );
+		$rows = $this->service->getDashboardDetail(
+			dashboardUuid: 'uuid-1',
+			period: '7d'
+		);
 
-        $this->assertCount(1, $rows);
-        $this->assertSame('2026-05-01', $rows[0]['viewBucket']);
-        $this->assertSame(8, $rows[0]['viewCount']);
-    }
+		$this->assertCount(1, $rows);
+		$this->assertSame('2026-05-01', $rows[0]['viewBucket']);
+		$this->assertSame(8, $rows[0]['viewCount']);
+	}
 
-    public function testGetDashboardDetailThrowsWhenDashboardMissing(): void
-    {
-        $this->dashboardMapper->method('findByUuid')->willThrowException(
-            exception: new DoesNotExistException(msg: 'gone')
-        );
+	public function testGetDashboardDetailThrowsWhenDashboardMissing(): void {
+		$this->dashboardMapper->method('findByUuid')->willThrowException(
+			exception: new DoesNotExistException(msg: 'gone')
+		);
 
-        $this->expectException(exception: DoesNotExistException::class);
+		$this->expectException(exception: DoesNotExistException::class);
 
-        $this->service->getDashboardDetail(
-            dashboardUuid: 'no-such',
-            period: '7d'
-        );
-    }
+		$this->service->getDashboardDetail(
+			dashboardUuid: 'no-such',
+			period: '7d'
+		);
+	}
 
-    public function testGenerateCsvExportProducesHeaderAndRows(): void
-    {
-        $row = new DashboardView();
-        $row->setDashboardUuid('uuid-1');
-        $row->setViewBucket('2026-05-01');
-        $row->setViewCount(2);
-        $row->setUniqueViewerCount(1);
-        $this->viewMapper->method('findAllInRange')->willReturn(
-            value: [$row]
-        );
-        $dashboard = new Dashboard();
-        $dashboard->setName('Marketing');
-        $this->dashboardMapper->method('findByUuid')->willReturn(
-            value: $dashboard
-        );
+	public function testGenerateCsvExportProducesHeaderAndRows(): void {
+		$row = new DashboardView();
+		$row->setDashboardUuid('uuid-1');
+		$row->setViewBucket('2026-05-01');
+		$row->setViewCount(2);
+		$row->setUniqueViewerCount(1);
+		$this->viewMapper->method('findAllInRange')->willReturn(
+			value: [$row]
+		);
+		$dashboard = new Dashboard();
+		$dashboard->setName('Marketing');
+		$this->dashboardMapper->method('findByUuid')->willReturn(
+			value: $dashboard
+		);
 
-        $csv = $this->service->generateCsvExport(period: '7d');
+		$csv = $this->service->generateCsvExport(period: '7d');
 
-        $this->assertStringContainsString(
-            needle: 'dashboardUuid',
-            haystack: $csv
-        );
-        $this->assertStringContainsString(
-            needle: 'Marketing',
-            haystack: $csv
-        );
-        $this->assertStringContainsString(
-            needle: '2026-05-01',
-            haystack: $csv
-        );
-    }
+		$this->assertStringContainsString(
+			needle: 'dashboardUuid',
+			haystack: $csv
+		);
+		$this->assertStringContainsString(
+			needle: 'Marketing',
+			haystack: $csv
+		);
+		$this->assertStringContainsString(
+			needle: '2026-05-01',
+			haystack: $csv
+		);
+	}
 
-    public function testCsvExportFilenameMatchesExpectedPattern(): void
-    {
-        $name = $this->service->csvExportFilename();
+	public function testCsvExportFilenameMatchesExpectedPattern(): void {
+		$name = $this->service->csvExportFilename();
 
-        $this->assertMatchesRegularExpression(
-            pattern: '/^dashboard-analytics-\d{4}-\d{2}-\d{2}\.csv$/',
-            string: $name
-        );
-    }
+		$this->assertMatchesRegularExpression(
+			pattern: '/^dashboard-analytics-\d{4}-\d{2}-\d{2}\.csv$/',
+			string: $name
+		);
+	}
 
-    /**
-     * M1: CSV injection — dashboard names starting with formula trigger
-     * characters (=, +, -, @, tab, CR) MUST be prefixed with a
-     * single-quote so spreadsheet apps treat them as text.
-     */
-    public function testCsvExportPrefixesFormulaTriggerCharacters(): void
-    {
-        $formulaNames = [
-            '=SUM(A1)',
-            '+profit',
-            '-loss',
-            '@domain',
-        ];
+	/**
+	 * M1: CSV injection — dashboard names starting with formula trigger
+	 * characters (=, +, -, @, tab, CR) MUST be prefixed with a
+	 * single-quote so spreadsheet apps treat them as text.
+	 */
+	public function testCsvExportPrefixesFormulaTriggerCharacters(): void {
+		$formulaNames = [
+			'=SUM(A1)',
+			'+profit',
+			'-loss',
+			'@domain',
+		];
 
-        foreach ($formulaNames as $name) {
-            $row = new \OCA\LaunchPad\Db\DashboardView();
-            $row->setDashboardUuid('uuid-formula');
-            $row->setViewBucket('2026-05-01');
-            $row->setViewCount(1);
-            $row->setUniqueViewerCount(1);
-            $this->viewMapper->method('findAllInRange')->willReturn([$row]);
+		foreach ($formulaNames as $name) {
+			$row = new \OCA\LaunchPad\Db\DashboardView();
+			$row->setDashboardUuid('uuid-formula');
+			$row->setViewBucket('2026-05-01');
+			$row->setViewCount(1);
+			$row->setUniqueViewerCount(1);
+			$this->viewMapper->method('findAllInRange')->willReturn([$row]);
 
-            $dashboard = new \OCA\LaunchPad\Db\Dashboard();
-            $dashboard->setName($name);
-            $this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+			$dashboard = new \OCA\LaunchPad\Db\Dashboard();
+			$dashboard->setName($name);
+			$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
 
-            $csv = $this->service->generateCsvExport(period: '7d');
+			$csv = $this->service->generateCsvExport(period: '7d');
 
-            // The cell must NOT contain the raw trigger character directly
-            // after the opening double-quote.
-            $trigger = $name[0];
-            $this->assertStringNotContainsString(
-                needle: '"'.$trigger,
-                haystack: $csv,
-                message: "Formula trigger '{$trigger}' must be prefixed with single-quote in CSV"
-            );
-            // Reset mock state.
-            $this->viewMapper = $this->createMock(\OCA\LaunchPad\Db\DashboardViewMapper::class);
-            $this->dashboardMapper = $this->createMock(\OCA\LaunchPad\Db\DashboardMapper::class);
-            $this->setUp();
-        }
-    }
+			// The cell must NOT contain the raw trigger character directly
+			// after the opening double-quote.
+			$trigger = $name[0];
+			$this->assertStringNotContainsString(
+				needle: '"' . $trigger,
+				haystack: $csv,
+				message: "Formula trigger '{$trigger}' must be prefixed with single-quote in CSV"
+			);
+			// Reset mock state.
+			$this->viewMapper = $this->createMock(\OCA\LaunchPad\Db\DashboardViewMapper::class);
+			$this->dashboardMapper = $this->createMock(\OCA\LaunchPad\Db\DashboardMapper::class);
+			$this->setUp();
+		}
+	}
 }

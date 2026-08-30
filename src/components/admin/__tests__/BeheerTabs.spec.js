@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `BeheerTabs.vue` (admin-settings spec). Covers:
  *  - tab switching renders only the active tab's slot
@@ -9,8 +9,8 @@
  *  - the default tab is used when neither query nor storage is set
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import BeheerTabs, { ACTIVE_TAB_STORAGE_KEY } from '../BeheerTabs.vue'
 
 const tabs = [
@@ -25,7 +25,9 @@ function mountTabs(props = {}, search = '') {
 	window.location = { search }
 	return mount(BeheerTabs, {
 		propsData: { tabs, defaultTab: 'templates', ...props },
-		scopedSlots: {
+		// VTU v2 merged v1's `scopedSlots` into `slots`; the v1 key is
+		// silently ignored, so every slot rendered empty.
+		slots: {
 			templates: '<div data-test="slot-templates">TEMPLATES</div>',
 			operations: '<div data-test="slot-operations">OPERATIONS</div>',
 			'roles-permissions': '<div data-test="slot-roles">ROLES</div>',
@@ -56,7 +58,9 @@ describe('BeheerTabs', () => {
 	it('persists the selected tab to localStorage', async () => {
 		const wrapper = mountTabs()
 		await wrapper.find('[data-test="tab-roles-permissions"]').trigger('click')
-		expect(localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)).toBe('roles-permissions')
+		expect(localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)).toBe(
+			'roles-permissions',
+		)
 	})
 
 	it('restores the persisted tab on next mount', () => {

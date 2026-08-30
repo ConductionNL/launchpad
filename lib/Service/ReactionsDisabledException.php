@@ -15,8 +15,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -28,6 +28,5 @@ use RuntimeException;
 /**
  * Reactions are disabled (globally or per-dashboard).
  */
-class ReactionsDisabledException extends RuntimeException
-{
+class ReactionsDisabledException extends RuntimeException {
 }//end class

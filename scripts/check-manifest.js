@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Manifest validator — wired into `npm run check:manifest` per ADR-024
  * Tier 1 adoption. Validates src/manifest.json against the basic shape
@@ -43,9 +43,13 @@ if (!manifest.version || !/^\d+\.\d+\.\d+/.test(manifest.version)) {
 if (!Array.isArray(manifest.dependencies)) {
 	errors.push('dependencies must be an array.')
 } else if (manifest.dependencies.includes('openregister')) {
-	errors.push('dependencies MUST NOT include "openregister" — LaunchPad must work standalone (ADR-024 / runtime-or-consumption spec).')
+	errors.push(
+		'dependencies MUST NOT include "openregister" — LaunchPad must work standalone (ADR-024 / runtime-or-consumption spec).',
+	)
 } else if (manifest.dependencies.includes('openconnector')) {
-	errors.push('dependencies MUST NOT include "openconnector" — LaunchPad must work standalone.')
+	errors.push(
+		'dependencies MUST NOT include "openconnector" — LaunchPad must work standalone.',
+	)
 }
 
 if (!Array.isArray(manifest.menu)) {
@@ -58,7 +62,7 @@ if (!Array.isArray(manifest.pages)) {
 
 if (errors.length > 0) {
 	console.error('[check:manifest] Manifest validation failed:')
-	errors.forEach(e => console.error('  ✗', e))
+	errors.forEach((e) => console.error('  ✗', e))
 	process.exit(1)
 } else {
 	console.log('[check:manifest] src/manifest.json is valid.')

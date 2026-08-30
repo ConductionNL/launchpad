@@ -1,13 +1,18 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="launchpad-admin__section" data-testid="admin-action-auth-section">
 		<h3>{{ t('launchpad', 'Action authorization') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Decide which Nextcloud groups may invoke each LaunchPad action (ADR-023). Admins always pass. Every action defaults to admin-only — tick a group to broaden it.') }}
+			{{
+				t(
+					'launchpad',
+					'Decide who may invoke each LaunchPad action (ADR-023). Admins always pass. Administrative actions default to admin-only; the ordinary end-user surface ships granted to "All logged-in users" so non-admins can use the app out of the box. Object-level access (whose dashboard you may edit) is enforced separately and is not affected by this table.',
+				)
+			}}
 		</p>
 
 		<div v-if="error" class="launchpad-admin__action-error" role="alert">
@@ -30,7 +35,7 @@
 							:key="group"
 							scope="col"
 							class="launchpad-admin__matrix-group">
-							{{ group }}
+							{{ groupLabel(group) }}
 						</th>
 					</tr>
 				</thead>
@@ -44,10 +49,16 @@
 							:key="`${action}-${group}`"
 							class="launchpad-admin__matrix-cell">
 							<NcCheckboxRadioSwitch
-								:checked="isChecked(action, group)"
+								:modelValue="isChecked(action, group)"
 								:disabled="group === 'admin'"
-								:aria-label="t('launchpad', 'Allow group {group} to perform {action}', { group, action })"
-								@update:checked="toggle(action, group, $event)" />
+								:aria-label="
+									t(
+										'launchpad',
+										'Allow group {group} to perform {action}',
+										{ group: groupLabel(group), action },
+									)
+								"
+								@update:modelValue="toggle(action, group, $event)" />
 						</td>
 					</tr>
 				</tbody>
@@ -56,11 +67,15 @@
 
 		<div class="launchpad-admin__matrix-actions">
 			<NcButton
-				type="primary"
+				variant="primary"
 				data-testid="admin-action-matrix-save"
 				:disabled="loading || saving"
 				@click="save">
-				{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save action matrix') }}
+				{{
+					saving
+						? t('launchpad', 'Saving…')
+						: t('launchpad', 'Save action matrix')
+				}}
 			</NcButton>
 		</div>
 	</div>
@@ -70,6 +85,13 @@
 import { NcButton, NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
+
+/**
+ * Sentinel column meaning "every authenticated user". Mirrors
+ * `ActionAuthService::GROUP_ALL_USERS` — keep the two in sync.
+ */
+const ALL_USERS = '@all'
 
 /**
  * Admin editor for the ADR-023 action-authorization matrix.
@@ -102,11 +124,20 @@ export default {
 	},
 
 	computed: {
-		// `admin` is always shown first as a disabled, always-on column.
-		/** @spec openspec/architecture/adr-023-action-authorization.md */
+		/**
+		 * Column order: the always-on `admin` column, then the synthetic
+		 * `@all` ("every logged-in user") column, then the real Nextcloud
+		 * groups. `@all` is NOT a group the server can enumerate — it is a
+		 * sentinel understood by ActionAuthService — so it must be injected
+		 * here or the shipped non-admin baseline would be invisible to the
+		 * admin editing the matrix.
+		 *
+		 * @return {Array<string>} the column keys, in display order.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
 		displayGroups() {
-			const rest = this.groups.filter(g => g !== 'admin')
-			return ['admin', ...rest]
+			const rest = this.groups.filter((g) => g !== 'admin' && g !== ALL_USERS)
+			return ['admin', ALL_USERS, ...rest]
 		},
 	},
 
@@ -126,21 +157,32 @@ export default {
 				this.groups = Array.isArray(data.groups) ? data.groups : []
 				// Clone the matrix into a plain editable map keyed by action.
 				const next = {}
-				const source = data.matrix && typeof data.matrix === 'object' ? data.matrix : {}
+				const source =
+					data.matrix && typeof data.matrix === 'object' ? data.matrix : {}
 				for (const action of this.actions) {
-					const allowed = Array.isArray(source[action]) ? source[action] : []
+					const allowed = Array.isArray(source[action])
+						? source[action]
+						: []
 					next[action] = [...allowed]
 				}
 				this.matrix = next
 			} catch (e) {
-				console.error('Failed to load action matrix', e)
+				logger.error('Failed to load action matrix', e)
 				this.error = this.t('launchpad', 'Failed to load the action matrix.')
 			} finally {
 				this.loading = false
 			}
 		},
 
-		/** @spec openspec/architecture/adr-023-action-authorization.md */
+		/**
+		 * Whether a matrix cell is ticked. The admin column always reads as
+		 * allowed regardless of the stored list.
+		 *
+		 * @param {string} action Action the row represents.
+		 * @param {string} group Group the column represents.
+		 * @return {boolean} True when the group may perform the action.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
 		isChecked(action, group) {
 			// Admins always pass regardless of the stored list.
 			if (group === 'admin') {
@@ -150,13 +192,39 @@ export default {
 			return allowed.includes(group)
 		},
 
-		/** @spec openspec/architecture/adr-023-action-authorization.md */
+		/**
+		 * Human-readable column heading. Real group IDs are shown verbatim;
+		 * the `@all` sentinel gets a label an admin can actually reason
+		 * about.
+		 *
+		 * @param {string} group Column key.
+		 * @return {string} The heading text.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
+		groupLabel(group) {
+			if (group === ALL_USERS) {
+				return this.t('launchpad', 'All logged-in users')
+			}
+			return group
+		},
+
+		/**
+		 * Grant or revoke one action for one group. The admin column is
+		 * fixed and never persisted as a toggle.
+		 *
+		 * @param {string} action Action the row represents.
+		 * @param {string} group Group the column represents.
+		 * @param {boolean} checked True to grant, false to revoke.
+		 * @spec openspec/architecture/adr-023-action-authorization.md
+		 */
 		toggle(action, group, checked) {
 			// The admin column is fixed and never persisted as a toggle.
 			if (group === 'admin') {
 				return
 			}
-			const allowed = Array.isArray(this.matrix[action]) ? [...this.matrix[action]] : []
+			const allowed = Array.isArray(this.matrix[action])
+				? [...this.matrix[action]]
+				: []
 			const index = allowed.indexOf(group)
 			if (checked === true && index === -1) {
 				allowed.push(group)
@@ -174,11 +242,16 @@ export default {
 				// stored posture stays admin-inclusive and human-readable.
 				const payload = {}
 				for (const action of this.actions) {
-					const extra = (this.matrix[action] || []).filter(g => g !== 'admin')
+					const extra = (this.matrix[action] || []).filter(
+						(g) => g !== 'admin',
+					)
 					payload[action] = ['admin', ...extra]
 				}
 				const { data } = await api.updateActionMatrix(payload)
-				const saved = data && data.matrix && typeof data.matrix === 'object' ? data.matrix : {}
+				const saved =
+					data && data.matrix && typeof data.matrix === 'object'
+						? data.matrix
+						: {}
 				const next = {}
 				for (const action of this.actions) {
 					const allowed = Array.isArray(saved[action]) ? saved[action] : []
@@ -187,7 +260,7 @@ export default {
 				this.matrix = next
 				showSuccess(this.t('launchpad', 'Action matrix saved.'))
 			} catch (e) {
-				console.error('Failed to save action matrix', e)
+				logger.error('Failed to save action matrix', e)
 				showError(this.t('launchpad', 'Failed to save the action matrix.'))
 			} finally {
 				this.saving = false

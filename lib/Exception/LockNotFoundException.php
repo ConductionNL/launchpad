@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -29,12 +29,11 @@ use Exception;
 /**
  * No active lock exists for the requested dashboard (REQ-LOCK-002).
  */
-class LockNotFoundException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'lock_not_found';
+class LockNotFoundException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'lock_not_found';
 }//end class

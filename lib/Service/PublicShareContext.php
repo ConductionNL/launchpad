@@ -43,67 +43,76 @@ use OCA\LaunchPad\Exception\ShareReadOnlyException;
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
  */
-class PublicShareContext
-{
+class PublicShareContext {
 
-    /**
-     * Whether the current request is a public-share bearer.
-     *
-     * @var boolean
-     */
-    private bool $isBearer = false;
+	/**
+	 * Whether the current request is a public-share bearer.
+	 *
+	 * @var boolean
+	 */
+	private bool $isBearer = false;
 
-    /**
-     * The bearer token (kept for audit logging only, never echoed back).
-     *
-     * @var string|null
-     */
-    private ?string $token = null;
+	/**
+	 * The bearer token (kept for audit logging only, never echoed back).
+	 *
+	 * @var string|null
+	 */
+	private ?string $token = null;
 
-    /**
-     * Mark the current request as authenticated via a public-share bearer.
-     *
-     * Called exactly once by `PublicShareController::renderShare()` after
-     * `PublicShareService::renderShareContent()` returns successfully.
-     *
-     * @param string $token The verified bearer token.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
-     */
-    public function markBearer(string $token): void
-    {
-        $this->isBearer = true;
-        $this->token    = $token;
-    }//end markBearer()
+	/**
+	 * Mark the current request as authenticated via a public-share bearer.
+	 *
+	 * Called exactly once by `PublicShareController::renderShare()` after
+	 * `PublicShareService::renderShareContent()` returns successfully.
+	 *
+	 * @param string $token The verified bearer token.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
+	 */
+	public function markBearer(string $token): void {
+		$this->isBearer = true;
+		$this->token = $token;
+	}//end markBearer()
 
-    /**
-     * The verified bearer token, or null when not in a bearer context.
-     *
-     * @return string|null
-     *
-     * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
-     */
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }//end getToken()
+	/**
+	 * Whether the current request was authenticated via a public-share
+	 * bearer token (read-only context).
+	 *
+	 * @return boolean True when `markBearer()` has been called for this request
+	 *                 (the request is a public-share bearer).
+	 *
+	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
+	 */
+	public function isBearer(): bool {
+		return $this->isBearer;
+	}//end isBearer()
 
-    /**
-     * Guard a mutation path. Throws ShareReadOnlyException when the
-     * current request is a public-share bearer.
-     *
-     * @return void
-     *
-     * @throws ShareReadOnlyException When the request is a bearer (HTTP 403).
-     *
-     * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
-     */
-    public function requireMutable(): void
-    {
-        if ($this->isBearer === true) {
-            throw new ShareReadOnlyException();
-        }
-    }//end requireMutable()
+	/**
+	 * The verified bearer token, or null when not in a bearer context.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
+	 */
+	public function getToken(): ?string {
+		return $this->token;
+	}//end getToken()
+
+	/**
+	 * Guard a mutation path. Throws ShareReadOnlyException when the
+	 * current request is a public-share bearer.
+	 *
+	 * @return void
+	 *
+	 * @throws ShareReadOnlyException When the request is a bearer (HTTP 403).
+	 *
+	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-7
+	 */
+	public function requireMutable(): void {
+		if ($this->isBearer === true) {
+			throw new ShareReadOnlyException();
+		}
+	}//end requireMutable()
 }//end class

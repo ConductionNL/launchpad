@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `DashboardSwitcherSidebar.vue` (capability
  * `dashboard-switcher`). Covers REQ-SWITCH-001..004, 006..009:
@@ -22,8 +22,8 @@
  * dashboard-icons spec; brand-link coverage lives in SidebarFooter.spec.js).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import DashboardSwitcherSidebar from '../DashboardSwitcherSidebar.vue'
 
 beforeEach(() => {
@@ -38,13 +38,14 @@ const iconRendererStub = {
 
 const ncButtonStub = {
 	name: 'NcButton',
-	props: ['type', 'wide', 'ariaLabel'],
+	props: ['variant', 'wide', 'ariaLabel'],
+	emits: ['click'],
 	template: `
 		<button
 			type="button"
 			class="nc-button-stub"
 			:data-action="$attrs['data-action']"
-			:data-button-type="type"
+			:data-button-variant="variant"
 			@click="$emit('click', $event)">
 			<slot name="icon" />
 			<slot />
@@ -54,7 +55,8 @@ const ncButtonStub = {
 
 const sidebarFooterStub = {
 	name: 'SidebarFooter',
-	template: '<footer class="sidebar-footer-stub" data-testid="sidebar-footer-stub" />',
+	template:
+		'<footer class="sidebar-footer-stub" data-testid="sidebar-footer-stub" />',
 }
 
 function mountSidebar(props = {}) {
@@ -96,7 +98,9 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(sections.at(1).attributes('data-section')).toBe('default')
 			expect(sections.at(2).attributes('data-section')).toBe('user')
 			// Two dividers (between 1↔2 and 2↔3)
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__divider').length).toBe(2)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__divider').length,
+			).toBe(2)
 		})
 
 		it('uses groupName when supplied, falls back to "Dashboards" otherwise', () => {
@@ -104,14 +108,24 @@ describe('DashboardSwitcherSidebar', () => {
 				groupName: 'Engineering',
 				groupDashboards: [groupRow],
 			})
-			expect(named.find('[data-section="group"] .dashboard-switcher-sidebar__heading').text())
-				.toBe('Engineering')
+			expect(
+				named
+					.find(
+						'[data-section="group"] .dashboard-switcher-sidebar__heading',
+					)
+					.text(),
+			).toBe('Engineering')
 
 			const unnamed = mountSidebar({
 				groupDashboards: [groupRow],
 			})
-			expect(unnamed.find('[data-section="group"] .dashboard-switcher-sidebar__heading').text())
-				.toBe('Dashboards')
+			expect(
+				unnamed
+					.find(
+						'[data-section="group"] .dashboard-switcher-sidebar__heading',
+					)
+					.text(),
+			).toBe('Dashboards')
 		})
 
 		it('renders only the personal section when group lists are empty', () => {
@@ -121,7 +135,9 @@ describe('DashboardSwitcherSidebar', () => {
 			const sections = wrapper.findAll('.dashboard-switcher-sidebar__section')
 			expect(sections.length).toBe(1)
 			expect(sections.at(0).attributes('data-section')).toBe('user')
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__divider').length).toBe(0)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__divider').length,
+			).toBe(0)
 		})
 
 		it('renders the personal section heading when allowUserDashboards even with empty list', () => {
@@ -131,12 +147,15 @@ describe('DashboardSwitcherSidebar', () => {
 			})
 			const userSection = wrapper.find('[data-section="user"]')
 			expect(userSection.exists()).toBe(true)
-			expect(userSection.find('.dashboard-switcher-sidebar__heading').text())
-				.toBe('My Dashboards')
+			expect(
+				userSection.find('.dashboard-switcher-sidebar__heading').text(),
+			).toBe('My Dashboards')
 			// REQ-SWITCH-008: the dashboards list is empty; the Add-Dashboard
 			// card lives BELOW the list (still inside the section), not inside
 			// the <ul>.
-			expect(userSection.findAll('.dashboard-switcher-sidebar__item').length).toBe(0)
+			expect(
+				userSection.findAll('.dashboard-switcher-sidebar__item').length,
+			).toBe(0)
 			expect(userSection.find('[data-action="create"]').exists()).toBe(true)
 		})
 
@@ -150,7 +169,9 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(sections.length).toBe(1)
 			expect(sections.at(0).attributes('data-section')).toBe('default')
 			// No divider — only one section
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__divider').length).toBe(0)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__divider').length,
+			).toBe(0)
 		})
 
 		it('renders one divider when group + user are present but default is empty', () => {
@@ -158,7 +179,9 @@ describe('DashboardSwitcherSidebar', () => {
 				groupDashboards: [groupRow],
 				userDashboards: [userRow],
 			})
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__divider').length).toBe(1)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__divider').length,
+			).toBe(1)
 		})
 	})
 
@@ -167,7 +190,9 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [userRow],
 			})
-			const row = wrapper.find('.dashboard-switcher-sidebar__item[data-source="user"]')
+			const row = wrapper.find(
+				'.dashboard-switcher-sidebar__item[data-source="user"]',
+			)
 			await row.trigger('click')
 
 			const updateOpen = wrapper.emitted('update:open')
@@ -178,19 +203,24 @@ describe('DashboardSwitcherSidebar', () => {
 			expect(switchEv[0]).toEqual(['p1', 'user'])
 
 			// Order: update:open recorded first.
-			const allEmits = Object.entries(wrapper.emitted())
-				.flatMap(([name, evs]) => evs.map((_args, i) => ({ name, i })))
-				// Stable order is preserved by @vue/test-utils via insertion;
-				// double-check the names appear in the expected sequence.
-			const names = allEmits.map(e => e.name)
-			expect(names.indexOf('update:open')).toBeLessThan(names.indexOf('switch'))
+			const allEmits = Object.entries(wrapper.emitted()).flatMap(
+				([name, evs]) => evs.map((_args, i) => ({ name, i })),
+			)
+			// Stable order is preserved by @vue/test-utils via insertion;
+			// double-check the names appear in the expected sequence.
+			const names = allEmits.map((e) => e.name)
+			expect(names.indexOf('update:open')).toBeLessThan(
+				names.indexOf('switch'),
+			)
 		})
 
 		it('emits source "group" for primary-group rows', async () => {
 			const wrapper = mountSidebar({
 				groupDashboards: [groupRow],
 			})
-			await wrapper.find('.dashboard-switcher-sidebar__item[data-source="group"]').trigger('click')
+			await wrapper
+				.find('.dashboard-switcher-sidebar__item[data-source="group"]')
+				.trigger('click')
 			expect(wrapper.emitted('switch')[0]).toEqual(['g1', 'group'])
 		})
 
@@ -198,7 +228,9 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				groupDashboards: [defaultRow],
 			})
-			await wrapper.find('.dashboard-switcher-sidebar__item[data-source="default"]').trigger('click')
+			await wrapper
+				.find('.dashboard-switcher-sidebar__item[data-source="default"]')
+				.trigger('click')
 			const ev = wrapper.emitted('switch')[0]
 			expect(ev).toEqual(['d1', 'default'])
 			// Defensive: never the group fallback.
@@ -209,7 +241,9 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [userRow],
 			})
-			await wrapper.find('.dashboard-switcher-sidebar__item[data-source="user"]').trigger('click')
+			await wrapper
+				.find('.dashboard-switcher-sidebar__item[data-source="user"]')
+				.trigger('click')
 			expect(wrapper.emitted('switch')[0]).toEqual(['p1', 'user'])
 		})
 	})
@@ -221,7 +255,9 @@ describe('DashboardSwitcherSidebar', () => {
 				userDashboards: [userRow],
 				activeDashboardId: 'd1',
 			})
-			const active = wrapper.findAll('.dashboard-switcher-sidebar__item.active')
+			const active = wrapper.findAll(
+				'.dashboard-switcher-sidebar__item.active',
+			)
 			expect(active.length).toBe(1)
 			expect(active.at(0).attributes('data-source')).toBe('default')
 		})
@@ -232,11 +268,19 @@ describe('DashboardSwitcherSidebar', () => {
 				userDashboards: [userRow],
 				activeDashboardId: 'g1',
 			})
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__item.active').length).toBe(1)
-			expect(wrapper.find('.dashboard-switcher-sidebar__item.active').attributes('data-source')).toBe('group')
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__item.active').length,
+			).toBe(1)
+			expect(
+				wrapper
+					.find('.dashboard-switcher-sidebar__item.active')
+					.attributes('data-source'),
+			).toBe('group')
 
 			await wrapper.setProps({ activeDashboardId: 'p1' })
-			const active = wrapper.findAll('.dashboard-switcher-sidebar__item.active')
+			const active = wrapper.findAll(
+				'.dashboard-switcher-sidebar__item.active',
+			)
 			expect(active.length).toBe(1)
 			expect(active.at(0).attributes('data-source')).toBe('user')
 		})
@@ -247,7 +291,9 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [userRow, userRow2],
 			})
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__delete').length).toBe(0)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__delete').length,
+			).toBe(0)
 		})
 
 		it('group / default rows still have NO delete button', () => {
@@ -256,7 +302,9 @@ describe('DashboardSwitcherSidebar', () => {
 				userDashboards: [],
 				allowUserDashboards: false,
 			})
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__delete').length).toBe(0)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__delete').length,
+			).toBe(0)
 		})
 	})
 
@@ -266,15 +314,23 @@ describe('DashboardSwitcherSidebar', () => {
 				userDashboards: [userRow],
 				allowUserDashboards: true,
 			})
-			const card = wrapper.find('.dashboard-switcher-sidebar__add-dashboard-card')
+			const card = wrapper.find(
+				'.dashboard-switcher-sidebar__add-dashboard-card',
+			)
 			expect(card.exists()).toBe(true)
 			// The card lives in the personal section but BELOW the <ul>
-			expect(wrapper.find('[data-section="user"] .dashboard-switcher-sidebar__add-dashboard-card').exists())
-				.toBe(true)
-			// NcButton stub carries the type="outline" the spec requires
+			expect(
+				wrapper
+					.find(
+						'[data-section="user"] .dashboard-switcher-sidebar__add-dashboard-card',
+					)
+					.exists(),
+			).toBe(true)
+			// NcButton renders the secondary (outlined) appearance — "outline"
+			// is not a valid NcButton variant, so it uses "secondary".
 			const button = card.find('[data-action="create"]')
 			expect(button.exists()).toBe(true)
-			expect(button.attributes('data-button-type')).toBe('outline')
+			expect(button.attributes('data-button-variant')).toBe('secondary')
 			// Localised label
 			expect(button.text()).toContain('Add dashboard')
 		})
@@ -285,7 +341,11 @@ describe('DashboardSwitcherSidebar', () => {
 				allowUserDashboards: false,
 			})
 			expect(wrapper.find('[data-action="create"]').exists()).toBe(false)
-			expect(wrapper.find('.dashboard-switcher-sidebar__add-dashboard-card').exists()).toBe(false)
+			expect(
+				wrapper
+					.find('.dashboard-switcher-sidebar__add-dashboard-card')
+					.exists(),
+			).toBe(false)
 		})
 
 		it('emits update:open(false) THEN create-dashboard on Add-Dashboard card click', async () => {
@@ -295,12 +355,15 @@ describe('DashboardSwitcherSidebar', () => {
 			})
 			await wrapper.find('[data-action="create"]').trigger('click')
 			expect(wrapper.emitted('update:open')[0]).toEqual([false])
-			expect(wrapper.emitted('create-dashboard')).toBeTruthy()
-			expect(wrapper.emitted('create-dashboard')[0]).toEqual([])
+			expect(wrapper.emitted('createDashboard')).toBeTruthy()
+			expect(wrapper.emitted('createDashboard')[0]).toEqual([])
 
-			const allEmits = Object.entries(wrapper.emitted())
-				.flatMap(([name, evs]) => evs.map(() => name))
-			expect(allEmits.indexOf('update:open')).toBeLessThan(allEmits.indexOf('create-dashboard'))
+			const allEmits = Object.entries(wrapper.emitted()).flatMap(
+				([name, evs]) => evs.map(() => name),
+			)
+			expect(allEmits.indexOf('update:open')).toBeLessThan(
+				allEmits.indexOf('createDashboard'),
+			)
 		})
 	})
 
@@ -319,7 +382,9 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({ userDashboards: [userRow] })
 			const aside = wrapper.find('aside')
 			const directChildren = Array.from(aside.element.children)
-			const footerEl = wrapper.find('[data-testid="sidebar-footer-stub"]').element
+			const footerEl = wrapper.find(
+				'[data-testid="sidebar-footer-stub"]',
+			).element
 			// Footer must be a direct child of the sidebar root so its
 			// `position: sticky; bottom: 0` pins to the sidebar viewport,
 			// not to the inside of the scrolling __body container.
@@ -339,13 +404,18 @@ describe('DashboardSwitcherSidebar', () => {
 				userDashboards: many,
 				allowUserDashboards: true,
 			})
-			expect(wrapper.find('[data-testid="sidebar-footer-stub"]').exists()).toBe(true)
+			expect(
+				wrapper.find('[data-testid="sidebar-footer-stub"]').exists(),
+			).toBe(true)
 		})
 	})
 
 	describe('REQ-SWITCH-006 slide-in animation', () => {
 		it('omits the .open class when isOpen: false (off-screen via translateX(-100%))', () => {
-			const wrapper = mountSidebar({ isOpen: false, userDashboards: [userRow] })
+			const wrapper = mountSidebar({
+				isOpen: false,
+				userDashboards: [userRow],
+			})
 			expect(wrapper.find('aside').classes()).not.toContain('open')
 			// Body should not be visible to screen readers either
 			expect(wrapper.find('aside').attributes('aria-hidden')).toBe('true')
@@ -374,14 +444,20 @@ describe('DashboardSwitcherSidebar', () => {
 			const wrapper = mountSidebar({
 				userDashboards: [
 					{ id: 'p1', name: 'Star', icon: 'Star' },
-					{ id: 'p2', name: 'Custom', icon: '/apps/launchpad/resource/x.png' },
+					{
+						id: 'p2',
+						name: 'Custom',
+						icon: '/apps/launchpad/resource/x.png',
+					},
 					{ id: 'p3', name: 'Empty', icon: null },
 				],
 			})
 			const stubs = wrapper.findAll('.icon-renderer-stub')
 			expect(stubs.length).toBe(3)
 			expect(stubs.at(0).attributes('data-name')).toBe('Star')
-			expect(stubs.at(1).attributes('data-name')).toBe('/apps/launchpad/resource/x.png')
+			expect(stubs.at(1).attributes('data-name')).toBe(
+				'/apps/launchpad/resource/x.png',
+			)
 			// null becomes the empty attribute
 			expect(stubs.at(2).attributes('data-name')).toBeFalsy()
 		})
@@ -403,9 +479,27 @@ describe('DashboardSwitcherSidebar', () => {
 	})
 
 	describe('default-dashboard star marker', () => {
-		const userRowWithUuid = { id: 'p1', uuid: 'pin-uuid', name: 'My Notes', icon: null, source: 'user' }
-		const userRowOtherUuid = { id: 'p2', uuid: 'other-uuid', name: 'Side Project', icon: null, source: 'user' }
-		const groupRowWithUuid = { id: 'g1', uuid: 'group-uuid', name: 'Team Board', icon: null, source: 'group' }
+		const userRowWithUuid = {
+			id: 'p1',
+			uuid: 'pin-uuid',
+			name: 'My Notes',
+			icon: null,
+			source: 'user',
+		}
+		const userRowOtherUuid = {
+			id: 'p2',
+			uuid: 'other-uuid',
+			name: 'Side Project',
+			icon: null,
+			source: 'user',
+		}
+		const groupRowWithUuid = {
+			id: 'g1',
+			uuid: 'group-uuid',
+			name: 'Team Board',
+			icon: null,
+			source: 'group',
+		}
 
 		it('renders a star marker only on the row whose uuid matches defaultUuid', () => {
 			const wrapper = mountSidebar({
@@ -413,14 +507,20 @@ describe('DashboardSwitcherSidebar', () => {
 				defaultUuid: 'pin-uuid',
 			})
 
-			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+			const markers = wrapper.findAll(
+				'.dashboard-switcher-sidebar__default-marker',
+			)
 			expect(markers.length).toBe(1)
 
 			// The star sits in the row for the pinned dashboard.
-			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
-				(li) => li.text().includes('My Notes'),
-			)
-			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
+			const pinnedRow = wrapper
+				.findAll('.dashboard-switcher-sidebar__item')
+				.find((li) => li.text().includes('My Notes'))
+			expect(
+				pinnedRow
+					.find('.dashboard-switcher-sidebar__default-marker')
+					.exists(),
+			).toBe(true)
 		})
 
 		it('star marker carries a tooltip via the title attribute', () => {
@@ -429,7 +529,9 @@ describe('DashboardSwitcherSidebar', () => {
 				defaultUuid: 'pin-uuid',
 			})
 
-			const marker = wrapper.find('.dashboard-switcher-sidebar__default-marker')
+			const marker = wrapper.find(
+				'.dashboard-switcher-sidebar__default-marker',
+			)
 			expect(marker.exists()).toBe(true)
 			expect(marker.attributes('title')).toMatch(/default dashboard/i)
 			expect(marker.attributes('aria-label')).toMatch(/default dashboard/i)
@@ -441,7 +543,10 @@ describe('DashboardSwitcherSidebar', () => {
 				defaultUuid: '',
 			})
 
-			expect(wrapper.findAll('.dashboard-switcher-sidebar__default-marker').length).toBe(0)
+			expect(
+				wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+					.length,
+			).toBe(0)
 		})
 
 		it('marks a group-section row when the user has pinned a group dashboard', () => {
@@ -452,19 +557,39 @@ describe('DashboardSwitcherSidebar', () => {
 				defaultUuid: 'group-uuid',
 			})
 
-			const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+			const markers = wrapper.findAll(
+				'.dashboard-switcher-sidebar__default-marker',
+			)
 			expect(markers.length).toBe(1)
 
-			const pinnedRow = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
-				(li) => li.text().includes('Team Board'),
-			)
-			expect(pinnedRow.find('.dashboard-switcher-sidebar__default-marker').exists()).toBe(true)
+			const pinnedRow = wrapper
+				.findAll('.dashboard-switcher-sidebar__item')
+				.find((li) => li.text().includes('Team Board'))
+			expect(
+				pinnedRow
+					.find('.dashboard-switcher-sidebar__default-marker')
+					.exists(),
+			).toBe(true)
 		})
 
 		describe('group-default fallback (no personal pin)', () => {
 			it('falls back to the default-group row carrying isDefault=1 when no pin is set', () => {
-				const groupDefault = { id: 'g3', uuid: 'group-default-uuid', name: 'Group Default', icon: null, source: 'default', isDefault: 1 }
-				const otherGroup = { id: 'g4', uuid: 'other-default-uuid', name: 'Other Default', icon: null, source: 'default', isDefault: 0 }
+				const groupDefault = {
+					id: 'g3',
+					uuid: 'group-default-uuid',
+					name: 'Group Default',
+					icon: null,
+					source: 'default',
+					isDefault: 1,
+				}
+				const otherGroup = {
+					id: 'g4',
+					uuid: 'other-default-uuid',
+					name: 'Other Default',
+					icon: null,
+					source: 'default',
+					isDefault: 0,
+				}
 
 				const wrapper = mountSidebar({
 					groupDashboards: [otherGroup, groupDefault],
@@ -472,17 +597,37 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: '',
 				})
 
-				const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
-				expect(markers.length).toBe(1)
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
-					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
+				const markers = wrapper.findAll(
+					'.dashboard-switcher-sidebar__default-marker',
 				)
+				expect(markers.length).toBe(1)
+				const starred = wrapper
+					.findAll('.dashboard-switcher-sidebar__item')
+					.find((li) =>
+						li
+							.find('.dashboard-switcher-sidebar__default-marker')
+							.exists(),
+					)
 				expect(starred.text()).toContain('Group Default')
 			})
 
 			it('prefers a primary-group isDefault=1 row over a default-group isDefault=1 row (resolver step 2 wins)', () => {
-				const primaryDefault = { id: 'g5', uuid: 'primary-default', name: 'Primary Default', icon: null, source: 'group', isDefault: 1 }
-				const fallbackDefault = { id: 'g6', uuid: 'fallback-default', name: 'Fallback Default', icon: null, source: 'default', isDefault: 1 }
+				const primaryDefault = {
+					id: 'g5',
+					uuid: 'primary-default',
+					name: 'Primary Default',
+					icon: null,
+					source: 'group',
+					isDefault: 1,
+				}
+				const fallbackDefault = {
+					id: 'g6',
+					uuid: 'fallback-default',
+					name: 'Fallback Default',
+					icon: null,
+					source: 'default',
+					isDefault: 1,
+				}
 
 				const wrapper = mountSidebar({
 					groupName: 'Engineering',
@@ -491,15 +636,33 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: '',
 				})
 
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
-					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
-				)
+				const starred = wrapper
+					.findAll('.dashboard-switcher-sidebar__item')
+					.find((li) =>
+						li
+							.find('.dashboard-switcher-sidebar__default-marker')
+							.exists(),
+					)
 				expect(starred.text()).toContain('Primary Default')
 			})
 
 			it('falls back to the first primary-group row when no isDefault=1 flag exists anywhere', () => {
-				const firstPrimary = { id: 'g7', uuid: 'first-primary', name: 'First Primary', icon: null, source: 'group', isDefault: 0 }
-				const secondPrimary = { id: 'g8', uuid: 'second-primary', name: 'Second Primary', icon: null, source: 'group', isDefault: 0 }
+				const firstPrimary = {
+					id: 'g7',
+					uuid: 'first-primary',
+					name: 'First Primary',
+					icon: null,
+					source: 'group',
+					isDefault: 0,
+				}
+				const secondPrimary = {
+					id: 'g8',
+					uuid: 'second-primary',
+					name: 'Second Primary',
+					icon: null,
+					source: 'group',
+					isDefault: 0,
+				}
 
 				const wrapper = mountSidebar({
 					groupName: 'Engineering',
@@ -508,9 +671,13 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: '',
 				})
 
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
-					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
-				)
+				const starred = wrapper
+					.findAll('.dashboard-switcher-sidebar__item')
+					.find((li) =>
+						li
+							.find('.dashboard-switcher-sidebar__default-marker')
+							.exists(),
+					)
 				expect(starred.text()).toContain('First Primary')
 			})
 
@@ -521,11 +688,21 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: '',
 				})
 
-				expect(wrapper.findAll('.dashboard-switcher-sidebar__default-marker').length).toBe(0)
+				expect(
+					wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
+						.length,
+				).toBe(0)
 			})
 
 			it('still prefers the explicit pin over any group fallback', () => {
-				const groupDefault = { id: 'g9', uuid: 'group-default-uuid', name: 'Group Default', icon: null, source: 'default', isDefault: 1 }
+				const groupDefault = {
+					id: 'g9',
+					uuid: 'group-default-uuid',
+					name: 'Group Default',
+					icon: null,
+					source: 'default',
+					isDefault: 1,
+				}
 
 				const wrapper = mountSidebar({
 					groupDashboards: [groupDefault],
@@ -533,13 +710,97 @@ describe('DashboardSwitcherSidebar', () => {
 					defaultUuid: 'pin-uuid',
 				})
 
-				const markers = wrapper.findAll('.dashboard-switcher-sidebar__default-marker')
-				expect(markers.length).toBe(1)
-				const starred = wrapper.findAll('.dashboard-switcher-sidebar__item').wrappers.find(
-					(li) => li.find('.dashboard-switcher-sidebar__default-marker').exists(),
+				const markers = wrapper.findAll(
+					'.dashboard-switcher-sidebar__default-marker',
 				)
+				expect(markers.length).toBe(1)
+				const starred = wrapper
+					.findAll('.dashboard-switcher-sidebar__item')
+					.find((li) =>
+						li
+							.find('.dashboard-switcher-sidebar__default-marker')
+							.exists(),
+					)
 				expect(starred.text()).toContain('My Notes')
 			})
+		})
+	})
+
+	/*
+	 * REQ-SHARE-002 — dashboards reached through an explicit share.
+	 *
+	 * Before the share-resolution fix these rows never reached the client
+	 * at all (the server's visibility union had no share bucket). Now that
+	 * they do, they must NOT be smuggled into the primary-group section:
+	 * a dashboard someone shared with you is neither yours nor your
+	 * group's, and labelling it under the group heading misrepresents
+	 * where it came from.
+	 */
+	describe('REQ-SHARE-002 shared-with-you section', () => {
+		const sharedRow = {
+			id: 's1',
+			name: 'Shared Board',
+			icon: null,
+			source: 'shared',
+		}
+
+		it('renders shared rows in their own section, not under the group heading', () => {
+			const wrapper = mountSidebar({
+				groupName: 'Engineering',
+				groupDashboards: [groupRow, sharedRow],
+				userDashboards: [],
+			})
+
+			const sharedSection = wrapper.find('[data-section="shared"]')
+			expect(sharedSection.exists()).toBe(true)
+			expect(sharedSection.text()).toContain('Shared Board')
+
+			const groupSection = wrapper.find('[data-section="group"]')
+			expect(groupSection.text()).toContain('Team Board')
+			expect(groupSection.text()).not.toContain('Shared Board')
+		})
+
+		it('tags shared rows with data-source="shared"', () => {
+			const wrapper = mountSidebar({
+				groupDashboards: [sharedRow],
+				userDashboards: [],
+			})
+
+			expect(wrapper.findAll('[data-source="shared"]').length).toBe(1)
+		})
+
+		it('emits switch with the shared source discriminator', async () => {
+			const wrapper = mountSidebar({
+				groupDashboards: [sharedRow],
+				userDashboards: [],
+			})
+
+			await wrapper.find('[data-source="shared"]').trigger('click')
+
+			expect(wrapper.emitted('switch')[0]).toEqual(['s1', 'shared'])
+		})
+
+		it('collapses the shared section entirely when nothing is shared', () => {
+			const wrapper = mountSidebar({
+				groupDashboards: [groupRow],
+				userDashboards: [userRow],
+			})
+
+			expect(wrapper.find('[data-section="shared"]').exists()).toBe(false)
+		})
+
+		it('renders the shared section last, after the personal section', () => {
+			const wrapper = mountSidebar({
+				groupName: 'Engineering',
+				groupDashboards: [groupRow, defaultRow, sharedRow],
+				userDashboards: [userRow],
+			})
+
+			const sections = wrapper
+				.findAll('.dashboard-switcher-sidebar__section')
+				.map((section) => section.attributes('data-section'))
+
+			expect(sections).toEqual(['group', 'default', 'user', 'shared'])
 		})
 	})
 })

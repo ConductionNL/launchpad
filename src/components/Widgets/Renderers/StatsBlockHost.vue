@@ -1,18 +1,18 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<CnStatsBlockWidget
 		:title="title"
 		:data-source="dataSource"
-		:count-label="props.countLabel"
+		:countLabel="props.countLabel"
 		:variant="props.variant"
-		:show-zero-count="props.showZeroCount"
+		:showZeroCount="props.showZeroCount"
 		:horizontal="props.horizontal"
 		:route="props.route"
-		:icon-class="props.iconClass" />
+		:iconClass="props.iconClass" />
 </template>
 
 <script>
@@ -36,7 +36,9 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** The placement record (unused; accepted for the renderer interface). */
+		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding
 		placement: {
 			type: Object,
 			default: () => ({}),

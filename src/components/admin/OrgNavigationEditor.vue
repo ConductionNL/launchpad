@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,7 +8,12 @@
 		<div class="org-nav-editor__header">
 			<h3>{{ t('launchpad', 'Organization navigation') }}</h3>
 			<p class="org-nav-editor__hint">
-				{{ t('launchpad', 'Build an organisation-wide navigation tree shown next to the dashboard surface. Drag nodes to reorder, click Edit to change properties, and use the group visibility selector to restrict sections to specific Nextcloud groups.') }}
+				{{
+					t(
+						'launchpad',
+						'Build an organisation-wide navigation tree shown next to the dashboard surface. Drag nodes to reorder, click Edit to change properties, and use the group visibility selector to restrict sections to specific Nextcloud groups.',
+					)
+				}}
 			</p>
 		</div>
 
@@ -64,31 +69,41 @@
 			</button>
 		</div>
 
-		<draggable
+		<!-- vuedraggable v4 (Vue 3) requires rows to come from the `#item`
+		     scoped slot; a v-for in the default slot throws "draggable element
+		     must have an item slot" at render. `item-key` replaces the manual
+		     :key binding. -->
+		<Draggable
 			:list="workingTree"
 			tag="ul"
+			itemKey="id"
 			class="org-nav-editor__tree"
 			handle=".org-nav-row__handle"
-			ghost-class="org-nav-row__ghost"
+			ghostClass="org-nav-row__ghost"
 			:animation="150">
-			<OrgNavigationEditorRow
-				v-for="(node, idx) in workingTree"
-				:key="node.id"
-				:node="node"
-				:level="1"
-				:index="idx"
-				:siblings="workingTree"
-				:max-depth="maxDepth"
-				:groups="groups"
-				@update="onUpdate"
-				@delete="onDelete"
-				@move-up="moveUp"
-				@move-down="moveDown"
-				@add-child="addChild" />
-		</draggable>
+			<template #item="{ element: node, index: idx }">
+				<OrgNavigationEditorRow
+					:node="node"
+					:level="1"
+					:index="idx"
+					:siblings="workingTree"
+					:maxDepth="maxDepth"
+					:groups="groups"
+					@update="onUpdate"
+					@delete="onDelete"
+					@moveUp="moveUp"
+					@moveDown="moveDown"
+					@addChild="addChild" />
+			</template>
+		</Draggable>
 
 		<p v-if="workingTree.length === 0" class="org-nav-editor__empty">
-			{{ t('launchpad', 'No navigation configured. Add a section or link to start building the tree.') }}
+			{{
+				t(
+					'launchpad',
+					'No navigation configured. Add a section or link to start building the tree.',
+				)
+			}}
 		</p>
 
 		<p v-if="successFlag" class="org-nav-editor__success" role="status">
@@ -100,9 +115,11 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
-
 import OrgNavigationEditorRow from './OrgNavigationEditorRow.vue'
-import { useOrgNavigationStore, ORG_NAV_POSITIONS } from '../../stores/orgNavigation.js'
+import {
+	ORG_NAV_POSITIONS,
+	useOrgNavigationStore,
+} from '../../stores/orgNavigation.js'
 
 /**
  * OrgNavigationEditor — admin-only editor for the org-wide navigation
@@ -127,7 +144,7 @@ export default {
 
 	components: {
 		OrgNavigationEditorRow,
-		draggable,
+		Draggable: draggable,
 	},
 
 	props: {
@@ -181,7 +198,13 @@ export default {
 			this.workingTree = this.cloneTree(this.store.visibleTree)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Deep-copy the store's tree so edits stay local until saved.
+		 *
+		 * @param {Array<object>} tree Navigation nodes from the store.
+		 * @return {Array<object>} An independent copy; `[]` for non-arrays.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		cloneTree(tree) {
 			return JSON.parse(JSON.stringify(Array.isArray(tree) ? tree : []))
 		},
@@ -190,24 +213,37 @@ export default {
 		generateUuid() {
 			// RFC 4122 v4 — uses crypto.getRandomValues when available
 			// so the UUIDs pass the backend validator's regex.
-			if (typeof globalThis !== 'undefined'
+			if (
+				typeof globalThis !== 'undefined'
 				&& globalThis.crypto
-				&& typeof globalThis.crypto.randomUUID === 'function') {
+				&& typeof globalThis.crypto.randomUUID === 'function'
+			) {
 				return globalThis.crypto.randomUUID()
 			}
 			// Fallback — Math.random based (acceptable for admin UI).
 			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-				const r = Math.random() * 16 | 0
-				const v = c === 'x' ? r : (r & 0x3 | 0x8)
+				const r = (Math.random() * 16) | 0
+				const v = c === 'x' ? r : (r & 0x3) | 0x8
 				return v.toString(16)
 			})
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Build a blank navigation node of the requested kind.
+		 *
+		 * @param {string} kind `'section'` for a heading, anything else for
+		 *   a link (which gets a default `/` url).
+		 * @return {object} The new node, with a fresh id and no children.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		makeNode(kind) {
 			return {
 				id: this.generateUuid(),
-				label: kind === 'section' ? t('launchpad', 'New section') : t('launchpad', 'New link'),
+				label:
+					kind === 'section'
+						? t('launchpad', 'New section')
+						: t('launchpad', 'New link'),
+
 				icon: null,
 				url: kind === 'section' ? null : '/',
 				openInNewTab: false,
@@ -216,12 +252,24 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Append a new node at the top level of the tree.
+		 *
+		 * @param {string} kind Node kind to create — see `makeNode`.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		addRoot(kind) {
 			this.workingTree.push(this.makeNode(kind))
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Append a new node beneath an existing one.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {object} payload.parent Node to nest the new child under.
+		 * @param {string} payload.kind Node kind to create — see `makeNode`.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		addChild({ parent, kind }) {
 			if (!parent.children) {
 				parent.children = []
@@ -229,17 +277,38 @@ export default {
 			parent.children.push(this.makeNode(kind))
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Apply a row's field edit to its node in the working tree.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {object} payload.node Node being edited.
+		 * @param {object} payload.patch Changed fields to merge in.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onUpdate({ node, patch }) {
 			Object.assign(node, patch)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Remove a node (and its subtree) from the working tree.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {Array<object>} payload.siblings Array the node lives in.
+		 * @param {number} payload.index Position of the node to remove.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onDelete({ siblings, index }) {
 			siblings.splice(index, 1)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Swap a node with the sibling above it. No-op at the top.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {Array<object>} payload.siblings Array the node lives in.
+		 * @param {number} payload.index Position of the node to move.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		moveUp({ siblings, index }) {
 			if (index <= 0) {
 				return
@@ -249,7 +318,14 @@ export default {
 			siblings.splice(index - 1, 0, item)
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Swap a node with the sibling below it. No-op at the bottom.
+		 *
+		 * @param {object} payload Emitted by the row component.
+		 * @param {Array<object>} payload.siblings Array the node lives in.
+		 * @param {number} payload.index Position of the node to move.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		moveDown({ siblings, index }) {
 			if (index >= siblings.length - 1) {
 				return
@@ -277,7 +353,10 @@ export default {
 		async save() {
 			this.saving = true
 			this.successFlag = false
-			const ok = await this.store.updateTree(this.workingTree, this.selectedLanguage)
+			const ok = await this.store.updateTree(
+				this.workingTree,
+				this.selectedLanguage,
+			)
 			this.saving = false
 			if (ok) {
 				this.successFlag = true

@@ -539,7 +539,6 @@ OCA\LaunchPad\Service\DashboardVersionService::listVersions
 OCA\LaunchPad\Service\DashboardVersionService::fetchSnapshot
 OCA\LaunchPad\Service\DashboardVersionService::createExplicitSnapshot
 OCA\LaunchPad\Service\DashboardVersionService::restoreVersion
-OCA\LaunchPad\Service\DashboardVersionService::deleteVersionsForDashboard
 OCA\LaunchPad\Service\DashboardVersionService::isGroupfolderBacked
 OCA\LaunchPad\Service\DemoShowcasesService::setDataDirForTesting
 OCA\LaunchPad\Service\DemoShowcasesService::getDataDir

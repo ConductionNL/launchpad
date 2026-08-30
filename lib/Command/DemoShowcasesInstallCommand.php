@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -37,101 +37,99 @@ use Throwable;
 /**
  * `launchpad:demo-showcases:install` console command.
  */
-class DemoShowcasesInstallCommand extends Command
-{
-    /**
-     * Constructor.
-     *
-     * @param DemoShowcasesService $showcases Showcase service.
-     */
-    public function __construct(
-        private readonly DemoShowcasesService $showcases,
-    ) {
-        parent::__construct();
-    }//end __construct()
+class DemoShowcasesInstallCommand extends Command {
+	/**
+	 * Constructor.
+	 *
+	 * @param DemoShowcasesService $showcases Showcase service.
+	 */
+	public function __construct(
+		private readonly DemoShowcasesService $showcases,
+	) {
+		parent::__construct();
+	}//end __construct()
 
-    /**
-     * Configure CLI options.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/demo-data-showcases/spec.md
-     */
-    protected function configure(): void
-    {
-        $this->setName(name: 'launchpad:demo-showcases:install')
-            ->setDescription(description: 'Install a bundled LaunchPad demo showcase dashboard.')
-            ->addArgument(
-                name: 'id',
-                mode: InputArgument::REQUIRED,
-                description: 'Showcase ID (e.g. de-bron, gemeente-duin).'
-            )
-            ->addOption(
-                name: 'lang',
-                shortcut: null,
-                mode: InputOption::VALUE_REQUIRED,
-                description: 'Locale (forward-compatible; v1 always resolves to nl).',
-                default: 'nl'
-            )
-            ->addOption(
-                name: 'force',
-                shortcut: 'f',
-                mode: InputOption::VALUE_NONE,
-                description: 'Reinstall even if the showcase is already installed.'
-            );
-    }//end configure()
+	/**
+	 * Configure CLI options.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	protected function configure(): void {
+		$this->setName(name: 'launchpad:demo-showcases:install')
+			->setDescription(description: 'Install a bundled LaunchPad demo showcase dashboard.')
+			->addArgument(
+				name: 'id',
+				mode: InputArgument::REQUIRED,
+				description: 'Showcase ID (e.g. de-bron, gemeente-duin).'
+			)
+			->addOption(
+				name: 'lang',
+				shortcut: null,
+				mode: InputOption::VALUE_REQUIRED,
+				description: 'Locale (forward-compatible; v1 always resolves to nl).',
+				default: 'nl'
+			)
+			->addOption(
+				name: 'force',
+				shortcut: 'f',
+				mode: InputOption::VALUE_NONE,
+				description: 'Reinstall even if the showcase is already installed.'
+			);
+	}//end configure()
 
-    /**
-     * Execute the command.
-     *
-     * @param InputInterface  $input  CLI input.
-     * @param OutputInterface $output CLI output.
-     *
-     * @return int Exit code.
-     *
-     * @spec openspec/specs/demo-data-showcases/spec.md
-     */
-    protected function execute(
-        InputInterface $input,
-        OutputInterface $output
-    ): int {
-        $id    = (string) $input->getArgument(name: 'id');
-        $lang  = (string) ($input->getOption(name: 'lang') ?? 'nl');
-        $force = (bool) $input->getOption(name: 'force');
+	/**
+	 * Execute the command.
+	 *
+	 * @param InputInterface $input CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return int Exit code.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	protected function execute(
+		InputInterface $input,
+		OutputInterface $output,
+	): int {
+		$id = (string)$input->getArgument(name: 'id');
+		$lang = (string)($input->getOption(name: 'lang') ?? 'nl');
+		$force = (bool)$input->getOption(name: 'force');
 
-        try {
-            $result = $this->showcases->installShowcase(
-                showcaseId: $id,
-                lang: $lang,
-                force: $force
-            );
-        } catch (ShowcaseNotFoundException) {
-            $output->writeln(messages: '<error>Showcase not found: '.$id.'</error>');
-            return self::FAILURE;
-        } catch (Throwable $e) {
-            $output->writeln(messages: '<error>Installation failed: '.$e->getMessage().'</error>');
-            return self::FAILURE;
-        }
+		try {
+			$result = $this->showcases->installShowcase(
+				showcaseId: $id,
+				lang: $lang,
+				force: $force
+			);
+		} catch (ShowcaseNotFoundException) {
+			$output->writeln(messages: '<error>Showcase not found: ' . $id . '</error>');
+			return self::FAILURE;
+		} catch (Throwable $e) {
+			$output->writeln(messages: '<error>Installation failed: ' . $e->getMessage() . '</error>');
+			return self::FAILURE;
+		}
 
-        if ($result['alreadyInstalled'] === true) {
-            $output->writeln(
-                messages: 'Showcase '.$id.' is already installed (UUID: '.$result['installedDashboardUuid'].').'
-            );
-            $output->writeln(messages: 'Use --force to reinstall.');
-            return self::SUCCESS;
-        }
+		if ($result['alreadyInstalled'] === true) {
+			$output->writeln(
+				messages: 'Showcase ' . $id . ' is already installed (UUID: ' . $result['installedDashboardUuid'] . ').'
+			);
+			$output->writeln(messages: 'Use --force to reinstall.');
+			return self::SUCCESS;
+		}
 
-        $output->writeln(
-            messages: 'Installed dashboard '.$result['installedDashboardUuid']
-        );
+		$output->writeln(
+			messages: 'Installed dashboard ' . $result['installedDashboardUuid']
+		);
 
-        $skipped = $result['skippedWidgets'];
-        if ($skipped !== []) {
-            $output->writeln(
-                messages: '<comment>Skipped unknown widgets: '.implode(separator: ', ', array: $skipped).'</comment>'
-            );
-        }
+		$skipped = $result['skippedWidgets'];
+		if ($skipped !== []) {
+			$output->writeln(
+				messages: '<comment>Skipped unknown widgets: ' . implode(separator: ', ', array: $skipped) . '</comment>'
+			);
+		}
 
-        return self::SUCCESS;
-    }//end execute()
+		return self::SUCCESS;
+	}//end execute()
 }//end class

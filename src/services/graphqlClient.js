@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Shared runtime GraphQL client (REQ-SAW-004).
  *
@@ -45,7 +45,6 @@ export const DEFAULT_TIMEOUT_MS = 5000
  * returned `errors[]`, `network_error` → transport failure.
  */
 export class GraphQLSourceError extends Error {
-
 	/**
 	 * @param {string} code   Stable error enum.
 	 * @param {string} app    The sibling app id the call targeted.
@@ -58,7 +57,6 @@ export class GraphQLSourceError extends Error {
 		this.code = code
 		this.app = app
 	}
-
 }
 
 /**
@@ -74,7 +72,7 @@ function resolveGraphqlUrl(app) {
 /**
  * Issue a read-only GraphQL operation against a sibling app's
  * OR-mounted endpoint. Resolves to the `data` payload, or throws a
- * {@see GraphQLSourceError} the renderer can map to an empty-state.
+ * {@link GraphQLSourceError} the renderer can map to an empty-state.
  *
  * @param {object}  params              call parameters
  * @param {string}  params.app          sibling app id (e.g. `financeq`)
@@ -84,9 +82,18 @@ function resolveGraphqlUrl(app) {
  * @return {Promise<object>} the GraphQL `data` object
  * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
-export async function queryGraphql({ app, query, variables = {}, timeoutMs = DEFAULT_TIMEOUT_MS }) {
+export async function queryGraphql({
+	app,
+	query,
+	variables = {},
+	timeoutMs = DEFAULT_TIMEOUT_MS,
+}) {
 	if (typeof app !== 'string' || app.trim() === '') {
-		throw new GraphQLSourceError('invalid_app', String(app), 'A sibling app id is required')
+		throw new GraphQLSourceError(
+			'invalid_app',
+			String(app),
+			'A sibling app id is required',
+		)
 	}
 
 	const url = resolveGraphqlUrl(app)
@@ -103,13 +110,25 @@ export async function queryGraphql({ app, query, variables = {}, timeoutMs = DEF
 		// app is not installed. Map it to the empty-state contract code.
 		const status = err?.response?.status
 		if (status === 404) {
-			throw new GraphQLSourceError('not_installed', app, `${app} is not installed`)
+			throw new GraphQLSourceError(
+				'not_installed',
+				app,
+				`${app} is not installed`,
+			)
 		}
 		// axios surfaces request timeouts as ECONNABORTED.
 		if (err?.code === 'ECONNABORTED') {
-			throw new GraphQLSourceError('timeout', app, `${app} did not respond in time`)
+			throw new GraphQLSourceError(
+				'timeout',
+				app,
+				`${app} did not respond in time`,
+			)
 		}
-		throw new GraphQLSourceError('network_error', app, err?.message || 'Network error')
+		throw new GraphQLSourceError(
+			'network_error',
+			app,
+			err?.message || 'Network error',
+		)
 	}
 
 	const body = response?.data

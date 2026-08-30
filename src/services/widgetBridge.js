@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * @spec openspec/changes/archive/2026-04-24-retrofit-legacy-widget-bridge/tasks.md#task-1
  * @spec openspec/changes/archive/2026-04-24-retrofit-legacy-widget-bridge/tasks.md#task-2
@@ -11,12 +11,13 @@
  * @spec openspec/changes/nc-dashboard-widget-proxy/specs/legacy-widget-bridge/spec.md#req-lwb-006
  */
 
+import { logger } from '../utils/logger.js'
+
 /**
  * Bridge for legacy Nextcloud widgets that use the callback registration pattern
  * (window.OCA.Dashboard.register)
  */
 class WidgetBridge {
-
 	/** @spec openspec/specs/legacy-widget-bridge/spec.md */
 	constructor() {
 		this.widgetCallbacks = new Map()
@@ -55,11 +56,15 @@ class WidgetBridge {
 
 		// Override register method
 		dash.register = (appId, callback) => {
-			console.debug('LaunchPad: Widget registered via callback:', appId)
+			logger.debug('LaunchPad: Widget registered via callback:', appId)
 			this.widgetCallbacks.set(appId, callback)
 			// Surface the callback + a metadata stub where CnNcWidgetWidget looks.
 			dash.callbacks[appId] = callback
-			dash.widgets[appId] = { ...(dash.widgets[appId] || {}), id: appId, callback }
+			dash.widgets[appId] = {
+				...(dash.widgets[appId] || {}),
+				id: appId,
+				callback,
+			}
 
 			// Also call original if it exists (for compatibility)
 			if (originalRegister) {
@@ -69,7 +74,7 @@ class WidgetBridge {
 
 		// Override registerStatus method
 		dash.registerStatus = (appId, callback) => {
-			console.debug('LaunchPad: Status widget registered:', appId)
+			logger.debug('LaunchPad: Status widget registered:', appId)
 			this.statusCallbacks.set(appId, callback)
 
 			// Also call original if it exists
@@ -122,8 +127,11 @@ class WidgetBridge {
 	 * @spec openspec/changes/archive/2026-04-24-retrofit-legacy-widget-bridge/tasks.md#task-2
 	 */
 	mountWidget(widgetId, container, widgetData = {}) {
-		console.log('[WidgetBridge] mountWidget called for:', widgetId)
-		console.log('[WidgetBridge] Available callbacks:', Array.from(this.widgetCallbacks.keys()))
+		logger.debug('[WidgetBridge] mountWidget called for:', widgetId)
+		logger.debug(
+			'[WidgetBridge] Available callbacks:',
+			Array.from(this.widgetCallbacks.keys()),
+		)
 
 		const callback = this.widgetCallbacks.get(widgetId)
 
@@ -131,19 +139,26 @@ class WidgetBridge {
 			try {
 				// Clear container first
 				container.innerHTML = ''
-				console.log('[WidgetBridge] Calling widget callback for:', widgetId)
+				logger.debug('[WidgetBridge] Calling widget callback for:', widgetId)
 
 				// Call the widget's callback with the container and widget data
 				// Some widgets expect a second parameter with widget metadata
 				callback(container, { widget: widgetData })
-				console.log('[WidgetBridge] Mounted legacy widget:', widgetId)
-				console.log('[WidgetBridge] Container after mount:', container.innerHTML.substring(0, 200))
+				logger.debug('[WidgetBridge] Mounted legacy widget:', widgetId)
+				logger.debug(
+					'[WidgetBridge] Container after mount:',
+					container.innerHTML.substring(0, 200),
+				)
 			} catch (error) {
-				console.error('[WidgetBridge] Error mounting legacy widget:', widgetId, error)
+				logger.error(
+					'[WidgetBridge] Error mounting legacy widget:',
+					widgetId,
+					error,
+				)
 			}
 		} else {
-			console.warn('[WidgetBridge] No callback found for widget:', widgetId)
-			console.log('[WidgetBridge] Callback type:', typeof callback)
+			logger.warn('[WidgetBridge] No callback found for widget:', widgetId)
+			logger.debug('[WidgetBridge] Callback type:', typeof callback)
 		}
 	}
 
@@ -162,9 +177,13 @@ class WidgetBridge {
 			try {
 				container.innerHTML = ''
 				callback(container)
-				console.debug('LaunchPad: Mounted status widget:', widgetId)
+				logger.debug('LaunchPad: Mounted status widget:', widgetId)
 			} catch (error) {
-				console.error('LaunchPad: Error mounting status widget:', widgetId, error)
+				logger.error(
+					'LaunchPad: Error mounting status widget:',
+					widgetId,
+					error,
+				)
 			}
 		}
 	}
@@ -273,7 +292,6 @@ class WidgetBridge {
 			}, intervalMs)
 		})
 	}
-
 }
 
 // Export singleton instance

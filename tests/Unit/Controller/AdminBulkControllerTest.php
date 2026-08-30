@@ -15,7 +15,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -35,210 +35,196 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class AdminBulkControllerTest extends TestCase
-{
+class AdminBulkControllerTest extends TestCase {
 
-    /**
-     * @var IRequest&MockObject
-     */
-    private $request;
+	/**
+	 * @var IRequest&MockObject
+	 */
+	private $request;
 
-    /**
-     * @var BulkOperationService&MockObject
-     */
-    private $bulkService;
+	/**
+	 * @var BulkOperationService&MockObject
+	 */
+	private $bulkService;
 
-    /**
-     * @var IUserSession&MockObject
-     */
-    private $userSession;
+	/**
+	 * @var IUserSession&MockObject
+	 */
+	private $userSession;
 
-    /**
-     * @var IGroupManager&MockObject
-     */
-    private $groupManager;
+	/**
+	 * @var IGroupManager&MockObject
+	 */
+	private $groupManager;
 
-    private AdminBulkController $controller;
+	private AdminBulkController $controller;
 
-    protected function setUp(): void
-    {
-        $this->request      = $this->createMock(IRequest::class);
-        $this->bulkService  = $this->createMock(BulkOperationService::class);
-        $this->userSession  = $this->createMock(IUserSession::class);
-        $this->groupManager = $this->createMock(IGroupManager::class);
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->bulkService = $this->createMock(BulkOperationService::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
 
-        $this->controller = new AdminBulkController(
-            request: $this->request,
-            bulkService: $this->bulkService,
-            userSession: $this->userSession,
-            groupManager: $this->groupManager,
-        );
-    }//end setUp()
+		$this->controller = new AdminBulkController(
+			request: $this->request,
+			bulkService: $this->bulkService,
+			userSession: $this->userSession,
+			groupManager: $this->groupManager,
+		);
+	}//end setUp()
 
-    private function loginAsAdmin(): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn('alice');
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
-    }//end loginAsAdmin()
+	private function loginAsAdmin(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
+	}//end loginAsAdmin()
 
-    private function loginAsNonAdmin(): void
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn('bob');
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->groupManager->method('isAdmin')->with('bob')->willReturn(false);
-    }//end loginAsNonAdmin()
+	private function loginAsNonAdmin(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('bob');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->with('bob')->willReturn(false);
+	}//end loginAsNonAdmin()
 
-    public function testBulkDeleteNonAdminForbidden(): void
-    {
-        $this->loginAsNonAdmin();
+	public function testBulkDeleteNonAdminForbidden(): void {
+		$this->loginAsNonAdmin();
 
-        $response = $this->controller->bulkDelete(dashboardUuids: ['uuid-1']);
+		$response = $this->controller->bulkDelete(dashboardUuids: ['uuid-1']);
 
-        self::assertInstanceOf(JSONResponse::class, $response);
-        self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }//end testBulkDeleteNonAdminForbidden()
+		self::assertInstanceOf(JSONResponse::class, $response);
+		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}//end testBulkDeleteNonAdminForbidden()
 
-    public function testBulkDeleteRejectsNonArrayBody(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkDeleteRejectsNonArrayBody(): void {
+		$this->loginAsAdmin();
 
-        $response = $this->controller->bulkDelete(dashboardUuids: 'not-an-array');
+		$response = $this->controller->bulkDelete(dashboardUuids: 'not-an-array');
 
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-    }//end testBulkDeleteRejectsNonArrayBody()
+		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}//end testBulkDeleteRejectsNonArrayBody()
 
-    public function testBulkDeleteValidRequestReturns200(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkDeleteValidRequestReturns200(): void {
+		$this->loginAsAdmin();
 
-        $this->bulkService->method('bulkDelete')->willReturn(
-                [
-                    'deletedCount' => 2,
-                    'skippedCount' => 0,
-                    'errors'       => [],
-                    'dryRun'       => false,
-                ]
-                );
+		$this->bulkService->method('bulkDelete')->willReturn(
+			[
+				'deletedCount' => 2,
+				'skippedCount' => 0,
+				'errors' => [],
+				'dryRun' => false,
+			]
+		);
 
-        $response = $this->controller->bulkDelete(
-            dashboardUuids: ['uuid-1', 'uuid-2']
-        );
+		$response = $this->controller->bulkDelete(
+			dashboardUuids: ['uuid-1', 'uuid-2']
+		);
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-        $payload = $response->getData();
-        self::assertSame(2, $payload['deletedCount']);
-    }//end testBulkDeleteValidRequestReturns200()
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		$payload = $response->getData();
+		self::assertSame(2, $payload['deletedCount']);
+	}//end testBulkDeleteValidRequestReturns200()
 
-    public function testBulkDeletePermissionDeniedMappedTo403(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkDeletePermissionDeniedMappedTo403(): void {
+		$this->loginAsAdmin();
 
-        $this->bulkService->method('bulkDelete')->willThrowException(
-            new PermissionDeniedException(
-                message: 'denied',
-                deniedUuids: ['uuid-3']
-            )
-        );
+		$this->bulkService->method('bulkDelete')->willThrowException(
+			new PermissionDeniedException(
+				message: 'denied',
+				deniedUuids: ['uuid-3']
+			)
+		);
 
-        $response = $this->controller->bulkDelete(dashboardUuids: ['uuid-3']);
+		$response = $this->controller->bulkDelete(dashboardUuids: ['uuid-3']);
 
-        self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-        self::assertSame(['uuid-3'], $response->getData()['deniedUuids']);
-    }//end testBulkDeletePermissionDeniedMappedTo403()
+		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		self::assertSame(['uuid-3'], $response->getData()['deniedUuids']);
+	}//end testBulkDeletePermissionDeniedMappedTo403()
 
-    public function testBulkDeleteSizeCapMappedTo400(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkDeleteSizeCapMappedTo400(): void {
+		$this->loginAsAdmin();
 
-        $this->bulkService->method('bulkDelete')->willThrowException(
-            new InvalidArgumentException(message: 'maximum is 500')
-        );
+		$this->bulkService->method('bulkDelete')->willThrowException(
+			new InvalidArgumentException(message: 'maximum is 500')
+		);
 
-        $response = $this->controller->bulkDelete(dashboardUuids: ['x']);
+		$response = $this->controller->bulkDelete(dashboardUuids: ['x']);
 
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-    }//end testBulkDeleteSizeCapMappedTo400()
+		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}//end testBulkDeleteSizeCapMappedTo400()
 
-    public function testBulkMoveValidRequest(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkMoveValidRequest(): void {
+		$this->loginAsAdmin();
 
-        $this->bulkService->method('bulkMove')->willReturn(
-                [
-                    'movedCount'   => 1,
-                    'skippedCount' => 0,
-                    'errors'       => [],
-                    'dryRun'       => false,
-                ]
-                );
+		$this->bulkService->method('bulkMove')->willReturn(
+			[
+				'movedCount' => 1,
+				'skippedCount' => 0,
+				'errors' => [],
+				'dryRun' => false,
+			]
+		);
 
-        $response = $this->controller->bulkMove(
-            dashboardUuids: ['child'],
-            parentUuid: 'parent'
-        );
+		$response = $this->controller->bulkMove(
+			dashboardUuids: ['child'],
+			parentUuid: 'parent'
+		);
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-    }//end testBulkMoveValidRequest()
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+	}//end testBulkMoveValidRequest()
 
-    public function testBulkStatusRequiresPublicationStatus(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkStatusRequiresPublicationStatus(): void {
+		$this->loginAsAdmin();
 
-        $response = $this->controller->bulkStatus(
-            dashboardUuids: ['d1'],
-            publicationStatus: null
-        );
+		$response = $this->controller->bulkStatus(
+			dashboardUuids: ['d1'],
+			publicationStatus: null
+		);
 
-        self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-    }//end testBulkStatusRequiresPublicationStatus()
+		self::assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}//end testBulkStatusRequiresPublicationStatus()
 
-    public function testBulkStatusValidRequest(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkStatusValidRequest(): void {
+		$this->loginAsAdmin();
 
-        $this->bulkService->method('bulkStatus')->willReturn(
-                [
-                    'updatedCount' => 1,
-                    'skippedCount' => 0,
-                    'errors'       => [],
-                    'dryRun'       => false,
-                ]
-                );
+		$this->bulkService->method('bulkStatus')->willReturn(
+			[
+				'updatedCount' => 1,
+				'skippedCount' => 0,
+				'errors' => [],
+				'dryRun' => false,
+			]
+		);
 
-        $response = $this->controller->bulkStatus(
-            dashboardUuids: ['d1'],
-            publicationStatus: 'published'
-        );
+		$response = $this->controller->bulkStatus(
+			dashboardUuids: ['d1'],
+			publicationStatus: 'published'
+		);
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-    }//end testBulkStatusValidRequest()
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+	}//end testBulkStatusValidRequest()
 
-    public function testBulkReindexValidRequest(): void
-    {
-        $this->loginAsAdmin();
+	public function testBulkReindexValidRequest(): void {
+		$this->loginAsAdmin();
 
-        $this->bulkService->method('bulkReindex')->willReturn(
-                [
-                    'reindexedCount' => 1,
-                    'errors'         => [],
-                    'dryRun'         => false,
-                ]
-                );
+		$this->bulkService->method('bulkReindex')->willReturn(
+			[
+				'reindexedCount' => 1,
+				'errors' => [],
+				'dryRun' => false,
+			]
+		);
 
-        $response = $this->controller->bulkReindex(dashboardUuids: ['d1']);
+		$response = $this->controller->bulkReindex(dashboardUuids: ['d1']);
 
-        self::assertSame(Http::STATUS_OK, $response->getStatus());
-    }//end testBulkReindexValidRequest()
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+	}//end testBulkReindexValidRequest()
 
-    public function testBulkReindexNonAdminForbidden(): void
-    {
-        $this->loginAsNonAdmin();
+	public function testBulkReindexNonAdminForbidden(): void {
+		$this->loginAsNonAdmin();
 
-        $response = $this->controller->bulkReindex(dashboardUuids: ['d1']);
+		$response = $this->controller->bulkReindex(dashboardUuids: ['d1']);
 
-        self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-    }//end testBulkReindexNonAdminForbidden()
+		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}//end testBulkReindexNonAdminForbidden()
 }//end class

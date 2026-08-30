@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for the orgNavigation Pinia store
  * (REQ-ONAV-002, REQ-ONAV-004, REQ-ONAV-008).
@@ -10,8 +10,8 @@
  * the resulting state mutation.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nextcloud/axios', () => ({
 	default: {
@@ -100,7 +100,10 @@ describe('useOrgNavigationStore', () => {
 		const ok = await store.updateTree([{ id: 'b', label: 'B' }], 'en')
 
 		expect(ok).toBe(true)
-		expect(mockApi.updateOrgNavigation).toHaveBeenCalledWith([{ id: 'b', label: 'B' }], 'en')
+		expect(mockApi.updateOrgNavigation).toHaveBeenCalledWith(
+			[{ id: 'b', label: 'B' }],
+			'en',
+		)
 		expect(store.tree).toEqual([{ id: 'b', label: 'B' }])
 		expect(store.language).toBe('en')
 	})
@@ -120,7 +123,9 @@ describe('useOrgNavigationStore', () => {
 
 	it('REQ-ONAV-004: fetchPosition stores the value when valid', async () => {
 		const { useOrgNavigationStore } = await import('../orgNavigation.js')
-		mockApi.getOrgNavigationPosition.mockResolvedValue({ data: { position: 'left' } })
+		mockApi.getOrgNavigationPosition.mockResolvedValue({
+			data: { position: 'left' },
+		})
 
 		const store = useOrgNavigationStore()
 		await store.fetchPosition()
@@ -141,7 +146,9 @@ describe('useOrgNavigationStore', () => {
 
 	it('REQ-ONAV-004: updatePosition persists accepted values', async () => {
 		const { useOrgNavigationStore } = await import('../orgNavigation.js')
-		mockApi.updateOrgNavigationPosition.mockResolvedValue({ data: { position: 'top' } })
+		mockApi.updateOrgNavigationPosition.mockResolvedValue({
+			data: { position: 'top' },
+		})
 
 		const store = useOrgNavigationStore()
 		const ok = await store.updatePosition('top')

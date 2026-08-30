@@ -19,20 +19,20 @@ Remove one widget from a dashboard.
 
 ## Steps
 
-### 1. Right-click the widget
+### 1. Open the widget's menu
 
-In edit mode, right-click anywhere on the widget. The context menu opens at the cursor.
+In edit mode, click the placement's **Widget menu** (⋯/cog) button in its top-right corner.
 
-![Right-click context menu](/screenshots/tutorials/user/05-context-menu.png)
+![Widget menu](/screenshots/tutorials/user/05-context-menu.png)
 
-### 2. Click **Remove**
+### 2. Click **Delete widget**
 
 The menu auto-closes and the placement disappears from the grid. The DELETE call fires immediately; there is no undo.
 
 ![After remove](/screenshots/tutorials/user/06-after-remove.png)
 
 :::caution
-The remove is destructive. If you're unsure, [edit the style](05-edit-content.md) and toggle **Show title** off — it hides the placement without deleting it.
+The delete is destructive. If you're unsure, [edit the appearance](05-edit-content.md) and toggle **Show title** off — it de-emphasises the placement without deleting it.
 :::
 
 ## Verification
@@ -44,8 +44,8 @@ The remove is destructive. If you're unsure, [edit the style](05-edit-content.md
 
 | Symptom | Fix |
 |---|---|
-| **Remove** is greyed out | The widget is `isCompulsory=1` on this dashboard (admin-pinned). Ask your admin to lift it. |
-| Removing throws "permission denied" | Your permission level on the dashboard is `view_only`. |
+| **Delete widget** is greyed out | The widget is `isCompulsory=1` on this dashboard (admin-pinned). Ask your admin to lift it. |
+| Deleting throws "permission denied" | Your permission level on the dashboard is `view_only`. |
 
 ## Reference
 

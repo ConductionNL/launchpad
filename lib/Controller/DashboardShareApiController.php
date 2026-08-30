@@ -15,8 +15,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -44,308 +44,310 @@ use OCP\IUserManager;
  *
  * @spec openspec/specs/dashboard-sharing/spec.md
  */
-class DashboardShareApiController extends Controller
-{
-    /**
-     * Constructor
-     *
-     * @param IRequest              $request      The request.
-     * @param DashboardShareService $shareService The share service.
-     * @param IUserManager          $userManager  Nextcloud user manager (sharee lookup).
-     * @param IGroupManager         $groupManager Nextcloud group manager (sharee lookup).
-     * @param string|null           $userId       The calling user ID.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly DashboardShareService $shareService,
-        private readonly IUserManager $userManager,
-        private readonly IGroupManager $groupManager,
-        private readonly ?string $userId,
-    ) {
-        parent::__construct(
-            appName: Application::APP_ID,
-            request: $request
-        );
-    }//end __construct()
+class DashboardShareApiController extends Controller {
+	/**
+	 * Constructor
+	 *
+	 * @param IRequest $request The request.
+	 * @param DashboardShareService $shareService The share service.
+	 * @param IUserManager $userManager Nextcloud user manager (sharee lookup).
+	 * @param IGroupManager $groupManager Nextcloud group manager (sharee lookup).
+	 * @param string|null $userId The calling user ID.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly DashboardShareService $shareService,
+		private readonly IUserManager $userManager,
+		private readonly IGroupManager $groupManager,
+		private readonly ?string $userId,
+	) {
+		parent::__construct(
+			appName: Application::APP_ID,
+			request: $request
+		);
+	}//end __construct()
 
-    /**
-     * List all shares for a dashboard.
-     *
-     * @param int $id The dashboard ID.
-     *
-     * @return DataResponse The list of shares.
-         *
-     * @spec openspec/specs/dashboard-sharing/spec.md
- */
-    #[NoAdminRequired]
-    public function index(int $id): DataResponse
-    {
-        if ($this->userId === null) {
-            return new DataResponse(
-                data: ['error' => 'Not logged in'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * List all shares for a dashboard.
+	 *
+	 * @param int $id The dashboard ID.
+	 *
+	 * @return DataResponse The list of shares.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	#[NoAdminRequired]
+	public function index(int $id): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(
+				data: ['error' => 'Not logged in'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        try {
-            $shares     = $this->shareService->listShares(
-                dashboardId: $id,
-                userId: $this->userId
-            );
-            $serialized = array_map(
-                callback: static fn($share) => $share->jsonSerialize(),
-                array: $shares
-            );
-            return new DataResponse(data: $serialized);
-        } catch (DoesNotExistException) {
-            return new DataResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (Exception $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }//end try
-    }//end index()
+		try {
+			$shares = $this->shareService->listShares(
+				dashboardId: $id,
+				userId: $this->userId
+			);
+			$serialized = array_map(
+				callback: static fn ($share) => $share->jsonSerialize(),
+				array: $shares
+			);
+			return new DataResponse(data: $serialized);
+		} catch (DoesNotExistException) {
+			return new DataResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (Exception $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}//end try
+	}//end index()
 
-    /**
-     * Add or upsert a single share. REQ-SHARE-001.
-     *
-     * @param int         $id              The dashboard ID.
-     * @param string|null $shareType       The share type.
-     * @param string|null $shareWith       The recipient.
-     * @param string|null $permissionLevel The permission level.
-     *
-     * @return DataResponse The created/updated share.
-         *
-     * @spec openspec/specs/dashboard-sharing/spec.md
- */
-    #[NoAdminRequired]
-    public function create(
-        int $id,
-        ?string $shareType=null,
-        ?string $shareWith=null,
-        ?string $permissionLevel=null
-    ): DataResponse {
-        if ($this->userId === null) {
-            return new DataResponse(
-                data: ['error' => 'Not logged in'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Add or upsert a single share. REQ-SHARE-001.
+	 *
+	 * @param int $id The dashboard ID.
+	 * @param string|null $shareType The share type.
+	 * @param string|null $shareWith The recipient.
+	 * @param string|null $permissionLevel The permission level.
+	 *
+	 * @return DataResponse The created/updated share.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	#[NoAdminRequired]
+	public function create(
+		int $id,
+		?string $shareType = null,
+		?string $shareWith = null,
+		?string $permissionLevel = null,
+	): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(
+				data: ['error' => 'Not logged in'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        try {
-            $share = $this->shareService->addShare(
-                dashboardId: $id,
-                shareType: (string) $shareType,
-                shareWith: (string) $shareWith,
-                permissionLevel: (string) $permissionLevel,
-                callerId: $this->userId
-            );
-            return new DataResponse(
-                data: $share->jsonSerialize(),
-                statusCode: Http::STATUS_CREATED
-            );
-        } catch (InvalidArgumentException $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        } catch (DoesNotExistException) {
-            return new DataResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (Exception $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }//end try
-    }//end create()
+		try {
+			$share = $this->shareService->addShare(
+				dashboardId: $id,
+				shareType: (string)$shareType,
+				shareWith: (string)$shareWith,
+				permissionLevel: (string)$permissionLevel,
+				callerId: $this->userId
+			);
+			return new DataResponse(
+				data: $share->jsonSerialize(),
+				statusCode: Http::STATUS_CREATED
+			);
+		} catch (InvalidArgumentException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (DoesNotExistException) {
+			return new DataResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (Exception $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}//end try
+	}//end create()
 
-    /**
-     * Remove a share by ID. REQ-SHARE-001.
-     *
-     * @param int $shareId The share ID.
-     *
-     * @return DataResponse Empty 204 on success.
-         *
-     * @spec openspec/specs/dashboard-sharing/spec.md
- */
-    #[NoAdminRequired]
-    public function destroy(int $shareId): DataResponse
-    {
-        if ($this->userId === null) {
-            return new DataResponse(
-                data: ['error' => 'Not logged in'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Remove a share by ID. REQ-SHARE-001.
+	 *
+	 * @param int $shareId The share ID.
+	 *
+	 * @return DataResponse Empty 204 on success.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	#[NoAdminRequired]
+	public function destroy(int $shareId): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(
+				data: ['error' => 'Not logged in'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        try {
-            $this->shareService->removeShare(
-                shareId: $shareId,
-                callerId: $this->userId
-            );
-            return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-        } catch (DoesNotExistException) {
-            return new DataResponse(
-                data: ['error' => 'Share not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (Exception $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }//end try
-    }//end destroy()
+		try {
+			$this->shareService->removeShare(
+				shareId: $shareId,
+				callerId: $this->userId
+			);
+			return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
+		} catch (DoesNotExistException) {
+			return new DataResponse(
+				data: ['error' => 'Share not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (Exception $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}//end try
+	}//end destroy()
 
-    /**
-     * Atomically replace all shares for a dashboard. REQ-SHARE-009.
-     *
-     * @param int        $id     The dashboard ID.
-     * @param array|null $shares The new share list.
-     *
-     * @return DataResponse The new full share list.
-         *
-     * @spec openspec/specs/dashboard-sharing/spec.md
- */
-    #[NoAdminRequired]
-    public function replace(int $id, ?array $shares=null): DataResponse
-    {
-        if ($this->userId === null) {
-            return new DataResponse(
-                data: ['error' => 'Not logged in'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Atomically replace all shares for a dashboard. REQ-SHARE-009.
+	 *
+	 * @param int $id The dashboard ID.
+	 * @param array|null $shares The new share list.
+	 *
+	 * @return DataResponse The new full share list.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	#[NoAdminRequired]
+	public function replace(int $id, ?array $shares = null): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(
+				data: ['error' => 'Not logged in'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        if ($shares === null) {
-            $shares = [];
-        }
+		if ($shares === null) {
+			$shares = [];
+		}
 
-        try {
-            $newShares  = $this->shareService->replaceShares(
-                dashboardId: $id,
-                shares: $shares,
-                userId: $this->userId
-            );
-            $serialized = array_map(
-                callback: static fn($share) => $share->jsonSerialize(),
-                array: $newShares
-            );
-            return new DataResponse(data: $serialized);
-        } catch (InvalidArgumentException $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        } catch (DoesNotExistException) {
-            return new DataResponse(
-                data: ['error' => 'Dashboard not found'],
-                statusCode: Http::STATUS_NOT_FOUND
-            );
-        } catch (Exception $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_FORBIDDEN
-            );
-        }//end try
-    }//end replace()
+		try {
+			$newShares = $this->shareService->replaceShares(
+				dashboardId: $id,
+				shares: $shares,
+				userId: $this->userId
+			);
+			$serialized = array_map(
+				callback: static fn ($share) => $share->jsonSerialize(),
+				array: $newShares
+			);
+			return new DataResponse(data: $serialized);
+		} catch (InvalidArgumentException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (DoesNotExistException) {
+			return new DataResponse(
+				data: ['error' => 'Dashboard not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (Exception $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		}//end try
+	}//end replace()
 
-    /**
-     * Revoke all shares the caller has granted to a specific recipient.
-     * REQ-SHARE-010.
-     *
-     * @param string $shareType The share type.
-     * @param string $shareWith The recipient user/group ID.
-     *
-     * @return DataResponse The count of deleted rows.
-         *
-     * @spec openspec/specs/dashboard-sharing/spec.md
- */
-    #[NoAdminRequired]
-    public function revokeForRecipient(
-        string $shareType,
-        string $shareWith
-    ): DataResponse {
-        if ($this->userId === null) {
-            return new DataResponse(
-                data: ['error' => 'Not logged in'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Revoke all shares the caller has granted to a specific recipient.
+	 * REQ-SHARE-010.
+	 *
+	 * @param string $shareType The share type.
+	 * @param string $shareWith The recipient user/group ID.
+	 *
+	 * @return DataResponse The count of deleted rows.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 */
+	#[NoAdminRequired]
+	public function revokeForRecipient(
+		string $shareType,
+		string $shareWith,
+	): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(
+				data: ['error' => 'Not logged in'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        try {
-            $count = $this->shareService->revokeAllForRecipient(
-                shareType: $shareType,
-                shareWith: $shareWith,
-                callerId: $this->userId
-            );
-            return new DataResponse(data: ['deleted' => $count]);
-        } catch (InvalidArgumentException $e) {
-            return new DataResponse(
-                data: ['error' => $e->getMessage()],
-                statusCode: Http::STATUS_BAD_REQUEST
-            );
-        }
-    }//end revokeForRecipient()
+		try {
+			$count = $this->shareService->revokeAllForRecipient(
+				shareType: $shareType,
+				shareWith: $shareWith,
+				callerId: $this->userId
+			);
+			return new DataResponse(data: ['deleted' => $count]);
+		} catch (InvalidArgumentException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		}
+	}//end revokeForRecipient()
 
-    /**
-     * Search users and groups for the share autocomplete picker.
-     * REQ-SHARE-006.
-     *
-     * @param string $query The search query.
-     *
-     * @return DataResponse The matching users and groups.
-         *
-     * @spec openspec/specs/dashboard-sharing/spec.md
- */
-    #[NoAdminRequired]
-    public function searchSharees(string $query=''): DataResponse
-    {
-        if ($this->userId === null) {
-            return new DataResponse(
-                data: ['error' => 'Not logged in'],
-                statusCode: Http::STATUS_UNAUTHORIZED
-            );
-        }
+	/**
+	 * Search users and groups for the share autocomplete picker.
+	 * REQ-SHARE-006.
+	 *
+	 * @param string $query The search query.
+	 *
+	 * @return DataResponse The matching users and groups.
+	 *
+	 * @spec openspec/specs/dashboard-sharing/spec.md
+	 *
+	 * @no-admin-idor-exempt no object is addressed. The only parameter is a
+	 * search string; the method reads no dashboard and no share, and returns
+	 * the same directory any authenticated user already sees through the core
+	 * share picker. It null-checks `$this->userId`, excludes the caller from
+	 * its own results, blocks single-character sweeps as a directory
+	 * enumeration guard, and bounds both searches to 10 rows.
+	 */
+	#[NoAdminRequired]
+	public function searchSharees(string $query = ''): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(
+				data: ['error' => 'Not logged in'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
 
-        $trimmed = trim(string: $query);
-        // M3: single-character a..z sweeps stay blocked (directory
-        // enumeration guard, consistent with NC share picker) — but an
-        // EMPTY query returns a bounded suggestion list so the picker is
-        // never blank on focus (parity with the core share dialog).
-        if (strlen(string: $trimmed) === 1) {
-            return new DataResponse(data: ['users' => [], 'groups' => []]);
-        }
+		$trimmed = trim(string: $query);
+		// M3: single-character a..z sweeps stay blocked (directory
+		// enumeration guard, consistent with NC share picker) — but an
+		// EMPTY query returns a bounded suggestion list so the picker is
+		// never blank on focus (parity with the core share dialog).
+		if (strlen(string: $trimmed) === 1) {
+			return new DataResponse(data: ['users' => [], 'groups' => []]);
+		}
 
-        $users = [];
-        foreach ($this->userManager->search(pattern: $trimmed, limit: 10) as $user) {
-            if ($user->getUID() === $this->userId) {
-                continue;
-            }
+		$users = [];
+		foreach ($this->userManager->search(pattern: $trimmed, limit: 10) as $user) {
+			if ($user->getUID() === $this->userId) {
+				continue;
+			}
 
-            $users[] = [
-                'id'          => $user->getUID(),
-                'displayName' => $user->getDisplayName(),
-            ];
-        }
+			$users[] = [
+				'id' => $user->getUID(),
+				'displayName' => $user->getDisplayName(),
+			];
+		}
 
-        $groups = [];
-        foreach ($this->groupManager->search(search: $trimmed, limit: 10) as $group) {
-            $groups[] = [
-                'id'          => $group->getGID(),
-                'displayName' => $group->getDisplayName(),
-            ];
-        }
+		$groups = [];
+		foreach ($this->groupManager->search(search: $trimmed, limit: 10) as $group) {
+			$groups[] = [
+				'id' => $group->getGID(),
+				'displayName' => $group->getDisplayName(),
+			];
+		}
 
-        return new DataResponse(
-            data: ['users' => $users, 'groups' => $groups]
-        );
-    }//end searchSharees()
+		return new DataResponse(
+			data: ['users' => $users, 'groups' => $groups]
+		);
+	}//end searchSharees()
 }//end class

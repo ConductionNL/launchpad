@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `loadInitialState`. Covers REQ-INIT-002, REQ-INIT-003,
  * REQ-INIT-004, REQ-INIT-005:
@@ -13,15 +13,15 @@
  * test controls exactly which keys "the server pushed".
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import Vue from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 let pushedState = {}
 
 vi.mock('@nextcloud/initial-state', () => ({
 	loadState: (_app, key, fallback) => {
-		if (Object.prototype.hasOwnProperty.call(pushedState, key)) {
+		if (Object.hasOwn(pushedState, key)) {
 			return pushedState[key]
 		}
 		return fallback
@@ -222,7 +222,7 @@ describe('loadInitialState', () => {
 		const sibling = wrapper.findComponent(Sibling).vm
 
 		mutator.bump()
-		await Vue.nextTick()
+		await nextTick()
 
 		expect(mutator.localLayout).toHaveLength(2)
 		expect(sibling.layout).toHaveLength(1)
@@ -241,7 +241,14 @@ describe('loadInitialState', () => {
 		expect(state.allowUserDashboards).toBe(false)
 		// REQ-LBN-004: createFile extension allow-list defaults to the
 		// curated list when the admin has not customised it.
-		expect(state.linkCreateFileExtensions).toEqual(['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'])
+		expect(state.linkCreateFileExtensions).toEqual([
+			'txt',
+			'md',
+			'docx',
+			'xlsx',
+			'csv',
+			'odt',
+		])
 		for (const value of Object.values(state)) {
 			expect(value).not.toBeUndefined()
 		}
@@ -250,5 +257,24 @@ describe('loadInitialState', () => {
 	it('exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (2)', async () => {
 		const mod = await import('../loadInitialState.js')
 		expect(mod.INITIAL_STATE_SCHEMA_VERSION).toBe(2)
+	})
+
+	describe('quicksearchFallbackTarget (tile-quick-search REQ-QSEARCH-004)', () => {
+		it('defaults to "none" when the server omits the key (older deploy)', async () => {
+			pushedState = { _schemaVersion: 2 }
+			const { loadInitialState } = await import('../loadInitialState.js')
+			const state = loadInitialState('workspace')
+			expect(state.quicksearchFallbackTarget).toBe('none')
+		})
+
+		it('returns the server-pushed value when present', async () => {
+			pushedState = {
+				_schemaVersion: 2,
+				quicksearchFallbackTarget: 'unified-search',
+			}
+			const { loadInitialState } = await import('../loadInitialState.js')
+			const state = loadInitialState('workspace')
+			expect(state.quicksearchFallbackTarget).toBe('unified-search')
+		})
 	})
 })

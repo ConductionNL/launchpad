@@ -26,6 +26,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -39,268 +40,262 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class PublicShareServiceTest extends TestCase
-{
+class PublicShareServiceTest extends TestCase {
 
-    /** @var PublicShareMapper&MockObject */
-    private $shareMapper;
+	/** @var PublicShareMapper&MockObject */
+	private $shareMapper;
 
-    /** @var DashboardMapper&MockObject */
-    private $dashMapper;
+	/** @var DashboardMapper&MockObject */
+	private $dashMapper;
 
-    /** @var IGroupManager&MockObject */
-    private $groupManager;
+	/** @var IGroupManager&MockObject */
+	private $groupManager;
 
-    /** @var IHasher&MockObject */
-    private $hasher;
+	/** @var IHasher&MockObject */
+	private $hasher;
 
-    /** @var ISecureRandom&MockObject */
-    private $secureRandom;
+	/** @var ISecureRandom&MockObject */
+	private $secureRandom;
 
-    /** @var IThrottler&MockObject */
-    private $throttler;
+	/** @var IThrottler&MockObject */
+	private $throttler;
 
-    /** @var LoggerInterface&MockObject */
-    private $logger;
+	/** @var LoggerInterface&MockObject */
+	private $logger;
 
-    private PublicShareService $service;
+	/** @var WidgetPlacementMapper&MockObject */
+	private $placementMapper;
 
-    protected function setUp(): void
-    {
-        $this->shareMapper  = $this->createMock(PublicShareMapper::class);
-        $this->dashMapper   = $this->createMock(DashboardMapper::class);
-        $this->groupManager = $this->createMock(IGroupManager::class);
-        $this->hasher       = $this->createMock(IHasher::class);
-        $this->secureRandom = $this->createMock(ISecureRandom::class);
-        $this->throttler    = $this->createMock(IThrottler::class);
-        $this->logger       = $this->createMock(LoggerInterface::class);
+	private PublicShareService $service;
 
-        $this->service = new PublicShareService(
-            shareMapper: $this->shareMapper,
-            dashMapper: $this->dashMapper,
-            groupManager: $this->groupManager,
-            hasher: $this->hasher,
-            secureRandom: $this->secureRandom,
-            throttler: $this->throttler,
-            logger: $this->logger,
-        );
-    }
+	protected function setUp(): void {
+		$this->shareMapper = $this->createMock(PublicShareMapper::class);
+		$this->dashMapper = $this->createMock(DashboardMapper::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
+		$this->hasher = $this->createMock(IHasher::class);
+		$this->secureRandom = $this->createMock(ISecureRandom::class);
+		$this->throttler = $this->createMock(IThrottler::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
 
-    // -------------------------------------------------------------------------
-    // createPublicShare
-    // -------------------------------------------------------------------------
+		$this->service = new PublicShareService(
+			shareMapper: $this->shareMapper,
+			dashMapper: $this->dashMapper,
+			groupManager: $this->groupManager,
+			hasher: $this->hasher,
+			secureRandom: $this->secureRandom,
+			throttler: $this->throttler,
+			logger: $this->logger,
+			placementMapper: $this->placementMapper,
+		);
+	}
 
-    public function testCreateShareOwnerCanCreate(): void
-    {
-        $dashboard = new Dashboard();
-        $dashboard->setUserId('alice');
+	// -------------------------------------------------------------------------
+	// createPublicShare
+	// -------------------------------------------------------------------------
 
-        $this->dashMapper->method('findByUuid')->willReturn($dashboard);
-        $this->groupManager->method('isAdmin')->willReturn(false);
-        $this->secureRandom->method('generate')->willReturn(str_repeat('a', 64));
+	public function testCreateShareOwnerCanCreate(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
 
-        $saved = new PublicShare();
-        $saved->setToken(str_repeat('a', 64));
-        $this->shareMapper->method('insert')->willReturn($saved);
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('a', 64));
 
-        $result = $this->service->createPublicShare(
-            dashboardUuid: 'some-uuid',
-            callerId: 'alice'
-        );
+		$saved = new PublicShare();
+		$saved->setToken(str_repeat('a', 64));
+		$this->shareMapper->method('insert')->willReturn($saved);
 
-        $this->assertInstanceOf(PublicShare::class, $result);
-    }
+		$result = $this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'alice'
+		);
 
-    public function testCreateShareNonOwnerThrowsForbidden(): void
-    {
-        $dashboard = new Dashboard();
-        $dashboard->setUserId('alice');
+		$this->assertInstanceOf(PublicShare::class, $result);
+	}
 
-        $this->dashMapper->method('findByUuid')->willReturn($dashboard);
-        $this->groupManager->method('isAdmin')->willReturn(false);
+	public function testCreateShareNonOwnerThrowsForbidden(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
 
-        $this->expectException(OCSForbiddenException::class);
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
 
-        $this->service->createPublicShare(
-            dashboardUuid: 'some-uuid',
-            callerId: 'bob'
-        );
-    }
+		$this->expectException(OCSForbiddenException::class);
 
-    public function testCreateShareAdminCanCreate(): void
-    {
-        $dashboard = new Dashboard();
-        $dashboard->setUserId('alice');
+		$this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'bob'
+		);
+	}
 
-        $this->dashMapper->method('findByUuid')->willReturn($dashboard);
-        $this->groupManager->method('isAdmin')->willReturn(true);
-        $this->secureRandom->method('generate')->willReturn(str_repeat('x', 64));
+	public function testCreateShareAdminCanCreate(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
 
-        $saved = new PublicShare();
-        $saved->setToken(str_repeat('x', 64));
-        $this->shareMapper->method('insert')->willReturn($saved);
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(true);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('x', 64));
 
-        $result = $this->service->createPublicShare(
-            dashboardUuid: 'some-uuid',
-            callerId: 'admin'
-        );
+		$saved = new PublicShare();
+		$saved->setToken(str_repeat('x', 64));
+		$this->shareMapper->method('insert')->willReturn($saved);
 
-        $this->assertInstanceOf(PublicShare::class, $result);
-    }
+		$result = $this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'admin'
+		);
 
-    public function testCreateShareHashesPassword(): void
-    {
-        $dashboard = new Dashboard();
-        $dashboard->setUserId('alice');
+		$this->assertInstanceOf(PublicShare::class, $result);
+	}
 
-        $this->dashMapper->method('findByUuid')->willReturn($dashboard);
-        $this->groupManager->method('isAdmin')->willReturn(false);
-        $this->secureRandom->method('generate')->willReturn(str_repeat('t', 64));
+	public function testCreateShareHashesPassword(): void {
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
 
-        $this->hasher
-            ->expects($this->once())
-            ->method('hash')
-            ->with('SecurePass123!')
-            ->willReturn('$2y$hashed');
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->secureRandom->method('generate')->willReturn(str_repeat('t', 64));
 
-        $saved = new PublicShare();
-        $saved->setPasswordHash('$2y$hashed');
-        $this->shareMapper->method('insert')->willReturn($saved);
+		$this->hasher
+			->expects($this->once())
+			->method('hash')
+			->with('SecurePass123!')
+			->willReturn('$2y$hashed');
 
-        $this->service->createPublicShare(
-            dashboardUuid: 'some-uuid',
-            callerId: 'alice',
-            password: 'SecurePass123!'
-        );
-    }
+		$saved = new PublicShare();
+		$saved->setPasswordHash('$2y$hashed');
+		$this->shareMapper->method('insert')->willReturn($saved);
 
-    // -------------------------------------------------------------------------
-    // renderShareContent
-    // -------------------------------------------------------------------------
+		$this->service->createPublicShare(
+			dashboardUuid: 'some-uuid',
+			callerId: 'alice',
+			password: 'SecurePass123!'
+		);
+	}
 
-    public function testRenderInvalidTokenThrowsNotFound(): void
-    {
-        $this->shareMapper
-            ->method('findByToken')
-            ->willThrowException(new DoesNotExistException('not found'));
+	// -------------------------------------------------------------------------
+	// renderShareContent
+	// -------------------------------------------------------------------------
 
-        $this->expectException(ShareNotFoundException::class);
+	public function testRenderInvalidTokenThrowsNotFound(): void {
+		$this->shareMapper
+			->method('findByToken')
+			->willThrowException(new DoesNotExistException('not found'));
 
-        $this->service->renderShareContent(token: 'invalid', ip: '127.0.0.1');
-    }
+		$this->expectException(ShareNotFoundException::class);
 
-    public function testRenderRevokedShareThrowsNotFound(): void
-    {
-        $share = new PublicShare();
-        $share->setToken('tok');
-        $share->setRevokedAt('2026-01-01 00:00:00');
+		$this->service->renderShareContent(token: 'invalid', ipAddress: '127.0.0.1');
+	}
 
-        $this->shareMapper->method('findByToken')->willReturn($share);
+	public function testRenderRevokedShareThrowsNotFound(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt('2026-01-01 00:00:00');
 
-        $this->expectException(ShareNotFoundException::class);
+		$this->shareMapper->method('findByToken')->willReturn($share);
 
-        $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
-    }
+		$this->expectException(ShareNotFoundException::class);
 
-    public function testRenderExpiredShareThrowsNotFound(): void
-    {
-        $share = new PublicShare();
-        $share->setToken('tok');
-        $share->setRevokedAt(null);
-        // Past date.
-        $share->setExpiresAt('2020-01-01 00:00:00');
+		$this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
+	}
 
-        $this->shareMapper->method('findByToken')->willReturn($share);
+	public function testRenderExpiredShareThrowsNotFound(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		// Past date.
+		$share->setExpiresAt('2020-01-01 00:00:00');
 
-        $this->expectException(ShareNotFoundException::class);
+		$this->shareMapper->method('findByToken')->willReturn($share);
 
-        $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
-    }
+		$this->expectException(ShareNotFoundException::class);
 
-    public function testRenderPasswordProtectedWithoutPasswordThrowsRequired(): void
-    {
-        $share = new PublicShare();
-        $share->setToken('tok');
-        $share->setRevokedAt(null);
-        $share->setExpiresAt(null);
-        $share->setPasswordHash('$2y$hash');
-        $share->setDashboardUuid('some-uuid');
+		$this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
+	}
 
-        $this->shareMapper->method('findByToken')->willReturn($share);
+	public function testRenderPasswordProtectedWithoutPasswordThrowsRequired(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash('$2y$hash');
+		$share->setDashboardUuid('some-uuid');
 
-        $this->expectException(SharePasswordRequiredException::class);
+		$this->shareMapper->method('findByToken')->willReturn($share);
 
-        $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
-    }
+		$this->expectException(SharePasswordRequiredException::class);
 
-    public function testRenderValidTokenWithoutPasswordSucceeds(): void
-    {
-        $share = new PublicShare();
-        $share->setToken('tok');
-        $share->setRevokedAt(null);
-        $share->setExpiresAt(null);
-        $share->setPasswordHash(null);
-        $share->setDashboardUuid('some-uuid');
+		$this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
+	}
 
-        $this->shareMapper->method('findByToken')->willReturn($share);
-        $this->shareMapper->method('incrementViewCount');
+	public function testRenderValidTokenWithoutPasswordSucceeds(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash(null);
+		$share->setDashboardUuid('some-uuid');
 
-        $dashboard = new Dashboard();
-        $dashboard->setUserId('alice');
-        $this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->shareMapper->method('incrementViewCount');
 
-        $result = $this->service->renderShareContent(token: 'tok', ip: '127.0.0.1');
+		$dashboard = new Dashboard();
+		$dashboard->setUserId('alice');
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
 
-        $this->assertArrayHasKey('share', $result);
-        $this->assertArrayHasKey('dashboard', $result);
-    }
+		$result = $this->service->renderShareContent(token: 'tok', ipAddress: '127.0.0.1');
 
-    // -------------------------------------------------------------------------
-    // unlockShare
-    // -------------------------------------------------------------------------
+		$this->assertArrayHasKey('share', $result);
+		$this->assertArrayHasKey('dashboard', $result);
+		$this->assertArrayHasKey('placements', $result);
+	}
 
-    public function testUnlockCorrectPasswordReturnsTrue(): void
-    {
-        $share = new PublicShare();
-        $share->setToken('tok');
-        $share->setRevokedAt(null);
-        $share->setExpiresAt(null);
-        $share->setPasswordHash('$2y$hash');
+	// -------------------------------------------------------------------------
+	// unlockShare
+	// -------------------------------------------------------------------------
 
-        $this->shareMapper->method('findByToken')->willReturn($share);
-        $this->hasher->method('verify')->willReturn(true);
+	public function testUnlockCorrectPasswordReturnsTrue(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash('$2y$hash');
 
-        $result = $this->service->unlockShare(
-            token: 'tok',
-            password: 'SecurePass123!',
-            ip: '127.0.0.1'
-        );
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->hasher->method('verify')->willReturn(true);
 
-        $this->assertTrue($result);
-    }
+		$result = $this->service->unlockShare(
+			token: 'tok',
+			password: 'SecurePass123!',
+			ipAddress: '127.0.0.1'
+		);
 
-    public function testUnlockWrongPasswordReturnsFalseAndRegistersAttempt(): void
-    {
-        $share = new PublicShare();
-        $share->setToken('tok');
-        $share->setRevokedAt(null);
-        $share->setExpiresAt(null);
-        $share->setPasswordHash('$2y$hash');
+		$this->assertTrue($result);
+	}
 
-        $this->shareMapper->method('findByToken')->willReturn($share);
-        $this->hasher->method('verify')->willReturn(false);
+	public function testUnlockWrongPasswordReturnsFalseAndRegistersAttempt(): void {
+		$share = new PublicShare();
+		$share->setToken('tok');
+		$share->setRevokedAt(null);
+		$share->setExpiresAt(null);
+		$share->setPasswordHash('$2y$hash');
 
-        $this->throttler
-            ->expects($this->once())
-            ->method('registerAttempt')
-            ->with(PublicShareService::ACTION_SHARE_PASSWORD, '127.0.0.1');
+		$this->shareMapper->method('findByToken')->willReturn($share);
+		$this->hasher->method('verify')->willReturn(false);
 
-        $result = $this->service->unlockShare(
-            token: 'tok',
-            password: 'WrongPassword',
-            ip: '127.0.0.1'
-        );
+		$this->throttler
+			->expects($this->once())
+			->method('registerAttempt')
+			->with(PublicShareService::ACTION_SHARE_PASSWORD, '127.0.0.1');
 
-        $this->assertFalse($result);
-    }
+		$result = $this->service->unlockShare(
+			token: 'tok',
+			password: 'WrongPassword',
+			ipAddress: '127.0.0.1'
+		);
+
+		$this->assertFalse($result);
+	}
 }//end class

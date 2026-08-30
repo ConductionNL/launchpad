@@ -24,8 +24,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -41,34 +41,33 @@ use OCP\Migration\SimpleMigrationStep;
  * Add publication-state columns + supporting index to launchpad_dashboards
  * (REQ-DASH-031..037).
  */
-class Version001011Date20260502130000 extends SimpleMigrationStep
-{
-    /**
-     * Add the publication_status / publish_at / published_at columns +
-     * the (user_id, publication_status) composite index.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001011Date20260502130000 extends SimpleMigrationStep {
+	/**
+	 * Add the publication_status / publish_at / published_at columns +
+	 * the (user_id, publication_status) composite index.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return $schema;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return $schema;
+		}
 
-        $table = $schema->getTable('launchpad_dashboards');
+		$table = $schema->getTable('launchpad_dashboards');
 
-        DashboardTableBuilder::addPublicationColumns(table: $table);
+		DashboardTableBuilder::addPublicationColumns(table: $table);
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

@@ -77,7 +77,7 @@
 		"stylelint": "^15.11.0",
 		"terser-webpack-plugin": "^5.3.11",
 		"typescript": "^5.4.0",
-		"vitest": "^3.2.7",
+		"vitest": "^4.1.11",
 		"vue-eslint-parser": "^10.3.0"
 	},
 	"browserslist": [

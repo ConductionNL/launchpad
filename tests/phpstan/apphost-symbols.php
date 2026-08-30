@@ -16,16 +16,13 @@
 
 namespace OCA\OpenRegister\AppHost\Observability;
 
-class ManifestLoader
-{
+class ManifestLoader {
 }
 
-class HealthCheckExecutor
-{
+class HealthCheckExecutor {
 }
 
-class MetricsEngine
-{
+class MetricsEngine {
 }
 
 namespace OCA\OpenRegister\AppHost\Controller;
@@ -38,36 +35,32 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TextPlainResponse;
 use OCP\IRequest;
 
-class GenericHealthController extends Controller
-{
-    public function __construct(
-        string $appName,
-        IRequest $request,
-        ManifestLoader $manifestLoader,
-        HealthCheckExecutor $executor
-    ) {
-        parent::__construct($appName, $request);
-    }
+class GenericHealthController extends Controller {
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		ManifestLoader $manifestLoader,
+		HealthCheckExecutor $executor,
+	) {
+		parent::__construct($appName, $request);
+	}
 
-    public function index(): JSONResponse
-    {
-        return new JSONResponse();
-    }
+	public function index(): JSONResponse {
+		return new JSONResponse();
+	}
 }
 
-class GenericMetricsController extends Controller
-{
-    public function __construct(
-        string $appName,
-        IRequest $request,
-        ManifestLoader $manifestLoader,
-        MetricsEngine $engine
-    ) {
-        parent::__construct($appName, $request);
-    }
+class GenericMetricsController extends Controller {
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		ManifestLoader $manifestLoader,
+		MetricsEngine $engine,
+	) {
+		parent::__construct($appName, $request);
+	}
 
-    public function index(): TextPlainResponse
-    {
-        return new TextPlainResponse('');
-    }
+	public function index(): TextPlainResponse {
+		return new TextPlainResponse('');
+	}
 }

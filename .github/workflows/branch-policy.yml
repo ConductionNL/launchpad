@@ -8,7 +8,7 @@ jobs:
   check-source-branch:
     name: Branch Policy Check
     runs-on: ubuntu-latest
-    # Observed fleet-wide: n=31 runs, max 0.1 min. Loose bound to catch a hang, not to enforce speed.
+    # Observed over 31 runs: max 0.1 min.
     timeout-minutes: 10
     steps:
       - name: Verify source branch

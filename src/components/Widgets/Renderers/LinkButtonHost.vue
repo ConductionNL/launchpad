@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -13,16 +13,28 @@
 		<CnLinkButtonWidget
 			:content="content"
 			:placement="placement"
-			@internal-action="onInternalAction"
-			@create-file="onCreateFile" />
+			@internalAction="onInternalAction"
+			@createFile="onCreateFile" />
 
+		<!--
+			`tabindex="-1"` + `@keydown.esc` is what makes this dialog
+			dismissable without a mouse. Escape is the expected way out of any
+			`aria-modal` dialog; before this, closing it required clicking
+			either the backdrop or the Cancel button. The listener sits on the
+			backdrop rather than on `document` because the dialog focuses
+			itself on open (see `focusModal`), so every keystroke while it is
+			up is already inside this subtree — and scoping it here means it
+			cannot swallow Escape from anything else on the page.
+		-->
 		<div
 			v-if="modalOpen"
 			class="link-button-host__modal-backdrop"
 			role="dialog"
 			aria-modal="true"
+			tabindex="-1"
 			:aria-labelledby="modalTitleId"
-			@click.self="closeModal">
+			@click.self="closeModal"
+			@keydown.esc="closeModal">
 			<div class="link-button-host__modal">
 				<h3 :id="modalTitleId" class="link-button-host__modal-title">
 					{{ t('launchpad', 'Create Document') }}
@@ -35,7 +47,7 @@
 						type="text"
 						class="link-button-host__modal-input"
 						:placeholder="t('launchpad', 'Enter filename')"
-						@keyup.enter="onCreateConfirm">
+						@keyup.enter="onCreateConfirm" />
 				</label>
 				<p class="link-button-host__modal-extension">
 					.{{ pendingExtension }}
@@ -53,7 +65,11 @@
 						class="link-button-host__modal-create"
 						:disabled="!canCreate || isExecuting"
 						@click="onCreateConfirm">
-						{{ isExecuting ? t('launchpad', 'Creating…') : t('launchpad', 'Create') }}
+						{{
+							isExecuting
+								? t('launchpad', 'Creating…')
+								: t('launchpad', 'Create')
+						}}
 					</button>
 				</div>
 			</div>
@@ -62,8 +78,8 @@
 </template>
 
 <script>
-import { translate as t } from '@nextcloud/l10n'
 import { CnLinkButtonWidget } from '@conduction/nextcloud-vue'
+import { translate as t } from '@nextcloud/l10n'
 import { useInternalActions } from '../../../composables/useInternalActions.js'
 
 // `@nextcloud/axios` / `@nextcloud/router` / `@nextcloud/dialogs` are loaded
@@ -90,6 +106,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		/** The placement (carries `id`). */
 		placement: {
 			type: Object,
@@ -134,9 +151,13 @@ export default {
 		 *
 		 * @param {string} token the extension token (e.g. `docx`).
 		 * @return {void}
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-003-createfile-flow
 		 */
 		onCreateFile(token) {
-			this.pendingExtension = String(token || '').trim().replace(/^\./, '').toLowerCase()
+			this.pendingExtension = String(token || '')
+				.trim()
+				.replace(/^\./, '')
+				.toLowerCase()
 			this.filenameDraft = ''
 			this.modalOpen = true
 			this.$nextTick(() => {
@@ -158,6 +179,7 @@ export default {
 		 * Create the document via launchpad's endpoint and open it.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-004-server-side-file-creation-endpoint
 		 */
 		async onCreateConfirm() {
 			if (!this.canCreate || this.isExecuting) {
@@ -169,24 +191,29 @@ export default {
 
 			this.isExecuting = true
 			try {
-				const [{ default: axios }, { generateUrl }, { showError }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-					import('@nextcloud/dialogs'),
-				])
+				const [{ default: axios }, { generateUrl }, { showError }] =
+					await Promise.all([
+						import('@nextcloud/axios'),
+						import('@nextcloud/router'),
+						import('@nextcloud/dialogs'),
+					])
 				try {
 					const response = await axios.post(
 						generateUrl('/apps/launchpad/api/files/create'),
 						{ filename, dir: '/', content: '' },
 					)
 					const data = response?.data
-					if (data && data.status === 'success' && typeof data.url === 'string') {
+					if (
+						data
+						&& data.status === 'success'
+						&& typeof data.url === 'string'
+					) {
 						window.open(data.url, '_blank')
 						this.modalOpen = false
 					} else {
 						showError(t('launchpad', 'Failed to create document'))
 					}
-				} catch (err) {
+				} catch {
 					showError(t('launchpad', 'Failed to create document'))
 				}
 			} finally {

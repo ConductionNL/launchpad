@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -27,12 +27,12 @@
 </template>
 
 <script>
-import HealthPanel from '../HealthPanel.vue'
-import PrometheusMetricsPanel from '../PrometheusMetricsPanel.vue'
-import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
-import DashboardExportImport from '../DashboardExportImport.vue'
-import DashboardBulkOperations from '../DashboardBulkOperations.vue'
 import ConfluenceImport from '../ConfluenceImport.vue'
+import DashboardBulkOperations from '../DashboardBulkOperations.vue'
+import DashboardExportImport from '../DashboardExportImport.vue'
+import HealthPanel from '../HealthPanel.vue'
+import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
+import PrometheusMetricsPanel from '../PrometheusMetricsPanel.vue'
 
 /**
  * OperationsTab — Beheer ▸ Operations tab. Aggregates instance health

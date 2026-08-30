@@ -16,8 +16,8 @@
  */
 
 import { test, expect, type APIRequestContext } from '@playwright/test'
+import { BASE_URL as BASE } from './support/baseUrl'
 
-const BASE = (process.env.NC_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '')
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
@@ -25,7 +25,9 @@ const ADMIN = {
 
 const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
 
-async function adminApi(playwright: { request: { newContext: typeof import('@playwright/test').request.newContext } }): Promise<APIRequestContext> {
+async function adminApi(playwright: {
+	request: { newContext: typeof import('@playwright/test').request.newContext }
+}): Promise<APIRequestContext> {
 	return playwright.request.newContext({
 		baseURL: BASE,
 		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
@@ -38,10 +40,14 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 		// Authenticate the browser context as admin so the settings page
 		// is reachable. Re-uses NC's basic-auth response shape from
 		// neighbouring specs.
-		await page.context().setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
+		await page
+			.context()
+			.setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 	})
 
-	test('@e2e admin-group-management::tab-renders-one-row-per-group renders the tab with the default sentinel', async ({ page }) => {
+	test('@e2e admin-group-management::tab-renders-one-row-per-group renders the tab with the default sentinel', async ({
+		page,
+	}) => {
 		await page.goto(SETTINGS_URL)
 		// Switch to the Group dashboards tab via its data-test slug.
 		const tabButton = page.locator('[data-test="tab-group-dashboards"]')
@@ -50,10 +56,14 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 
 		// The default sentinel must always be present, regardless of
 		// configured NC groups.
-		await expect(page.locator('[data-test="group-dashboards-row-default"]')).toBeVisible()
+		await expect(
+			page.locator('[data-test="group-dashboards-row-default"]'),
+		).toBeVisible()
 	})
 
-	test('@e2e admin-group-management::create-modal-opens-with-form opens the create modal from the default row', async ({ page }) => {
+	test('@e2e admin-group-management::create-modal-opens-with-form opens the create modal from the default row', async ({
+		page,
+	}) => {
 		await page.goto(SETTINGS_URL)
 		await page.locator('[data-test="tab-group-dashboards"]').click()
 		await page.locator('[data-test="group-dashboards-create-default"]').click()
@@ -66,7 +76,13 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 		await expect(submit).toBeDisabled()
 
 		// Typing 2+ chars unlocks the submit button.
-		await page.locator('[data-test="create-group-dashboard-name"] input').fill('Ops')
+		// @nextcloud/vue v9 (the Vue-3 line) forwards NcTextField's fallthrough
+		// attributes onto the inner <input> instead of the wrapper <div> the
+		// v8/Vue-2 build used, so `data-test` IS the input — a descendant
+		// `[data-test=…] input` selector matches nothing.
+		await page
+			.locator('input[data-test="create-group-dashboard-name"]')
+			.fill('Ops')
 		await expect(submit).toBeEnabled()
 
 		// Cancel returns to the tab without firing a request.
@@ -74,7 +90,9 @@ test.describe('admin-group-management — Group dashboards tab', () => {
 		await expect(modal).toBeHidden()
 	})
 
-	test('@e2e admin-group-management::manage-modal-opens-with-dashboard-list opens the manage modal from the default row', async ({ page }) => {
+	test('@e2e admin-group-management::manage-modal-opens-with-dashboard-list opens the manage modal from the default row', async ({
+		page,
+	}) => {
 		await page.goto(SETTINGS_URL)
 		await page.locator('[data-test="tab-group-dashboards"]').click()
 		await page.locator('[data-test="group-dashboards-manage-default"]').click()

@@ -25,7 +25,7 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -35,7 +35,6 @@ namespace Unit\Service;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Service\AdminSettingsService;
@@ -46,7 +45,6 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCA\LaunchPad\Service\TemplateService;
-use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IAppConfig;
@@ -67,301 +65,292 @@ use Psr\Log\LoggerInterface;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class DashboardCascadeEventDispatchTest extends TestCase
-{
+class DashboardCascadeEventDispatchTest extends TestCase {
 
-    /** @var DashboardMapper&MockObject */
-    private $dashboardMapper;
+	/** @var DashboardMapper&MockObject */
+	private $dashboardMapper;
 
-    /** @var WidgetPlacementMapper&MockObject */
-    private $placementMapper;
+	/** @var WidgetPlacementMapper&MockObject */
+	private $placementMapper;
 
-    /** @var IEventDispatcher&MockObject */
-    private $eventDispatcher;
+	/** @var IEventDispatcher&MockObject */
+	private $eventDispatcher;
 
-    /** @var IGroupManager&MockObject */
-    private $groupManager;
+	/** @var IGroupManager&MockObject */
+	private $groupManager;
 
-    /** @var IDBConnection&MockObject */
-    private $db;
+	/** @var IDBConnection&MockObject */
+	private $db;
 
-    /**
-     * Build a dashboard entity with the given UUID, userId, and type.
-     *
-     * @param string $uuid   Dashboard UUID.
-     * @param string $userId Owner user ID.
-     * @param string $type   Dashboard type constant.
-     *
-     * @return Dashboard
-     */
-    private function makeDashboard(
-        string $uuid='test-uuid-1',
-        string $userId='alice',
-        string $type=Dashboard::TYPE_USER
-    ): Dashboard {
-        $d = new Dashboard();
-        // phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $d->setId(42);
-        $d->setUuid($uuid);
-        $d->setUserId($userId);
-        $d->setType($type);
-        $d->setName('Test Dashboard');
-        // phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        return $d;
-    }//end makeDashboard()
+	/**
+	 * Build a dashboard entity with the given UUID, userId, and type.
+	 *
+	 * @param string $uuid Dashboard UUID.
+	 * @param string $userId Owner user ID.
+	 * @param string $type Dashboard type constant.
+	 *
+	 * @return Dashboard
+	 */
+	private function makeDashboard(
+		string $uuid = 'test-uuid-1',
+		string $userId = 'alice',
+		string $type = Dashboard::TYPE_USER,
+	): Dashboard {
+		$d = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$d->setId(42);
+		$d->setUuid($uuid);
+		$d->setUserId($userId);
+		$d->setType($type);
+		$d->setName('Test Dashboard');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		return $d;
+	}//end makeDashboard()
 
-    /**
-     * Build a DashboardService with mocked dependencies.
-     *
-     * @return DashboardService
-     */
-    private function buildDashboardService(): DashboardService
-    {
-        return new DashboardService(
-            dashboardMapper:      $this->dashboardMapper,
-            placementMapper:      $this->placementMapper,
-            settingMapper:        $this->createMock(AdminSettingMapper::class),
-            templateService:      $this->createMock(TemplateService::class),
-            dashboardFactory:     new DashboardFactory(),
-            dashResolver:         $this->createMock(DashboardResolver::class),
-            treeService:          $this->createMock(DashboardTreeService::class),
-            groupManager:         $this->groupManager,
-            adminTemplateService: $this->createMock(\OCA\LaunchPad\Service\AdminTemplateService::class),
-            db:                   $this->db,
-            config:               $this->createMock(IConfig::class),
-            l10nFactory:          $this->createMock(IFactory::class),
-            logger:               $this->createMock(LoggerInterface::class),
-            eventDispatcher:      $this->eventDispatcher,
-        );
-    }//end buildDashboardService()
+	/**
+	 * Build a DashboardService with mocked dependencies.
+	 *
+	 * @return DashboardService
+	 */
+	private function buildDashboardService(): DashboardService {
+		return new DashboardService(
+			dashboardMapper:      $this->dashboardMapper,
+			placementMapper:      $this->placementMapper,
+			settingMapper:        $this->createMock(AdminSettingMapper::class),
+			templateService:      $this->createMock(TemplateService::class),
+			dashboardFactory:     new DashboardFactory(),
+			dashResolver:         $this->createMock(DashboardResolver::class),
+			treeService:          $this->createMock(DashboardTreeService::class),
+			groupManager:         $this->groupManager,
+			adminTemplateService: $this->createMock(\OCA\LaunchPad\Service\AdminTemplateService::class),
+			db:                   $this->db,
+			config:               $this->createMock(IConfig::class),
+			l10nFactory:          $this->createMock(IFactory::class),
+			logger:               $this->createMock(LoggerInterface::class),
+			eventDispatcher:      $this->eventDispatcher,
+		);
+	}//end buildDashboardService()
 
-    /**
-     * Set up fresh mocks.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->dashboardMapper = $this->createMock(DashboardMapper::class);
-        $this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
-        $this->eventDispatcher = $this->createMock(IEventDispatcher::class);
-        $this->groupManager    = $this->createMock(IGroupManager::class);
-        $this->db              = $this->createMock(IDBConnection::class);
-    }//end setUp()
+	/**
+	 * Set up fresh mocks.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->dashboardMapper = $this->createMock(DashboardMapper::class);
+		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
+		$this->eventDispatcher = $this->createMock(IEventDispatcher::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
+		$this->db = $this->createMock(IDBConnection::class);
+	}//end setUp()
 
-    // =========================================================================
-    // DashboardService::deleteDashboard
-    // =========================================================================
+	// =========================================================================
+	// DashboardService::deleteDashboard
+	// =========================================================================
 
-    /**
-     * SB1 regression: deleteDashboard dispatches DashboardDeletedEvent.
-     *
-     * @return void
-     */
-    public function testDeleteDashboardDispatchesEvent(): void
-    {
-        $dashboard = $this->makeDashboard(uuid: 'uuid-personal-1', userId: 'alice');
-        $this->dashboardMapper->method('find')->willReturn($dashboard);
-        $this->dashboardMapper->method('countChildrenByParent')->willReturn(0);
+	/**
+	 * SB1 regression: deleteDashboard dispatches DashboardDeletedEvent.
+	 *
+	 * @return void
+	 */
+	public function testDeleteDashboardDispatchesEvent(): void {
+		$dashboard = $this->makeDashboard(uuid: 'uuid-personal-1', userId: 'alice');
+		$this->dashboardMapper->method('find')->willReturn($dashboard);
+		$this->dashboardMapper->method('countChildrenByParent')->willReturn(0);
 
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatchTyped')
-            ->with($this->callback(
-                function ($event) {
-                    return $event instanceof DashboardDeletedEvent
-                        && $event->getDashboardUuid() === 'uuid-personal-1';
-                }
-            ));
+		$this->eventDispatcher->expects($this->once())
+			->method('dispatchTyped')
+			->with($this->callback(
+				function ($event) {
+					return $event instanceof DashboardDeletedEvent
+						&& $event->getDashboardUuid() === 'uuid-personal-1';
+				}
+			));
 
-        $service = $this->buildDashboardService();
-        $service->deleteDashboard(dashboardId: 42, userId: 'alice');
-    }//end testDeleteDashboardDispatchesEvent()
+		$service = $this->buildDashboardService();
+		$service->deleteDashboard(dashboardId: 42, userId: 'alice');
+	}//end testDeleteDashboardDispatchesEvent()
 
-    /**
-     * SB1 regression: deleteDashboard does NOT dispatch when UUID is empty.
-     *
-     * @return void
-     */
-    public function testDeleteDashboardSkipsEventWhenUuidEmpty(): void
-    {
-        $dashboard = $this->makeDashboard(uuid: '', userId: 'alice');
-        $this->dashboardMapper->method('find')->willReturn($dashboard);
+	/**
+	 * SB1 regression: deleteDashboard does NOT dispatch when UUID is empty.
+	 *
+	 * @return void
+	 */
+	public function testDeleteDashboardSkipsEventWhenUuidEmpty(): void {
+		$dashboard = $this->makeDashboard(uuid: '', userId: 'alice');
+		$this->dashboardMapper->method('find')->willReturn($dashboard);
 
-        $this->eventDispatcher->expects($this->never())->method('dispatchTyped');
+		$this->eventDispatcher->expects($this->never())->method('dispatchTyped');
 
-        $service = $this->buildDashboardService();
-        $service->deleteDashboard(dashboardId: 42, userId: 'alice');
-    }//end testDeleteDashboardSkipsEventWhenUuidEmpty()
+		$service = $this->buildDashboardService();
+		$service->deleteDashboard(dashboardId: 42, userId: 'alice');
+	}//end testDeleteDashboardSkipsEventWhenUuidEmpty()
 
-    // =========================================================================
-    // DashboardService::deleteGroupShared
-    // =========================================================================
+	// =========================================================================
+	// DashboardService::deleteGroupShared
+	// =========================================================================
 
-    /**
-     * SB1 regression: deleteGroupShared dispatches DashboardDeletedEvent.
-     *
-     * @return void
-     */
-    public function testDeleteGroupSharedDispatchesEvent(): void
-    {
-        $dashboard = $this->makeDashboard(
-            uuid: 'uuid-group-1',
-            userId: 'alice',
-            type: Dashboard::TYPE_GROUP_SHARED
-        );
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $dashboard->setGroupId('marketing');
+	/**
+	 * SB1 regression: deleteGroupShared dispatches DashboardDeletedEvent.
+	 *
+	 * @return void
+	 */
+	public function testDeleteGroupSharedDispatchesEvent(): void {
+		$dashboard = $this->makeDashboard(
+			uuid: 'uuid-group-1',
+			userId: 'alice',
+			type: Dashboard::TYPE_GROUP_SHARED
+		);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setGroupId('marketing');
 
-        $this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
+		$this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
 
-        $this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
-        $this->dashboardMapper->method('countByGroup')->willReturn(5);
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->method('countByGroup')->willReturn(5);
 
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatchTyped')
-            ->with($this->callback(
-                function ($event) {
-                    return $event instanceof DashboardDeletedEvent
-                        && $event->getDashboardUuid() === 'uuid-group-1'
-                        && $event->getOwnerUserId() === 'admin';
-                }
-            ));
+		$this->eventDispatcher->expects($this->once())
+			->method('dispatchTyped')
+			->with($this->callback(
+				function ($event) {
+					return $event instanceof DashboardDeletedEvent
+						&& $event->getDashboardUuid() === 'uuid-group-1'
+						&& $event->getOwnerUserId() === 'admin';
+				}
+			));
 
-        $service = $this->buildDashboardService();
-        $service->deleteGroupShared(
-            actorUserId: 'admin',
-            groupId: 'marketing',
-            uuid: 'uuid-group-1'
-        );
-    }//end testDeleteGroupSharedDispatchesEvent()
+		$service = $this->buildDashboardService();
+		$service->deleteGroupShared(
+			actorUserId: 'admin',
+			groupId: 'marketing',
+			uuid: 'uuid-group-1'
+		);
+	}//end testDeleteGroupSharedDispatchesEvent()
 
-    // =========================================================================
-    // AdminTemplateService::deleteTemplate
-    // =========================================================================
+	// =========================================================================
+	// AdminTemplateService::deleteTemplate
+	// =========================================================================
 
-    /**
-     * SB1 regression: deleteTemplate dispatches DashboardDeletedEvent.
-     *
-     * @return void
-     */
-    public function testDeleteTemplateDispatchesEvent(): void
-    {
-        $template = $this->makeDashboard(
-            uuid: 'uuid-template-1',
-            userId: '',
-            type: Dashboard::TYPE_ADMIN_TEMPLATE
-        );
+	/**
+	 * SB1 regression: deleteTemplate dispatches DashboardDeletedEvent.
+	 *
+	 * @return void
+	 */
+	public function testDeleteTemplateDispatchesEvent(): void {
+		$template = $this->makeDashboard(
+			uuid: 'uuid-template-1',
+			userId: '',
+			type: Dashboard::TYPE_ADMIN_TEMPLATE
+		);
 
-        $this->dashboardMapper->method('find')->willReturn($template);
+		$this->dashboardMapper->method('find')->willReturn($template);
 
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatchTyped')
-            ->with($this->callback(
-                function ($event) {
-                    return $event instanceof DashboardDeletedEvent
-                        && $event->getDashboardUuid() === 'uuid-template-1'
-                        && $event->getType() === Dashboard::TYPE_ADMIN_TEMPLATE;
-                }
-            ));
+		$this->eventDispatcher->expects($this->once())
+			->method('dispatchTyped')
+			->with($this->callback(
+				function ($event) {
+					return $event instanceof DashboardDeletedEvent
+						&& $event->getDashboardUuid() === 'uuid-template-1'
+						&& $event->getType() === Dashboard::TYPE_ADMIN_TEMPLATE;
+				}
+			));
 
-        $service = new AdminTemplateService(
-            dashboardMapper:  $this->dashboardMapper,
-            placementMapper:  $this->placementMapper,
-            settingsService:  $this->createMock(AdminSettingsService::class),
-            groupManager:     $this->groupManager,
-            userManager:      $this->createMock(IUserManager::class),
-            eventDispatcher:  $this->eventDispatcher,
-        );
+		$service = new AdminTemplateService(
+			dashboardMapper:  $this->dashboardMapper,
+			placementMapper:  $this->placementMapper,
+			settingsService:  $this->createMock(AdminSettingsService::class),
+			groupManager:     $this->groupManager,
+			userManager:      $this->createMock(IUserManager::class),
+			eventDispatcher:  $this->eventDispatcher,
+		);
 
-        $service->deleteTemplate(id: 42);
-    }//end testDeleteTemplateDispatchesEvent()
+		$service->deleteTemplate(id: 42);
+	}//end testDeleteTemplateDispatchesEvent()
 
-    // =========================================================================
-    // DemoShowcasesService::uninstallShowcase
-    // =========================================================================
+	// =========================================================================
+	// DemoShowcasesService::uninstallShowcase
+	// =========================================================================
 
-    /**
-     * SB1 regression: uninstallShowcase dispatches DashboardDeletedEvent.
-     *
-     * @return void
-     */
-    public function testUninstallShowcaseDispatchesEvent(): void
-    {
-        $dashboard = $this->makeDashboard(
-            uuid: 'uuid-showcase-1',
-            userId: '',
-            type: Dashboard::TYPE_GROUP_SHARED
-        );
+	/**
+	 * SB1 regression: uninstallShowcase dispatches DashboardDeletedEvent.
+	 *
+	 * @return void
+	 */
+	public function testUninstallShowcaseDispatchesEvent(): void {
+		$dashboard = $this->makeDashboard(
+			uuid: 'uuid-showcase-1',
+			userId: '',
+			type: Dashboard::TYPE_GROUP_SHARED
+		);
 
-        $this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
 
-        $appConfig = $this->createMock(IAppConfig::class);
-        // Simulate the showcase having a recorded UUID.
-        $appConfig->method('getValueString')
-            ->willReturn('uuid-showcase-1');
+		$appConfig = $this->createMock(IAppConfig::class);
+		// Simulate the showcase having a recorded UUID.
+		$appConfig->method('getValueString')
+			->willReturn('uuid-showcase-1');
 
-        $this->eventDispatcher->expects($this->once())
-            ->method('dispatchTyped')
-            ->with($this->callback(
-                function ($event) {
-                    return $event instanceof DashboardDeletedEvent
-                        && $event->getDashboardUuid() === 'uuid-showcase-1';
-                }
-            ));
+		$this->eventDispatcher->expects($this->once())
+			->method('dispatchTyped')
+			->with($this->callback(
+				function ($event) {
+					return $event instanceof DashboardDeletedEvent
+						&& $event->getDashboardUuid() === 'uuid-showcase-1';
+				}
+			));
 
-        $service = new DemoShowcasesService(
-            dashboardMapper:  $this->dashboardMapper,
-            placementMapper:  $this->placementMapper,
-            db:               $this->db,
-            appConfig:        $appConfig,
-            dashboardManager: $this->createMock(IManager::class),
-            logger:           $this->createMock(LoggerInterface::class),
-            lockingProvider:  $this->createMock(ILockingProvider::class),
-            urlGenerator:     $this->createMock(IURLGenerator::class),
-            eventDispatcher:  $this->eventDispatcher,
-        );
+		$service = new DemoShowcasesService(
+			dashboardMapper:  $this->dashboardMapper,
+			placementMapper:  $this->placementMapper,
+			db:               $this->db,
+			appConfig:        $appConfig,
+			dashboardManager: $this->createMock(IManager::class),
+			logger:           $this->createMock(LoggerInterface::class),
+			lockingProvider:  $this->createMock(ILockingProvider::class),
+			urlGenerator:     $this->createMock(IURLGenerator::class),
+			eventDispatcher:  $this->eventDispatcher,
+		);
 
-        $service->uninstallShowcase(showcaseId: 'de-bron');
-    }//end testUninstallShowcaseDispatchesEvent()
+		$service->uninstallShowcase(showcaseId: 'de-bron');
+	}//end testUninstallShowcaseDispatchesEvent()
 
-    // =========================================================================
-    // DashboardTreeService::deleteSubtree
-    // =========================================================================
+	// =========================================================================
+	// DashboardTreeService::deleteSubtree
+	// =========================================================================
 
-    /**
-     * SB1 regression: deleteSubtree dispatches DashboardDeletedEvent for
-     * each node (root + descendants).
-     *
-     * @return void
-     */
-    public function testDeleteSubtreeDispatchesEventForEachNode(): void
-    {
-        $child1 = $this->makeDashboard(uuid: 'child-uuid-1', userId: 'alice');
-        $child2 = $this->makeDashboard(uuid: 'child-uuid-2', userId: 'alice');
-        $root   = $this->makeDashboard(uuid: 'root-uuid-1', userId: 'alice');
+	/**
+	 * SB1 regression: deleteSubtree dispatches DashboardDeletedEvent for
+	 * each node (root + descendants).
+	 *
+	 * @return void
+	 */
+	public function testDeleteSubtreeDispatchesEventForEachNode(): void {
+		$child1 = $this->makeDashboard(uuid: 'child-uuid-1', userId: 'alice');
+		$child2 = $this->makeDashboard(uuid: 'child-uuid-2', userId: 'alice');
+		$root = $this->makeDashboard(uuid: 'root-uuid-1', userId: 'alice');
 
-        // findDescendants returns two children.
-        $this->dashboardMapper->method('findDescendants')
-            ->with(ancestorUuid: 'root-uuid-1')
-            ->willReturn([$child1, $child2]);
-        $this->dashboardMapper->method('delete');
+		// findDescendants returns two children.
+		$this->dashboardMapper->method('findDescendants')
+			->with(ancestorUuid: 'root-uuid-1')
+			->willReturn([$child1, $child2]);
+		$this->dashboardMapper->method('delete');
 
-        $this->db->method('beginTransaction');
-        $this->db->method('commit');
+		$this->db->method('beginTransaction');
+		$this->db->method('commit');
 
-        // Expect 3 dispatchTyped calls (child1, child2, root).
-        $this->eventDispatcher->expects($this->exactly(3))
-            ->method('dispatchTyped')
-            ->with($this->isInstanceOf(DashboardDeletedEvent::class));
+		// Expect 3 dispatchTyped calls (child1, child2, root).
+		$this->eventDispatcher->expects($this->exactly(3))
+			->method('dispatchTyped')
+			->with($this->isInstanceOf(DashboardDeletedEvent::class));
 
-        $service = new DashboardTreeService(
-            dashboardMapper:  $this->dashboardMapper,
-            placementMapper:  $this->placementMapper,
-            db:               $this->db,
-            eventDispatcher:  $this->eventDispatcher,
-        );
+		$service = new DashboardTreeService(
+			dashboardMapper:  $this->dashboardMapper,
+			placementMapper:  $this->placementMapper,
+			db:               $this->db,
+			eventDispatcher:  $this->eventDispatcher,
+		);
 
-        $service->deleteSubtree(dashboard: $root);
-    }//end testDeleteSubtreeDispatchesEventForEachNode()
+		$service->deleteSubtree(dashboard: $root);
+	}//end testDeleteSubtreeDispatchesEventForEachNode()
 }//end class

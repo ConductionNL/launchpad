@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Data-source adapters bridging the shared @conduction/nextcloud-vue data
  * widgets (which are app-agnostic — they pull data via injected `cn*Source`
@@ -15,8 +15,8 @@
 import { generateUrl } from '@nextcloud/router'
 import {
 	fetchFinanceSummary,
-	fetchVendorCommitments,
 	fetchSpendNarrative,
+	fetchVendorCommitments,
 	resolveDeepLink,
 } from './spendAnalytics.js'
 
@@ -62,14 +62,19 @@ export async function fetchPeoplePage(args = {}) {
  * @param {string|number} placementId the widget placement id.
  * @param {object} args `{ from, to }` ISO date strings.
  * @return {Promise<{events: object[], failures: object[]}>} the events payload.
+ * @spec openspec/specs/calendar-widget/spec.md#requirement-req-cal-003-events-endpoint
  */
 export async function fetchCalendarEvents(placementId, args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([
 		import('@nextcloud/axios'),
 		import('@nextcloud/router'),
 	])
-	const url = genUrl('/apps/launchpad/api/widgets/calendar/{placementId}/events', { placementId })
-	const response = await axios.get(url, { params: { from: args.from, to: args.to } })
+	const url = genUrl('/apps/launchpad/api/widgets/calendar/{placementId}/events', {
+		placementId,
+	})
+	const response = await axios.get(url, {
+		params: { from: args.from, to: args.to },
+	})
 	const data = response?.data || {}
 	return {
 		events: Array.isArray(data.events) ? data.events : [],
@@ -84,11 +89,14 @@ export async function fetchCalendarEvents(placementId, args = {}) {
  *
  * @param {() => (string|number|undefined)} getPlacementId returns the placement id.
  * @return {object} the injected `cn*Source` adapters.
+ * @spec exclude wiring-only assembly — returns a literal map of the adapter functions defined in this file, each of which carries its own @spec; it encodes no behaviour of its own beyond naming the injection keys the nc-vue widgets expect.
  */
 export function buildWidgetDataProvide(getPlacementId) {
 	return {
 		cnPeopleSource: { fetchPeople: fetchPeoplePage },
-		cnCalendarSource: { fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args) },
+		cnCalendarSource: {
+			fetchEvents: (args) => fetchCalendarEvents(getPlacementId(), args),
+		},
 		cnSpendAnalyticsSource: {
 			fetchSummary: fetchFinanceSummary,
 			fetchVendorCommitments,
@@ -104,14 +112,15 @@ export function buildWidgetDataProvide(getPlacementId) {
  *
  * @param {string} widgetId the placement widget type.
  * @return {object} extra props to v-bind onto the renderer (empty for most types).
+ * @spec openspec/specs/news-widget/spec.md#requirement-req-news-003-fetch-and-merge-feed-items
  */
 export function buildRendererExtraProps(widgetId) {
 	if (widgetId === 'news') {
 		return {
-			itemsEndpoint: (placementId) => generateUrl(
-				'/apps/launchpad/api/widgets/news/{placementId}/items',
-				{ placementId },
-			),
+			itemsEndpoint: (placementId) =>
+				generateUrl('/apps/launchpad/api/widgets/news/{placementId}/items', {
+					placementId,
+				}),
 		}
 	}
 	if (widgetId === 'files') {

@@ -20,40 +20,38 @@ namespace OCA\LaunchPad\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
-use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
-class Version001002Date20260204000000 extends SimpleMigrationStep
-{
-    /**
-     * Increase icon column size for SVG paths.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        // Get the schema wrapper.
-        $schema = $schemaClosure();
+class Version001002Date20260204000000 extends SimpleMigrationStep {
+	/**
+	 * Increase icon column size for SVG paths.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		// Get the schema wrapper.
+		$schema = $schemaClosure();
 
-        // Increase icon column size to support longer SVG paths.
-        if ($schema->hasTable('launchpad_tiles') === true) {
-            $table = $schema->getTable('launchpad_tiles');
+		// Increase icon column size to support longer SVG paths.
+		if ($schema->hasTable('launchpad_tiles') === true) {
+			$table = $schema->getTable('launchpad_tiles');
 
-            if ($table->hasColumn('icon') === true) {
-                $iconColumn = $table->getColumn('icon');
-                // Increase from 500 to 2000 characters for complex SVG paths.
-                $iconColumn->setLength(2000);
-            }
-        }
+			if ($table->hasColumn('icon') === true) {
+				$iconColumn = $table->getColumn('icon');
+				// Increase from 500 to 2000 characters for complex SVG paths.
+				$iconColumn->setLength(2000);
+			}
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

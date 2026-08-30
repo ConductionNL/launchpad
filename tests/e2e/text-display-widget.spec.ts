@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end test for the `text` widget covering tasks 7.1..7.3
  * of the `text-display-widget` OpenSpec change.
@@ -21,7 +21,11 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import {
+	gotoLaunchPad,
+	openAddWidgetModal,
+	closeSidebar,
+} from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
@@ -33,7 +37,9 @@ test.describe('text-display widget', () => {
 		await gotoLaunchPad(page)
 	})
 
-	test('add → fill → save → reload renders sanitised text and survives round-trip', async ({ page }) => {
+	test('add → fill → save → reload renders sanitised text and survives round-trip', async ({
+		page,
+	}) => {
 		const marker = `Hello ${Date.now()}`
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
@@ -41,7 +47,9 @@ test.describe('text-display widget', () => {
 
 		// The Text widget's content control is a Markdown <textarea> (its label
 		// is not wired via for/id), so target it by its placeholder.
-		await dialog.locator('textarea[placeholder*="Markdown"]').fill(`${marker} <b>world</b>`)
+		await dialog
+			.locator('textarea[placeholder*="Markdown"]')
+			.fill(`${marker} <b>world</b>`)
 
 		const addBtn = dialog.getByRole('button', { name: /^add$/i })
 		await expect(addBtn).toBeEnabled({ timeout: 5_000 })
@@ -52,7 +60,10 @@ test.describe('text-display widget', () => {
 
 		// The rendered widget carries the marker text (the add → persist →
 		// render content round-trip).
-		const placement = page.locator('.text-display-widget').filter({ hasText: marker }).first()
+		const placement = page
+			.locator('.cn-text-widget')
+			.filter({ hasText: marker })
+			.first()
 		await expect(placement).toBeAttached({ timeout: 8_000 })
 		// The safe inline formatting (`<b>`) survives sanitisation — the user's
 		// <b> becomes a real element rather than literal text.
@@ -61,12 +72,15 @@ test.describe('text-display widget', () => {
 		// Persistence: the placement survives a full reload.
 		await page.reload()
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
-		await expect(page.locator('.text-display-widget').filter({ hasText: marker }).first())
-			.toBeAttached({ timeout: 10_000 })
+		await expect(
+			page.locator('.cn-text-widget').filter({ hasText: marker }).first(),
+		).toBeAttached({ timeout: 10_000 })
 	})
 
 	// @e2e text-display-widget::form-rejects-empty-text
-	test('REQ-TXT-003: empty text keeps the Add button disabled (validation)', async ({ page }) => {
+	test('REQ-TXT-003: empty text keeps the Add button disabled (validation)', async ({
+		page,
+	}) => {
 		await openAddWidgetModal(page)
 		const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 		await dialog.getByLabel(/widget type/i).selectOption({ label: 'Text' })

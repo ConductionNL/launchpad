@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -9,13 +9,21 @@
 		:open="open"
 		@update:open="$emit('update:open', $event)">
 		<template #default>
-			<p>{{ t('launchpad', 'Delete layout default for "{group}" / "{widget}"?', { group: groupId, widget: widgetId }) }}</p>
+			<p>
+				{{
+					t(
+						'launchpad',
+						'Delete layout default for "{group}" / "{widget}"?',
+						{ group: groupId, widget: widgetId },
+					)
+				}}
+			</p>
 		</template>
 		<template #actions>
-			<NcButton type="tertiary" @click="$emit('update:open', false)">
+			<NcButton variant="tertiary" @click="$emit('update:open', false)">
 				{{ t('launchpad', 'Cancel') }}
 			</NcButton>
-			<NcButton type="error" @click="$emit('confirm')">
+			<NcButton variant="error" @click="$emit('confirm')">
 				{{ t('launchpad', 'Delete') }}
 			</NcButton>
 		</template>
@@ -23,10 +31,7 @@
 </template>
 
 <script>
-import {
-	NcButton,
-	NcDialog,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 
 /**
  * RoleLayoutDefaultDeleteDialog — confirmation extracted from

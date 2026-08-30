@@ -45,6 +45,16 @@
 		{
 			"key": "adminPassword",
 			"value": "admin"
+		},
+		{
+			"key": "regularUser",
+			"value": "newman-regular",
+			"description": "Non-admin account used by the authorization assertions. Seeded by tests/integration/seed.sh. Declared HERE, not only in local.env.json, because the shared quality workflow resolves the environment path one directory short and logs 'Environment file … not found, falling back to default env vars' — so nothing from that file reaches the run and {{regularUser}} arrived at Nextcloud literally, producing \"Login failed: '{{regularUser}}'\" and a 401. adminUser/adminPassword above are why the admin half of the suite worked anyway. An --environment file still overrides these when one is actually loaded."
+		},
+		{
+			"key": "regularPassword",
+			"value": "Newman-Regular-Pw-123",
+			"description": "Must stay in sync with PASSWORD in tests/integration/seed.sh. >= 10 chars because Nextcloud's default password policy silently rejects shorter ones."
 		}
 	],
 	"item": [
@@ -608,6 +618,359 @@
 			]
 		},
 		{
+			"name": "Page routes (HTML shells)",
+			"item": [
+				{
+					"name": "page#deepLink renders the workspace shell for a known slug",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/{{fixtureDashboardSlug}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"{{fixtureDashboardSlug}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Older backends did not auto-derive a slug on create. The",
+									"// unknown-slug request below covers the same route without a",
+									"// fixture, so skipping here loses no coverage of page#deepLink.",
+									"if (!pm.environment.get('fixtureDashboardSlug')) {",
+									"    pm.execution.skipRequest();",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// page#deepLink delegates to page#index, so the wire contract is",
+									"// the WORKSPACE shell: templates/index.php's two ids plus the",
+									"// bundle that mounts on them. Asserting only '200 + text/html'",
+									"// cannot tell the workspace apart from the public-share page or",
+									"// from Nextcloud's own error page, both of which are 200 HTML.",
+									"pm.test('200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Content-Type is HTML', () => {",
+									"    pm.expect(pm.response.headers.get('Content-Type') || '').to.match(/text\\/html/);",
+									"});",
+									"pm.test('renders the workspace chrome wrapper + Vue mount point', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('id=\"app-workspace\"');",
+									"    pm.expect(body).to.include('id=\"workspace-vue\"');",
+									"});",
+									"// The mount ids ARE the 'which SPA is this' claim: #workspace-vue is",
+									"// src/main.js's el and #public-share-vue is src/public.js's, and the two",
+									"// templates are mutually exclusive.",
+									"//",
+									"// This deliberately does NOT assert the <script src=\"…launchpad-main…\">",
+									"// tag. Nextcloud's JS resource locator emits a tag only for a file that",
+									"// exists on disk, and THIS JOB NEVER BUILDS THE FRONTEND — it runs",
+									"// composer install and nothing else — so the tag is absent here and",
+									"// present locally. That assertion measured the CI fixture, not launchpad.",
+									"pm.test('is the workspace page and not the public-share page', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.not.include('id=\"app-public-share\"');",
+									"    pm.expect(body).to.not.include('id=\"public-share-vue\"');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#deepLink falls back silently for an unresolvable slug chain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/newman-page-deeplink/no-such-chain",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"newman-page-deeplink",
+								"no-such-chain"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// The catch-all route accepts multi-segment chains and MUST NOT",
+									"// 404 on a stale bookmark: PageController logs and falls through",
+									"// to the default resolver. A 404 here would break every renamed",
+									"// or deleted dashboard's saved URL.",
+									"pm.test('200 OK (silent fallback, not 404)', () => pm.response.to.have.status(200));",
+									"pm.test('still renders the workspace shell', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('id=\"app-workspace\"');",
+									"    pm.expect(body).to.include('id=\"workspace-vue\"');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "fixture: create a public share to exercise page#publicShare",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/public-share",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"api",
+								"dashboards",
+								"{{fixtureDashboardUuid}}",
+								"public-share"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201 Created', () => pm.response.to.have.status(201));",
+									"pm.test('returns a 64-char token', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('token');",
+									"    pm.expect(json.token).to.be.a('string');",
+									"    pm.expect(json.token).to.have.lengthOf(64);",
+									"    pm.environment.set('fixturePublicShareToken', String(json.token));",
+									"});",
+									"pm.test('an unprotected share reports passwordRequired = false', () => {",
+									"    pm.expect(pm.response.json().passwordRequired).to.eql(false);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#publicShare renders the anonymous public SPA for a valid token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/s/{{fixturePublicShareToken}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"s",
+								"{{fixturePublicShareToken}}"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.environment.get('fixturePublicShareToken')) {",
+									"    pm.execution.skipRequest();",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// REQ-PSHR-004. This request carries NO credentials (auth: noauth)",
+									"// while the collection default is admin Basic, so a 200 here is",
+									"// proof the route really is #[PublicPage] — the assertion that",
+									"// matters, and the one that silently disappears if the request",
+									"// inherits collection auth.",
+									"pm.test('200 OK for an anonymous caller', () => pm.response.to.have.status(200));",
+									"pm.test('Content-Type is HTML', () => {",
+									"    pm.expect(pm.response.headers.get('Content-Type') || '').to.match(/text\\/html/);",
+									"});",
+									"pm.test('renders the public-share shell, not the workspace', () => {",
+									"    const body = pm.response.text();",
+									"    pm.expect(body).to.include('id=\"app-public-share\"');",
+									"    pm.expect(body).to.include('id=\"public-share-vue\"');",
+									"    pm.expect(body).to.not.include('id=\"app-workspace\"');",
+									"    pm.expect(body).to.not.include('id=\"workspace-vue\"');",
+									"});",
+									"// There was a `to.include('launchpad-public')` assertion here. It could",
+									"// not fail: templates/public.php carries class=\"launchpad-public-share\",",
+									"// so the needle was a substring of the shell's own markup whether or not",
+									"// any bundle existed. It read as a script-tag check and was a tautology —",
+									"// removed rather than left passing for the wrong reason."
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#publicShare data endpoint serves the shared dashboard anonymously",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/s/{{fixturePublicShareToken}}/data",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"s",
+								"{{fixturePublicShareToken}}",
+								"data"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (!pm.environment.get('fixturePublicShareToken')) {",
+									"    pm.execution.skipRequest();",
+									"}"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Without this the page assertions above would pass just as well",
+									"// on a garbage token — page#publicShare renders a token-agnostic",
+									"// shell by design. This is what proves the fixture token is a",
+									"// live share, and that the SPA's data source works unauthenticated.",
+									"pm.test('200 OK for an anonymous caller', () => pm.response.to.have.status(200));",
+									"pm.test('payload carries the shared dashboard and its placements', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json).to.have.property('dashboard');",
+									"    pm.expect(json.dashboard.uuid).to.eql(pm.environment.get('fixtureDashboardUuid'));",
+									"    pm.expect(json).to.have.property('placements').that.is.an('array');",
+									"});",
+									"pm.test('the share envelope never exposes its creator to anonymous callers', () => {",
+									"    pm.expect(pm.response.json().share).to.not.have.property('createdBy');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "page#publicShare renders a token-agnostic shell for an unknown token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/launchpad/s/newmanunknownsharetoken",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"launchpad",
+								"s",
+								"newmanunknownsharetoken"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Documented contract: the page route does NOT validate the",
+									"// token — the SPA it boots asks /s/{token}/data, which answers",
+									"// 404. Pinning it stops anyone 'fixing' the page route into a",
+									"// 404, which would turn the share page into an existence oracle",
+									"// answering before any throttle applies.",
+									"pm.test('200 OK (the shell is token-agnostic)', () => pm.response.to.have.status(200));",
+									"pm.test('renders the public-share shell', () => {",
+									"    pm.expect(pm.response.text()).to.include('id=\"app-public-share\"');",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "Dashboards - Personal scope",
 			"item": [
 				{
@@ -635,7 +998,14 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('returns an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+									"// REQ-QUOTA-006 made this an additive envelope: {items: [...], quota: {...}}.",
+									"// The bare array is still returned when the quota service is absent, so accept",
+									"// BOTH rather than pinning one — the frontend store does the same tolerant unwrap.",
+									"pm.test('returns a dashboards array (bare or under items)', () => {",
+									"    const json = pm.response.json();",
+									"    const items = Array.isArray(json) ? json : json.items;",
+									"    pm.expect(items, 'neither a bare array nor an items array').to.be.an('array');",
+									"});"
 								]
 							}
 						}
@@ -667,10 +1037,13 @@
 								"type": "text/javascript",
 								"exec": [
 									"pm.test('200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('array of dashboards with source field', () => {",
+									"// Same REQ-QUOTA-006 envelope as /api/dashboards. The source assertion is the",
+									"// point of this request (REQ-DASH-013), so it stays — only the unwrap changed.",
+									"pm.test('dashboards carry a source field', () => {",
 									"    const json = pm.response.json();",
-									"    pm.expect(json).to.be.an('array');",
-									"    if (json.length > 0) pm.expect(json[0]).to.have.property('source');",
+									"    const items = Array.isArray(json) ? json : json.items;",
+									"    pm.expect(items, 'neither a bare array nor an items array').to.be.an('array');",
+									"    if (items.length > 0) pm.expect(items[0]).to.have.property('source');",
 									"});"
 								]
 							}
@@ -1298,7 +1671,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"lang\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
+							"raw": "{\"languageCode\":\"nl\",\"name\":\"newman-nl\",\"description\":\"NL desc\"}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/translations",
@@ -1322,7 +1695,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 4xx', () => pm.expect([200, 201, 400, 403, 409]).to.include(pm.response.code));"
+									"pm.test('201 Created', () => pm.response.to.have.status(201));"
 								]
 							}
 						}
@@ -1365,7 +1738,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 201, 204, 404, 403]).to.include(pm.response.code));"
+									"pm.test('200 OK', () => pm.response.to.have.status(200));"
 								]
 							}
 						}
@@ -1409,7 +1782,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 201, 204, 404, 403]).to.include(pm.response.code));"
+									"pm.test('200 OK', () => pm.response.to.have.status(200));"
 								]
 							}
 						}
@@ -1475,7 +1848,14 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 204, 404, 403]).to.include(pm.response.code));"
+									"// Runs AFTER set-primary on the same language, so a REFUSAL is the correct",
+									"// outcome: destroy() guards the primary variant. Measured on a live instance —",
+									"// 400 with error `primary_variant`, message \"Cannot delete the primary variant;",
+									"// promote another variant first\". Deleting a NON-primary variant returns 200.",
+									"pm.test('refuses deleting the primary variant', () => {",
+									"    pm.expect(pm.response.code, pm.response.text().slice(0, 200)).to.eql(400);",
+									"    pm.expect(pm.response.json().error).to.be.oneOf(['primary_variant', 'last_variant']);",
+									"});"
 								]
 							}
 						}
@@ -1519,209 +1899,7 @@
 				}
 			]
 		},
-		{
-			"name": "Dashboards - Comments",
-			"item": [
-				{
-					"name": "GET /api/dashboards/{uuid}/comments",
-					"request": {
-						"method": "GET",
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"dashboards",
-								"{{fixtureDashboardUuid}}",
-								"comments"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('array shape', () => pm.expect(pm.response.json()).to.satisfy((p) => Array.isArray(p) || typeof p === 'object'));"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "POST /api/dashboards/{uuid}/comments",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"message\":\"Newman comment {{$timestamp}}\"}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"dashboards",
-								"{{fixtureDashboardUuid}}",
-								"comments"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('2xx', () => pm.expect(pm.response.code).to.be.within(200, 299));",
-									"const json = pm.response.json();",
-									"if (json && (json.id || (json.comment && json.comment.id))) {",
-									"    pm.environment.set('fixtureCommentId', String(json.id || json.comment.id));",
-									"}"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "PUT /api/dashboards/{uuid}/comments/{id}",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"message\":\"Newman comment updated\"}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments/{{fixtureCommentId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"dashboards",
-								"{{fixtureDashboardUuid}}",
-								"comments",
-								"{{fixtureCommentId}}"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 204, 400, 403, 404]).to.include(pm.response.code));"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "DELETE /api/dashboards/{uuid}/comments/{id}",
-					"request": {
-						"method": "DELETE",
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments/{{fixtureCommentId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"dashboards",
-								"{{fixtureDashboardUuid}}",
-								"comments",
-								"{{fixtureCommentId}}"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('2xx or 404', () => pm.expect([200, 204, 404, 403]).to.include(pm.response.code));"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "POST /api/dashboards/{uuid}/comments (validation: empty body)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/dashboards/{{fixtureDashboardUuid}}/comments",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"dashboards",
-								"{{fixtureDashboardUuid}}",
-								"comments"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('error status', () => pm.expect([400, 403, 422]).to.include(pm.response.code));",
-									"pm.test('error envelope', () => pm.expect(pm.response.json()).to.satisfy((p) => 'error' in p || 'message' in p));"
-								]
-							}
-						}
-					]
-				}
-			]
-		},
+		
 		{
 			"name": "Dashboards - Group scope",
 			"item": [
@@ -4018,186 +4196,7 @@
 				}
 			]
 		},
-		{
-			"name": "Feeds",
-			"item": [
-				{
-					"name": "GET /api/feed/token",
-					"request": {
-						"method": "GET",
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/feed/token",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"feed",
-								"token"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('200 OK', () => pm.response.to.have.status(200));",
-									"const json = pm.response.json();",
-									"if (json && json.token) pm.environment.set('fixtureFeedToken', json.token);"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "POST /api/feed/token/regenerate",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/feed/token/regenerate",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"feed",
-								"token",
-								"regenerate"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('2xx', () => pm.expect(pm.response.code).to.be.within(200, 299));",
-									"const json = pm.response.json();",
-									"if (json && json.token) pm.environment.set('fixtureFeedToken', json.token);"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "GET /feed/{token}.xml",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/xml"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/feed/{{fixtureFeedToken}}.xml",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"feed",
-								"{{fixtureFeedToken}}.xml"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('200 or 404', () => pm.expect([200, 404]).to.include(pm.response.code));",
-									"if (pm.response.code === 200) pm.test('XML body', () => pm.expect(pm.response.text()).to.match(/<\\?xml|<feed|<rss/i));"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "DELETE /api/feed/token (revoke)",
-					"request": {
-						"method": "DELETE",
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/feed/token",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"feed",
-								"token"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('2xx', () => pm.expect(pm.response.code).to.be.within(200, 299));"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "GET /feed/garbage.xml (404 unknown)",
-					"request": {
-						"method": "GET",
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/feed/newman-no-such-token.xml",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"feed",
-								"newman-no-such-token.xml"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('404', () => pm.response.to.have.status(404));"
-								]
-							}
-						}
-					]
-				}
-			]
-		},
+		
 		{
 			"name": "Templates",
 			"item": [
@@ -6477,7 +6476,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"groupId\":\"hack\",\"allowedWidgets\":[]}"
+							"raw": "{\"groupId\":\"newman-nonadmin-escalation\",\"name\":\"Escalation attempt\",\"allowedWidgets\":[\"activity\"],\"deniedWidgets\":[],\"priorityWeights\":{}}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/role-feature-permissions",
@@ -6495,11 +6494,62 @@
 					},
 					"event": [
 						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// MAKE THIS REQUEST ACTUALLY NON-ADMIN.",
+									"//",
+									"// Newman keeps ONE cookie jar for the whole run. The Nextcloud session cookie",
+									"// established by the earlier admin requests travels with every later request, and",
+									"// Nextcloud authenticates FROM THAT COOKIE — the per-request basic-auth header",
+									"// below is never consulted. Without this clear the request runs as ADMIN, reaches",
+									"// the method body, and answers 400 from inside savePermission() instead of 403.",
+									"//",
+									"// Clearing the jar leaves {{regularUser}}'s basic-auth header as the only",
+									"// credential, so the request genuinely arrives as a logged-in non-admin and",
+									"// SecurityMiddleware can do its job.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
+								]
+							}
+						},
+						{
 							"listen": "test",
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('403 Forbidden for non-admin', () => pm.response.to.have.status(403));"
+									"// savePermission() carries #[AuthorizedAdminSetting(LaunchPadAdmin::class)], which",
+									"// Nextcloud's SecurityMiddleware enforces in beforeController(): a logged-in",
+									"// non-admin gets NotAdminException, and that exception carries",
+									"// Http::STATUS_FORBIDDEN. 403 is therefore the only correct answer, and this",
+									"// assertion is NOT widened to accept whatever the endpoint happens to return.",
+									"//",
+									"// The body is deliberately WELL FORMED — the same shape as the admin create",
+									"// above, only the groupId differs — so validation cannot be the reason it is",
+									"// refused. If the guard were ever removed this request would succeed with 201,",
+									"// which is exactly what this assertion has to catch.",
+									"pm.test('403 Forbidden for non-admin', () => {",
+									"    pm.expect(pm.response.code, `got ${pm.response.code}: ${pm.response.text().slice(0, 300)}`)",
+									"        .to.eql(403);",
+									"});",
+									"",
+									"// Positive control that the refusal came from the guard and not from inside the",
+									"// controller: SecurityMiddleware::afterException answers a JSON request with",
+									"// {\"message\": ...}, whereas every launchpad controller error is {\"error\": ...}.",
+									"// Launchpad's shape here would mean the caller reached the method body — i.e. the",
+									"// cookie confound is back, or the guard is ineffective.",
+									"pm.test('refused by the admin guard, not from inside the controller', () => {",
+									"    pm.expect(pm.response.json(), `unexpected body: ${pm.response.text().slice(0, 300)}`)",
+									"        .to.have.property('message');",
+									"});",
+									"",
+									"// Leave the jar clean. The login above minted a {{regularUser}} session cookie;",
+									"// left in the jar it would travel with every later request and silently downgrade",
+									"// the rest of the run from admin to member. Cleared, the next request falls back",
+									"// to the collection-level admin basic auth and mints a fresh admin session.",
+									"const jar = pm.cookies.jar();",
+									"jar.clear(pm.variables.replaceIn('{{baseUrl}}'), () => {});"
 								]
 							}
 						}

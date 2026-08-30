@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -9,32 +9,33 @@
 			<span
 				class="org-nav-row__handle"
 				:title="t('launchpad', 'Drag to reorder within this level')"
-				:aria-label="t('launchpad', 'Drag to reorder')">⋮⋮</span>
+				:aria-label="t('launchpad', 'Drag to reorder')"
+				>⋮⋮</span
+			>
 			<input
 				v-model="localLabel"
 				type="text"
 				class="org-nav-row__label"
 				:aria-label="t('launchpad', 'Label')"
-				@input="emitPatch({ label: localLabel })">
+				@input="emitPatch({ label: localLabel })" />
 			<input
 				v-model="localUrl"
 				type="text"
 				class="org-nav-row__url"
 				:placeholder="t('launchpad', 'URL (leave empty for section)')"
 				:aria-label="t('launchpad', 'URL')"
-				@input="emitPatch({ url: localUrl || null })">
-			<input
-				v-model="localIcon"
-				type="text"
+				@input="emitPatch({ url: localUrl || null })" />
+			<CnIconBrowser
 				class="org-nav-row__icon"
-				:placeholder="t('launchpad', 'Icon')"
-				:aria-label="t('launchpad', 'Icon')"
-				@input="emitPatch({ icon: localIcon || null })">
+				:label="t('launchpad', 'Icon')"
+				:value="localIcon"
+				:icons="iconCatalogue"
+				@input="onIconInput" />
 			<label class="org-nav-row__checkbox">
 				<input
 					v-model="localOpenInNewTab"
 					type="checkbox"
-					@change="emitPatch({ openInNewTab: localOpenInNewTab })">
+					@change="emitPatch({ openInNewTab: localOpenInNewTab })" />
 				{{ t('launchpad', 'New tab') }}
 			</label>
 			<button
@@ -42,7 +43,7 @@
 				class="org-nav-row__btn"
 				:disabled="!canMoveUp"
 				:aria-label="t('launchpad', 'Move up')"
-				@click="$emit('move-up', { siblings, index })">
+				@click="$emit('moveUp', { siblings, index })">
 				↑
 			</button>
 			<button
@@ -50,15 +51,19 @@
 				class="org-nav-row__btn"
 				:disabled="!canMoveDown"
 				:aria-label="t('launchpad', 'Move down')"
-				@click="$emit('move-down', { siblings, index })">
+				@click="$emit('moveDown', { siblings, index })">
 				↓
 			</button>
 			<button
 				type="button"
 				class="org-nav-row__btn"
 				:disabled="!canAddChild"
-				:title="canAddChild ? '' : t('launchpad', 'Tree depth cannot exceed 3 levels')"
-				@click="$emit('add-child', { parent: node, kind: 'link' })">
+				:title="
+					canAddChild
+						? ''
+						: t('launchpad', 'Tree depth cannot exceed 3 levels')
+				"
+				@click="$emit('addChild', { parent: node, kind: 'link' })">
 				{{ t('launchpad', 'Add child') }}
 			</button>
 			<button
@@ -73,7 +78,7 @@
 				<input
 					type="checkbox"
 					:checked="localVisibility === null"
-					@change="onToggleVisibilityAll($event.target.checked)">
+					@change="onToggleVisibilityAll($event.target.checked)" />
 				{{ t('launchpad', 'Visible to everyone') }}
 			</label>
 			<select
@@ -91,38 +96,44 @@
 				v-model="freeTextGroups"
 				type="text"
 				class="org-nav-row__groups-text"
+				:aria-label="t('launchpad', 'Group visibility')"
 				:placeholder="t('launchpad', 'Group ids, comma separated')"
-				@input="onFreeTextGroupsInput">
+				@input="onFreeTextGroupsInput" />
 		</div>
-		<draggable
+		<!-- vuedraggable v4 (Vue 3): rows come from the `#item` scoped slot, and
+		     `item-key` replaces the manual :key binding. See OrgNavigationEditor. -->
+		<Draggable
 			v-if="hasChildren"
 			:list="node.children"
 			tag="ul"
+			itemKey="id"
 			class="org-nav-row__children"
 			handle=".org-nav-row__handle"
-			ghost-class="org-nav-row__ghost"
+			ghostClass="org-nav-row__ghost"
 			:animation="150">
-			<OrgNavigationEditorRow
-				v-for="(child, idx) in node.children"
-				:key="child.id"
-				:node="child"
-				:level="level + 1"
-				:index="idx"
-				:siblings="node.children"
-				:max-depth="maxDepth"
-				:groups="groups"
-				@update="(payload) => $emit('update', payload)"
-				@delete="(payload) => $emit('delete', payload)"
-				@move-up="(payload) => $emit('move-up', payload)"
-				@move-down="(payload) => $emit('move-down', payload)"
-				@add-child="(payload) => $emit('add-child', payload)" />
-		</draggable>
+			<template #item="{ element: child, index: idx }">
+				<OrgNavigationEditorRow
+					:node="child"
+					:level="level + 1"
+					:index="idx"
+					:siblings="node.children"
+					:maxDepth="maxDepth"
+					:groups="groups"
+					@update="(payload) => $emit('update', payload)"
+					@delete="(payload) => $emit('delete', payload)"
+					@moveUp="(payload) => $emit('moveUp', payload)"
+					@moveDown="(payload) => $emit('moveDown', payload)"
+					@addChild="(payload) => $emit('addChild', payload)" />
+			</template>
+		</Draggable>
 	</li>
 </template>
 
 <script>
+import { CnIconBrowser } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
+import { ICON_CATALOGUE } from '../../services/iconCatalogue.js'
 
 /**
  * OrgNavigationEditorRow — single row inside the admin tree editor.
@@ -142,7 +153,8 @@ export default {
 	name: 'OrgNavigationEditorRow',
 
 	components: {
-		draggable,
+		Draggable: draggable,
+		CnIconBrowser,
 	},
 
 	props: {
@@ -150,29 +162,34 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		level: {
 			type: Number,
 			default: 1,
 		},
+
 		index: {
 			type: Number,
 			required: true,
 		},
+
 		siblings: {
 			type: Array,
 			required: true,
 		},
+
 		maxDepth: {
 			type: Number,
 			default: 3,
 		},
+
 		groups: {
 			type: Array,
 			default: () => [],
 		},
 	},
 
-	emits: ['update', 'delete', 'move-up', 'move-down', 'add-child'],
+	emits: ['update', 'delete', 'moveUp', 'moveDown', 'addChild'],
 
 	data() {
 		return {
@@ -183,6 +200,7 @@ export default {
 			localVisibility: Array.isArray(this.node.groupVisibility)
 				? [...this.node.groupVisibility]
 				: null,
+
 			freeTextGroups: Array.isArray(this.node.groupVisibility)
 				? this.node.groupVisibility.join(', ')
 				: '',
@@ -190,6 +208,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The shared MDI icon catalogue passed to CnIconBrowser — the single
+		 * picker source every admin surface reads, so the picker cannot drift
+		 * from the registry (REQ-ICON-003).
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-003
+		 * @return {object} the frozen icon catalogue.
+		 */
+		iconCatalogue() {
+			return ICON_CATALOGUE
+		},
+
 		hasChildren() {
 			return Array.isArray(this.node.children) && this.node.children.length > 0
 		},
@@ -211,19 +241,43 @@ export default {
 
 		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		indentPx() {
-			return ((this.level - 1) * 16) + 'px'
+			return (this.level - 1) * 16 + 'px'
 		},
 	},
 
 	methods: {
 		t,
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Ask the editor to merge changed fields into this row's node.
+		 *
+		 * @param {object} patch Changed fields for the node.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		emitPatch(patch) {
 			this.$emit('update', { node: this.node, patch })
 		},
 
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
+		/**
+		 * Store the icon picked from CnIconBrowser — either a built-in SVG
+		 * path or a custom URL, the two inputs REQ-ICON-008 requires the
+		 * picker to switch between without losing the previous value.
+		 *
+		 * @spec openspec/specs/dashboard-icons/spec.md#req-icon-008
+		 * @param {string|null} value the chosen icon path/URL.
+		 * @return {void}
+		 */
+		onIconInput(value) {
+			this.localIcon = value || ''
+			this.emitPatch({ icon: value || null })
+		},
+
+		/**
+		 * Switch between "visible to everyone" and a per-group list.
+		 *
+		 * @param {boolean} allVisible True to clear the group restriction.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
+		 */
 		onToggleVisibilityAll(allVisible) {
 			if (allVisible) {
 				this.localVisibility = null
@@ -278,7 +332,10 @@ export default {
 /* Placeholder shown for the dragged row while sorting. */
 .org-nav-row__ghost > .org-nav-row__row {
 	opacity: 0.5;
-	background: var(--color-primary-element-light, var(--color-background-hover, #e3f2fd));
+	background: var(
+		--color-primary-element-light,
+		var(--color-background-hover, #e3f2fd)
+	);
 	border-radius: 4px;
 }
 
@@ -287,10 +344,13 @@ export default {
 	min-width: 120px;
 }
 
-.org-nav-row__url,
-.org-nav-row__icon {
+.org-nav-row__url {
 	flex: 1;
 	min-width: 100px;
+}
+
+.org-nav-row__icon {
+	flex: 0 0 auto;
 }
 
 .org-nav-row__btn {

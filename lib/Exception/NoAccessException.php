@@ -17,8 +17,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -28,30 +28,28 @@ namespace OCA\LaunchPad\Exception;
 /**
  * Files-widget access-denied condition.
  */
-class NoAccessException extends ResourceException
-{
+class NoAccessException extends ResourceException {
 
-    /**
-     * Stable error code surfaced to the API consumer.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'no_access';
+	/**
+	 * Stable error code surfaced to the API consumer.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'no_access';
 
-    /**
-     * HTTP status code used by the controller envelope.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 403;
+	/**
+	 * HTTP status code used by the controller envelope.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 403;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Optional override message.
-     */
-    public function __construct(string $message="You don't have access to this folder")
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Optional override message.
+	 */
+	public function __construct(string $message = "You don't have access to this folder") {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

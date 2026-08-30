@@ -1,19 +1,15 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
-/* eslint-disable n/no-unpublished-import */
-import { describe, it, expect, vi } from 'vitest'
-/* eslint-enable n/no-unpublished-import */
-
+import { describe, expect, it, vi } from 'vitest'
 /**
  * Vitest tests for useInternalActions composable (REQ-LBN-005 + task 6.6).
  *
  * The registry is a module-level singleton so we re-import the module once per
  * file; individual tests clean up their own registrations.
  */
-
 import { useInternalActions } from '../composables/useInternalActions.js'
 
 describe('useInternalActions — register + invoke happy path', () => {

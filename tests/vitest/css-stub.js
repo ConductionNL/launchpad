@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * No-op stub for `*.css` imports during Vitest runs. Vue components
  * (especially those re-exported by @nextcloud/vue) emit side-effect CSS

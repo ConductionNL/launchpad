@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -9,9 +9,13 @@
 	Slide-in left navigation panel that lists every dashboard visible to
 	the user, grouped by `source` discriminator (REQ-SWITCH-001):
 
-	  1. Primary group dashboards (`source !== 'default'` from `groupDashboards`)
+	  1. Primary group dashboards (`source` neither `default` nor `shared`,
+	     from `groupDashboards`)
 	  2. Default group dashboards (`source === 'default'` from `groupDashboards`)
 	  3. Personal dashboards (`userDashboards`)
+	  4. Dashboards shared with the user (`source === 'shared'` from
+	     `groupDashboards`) — REQ-SHARE-002. Rendered last, mirroring the
+	     backend resolver where a share is the last-resort candidate.
 
 	Empty sections collapse entirely (no orphan headings). Clicking a row
 	emits `update:open(false)` THEN `switch(id, source)` (REQ-SWITCH-002).
@@ -22,7 +26,7 @@
 	inline-flex`) emitting `delete-dashboard(id)` with `@click.stop` so it
 	never triggers a switch (REQ-SWITCH-004).
 
-	A dedicated "Add Dashboard" card button (NcButton outline) renders
+	A dedicated "Add Dashboard" card button (NcButton secondary) renders
 	below the personal dashboards list — still inside the scroll container,
 	NOT inside the footer — when `allowUserDashboards === true`. Clicking
 	it emits `update:open(false)` then `create-dashboard()` (REQ-SWITCH-008).
@@ -107,31 +111,43 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="group"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'group')"
-							@open-config="onRowOpenConfig(dashboard, 'group')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'group')"
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'group')"
+							@openConfig="onRowOpenConfig(dashboard, 'group')"
+							@addCustomWidget="
+								onRowAddCustomWidget(dashboard, 'group')
+							"
 							@delete="onRowDelete(dashboard, 'group')"
-							@set-default="onRowSetDefault(dashboard, 'group')" />
+							@setDefault="onRowSetDefault(dashboard, 'group')" />
 					</li>
 				</ul>
 			</section>
 
 			<!-- Divider 1 ↔ 2 -->
 			<hr
-				v-if="primaryGroupDashboards.length > 0 && defaultGroupDashboards.length > 0"
-				class="dashboard-switcher-sidebar__divider">
+				v-if="
+					primaryGroupDashboards.length > 0
+					&& defaultGroupDashboards.length > 0
+				"
+				class="dashboard-switcher-sidebar__divider" />
 
 			<!-- 2. Default group dashboards -->
 			<section
@@ -160,31 +176,44 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="default"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'default')"
-							@open-config="onRowOpenConfig(dashboard, 'default')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'default')"
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'default')"
+							@openConfig="onRowOpenConfig(dashboard, 'default')"
+							@addCustomWidget="
+								onRowAddCustomWidget(dashboard, 'default')
+							"
 							@delete="onRowDelete(dashboard, 'default')"
-							@set-default="onRowSetDefault(dashboard, 'default')" />
+							@setDefault="onRowSetDefault(dashboard, 'default')" />
 					</li>
 				</ul>
 			</section>
 
 			<!-- Divider before personal section (only when prev section non-empty) -->
 			<hr
-				v-if="(primaryGroupDashboards.length > 0 || defaultGroupDashboards.length > 0) && showPersonalSection"
-				class="dashboard-switcher-sidebar__divider">
+				v-if="
+					(primaryGroupDashboards.length > 0
+						|| defaultGroupDashboards.length > 0)
+					&& showPersonalSection
+				"
+				class="dashboard-switcher-sidebar__divider" />
 
 			<!-- 3. Personal dashboards -->
 			<section
@@ -213,23 +242,32 @@
 						<span
 							v-if="isDefaultDashboard(dashboard)"
 							class="dashboard-switcher-sidebar__default-marker"
-							:title="t('launchpad', 'Default dashboard — opens automatically when you visit LaunchPad')"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
 							:aria-label="t('launchpad', 'Default dashboard')">
 							<Star :size="16" />
 						</span>
-						<span class="dashboard-switcher-sidebar__label">{{ dashboard.name }}</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
 						<DashboardRowActions
 							:dashboard="dashboard"
 							source="user"
-							:can-edit="canEdit"
-							:default-uuid="defaultUuid"
-							:is-edit-mode="isEditMode"
-							:active-dashboard-id="activeDashboardId"
-							@toggle-edit="onRowToggleEdit(dashboard, 'user')"
-							@open-config="onRowOpenConfig(dashboard, 'user')"
-							@add-custom-widget="onRowAddCustomWidget(dashboard, 'user')"
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'user')"
+							@openConfig="onRowOpenConfig(dashboard, 'user')"
+							@addCustomWidget="
+								onRowAddCustomWidget(dashboard, 'user')
+							"
 							@delete="onRowDelete(dashboard, 'user')"
-							@set-default="onRowSetDefault(dashboard, 'user')" />
+							@setDefault="onRowSetDefault(dashboard, 'user')" />
 					</li>
 				</ul>
 
@@ -243,13 +281,17 @@
 					v-if="allowUserDashboards"
 					class="dashboard-switcher-sidebar__add-dashboard-card">
 					<NcButton
-						type="outline"
+						variant="secondary"
 						wide
 						data-action="create"
 						data-testid="add-dashboard-button"
 						:disabled="dashboardQuotaReached"
 						:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
-						:aria-label="dashboardQuotaReached ? dashboardQuotaTooltip : t('launchpad', 'Add dashboard')"
+						:aria-label="
+							dashboardQuotaReached
+								? dashboardQuotaTooltip
+								: t('launchpad', 'Add dashboard')
+						"
 						@click="onCreate">
 						<template #icon>
 							<Plus :size="20" />
@@ -264,6 +306,73 @@
 					</p>
 				</div>
 			</section>
+
+			<!-- Divider before the shared section -->
+			<hr
+				v-if="
+					sharedDashboards.length > 0
+					&& (primaryGroupDashboards.length > 0
+						|| defaultGroupDashboards.length > 0
+						|| showPersonalSection)
+				"
+				class="dashboard-switcher-sidebar__divider" />
+
+			<!-- 4. Dashboards shared with the user (REQ-SHARE-002) -->
+			<section
+				v-if="sharedDashboards.length > 0"
+				class="dashboard-switcher-sidebar__section"
+				data-section="shared">
+				<h3 class="dashboard-switcher-sidebar__heading">
+					{{ t('launchpad', 'Shared with you') }}
+				</h3>
+				<ul class="dashboard-switcher-sidebar__list">
+					<li
+						v-for="dashboard in sharedDashboards"
+						:key="`shared-${dashboard.id}`"
+						class="dashboard-switcher-sidebar__item"
+						:class="{ active: isActive(dashboard.id) }"
+						data-source="shared"
+						tabindex="0"
+						role="button"
+						:aria-label="dashboard.name"
+						@click="onSwitch(dashboard.id, 'shared')"
+						@keydown.enter="onSwitch(dashboard.id, 'shared')"
+						@keydown.space.prevent="onSwitch(dashboard.id, 'shared')">
+						<span class="dashboard-switcher-sidebar__icon">
+							<CnDashboardIcon :name="dashboard.icon" :size="20" />
+						</span>
+						<span
+							v-if="isDefaultDashboard(dashboard)"
+							class="dashboard-switcher-sidebar__default-marker"
+							:title="
+								t(
+									'launchpad',
+									'Default dashboard — opens automatically when you visit LaunchPad',
+								)
+							"
+							:aria-label="t('launchpad', 'Default dashboard')">
+							<Star :size="16" />
+						</span>
+						<span class="dashboard-switcher-sidebar__label">{{
+							dashboard.name
+						}}</span>
+						<DashboardRowActions
+							:dashboard="dashboard"
+							source="shared"
+							:canEdit="canEdit"
+							:defaultUuid="defaultUuid"
+							:isEditMode="isEditMode"
+							:activeDashboardId="activeDashboardId"
+							@toggleEdit="onRowToggleEdit(dashboard, 'shared')"
+							@openConfig="onRowOpenConfig(dashboard, 'shared')"
+							@addCustomWidget="
+								onRowAddCustomWidget(dashboard, 'shared')
+							"
+							@delete="onRowDelete(dashboard, 'shared')"
+							@setDefault="onRowSetDefault(dashboard, 'shared')" />
+					</li>
+				</ul>
+			</section>
 		</div>
 
 		<!--
@@ -276,14 +385,13 @@
 </template>
 
 <script>
+import { CnDashboardIcon, NcButton } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import { NcButton, CnDashboardIcon } from '@conduction/nextcloud-vue'
-
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
-import SidebarFooter from './SidebarFooter.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
+import SidebarFooter from './SidebarFooter.vue'
 
 export default {
 	name: 'DashboardSwitcherSidebar',
@@ -298,20 +406,12 @@ export default {
 		DashboardRowActions,
 	},
 
-	/**
-	 * Vue 2 `v-model` rebind: parent can write `v-model="sidebarOpen"` and
-	 * we will read from `isOpen` and emit `update:open(boolean)`. This is
-	 * the Vue 2.7 equivalent of Vue 3's `v-model:open` syntax.
-	 */
-	model: {
-		prop: 'isOpen',
-		event: 'update:open',
-	},
-
 	props: {
 		/**
-		 * Controlled by the parent via `v-model` (rebound to `isOpen` /
-		 * `update:open` above).
+		 * Controlled by the parent. Vue 3 removed the component-level
+		 * `model: { prop, event }` option that used to rebind a bare
+		 * `v-model` onto `isOpen` / `update:open`, so the host binds the
+		 * prop and the `update:open` listener explicitly (see Views.vue).
 		 */
 		isOpen: {
 			type: Boolean,
@@ -335,7 +435,11 @@ export default {
 		groupDashboards: {
 			type: Array,
 			required: true,
-			/** @spec openspec/specs/dashboard-switcher/spec.md */
+			/**
+			 * @param {unknown} value Prop value to validate.
+			 * @return {boolean} True when the value is an array.
+			 * @spec openspec/specs/dashboard-switcher/spec.md
+			 */
 			validator(value) {
 				return Array.isArray(value)
 			},
@@ -347,7 +451,11 @@ export default {
 		userDashboards: {
 			type: Array,
 			required: true,
-			/** @spec openspec/specs/dashboard-switcher/spec.md */
+			/**
+			 * @param {unknown} value Prop value to validate.
+			 * @return {boolean} True when the value is an array.
+			 * @spec openspec/specs/dashboard-switcher/spec.md
+			 */
 			validator(value) {
 				return Array.isArray(value)
 			},
@@ -431,30 +539,46 @@ export default {
 
 	emits: [
 		'switch',
-		'create-dashboard',
-		'delete-dashboard',
+		'createDashboard',
+		'deleteDashboard',
 		'update:open',
 		// wave3.6 — per-row events. Each carries `(dashboard, source)`
 		// so the host can switch to that dashboard and then apply the
 		// action. The sidebar emits the raw event; the host owns the
 		// switch-then-apply orchestration.
-		'toggle-edit',
-		'open-config',
-		'add-custom-widget',
+		'toggleEdit',
+		'openConfig',
+		'addCustomWidget',
 		// wave3.7 — `(dashboard, source)`. The host pins this row as
 		// the user's default via `POST /api/dashboards/default`.
-		'set-default',
+		'setDefault',
 	],
 
 	computed: {
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		primaryGroupDashboards() {
-			return this.groupDashboards.filter(d => d.source !== 'default')
+			return this.groupDashboards.filter(
+				(d) => d.source !== 'default' && d.source !== 'shared',
+			)
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		defaultGroupDashboards() {
-			return this.groupDashboards.filter(d => d.source === 'default')
+			return this.groupDashboards.filter((d) => d.source === 'default')
+		},
+
+		/**
+		 * Dashboards reached through an explicit share (REQ-SHARE-002).
+		 * They arrive in `groupDashboards` because the server descriptor
+		 * builder buckets everything that is not `source: 'user'` there,
+		 * but they belong in their own section — a shared dashboard is
+		 * neither the viewer's own nor part of their group's set.
+		 *
+		 * @return {Array<object>} the shared dashboard descriptors.
+		 * @spec openspec/specs/dashboard-sharing/spec.md
+		 */
+		sharedDashboards() {
+			return this.groupDashboards.filter((d) => d.source === 'shared')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
@@ -465,10 +589,13 @@ export default {
 		/**
 		 * Personal section is rendered when there is at least one personal
 		 * dashboard OR the user is allowed to create one (REQ-SWITCH-001).
+		 *
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		showPersonalSection() {
-			return this.userDashboards.length > 0 || this.allowUserDashboards === true
+			return (
+				this.userDashboards.length > 0 || this.allowUserDashboards === true
+			)
 		},
 
 		/**
@@ -482,8 +609,8 @@ export default {
 		 *
 		 * @return {string} UUID of the effective default, or '' when
 		 *                  no pin/group default applies.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		effectiveDefaultUuid() {
 			if (this.defaultUuid) {
 				return this.defaultUuid
@@ -518,8 +645,8 @@ export default {
 		 * explicitly.
 		 *
 		 * @return {'true'|'false'} String form of `!isOpen`.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		ariaHiddenAttr() {
 			return this.isOpen ? 'false' : 'true'
 		},
@@ -528,8 +655,20 @@ export default {
 	methods: {
 		t,
 
+		/**
+		 * Whether a row is the active dashboard (REQ-SWITCH-002 marks the
+		 * active row in the switcher).
+		 *
+		 * @param {string|number} id the row's dashboard id.
+		 * @return {boolean} true when it is the active dashboard.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		isActive(id) {
-			return this.activeDashboardId != null && id === this.activeDashboardId
+			return (
+				this.activeDashboardId !== null
+				&& this.activeDashboardId !== undefined
+				&& id === this.activeDashboardId
+			)
 		},
 
 		/**
@@ -540,11 +679,13 @@ export default {
 		 *
 		 * @param {object} dashboard Row payload from the parent.
 		 * @return {boolean} True when the row is the effective default.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		isDefaultDashboard(dashboard) {
-			return Boolean(this.effectiveDefaultUuid)
+			return (
+				Boolean(this.effectiveDefaultUuid)
 				&& dashboard?.uuid === this.effectiveDefaultUuid
+			)
 		},
 
 		/**
@@ -553,9 +694,9 @@ export default {
 		 * in the same tick (REQ-SWITCH-002).
 		 *
 		 * @param {string|number} id Dashboard id of the clicked row.
-		 * @param {'group'|'default'|'user'} source Section the row was rendered in.
+		 * @param {'group'|'default'|'user'|'shared'} source Section the row was rendered in.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onSwitch(id, source) {
 			this.$emit('update:open', false)
 			this.$emit('switch', id, source)
@@ -568,33 +709,65 @@ export default {
 		 * sidebar collapses, THEN re-emitting the action upward with
 		 * `(dashboard, source)` so the host can switch to that
 		 * dashboard before applying the action.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onRowToggleEdit(dashboard, source) {
-			this.$emit('toggle-edit', dashboard, source)
+			this.$emit('toggleEdit', dashboard, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+
+		/**
+		 * Re-emit the row's "Configure" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowOpenConfig(dashboard, source) {
-			this.$emit('open-config', dashboard, source)
+			this.$emit('openConfig', dashboard, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+
+		/**
+		 * Re-emit the row's "Add widget" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowAddCustomWidget(dashboard, source) {
-			this.$emit('add-custom-widget', dashboard, source)
+			this.$emit('addCustomWidget', dashboard, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+
+		/**
+		 * Re-emit the row's "Delete" action upward, narrowed to the id.
+		 *
+		 * @param {object} dashboard Row payload; only `id` is forwarded.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowDelete(dashboard, source) {
-			this.$emit('delete-dashboard', dashboard.id, source)
+			this.$emit('deleteDashboard', dashboard.id, source)
 		},
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
+
+		/**
+		 * Re-emit the row's "Set as default" action upward.
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'|'shared'} source Row section discriminator.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
 		onRowSetDefault(dashboard, source) {
-			this.$emit('set-default', dashboard, source)
+			this.$emit('setDefault', dashboard, source)
 		},
 
 		/**
 		 * Click handler for the "Add Dashboard" card button. MUST emit
 		 * `update:open(false)` BEFORE `create-dashboard()` (REQ-SWITCH-008).
+		 *
+		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
-		/** @spec openspec/specs/dashboard-switcher/spec.md */
 		onCreate() {
 			// dashboard-quota-limits REQ-QUOTA-006: belt-and-braces — the
 			// button is already disabled at the limit, but never emit the
@@ -604,7 +777,7 @@ export default {
 				return
 			}
 			this.$emit('update:open', false)
-			this.$emit('create-dashboard')
+			this.$emit('createDashboard')
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
@@ -771,8 +944,10 @@ export default {
 	color: var(--color-error, #c0392b);
 }
 
-.dashboard-switcher-sidebar__item--personal:hover .dashboard-switcher-sidebar__delete,
-.dashboard-switcher-sidebar__item--personal:focus-within .dashboard-switcher-sidebar__delete {
+.dashboard-switcher-sidebar__item--personal:hover
+	.dashboard-switcher-sidebar__delete,
+.dashboard-switcher-sidebar__item--personal:focus-within
+	.dashboard-switcher-sidebar__delete {
 	display: inline-flex;
 }
 
@@ -806,5 +981,13 @@ export default {
 	position: sticky;
 	bottom: 0;
 	flex: 0 0 auto;
+}
+
+/* WCAG 2.2 SC 2.3.3 — honour the user's reduced-motion preference (hydra gate-45) */
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-switcher-sidebar,
+	.dashboard-switcher-sidebar__item {
+		transition: none;
+	}
 }
 </style>

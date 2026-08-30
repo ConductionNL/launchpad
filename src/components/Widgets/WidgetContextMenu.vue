@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -17,6 +17,14 @@
 			data-testid="ctx-edit"
 			@click="onEdit">
 			{{ t('launchpad', 'Edit') }}
+		</button>
+		<button
+			type="button"
+			class="widget-context-menu__item"
+			role="menuitem"
+			data-testid="ctx-move"
+			@click="onMove">
+			{{ t('launchpad', 'Move') }}
 		</button>
 		<button
 			type="button"
@@ -67,6 +75,9 @@ import { t } from '@nextcloud/l10n'
  * Emits:
  *  - `edit`: user clicked Edit — parent should open `AddWidgetModal` with
  *    the selected widget passed as `editingWidget`
+ *  - `move`: user clicked Move — parent should open the keyboard-operable
+ *    `WidgetMovePanel` for the selected placement (WCAG 2.1 SC 2.1.1
+ *    keyboard-equivalent to pointer drag)
  *  - `remove`: user clicked Remove — parent should hit the placement-delete
  *    path of REQ-WDG-005 (`DELETE /api/placements/{id}`)
  *  - `close`: user clicked Cancel — no-op close
@@ -79,13 +90,14 @@ export default {
 			type: Number,
 			required: true,
 		},
+
 		left: {
 			type: Number,
 			required: true,
 		},
 	},
 
-	emits: ['edit', 'remove', 'visibility-rules', 'close'],
+	emits: ['edit', 'move', 'remove', 'visibilityRules', 'close'],
 
 	computed: {
 		/**
@@ -96,8 +108,8 @@ export default {
 		 * account for scroll offsets.
 		 *
 		 * @return {object}
+		 * @spec openspec/specs/widgets/spec.md
 		 */
-		/** @spec openspec/specs/widgets/spec.md */
 		positionStyle() {
 			return {
 				top: `${this.top}px`,
@@ -115,9 +127,15 @@ export default {
 			this.$emit('close')
 		},
 
+		/** @spec openspec/specs/grid-layout/spec.md */
+		onMove() {
+			this.$emit('move')
+			this.$emit('close')
+		},
+
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRules() {
-			this.$emit('visibility-rules')
+			this.$emit('visibilityRules')
 			this.$emit('close')
 		},
 

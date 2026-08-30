@@ -29,30 +29,28 @@ namespace OCA\LaunchPad\Exception;
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-4
  */
-class ShareReadOnlyException extends ResourceException
-{
+class ShareReadOnlyException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'cannot_modify_public_share';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'cannot_modify_public_share';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 403;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 403;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Cannot modify dashboard via public share')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Cannot modify dashboard via public share') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

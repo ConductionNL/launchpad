@@ -11,12 +11,12 @@
  * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
- * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -51,157 +51,151 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getUpdatedAt()
  * @method void setUpdatedAt(?string $updatedAt)
  */
-class RoleFeaturePermission extends Entity implements JsonSerializable
-{
-    /**
-     * Sentinel group id used as a catch-all fallback when a user's
-     * `group_order` priority does not yield a match (REQ-RFP-009).
-     *
-     * @var string
-     */
-    public const GROUP_DEFAULT = 'default';
+class RoleFeaturePermission extends Entity implements JsonSerializable {
+	/**
+	 * Sentinel group id used as a catch-all fallback when a user's
+	 * `group_order` priority does not yield a match (REQ-RFP-009).
+	 *
+	 * @var string
+	 */
+	public const GROUP_DEFAULT = 'default';
 
-    /**
-     * Human-readable name (e.g. "Medewerker widget-rechten").
-     *
-     * @var string
-     */
-    protected string $name = '';
+	/**
+	 * Human-readable name (e.g. "Medewerker widget-rechten").
+	 *
+	 * @var string
+	 */
+	protected string $name = '';
 
-    /**
-     * Optional purpose / notes.
-     *
-     * @var string|null
-     */
-    protected ?string $description = null;
+	/**
+	 * Optional purpose / notes.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $description = null;
 
-    /**
-     * Nextcloud group ID this permission applies to.
-     *
-     * @var string
-     */
-    protected string $groupId = '';
+	/**
+	 * Nextcloud group ID this permission applies to.
+	 *
+	 * @var string
+	 */
+	protected string $groupId = '';
 
-    /**
-     * JSON-encoded list of widget IDs the group may add. Empty list = no
-     * widgets allowed; null after construction = unset.
-     *
-     * @var string|null
-     */
-    protected ?string $allowedWidgets = null;
+	/**
+	 * JSON-encoded list of widget IDs the group may add. Empty list = no
+	 * widgets allowed; null after construction = unset.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $allowedWidgets = null;
 
-    /**
-     * JSON-encoded list of widget IDs explicitly denied. Wins over
-     * `allowedWidgets` when merging multiple groups (deny-wins, REQ-RFP-005).
-     *
-     * @var string|null
-     */
-    protected ?string $deniedWidgets = null;
+	/**
+	 * JSON-encoded list of widget IDs explicitly denied. Wins over
+	 * `allowedWidgets` when merging multiple groups (deny-wins, REQ-RFP-005).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $deniedWidgets = null;
 
-    /**
-     * JSON-encoded map of `{widgetId: int}` priority weights. Higher value =
-     * earlier in seeded layout / dashboard ordering.
-     *
-     * @var string|null
-     */
-    protected ?string $priorityWeights = null;
+	/**
+	 * JSON-encoded map of `{widgetId: int}` priority weights. Higher value =
+	 * earlier in seeded layout / dashboard ordering.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $priorityWeights = null;
 
-    /**
-     * ISO-8601 creation timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * ISO-8601 creation timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * ISO-8601 last-modification timestamp.
-     *
-     * @var string|null
-     */
-    protected ?string $updatedAt = null;
+	/**
+	 * ISO-8601 last-modification timestamp.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $updatedAt = null;
 
-    /**
-     * Constructor — registers ORM column types.
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — registers ORM column types.
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Get `allowedWidgets` decoded into a string array.
-     *
-     * @return array The list of allowed widget IDs (empty array if unset).
-     */
-    public function getAllowedWidgetsDecoded(): array
-    {
-        if ($this->allowedWidgets === null || $this->allowedWidgets === '') {
-            return [];
-        }
+	/**
+	 * Get `allowedWidgets` decoded into a string array.
+	 *
+	 * @return array The list of allowed widget IDs (empty array if unset).
+	 */
+	public function getAllowedWidgetsDecoded(): array {
+		if ($this->allowedWidgets === null || $this->allowedWidgets === '') {
+			return [];
+		}
 
-        $decoded = json_decode(json: $this->allowedWidgets, associative: true);
-        if (is_array($decoded) === false) {
-            return [];
-        }
+		$decoded = json_decode(json: $this->allowedWidgets, associative: true);
+		if (is_array($decoded) === false) {
+			return [];
+		}
 
-        return array_values(array: $decoded);
-    }//end getAllowedWidgetsDecoded()
+		return array_values(array: $decoded);
+	}//end getAllowedWidgetsDecoded()
 
-    /**
-     * Get `deniedWidgets` decoded into a string array.
-     *
-     * @return array The list of denied widget IDs (empty array if unset).
-     */
-    public function getDeniedWidgetsDecoded(): array
-    {
-        if ($this->deniedWidgets === null || $this->deniedWidgets === '') {
-            return [];
-        }
+	/**
+	 * Get `deniedWidgets` decoded into a string array.
+	 *
+	 * @return array The list of denied widget IDs (empty array if unset).
+	 */
+	public function getDeniedWidgetsDecoded(): array {
+		if ($this->deniedWidgets === null || $this->deniedWidgets === '') {
+			return [];
+		}
 
-        $decoded = json_decode(json: $this->deniedWidgets, associative: true);
-        if (is_array($decoded) === false) {
-            return [];
-        }
+		$decoded = json_decode(json: $this->deniedWidgets, associative: true);
+		if (is_array($decoded) === false) {
+			return [];
+		}
 
-        return array_values(array: $decoded);
-    }//end getDeniedWidgetsDecoded()
+		return array_values(array: $decoded);
+	}//end getDeniedWidgetsDecoded()
 
-    /**
-     * Get `priorityWeights` decoded into a `{widgetId: int}` map.
-     *
-     * @return array The decoded priority map (empty array if unset).
-     */
-    public function getPriorityWeightsDecoded(): array
-    {
-        if ($this->priorityWeights === null || $this->priorityWeights === '') {
-            return [];
-        }
+	/**
+	 * Get `priorityWeights` decoded into a `{widgetId: int}` map.
+	 *
+	 * @return array The decoded priority map (empty array if unset).
+	 */
+	public function getPriorityWeightsDecoded(): array {
+		if ($this->priorityWeights === null || $this->priorityWeights === '') {
+			return [];
+		}
 
-        $decoded = json_decode(json: $this->priorityWeights, associative: true);
-        if (is_array($decoded) === false) {
-            return [];
-        }
+		$decoded = json_decode(json: $this->priorityWeights, associative: true);
+		if (is_array($decoded) === false) {
+			return [];
+		}
 
-        return $decoded;
-    }//end getPriorityWeightsDecoded()
+		return $decoded;
+	}//end getPriorityWeightsDecoded()
 
-    /**
-     * Serialize to a JSON-friendly array.
-     *
-     * @return array The serialized representation.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'              => $this->getId(),
-            'name'            => $this->name,
-            'description'     => $this->description,
-            'groupId'         => $this->groupId,
-            'allowedWidgets'  => $this->getAllowedWidgetsDecoded(),
-            'deniedWidgets'   => $this->getDeniedWidgetsDecoded(),
-            'priorityWeights' => (object) $this->getPriorityWeightsDecoded(),
-            'createdAt'       => $this->createdAt,
-            'updatedAt'       => $this->updatedAt,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to a JSON-friendly array.
+	 *
+	 * @return array The serialized representation.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'name' => $this->name,
+			'description' => $this->description,
+			'groupId' => $this->groupId,
+			'allowedWidgets' => $this->getAllowedWidgetsDecoded(),
+			'deniedWidgets' => $this->getDeniedWidgetsDecoded(),
+			'priorityWeights' => (object)$this->getPriorityWeightsDecoded(),
+			'createdAt' => $this->createdAt,
+			'updatedAt' => $this->updatedAt,
+		];
+	}//end jsonSerialize()
 }//end class

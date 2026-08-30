@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for the spend-analytics data layer (REQ-SAW-004,
  * REQ-SAW-005, REQ-SAW-006, REQ-SAW-007). Verifies finance/vendor
@@ -9,13 +9,13 @@
  * and deep-link resolution.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import axios from '@nextcloud/axios'
-import { queryGraphql, GraphQLSourceError } from '../graphqlClient.js'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { GraphQLSourceError, queryGraphql } from '../graphqlClient.js'
 import {
 	fetchFinanceSummary,
-	fetchVendorCommitments,
 	fetchSpendNarrative,
+	fetchVendorCommitments,
 	resolveDeepLink,
 	SPEND_SOURCES,
 } from '../spendAnalytics.js'
@@ -31,10 +31,11 @@ vi.mock('@nextcloud/axios', () => ({
 	default: { post: vi.fn() },
 }))
 vi.mock('@nextcloud/router', () => ({
-	generateUrl: (path, params = {}) => Object.entries(params).reduce(
-		(acc, [key, value]) => acc.replace(`{${key}}`, value),
-		path,
-	),
+	generateUrl: (path, params = {}) =>
+		Object.entries(params).reduce(
+			(acc, [key, value]) => acc.replace(`{${key}}`, value),
+			path,
+		),
 }))
 
 describe('spendAnalytics data layer', () => {
@@ -45,14 +46,31 @@ describe('spendAnalytics data layer', () => {
 	it('aggregates finance transactions into total + byCategory + trend (REQ-SAW-004)', async () => {
 		queryGraphql.mockResolvedValue({
 			transactions: [
-				{ totalAmount: 100, currency: 'EUR', category: 'IT', bookedAt: '2026-01-15' },
-				{ totalAmount: 50, currency: 'EUR', category: 'IT', bookedAt: '2026-02-10' },
-				{ totalAmount: 25, currency: 'EUR', category: 'Travel', bookedAt: '2026-01-20' },
+				{
+					totalAmount: 100,
+					currency: 'EUR',
+					category: 'IT',
+					bookedAt: '2026-01-15',
+				},
+				{
+					totalAmount: 50,
+					currency: 'EUR',
+					category: 'IT',
+					bookedAt: '2026-02-10',
+				},
+				{
+					totalAmount: 25,
+					currency: 'EUR',
+					category: 'Travel',
+					bookedAt: '2026-01-20',
+				},
 			],
 		})
 		const result = await fetchFinanceSummary({ period: 'quarter' })
 
-		expect(queryGraphql).toHaveBeenCalledWith(expect.objectContaining({ app: SPEND_SOURCES.FINANCE }))
+		expect(queryGraphql).toHaveBeenCalledWith(
+			expect.objectContaining({ app: SPEND_SOURCES.FINANCE }),
+		)
 		expect(result.available).toBe(true)
 		expect(result.total).toBe(175)
 		expect(result.currency).toBe('EUR')
@@ -63,7 +81,13 @@ describe('spendAnalytics data layer', () => {
 	})
 
 	it('returns available:false with code when financeq is absent (REQ-SAW-005)', async () => {
-		queryGraphql.mockRejectedValue(new GraphQLSourceError('not_installed', 'financeq', 'financeq is not installed'))
+		queryGraphql.mockRejectedValue(
+			new GraphQLSourceError(
+				'not_installed',
+				'financeq',
+				'financeq is not installed',
+			),
+		)
 		const result = await fetchFinanceSummary({ period: 'quarter' })
 		expect(result).toMatchObject({ available: false, code: 'not_installed' })
 	})
@@ -89,7 +113,13 @@ describe('spendAnalytics data layer', () => {
 	})
 
 	it('vendor source returns unavailable envelope when procest absent (REQ-SAW-005)', async () => {
-		queryGraphql.mockRejectedValue(new GraphQLSourceError('not_installed', 'procest', 'procest is not installed'))
+		queryGraphql.mockRejectedValue(
+			new GraphQLSourceError(
+				'not_installed',
+				'procest',
+				'procest is not installed',
+			),
+		)
 		const result = await fetchVendorCommitments({ period: 'quarter' })
 		expect(result).toMatchObject({ available: false, code: 'not_installed' })
 	})
@@ -113,7 +143,11 @@ describe('spendAnalytics data layer', () => {
 	})
 
 	it('resolves a deep-link to the owning sibling app (REQ-SAW-007)', () => {
-		expect(resolveDeepLink('financeq', 'transaction', 'tx-1')).toBe('/apps/financeq/transaction/tx-1')
-		expect(resolveDeepLink('procest', 'vendor', 'acme')).toBe('/apps/procest/vendor/acme')
+		expect(resolveDeepLink('financeq', 'transaction', 'tx-1')).toBe(
+			'/apps/financeq/transaction/tx-1',
+		)
+		expect(resolveDeepLink('procest', 'vendor', 'acme')).toBe(
+			'/apps/procest/vendor/acme',
+		)
 	})
 })

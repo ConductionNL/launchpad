@@ -1,13 +1,18 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="launchpad-admin__section">
 		<h3>{{ t('launchpad', 'Role-based widget permissions') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Restrict which widgets each Nextcloud group can add to their dashboard. Empty list = full catalogue (legacy).') }}
+			{{
+				t(
+					'launchpad',
+					'Restrict which widgets each Nextcloud group can add to their dashboard. Empty list = full catalogue (legacy).',
+				)
+			}}
 		</p>
 
 		<div v-if="store.error" class="launchpad-admin__error" role="alert">
@@ -17,41 +22,53 @@
 		<NcEmptyContent
 			v-if="!store.loading && store.permissions.length === 0"
 			:name="t('launchpad', 'No role permissions configured')"
-			:description="t('launchpad', 'Add a role-permission row to start filtering the widget catalogue per Nextcloud group.')">
+			:description="
+				t(
+					'launchpad',
+					'Add a role-permission row to start filtering the widget catalogue per Nextcloud group.',
+				)
+			">
 			<template #icon>
 				<AccountGroup :size="40" />
 			</template>
 		</NcEmptyContent>
 
 		<div v-else class="launchpad-admin__role-list">
-			<div v-for="row in store.permissions"
+			<div
+				v-for="row in store.permissions"
 				:key="row.id"
 				class="launchpad-admin__role-row">
 				<div class="launchpad-admin__role-meta">
 					<strong>{{ row.name }}</strong>
-					<span class="launchpad-admin__role-group">{{ row.groupId }}</span>
+					<span class="launchpad-admin__role-group">{{
+						row.groupId
+					}}</span>
 				</div>
 				<div class="launchpad-admin__role-widgets">
-					<span v-for="wid in row.allowedWidgets"
+					<span
+						v-for="wid in row.allowedWidgets"
 						:key="wid"
 						class="launchpad-admin__chip">
 						{{ wid }}
 					</span>
-					<span v-for="wid in row.deniedWidgets"
+					<span
+						v-for="wid in row.deniedWidgets"
 						:key="`d-${wid}`"
 						class="launchpad-admin__chip launchpad-admin__chip--denied">
 						{{ wid }}
 					</span>
 				</div>
 				<div class="launchpad-admin__role-actions">
-					<NcButton type="tertiary"
+					<NcButton
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
 							<Pencil :size="20" />
 						</template>
 					</NcButton>
-					<NcButton type="tertiary"
+					<NcButton
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="confirmDelete(row)">
 						<template #icon>
@@ -62,7 +79,7 @@
 			</div>
 		</div>
 
-		<NcButton type="primary" data-testid="admin-add-role" @click="openCreate">
+		<NcButton variant="primary" data-testid="admin-add-role" @click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>
@@ -72,12 +89,12 @@
 		<RolePermissionEditorModal
 			v-if="showEditor"
 			:row="editorRow"
-			:allowed-widgets-csv="allowedWidgetsCsv"
-			:denied-widgets-csv="deniedWidgetsCsv"
+			:allowedWidgetsCsv="allowedWidgetsCsv"
+			:deniedWidgetsCsv="deniedWidgetsCsv"
 			:saving="store.saving"
 			@update:row="editorRow = $event"
-			@update:allowed-widgets-csv="allowedWidgetsCsv = $event"
-			@update:denied-widgets-csv="deniedWidgetsCsv = $event"
+			@update:allowedWidgetsCsv="allowedWidgetsCsv = $event"
+			@update:deniedWidgetsCsv="deniedWidgetsCsv = $event"
 			@save="save"
 			@close="closeEditor" />
 
@@ -85,24 +102,22 @@
 		<RolePermissionDeleteDialog
 			v-if="showDeleteDialog"
 			:open="showDeleteDialog"
-			:group-id="deleteTarget ? deleteTarget.groupId : ''"
+			:groupId="deleteTarget ? deleteTarget.groupId : ''"
 			@update:open="showDeleteDialog = $event"
 			@confirm="doDelete" />
 	</div>
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-} from '@conduction/nextcloud-vue'
+import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
-import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
 import RolePermissionDeleteDialog from '../../dialogs/RolePermissionDeleteDialog.vue'
+import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'RolePermissionsSection',
@@ -140,7 +155,7 @@ export default {
 		try {
 			await this.store.loadPermissions()
 		} catch (e) {
-			console.error('Failed to load role permissions', e)
+			logger.error('Failed to load role permissions', e)
 		}
 	},
 
@@ -157,6 +172,7 @@ export default {
 				priorityWeights: {},
 			}
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		openCreate() {
 			this.editorRow = this.emptyRow()
@@ -164,7 +180,13 @@ export default {
 			this.deniedWidgetsCsv = ''
 			this.showEditor = true
 		},
-		/** @spec openspec/specs/admin-roles/spec.md */
+
+		/**
+		 * Open the editor pre-filled from an existing role-permission row.
+		 *
+		 * @param {object} row The row to edit.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		openEdit(row) {
 			this.editorRow = {
 				...row,
@@ -176,17 +198,26 @@ export default {
 			this.deniedWidgetsCsv = (row.deniedWidgets ?? []).join(', ')
 			this.showEditor = true
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		closeEditor() {
 			this.showEditor = false
 		},
-		/** @spec openspec/specs/admin-roles/spec.md */
+
+		/**
+		 * Split a comma-separated input into trimmed, non-empty entries.
+		 *
+		 * @param {string} s Raw CSV text from the form.
+		 * @return {string[]} The parsed entries.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		parseCsv(s) {
 			return (s ?? '')
 				.split(',')
-				.map(x => x.trim())
-				.filter(x => x.length > 0)
+				.map((x) => x.trim())
+				.filter((x) => x.length > 0)
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		async save() {
 			try {
@@ -201,14 +232,21 @@ export default {
 				await this.store.savePermission(payload)
 				this.closeEditor()
 			} catch (e) {
-				console.error('Failed to save role permission', e)
+				logger.error('Failed to save role permission', e)
 			}
 		},
-		/** @spec openspec/changes/role-based-content/tasks.md#task-5 */
+
+		/**
+		 * Stage a row for deletion and open the confirmation dialog.
+		 *
+		 * @param {object} row The row to delete.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-5
+		 */
 		confirmDelete(row) {
 			this.deleteTarget = row
 			this.showDeleteDialog = true
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-5 */
 		async doDelete() {
 			if (this.deleteTarget === null) {
@@ -219,7 +257,7 @@ export default {
 				this.showDeleteDialog = false
 				this.deleteTarget = null
 			} catch (e) {
-				console.error('Failed to delete role permission', e)
+				logger.error('Failed to delete role permission', e)
 			}
 		},
 	},
@@ -231,6 +269,7 @@ export default {
 	color: var(--color-text-maxcontrast);
 	margin: 0 0 var(--default-grid-baseline) 0;
 }
+
 .launchpad-admin__error {
 	background: var(--color-error);
 	color: var(--color-primary-element-text);
@@ -238,12 +277,14 @@ export default {
 	border-radius: var(--border-radius);
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .launchpad-admin__role-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .launchpad-admin__role-row {
 	display: flex;
 	align-items: center;
@@ -252,36 +293,43 @@ export default {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 }
+
 .launchpad-admin__role-meta {
 	display: flex;
 	flex-direction: column;
 	min-width: 200px;
 }
+
 .launchpad-admin__role-group {
 	color: var(--color-text-maxcontrast);
 	font-family: var(--font-face-monospace, monospace);
 	font-size: 0.85em;
 }
+
 .launchpad-admin__role-widgets {
 	flex: 1;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 }
+
 .launchpad-admin__chip {
 	background: var(--color-background-hover);
 	padding: 2px 8px;
 	border-radius: var(--border-radius);
 	font-size: 0.85em;
 }
+
 .launchpad-admin__chip--denied {
 	background: var(--color-error);
 	color: var(--color-primary-element-text);
 }
+
 .launchpad-admin__role-actions {
 	display: flex;
 	gap: 4px;
 }
+
 .launchpad-admin__editor {
 	padding: calc(var(--default-grid-baseline) * 2);
 	display: flex;
@@ -289,6 +337,7 @@ export default {
 	gap: var(--default-grid-baseline);
 	min-width: 480px;
 }
+
 .launchpad-admin__editor-actions {
 	display: flex;
 	justify-content: flex-end;

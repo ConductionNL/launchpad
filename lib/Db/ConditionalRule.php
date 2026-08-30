@@ -9,7 +9,7 @@
  * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2024 Conduction b.v.
- * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  */
@@ -35,137 +35,150 @@ use OCP\AppFramework\Db\Entity;
  * @method string|null getCreatedAt()
  * @method void setCreatedAt(?string $createdAt)
  */
-class ConditionalRule extends Entity implements JsonSerializable
-{
+class ConditionalRule extends Entity implements JsonSerializable {
 
-    /**
-     * Rule type for group-based rules.
-     *
-     * @var string
-     */
-    public const TYPE_GROUP = 'group';
+	/**
+	 * Rule type for group-based rules.
+	 *
+	 * @var string
+	 */
+	public const TYPE_GROUP = 'group';
 
-    /**
-     * Rule type for time-based rules.
-     *
-     * @var string
-     */
-    public const TYPE_TIME = 'time';
+	/**
+	 * Rule type for time-based rules.
+	 *
+	 * @var string
+	 */
+	public const TYPE_TIME = 'time';
 
-    /**
-     * Rule type for date-based rules.
-     *
-     * @var string
-     */
-    public const TYPE_DATE = 'date';
+	/**
+	 * Rule type for date-based rules.
+	 *
+	 * @var string
+	 */
+	public const TYPE_DATE = 'date';
 
-    /**
-     * Rule type for attribute-based rules.
-     *
-     * @var string
-     */
-    public const TYPE_ATTRIBUTE = 'attribute';
+	/**
+	 * Rule type for attribute-based rules.
+	 *
+	 * @var string
+	 */
+	public const TYPE_ATTRIBUTE = 'attribute';
 
-    /**
-     * The widget placement ID.
-     *
-     * @var integer
-     */
-    protected int $widgetPlacementId = 0;
+	/**
+	 * The full set of supported rule types. Single source of truth for
+	 * server-side ruleType validation — currently consumed by
+	 * `VisibilityPreviewController` (conditional-visibility-editor spec,
+	 * REQ-CVUI-005). The CRUD path (`RuleApiController`) does not yet
+	 * validate `ruleType` (tracked as a known limitation on the
+	 * `conditional-visibility` engine spec); adopting this constant there
+	 * is out of scope for this change.
+	 *
+	 * @var string[]
+	 */
+	public const ALLOWED_TYPES = [
+		self::TYPE_GROUP,
+		self::TYPE_TIME,
+		self::TYPE_DATE,
+		self::TYPE_ATTRIBUTE,
+	];
 
-    /**
-     * The rule type.
-     *
-     * @var string
-     */
-    protected string $ruleType = '';
+	/**
+	 * The widget placement ID.
+	 *
+	 * @var integer
+	 */
+	protected int $widgetPlacementId = 0;
 
-    /**
-     * The rule configuration JSON.
-     *
-     * @var string|null
-     */
-    protected ?string $ruleConfig = null;
+	/**
+	 * The rule type.
+	 *
+	 * @var string
+	 */
+	protected string $ruleType = '';
 
-    /**
-     * Whether this is an include rule.
-     *
-     * @var boolean
-     */
-    protected bool $isInclude = true;
+	/**
+	 * The rule configuration JSON.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $ruleConfig = null;
 
-    /**
-     * The creation timestamp (ISO-8601 / 'c' format).
-     *
-     * @var string|null
-     */
-    protected ?string $createdAt = null;
+	/**
+	 * Whether this is an include rule.
+	 *
+	 * @var boolean
+	 */
+	protected bool $isInclude = true;
 
-    /**
-     * Constructor
-     *
-     * Registers column types for proper ORM handling.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-        $this->addType(
-            fieldName: 'widgetPlacementId',
-            type: 'integer'
-        );
-        $this->addType(fieldName: 'isInclude', type: 'boolean');
-    }//end __construct()
+	/**
+	 * The creation timestamp (ISO-8601 / 'c' format).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $createdAt = null;
 
-    /**
-     * Get rule config as array.
-     *
-     * @return array The decoded rule configuration.
-     */
-    public function getRuleConfigArray(): array
-    {
-        if (empty($this->ruleConfig) === true) {
-            return [];
-        }
+	/**
+	 * Constructor
+	 *
+	 * Registers column types for proper ORM handling.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+		$this->addType(
+			fieldName: 'widgetPlacementId',
+			type: 'integer'
+		);
+		$this->addType(fieldName: 'isInclude', type: 'boolean');
+	}//end __construct()
 
-        $decoded = json_decode(json: $this->ruleConfig, associative: true);
-        if (is_array($decoded) === true) {
-            return $decoded;
-        }
+	/**
+	 * Get rule config as array.
+	 *
+	 * @return array The decoded rule configuration.
+	 */
+	public function getRuleConfigArray(): array {
+		if (empty($this->ruleConfig) === true) {
+			return [];
+		}
 
-        return [];
-    }//end getRuleConfigArray()
+		$decoded = json_decode(json: $this->ruleConfig, associative: true);
+		if (is_array($decoded) === true) {
+			return $decoded;
+		}
 
-    /**
-     * Set rule config from array.
-     *
-     * @param array $config The rule configuration array.
-     *
-     * @return void
-     */
-    public function setRuleConfigArray(array $config): void
-    {
-        // Entity setters resolve via __call which uses $args[0]; named args
-        // would break the magic forwarding (see project memory).
-        // phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-        $this->setRuleConfig(json_encode($config));
-    }//end setRuleConfigArray()
+		return [];
+	}//end getRuleConfigArray()
 
-    /**
-     * Serialize to JSON.
-     *
-     * @return array The serialized conditional rule.
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'                => $this->getId(),
-            'widgetPlacementId' => $this->widgetPlacementId,
-            'ruleType'          => $this->ruleType,
-            'ruleConfig'        => $this->getRuleConfigArray(),
-            'isInclude'         => $this->isInclude,
-            'createdAt'         => $this->createdAt,
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Set rule config from array.
+	 *
+	 * @param array $config The rule configuration array.
+	 *
+	 * @return void
+	 */
+	public function setRuleConfigArray(array $config): void {
+		// Entity setters resolve via __call which uses $args[0]; named args
+		// would break the magic forwarding (see project memory).
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->setRuleConfig(json_encode($config));
+	}//end setRuleConfigArray()
+
+	/**
+	 * Serialize to JSON.
+	 *
+	 * @return array The serialized conditional rule.
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'widgetPlacementId' => $this->widgetPlacementId,
+			'ruleType' => $this->ruleType,
+			'ruleConfig' => $this->getRuleConfigArray(),
+			'isInclude' => $this->isInclude,
+			'createdAt' => $this->createdAt,
+		];
+	}//end jsonSerialize()
 }//end class

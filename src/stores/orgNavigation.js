@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Pinia store for the org-wide navigation editor (REQ-ONAV-001..012).
  *
@@ -17,7 +17,6 @@
  */
 
 import { defineStore } from 'pinia'
-
 import { api } from '../services/api.js'
 
 /**
@@ -90,8 +89,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		 * @param {string} lang ISO language code (defaults to current
 		 *                      `state.language`).
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		async fetchTree(lang) {
 			const language = lang || this.language || 'nl'
 			this.loading = true
@@ -103,7 +102,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 			} catch (err) {
 				this.tree = []
-				this.error = (err && err.message) ? err.message : 'Failed to load navigation'
+				this.error =
+					err && err.message ? err.message : 'Failed to load navigation'
 			} finally {
 				this.loading = false
 			}
@@ -121,8 +121,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		 * @param {Array<object>} newTree The full replacement tree.
 		 * @param {string} lang ISO language code (defaults to current).
 		 * @return {Promise<boolean>} true on success, false on failure.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		async updateTree(newTree, lang) {
 			const language = lang || this.language || 'nl'
 			this.loading = true
@@ -134,9 +134,10 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 				return true
 			} catch (err) {
-				const responseError = err && err.response && err.response.data
-					? err.response.data.error
-					: null
+				const responseError =
+					err && err.response && err.response.data
+						? err.response.data.error
+						: null
 				this.error = responseError || 'Failed to save navigation'
 				return false
 			} finally {
@@ -148,8 +149,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		 * Fetch the current global rail position (REQ-ONAV-004).
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		async fetchPosition() {
 			try {
 				const response = await api.getOrgNavigationPosition()
@@ -159,7 +160,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				}
 			} catch (err) {
 				// Defensive — leave the previous value in place.
-				this.error = (err && err.message) ? err.message : 'Failed to load position'
+				this.error =
+					err && err.message ? err.message : 'Failed to load position'
 			}
 		},
 
@@ -168,8 +170,8 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 		 *
 		 * @param {string} newPosition One of ORG_NAV_POSITIONS.
 		 * @return {Promise<boolean>} true on success.
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		async updatePosition(newPosition) {
 			if (!ORG_NAV_POSITIONS.includes(newPosition)) {
 				this.error = 'Unsupported position'
@@ -182,9 +184,10 @@ export const useOrgNavigationStore = defineStore('orgNavigation', {
 				this.error = null
 				return true
 			} catch (err) {
-				const responseError = err && err.response && err.response.data
-					? err.response.data.error
-					: null
+				const responseError =
+					err && err.response && err.response.data
+						? err.response.data.error
+						: null
 				this.error = responseError || 'Failed to save position'
 				return false
 			}

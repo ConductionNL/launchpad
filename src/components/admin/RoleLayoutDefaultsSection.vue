@@ -3,7 +3,12 @@
 	<div class="launchpad-admin__section">
 		<h3>{{ t('launchpad', 'Role-based default layouts') }}</h3>
 		<p class="launchpad-admin__hint">
-			{{ t('launchpad', 'Define the default grid positions for each group\'s widgets. New users whose group has no admin template will receive these positions as their starting layout.') }}
+			{{
+				t(
+					'launchpad',
+					"Define the default grid positions for each group's widgets. New users whose group has no admin template will receive these positions as their starting layout.",
+				)
+			}}
 		</p>
 
 		<div v-if="store.error" class="launchpad-admin__error" role="alert">
@@ -13,37 +18,56 @@
 		<NcEmptyContent
 			v-if="!store.loading && store.layoutDefaults.length === 0"
 			:name="t('launchpad', 'No layout defaults configured')"
-			:description="t('launchpad', 'Add layout default rows to seed role-based starting dashboards for new users.')">
+			:description="
+				t(
+					'launchpad',
+					'Add layout default rows to seed role-based starting dashboards for new users.',
+				)
+			">
 			<template #icon>
 				<ViewDashboard :size="40" />
 			</template>
 		</NcEmptyContent>
 
 		<div v-else class="launchpad-admin__role-list">
-			<div v-for="row in store.layoutDefaults"
+			<div
+				v-for="row in store.layoutDefaults"
 				:key="row.id"
 				class="launchpad-admin__role-row">
 				<div class="launchpad-admin__role-meta">
 					<strong>{{ row.name }}</strong>
-					<span class="launchpad-admin__role-group">{{ row.groupId }} / {{ row.widgetId }}</span>
+					<span class="launchpad-admin__role-group"
+						>{{ row.groupId }} / {{ row.widgetId }}</span
+					>
 				</div>
 				<div class="launchpad-admin__role-widgets">
 					<span class="launchpad-admin__chip">
-						{{ t('launchpad', '{x},{y} {w}×{h}', { x: row.gridX, y: row.gridY, w: row.gridWidth, h: row.gridHeight }) }}
+						{{
+							t('launchpad', '{x},{y} {w}×{h}', {
+								x: row.gridX,
+								y: row.gridY,
+								w: row.gridWidth,
+								h: row.gridHeight,
+							})
+						}}
 					</span>
-					<span v-if="row.isCompulsory" class="launchpad-admin__chip launchpad-admin__chip--compulsory">
+					<span
+						v-if="row.isCompulsory"
+						class="launchpad-admin__chip launchpad-admin__chip--compulsory">
 						{{ t('launchpad', 'Compulsory') }}
 					</span>
 				</div>
 				<div class="launchpad-admin__role-actions">
-					<NcButton type="tertiary"
+					<NcButton
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Edit')"
 						@click="openEdit(row)">
 						<template #icon>
 							<Pencil :size="20" />
 						</template>
 					</NcButton>
-					<NcButton type="tertiary"
+					<NcButton
+						variant="tertiary"
 						:aria-label="t('launchpad', 'Delete')"
 						@click="openDeleteDialog(row)">
 						<template #icon>
@@ -54,7 +78,10 @@
 			</div>
 		</div>
 
-		<NcButton type="primary" data-testid="admin-add-layout-default" @click="openCreate">
+		<NcButton
+			variant="primary"
+			data-testid="admin-add-layout-default"
+			@click="openCreate">
 			<template #icon>
 				<Plus :size="20" />
 			</template>
@@ -75,25 +102,23 @@
 		<RoleLayoutDefaultDeleteDialog
 			v-if="showDeleteDialog"
 			:open="showDeleteDialog"
-			:group-id="deleteTarget ? deleteTarget.groupId : ''"
-			:widget-id="deleteTarget ? deleteTarget.widgetId : ''"
+			:groupId="deleteTarget ? deleteTarget.groupId : ''"
+			:widgetId="deleteTarget ? deleteTarget.widgetId : ''"
 			@update:open="showDeleteDialog = $event"
 			@confirm="confirmDelete" />
 	</div>
 </template>
 
 <script>
-import {
-	NcButton,
-	NcEmptyContent,
-} from '@conduction/nextcloud-vue'
-import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
+import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
-import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Plus from 'vue-material-design-icons/Plus.vue'
+import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import RoleLayoutDefaultDeleteDialog from '../../dialogs/RoleLayoutDefaultDeleteDialog.vue'
+import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
+import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'RoleLayoutDefaultsSection',
@@ -129,7 +154,7 @@ export default {
 		try {
 			await this.store.loadLayoutDefaults()
 		} catch (e) {
-			console.error('Failed to load layout defaults', e)
+			logger.error('Failed to load layout defaults', e)
 		}
 	},
 
@@ -150,30 +175,46 @@ export default {
 				description: '',
 			}
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
 		openCreate() {
 			this.editorRow = this.emptyRow()
 			this.showEditor = true
 		},
-		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
+
+		/**
+		 * Open the editor on a copy of an existing row, so edits are only
+		 * committed on save.
+		 *
+		 * @param {object} row The row to edit.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-6
+		 */
 		openEdit(row) {
 			this.editorRow = { ...row }
 			this.showEditor = true
 		},
-		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
+
+		/**
+		 * Stage a row for deletion and open the confirmation dialog.
+		 *
+		 * @param {object} row The row to delete.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-6
+		 */
 		openDeleteDialog(row) {
 			this.deleteTarget = row
 			this.showDeleteDialog = true
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
 		async save() {
 			try {
 				await this.store.saveLayoutDefault(this.editorRow)
 				this.showEditor = false
 			} catch (e) {
-				console.error('Failed to save layout default', e)
+				logger.error('Failed to save layout default', e)
 			}
 		},
+
 		/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
 		async confirmDelete() {
 			if (this.deleteTarget === null) {
@@ -184,7 +225,7 @@ export default {
 				this.showDeleteDialog = false
 				this.deleteTarget = null
 			} catch (e) {
-				console.error('Failed to delete layout default', e)
+				logger.error('Failed to delete layout default', e)
 			}
 		},
 	},
@@ -196,6 +237,7 @@ export default {
 	color: var(--color-text-maxcontrast);
 	margin: 0 0 var(--default-grid-baseline) 0;
 }
+
 .launchpad-admin__error {
 	background: var(--color-error);
 	color: var(--color-primary-element-text);
@@ -203,12 +245,14 @@ export default {
 	border-radius: var(--border-radius);
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .launchpad-admin__role-list {
 	display: flex;
 	flex-direction: column;
 	gap: var(--default-grid-baseline);
 	margin-bottom: var(--default-grid-baseline);
 }
+
 .launchpad-admin__role-row {
 	display: flex;
 	align-items: center;
@@ -217,35 +261,42 @@ export default {
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius);
 }
+
 .launchpad-admin__role-meta {
 	display: flex;
 	flex-direction: column;
 	min-width: 200px;
 }
+
 .launchpad-admin__role-group {
 	color: var(--color-text-maxcontrast);
 	font-family: var(--font-face-monospace, monospace);
 	font-size: 0.85em;
 }
+
 .launchpad-admin__role-widgets {
 	flex: 1;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 }
+
 .launchpad-admin__chip {
 	background: var(--color-background-hover);
 	padding: 2px 8px;
 	border-radius: var(--border-radius);
 	font-size: 0.85em;
 }
+
 .launchpad-admin__chip--compulsory {
 	background: var(--color-warning);
 }
+
 .launchpad-admin__role-actions {
 	display: flex;
 	gap: 4px;
 }
+
 .launchpad-admin__editor {
 	padding: calc(var(--default-grid-baseline) * 2);
 	display: flex;
@@ -253,10 +304,12 @@ export default {
 	gap: var(--default-grid-baseline);
 	min-width: 480px;
 }
+
 .launchpad-admin__editor-row {
 	display: flex;
 	gap: var(--default-grid-baseline);
 }
+
 .launchpad-admin__editor-row > * {
 	flex: 1;
 }

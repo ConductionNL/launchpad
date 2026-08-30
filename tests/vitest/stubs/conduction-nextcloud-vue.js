@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest stub for `@conduction/nextcloud-vue`.
  *
@@ -14,9 +14,35 @@
  *
  * Real visual coverage of `@conduction/nextcloud-vue` lives in the
  * upstream package's own test suite.
+ *
+ * CONSEQUENCE — read this before trusting a green unit run:
+ *
+ * No unit test in this suite exercises the real
+ * `@conduction/nextcloud-vue`. The alias in `vitest.config.js` redirects
+ * EVERY import to this file, so library integration is covered ONLY by the
+ * Playwright e2e suite. A green unit run is not evidence that the library
+ * works — it is evidence that this stub does. The suite structurally
+ * cannot catch a library regression: not a breaking prop change, not a
+ * renamed event, not a component that renders nothing.
+ *
+ * That last one is not hypothetical. Earlier in the Vue-3 migration the
+ * library shipped a dist whose render wiring had been tree-shaken away, so
+ * every `Cn` component rendered as a silent comment node — blank app, zero
+ * console errors. The unit suite stayed fully green throughout, because
+ * these stubs render fine. Only a browser caught it.
+ *
+ * Specs that need real component behaviour must opt in deliberately with
+ * `vi.mock(...)`, and anything asserting on rendered library markup
+ * belongs in `tests/e2e/`.
+ *
+ * Vue 3 no longer hands `h` to the render function as its first argument —
+ * it is imported from `vue` instead, and the vnode data object is flat
+ * (`h('img', { src })`) rather than Vue 2's nested `{ attrs: { src } }`.
  */
 
-const stub = (name) => ({ name, render: (h) => h('div') })
+import { h } from 'vue'
+
+const stub = (name) => ({ name, render: () => h('div') })
 
 export const NcModal = stub('NcModal')
 export const NcButton = stub('NcButton')
@@ -34,20 +60,125 @@ export const CnWidgetEditCog = stub('CnWidgetEditCog')
 export const CnWidgetStyleEditorModal = stub('CnWidgetStyleEditorModal')
 export const CnDashboardGrid = stub('CnDashboardGrid')
 export const CnIconPicker = stub('CnIconPicker')
-export const CnDashboardIcon = stub('CnDashboardIcon')
-export const getDashboardColumnOpts = () => ({ breakpoints: [], layout: 'moveScale', breakpointForWindow: true })
+export const CnIconBrowser = stub('CnIconBrowser')
+// Bundled NL-government icon catalogues (self-contained data URIs in the real
+// library). A small grouped stand-in is enough for the pickers to build a
+// non-empty list; `NL_DESIGN_ICONS` is the flat combined list.
+export const NL_DESIGN_ICON_GROUPS = [
+	{
+		key: 'rvo',
+		label: 'RVO',
+		icons: [
+			{
+				id: 'rvo-star',
+				label: 'Star',
+				url: 'data:image/svg+xml;base64,U1RBUg==',
+			},
+		],
+	},
+	{
+		key: 'den-haag',
+		label: 'Den Haag',
+		icons: [
+			{
+				id: 'dh-bell',
+				label: 'Bell',
+				url: 'data:image/svg+xml;base64,QkVMTA==',
+			},
+		],
+	},
+]
+export const NL_DESIGN_ICONS = NL_DESIGN_ICON_GROUPS.flatMap((g) => g.icons)
+
+// Icon-catalogue adapters — normalize an icon source into CnIconBrowser's
+// catalogue shape. Real logic mirrored thinly so the launchpad icon-catalogue
+// service builds a valid array in tests.
+export const mdiCatalogue = (ns) =>
+	Object.keys(ns || {})
+		.filter((k) => k.startsWith('mdi') && typeof ns[k] === 'string')
+		.map((k) => ({
+			key: k,
+			label: k,
+			value: ns[k],
+			search: k.toLowerCase(),
+			path: ns[k],
+		}))
+export const vmdiCatalogue = (ctx) =>
+	(ctx && ctx.keys ? ctx.keys() : []).map((f) => {
+		const key = f.replace(/^\.\//, '').replace(/\.vue$/, '')
+		return {
+			key,
+			label: key,
+			value: key,
+			search: key.toLowerCase(),
+			component: stub(key),
+		}
+	})
+// Faithful enough to mirror the real renderer: <img> for URLs, inline <svg>
+// for SVG path strings, else a placeholder <div>. Keeps icon-rendering unit
+// tests (e.g. org-nav REQ-ONAV-006) meaningful without the CJS .vue bundle.
+export const CnDashboardIcon = {
+	name: 'CnDashboardIcon',
+	props: {
+		name: { type: String, default: null },
+		size: { type: Number, default: 20 },
+		alt: { type: String, default: null },
+	},
+	computed: {
+		isUrl() {
+			return (
+				typeof this.name === 'string'
+				&& (this.name.startsWith('/') || this.name.startsWith('http'))
+			)
+		},
+		isPath() {
+			return (
+				!this.isUrl
+				&& typeof this.name === 'string'
+				&& /^[Mm][\d\s.,-]/.test(this.name)
+			)
+		},
+	},
+	render() {
+		if (this.isUrl) {
+			return h('img', {
+				src: this.name,
+				alt: this.alt || 'icon',
+				width: this.size,
+				height: this.size,
+			})
+		}
+		if (this.isPath) {
+			return h(
+				'svg',
+				{ viewBox: '0 0 24 24', width: this.size, height: this.size },
+				[h('path', { d: this.name })],
+			)
+		}
+		return h('div')
+	},
+}
+export const getDashboardColumnOpts = () => ({
+	breakpoints: [],
+	layout: 'moveScale',
+	breakpointForWindow: true,
+})
 export const placeNewWidget = () => ({ x: 0, y: 0, w: 4, h: 4, pushed: [] })
 export const DASHBOARD_ICONS = { ViewDashboard: {}, Star: {} }
 export const DEFAULT_ICON = 'ViewDashboard'
 export const getIconComponent = () => ({})
-export const isCustomIconUrl = (n) => typeof n === 'string' && (n.startsWith('/') || n.startsWith('http'))
+export const isCustomIconUrl = (n) =>
+	typeof n === 'string' && (n.startsWith('/') || n.startsWith('http'))
 
 // Dashboard widget library (v2) — renderers + config forms now sourced from
 // @conduction/nextcloud-vue and aliased in widgetRegistry.js. Stubbed here so
 // the registry's `renderer`/`form` entries are valid component objects.
 // Renders an identifiable element so registry-dispatch tests (e.g.
 // ContainerWidget recursive dispatch) can assert the child rendered.
-export const CnLabelWidget = { name: 'CnLabelWidget', render: (h) => h('div', { class: 'cn-label-widget' }) }
+export const CnLabelWidget = {
+	name: 'CnLabelWidget',
+	render: () => h('div', { class: 'cn-label-widget' }),
+}
 export const CnTextWidget = stub('CnTextWidget')
 export const CnImageWidget = stub('CnImageWidget')
 export const CnLinkButtonWidget = stub('CnLinkButtonWidget')
@@ -100,12 +231,12 @@ export const CnLabelWidgetForm = {
 			this.$emit('update:content', this.assembledContent)
 		},
 		validate() {
-			return (typeof this.text === 'string' && this.text.trim() !== '')
+			return typeof this.text === 'string' && this.text.trim() !== ''
 				? []
 				: ['Label text is required']
 		},
 	},
-	render(h) {
+	render() {
 		return h('div', { class: 'cn-label-widget-form' })
 	},
 }
@@ -152,43 +283,147 @@ export const CnStatsBlockWidgetForm = stub('CnStatsBlockWidgetForm')
 // re-adds those forms via FORM_OVERRIDES). defaultContent mirrors the real
 // registrations for the types unit tests assert (label fully; others minimal).
 const _DASH = {
-	label: { renderer: CnLabelWidget, form: CnLabelWidgetForm, defaultContent: { text: '', fontSize: '16px', color: '', backgroundColor: '', fontWeight: 'bold', textAlign: 'center' } },
-	text: { renderer: CnTextWidget, form: CnTextWidgetForm, defaultContent: { text: '', fontSize: '14px', color: '', backgroundColor: '', textAlign: 'left', contentMode: 'markdown', tableMode: false, tableData: null } },
-	image: { renderer: CnImageWidget, form: CnImageWidgetForm, defaultContent: { url: '', alt: '', link: '', fit: 'cover' } },
-	link: { renderer: CnLinkButtonWidget, form: CnLinkButtonWidgetForm, defaultContent: { label: '', url: '', icon: '', actionType: 'external', backgroundColor: '', textColor: '', displayMode: 'button', listOrientation: 'vertical', listItemGap: 'normal', links: [] } },
-	divider: { renderer: CnDividerWidget, form: CnDividerWidgetForm, defaultContent: { style: 'line', lineColor: '', lineThickness: 1, lineStyle: 'solid', whitespaceSize: 'medium', headingText: '' } },
-	header: { renderer: CnHeaderWidget, form: CnHeaderWidgetForm, defaultContent: {} },
-	quicklinks: { renderer: CnQuicklinksWidget, form: CnQuicklinksWidgetForm, defaultContent: {} },
+	label: {
+		renderer: CnLabelWidget,
+		form: CnLabelWidgetForm,
+		defaultContent: {
+			text: '',
+			fontSize: '16px',
+			color: '',
+			backgroundColor: '',
+			fontWeight: 'bold',
+			textAlign: 'center',
+		},
+	},
+	text: {
+		renderer: CnTextWidget,
+		form: CnTextWidgetForm,
+		defaultContent: {
+			text: '',
+			fontSize: '14px',
+			color: '',
+			backgroundColor: '',
+			textAlign: 'left',
+			contentMode: 'markdown',
+			tableMode: false,
+			tableData: null,
+		},
+	},
+	image: {
+		renderer: CnImageWidget,
+		form: CnImageWidgetForm,
+		defaultContent: { url: '', alt: '', link: '', fit: 'cover' },
+	},
+	link: {
+		renderer: CnLinkButtonWidget,
+		form: CnLinkButtonWidgetForm,
+		defaultContent: {
+			label: '',
+			url: '',
+			icon: '',
+			actionType: 'external',
+			backgroundColor: '',
+			textColor: '',
+			displayMode: 'button',
+			listOrientation: 'vertical',
+			listItemGap: 'normal',
+			links: [],
+		},
+	},
+	divider: {
+		renderer: CnDividerWidget,
+		form: CnDividerWidgetForm,
+		defaultContent: {
+			style: 'line',
+			lineColor: '',
+			lineThickness: 1,
+			lineStyle: 'solid',
+			whitespaceSize: 'medium',
+			headingText: '',
+		},
+	},
+	header: {
+		renderer: CnHeaderWidget,
+		form: CnHeaderWidgetForm,
+		defaultContent: {},
+	},
+	quicklinks: {
+		renderer: CnQuicklinksWidget,
+		form: CnQuicklinksWidgetForm,
+		defaultContent: {},
+	},
 	video: { renderer: CnVideoWidget, form: CnVideoWidgetForm, defaultContent: {} },
 	news: { renderer: CnNewsWidget, form: CnNewsWidgetForm, defaultContent: {} },
-	tile: { renderer: CnDashTileWidget, form: CnDashTileWidgetForm, defaultContent: {} },
+	tile: {
+		renderer: CnDashTileWidget,
+		form: CnDashTileWidgetForm,
+		defaultContent: {},
+	},
 	links: { renderer: CnLinksWidget, form: CnLinksWidgetForm, defaultContent: {} },
 	menu: { renderer: CnMenuWidget, form: CnMenuWidgetForm, defaultContent: {} },
-	container: { renderer: stub('container-renderer'), form: CnContainerWidgetForm, defaultContent: {} },
-	files: { renderer: CnFilesWidget, form: CnFilesWidgetForm, defaultContent: { folderPath: '/' } },
+	container: {
+		renderer: stub('container-renderer'),
+		form: CnContainerWidgetForm,
+		defaultContent: {},
+	},
+	files: {
+		renderer: CnFilesWidget,
+		form: CnFilesWidgetForm,
+		defaultContent: { folderPath: '/' },
+	},
 	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
-	'object-list': { renderer: CnObjectListWidget, form: CnObjectListWidgetForm, defaultContent: {} },
+	'object-list': {
+		renderer: CnObjectListWidget,
+		form: CnObjectListWidgetForm,
+		defaultContent: {},
+	},
 	chart: { renderer: CnChartWidget, form: CnChartWidgetForm, defaultContent: {} },
-	'stats-block': { renderer: CnStatsBlockWidget, form: CnStatsBlockWidgetForm, defaultContent: {} },
-	table: { renderer: CnObjectListWidget, form: CnObjectListWidgetForm, defaultContent: {} },
+	'stats-block': {
+		renderer: CnStatsBlockWidget,
+		form: CnStatsBlockWidgetForm,
+		defaultContent: {},
+	},
+	table: {
+		renderer: CnObjectListWidget,
+		form: CnObjectListWidgetForm,
+		defaultContent: {},
+	},
 	calendar: { renderer: CnCalendarWidget, form: null, defaultContent: {} },
 	people: { renderer: CnPeopleWidget, form: null, defaultContent: {} },
-	'spend-analytics': { renderer: CnSpendAnalyticsWidget, form: null, defaultContent: {} },
+	'spend-analytics': {
+		renderer: CnSpendAnalyticsWidget,
+		form: null,
+		defaultContent: {},
+	},
 	'nc-widget': { renderer: CnNcWidgetWidget, form: null, defaultContent: {} },
 }
-export const dashboardWidgetRegistry = Object.fromEntries(Object.entries(_DASH).map(([type, e]) => [type, {
-	renderer: e.renderer,
-	form: e.form,
-	defaultContent: e.defaultContent,
-	displayName: type,
-	icon: 'ViewDashboard',
-}]))
-export const registerDashboardWidget = (type, entry) => { dashboardWidgetRegistry[type] = entry }
-export const listWidgetTypes = () => Object.keys(dashboardWidgetRegistry).filter((t) => dashboardWidgetRegistry[t].form)
+export const dashboardWidgetRegistry = Object.fromEntries(
+	Object.entries(_DASH).map(([type, e]) => [
+		type,
+		{
+			renderer: e.renderer,
+			form: e.form,
+			defaultContent: e.defaultContent,
+			displayName: type,
+			icon: 'ViewDashboard',
+		},
+	]),
+)
+export const registerDashboardWidget = (type, entry) => {
+	dashboardWidgetRegistry[type] = entry
+}
+export const listWidgetTypes = () =>
+	Object.keys(dashboardWidgetRegistry).filter(
+		(t) => dashboardWidgetRegistry[t].form,
+	)
 export const getWidgetTypeEntry = (type) => dashboardWidgetRegistry[type] || null
-export const getDefaultContent = (type) => ({ ...((dashboardWidgetRegistry[type] && dashboardWidgetRegistry[type].defaultContent) || {}) })
+export const getDefaultContent = (type) => ({
+	...((dashboardWidgetRegistry[type]
+		&& dashboardWidgetRegistry[type].defaultContent)
+		|| {}),
+})
 
 export default {
 	NcModal,
@@ -207,6 +442,9 @@ export default {
 	CnWidgetStyleEditorModal,
 	CnDashboardGrid,
 	CnIconPicker,
+	CnIconBrowser,
+	mdiCatalogue,
+	vmdiCatalogue,
 	CnDashboardIcon,
 	CnLabelWidget,
 	CnTextWidget,

@@ -30,30 +30,28 @@ namespace OCA\LaunchPad\Exception;
  *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
  */
-class PlaylistNotFoundException extends ResourceException
-{
+class PlaylistNotFoundException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'playlist_not_found';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'playlist_not_found';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 404;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 404;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Not found')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Not found') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `GroupPriorityOrder.vue`. Covers REQ-ASET-012,
  * REQ-ASET-013, REQ-ASET-014:
@@ -19,8 +19,8 @@
  * default export wires DOM-bound toast helpers.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import GroupPriorityOrder from '../GroupPriorityOrder.vue'
 import { api } from '../../../services/api.js'
 
@@ -39,18 +39,22 @@ vi.mock('@nextcloud/dialogs', () => ({
 const ncButtonStub = {
 	name: 'NcButton',
 	props: ['type', 'ariaLabel'],
+	emits: ['click'],
 	template: '<button @click="$emit(\'click\')"><slot /></button>',
 }
 const ncTextFieldStub = {
 	name: 'NcTextField',
 	props: ['value', 'label', 'placeholder'],
-	template: '<input :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+	template:
+		'<input :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
 }
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 	api.getAdminGroups.mockReset()
-	api.updateAdminGroupOrder.mockReset().mockResolvedValue({ data: { status: 'ok' } })
+	api.updateAdminGroupOrder
+		.mockReset()
+		.mockResolvedValue({ data: { status: 'ok' } })
 })
 
 function mountWith(payload) {
@@ -97,7 +101,7 @@ describe('GroupPriorityOrder', () => {
 
 		const staleItem = wrapper
 			.findAll('[data-test="group-priority-active"] li')
-			.wrappers.find((li) => li.attributes('data-test-id') === 'deleted-group')
+			.find((li) => li.attributes('data-test-id') === 'deleted-group')
 		expect(staleItem).toBeTruthy()
 		expect(staleItem.text()).toContain('(removed)')
 		expect(staleItem.classes()).toContain('group-priority__item--stale')

@@ -3,14 +3,17 @@
 declare(strict_types=1);
 
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 return [
 	'routes' => [
 		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
 		// literal '/api/manifest' segment is matched before any wildcard.
+		// First-time setup wizard (ADR-042) — the standard CnSetupWizard contract.
+		['name' => 'setup#status',    'url' => '/api/setup/status',            'verb' => 'GET'],
+		['name' => 'setup#runAction', 'url' => '/api/setup/action/{actionId}', 'verb' => 'POST', 'requirements' => ['actionId' => '[a-z0-9\\-]+']],
 		['name' => 'manifest#index', 'url' => '/api/manifest', 'verb' => 'GET'],
 
 		// Metrics and health
@@ -86,6 +89,21 @@ return [
 		// dashboard does not exist.
 		['name' => 'dashboardApi#viewEvent', 'url' => '/api/dashboards/{uuid}/view-event', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
+		// REQ-TANLT-002: record a tile click. Authed users only; the
+		// controller short-circuits silently when the user has opted out
+		// or analytics is globally disabled (same reused REQ-ANLT-003/004/005
+		// gates as the dashboard view-event route above). Returns HTTP 204
+		// on success, 404 when the placement does not exist. `placementId`
+		// is constrained to digits so the router never confuses it with a
+		// literal segment.
+		['name' => 'tileAnalytics#recordClick', 'url' => '/api/tile-click/{placementId}', 'verb' => 'POST',
+		 'requirements' => ['placementId' => '\d+']],
+		// REQ-TANLT-003: lets the frontend hook know whether tracking is
+		// currently active for the calling user, so it can suppress the
+		// record call without re-implementing the gate logic client-side.
+		['name' => 'tileAnalytics#config', 'url' => '/api/tile-analytics/config', 'verb' => 'GET'],
+
 		// REQ-DASH-026: nested dashboard tree.
 		['name' => 'dashboardApi#tree', 'url' => '/api/dashboards/tree', 'verb' => 'GET'],
 		// REQ-DASH-027: slug-chain path resolution. The {path} placeholder
@@ -150,11 +168,17 @@ return [
 		 'url' => '/api/dashboards/{uuid}/public-shares/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+', 'id' => '\d+']],
 		// Public (anonymous) share render and unlock (REQ-PSHR-004, REQ-PSHR-005).
-		// Both are #[PublicPage] + #[NoCSRFRequired] on the controller methods.
-		// Registered BEFORE the deep-link catch-all at the bottom.
-		['name' => 'publicShare#show', 'url' => '/s/{token}', 'verb' => 'GET',
+		// All #[PublicPage] + #[NoCSRFRequired] on the controller methods.
+		// Registered BEFORE the deep-link catch-all at the bottom. `/s/{token}`
+		// serves the anonymous read-only HTML page (page#publicShare); the SPA it
+		// boots fetches its data from `/s/{token}/data` (publicShare#show). The
+		// more-specific /data + /unlock segments are declared before the bare
+		// token page route so they win in matching.
+		['name' => 'publicShare#show', 'url' => '/s/{token}/data', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'publicShare#unlock', 'url' => '/s/{token}/unlock', 'verb' => 'POST',
+		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		['name' => 'page#publicShare', 'url' => '/s/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 
 		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,
@@ -203,6 +227,21 @@ return [
 		['name' => 'dashboardReactionApi#addReaction',
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
+		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
+		// The `/report/{announcementKey}/csv` route is registered BEFORE the
+		// plain report route so the `/csv` suffix is matched first, and both
+		// come before the literal `/pending` and root POST routes.
+		['name' => 'acknowledgement#reportCsv',
+		 'url' => '/api/acknowledgements/report/{announcementKey}/csv', 'verb' => 'GET',
+		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		['name' => 'acknowledgement#report',
+		 'url' => '/api/acknowledgements/report/{announcementKey}', 'verb' => 'GET',
+		 'requirements' => ['announcementKey' => '[A-Za-z0-9\-]+']],
+		['name' => 'acknowledgement#pending',
+		 'url' => '/api/acknowledgements/pending', 'verb' => 'GET'],
+		['name' => 'acknowledgement#acknowledge',
+		 'url' => '/api/acknowledgements', 'verb' => 'POST'],
 
 		// Dashboard versioning endpoints (REQ-VERS-001..009).
 		// `{uuid}` is the dashboard UUID; `{versionNumber}` is the integer
@@ -257,6 +296,11 @@ return [
 		['name' => 'ruleApi#updateRule', 'url' => '/api/rules/{ruleId}', 'verb' => 'PUT'],
 		['name' => 'ruleApi#deleteRule', 'url' => '/api/rules/{ruleId}', 'verb' => 'DELETE'],
 
+		// conditional-visibility-editor: read-only, non-persisting
+		// "preview as audience/date" — #[NoAdminRequired] on
+		// VisibilityPreviewController::preview().
+		['name' => 'visibilityPreview#preview', 'url' => '/api/visibility/preview', 'verb' => 'POST'],
+
 		// Role-feature permissions (REQ-RFP-001..010). Admin-only — the
 		// controller calls `requireAdmin()` on every method. Sits with
 		// the rest of the admin-scoped routes; the duplicate
@@ -298,6 +342,11 @@ return [
 		// streamer is intentionally NOT under `/api/...` because it
 		// returns binary bytes, not a JSON envelope.
 		['name' => 'resource#upload', 'url' => '/api/resources', 'verb' => 'POST'],
+		// Raw multipart upload — REQ-RES-014. Admin-only (same security as the
+		// base64 endpoint above); accepts a single `file` multipart field with
+		// no base64 so large images/GIFs never become a huge in-browser string.
+		// Registered before the wildcard `/resource/{filename}` streamer.
+		['name' => 'resource#uploadMultipart', 'url' => '/api/resources/upload', 'verb' => 'POST'],
 		// Resource listing — REQ-RES-007. Logged-in user only (no admin
 		// gate); the listed names are already referenced from rendered
 		// dashboards so admin gating would lock dashboards out of their
@@ -326,6 +375,10 @@ return [
 		// `{uuid}/preview-image` suffix matches first.
 		['name' => 'admin#uploadTemplatePreviewImage', 'url' => '/api/admin/templates/{uuid}/preview-image', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// Admin template re-sync (REQ-RESYNC-001). Registered BEFORE the
+		// `/api/admin/templates/{id}` wildcard routes so the literal
+		// `{id}/resync` suffix matches first, same as preview-image above.
+		['name' => 'admin#resyncTemplate', 'url' => '/api/admin/templates/{id}/resync', 'verb' => 'POST'],
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
@@ -427,6 +480,18 @@ return [
 		['name' => 'analytics#dashboardDetail', 'url' => '/api/admin/analytics/dashboards/{uuid}', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// Tile usage-analytics admin endpoints (REQ-TANLT-004..005) — a
+		// strict downward extension of the dashboard view-analytics admin
+		// endpoints above. All admin-only via ADR-023 action authorization
+		// inside the controller. The literal `top` and `export` segments
+		// and the `by-dashboard` prefix precede any wildcard so the router
+		// never confuses them.
+		['name' => 'tileAnalytics#topTiles', 'url' => '/api/admin/analytics/tiles/top', 'verb' => 'GET'],
+		['name' => 'tileAnalytics#exportCsv', 'url' => '/api/admin/analytics/tiles/export', 'verb' => 'GET'],
+		['name' => 'tileAnalytics#dashboardBreakdown',
+		 'url' => '/api/admin/analytics/tiles/by-dashboard/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+
 		// Background feed-refresh trigger (REQ-FRJ-010). Admin-only via
 		// runtime `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'admin#refreshFeedsNow', 'url' => '/api/admin/feeds/refresh-now', 'verb' => 'POST'],
@@ -478,6 +543,41 @@ return [
 		['name' => 'adminDemoShowcases#destroy',
 		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '[a-z0-9\-]+']],
+
+		// Weather widget — cached reading for one placement (REQ-WEATHER-001).
+		// View-time ACL guarded in the controller; never returns the provider
+		// API key or raw provider URL.
+		['name' => 'weather#show', 'url' => '/api/weather/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
+
+		// Live-data tile widget — cached, resolved value for one placement
+		// (REQ-LIVETILE-003). View-time ACL guarded in the controller; never
+		// returns the source URL, headers, or credentials. The two
+		// multi-segment routes below are registered BEFORE the single-segment
+		// `{placementId}` route so a literal `connector/status` /
+		// `validate-source` path is never mistaken for a numeric placement id.
+		['name' => 'liveTile#connectorStatus', 'url' => '/api/livetile/connector/status', 'verb' => 'GET'],
+		['name' => 'liveTile#validateSource', 'url' => '/api/livetile/validate-source', 'verb' => 'POST'],
+		['name' => 'liveTile#show', 'url' => '/api/livetile/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
+
+		// Iframe-embed widget — save-time allow-list validation
+		// (REQ-IFRAME-002). No per-placement data endpoint: the browser
+		// embeds the target URL directly, config lives in `widgetContent`.
+		['name' => 'iframe#validateUrl', 'url' => '/api/iframe/validate-url', 'verb' => 'POST'],
+		// Server-side framing-refusal check (REQ-IFRAME-003) — the browser
+		// cannot detect an X-Frame-Options / frame-ancestors block, so the
+		// widget asks the server before rendering the iframe.
+		['name' => 'iframe#checkFramable', 'url' => '/api/iframe/framable', 'verb' => 'POST'],
+
+		// Service health ping — cached online/offline/degraded badge for one
+		// placement (REQ-HPING-003). View-time ACL guarded in the controller;
+		// never returns the health URL, headers, or upstream response body.
+		// The literal `validate` route is registered BEFORE the single-segment
+		// `{placementId}` route so it is never mistaken for a numeric placement id.
+		['name' => 'healthPing#validate', 'url' => '/api/health-ping/validate', 'verb' => 'POST'],
+		['name' => 'healthPing#show', 'url' => '/api/health-ping/{placementId}', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 
 		// Resolve a dashboard's canonical slug-chain path (used by the
 		// frontend for outbound URL sync after a sidebar switch).

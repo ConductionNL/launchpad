@@ -768,8 +768,8 @@ This is **the rule for any future minimum-cap persona**: if you drop DAC_OVERRID
 
 ### ADR-014-licensing
 - Licence: EUPL-1.2 (European Union Public Licence).
-- `appinfo/info.xml`: MUST use `<licence>agpl</licence>` — Nextcloud app store does not recognise EUPL.
-- This is intentional dual-tagging, NOT a conflict. Do NOT change info.xml to eupl. Do NOT flag as review finding.
+- `appinfo/info.xml`: MUST use `<licence>EUPL-1.2</licence>`, matching `LICENSE`, `composer.json`, `package.json` and every SPDX header.
+- There is no dual-tagging. A `<licence>agpl</licence>` element here IS a conflict and SHOULD be flagged as a review finding.
 
 ## PHP files — PHPDoc tags only
 

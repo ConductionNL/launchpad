@@ -1,20 +1,25 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="bridge-toggle" data-test="legacy-widget-bridge-toggle">
 		<h3>{{ t('launchpad', 'Legacy widget bridge') }}</h3>
 		<NcCheckboxRadioSwitch
-			:checked="enabled"
+			:modelValue="enabled"
 			:disabled="loading"
 			data-test="bridge-toggle-switch"
-			@update:checked="onToggle">
+			@update:modelValue="onToggle">
 			{{ t('launchpad', 'Enable the legacy widget bridge') }}
 		</NcCheckboxRadioSwitch>
 		<p class="bridge-toggle__hint">
-			{{ t('launchpad', 'When disabled, existing dashboards that embed bridged Nextcloud widgets render an "Unavailable" state until the bridge is re-enabled.') }}
+			{{
+				t(
+					'launchpad',
+					'When disabled, existing dashboards that embed bridged Nextcloud widgets render an "Unavailable" state until the bridge is re-enabled.',
+				)
+			}}
 		</p>
 	</div>
 </template>
@@ -23,6 +28,7 @@
 import { NcCheckboxRadioSwitch } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 /**
  * LegacyWidgetBridgeToggle — Beheer ▸ Operations enable/disable switch for
@@ -60,13 +66,19 @@ export default {
 				const settings = data?.data ?? data ?? {}
 				this.enabled = settings.legacyWidgetBridgeEnabled !== false
 			} catch (error) {
-				console.error('Failed to load bridge setting:', error)
+				logger.error('Failed to load bridge setting:', error)
 			} finally {
 				this.loading = false
 			}
 		},
 
-		/** @spec openspec/specs/legacy-widget-bridge/spec.md */
+		/**
+		 * Flip the bridge on or off, optimistically updating the switch and
+		 * rolling back to `previous` if the save fails.
+		 *
+		 * @param {boolean} value Requested new state.
+		 * @spec openspec/specs/legacy-widget-bridge/spec.md
+		 */
 		async onToggle(value) {
 			const previous = this.enabled
 			this.enabled = value
@@ -75,7 +87,7 @@ export default {
 			} catch (error) {
 				// Roll back so the switch never lies about the persisted state.
 				this.enabled = previous
-				console.error('Failed to save bridge setting:', error)
+				logger.error('Failed to save bridge setting:', error)
 			}
 		},
 	},

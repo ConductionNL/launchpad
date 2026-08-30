@@ -1,13 +1,15 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div
 		class="launchpad-sidebar-backdrop sidebar-backdrop"
 		role="presentation"
-		@click="$emit('close')" />
+		tabindex="-1"
+		@click="$emit('close')"
+		@keydown.esc="$emit('close')" />
 </template>
 
 <script>

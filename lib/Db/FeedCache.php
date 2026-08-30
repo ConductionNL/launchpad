@@ -13,12 +13,12 @@
  * @package   OCA\LaunchPad\Db
  * @author    Conduction b.v. <info@conduction.nl>
  * @copyright 2026 Conduction b.v.
- * @license   https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12 EUPL-1.2
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -47,171 +47,166 @@ use OCP\AppFramework\Db\Entity;
  * @method void setItemsJson(?string $itemsJson)
  * @spec   openspec/specs/background-job-feed-refresh/spec.md
  */
-class FeedCache extends Entity implements JsonSerializable
-{
-    /**
-     * Maximum number of cached items per feed (REQ-FRJ-005).
-     *
-     * @var integer
-     */
-    public const MAX_ITEMS = 50;
+class FeedCache extends Entity implements JsonSerializable {
+	/**
+	 * Maximum number of cached items per feed (REQ-FRJ-005).
+	 *
+	 * @var integer
+	 */
+	public const MAX_ITEMS = 50;
 
-    /**
-     * The remote feed URL — UNIQUE across the table.
-     *
-     * @var string|null
-     */
-    protected ?string $feedUrl = null;
+	/**
+	 * The remote feed URL — UNIQUE across the table.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $feedUrl = null;
 
-    /**
-     * The last fetch attempt timestamp; set on every tick (including
-     * 304s and failures) so the orphan-cleanup job can age out feeds
-     * that are no longer referenced.
-     *
-     * @var string|null
-     */
-    protected ?string $lastFetchedAt = null;
+	/**
+	 * The last fetch attempt timestamp; set on every tick (including
+	 * 304s and failures) so the orphan-cleanup job can age out feeds
+	 * that are no longer referenced.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $lastFetchedAt = null;
 
-    /**
-     * The last successful fetch timestamp; only updated on 2xx (and 304
-     * — see REQ-FRJ-004 "items untouched, only lastFetchedAt updated"
-     * which is implemented by NOT updating lastSuccessAt on 304 unless
-     * the prior cache row was empty). Failures (timeout, 4xx, 5xx, parse
-     * error) leave it untouched.
-     *
-     * @var string|null
-     */
-    protected ?string $lastSuccessAt = null;
+	/**
+	 * The last successful fetch timestamp; only updated on 2xx (and 304
+	 * — see REQ-FRJ-004 "items untouched, only lastFetchedAt updated"
+	 * which is implemented by NOT updating lastSuccessAt on 304 unless
+	 * the prior cache row was empty). Failures (timeout, 4xx, 5xx, parse
+	 * error) leave it untouched.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $lastSuccessAt = null;
 
-    /**
-     * The last failure reason — either a transport error
-     * (`"timeout: ..."`), an HTTP error (`"410 Gone"`), a parse error
-     * (`"parse error: ..."`), an allow-list reject
-     * (`"host not in allow-list"`), or a size-cap reject
-     * (`"response too large"`). Null on the first row insert and after
-     * any successful fetch.
-     *
-     * @var string|null
-     */
-    protected ?string $lastFailureReason = null;
+	/**
+	 * The last failure reason — either a transport error
+	 * (`"timeout: ..."`), an HTTP error (`"410 Gone"`), a parse error
+	 * (`"parse error: ..."`), an allow-list reject
+	 * (`"host not in allow-list"`), or a size-cap reject
+	 * (`"response too large"`). Null on the first row insert and after
+	 * any successful fetch.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $lastFailureReason = null;
 
-    /**
-     * The most recent `ETag` response header value — used for
-     * `If-None-Match` on the next conditional GET (REQ-FRJ-004).
-     *
-     * @var string|null
-     */
-    protected ?string $etag = null;
+	/**
+	 * The most recent `ETag` response header value — used for
+	 * `If-None-Match` on the next conditional GET (REQ-FRJ-004).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $etag = null;
 
-    /**
-     * The most recent `Last-Modified` response header value — used for
-     * `If-Modified-Since` on the next conditional GET (REQ-FRJ-004).
-     *
-     * @var string|null
-     */
-    protected ?string $lastModified = null;
+	/**
+	 * The most recent `Last-Modified` response header value — used for
+	 * `If-Modified-Since` on the next conditional GET (REQ-FRJ-004).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $lastModified = null;
 
-    /**
-     * The cached normalised items as a JSON-encoded string. Null until
-     * the first successful fetch. Capped at {@see self::MAX_ITEMS} items
-     * via {@see self::encodeItems()}.
-     *
-     * @var string|null
-     */
-    protected ?string $itemsJson = null;
+	/**
+	 * The cached normalised items as a JSON-encoded string. Null until
+	 * the first successful fetch. Capped at {@see self::MAX_ITEMS} items
+	 * via {@see self::encodeItems()}.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $itemsJson = null;
 
-    /**
-     * Constructor — registers column types so the auto-increment id
-     * hydrates as int rather than string.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->addType(fieldName: 'id', type: 'integer');
-    }//end __construct()
+	/**
+	 * Constructor — registers column types so the auto-increment id
+	 * hydrates as int rather than string.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
+		$this->addType(fieldName: 'id', type: 'integer');
+	}//end __construct()
 
-    /**
-     * Decode the persisted items JSON.
-     *
-     * @return array<int, array<string, mixed>> The items, or an empty
-     *                                          array when null/invalid.
-     * @spec   openspec/specs/background-job-feed-refresh/spec.md
-     */
-    public function decodeItems(): array
-    {
-        if ($this->itemsJson === null || $this->itemsJson === '') {
-            return [];
-        }
+	/**
+	 * Decode the persisted items JSON.
+	 *
+	 * @return array<int, array<string, mixed>> The items, or an empty
+	 *                                          array when null/invalid.
+	 * @spec   openspec/specs/background-job-feed-refresh/spec.md
+	 */
+	public function decodeItems(): array {
+		if ($this->itemsJson === null || $this->itemsJson === '') {
+			return [];
+		}
 
-        $decoded = json_decode(
-            json: $this->itemsJson,
-            associative: true
-        );
+		$decoded = json_decode(
+			json: $this->itemsJson,
+			associative: true
+		);
 
-        if (is_array(value: $decoded) === false) {
-            return [];
-        }
+		if (is_array(value: $decoded) === false) {
+			return [];
+		}
 
-        return $decoded;
-    }//end decodeItems()
+		return $decoded;
+	}//end decodeItems()
 
-    /**
-     * JSON-encode and persist a list of normalised items, capping at
-     * {@see self::MAX_ITEMS} entries (REQ-FRJ-005).
-     *
-     * Items MUST already be sorted newest-first by the caller; this
-     * method does NOT sort. The cap takes the leading slice (assumed to
-     * be the newest entries).
-     *
-     * @param array<int, array<string, mixed>> $items The items.
-     *
-     * @return void
-     * @spec   openspec/specs/background-job-feed-refresh/spec.md
-     */
-    public function encodeItems(array $items): void
-    {
-        if (count(value: $items) > self::MAX_ITEMS) {
-            $items = array_slice(
-                array: $items,
-                offset: 0,
-                length: self::MAX_ITEMS
-            );
-        }
+	/**
+	 * JSON-encode and persist a list of normalised items, capping at
+	 * {@see self::MAX_ITEMS} entries (REQ-FRJ-005).
+	 *
+	 * Items MUST already be sorted newest-first by the caller; this
+	 * method does NOT sort. The cap takes the leading slice (assumed to
+	 * be the newest entries).
+	 *
+	 * @param array<int, array<string, mixed>> $items The items.
+	 *
+	 * @return void
+	 * @spec   openspec/specs/background-job-feed-refresh/spec.md
+	 */
+	public function encodeItems(array $items): void {
+		if (count(value: $items) > self::MAX_ITEMS) {
+			$items = array_slice(
+				array: $items,
+				offset: 0,
+				length: self::MAX_ITEMS
+			);
+		}
 
-        $encoded = json_encode(
-            value: $items,
-            flags: (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-        );
+		$encoded = json_encode(
+			value: $items,
+			flags: (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+		);
 
-        if ($encoded === false) {
-            $this->setItemsJson(null);
-            return;
-        }
+		if ($encoded === false) {
+			$this->setItemsJson(null);
+			return;
+		}
 
-        $this->setItemsJson($encoded);
-    }//end encodeItems()
+		$this->setItemsJson($encoded);
+	}//end encodeItems()
 
-    /**
-     * Serialize to JSON for diagnostics / admin UI.
-     *
-     * The cached items are emitted as a decoded array so the admin UI
-     * does not need to re-decode them on the client side.
-     *
-     * @return array The serialized feed-cache row.
-     * @spec   openspec/specs/background-job-feed-refresh/spec.md
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            'id'                => $this->getId(),
-            'feedUrl'           => $this->feedUrl,
-            'lastFetchedAt'     => $this->lastFetchedAt,
-            'lastSuccessAt'     => $this->lastSuccessAt,
-            'lastFailureReason' => $this->lastFailureReason,
-            'etag'              => $this->etag,
-            'lastModified'      => $this->lastModified,
-            'items'             => $this->decodeItems(),
-        ];
-    }//end jsonSerialize()
+	/**
+	 * Serialize to JSON for diagnostics / admin UI.
+	 *
+	 * The cached items are emitted as a decoded array so the admin UI
+	 * does not need to re-decode them on the client side.
+	 *
+	 * @return array The serialized feed-cache row.
+	 * @spec   openspec/specs/background-job-feed-refresh/spec.md
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'id' => $this->getId(),
+			'feedUrl' => $this->feedUrl,
+			'lastFetchedAt' => $this->lastFetchedAt,
+			'lastSuccessAt' => $this->lastSuccessAt,
+			'lastFailureReason' => $this->lastFailureReason,
+			'etag' => $this->etag,
+			'lastModified' => $this->lastModified,
+			'items' => $this->decodeItems(),
+		];
+	}//end jsonSerialize()
 }//end class

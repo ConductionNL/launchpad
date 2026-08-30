@@ -16,8 +16,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -30,35 +30,33 @@ use Exception;
  * Cascade-delete guard tripped — the field still has values
  * (REQ-MDFL-003).
  */
-class MetadataFieldHasValuesException extends Exception
-{
-    /**
-     * Stable error code returned in the response envelope.
-     *
-     * @var string
-     */
-    public const ERROR_CODE = 'metadata_field_has_values';
+class MetadataFieldHasValuesException extends Exception {
+	/**
+	 * Stable error code returned in the response envelope.
+	 *
+	 * @var string
+	 */
+	public const ERROR_CODE = 'metadata_field_has_values';
 
-    /**
-     * Constructor.
-     *
-     * @param int $valueCount The number of dependent value rows.
-     */
-    public function __construct(
-        private readonly int $valueCount
-    ) {
-        parent::__construct(
-            message: 'Metadata field has '.$valueCount.' values. Use ?cascade=true to delete them.'
-        );
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param int $valueCount The number of dependent value rows.
+	 */
+	public function __construct(
+		private readonly int $valueCount,
+	) {
+		parent::__construct(
+			message: 'Metadata field has ' . $valueCount . ' values. Use ?cascade=true to delete them.'
+		);
+	}//end __construct()
 
-    /**
-     * Returns the number of dependent value rows.
-     *
-     * @return int The value count.
-     */
-    public function getValueCount(): int
-    {
-        return $this->valueCount;
-    }//end getValueCount()
+	/**
+	 * Returns the number of dependent value rows.
+	 *
+	 * @return int The value count.
+	 */
+	public function getValueCount(): int {
+		return $this->valueCount;
+	}//end getValueCount()
 }//end class

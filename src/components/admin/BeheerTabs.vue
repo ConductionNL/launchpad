@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -66,8 +66,13 @@ export default {
 		tabs: {
 			type: Array,
 			required: true,
-			validator: (value) => Array.isArray(value)
-				&& value.every((tab) => typeof tab.slug === 'string' && typeof tab.label === 'string'),
+			validator: (value) =>
+				Array.isArray(value)
+				&& value.every(
+					(tab) =>
+						typeof tab.slug === 'string'
+						&& typeof tab.label === 'string',
+				),
 		},
 
 		/**
@@ -105,11 +110,18 @@ export default {
 		 *
 		 * @return {string} The slug to activate.
 		 */
+		/**
+		 * Pick the tab to open from the URL query, falling back to the
+		 * configured default and then to the first known tab.
+		 *
+		 * @spec exclude in-component tab routing — reads the query string and the component's own `tabs`/`defaultTab` props to choose an initial slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
+		 * @return {string} The slug of the tab to activate.
+		 */
 		resolveInitialTab() {
 			const known = this.tabs.map((tab) => tab.slug)
 			const fallback = known.includes(this.defaultTab)
 				? this.defaultTab
-				: (known[0] || '')
+				: known[0] || ''
 
 			const fromQuery = this.readQueryTab()
 			if (fromQuery && known.includes(fromQuery)) {
@@ -129,6 +141,7 @@ export default {
 		 * (tests, SSR) where `window`/`URLSearchParams` is unavailable.
 		 *
 		 * @return {string|null} The requested tab slug, or null.
+		 * @spec exclude in-component tab routing — reads the query string, `localStorage` and the component's own `tabs`/`defaultTab` props to choose a slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
 		 */
 		readQueryTab() {
 			try {
@@ -137,7 +150,7 @@ export default {
 				}
 				const params = new URLSearchParams(window.location.search || '')
 				return params.get('tab')
-			} catch (e) {
+			} catch {
 				return null
 			}
 		},
@@ -146,6 +159,7 @@ export default {
 		 * Read the persisted tab slug from `localStorage`.
 		 *
 		 * @return {string|null} The persisted slug, or null.
+		 * @spec exclude in-component tab routing — reads the query string, `localStorage` and the component's own `tabs`/`defaultTab` props to choose a slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
 		 */
 		readStoredTab() {
 			try {
@@ -153,7 +167,7 @@ export default {
 					return null
 				}
 				return localStorage.getItem(ACTIVE_TAB_STORAGE_KEY)
-			} catch (e) {
+			} catch {
 				return null
 			}
 		},
@@ -164,6 +178,7 @@ export default {
 		 *
 		 * @param {string} slug The tab slug to activate.
 		 * @return {void}
+		 * @spec exclude in-component tab routing — reads the query string, `localStorage` and the component's own `tabs`/`defaultTab` props to choose a slug. It encodes no admin-settings behaviour: which tabs exist, and what each one does, is specified and tagged where those tabs are defined.
 		 */
 		selectTab(slug) {
 			if (slug === this.activeTab) {
@@ -174,7 +189,7 @@ export default {
 				if (typeof localStorage !== 'undefined') {
 					localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, slug)
 				}
-			} catch (e) {
+			} catch {
 				// localStorage may be unavailable (private mode); the tab
 				// still switches for the current session.
 			}

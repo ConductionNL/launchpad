@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2024 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <!--
@@ -18,25 +18,34 @@
 	<div
 		class="launchpad-widget"
 		:class="{ 'launchpad-widget--editing': editMode }"
-		:data-testid="placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'"
+		:data-testid="
+			placement?.id ? `widget-placement-${placement.id}` : 'widget-placement'
+		"
 		:data-widget-id="placement?.widgetId">
 		<CnWidgetWrapper
 			class="launchpad-widget__wrapper"
 			:title="widgetTitle"
-			:show-title="showHeader"
+			:showTitle="showHeader"
 			:chrome="wrapperChrome"
-			:icon-url="widgetIconUrl"
-			:icon-class="widget && widget.iconClass ? widget.iconClass : null"
-			:style-config="styleConfig"
+			:iconUrl="widgetIconUrl"
+			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
+			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
-			:show-refresh="false"
-			:show-request-feature="false">
-			<WidgetRenderer
-				:widget="widget"
-				:placement="placement" />
+			:showRefresh="false"
+			:showRequestFeature="false">
+			<WidgetRenderer :widget="widget" :placement="placement" />
 		</CnWidgetWrapper>
+
+		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
+		     blocking sign-off prompt when the placement requires an
+		     acknowledgement the current user still owes. Suppressed in edit
+		     mode so an author can still configure the widget. -->
+		<AcknowledgementPrompt
+			v-if="showAcknowledgementGate"
+			:placement="placement"
+			@acknowledged="$emit('acknowledged', placement)" />
 
 		<!-- One shared edit cog for every widget type (data, NC, chrome-less),
 		     shown in edit mode. Sits top-right over the wrapper's header area.
@@ -48,9 +57,9 @@
 		     CnDashboardPage pattern. -->
 		<div v-if="editMode" class="launchpad-widget__cog">
 			<CnWidgetEditCog
-				:menu-label="t('launchpad', 'Widget menu')"
-				:edit-label="t('launchpad', 'Edit widget')"
-				:delete-label="t('launchpad', 'Delete widget')"
+				:menuLabel="t('launchpad', 'Widget menu')"
+				:editLabel="t('launchpad', 'Edit widget')"
+				:deleteLabel="t('launchpad', 'Delete widget')"
 				@edit="$emit('edit', placement)"
 				@remove="$emit('remove', placement.id)" />
 		</div>
@@ -58,8 +67,10 @@
 </template>
 
 <script>
-import { CnWidgetWrapper, CnWidgetEditCog } from '@conduction/nextcloud-vue'
+import { CnWidgetEditCog, CnWidgetWrapper } from '@conduction/nextcloud-vue'
+import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
 	name: 'WidgetWrapper',
@@ -68,6 +79,7 @@ export default {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
 		WidgetRenderer,
+		AcknowledgementPrompt,
 	},
 
 	props: {
@@ -75,21 +87,74 @@ export default {
 			type: Object,
 			required: true,
 		},
+
 		widget: {
 			type: Object,
 			default: null,
 		},
+
+		/**
+		 * The Nextcloud Dashboard widget catalog.
+		 *
+		 * Needed in addition to `widget` because an `nc-widget` placement
+		 * proxies a DIFFERENT widget than its own `widgetId` names, and
+		 * resolving that title needs the whole catalog rather than the single
+		 * pre-resolved entry. Passed as a prop rather than read from the store
+		 * so this stays a presentational component that mounts without pinia.
+		 */
+		availableWidgets: {
+			type: Array,
+			default: () => [],
+		},
+
 		editMode: {
+			type: Boolean,
+			default: false,
+		},
+
+		// REQ-ACK-002: whether this placement is an outstanding mandatory-read
+		// item for the current user. Resolved by the parent from the pending
+		// set; defaults false so widgets without a requirement are unchanged.
+		outstandingAcknowledgement: {
 			type: Boolean,
 			default: false,
 		},
 	},
 
-	emits: ['remove', 'style', 'edit'],
+	emits: ['remove', 'style', 'edit', 'acknowledged'],
 
 	computed: {
+		/**
+		 * Whether this placement renders a reusable tile, identified by the
+		 * `tile-` widgetId prefix.
+		 *
+		 * @spec openspec/specs/tiles/spec.md#requirement-list-user-tiles-req-tile-002
+		 * @return {boolean} True for tile placements.
+		 */
 		isTileWidget() {
-			return this.placement.widgetId && this.placement.widgetId.startsWith('tile-')
+			return (
+				this.placement.widgetId
+				&& this.placement.widgetId.startsWith('tile-')
+			)
+		},
+
+		/**
+		 * REQ-ACK-002: whether the forced-delivery read-gate should overlay
+		 * this widget — the placement requires an acknowledgement the current
+		 * user still owes, and we are NOT in edit mode (an author configuring
+		 * the widget is not a recipient sign-off context).
+		 *
+		 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+		 * @return {boolean} true when the sign-off prompt must block the widget.
+		 */
+		showAcknowledgementGate() {
+			if (this.editMode) {
+				return false
+			}
+			return (
+				Number(this.placement?.requiresAcknowledgement) === 1
+				&& this.outstandingAcknowledgement
+			)
 		},
 
 		/**
@@ -103,7 +168,9 @@ export default {
 		 * @spec openspec/specs/widgets/spec.md
 		 */
 		isChromelessType() {
-			return ['label', 'divider', 'header', 'tile'].includes(this.placement?.widgetId)
+			return ['label', 'divider', 'header', 'tile'].includes(
+				this.placement?.widgetId,
+			)
 		},
 
 		/**
@@ -158,8 +225,20 @@ export default {
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
+		/**
+		 * The header title. Shares one resolver with quick search so the name
+		 * shown on the tile and the name it is findable by cannot drift — see
+		 * `utils/widgetTitle.js`.
+		 *
+		 * `availableWidgets` rather than the single `widget` prop, because an
+		 * `nc-widget` placement proxies a DIFFERENT widget than its own
+		 * `widgetId` names, and resolving that needs the whole catalog.
+		 *
+		 * @return {string} the title to render.
+		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-002
+		 */
 		widgetTitle() {
-			return this.placement.customTitle || this.widget?.title || this.t('launchpad', 'Widget')
+			return resolveWidgetTitle(this.placement, this.availableWidgets)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -187,6 +266,9 @@ export default {
 		 * @return {object} the styleConfig blob.
 		 */
 		styleConfig() {
+			// The backend (`WidgetPlacement::jsonSerialize()`) emits `{}` for an
+			// empty styleConfig, so a plain `|| {}` fallback satisfies
+			// CnWidgetWrapper's Object-typed prop.
 			return this.placement.styleConfig || {}
 		},
 	},

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `WidgetWrapper.vue` covering the shared edit cog
  * (shown only in edit mode) and that per-widget custom header colours
@@ -8,18 +8,20 @@
  * (CnWidgetWrapper applies them natively — no per-app CSS-var workaround).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it } from 'vitest'
 import WidgetWrapper from '../WidgetWrapper.vue'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 })
 
-const mountWrapper = (placement, editMode = false) => shallowMount(WidgetWrapper, {
-	propsData: { placement, widget: { title: 'Widget' }, editMode },
-	mocks: { t: (_app, key) => key },
-})
+function mountWrapper(placement, editMode = false) {
+	return shallowMount(WidgetWrapper, {
+		propsData: { placement, widget: { title: 'Widget' }, editMode },
+		mocks: { t: (_app, key) => key },
+	})
+}
 
 describe('WidgetWrapper — custom header style', () => {
 	it('forwards styleConfig (incl headerStyle) to CnWidgetWrapper', () => {
@@ -35,11 +37,18 @@ describe('WidgetWrapper — custom header style', () => {
 		expect(wrapper.vm.styleConfig.headerStyle).toEqual(headerStyle)
 		const cn = wrapper.find('.launchpad-widget__wrapper')
 		expect(cn.attributes('style') || '').not.toContain('--lp-header')
-		expect(cn.classes()).not.toContain('launchpad-widget__wrapper--custom-header')
+		expect(cn.classes()).not.toContain(
+			'launchpad-widget__wrapper--custom-header',
+		)
 	})
 
 	it('defaults styleConfig to an empty object when none is set', () => {
-		const wrapper = mountWrapper({ id: 2, widgetId: 'data', showTitle: true, styleConfig: {} })
+		const wrapper = mountWrapper({
+			id: 2,
+			widgetId: 'data',
+			showTitle: true,
+			styleConfig: {},
+		})
 		expect(wrapper.vm.styleConfig).toEqual({})
 		const cn = wrapper.find('.launchpad-widget__wrapper')
 		expect(cn.attributes('style') || '').not.toContain('--lp-header')
@@ -61,7 +70,12 @@ describe('WidgetWrapper — showHeader (showTitle round-trip)', () => {
 		[undefined, true],
 		[null, true],
 	])('showTitle=%p → showHeader=%p', (showTitle, expected) => {
-		const wrapper = mountWrapper({ id: 9, widgetId: 'data', showTitle, styleConfig: {} })
+		const wrapper = mountWrapper({
+			id: 9,
+			widgetId: 'data',
+			showTitle,
+			styleConfig: {},
+		})
 		expect(wrapper.vm.showHeader).toBe(expected)
 	})
 })
@@ -69,7 +83,11 @@ describe('WidgetWrapper — showHeader (showTitle round-trip)', () => {
 describe('WidgetWrapper — edit cog', () => {
 	it('renders the shared cog only in edit mode', () => {
 		const placement = { id: 3, widgetId: 'data', styleConfig: {} }
-		expect(mountWrapper(placement, false).find('.launchpad-widget__cog').exists()).toBe(false)
-		expect(mountWrapper(placement, true).find('.launchpad-widget__cog').exists()).toBe(true)
+		expect(
+			mountWrapper(placement, false).find('.launchpad-widget__cog').exists(),
+		).toBe(false)
+		expect(
+			mountWrapper(placement, true).find('.launchpad-widget__cog').exists(),
+		).toBe(true)
 	})
 })

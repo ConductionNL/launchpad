@@ -19,8 +19,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -37,99 +37,98 @@ use OCP\Migration\SimpleMigrationStep;
  * Add `launchpad_dash_reactions` table + per-dashboard
  * `reactions_enabled` toggle column. REQ-RXN-001..009.
  */
-class Version001014Date20260502120000 extends SimpleMigrationStep
-{
-    /**
-     * Create the reactions table and add the per-dashboard toggle column.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure returns an
-     *                               ISchemaWrapper.
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001014Date20260502120000 extends SimpleMigrationStep {
+	/**
+	 * Create the reactions table and add the per-dashboard toggle column.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure returns an
+	 *                               ISchemaWrapper.
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        // 1. Create `launchpad_dash_reactions` table.
-        if ($schema->hasTable('launchpad_dash_reactions') === false) {
-            $table = $schema->createTable('launchpad_dash_reactions');
+		// 1. Create `launchpad_dash_reactions` table.
+		if ($schema->hasTable('launchpad_dash_reactions') === false) {
+			$table = $schema->createTable('launchpad_dash_reactions');
 
-            $table->addColumn(
-                'id',
-                Types::BIGINT,
-                [
-                    'autoincrement' => true,
-                    'notnull'       => true,
-                    'unsigned'      => true,
-                ]
-            );
-            $table->addColumn(
-                'dashboard_uuid',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 36,
-                ]
-            );
-            $table->addColumn(
-                'user_id',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 64,
-                ]
-            );
-            $table->addColumn(
-                'emoji',
-                Types::STRING,
-                [
-                    'notnull' => true,
-                    'length'  => 32,
-                ]
-            );
-            $table->addColumn(
-                'reacted_at',
-                Types::DATETIME,
-                ['notnull' => true]
-            );
+			$table->addColumn(
+				'id',
+				Types::BIGINT,
+				[
+					'autoincrement' => true,
+					'notnull' => true,
+					'unsigned' => true,
+				]
+			);
+			$table->addColumn(
+				'dashboard_uuid',
+				Types::STRING,
+				[
+					'notnull' => true,
+					'length' => 36,
+				]
+			);
+			$table->addColumn(
+				'user_id',
+				Types::STRING,
+				[
+					'notnull' => true,
+					'length' => 64,
+				]
+			);
+			$table->addColumn(
+				'emoji',
+				Types::STRING,
+				[
+					'notnull' => true,
+					'length' => 32,
+				]
+			);
+			$table->addColumn(
+				'reacted_at',
+				Types::DATETIME,
+				['notnull' => true]
+			);
 
-            $table->setPrimaryKey(['id']);
+			$table->setPrimaryKey(['id']);
 
-            // Composite uniqueness — REQ-RXN-001 idempotency guarantee.
-            $table->addUniqueIndex(
-                ['dashboard_uuid', 'user_id', 'emoji'],
-                'launchpad_react_user_emoji'
-            );
+			// Composite uniqueness — REQ-RXN-001 idempotency guarantee.
+			$table->addUniqueIndex(
+				['dashboard_uuid', 'user_id', 'emoji'],
+				'launchpad_react_user_emoji'
+			);
 
-            // Aggregation lookups — REQ-RXN-003 / REQ-RXN-004.
-            $table->addIndex(
-                ['dashboard_uuid'],
-                'launchpad_react_uuid'
-            );
-            $table->addIndex(
-                ['emoji'],
-                'launchpad_react_emoji'
-            );
-        }//end if
+			// Aggregation lookups — REQ-RXN-003 / REQ-RXN-004.
+			$table->addIndex(
+				['dashboard_uuid'],
+				'launchpad_react_uuid'
+			);
+			$table->addIndex(
+				['emoji'],
+				'launchpad_react_emoji'
+			);
+		}//end if
 
-        // 2. Per-dashboard toggle column on the existing dashboards table.
-        if ($schema->hasTable('launchpad_dashboards') === true) {
-            $dashTable = $schema->getTable('launchpad_dashboards');
-            if ($dashTable->hasColumn('reactions_enabled') === false) {
-                $dashTable->addColumn(
-                    'reactions_enabled',
-                    Types::SMALLINT,
-                    ['notnull' => false]
-                );
-            }
-        }
+		// 2. Per-dashboard toggle column on the existing dashboards table.
+		if ($schema->hasTable('launchpad_dashboards') === true) {
+			$dashTable = $schema->getTable('launchpad_dashboards');
+			if ($dashTable->hasColumn('reactions_enabled') === false) {
+				$dashTable->addColumn(
+					'reactions_enabled',
+					Types::SMALLINT,
+					['notnull' => false]
+				);
+			}
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

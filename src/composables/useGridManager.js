@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * useGridManager — combined GridStack configuration + Vue 2 composable.
  *
@@ -13,12 +13,12 @@
  *    - `getColumnOpts()` — returns the `columnOpts` bag for `GridStack.init`
  *    - `syncCellHeightCssVar()` — mirrors `CELL_HEIGHT` into a CSS variable
  *
- * 2. Add-widget placement helper (REQ-GRID-006 widget auto-layout +
- *    REQ-GRID-014 single placement authority):
- *    - `placeNewWidget(spec, placements, options?)` — primary auto-position
- *      with top-left + push-down fallback. Single legal caller of
- *      `grid.addWidget(...)` in the codebase (enforced by grep test).
- *    - `DEFAULT_W`, `DEFAULT_H`, `DEFAULT_VIEWPORT_ROWS` constants.
+ * 2. Add-widget placement helper (REQ-GRID-014 single placement authority):
+ *    - `placeNewWidget(spec, placements, options?)` — always appends the new
+ *      widget in a fresh row below all existing widgets; never moves existing
+ *      widgets. Single legal caller of `grid.addWidget(...)` in the codebase
+ *      (enforced by grep test).
+ *    - `DEFAULT_W`, `DEFAULT_H` constants.
  *
  * 3. Right-click context-menu state for widget placements
  *    (REQ-WDG-015..017, widget-context-menu):
@@ -47,7 +47,7 @@
  * this file are forbidden and enforced by a grep test.
  */
 
-import Vue from 'vue'
+import { reactive } from 'vue'
 
 // ---------------------------------------------------------------------------
 // Grid configuration constants (REQ-GRID-007/012/013)
@@ -116,7 +116,7 @@ export const CELL_HEIGHT_CSS_VAR = '--launchpad-cell-height'
 /** @spec openspec/specs/grid-layout/spec.md */
 export function getColumnOpts() {
 	return {
-		breakpoints: BREAKPOINTS.map(b => ({ ...b })),
+		breakpoints: BREAKPOINTS.map((b) => ({ ...b })),
 		layout: COLUMN_LAYOUT,
 		breakpointForWindow: true,
 	}
@@ -158,119 +158,168 @@ export const DEFAULT_W = 4
 export const DEFAULT_H = 4
 
 /**
- * Fallback "viewport rows" used when the caller does not pass a measured
- * value. 8 rows × 60 px ≈ 480 px which is the smallest first-paint surface.
+ * Compute the placement coordinates for a new widget being added to the
+ * dashboard.
  *
- * @type {number}
- */
-export const DEFAULT_VIEWPORT_ROWS = 8
-
-/**
- * Pure rectangle-overlap test on integer grid coordinates.
+ * Behaviour: always append the new widget in a fresh row directly below all
+ * existing widgets — `x = 0`, `y =` the lowest occupied bottom edge. Existing
+ * widgets are never moved (there is no push-down), and an empty dashboard
+ * places the first widget at `(0, 0)`.
  *
- * @param {{x: number, y: number, w: number, h: number}} a
- * @param {{x: number, y: number, w: number, h: number}} b
- * @return {boolean}
- */
-function rectsOverlap(a, b) {
-	return (
-		a.x < b.x + b.w
-		&& b.x < a.x + a.w
-		&& a.y < b.y + b.h
-		&& b.y < a.y + a.h
-	)
-}
-
-/**
- * Engine-free emulation of GridStack's `findEmptyPosition` scan.
- *
- * @param {{w: number, h: number}} sz target widget size in cells
- * @param {Array<{x: number, y: number, w: number, h: number}>} nodes existing widgets
- * @param {number} columns total grid columns
- * @param {number} maxScanRows scan ceiling
- * @return {{x: number, y: number} | null}
- */
-function scanForEmptySlot(sz, nodes, columns, maxScanRows) {
-	if (sz.w > columns) {
-		return null
-	}
-	for (let y = 0; y < maxScanRows; y++) {
-		for (let x = 0; x <= columns - sz.w; x++) {
-			const candidate = { x, y, w: sz.w, h: sz.h }
-			const collides = nodes.some(n => rectsOverlap(candidate, n))
-			if (!collides) {
-				return { x, y }
-			}
-		}
-	}
-	return null
-}
-
-/**
- * Compute the placement coordinates and any required push-down side effects
- * for a new widget being added to the dashboard.
- *
- * Algorithm (REQ-GRID-006):
- *   1. **Primary** — try `grid.addWidget({...spec, autoPosition: true})`
- *      via the supplied live GridStack instance, OR emulate the same scan
- *      with `scanForEmptySlot`.
- *   2. **Fallback** — when step 1 returns no slot OR the picked slot is
- *      below `viewportRows` (off-screen on first paint), place the new
- *      widget at `(0, 0)` and shift every overlapping existing widget to
- *      `gridY = h`.
+ * This deliberately replaces the former "keep the new widget on-screen by
+ * inserting it at top-left and pushing every existing widget down" rule, which
+ * reordered the user's layout on every add once the visible rows filled up.
  *
  * @param {object} spec target widget spec — `w`/`h` default to {@link DEFAULT_W}/{@link DEFAULT_H}
  * @param {Array<object>} placements current placements in LaunchPad field-name form
  *   (`gridX`, `gridY`, `gridWidth`, `gridHeight`, `id`)
- * @param {object} [options] optional knobs
- * @param {number} [options.gridColumns] column count, defaults to {@link DEFAULT_COLUMNS}
- * @param {number} [options.viewportRows] visible rows on first paint, defaults to {@link DEFAULT_VIEWPORT_ROWS}
- * @param {object} [options.grid] live GridStack instance — when supplied the engine is used directly
- * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: any, gridY: number}> }}
+ * @return {{ x: number, y: number, w: number, h: number, pushed: Array<{id: (number|string), gridY: number}> }}
+ *   `pushed` is always empty — existing widgets are never moved.
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
-export function placeNewWidget(spec, placements, options = {}) {
-	const w = (spec && Number.isFinite(spec.w) && spec.w > 0) ? spec.w : DEFAULT_W
-	const h = (spec && Number.isFinite(spec.h) && spec.h > 0) ? spec.h : DEFAULT_H
-	const columns = options.gridColumns || DEFAULT_COLUMNS
-	const viewportRows = options.viewportRows || DEFAULT_VIEWPORT_ROWS
+export function placeNewWidget(spec, placements) {
+	const w = spec && Number.isFinite(spec.w) && spec.w > 0 ? spec.w : DEFAULT_W
+	const h = spec && Number.isFinite(spec.h) && spec.h > 0 ? spec.h : DEFAULT_H
 
 	const safePlacements = Array.isArray(placements) ? placements : []
-	const nodes = safePlacements.map(p => ({
-		id: p.id,
-		x: Number.isFinite(p.gridX) ? p.gridX : 0,
-		y: Number.isFinite(p.gridY) ? p.gridY : 0,
-		w: Number.isFinite(p.gridWidth) ? p.gridWidth : 1,
-		h: Number.isFinite(p.gridHeight) ? p.gridHeight : 1,
-	}))
-
-	let primaryHit = null
-	if (options.grid && options.grid.engine) {
-		const probe = { w, h, _id: '__launchpad_probe__' }
-		const liveNodes = options.grid.engine.nodes.filter(n => n._id !== probe._id)
-		const found = options.grid.engine.findEmptyPosition(probe, liveNodes, columns)
-		if (found) {
-			primaryHit = { x: probe.x, y: probe.y }
-		}
-	} else {
-		primaryHit = scanForEmptySlot({ w, h }, nodes, columns, viewportRows * 4)
+	let bottomY = 0
+	for (const p of safePlacements) {
+		const y = Number.isFinite(p.gridY) ? p.gridY : 0
+		const ph = Number.isFinite(p.gridHeight) ? p.gridHeight : 1
+		bottomY = Math.max(bottomY, y + ph)
 	}
 
-	const primaryAcceptable = primaryHit !== null && primaryHit.y < viewportRows
+	return { x: 0, y: bottomY, w, h, pushed: [] }
+}
 
-	if (primaryAcceptable) {
-		return { x: primaryHit.x, y: primaryHit.y, w, h, pushed: [] }
+/**
+ * Minimum widget width/height in grid cells. Mirrors the `gs-min-w` /
+ * `gs-min-h` floor set on every grid item in `DashboardGrid.vue`.
+ *
+ * @type {number}
+ */
+export const MIN_CELLS = 2
+
+/**
+ * Whether two grid rectangles overlap.
+ *
+ * Half-open intervals: a rect spans columns `[x, x + w)` and rows `[y, y + h)`,
+ * so cells that merely touch edge-to-edge (e.g. one ending at y=3 and the next
+ * starting at y=3) do NOT collide — which is what makes the push-down in
+ * {@link nudgePlacement} settle instead of cascading forever.
+ *
+ * @param {{x: number, y: number, w: number, h: number}} a First rectangle.
+ * @param {{x: number, y: number, w: number, h: number}} b Second rectangle.
+ * @return {boolean} true when the two rectangles share at least one cell.
+ */
+function rectsOverlap(a, b) {
+	return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+}
+
+/**
+ * Compute the candidate rectangle for a keyboard-driven move or resize of
+ * an existing placement, reusing the same collision model as
+ * {@link placeNewWidget} so keyboard moves get the same push-down
+ * behaviour as pointer drags (WCAG 2.1 SC 2.1.1 keyboard-equivalent path).
+ *
+ * Pure function — no DOM, no GridStack instance — so it is unit-testable
+ * and shared between the keyboard move panel and any future caller.
+ *
+ * Supported actions:
+ *   - `move-up` / `move-down` / `move-left` / `move-right` — shift by one
+ *     cell, clamped to the grid bounds (x ∈ [0, columns − w], y ≥ 0).
+ *   - `grow-width` / `shrink-width` / `grow-height` / `shrink-height` —
+ *     resize by one cell, clamped to {@link MIN_CELLS} and the column
+ *     count.
+ *
+ * @param {{gridX: number, gridY: number, gridWidth: number, gridHeight: number, id?: (number|string)}} placement
+ *   the placement being moved/resized (LaunchPad field-name form)
+ * @param {string} action one of the supported action strings above
+ * @param {Array<object>} allPlacements every placement on the dashboard
+ *   (used to compute push-down side effects), in LaunchPad field-name form
+ * @param {object} [options] optional knobs
+ * @param {number} [options.gridColumns] column count, defaults to {@link DEFAULT_COLUMNS}
+ * @return {{ gridX: number, gridY: number, gridWidth: number, gridHeight: number, pushed: Array<{id: (number|string), gridY: number}> }}
+ *   the clamped candidate rect plus any existing placements that must be
+ *   pushed down to `gridY = newRect.gridY + newRect.gridHeight` to avoid
+ *   overlap. `pushed` is empty when the move/resize is a no-op or clear.
+ * @spec openspec/specs/grid-layout/spec.md
+ */
+export function nudgePlacement(placement, action, allPlacements, options = {}) {
+	const columns = options.gridColumns || DEFAULT_COLUMNS
+
+	const x = Number.isFinite(placement?.gridX) ? placement.gridX : 0
+	const y = Number.isFinite(placement?.gridY) ? placement.gridY : 0
+	const w = Number.isFinite(placement?.gridWidth) ? placement.gridWidth : MIN_CELLS
+	const h = Number.isFinite(placement?.gridHeight)
+		? placement.gridHeight
+		: MIN_CELLS
+
+	let nx = x
+	let ny = y
+	let nw = w
+	let nh = h
+
+	switch (action) {
+		case 'move-up':
+			ny = Math.max(0, y - 1)
+			break
+		case 'move-down':
+			ny = y + 1
+			break
+		case 'move-left':
+			nx = Math.max(0, x - 1)
+			break
+		case 'move-right':
+			nx = Math.min(Math.max(0, columns - w), x + 1)
+			break
+		case 'grow-width':
+			nw = Math.min(columns - x, w + 1)
+			break
+		case 'shrink-width':
+			nw = Math.max(MIN_CELLS, w - 1)
+			break
+		case 'grow-height':
+			nh = h + 1
+			break
+		case 'shrink-height':
+			nh = Math.max(MIN_CELLS, h - 1)
+			break
+		default:
+			// Unknown action → no change.
+			break
 	}
 
-	const newRect = { x: 0, y: 0, w, h }
+	// Keep the widget inside the horizontal bounds after any width change.
+	if (nx + nw > columns) {
+		nx = Math.max(0, columns - nw)
+	}
+
+	const newRect = { x: nx, y: ny, w: nw, h: nh }
 	const pushed = []
-	for (const node of nodes) {
-		if (rectsOverlap(newRect, node)) {
-			pushed.push({ id: node.id, gridY: h })
+	const others = Array.isArray(allPlacements) ? allPlacements : []
+	for (const other of others) {
+		if (other === null || other === undefined || other.id === placement?.id) {
+			continue
+		}
+		const otherRect = {
+			x: Number.isFinite(other.gridX) ? other.gridX : 0,
+			y: Number.isFinite(other.gridY) ? other.gridY : 0,
+			w: Number.isFinite(other.gridWidth) ? other.gridWidth : 1,
+			h: Number.isFinite(other.gridHeight) ? other.gridHeight : 1,
+		}
+		if (rectsOverlap(newRect, otherRect)) {
+			pushed.push({ id: other.id, gridY: ny + nh })
 		}
 	}
 
-	return { x: 0, y: 0, w, h, pushed }
+	return {
+		gridX: nx,
+		gridY: ny,
+		gridWidth: nw,
+		gridHeight: nh,
+		pushed,
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -278,11 +327,20 @@ export function placeNewWidget(spec, placements, options = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * Default popover dimensions used when clamping. A real popover is
- * `min-width: 150px` (REQ-WDG-017) and approximately three buttons tall.
+ * Default popover dimensions used when clamping. `min-width: 150px`
+ * (REQ-WDG-017) is only a lower bound — the actual rendered box is wider
+ * once "Visibility rules…" is laid out at the default NC theme font
+ * (measured ~156.5px), and taller now that the popover has grown to 5 menu
+ * items (Edit, Move, Visibility rules…, Remove, Cancel —
+ * WidgetContextMenu.vue; measured ~232.5px). These constants MUST be kept
+ * at or above the real rendered size — and re-measured whenever
+ * WidgetContextMenu.vue's item count or label text changes — or the clamp
+ * math reports success while the real popover still renders past the
+ * viewport edge (REQ-WDG-017). A small margin over the measured values
+ * absorbs theme/font differences.
  */
-const DEFAULT_MENU_WIDTH = 150
-const DEFAULT_MENU_HEIGHT = 132
+const DEFAULT_MENU_WIDTH = 170
+const DEFAULT_MENU_HEIGHT = 245
 
 /**
  * Create a grid-manager state container for the right-click context menu.
@@ -290,9 +348,11 @@ const DEFAULT_MENU_HEIGHT = 132
  * @param {object} options factory options
  * @param {{value: boolean}} options.canEdit reactive boolean controlling
  *   whether right-click opens the popover.
- * @param {Function} [options.onEdit] called with `(widget)` on Edit click.
- * @param {Function} [options.onRemove] called with `(widget)` on Remove click.
- * @param {Function} [options.onVisibilityRules] called with `(widget)` on
+ * @param {(widget: object) => void} [options.onEdit] called on Edit click.
+ * @param {(widget: object) => void} [options.onRemove] called on Remove click.
+ * @param {(widget: object) => void} [options.onMove] called on Move click —
+ *   opens the keyboard move/resize panel (WCAG 2.1 SC 2.1.1).
+ * @param {(widget: object) => void} [options.onVisibilityRules] called on
  *   "Visibility rules…" click.
  * @param {number} [options.menuWidth] override for clamp width (px)
  * @param {number} [options.menuHeight] override for clamp height (px)
@@ -304,29 +364,34 @@ const DEFAULT_MENU_HEIGHT = 132
  *   closeContextMenu: () => void,
  *   triggerEdit: () => void,
  *   triggerRemove: () => void,
+ *   triggerMove: () => void,
  *   triggerVisibilityRules: () => void,
  *   attach: () => void,
  *   detach: () => void,
  * }}
+ * @spec openspec/specs/grid-layout/spec.md
  */
-/** @spec openspec/specs/grid-layout/spec.md */
 export function useGridManager(options = {}) {
 	const {
 		canEdit,
 		onEdit,
 		onRemove,
+		onMove,
 		onVisibilityRules,
 		menuWidth = DEFAULT_MENU_WIDTH,
 		menuHeight = DEFAULT_MENU_HEIGHT,
 		viewport,
 	} = options
 
-	const state = Vue.observable({
+	const state = reactive({
 		contextMenuOpen: false,
 		contextMenuPosition: { x: 0, y: 0 },
 		selectedWidget: null,
 	})
 
+	/**
+	 *
+	 */
 	function getViewport() {
 		const v = viewport || (typeof window !== 'undefined' ? window : null)
 		if (!v) {
@@ -335,6 +400,15 @@ export function useGridManager(options = {}) {
 		return { width: v.innerWidth, height: v.innerHeight }
 	}
 
+	/**
+	 * Keep the context menu fully on screen by pulling it back inside the
+	 * viewport when opening it at the cursor would overflow the right or
+	 * bottom edge.
+	 *
+	 * @param {number} x the cursor's viewport X coordinate.
+	 * @param {number} y the cursor's viewport Y coordinate.
+	 * @return {{x: number, y: number}} the clamped menu origin.
+	 */
 	function clampToViewport(x, y) {
 		const { width, height } = getViewport()
 		let clampedX = x
@@ -348,6 +422,14 @@ export function useGridManager(options = {}) {
 		return { x: clampedX, y: clampedY }
 	}
 
+	/**
+	 * Open the widget context menu at the cursor, suppressing the browser's
+	 * own menu. A no-op when the user cannot edit this dashboard.
+	 *
+	 * @param {MouseEvent} event the contextmenu event.
+	 * @param {object} widget the placement that was right-clicked.
+	 * @return {void}
+	 */
 	function onWidgetRightClick(event, widget) {
 		if (!canEdit || !canEdit.value) {
 			return
@@ -359,11 +441,17 @@ export function useGridManager(options = {}) {
 		state.contextMenuOpen = true
 	}
 
+	/**
+	 *
+	 */
 	function closeContextMenu() {
 		state.contextMenuOpen = false
 		state.selectedWidget = null
 	}
 
+	/**
+	 *
+	 */
 	function triggerEdit() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -372,6 +460,9 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 *
+	 */
 	function triggerRemove() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -380,6 +471,20 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 *
+	 */
+	function triggerMove() {
+		const widget = state.selectedWidget
+		closeContextMenu()
+		if (typeof onMove === 'function' && widget) {
+			onMove(widget)
+		}
+	}
+
+	/**
+	 *
+	 */
 	function triggerVisibilityRules() {
 		const widget = state.selectedWidget
 		closeContextMenu()
@@ -388,12 +493,23 @@ export function useGridManager(options = {}) {
 		}
 	}
 
+	/**
+	 * Close the context menu on any click outside it (the standard popover
+	 * dismissal), while leaving clicks inside the menu to its own handlers.
+	 *
+	 * @param {MouseEvent} event the document click event.
+	 * @return {void}
+	 */
 	function handleDocumentClick(event) {
 		if (!state.contextMenuOpen) {
 			return
 		}
 		const target = event.target
-		if (target && typeof target.closest === 'function' && target.closest('.widget-context-menu')) {
+		if (
+			target
+			&& typeof target.closest === 'function'
+			&& target.closest('.widget-context-menu')
+		) {
 			return
 		}
 		closeContextMenu()
@@ -401,6 +517,9 @@ export function useGridManager(options = {}) {
 
 	let attached = false
 
+	/**
+	 *
+	 */
 	function attach() {
 		if (attached || typeof document === 'undefined') {
 			return
@@ -409,6 +528,9 @@ export function useGridManager(options = {}) {
 		attached = true
 	}
 
+	/**
+	 *
+	 */
 	function detach() {
 		if (!attached || typeof document === 'undefined') {
 			return
@@ -424,6 +546,7 @@ export function useGridManager(options = {}) {
 		closeContextMenu,
 		triggerEdit,
 		triggerRemove,
+		triggerMove,
 		triggerVisibilityRules,
 		attach,
 		detach,

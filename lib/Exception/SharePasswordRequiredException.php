@@ -29,30 +29,28 @@ namespace OCA\LaunchPad\Exception;
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-4
  */
-class SharePasswordRequiredException extends ResourceException
-{
+class SharePasswordRequiredException extends ResourceException {
 
-    /**
-     * Stable error code.
-     *
-     * @var string
-     */
-    protected string $errorCode = 'share_password_required';
+	/**
+	 * Stable error code.
+	 *
+	 * @var string
+	 */
+	protected string $errorCode = 'share_password_required';
 
-    /**
-     * HTTP status.
-     *
-     * @var integer
-     */
-    protected int $httpStatus = 401;
+	/**
+	 * HTTP status.
+	 *
+	 * @var integer
+	 */
+	protected int $httpStatus = 401;
 
-    /**
-     * Constructor.
-     *
-     * @param string $message Display message.
-     */
-    public function __construct(string $message='Password required')
-    {
-        parent::__construct(message: $message);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param string $message Display message.
+	 */
+	public function __construct(string $message = 'Password required') {
+		parent::__construct(message: $message);
+	}//end __construct()
 }//end class

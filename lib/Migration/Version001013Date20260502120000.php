@@ -18,8 +18,8 @@
  * @version   GIT:auto
  * @link      https://conduction.nl
  *
- * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  */
 
 declare(strict_types=1);
@@ -36,43 +36,42 @@ use OCP\Migration\SimpleMigrationStep;
  * Add the nullable `comments_enabled` column to `oc_launchpad_dashboards`
  * (REQ-CMNT-007).
  */
-class Version001013Date20260502120000 extends SimpleMigrationStep
-{
-    /**
-     * Add the column when it does not yet exist.
-     *
-     * @param IOutput $output        The migration output handler.
-     * @param Closure $schemaClosure The schema closure (returns ISchemaWrapper).
-     * @param array   $options       The migration options.
-     *
-     * @return ISchemaWrapper|null The modified schema or null.
-     */
-    public function changeSchema(
-        IOutput $output,
-        Closure $schemaClosure,
-        array $options
-    ): ?ISchemaWrapper {
-        $schema = $schemaClosure();
+class Version001013Date20260502120000 extends SimpleMigrationStep {
+	/**
+	 * Add the column when it does not yet exist.
+	 *
+	 * @param IOutput $output The migration output handler.
+	 * @param Closure $schemaClosure The schema closure (returns ISchemaWrapper).
+	 * @param array $options The migration options.
+	 *
+	 * @return ISchemaWrapper|null The modified schema or null.
+	 */
+	public function changeSchema(
+		IOutput $output,
+		Closure $schemaClosure,
+		array $options,
+	): ?ISchemaWrapper {
+		$schema = $schemaClosure();
 
-        if ($schema->hasTable('launchpad_dashboards') === false) {
-            return $schema;
-        }
+		if ($schema->hasTable('launchpad_dashboards') === false) {
+			return $schema;
+		}
 
-        $table = $schema->getTable('launchpad_dashboards');
+		$table = $schema->getTable('launchpad_dashboards');
 
-        if ($table->hasColumn('comments_enabled') === false) {
-            $table->addColumn(
-                'comments_enabled',
-                Types::SMALLINT,
-                [
-                    'notnull'  => false,
-                    'default'  => null,
-                    'unsigned' => true,
-                    'comment'  => 'Per-dashboard comments toggle: NULL = inherit global, 1 = on, 0 = off.',
-                ]
-            );
-        }
+		if ($table->hasColumn('comments_enabled') === false) {
+			$table->addColumn(
+				'comments_enabled',
+				Types::SMALLINT,
+				[
+					'notnull' => false,
+					'default' => null,
+					'unsigned' => true,
+					'comment' => 'Per-dashboard comments toggle: NULL = inherit global, 1 = on, 0 = off.',
+				]
+			);
+		}
 
-        return $schema;
-    }//end changeSchema()
+		return $schema;
+	}//end changeSchema()
 }//end class

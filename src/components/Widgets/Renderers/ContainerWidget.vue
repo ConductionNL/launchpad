@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -19,9 +19,7 @@
 				:gs-w="child.gridWidth || 2"
 				:gs-h="child.gridHeight || 2">
 				<div class="grid-stack-item-content">
-					<ContainerChild
-						:placement="child"
-						:edit-mode="editMode" />
+					<ContainerChild :placement="child" :editMode="editMode" />
 				</div>
 			</div>
 		</div>
@@ -31,8 +29,8 @@
 <script>
 import ContainerChild from './ContainerChild.vue'
 import {
-	useNestedGridManager,
 	getNestedGridOptions,
+	useNestedGridManager,
 } from '../../../composables/useNestedGridManager.js'
 
 const PADDING_TOKENS = Object.freeze({
@@ -71,6 +69,7 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
+
 		editMode: {
 			type: Boolean,
 			default: false,
@@ -95,13 +94,13 @@ export default {
 		/** @spec openspec/specs/container-widget/spec.md */
 		backgroundColor() {
 			const value = this.content?.backgroundColor
-			return (typeof value === 'string' && value !== '') ? value : 'transparent'
+			return typeof value === 'string' && value !== '' ? value : 'transparent'
 		},
 
 		/** @spec openspec/specs/container-widget/spec.md */
 		paddingToken() {
 			const value = this.content?.padding
-			if (typeof value === 'string' && Object.prototype.hasOwnProperty.call(PADDING_TOKENS, value)) {
+			if (typeof value === 'string' && Object.hasOwn(PADDING_TOKENS, value)) {
 				return value
 			}
 			return 'medium'
@@ -142,7 +141,7 @@ export default {
 		this.initInnerGrid()
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		this.destroyInnerGrid()
 	},
 
@@ -156,10 +155,10 @@ export default {
 		 * @param {object} child the child placement
 		 * @param {number} index the loop index
 		 * @return {string|number}
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		childKey(child, index) {
-			if (child && (child.id !== undefined && child.id !== null)) {
+			if (child && child.id !== undefined && child.id !== null) {
 				return `id-${child.id}`
 			}
 			if (child && typeof child.uuid === 'string' && child.uuid !== '') {
@@ -176,17 +175,19 @@ export default {
 		 * children, just without drag/resize affordances.
 		 *
 		 * @return {Promise<void>}
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		async initInnerGrid() {
 			if (!this.$refs.innerGrid) {
 				return
 			}
-			let GridStackCtor = null
+			// No initialiser: the catch below returns, so the binding is only ever
+			// read after the try assigned it.
+			let GridStackCtor
 			try {
 				const mod = await import('gridstack')
 				GridStackCtor = mod && (mod.GridStack || mod.default)
-			} catch (e) {
+			} catch {
 				// GridStack runtime unavailable — non-fatal in tests.
 				return
 			}
@@ -218,8 +219,8 @@ export default {
 		 *
 		 * @param {Event} _event the GridStack event (ignored)
 		 * @param {Array<object>} nodes the changed nodes
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		onGridChange(_event, nodes) {
 			if (!Array.isArray(nodes) || nodes.length === 0) {
 				return
@@ -229,7 +230,12 @@ export default {
 				byKey.set(this.childKey(child, 0), child)
 			}
 			const updated = this.children.map((child, index) => {
-				const node = nodes.find(n => n.el && n.el.dataset && n.el.dataset.launchpadIndex === String(index))
+				const node = nodes.find(
+					(n) =>
+						n.el
+						&& n.el.dataset
+						&& n.el.dataset.launchpadIndex === String(index),
+				)
 				if (!node) {
 					return child
 				}
@@ -251,8 +257,8 @@ export default {
 		 * change.
 		 *
 		 * @param {Array<object>} placements the new child placements
+		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		/** @spec openspec/specs/container-widget/spec.md */
 		handlePersist(placements) {
 			this.$emit('update:content', {
 				...(this.content || {}),
@@ -262,10 +268,13 @@ export default {
 
 		/** @spec openspec/specs/container-widget/spec.md */
 		destroyInnerGrid() {
-			if (this.gridInstance && typeof this.gridInstance.destroy === 'function') {
+			if (
+				this.gridInstance
+				&& typeof this.gridInstance.destroy === 'function'
+			) {
 				try {
 					this.gridInstance.destroy(false)
-				} catch (e) {
+				} catch {
 					// no-op — best-effort teardown
 				}
 			}

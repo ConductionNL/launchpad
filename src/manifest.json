@@ -1,6 +1,31 @@
 {
-  "$schema": "https://unpkg.com/@conduction/nextcloud-vue@latest/dist/schemas/app-manifest.schema.json",
-  "version": "0.1.0",
+  "$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+  "setup": {
+    "version": 1,
+    "completionConfigKey": "setup_completed_version",
+    "steps": [
+      {
+        "id": "welcome",
+        "type": "info",
+        "title": "Welcome",
+        "body": "A short setup to get this app ready. Nothing here is required; you can close it and come back later."
+      },
+      {
+        "id": "demo-data",
+        "type": "run-action",
+        "action": "install-demo-data",
+        "title": "Demo data (optional)",
+        "required": false,
+        "body": "Load a small example dataset so the lists, detail pages and dashboards show a working product straight away. The data is obviously sample data, it is safe to run more than once, and it can be removed afterwards. Skip this on a production install."
+      },
+      {
+        "id": "done",
+        "type": "summary",
+        "title": "All set"
+      }
+    ]
+  },
+  "version": "0.2.0",
   "dependencies": [],
   "observability": {
     "_note": "LaunchPad consumes the OpenRegister AppHost observability engine (ADR-040). These descriptors reproduce the output of the now-deleted hand-written HealthController + MetricsController. The /api/health and /api/metrics routes are aliased to the AppHost generic controllers in lib/AppInfo/Application.php, so the engine reads this block at request time. The Prometheus prefix is the runtime app id `launchpad`. Parity: implicit launchpad_info/launchpad_up plus launchpad_dashboards_total/widgets_total/tiles_total match the pre-adoption contract; documented intentional improvements are the now-public health endpoint and the added health `app`/`version` fields (ADR-006).",
@@ -22,7 +47,9 @@
         "source": {
           "kind": "tableCount",
           "table": "launchpad_dashboards",
-          "groupBy": ["type"],
+          "groupBy": [
+            "type"
+          ],
           "labelDefaults": {
             "type": "personal"
           }
@@ -48,29 +75,18 @@
       }
     ]
   },
-  "widgets": [
-    {
-      "id": "launchpad_spend_analytics",
-      "type": "spend-analytics",
-      "label": "launchpad.widgets.spendAnalytics",
-      "icon": "icon-spend-analytics",
-      "requires": {
-        "graphql": ["financeq.transactions", "procest.cases"]
-      }
-    }
-  ],
   "menu": [
     {
       "id": "dashboards",
       "label": "launchpad.menu.dashboards",
-      "icon": "icon-dashboard",
-      "route": "/dashboards",
+      "icon": "ViewDashboardOutline",
+      "route": "dashboard-detail",
       "section": "main"
     },
     {
       "id": "admin-templates",
       "label": "launchpad.menu.adminTemplates",
-      "icon": "icon-template",
+      "icon": "FileReplaceOutline",
       "route": "/admin/templates",
       "section": "settings",
       "permission": "admin"
@@ -78,10 +94,18 @@
     {
       "id": "admin-settings",
       "label": "launchpad.menu.adminSettings",
-      "icon": "icon-settings",
+      "icon": "CogOutline",
       "route": "/admin/settings",
       "section": "settings",
       "permission": "admin"
+    },
+    {
+      "id": "FlowsMenu",
+      "label": "Flows",
+      "icon": "Sitemap",
+      "route": "Flows",
+      "section": "settings",
+      "order": 96
     }
   ],
   "pages": [
@@ -90,22 +114,20 @@
       "route": "/dashboards/:id",
       "type": "dashboard",
       "title": "launchpad.pages.dashboard",
+      "_note": "Bundled STUB for the ADR-036 Decision-8 runtime-manifest pattern: the real per-user dashboard pages are assembled server-side by GET /apps/launchpad/api/manifest from the user's visible dashboards and replace this manifest at boot. widgets[] is intentionally empty here — LaunchPad has no static home page. The 'dashboards' menu entry targets this page by ID rather than by path, which is the pairing the SERVER emits: ManifestController::buildManifest() sets each menu entry's route to its page's id ('dashboard-'.$slug) while the page carries the path ('/'.$slug). The stub previously said '/dashboards' — a path matching neither this page ('/dashboards/:id') nor anything the runtime builder produces — so the single menu entry LaunchPad ships resolved to nothing.",
+      "widgets": [],
       "config": {
-        "widgets": "@runtime",
-        "layout": "@runtime",
         "documentationUrl": "https://launchpad.conduction.nl"
       }
     },
     {
       "id": "admin-templates-index",
       "route": "/admin/templates",
-      "type": "index",
+      "type": "custom",
       "title": "launchpad.pages.adminTemplates",
+      "component": "TemplatesPage",
+      "_note": "Admin CRUD over the launchpad app-config/templates table, rendered by LaunchPad's own admin chrome (src/components/admin/tabs/TemplatesPage.vue). No OpenRegister register/schema backs this data, so the declarative index page type (which requires register + schema) cannot apply.",
       "config": {
-        "register": null,
-        "schema": null,
-        "source": "launchpad:oc_launchpad_admin_settings",
-        "columns": ["key", "value", "scope", "updated"],
         "documentationUrl": "https://launchpad.conduction.nl"
       }
     },
@@ -114,7 +136,85 @@
       "route": "/admin/settings",
       "type": "custom",
       "title": "launchpad.pages.adminSettings",
-      "component": "AdminSettingsPage"
+      "component": "AdminSettingsPage",
+      "_note": "Bespoke admin settings surface (tile/template management forms) rendered by LaunchPad's own router; manages app-config state that no declarative widget vocabulary covers."
+    },
+    {
+      "id": "Flows",
+      "route": "/flows",
+      "type": "index",
+      "title": "Flows",
+      "config": {
+        "entitySource": "flows",
+        "app": "launchpad"
+      },
+      "_note": "ADR-110 Decision 4: a flow is app-specific, so the authoring surface lives here rather than behind a deep link to another app's list. An ordinary index over the named `flows` source (config.entitySource) rather than the deprecated `flows` page type, reading OpenRegister's one native flow store (ADR-065), scoped to this app by config.app."
+    },
+    {
+      "id": "FlowDetail",
+      "route": "/flows/:id",
+      "type": "flow",
+      "title": "Flow",
+      "config": {
+        "app": "launchpad"
+      },
+      "_note": "The shared CnFlowDetail canvas over the same single engine. Controls render in the NC app sidebar so the canvas keeps full width."
     }
-  ]
+  ],
+  "walkthrough": {
+    "enabled": true,
+    "version": 1,
+    "completionConfigKey": "walkthrough_completed_version",
+    "tours": [
+      {
+        "id": "launchpad:getting-started",
+        "title": "Getting started",
+        "trigger": "first-visit",
+        "steps": [
+          {
+            "id": "welcome",
+            "placement": "center",
+            "title": "Welcome to Launchpad",
+            "body": "A short tour of the main screens. It takes under a minute, and you can close it at any point and pick it up again from the help menu.",
+            "target": {
+              "kind": "page",
+              "ref": "dashboard-detail"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "go-dashboard-detail",
+            "placement": "right",
+            "body": "Open Dashboards from the menu.",
+            "task": "Click Dashboards in the menu",
+            "target": {
+              "kind": "nav-item",
+              "ref": "dashboard-detail"
+            },
+            "advanceOn": {
+              "type": "route-match",
+              "route": "dashboard-detail"
+            }
+          },
+          {
+            "id": "go-flows",
+            "placement": "right",
+            "body": "Flows automate the repetitive parts of this app. Have a look, though you do not have to build one now.",
+            "task": "Open Flows from the menu",
+            "target": {
+              "kind": "nav-item",
+              "ref": "Flows"
+            },
+            "advanceOn": {
+              "type": "route-match",
+              "route": "Flows"
+            },
+            "allowManualNext": true
+          }
+        ]
+      }
+    ]
+  }
 }

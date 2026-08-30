@@ -1,25 +1,30 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
 	<div class="sharing-policy" data-test="dashboard-sharing-policy">
 		<h3>{{ t('launchpad', 'Organisation sharing defaults') }}</h3>
 		<p class="sharing-policy__hint">
-			{{ t('launchpad', 'Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.') }}
+			{{
+				t(
+					'launchpad',
+					'Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.',
+				)
+			}}
 		</p>
 
 		<div class="sharing-policy__field">
 			<NcSelect
 				v-model="defaultPermission"
-				:input-label="t('launchpad', 'Default share permission level')"
+				:inputLabel="t('launchpad', 'Default share permission level')"
 				:options="permissionOptions"
 				label="label"
-				track-by="id"
+				trackBy="id"
 				:clearable="false"
 				data-test="sharing-policy-permission"
-				@input="save" />
+				@update:modelValue="save" />
 		</div>
 
 		<div class="sharing-policy__field">
@@ -33,9 +38,14 @@
 				:aria-label-combobox="t('launchpad', 'Forced share groups')"
 				:placeholder="t('launchpad', 'Select groups (leave empty for none)')"
 				data-test="sharing-policy-forced-groups"
-				@input="save" />
+				@update:modelValue="save" />
 			<p class="sharing-policy__hint">
-				{{ t('launchpad', 'Members of these groups always receive every newly created dashboard.') }}
+				{{
+					t(
+						'launchpad',
+						'Members of these groups always receive every newly created dashboard.',
+					)
+				}}
 			</p>
 		</div>
 	</div>
@@ -45,6 +55,7 @@
 import { NcSelect, NcSelectTags } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 const PERMISSION_OPTIONS = [
 	{ id: 'view_only', label: 'View only' },
@@ -76,7 +87,11 @@ export default {
 
 	data() {
 		return {
-			permissionOptions: PERMISSION_OPTIONS.map(o => ({ id: o.id, label: t('launchpad', o.label) })),
+			permissionOptions: PERMISSION_OPTIONS.map((o) => ({
+				id: o.id,
+				label: t('launchpad', o.label),
+			})),
+
 			defaultPermission: null,
 			forcedGroups: [],
 		}
@@ -97,13 +112,14 @@ export default {
 				const { data } = await api.getAdminSettings()
 				const settings = data?.data ?? data ?? {}
 				const level = settings.defaultSharePermissionLevel
-				this.defaultPermission = this.permissionOptions.find(o => o.id === level)
+				this.defaultPermission =
+					this.permissionOptions.find((o) => o.id === level)
 					|| this.permissionOptions[1]
 				this.forcedGroups = Array.isArray(settings.forcedShareGroups)
 					? settings.forcedShareGroups
 					: []
 			} catch (error) {
-				console.error('Failed to load sharing policy:', error)
+				logger.error('Failed to load sharing policy:', error)
 			}
 		},
 
@@ -115,7 +131,7 @@ export default {
 					forcedShareGroups: this.forcedGroups,
 				})
 			} catch (error) {
-				console.error('Failed to save sharing policy:', error)
+				logger.error('Failed to save sharing policy:', error)
 			}
 		},
 	},

@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -20,7 +20,9 @@
 			<span class="org-nav__hamburger-bar" />
 			<span class="org-nav__hamburger-bar" />
 			<span class="org-nav__hamburger-bar" />
-			<span class="org-nav__hamburger-label">{{ t('launchpad', 'Navigation') }}</span>
+			<span class="org-nav__hamburger-label">{{
+				t('launchpad', 'Navigation')
+			}}</span>
 		</button>
 
 		<!-- Desktop rail and mobile drawer share the same template body -->
@@ -41,7 +43,7 @@
 					:key="node.id"
 					:node="node"
 					:level="1"
-					:current-url="currentUrl"
+					:currentUrl="currentUrl"
 					@navigate="onNavigate" />
 			</ul>
 		</div>
@@ -50,7 +52,6 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-
 import OrgNavigationItem from './OrgNavigationItem.vue'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
 
@@ -109,9 +110,10 @@ export default {
 
 	/** @spec openspec/specs/navigation-editor-org/spec.md */
 	mounted() {
-		this.currentUrl = (typeof window !== 'undefined' && window.location)
-			? window.location.pathname
-			: ''
+		this.currentUrl =
+			typeof window !== 'undefined' && window.location
+				? window.location.pathname
+				: ''
 		// Fire-and-forget — errors are surfaced via store.error.
 		this.store.fetchPosition()
 		this.store.fetchTree()
@@ -125,8 +127,9 @@ export default {
 		 * (REQ-ONAV-010). The link itself handles the actual
 		 * navigation via the standard `<a href>` semantics emitted by
 		 * `OrgNavigationItem`.
+		 *
+		 * @spec openspec/specs/navigation-editor-org/spec.md
 		 */
-		/** @spec openspec/specs/navigation-editor-org/spec.md */
 		onNavigate() {
 			this.openDrawer = false
 		},

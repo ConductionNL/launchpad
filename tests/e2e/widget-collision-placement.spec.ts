@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Playwright end-to-end test for widget collision placement (REQ-GRID-006 +
  * REQ-GRID-014) covering Task 8 of the `widget-collision-placement` OpenSpec
@@ -28,7 +28,11 @@
  */
 
 import { test, expect } from '@playwright/test'
-import { gotoLaunchPad, openAddWidgetModal, closeSidebar } from './fixtures/widget-flow'
+import {
+	gotoLaunchPad,
+	openAddWidgetModal,
+	closeSidebar,
+} from './fixtures/widget-flow'
 import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
 
 test.beforeAll(async () => {
@@ -81,7 +85,10 @@ async function addLabelWidget(page: import('@playwright/test').Page, text: strin
 	await openAddWidgetModal(page)
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })
-	await dialog.getByLabel(/label text/i).first().fill(text)
+	await dialog
+		.getByLabel(/label text/i)
+		.first()
+		.fill(text)
 	const addBtn = dialog.getByRole('button', { name: /^add$/i })
 	await expect(addBtn).toBeEnabled({ timeout: 5_000 })
 	await addBtn.click()
@@ -95,7 +102,9 @@ test.describe('widget collision placement', () => {
 	})
 
 	// @e2e grid-layout::five-widgets-no-overlap-auto-position
-	test('REQ-GRID-006: adding several widgets leaves no overlap (auto-position)', async ({ page }) => {
+	test('REQ-GRID-006: adding several widgets leaves no overlap (auto-position)', async ({
+		page,
+	}) => {
 		const stamp = Date.now()
 		for (let i = 0; i < 3; i++) {
 			await addLabelWidget(page, `collide-${stamp}-${i}`)
@@ -107,7 +116,9 @@ test.describe('widget collision placement', () => {
 
 	// @e2e grid-layout::sixth-widget-push-down-fallback
 	// @e2e grid-layout::pushed-widgets-keep-column-lane
-	test('REQ-GRID-006: auto-position keeps placements non-overlapping with an occupied top row', async ({ page }) => {
+	test('REQ-GRID-006: auto-position keeps placements non-overlapping with an occupied top row', async ({
+		page,
+	}) => {
 		// The active dashboard already carries placements (the top of the grid
 		// is occupied). Adding more widgets must engage the push-down fallback
 		// and still leave NO overlap and preserve column lanes for any widget
@@ -134,7 +145,9 @@ test.describe('widget collision placement', () => {
 	})
 
 	// @e2e grid-layout::positions-survive-reload
-	test('REQ-GRID-005: widget positions survive a page reload', async ({ page }) => {
+	test('REQ-GRID-005: widget positions survive a page reload', async ({
+		page,
+	}) => {
 		// The shared dashboard accumulates widgets across runs, so a full
 		// re-render can be slow — give this reload-heavy test extra budget.
 		test.setTimeout(60_000)

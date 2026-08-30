@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,7 +8,7 @@
 		<div class="metrics-panel__header">
 			<h3>{{ t('launchpad', 'Prometheus metrics') }}</h3>
 			<NcButton
-				type="secondary"
+				variant="secondary"
 				:disabled="!body"
 				data-test="metrics-copy"
 				@click="copy">
@@ -25,7 +25,9 @@
 		<p v-else-if="error" class="metrics-panel__error" data-test="metrics-error">
 			{{ t('launchpad', 'Failed to load metrics.') }}
 		</p>
-		<pre v-else class="metrics-panel__pre" data-test="metrics-body">{{ body }}</pre>
+		<pre v-else class="metrics-panel__pre" data-test="metrics-body">{{
+			body
+		}}</pre>
 	</div>
 </template>
 
@@ -72,8 +74,9 @@ export default {
 			this.error = false
 			try {
 				const { data } = await api.getMetrics()
-				this.body = typeof data === 'string' ? data : JSON.stringify(data, null, 2)
-			} catch (e) {
+				this.body =
+					typeof data === 'string' ? data : JSON.stringify(data, null, 2)
+			} catch {
 				this.error = true
 			} finally {
 				this.loading = false
@@ -90,7 +93,7 @@ export default {
 						this.copied = false
 					}, 2000)
 				}
-			} catch (e) {
+			} catch {
 				// Clipboard may be blocked; leave the body visible for manual copy.
 			}
 		},

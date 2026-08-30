@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2024 LaunchPad Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Admin entry point. Loads the typed initial-state contract via
  * {@link loadInitialState} and exposes every key down the component tree
@@ -11,33 +11,52 @@
  * Provided values are plain (non-reactive) snapshots (REQ-INIT-005).
  */
 
-import Vue from 'vue'
-import { PiniaVuePlugin, createPinia } from 'pinia'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
+import { createPinia } from 'pinia'
+import { createApp, h } from 'vue'
 import AdminSettings from './components/admin/AdminSettings.vue'
+// Install the OCA.Dashboard shim before anything else runs. Rendering this
+// admin page calls WidgetService::getAvailableWidgets() server-side, which goes
+// through NC's IManager::getWidgets() — and that loads every dashboard widget's
+// bundle onto the page as a side effect. Those legacy bundles register at module
+// top-level via OCA.Dashboard.register(), which only exists on /apps/dashboard
+// (or wherever this bridge runs). Importing the bridge here mirrors the main
+// workspace entry (where it loads via the widgets store) so the injected widget
+// bundles find a register() to call instead of throwing on undefined OCA.Dashboard.
+import { widgetBridge } from './services/widgetBridge.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 
-// Global functions
-Vue.mixin({
-	methods: {
-		t,
-		n,
-	},
-})
+import './publicPath.js'
 
-Vue.use(PiniaVuePlugin)
+// Reference the imported singleton so its side-effecting construction is not
+// tree-shaken / flagged as an unused import.
+
+void widgetBridge
+
+// Vue 3 has no global Vue constructor — t/n are installed as an app-level
+// mixin on the instance created below.
 const pinia = createPinia()
 
 // Load the typed initial-state snapshot for the admin page (REQ-INIT-002).
 // Plain (non-reactive) values; descendants `inject(key, default)` to read.
 const initialState = loadInitialState('admin')
 
-const app = new Vue({
-	el: '#launchpad-admin-settings',
-	pinia,
-	provide: { ...initialState },
-	render: h => h(AdminSettings),
+const app = createApp({
+	name: 'LaunchpadAdminRoot',
+	render: () => h(AdminSettings),
 })
+
+// Global t/n — an app-level mixin replaces Vue 2's global Vue.mixin.
+app.mixin({ methods: { t, n } })
+app.use(pinia)
+
+// Vue 3 moves provide() off the component options onto the app instance, so
+// each initial-state key is registered individually rather than as a
+// `provide:` object.
+for (const [key, value] of Object.entries(initialState)) {
+	app.provide(key, value)
+}
+
+app.mount('#launchpad-admin-settings')
 
 export default app

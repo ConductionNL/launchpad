@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,7 +8,12 @@
 		<h3>{{ t('launchpad', 'Demo data showcases') }}</h3>
 
 		<p class="launchpad-demo-showcases__hint">
-			{{ t('launchpad', 'Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.') }}
+			{{
+				t(
+					'launchpad',
+					'Install bundled example dashboards to give users a working starting point. Each showcase is created as a group-shared dashboard visible to all users; you can uninstall it at any time.',
+				)
+			}}
 		</p>
 
 		<div v-if="loading" class="launchpad-demo-showcases__loading">
@@ -39,46 +44,72 @@
 							v-if="showcase.thumbnailUrl"
 							:src="showcase.thumbnailUrl"
 							:alt="showcase.name"
-							@error="onThumbError($event)">
+							@error="onThumbError($event)" />
 						<ViewDashboard v-else :size="64" />
 					</div>
 
 					<div class="launchpad-demo-showcases__body">
 						<div class="launchpad-demo-showcases__title-row">
-							<strong class="launchpad-demo-showcases__title">{{ showcase.name }}</strong>
-							<span class="launchpad-demo-showcases__lang-badge">{{ showcase.language.toUpperCase() }}</span>
+							<strong class="launchpad-demo-showcases__title">{{
+								showcase.name
+							}}</strong>
+							<span class="launchpad-demo-showcases__lang-badge">{{
+								showcase.language.toUpperCase()
+							}}</span>
 						</div>
 
 						<p class="launchpad-demo-showcases__desc">
 							{{ showcase.description }}
 						</p>
 
-						<div v-if="warnings[showcase.id]" class="launchpad-demo-showcases__warning">
-							{{ t('launchpad', 'Installed but skipped widgets: {list}', { list: warnings[showcase.id].join(', ') }) }}
+						<div
+							v-if="warnings[showcase.id]"
+							class="launchpad-demo-showcases__warning">
+							{{
+								t(
+									'launchpad',
+									'Installed but skipped widgets: {list}',
+									{ list: warnings[showcase.id].join(', ') },
+								)
+							}}
 						</div>
 
 						<div class="launchpad-demo-showcases__actions">
 							<NcButton
 								v-if="!showcase.isInstalled"
-								type="primary"
+								variant="primary"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-install-' + showcase.id"
 								@click="install(showcase)">
-								{{ busy[showcase.id] ? t('launchpad', 'Installing…') : t('launchpad', 'Install') }}
+								{{
+									busy[showcase.id]
+										? t('launchpad', 'Installing…')
+										: t('launchpad', 'Install')
+								}}
 							</NcButton>
 							<NcButton
 								v-else
-								type="error"
+								variant="error"
 								:disabled="busy[showcase.id]"
 								:data-test="'showcase-uninstall-' + showcase.id"
 								@click="confirmUninstall(showcase)">
-								{{ busy[showcase.id] ? t('launchpad', 'Uninstalling…') : t('launchpad', 'Uninstall') }}
+								{{
+									busy[showcase.id]
+										? t('launchpad', 'Uninstalling…')
+										: t('launchpad', 'Uninstall')
+								}}
 							</NcButton>
 						</div>
 					</div>
 				</div>
 			</div>
 		</template>
+
+		<DemoShowcaseUninstallDialog
+			:open="uninstallTarget !== null"
+			:showcaseName="uninstallTarget ? uninstallTarget.name : ''"
+			@update:open="uninstallTarget = null"
+			@confirm="onUninstallConfirm" />
 	</div>
 </template>
 
@@ -86,6 +117,7 @@
 import { NcButton } from '@conduction/nextcloud-vue'
 import { NcNoteCard } from '@nextcloud/vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import DemoShowcaseUninstallDialog from '../../dialogs/DemoShowcaseUninstallDialog.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -93,6 +125,7 @@ export default {
 
 	components: {
 		NcButton,
+		DemoShowcaseUninstallDialog,
 		NcNoteCard,
 		ViewDashboard,
 	},
@@ -108,6 +141,8 @@ export default {
 			// possible.
 			actionError: '',
 			showcases: [],
+			// The showcase the uninstall confirmation is open for, or null.
+			uninstallTarget: null,
 			busy: {},
 			warnings: {},
 		}
@@ -125,23 +160,31 @@ export default {
 			try {
 				const response = await api.listDemoShowcases()
 				this.showcases = response.data || []
-			} catch (err) {
-				this.loadError = this.t('launchpad', 'Could not load demo showcases. Please try again.')
+			} catch {
+				this.loadError = this.t(
+					'launchpad',
+					'Could not load demo showcases. Please try again.',
+				)
 			} finally {
 				this.loading = false
 			}
 		},
 
-		/** @spec openspec/specs/demo-data-showcases/spec.md */
+		/**
+		 * Install a showcase, marking its row busy for the duration.
+		 *
+		 * @param {object} showcase The showcase to install.
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
 		async install(showcase) {
-			this.$set(this.busy, showcase.id, true)
-			this.$delete(this.warnings, showcase.id)
+			this.busy[showcase.id] = true
+			delete this.warnings[showcase.id]
 			this.actionError = ''
 			try {
 				const response = await api.installDemoShowcase(showcase.id)
 				const skipped = (response.data && response.data.skippedWidgets) || []
 				if (skipped.length > 0) {
-					this.$set(this.warnings, showcase.id, skipped)
+					this.warnings[showcase.id] = skipped
 				}
 
 				await this.fetch()
@@ -149,36 +192,72 @@ export default {
 				if (err.response && err.response.status === 404) {
 					this.actionError = this.t('launchpad', 'Showcase not found.')
 				} else if (err.response && err.response.status === 403) {
-					this.actionError = this.t('launchpad', 'You need admin privileges to install showcases.')
+					this.actionError = this.t(
+						'launchpad',
+						'You need admin privileges to install showcases.',
+					)
 				} else {
-					this.actionError = this.t('launchpad', 'Could not install showcase. Please try again.')
+					this.actionError = this.t(
+						'launchpad',
+						'Could not install showcase. Please try again.',
+					)
 				}
 			} finally {
-				this.$set(this.busy, showcase.id, false)
+				this.busy[showcase.id] = false
 			}
 		},
 
-		/** @spec openspec/specs/demo-data-showcases/spec.md */
-		async confirmUninstall(showcase) {
-			const message = this.t('launchpad', 'Remove the {name} showcase dashboard for all users? You can reinstall it later.', { name: showcase.name })
-			if (window.confirm(message) === false) {
+		/**
+		 * Uninstall a showcase after an explicit confirmation, since it
+		 * removes the dashboard for every user.
+		 *
+		 * @param {object} showcase The showcase to remove.
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
+		confirmUninstall(showcase) {
+			this.uninstallTarget = showcase
+		},
+
+		/**
+		 * Uninstall the confirmed showcase.
+		 *
+		 * Split out of `confirmUninstall` because the confirmation is no
+		 * longer a synchronous `window.confirm()` that could be awaited
+		 * inline — the dialog resolves on a later tick, so the target is
+		 * held in `uninstallTarget` until the user answers.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
+		async onUninstallConfirm() {
+			const showcase = this.uninstallTarget
+			this.uninstallTarget = null
+			if (showcase === null) {
 				return
 			}
 
-			this.$set(this.busy, showcase.id, true)
+			this.busy[showcase.id] = true
 			this.actionError = ''
 			try {
 				await api.uninstallDemoShowcase(showcase.id)
-				this.$delete(this.warnings, showcase.id)
+				delete this.warnings[showcase.id]
 				await this.fetch()
-			} catch (err) {
-				this.actionError = this.t('launchpad', 'Could not uninstall showcase. Please try again.')
+			} catch {
+				this.actionError = this.t(
+					'launchpad',
+					'Could not uninstall showcase. Please try again.',
+				)
 			} finally {
-				this.$set(this.busy, showcase.id, false)
+				this.busy[showcase.id] = false
 			}
 		},
 
-		/** @spec openspec/specs/demo-data-showcases/spec.md */
+		/**
+		 * Hide a broken thumbnail so the card falls back to its icon.
+		 *
+		 * @param {Event} event The image's error event.
+		 * @spec openspec/specs/demo-data-showcases/spec.md
+		 */
 		onThumbError(event) {
 			// Hide broken images gracefully — fall back to the icon.
 			event.target.style.display = 'none'

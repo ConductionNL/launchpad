@@ -1,6 +1,6 @@
 <!--
-  - SPDX-FileCopyrightText: 2026 LaunchPad Contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
+  - SPDX-FileCopyrightText: 2024 Conduction B.V. <info@conduction.nl>
+  - SPDX-License-Identifier: EUPL-1.2
 -->
 
 <template>
@@ -8,7 +8,12 @@
 		<div class="group-priority__header">
 			<h3>{{ t('launchpad', 'Group priority order') }}</h3>
 			<p class="group-priority__hint">
-				{{ t('launchpad', 'Drag groups between the columns to control which Nextcloud groups LaunchPad uses, and in what order. The first active group becomes the user\'s primary workspace.') }}
+				{{
+					t(
+						'launchpad',
+						"Drag groups between the columns to control which Nextcloud groups LaunchPad uses, and in what order. The first active group becomes the user's primary workspace.",
+					)
+				}}
 			</p>
 		</div>
 
@@ -20,11 +25,10 @@
 					<span class="group-priority__count">{{ active.length }}</span>
 				</div>
 				<NcTextField
-					:value="activeFilter"
+					v-model="activeFilter"
 					:label="t('launchpad', 'Filter active groups')"
 					:placeholder="t('launchpad', 'Filter')"
-					class="group-priority__filter"
-					@update:value="activeFilter = $event" />
+					class="group-priority__filter" />
 
 				<ul
 					class="group-priority__list group-priority__list--active"
@@ -41,20 +45,36 @@
 						@dragstart="onDragStart($event, id, 'active', index)"
 						@dragover.prevent="onItemDragOver($event, index, 'active')"
 						@drop.prevent.stop="onItemDrop($event, index, 'active')">
-						<span class="group-priority__handle" aria-hidden="true">⋮⋮</span>
-						<span class="group-priority__label">{{ displayName(id) }}<span
-							v-if="isStale(id)"
-							class="group-priority__stale-affix"> {{ t('launchpad', '(removed)') }}</span></span>
+						<span class="group-priority__handle" aria-hidden="true"
+							>⋮⋮</span
+						>
+						<span class="group-priority__label"
+							>{{ displayName(id)
+							}}<span
+								v-if="isStale(id)"
+								class="group-priority__stale-affix">
+								{{ t('launchpad', '(removed)') }}</span
+							></span
+						>
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('launchpad', 'Move to inactive')"
 							class="group-priority__move"
 							@click="moveToInactive(id)">
 							→
 						</NcButton>
 					</li>
-					<li v-if="filteredActive.length === 0" class="group-priority__empty">
-						{{ activeFilter ? t('launchpad', 'No matches.') : t('launchpad', 'No active groups. Drag groups here from the inactive column.') }}
+					<li
+						v-if="filteredActive.length === 0"
+						class="group-priority__empty">
+						{{
+							activeFilter
+								? t('launchpad', 'No matches.')
+								: t(
+										'launchpad',
+										'No active groups. Drag groups here from the inactive column.',
+									)
+						}}
 					</li>
 				</ul>
 			</div>
@@ -66,11 +86,10 @@
 					<span class="group-priority__count">{{ inactive.length }}</span>
 				</div>
 				<NcTextField
-					:value="inactiveFilter"
+					v-model="inactiveFilter"
 					:label="t('launchpad', 'Filter inactive groups')"
 					:placeholder="t('launchpad', 'Filter')"
-					class="group-priority__filter"
-					@update:value="inactiveFilter = $event" />
+					class="group-priority__filter" />
 
 				<ul
 					class="group-priority__list group-priority__list--inactive"
@@ -84,18 +103,28 @@
 						class="group-priority__item"
 						:data-test-id="id"
 						@dragstart="onDragStart($event, id, 'inactive', null)">
-						<span class="group-priority__handle" aria-hidden="true">⋮⋮</span>
-						<span class="group-priority__label">{{ displayName(id) }}</span>
+						<span class="group-priority__handle" aria-hidden="true"
+							>⋮⋮</span
+						>
+						<span class="group-priority__label">{{
+							displayName(id)
+						}}</span>
 						<NcButton
-							type="tertiary"
+							variant="tertiary"
 							:aria-label="t('launchpad', 'Move to active')"
 							class="group-priority__move"
 							@click="moveToActive(id)">
 							←
 						</NcButton>
 					</li>
-					<li v-if="filteredInactive.length === 0" class="group-priority__empty">
-						{{ inactiveFilter ? t('launchpad', 'No matches.') : t('launchpad', 'No inactive groups.') }}
+					<li
+						v-if="filteredInactive.length === 0"
+						class="group-priority__empty">
+						{{
+							inactiveFilter
+								? t('launchpad', 'No matches.')
+								: t('launchpad', 'No inactive groups.')
+						}}
 					</li>
 				</ul>
 			</div>
@@ -111,9 +140,10 @@
 </template>
 
 <script>
-import { NcButton, NcTextField } from '@nextcloud/vue'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+import { NcButton, NcTextField } from '@nextcloud/vue'
 import { api } from '../../services/api.js'
+import { logger } from '../../utils/logger.js'
 
 /**
  * Two-list drag-and-drop component for the admin group priority order
@@ -165,16 +195,19 @@ export default {
 			}
 			return map
 		},
+
 		// Set of every known group id; anything in `active` not in here
 		// renders as a stale "(removed)" entry per REQ-ASET-013.
 		/** @spec openspec/specs/admin-roles/spec.md */
 		knownIdSet() {
 			return new Set(this.allKnown.map((row) => row.id))
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		filteredActive() {
 			return this.applyFilter(this.active, this.activeFilter)
 		},
+
 		/** @spec openspec/specs/admin-roles/spec.md */
 		filteredInactive() {
 			return this.applyFilter(this.inactive, this.inactiveFilter)
@@ -186,7 +219,7 @@ export default {
 	},
 
 	/** @spec openspec/specs/admin-roles/spec.md */
-	beforeDestroy() {
+	beforeUnmount() {
 		if (this.saveTimer) {
 			clearTimeout(this.saveTimer)
 		}
@@ -203,14 +236,23 @@ export default {
 				this.inactive = Array.isArray(data.inactive) ? data.inactive : []
 				this.allKnown = Array.isArray(data.allKnown) ? data.allKnown : []
 			} catch (error) {
-				console.error('Failed to load admin groups:', error)
+				logger.error('Failed to load admin groups:', error)
 				showError(this.t('launchpad', 'Failed to load group list.'))
 			} finally {
 				this.loading = false
 			}
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Narrow a list of group ids to those whose id or display name
+		 * contains the filter text (case-insensitive).
+		 *
+		 * @param {string[]} list Group ids to filter.
+		 * @param {string} filter Raw filter text from the search box.
+		 * @return {string[]} The matching group ids; the full list when the
+		 *   filter is blank.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		applyFilter(list, filter) {
 			const f = (filter || '').trim().toLowerCase()
 			if (f === '') return list
@@ -220,18 +262,40 @@ export default {
 			})
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Human-readable name for a group id, falling back to the raw id
+		 * when the group is no longer known to Nextcloud.
+		 *
+		 * @param {string} id Nextcloud group id.
+		 * @return {string} Display name, or the id itself.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		displayName(id) {
 			return this.displayNameMap[id] || id
 		},
 
+		/**
+		 * Whether a configured group id no longer exists in Nextcloud — such
+		 * rows render with a "(removed)" affix (REQ-ASET-013).
+		 *
+		 * @param {string} id Nextcloud group id.
+		 * @return {boolean} True when the id is stale.
+		 */
 		isStale(id) {
 			return this.knownIdSet.has(id) === false
 		},
 
 		// --- Drag-and-drop handlers (native HTML5) ---
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Begin a drag, recording which row left which column.
+		 *
+		 * @param {DragEvent} event The dragstart event.
+		 * @param {string} id Group id being dragged.
+		 * @param {string} column Column the drag started in.
+		 * @param {number} index Row index within that column.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onDragStart(event, id, column, index) {
 			this.dragState = { id, fromColumn: column, fromIndex: index }
 			if (event.dataTransfer) {
@@ -240,22 +304,44 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Mark a column as a valid drop target while dragging over it.
+		 *
+		 * @param {DragEvent} event The dragover event.
+		 * @param {string} _column Column under the cursor; unused — every
+		 *   column accepts a drop.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onDragOver(event, _column) {
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect = 'move'
 			}
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Mark an individual row as a valid drop target.
+		 *
+		 * @param {DragEvent} event The dragover event.
+		 * @param {number} _index Row index under the cursor; unused — the
+		 *   insertion point is computed on drop.
+		 * @param {string} _column Column under the cursor; unused for the
+		 *   same reason.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onItemDragOver(event, _index, _column) {
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect = 'move'
 			}
 		},
 
-		// Drop on empty space inside a column → append at the end.
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Handle a drop on empty space inside a column — appends the dragged
+		 * group at the end of that column.
+		 *
+		 * @param {DragEvent} event The drop event.
+		 * @param {string} toColumn Column the group was dropped into.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onDrop(event, toColumn) {
 			if (!this.dragState) return
 			const { id, fromColumn } = this.dragState
@@ -267,8 +353,15 @@ export default {
 			this.moveBetweenColumns(id, fromColumn, toColumn, null)
 		},
 
-		// Drop directly on another item → insert before that item.
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Handle a drop directly onto another row — inserts the dragged
+		 * group before that row.
+		 *
+		 * @param {DragEvent} event The drop event.
+		 * @param {number} targetIndex Index of the row dropped onto.
+		 * @param {string} toColumn Column the group was dropped into.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		onItemDrop(event, targetIndex, toColumn) {
 			if (!this.dragState) return
 			const { id, fromColumn, fromIndex } = this.dragState
@@ -279,7 +372,8 @@ export default {
 				if (fromIndex === targetIndex) return
 				const next = [...this.active]
 				next.splice(fromIndex, 1)
-				const adjustedTarget = fromIndex < targetIndex ? targetIndex - 1 : targetIndex
+				const adjustedTarget =
+					fromIndex < targetIndex ? targetIndex - 1 : targetIndex
 				next.splice(adjustedTarget, 0, id)
 				this.active = next
 				this.queueSave()
@@ -289,7 +383,17 @@ export default {
 			this.moveBetweenColumns(id, fromColumn, toColumn, targetIndex)
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Move a group from one column to the other, then queue a save.
+		 * A no-op when both columns are the same.
+		 *
+		 * @param {string} id Group id to move.
+		 * @param {string} fromColumn Column the group is leaving.
+		 * @param {string} toColumn Column the group is joining.
+		 * @param {number|null} insertIndex Position within the target column;
+		 *   null (or out of range) appends at the end.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		moveBetweenColumns(id, fromColumn, toColumn, insertIndex) {
 			if (fromColumn === toColumn) return
 			if (fromColumn === 'active') {
@@ -300,7 +404,11 @@ export default {
 
 			if (toColumn === 'active') {
 				const next = [...this.active]
-				if (insertIndex === null || insertIndex < 0 || insertIndex >= next.length) {
+				if (
+					insertIndex === null
+					|| insertIndex < 0
+					|| insertIndex >= next.length
+				) {
 					next.push(id)
 				} else {
 					next.splice(insertIndex, 0, id)
@@ -319,14 +427,23 @@ export default {
 			this.queueSave()
 		},
 
-		// Click-to-move shortcuts for accessibility (drag-and-drop is
-		// not screen-reader friendly).
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Click-to-move shortcut promoting a group to the active column.
+		 * Provided because drag-and-drop is not screen-reader operable.
+		 *
+		 * @param {string} id Group id to activate.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		moveToActive(id) {
 			this.moveBetweenColumns(id, 'inactive', 'active', null)
 		},
 
-		/** @spec openspec/specs/admin-roles/spec.md */
+		/**
+		 * Click-to-move shortcut demoting a group to the inactive column.
+		 *
+		 * @param {string} id Group id to deactivate.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
 		moveToInactive(id) {
 			this.moveBetweenColumns(id, 'active', 'inactive', null)
 		},
@@ -350,7 +467,7 @@ export default {
 				await api.updateAdminGroupOrder(this.active)
 				showSuccess(this.t('launchpad', 'Group order saved.'))
 			} catch (error) {
-				console.error('Failed to save group order:', error)
+				logger.error('Failed to save group order:', error)
 				showError(this.t('launchpad', 'Failed to save group order.'))
 			} finally {
 				this.saving = false

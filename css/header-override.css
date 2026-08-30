@@ -19,8 +19,11 @@ html body #header,
 body #header,
 #body-user #header,
 #header {
-	background-color: #ffffff !important;
-	background-image: none !important;
+	/* The shorthand alone is deliberate: it sets the colour AND resets
+	   background-image to none, which is exactly what the two longhands it
+	   replaces were doing. Keeping all three tripped
+	   declaration-block-no-shorthand-property-overrides, because a shorthand
+	   after a longhand silently discards it. */
 	background: #ffffff !important;
 	border-bottom: 1px solid #e0e0e0 !important;
 }

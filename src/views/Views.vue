@@ -2134,6 +2134,7 @@ export default {
 .launchpad-floating-controls :deep(.action-item__menutoggle .button-vue__text) {
 	display: none;
 }
+
 .launchpad-floating-controls :deep(.action-item__menutoggle) {
 	width: var(--default-clickable-area, 44px);
 	min-width: var(--default-clickable-area, 44px);

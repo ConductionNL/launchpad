@@ -344,7 +344,6 @@ export default {
 	.launchpad-footer {
 		display: block !important;
 		break-inside: avoid;
-		page-break-inside: avoid;
 	}
 }
 </style>

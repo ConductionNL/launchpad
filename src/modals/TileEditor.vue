@@ -492,7 +492,7 @@ export default {
 	font-size: 14px;
 	font-weight: 600;
 	text-align: center;
-	word-break: break-word;
+	overflow-wrap: break-word;
 	line-height: 1.2;
 }
 

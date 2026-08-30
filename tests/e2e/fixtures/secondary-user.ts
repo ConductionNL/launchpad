@@ -39,10 +39,16 @@ async function adminApi(): Promise<APIRequestContext> {
 
 /**
  * Provision a fresh, throwaway Nextcloud account via the OCS provisioning
- * API (`POST /ocs/v1.php/cloud/users`). A brand-new account has zero
- * dashboards — personal, group, or default — which is exactly the state
- * the empty-state e2e scenarios need and cannot get from the shared
- * admin fixture. Caller MUST call {@link deprovisionUser} afterwards
+ * API (`POST /ocs/v1.php/cloud/users`).
+ *
+ * ⚠️ This used to say a brand-new account has zero dashboards "personal,
+ * group, or default", and that it was therefore how the empty-state
+ * scenarios reached their state. That is NO LONGER TRUE: #361 (c9e58089)
+ * added `SeedDefaultDashboard`, which provisions an INSTANCE-WIDE,
+ * group-shared dashboard on install and after every upgrade. A fresh
+ * account resolves to it like any other, so this fixture can no longer
+ * produce an empty dashboard list, and three specs that relied on it had
+ * to be revised. Caller MUST call {@link deprovisionUser} afterwards
  * (e.g. in `test.afterEach`) so throwaway accounts don't accumulate on
  * the shared dev instance.
  *

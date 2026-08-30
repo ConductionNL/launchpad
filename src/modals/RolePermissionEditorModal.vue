@@ -120,6 +120,7 @@ export default {
 	gap: var(--default-grid-baseline);
 	min-width: 480px;
 }
+
 .launchpad-admin__editor-actions {
 	display: flex;
 	justify-content: flex-end;

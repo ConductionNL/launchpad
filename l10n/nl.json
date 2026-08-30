@@ -1,5 +1,8 @@
 {
     "translations": {
+        "A short setup to get this app ready. Nothing here is required; you can close it and come back later.": "Een korte installatie om deze app klaar te zetten. Niets hiervan is verplicht; je kunt dit sluiten en later terugkomen.",
+        "Demo data (optional)": "Demovoorbeelddata (optioneel)",
+        "Load a small example dataset so the lists, detail pages and dashboards show a working product straight away. The data is obviously sample data, it is safe to run more than once, and it can be removed afterwards. Skip this on a production install.": "Laad een kleine voorbeeldset zodat de lijsten, detailpagina's en dashboards meteen een werkend product laten zien. De data is duidelijk voorbeelddata, veilig om meerdere keren uit te voeren en achteraf te verwijderen. Sla dit over op een productie-installatie.",
         "share_not_found": "Gedeeld dashboard niet gevonden",
         "share_expired": "Dit gedeelde dashboard is verlopen",
         "share_password_required": "Wachtwoord vereist om dit dashboard te bekijken",
@@ -538,7 +541,7 @@
         "e.g. /Documents/Marketing": "bijv. /Documenten/Marketing",
         "Folder ID (optional, preferred)": "Map-ID (optioneel, voorkeur)",
         "Numeric file id of the folder": "Numeriek bestand-id van de map",
-        "View mode": "Weergave",
+        "View mode": "Weergavemodus",
         "Sort by": "Sorteer op",
         "Sort descending": "Aflopend sorteren",
         "Show thumbnails": "Miniaturen tonen",
@@ -1005,7 +1008,10 @@
         "Kiosk playlists": "Kioskafspeellijsten",
         "New playlist": "Nieuwe afspeellijst",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Richt een wanddisplay of receptiescherm op een afspeellijst-URL om dashboards onbemand en zonder schermrand te laten roteren.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboards"
+        ],
         "refresh every {seconds}s": "ververst elke {seconds}s",
         "Copy URL": "URL kopiëren",
         "Revoke": "Intrekken",
@@ -1030,8 +1036,6 @@
         "Reconnecting…": "Opnieuw verbinden…",
         "Waiting for content…": "Wachten op inhoud…",
         "Spend analytics": "Uitgavenanalyse",
-        "View mode": "Weergavemodus",
-        "Period": "Periode",
         "Summary": "Samenvatting",
         "Trend": "Trend",
         "Top vendors": "Belangrijkste leveranciers",
@@ -1070,16 +1074,33 @@
         "Deadline: {date}": "Deadline: {date}",
         "Could not record your acknowledgement. Please try again.": "Je bevestiging kon niet worden vastgelegd. Probeer het opnieuw.",
         "You have items awaiting acknowledgement": "Je hebt items die op bevestiging wachten",
-        "_%n item to acknowledge_::_%n items to acknowledge_": ["%n item te bevestigen", "%n items te bevestigen"],
+        "_%n item to acknowledge_::_%n items to acknowledge_": [
+            "%n item te bevestigen",
+            "%n items te bevestigen"
+        ],
         "Read receipts": "Leesbevestigingen",
         "Read-receipt report": "Leesbevestigingsrapport",
         "Acknowledged": "Bevestigd",
         "Pending": "In afwachting",
         "Overdue": "Te laat",
-        "User": "Gebruiker",
         "Status": "Status",
         "Acknowledged at": "Bevestigd op",
         "Export CSV": "CSV exporteren",
-        "Could not load the read-receipt report.": "Het leesbevestigingsrapport kon niet worden geladen."
+        "Could not load the read-receipt report.": "Het leesbevestigingsrapport kon niet worden geladen.",
+        "Flow": "Flow",
+        "Flows": "Flows",
+        "launchpad.menu.dashboards": "Dashboards",
+        "launchpad.menu.adminTemplates": "Sjablonen",
+        "launchpad.menu.adminSettings": "Instellingen",
+        "launchpad.pages.dashboard": "Dashboard",
+        "launchpad.pages.adminTemplates": "Sjablonen",
+        "launchpad.pages.adminSettings": "Instellingen",
+        "Getting started": "Aan de slag",
+        "Welcome to Launchpad": "Welkom bij Launchpad",
+        "A short tour of the main screens. It takes under a minute, and you can close it at any point and pick it up again from the help menu.": "Een korte rondleiding langs de belangrijkste schermen. Het duurt minder dan een minuut en je kunt op elk moment stoppen en later verder gaan via het helpmenu.",
+        "Open Dashboards from the menu.": "Open Dashboards via het menu.",
+        "Click Dashboards in the menu": "Klik op Dashboards in het menu",
+        "Flows automate the repetitive parts of this app. Have a look, though you do not have to build one now.": "Flows automatiseren het repeterende werk in deze app. Kijk gerust rond, je hoeft er nu geen te maken.",
+        "Open Flows from the menu": "Open Flows via het menu"
     }
 }

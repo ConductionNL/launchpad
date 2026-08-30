@@ -136,7 +136,7 @@
 				class="dashboard-config__panel">
 				<div
 					v-if="!isCreate && canManageShares"
-					class="dashboard-config__field">
+					class="dashboard-config__field dashboard-config__field--select">
 					<label class="dashboard-config__label">
 						{{ t('launchpad', 'Share with users and groups') }}
 					</label>
@@ -1149,6 +1149,57 @@ export default {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
+}
+
+/*
+ * The sharee dropdown must paint ABOVE the fields that follow it.
+ *
+ * The modal body is a column of `__field` blocks. An NcSelect dropdown
+ * opens downward out of its field and lands over the next ones, and
+ * because those are LATER siblings with no stacking context of their own,
+ * they win and swallow the click.
+ *
+ * @nextcloud/vue 9.10 made this reachable by giving NcSelect a floating
+ * label (#8570): the control is taller, so the dropdown reaches further
+ * down. The Playwright trace names the interceptors exactly:
+ *
+ *   - locator resolved to <span class="sharee-option">
+ *   - attempting click action
+ *     - element is visible, enabled and stable
+ *     - <div class="dashboard-config__field dashboard-config__public"> ...
+ *     - <p class="dashboard-config__hint">Not shared with anyone yet.</p> ...
+ *
+ * The option was never unstable; it was covered. Only the field holding a
+ * select is raised, so nothing else changes.
+ */
+.dashboard-config__field--select {
+	position: relative;
+	z-index: 2;
+}
+
+/*
+ * A field holding an NcSelect must paint ABOVE the fields that follow it.
+ *
+ * The modal is a column of fields. An NcSelect dropdown opens downward out
+ * of its own field and lands over the next one; those are LATER siblings
+ * with no stacking context, so they win and swallow the click.
+ *
+ * @nextcloud/vue 9.10 made this reachable by giving NcSelect a floating
+ * label (#8570), which makes the control taller and pushes the dropdown
+ * far enough down to reach them. The Playwright trace names the
+ * interception rather than leaving it to be guessed:
+ *
+ *   - locator resolved to <span class="sharee-option">
+ *   - attempting click action
+ *     - element is visible, enabled and stable
+ *     - <p class="dashboard-config__hint">Not shared with anyone yet.</p>
+ *       ... intercepts pointer events
+ *
+ * The option was never unstable; it was covered.
+ */
+.dashboard-config__field--select {
+	position: relative;
+	z-index: 2;
 }
 
 .dashboard-config__label {

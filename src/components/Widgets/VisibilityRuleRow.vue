@@ -708,4 +708,30 @@ export default {
 	gap: 8px;
 	justify-content: flex-end;
 }
+
+/*
+ * The open select dropdown must paint ABOVE the row's action buttons.
+ *
+ * The row is a flex column: fields first, actions after. An NcSelect
+ * dropdown opens downward out of the fields block and lands over the
+ * actions, and because the actions are a LATER sibling with no stacking
+ * context of their own, they win and swallow the click.
+ *
+ * @nextcloud/vue 9.10 made this reachable by giving NcSelect a floating
+ * label (#8570), which makes the control taller and pushes the dropdown
+ * further down -- far enough to reach the actions. The Playwright trace
+ * names the interception exactly:
+ *
+ *   - locator resolved to <li class="vs__dropdown-option">
+ *   - attempting click action
+ *     - element is visible, enabled and stable
+ *     - <div class="visibility-rule-row__actions"> ... intercepts pointer events
+ *
+ * The option was never unstable; it was covered. Giving the fields their
+ * own stacking context puts the dropdown back on top.
+ */
+.visibility-rule-row__fields {
+	position: relative;
+	z-index: 1;
+}
 </style>

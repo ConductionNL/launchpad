@@ -2070,9 +2070,9 @@ export default {
    `nc-dashboard` chrome (its own blur panel), so the grid item must be
    transparent to avoid a double background / mismatched radius. */
 .launchpad-container
-	:deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
+:deep(.grid-stack-item-content:has(.cn-widget-wrapper--borderless)),
 .launchpad-container
-	:deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
+:deep(.grid-stack-item-content:has(.cn-widget-wrapper--nc-dashboard)),
 .launchpad-container :deep(.grid-stack-item-content:has(.tile-widget)) {
 	background: transparent;
 	backdrop-filter: none;
@@ -2134,6 +2134,7 @@ export default {
 .launchpad-floating-controls :deep(.action-item__menutoggle .button-vue__text) {
 	display: none;
 }
+
 .launchpad-floating-controls :deep(.action-item__menutoggle) {
 	width: var(--default-clickable-area, 44px);
 	min-width: var(--default-clickable-area, 44px);

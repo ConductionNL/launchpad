@@ -293,8 +293,8 @@ export default {
 }
 
 .launchpad-footer__config--inline
-.launchpad-footer__col
-+ .launchpad-footer__col::before {
+	.launchpad-footer__col
+	+ .launchpad-footer__col::before {
 	content: '·';
 	margin-right: 1rem;
 	opacity: 0.5;

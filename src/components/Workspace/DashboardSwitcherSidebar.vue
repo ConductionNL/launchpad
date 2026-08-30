@@ -945,9 +945,9 @@ export default {
 }
 
 .dashboard-switcher-sidebar__item--personal:hover
-.dashboard-switcher-sidebar__delete,
+	.dashboard-switcher-sidebar__delete,
 .dashboard-switcher-sidebar__item--personal:focus-within
-.dashboard-switcher-sidebar__delete {
+	.dashboard-switcher-sidebar__delete {
 	display: inline-flex;
 }
 

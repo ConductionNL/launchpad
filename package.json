@@ -85,7 +85,7 @@
 		"extends @nextcloud/browserslist-config"
 	],
 	"overrides": {
-		"pinia": "~2.1.7",
+		"pinia": "$pinia",
 		"@vueuse/core": "^14.0.0",
 		"@vueuse/shared": "^14.0.0"
 	},

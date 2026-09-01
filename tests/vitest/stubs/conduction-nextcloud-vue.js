@@ -93,8 +93,8 @@ export const NL_DESIGN_ICONS = NL_DESIGN_ICON_GROUPS.flatMap((g) => g.icons)
 // Icon-catalogue adapters — normalize an icon source into CnIconBrowser's
 // catalogue shape. Real logic mirrored thinly so the launchpad icon-catalogue
 // service builds a valid array in tests.
-export const mdiCatalogue = (ns) =>
-	Object.keys(ns || {})
+export function mdiCatalogue(ns) {
+	return Object.keys(ns || {})
 		.filter((k) => k.startsWith('mdi') && typeof ns[k] === 'string')
 		.map((k) => ({
 			key: k,
@@ -103,8 +103,9 @@ export const mdiCatalogue = (ns) =>
 			search: k.toLowerCase(),
 			path: ns[k],
 		}))
-export const vmdiCatalogue = (ctx) =>
-	(ctx && ctx.keys ? ctx.keys() : []).map((f) => {
+}
+export function vmdiCatalogue(ctx) {
+	return (ctx && ctx.keys ? ctx.keys() : []).map((f) => {
 		const key = f.replace(/^\.\//, '').replace(/\.vue$/, '')
 		return {
 			key,
@@ -114,6 +115,7 @@ export const vmdiCatalogue = (ctx) =>
 			component: stub(key),
 		}
 	})
+}
 // Faithful enough to mirror the real renderer: <img> for URLs, inline <svg>
 // for SVG path strings, else a placeholder <div>. Keeps icon-rendering unit
 // tests (e.g. org-nav REQ-ONAV-006) meaningful without the CJS .vue bundle.
@@ -158,17 +160,20 @@ export const CnDashboardIcon = {
 		return h('div')
 	},
 }
-export const getDashboardColumnOpts = () => ({
-	breakpoints: [],
-	layout: 'moveScale',
-	breakpointForWindow: true,
-})
+export function getDashboardColumnOpts() {
+	return {
+		breakpoints: [],
+		layout: 'moveScale',
+		breakpointForWindow: true,
+	}
+}
 export const placeNewWidget = () => ({ x: 0, y: 0, w: 4, h: 4, pushed: [] })
 export const DASHBOARD_ICONS = { ViewDashboard: {}, Star: {} }
 export const DEFAULT_ICON = 'ViewDashboard'
 export const getIconComponent = () => ({})
-export const isCustomIconUrl = (n) =>
-	typeof n === 'string' && (n.startsWith('/') || n.startsWith('http'))
+export function isCustomIconUrl(n) {
+	return typeof n === 'string' && (n.startsWith('/') || n.startsWith('http'))
+}
 
 // Dashboard widget library (v2) — renderers + config forms now sourced from
 // @conduction/nextcloud-vue and aliased in widgetRegistry.js. Stubbed here so
@@ -411,19 +416,22 @@ export const dashboardWidgetRegistry = Object.fromEntries(
 		},
 	]),
 )
-export const registerDashboardWidget = (type, entry) => {
+export function registerDashboardWidget(type, entry) {
 	dashboardWidgetRegistry[type] = entry
 }
-export const listWidgetTypes = () =>
-	Object.keys(dashboardWidgetRegistry).filter(
+export function listWidgetTypes() {
+	return Object.keys(dashboardWidgetRegistry).filter(
 		(t) => dashboardWidgetRegistry[t].form,
 	)
+}
 export const getWidgetTypeEntry = (type) => dashboardWidgetRegistry[type] || null
-export const getDefaultContent = (type) => ({
-	...((dashboardWidgetRegistry[type]
-		&& dashboardWidgetRegistry[type].defaultContent)
-		|| {}),
-})
+export function getDefaultContent(type) {
+	return {
+		...((dashboardWidgetRegistry[type]
+			&& dashboardWidgetRegistry[type].defaultContent)
+			|| {}),
+	}
+}
 
 export default {
 	NcModal,

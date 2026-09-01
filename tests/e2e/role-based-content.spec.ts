@@ -18,8 +18,8 @@
  * @spec openspec/changes/role-based-content/tasks.md#task-10
  */
 
-import { test, expect } from '@playwright/test'
-import { BASE_URL as BASE } from './support/baseUrl'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN_URL = `${BASE}/index.php/settings/admin/launchpad`
 

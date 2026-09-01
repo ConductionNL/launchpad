@@ -15,8 +15,8 @@
  * @spec openspec/changes/admin-group-management/tasks.md#task-9
  */
 
-import { test, expect, type APIRequestContext } from '@playwright/test'
-import { BASE_URL as BASE } from './support/baseUrl'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -24,16 +24,6 @@ const ADMIN = {
 }
 
 const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
-
-async function adminApi(playwright: {
-	request: { newContext: typeof import('@playwright/test').request.newContext }
-}): Promise<APIRequestContext> {
-	return playwright.request.newContext({
-		baseURL: BASE,
-		httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
-		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
-	})
-}
 
 test.describe('admin-group-management — Group dashboards tab', () => {
 	test.beforeEach(async ({ page }) => {

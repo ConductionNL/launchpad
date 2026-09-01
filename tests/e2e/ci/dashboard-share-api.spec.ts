@@ -60,8 +60,10 @@
  * @spec openspec/specs/dashboard-sharing/spec.md
  */
 
-import { expect, request, test, type APIRequestContext } from '@playwright/test'
-import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+import type { APIRequestContext } from '@playwright/test'
+
+import { expect, request, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
 
 /*
  * THE WIDGET THE REQ-SHARE-004 TEST ADDS, AND WHY IT IS NOT `label`.
@@ -114,11 +116,13 @@ const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').rep
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'
 const VISIBLE = '/index.php/apps/launchpad/api/dashboards/visible'
-const sharesUrl = (id: number) =>
-	`/index.php/apps/launchpad/api/dashboard/${id}/shares`
+function sharesUrl(id: number) {
+	return `/index.php/apps/launchpad/api/dashboard/${id}/shares`
+}
 const dashboardUrl = (id: number) => `/index.php/apps/launchpad/api/dashboard/${id}`
-const shareesUrl = (query: string) =>
-	`/index.php/apps/launchpad/api/sharees?query=${encodeURIComponent(query)}`
+function shareesUrl(query: string) {
+	return `/index.php/apps/launchpad/api/sharees?query=${encodeURIComponent(query)}`
+}
 
 function basic(user: string, pass: string): string {
 	return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`
@@ -146,6 +150,8 @@ function basic(user: string, pass: string): string {
  * in the same form, closed an identical false green in pipelinq, where a
  * context created to be anonymous read back `ocs.data.id === "admin"`.)
  */
+const createdDashboards: number[] = []
+
 async function apiAs(creds: {
 	user: string
 	pass: string
@@ -299,7 +305,6 @@ let priorAllowUserDash = true
  * by the caller afterwards, so a test that throws mid-way still has its
  * dashboard removed.
  */
-const createdDashboards: number[] = []
 
 let bob: { user: string; pass: string }
 let carol: { user: string; pass: string }

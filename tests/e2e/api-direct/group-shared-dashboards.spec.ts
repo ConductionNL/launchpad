@@ -52,14 +52,8 @@
  *     npx playwright test tests/e2e/group-shared-dashboards.spec.ts
  */
 
-import {
-	test,
-	expect,
-	request as pwRequest,
-	type APIRequestContext,
-	type APIResponse,
-} from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl'
+import { expect, request as pwRequest, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -85,13 +79,6 @@ async function apiAs(creds: Creds): Promise<APIRequestContext> {
 		httpCredentials: { username: creds.user, password: creds.pass },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
 	})
-}
-
-/** Strip Nextcloud OCS envelope and return the inner `ocs.data` object. */
-async function ocsData(res: APIResponse): Promise<unknown> {
-	const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
-	const ocs = body.ocs as Record<string, unknown> | undefined
-	return ocs?.data ?? body
 }
 
 // ─── fixtures ─────────────────────────────────────────────────────────────────

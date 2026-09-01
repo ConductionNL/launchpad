@@ -11,7 +11,9 @@
  * that flow so individual specs stay readable.
  */
 
-import { expect, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+
+import { expect } from '@playwright/test'
 
 /** Navigate to the app and wait for the runtime shell to hydrate (503-resilient). */
 export async function gotoLaunchPad(page: Page): Promise<void> {

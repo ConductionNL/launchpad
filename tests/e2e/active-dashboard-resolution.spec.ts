@@ -14,18 +14,20 @@
  * openspec/changes/active-dashboard-resolution/tasks.md#task-12.
  */
 
-import { test, expect, request, type APIRequestContext } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, request, test } from '@playwright/test'
+import {
+	deprovisionUser,
+	loginAs,
+	provisionThrowawayUser,
+} from './fixtures/secondary-user.ts'
+import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
-	type SeededDashboard,
-} from './support/dashboardFixture'
-import { BASE_URL } from './support/baseUrl'
-import {
-	provisionThrowawayUser,
-	deprovisionUser,
-	loginAs,
-} from './fixtures/secondary-user'
+} from './support/dashboardFixture.ts'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers

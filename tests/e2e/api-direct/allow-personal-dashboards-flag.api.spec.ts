@@ -21,8 +21,11 @@
  * @spec openspec/changes/allow-personal-dashboards-flag/tasks.md#task-3.5
  */
 
-import { test, expect, type APIRequestContext } from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl'
+import type { request } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -31,12 +34,13 @@ const ADMIN = {
 
 const SETTINGS_URL = `${BASE}/index.php/apps/launchpad/api/admin/settings`
 const CREATE_URL = `${BASE}/index.php/apps/launchpad/api/dashboard`
-const FORK_URL = (uuid: string) =>
-	`${BASE}/index.php/apps/launchpad/api/dashboards/${encodeURIComponent(uuid)}/fork`
+function FORK_URL(uuid: string) {
+	return `${BASE}/index.php/apps/launchpad/api/dashboards/${encodeURIComponent(uuid)}/fork`
+}
 
 /** Make an authenticated request context using HTTP Basic auth. */
 async function adminApi(playwright: {
-	request: { newContext: typeof import('@playwright/test').request.newContext }
+	request: { newContext: typeof request.newContext }
 }): Promise<APIRequestContext> {
 	return playwright.request.newContext({
 		baseURL: BASE,
@@ -52,7 +56,6 @@ async function setAllowUserDashboards(
 ): Promise<void> {
 	const res = await api.put(SETTINGS_URL, { data: { allowUserDash: enabled } })
 	if (!res.ok()) {
-		// eslint-disable-next-line no-console
 		console.warn(
 			`setAllowUserDashboards(${enabled}): PUT returned ${res.status()}`,
 		)

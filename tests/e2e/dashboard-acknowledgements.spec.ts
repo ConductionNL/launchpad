@@ -26,9 +26,9 @@
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 
-import { test, expect } from '@playwright/test'
-import { ensureOutstandingAcknowledgement } from './fixtures/acknowledgements'
-import { BASE_URL as BASE } from './support/baseUrl'
+import { expect, test } from '@playwright/test'
+import { ensureOutstandingAcknowledgement } from './fixtures/acknowledgements.ts'
+import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const APP_URL = `${BASE}/index.php/apps/launchpad`
 

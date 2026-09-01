@@ -16,11 +16,14 @@
  * NC 28 / 29 / 30.
  */
 
-import { chromium, request, type FullConfig } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import type { FullConfig } from '@playwright/test'
+
+import { chromium, request } from '@playwright/test'
 import { execSync } from 'child_process'
-import * as path from 'path'
 import * as fs from 'fs'
-import { BASE_URL } from './support/baseUrl'
+import * as path from 'path'
+import { BASE_URL } from './support/baseUrl.ts'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -48,7 +51,7 @@ function ensureBundleBuilt(): void {
 	if (fs.existsSync(BUNDLE_PATH)) {
 		return
 	}
-	// eslint-disable-next-line no-console
+
 	console.log(
 		`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`,
 	)
@@ -147,7 +150,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 					'cn-walkthrough-seen:launchpad',
 					'999.0.0',
 				)
-			} catch (e) {
+			} catch {
 				// localStorage unavailable — specs fall back to dismissing by hand.
 			}
 		})
@@ -186,9 +189,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
  * @param {import('@playwright/test').Page} page an authenticated page.
  * @return {Promise<void>}
  */
-async function dismissFirstRunWizard(
-	page: import('@playwright/test').Page,
-): Promise<void> {
+async function dismissFirstRunWizard(page: Page): Promise<void> {
 	try {
 		const status = await page.evaluate(async () => {
 			const token =
@@ -204,14 +205,12 @@ async function dismissFirstRunWizard(
 			return res.status
 		})
 		if (status >= 400 && status !== 404) {
-			// eslint-disable-next-line no-console
 			console.warn(
 				`[playwright globalSetup] first-run wizard dismissal returned ${status}; `
 					+ 'specs may hit a modal over the app.',
 			)
 		}
 	} catch (error) {
-		// eslint-disable-next-line no-console
 		console.warn(
 			'[playwright globalSetup] could not dismiss the first-run wizard:',
 			error,

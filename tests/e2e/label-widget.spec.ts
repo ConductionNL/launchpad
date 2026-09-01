@@ -23,13 +23,13 @@
  * that the two green tests here can finally stand behind a claim.
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+} from './fixtures/widget-flow.ts'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
@@ -134,7 +134,7 @@ test.describe('label widget', () => {
 		// If this string is ever parsed as markup rather than rendered as
 		// text, the assignment below runs and the sentinel becomes readable
 		// from the page context.
-		const payload = `<script>window.__labelWidgetXss = true<\/script>${marker}`
+		const payload = `<script>window.__labelWidgetXss = true</script>${marker}`
 
 		await addLabel(page, payload)
 

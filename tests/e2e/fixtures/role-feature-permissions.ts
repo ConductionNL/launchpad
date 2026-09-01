@@ -22,8 +22,10 @@
  *   is working.
  */
 
-import { request as pwRequest, type APIRequestContext } from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl'
+import type { APIRequestContext } from '@playwright/test'
+
+import { request as pwRequest } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',

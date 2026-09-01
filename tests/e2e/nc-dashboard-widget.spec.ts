@@ -22,13 +22,15 @@
  * @spec openspec/changes/nc-dashboard-widget-proxy/tasks.md#task-8
  */
 
-import { test, expect, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+} from './fixtures/widget-flow.ts'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()

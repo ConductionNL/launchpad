@@ -28,14 +28,14 @@
  * version for whoever fixes the viewport problem.
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
-import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
+} from './fixtures/widget-flow.ts'
+import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()

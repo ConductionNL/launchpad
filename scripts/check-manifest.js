@@ -17,8 +17,8 @@
 
 'use strict'
 
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
 
 const manifestPath = path.resolve(__dirname, '../src/manifest.json')
 

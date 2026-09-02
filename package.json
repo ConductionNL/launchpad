@@ -34,7 +34,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^2.24.2",
+		"@conduction/nextcloud-vue": "^2.31.1",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^7.4.1",

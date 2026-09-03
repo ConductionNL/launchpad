@@ -1005,7 +1005,10 @@
         "Kiosk playlists": "Kiosk playlists",
         "New playlist": "New playlist",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboards"
+        ],
         "refresh every {seconds}s": "refresh every {seconds}s",
         "Copy URL": "Copy URL",
         "Revoke": "Revoke",
@@ -1030,8 +1033,6 @@
         "Reconnecting…": "Reconnecting…",
         "Waiting for content…": "Waiting for content…",
         "Spend analytics": "Spend analytics",
-        "View mode": "View mode",
-        "Period": "Period",
         "Summary": "Summary",
         "Trend": "Trend",
         "Top vendors": "Top vendors",
@@ -1063,6 +1064,7 @@
         "AI insight": "AI insight",
         "AI insight unavailable — the local LLM source is not configured": "AI insight unavailable — the local LLM source is not configured",
         "Generate insight": "Generate insight",
-        "Total spend: {amount}": "Total spend: {amount}"
+        "Total spend: {amount}": "Total spend: {amount}",
+        "Features & roadmap": "Features & roadmap"
     }
 }

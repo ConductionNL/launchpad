@@ -9,7 +9,10 @@
         "Kiosk playlists": "Llistes de reproducció de quiosc",
         "New playlist": "Llista de reproducció nova",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Apunteu una pantalla de paret o de recepció a un URL de llista de reproducció per rotar els taulers sense interfície i sense vigilància.",
-        "_%n dashboard_::_%n dashboards_": ["%n tauler","%n taulers"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n tauler",
+            "%n taulers"
+        ],
         "refresh every {seconds}s": "actualitza cada {seconds}s",
         "Copy URL": "Copia l'URL",
         "Revoke": "Revoca",
@@ -1061,6 +1064,7 @@
         "Bridge": "Pont",
         "No widgets match this filter": "Cap giny coincideix amb aquest filtre",
         "Catalog": "Catàleg",
-        "General": "General"
+        "General": "General",
+        "Features & roadmap": "Funcions i full de ruta"
     }
 }

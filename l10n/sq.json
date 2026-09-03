@@ -9,7 +9,10 @@
         "Kiosk playlists": "Listat e luajtjes së kioskut",
         "New playlist": "Listë e re luajtjeje",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Drejtoni një ekran muri ose ekran pritjeje drejt një URL-je liste luajtjeje për të rrotulluar panelet pa ndërfaqe dhe pa mbikëqyrje.",
-        "_%n dashboard_::_%n dashboards_": ["%n panel","%n panele"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n panel",
+            "%n panele"
+        ],
         "refresh every {seconds}s": "rifresko çdo {seconds}s",
         "Copy URL": "Kopjo URL-në",
         "Revoke": "Revoko",
@@ -1061,6 +1064,7 @@
         "Bridge": "Urë",
         "No widgets match this filter": "Asnjë widget nuk përputhet me këtë filtër",
         "Catalog": "Katalog",
-        "General": "Të përgjithshme"
+        "General": "Të përgjithshme",
+        "Features & roadmap": "Veçoritë dhe plani i zhvillimit"
     }
 }

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funksjoner og veikart",
     "Maximum dashboards per user" : "Maksimalt antall dashbord per bruker",
     "Maximum widgets per dashboard" : "Maksimalt antall widgeter per dashbord",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ubegrenset. Å senke en grense sletter aldri eksisterende dashbord; den blokkerer kun nye til brukerne igjen er under grensen.",

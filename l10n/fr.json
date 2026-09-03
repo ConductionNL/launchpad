@@ -9,7 +9,10 @@
         "Kiosk playlists": "Listes de lecture kiosque",
         "New playlist": "Nouvelle liste de lecture",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Dirigez un écran mural ou un écran d’accueil vers l’URL d’une liste de lecture pour faire défiler les tableaux de bord sans interface et sans surveillance.",
-        "_%n dashboard_::_%n dashboards_": ["%n tableau de bord", "%n tableaux de bord"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n tableau de bord",
+            "%n tableaux de bord"
+        ],
         "refresh every {seconds}s": "actualiser toutes les {seconds}s",
         "Copy URL": "Copier l’URL",
         "Revoke": "Révoquer",
@@ -1061,6 +1064,7 @@
         "Bridge": "Pont",
         "No widgets match this filter": "Aucun widget ne correspond à ce filtre",
         "Catalog": "Catalogue",
-        "General": "Général"
+        "General": "Général",
+        "Features & roadmap": "Fonctionnalités et feuille de route"
     }
 }

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Özellikler ve yol haritası",
     "Maximum dashboards per user" : "Kullanıcı başına en fazla pano",
     "Maximum widgets per dashboard" : "Pano başına en fazla araç",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = sınırsız. Bir sınırın düşürülmesi var olan panoları asla silmez; yalnızca kullanıcılar sınırın altına dönene kadar yenilerinin oluşturulmasını engeller.",

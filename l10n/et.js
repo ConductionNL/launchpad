@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funktsioonid ja teekaart",
     "Maximum dashboards per user" : "Töölaudade maksimumarv kasutaja kohta",
     "Maximum widgets per dashboard" : "Vidinate maksimumarv töölaua kohta",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = piiramatu. Piirangu vähendamine ei kustuta kunagi olemasolevaid töölaudu; see üksnes blokeerib uute loomise, kuni kasutajad on jälle piirist allpool.",

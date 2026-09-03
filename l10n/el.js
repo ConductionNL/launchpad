@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Λειτουργίες και οδικός χάρτης",
     "Maximum dashboards per user" : "Μέγιστος αριθμός πινάκων ανά χρήστη",
     "Maximum widgets per dashboard" : "Μέγιστος αριθμός widget ανά πίνακα",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = απεριόριστο. Η μείωση ενός ορίου δεν διαγράφει ποτέ υπάρχοντες πίνακες· απλώς μπλοκάρει τη δημιουργία νέων μέχρι οι χρήστες να επανέλθουν κάτω από το όριο.",

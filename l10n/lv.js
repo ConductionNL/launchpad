@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcijas un ceļvedis",
     "Maximum dashboards per user" : "Maksimālais informācijas paneļu skaits uz lietotāju",
     "Maximum widgets per dashboard" : "Maksimālais logrīku skaits uz informācijas paneli",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neierobežots. Ierobežojuma samazināšana nekad nedzēš esošos informācijas paneļus; tā tikai bloķē jaunus, līdz lietotāji atkal ir zem ierobežojuma.",

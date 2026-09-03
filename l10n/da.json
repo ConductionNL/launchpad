@@ -9,7 +9,10 @@
         "Kiosk playlists": "Kiosk-afspilningslister",
         "New playlist": "Ny afspilningsliste",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Peg en vægskærm eller receptionsskærm mod en afspilningsliste-URL for at rotere dashboards uden rammer og uden opsyn.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboards"
+        ],
         "refresh every {seconds}s": "opdater hvert {seconds}. sekund",
         "Copy URL": "Kopiér URL",
         "Revoke": "Tilbagekald",
@@ -1061,6 +1064,7 @@
         "Bridge": "Bro",
         "No widgets match this filter": "Ingen widgets matcher dette filter",
         "Catalog": "Katalog",
-        "General": "Generelt"
+        "General": "Generelt",
+        "Features & roadmap": "Funktioner og køreplan"
     }
 }

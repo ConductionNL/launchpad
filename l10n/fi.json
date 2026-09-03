@@ -9,7 +9,10 @@
         "Kiosk playlists": "Kioskisoittolistat",
         "New playlist": "Uusi soittolista",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Ohjaa seinänäyttö tai vastaanottonäyttö soittolistan URL-osoitteeseen, jotta koontinäytöt vaihtuvat ilman käyttöliittymää ja valvomatta.",
-        "_%n dashboard_::_%n dashboards_": ["%n koontinäyttö", "%n koontinäyttöä"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n koontinäyttö",
+            "%n koontinäyttöä"
+        ],
         "refresh every {seconds}s": "päivitä {seconds} s välein",
         "Copy URL": "Kopioi URL",
         "Revoke": "Peru",
@@ -1061,6 +1064,7 @@
         "Bridge": "Silta",
         "No widgets match this filter": "Yksikään sovelma ei vastaa tätä suodatinta",
         "Catalog": "Luettelo",
-        "General": "Yleinen"
+        "General": "Yleinen",
+        "Features & roadmap": "Ominaisuudet ja tiekartta"
     }
 }

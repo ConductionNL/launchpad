@@ -9,7 +9,10 @@
         "Kiosk playlists": "Skjáspilunarlistar",
         "New playlist": "Nýr spilunarlisti",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Beindu veggskjá eða móttökuskjá á slóð spilunarlista til að skipta um mælaborð án viðmóts og án eftirlits.",
-        "_%n dashboard_::_%n dashboards_": ["%n mælaborð","%n mælaborð"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n mælaborð",
+            "%n mælaborð"
+        ],
         "refresh every {seconds}s": "endurnýja á {seconds}s fresti",
         "Copy URL": "Afrita slóð",
         "Revoke": "Afturkalla",
@@ -1061,6 +1064,7 @@
         "Bridge": "Brú",
         "No widgets match this filter": "Engir viðmótshlutar samsvara þessari síu",
         "Catalog": "Safn",
-        "General": "Almennt"
+        "General": "Almennt",
+        "Features & roadmap": "Eiginleikar og vegvísir"
     }
 }

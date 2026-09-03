@@ -9,7 +9,12 @@
         "Kiosk playlists": "Seznami predvajanja kioska",
         "New playlist": "Nov seznam predvajanja",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Usmerite stenski zaslon ali sprejemni zaslon na URL seznama predvajanja, da nadzorne plošče krožijo brez vmesnika in brez nadzora.",
-        "_%n dashboard_::_%n dashboards_": ["%n nadzorna plošča", "%n nadzorni plošči", "%n nadzorne plošče", "%n nadzornih plošč"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n nadzorna plošča",
+            "%n nadzorni plošči",
+            "%n nadzorne plošče",
+            "%n nadzornih plošč"
+        ],
         "refresh every {seconds}s": "osveži vsakih {seconds}s",
         "Copy URL": "Kopiraj URL",
         "Revoke": "Prekliči",
@@ -1061,6 +1066,7 @@
         "Bridge": "Most",
         "No widgets match this filter": "Noben gradnik se ne ujema s tem filtrom",
         "Catalog": "Katalog",
-        "General": "Splošno"
+        "General": "Splošno",
+        "Features & roadmap": "Funkcije in načrt razvoja"
     }
 }

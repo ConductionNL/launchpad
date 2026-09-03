@@ -8,7 +8,7 @@
   "x-openregister": {
     "type": "mock",
     "app": "launchpad",
-    "description": "Demo data for launchpad. NOT installed automatically — a mock register is imported on demand, from the setup walkthrough or `occ openregister:descriptors:list --app=launchpad --import=<slug>`."
+    "description": "Demo data for launchpad. It is not installed automatically: a mock register is imported on demand, from the setup walkthrough or `occ openregister:descriptors:list --app=launchpad --import=<slug>`."
   },
   "paths": {},
   "components": {
@@ -17,7 +17,7 @@
         "slug": "launchpad",
         "title": "LaunchPad Register (demo)",
         "version": "1.0.1",
-        "description": "Demo data for LaunchPad Register. Generated from the register's own schemas — see hydra-gates/scripts/lib/generate_mock_register.py."
+        "description": "Demo data for LaunchPad Register, generated from the register's own schemas. See hydra-gates/scripts/lib/generate_mock_register.py."
       }
     },
     "schemas": {
@@ -105,7 +105,7 @@
           "groupId": {
             "title": "Group ID",
             "type": "string",
-            "description": "Nextcloud group ID for group_shared dashboards. Reserved value 'default' means visible to every user (REQ-DASH-012). Absent for user and admin_template dashboards — the property is not in `required`, which is how OpenRegister models optionality. A union type such as [\"string\", \"null\"] is REJECTED by the schema importer (only scalar types are accepted), and that rejection is what silently prevented this whole schema — and therefore the register's reference to it — from ever being created.",
+            "description": "Nextcloud group ID for group_shared dashboards. The reserved value 'default' means visible to every user. It is absent for user and admin_template dashboards: the property is not in `required`, which is how OpenRegister models optionality.",
             "example": "marketing"
           }
         },
@@ -188,7 +188,7 @@
             },
             "slug": "welcome-to-launchpad",
             "title": "Welcome to LaunchPad",
-            "description": "Default landing dashboard visible to every user — powered by the 'default' synthetic group (REQ-DASH-012)",
+            "description": "Default landing dashboard visible to every user, powered by the 'default' synthetic group",
             "version": "1.0.0",
             "type": "group_shared",
             "groupId": "default",
@@ -221,7 +221,7 @@
             },
             "slug": "active-campaigns",
             "title": "Active Campaigns",
-            "description": "Marketing team shared dashboard — scoped to the 'marketing' group (REQ-DASH-011)",
+            "description": "Marketing team shared dashboard, scoped to the 'marketing' group",
             "version": "1.0.0",
             "type": "group_shared",
             "groupId": "marketing",
@@ -262,7 +262,7 @@
             },
             "slug": "sprint-overview",
             "title": "Sprint Overview",
-            "description": "Engineering team shared dashboard — scoped to the 'engineering' group (REQ-DASH-011)",
+            "description": "Engineering team shared dashboard, scoped to the 'engineering' group",
             "version": "1.0.0",
             "type": "group_shared",
             "groupId": "engineering",

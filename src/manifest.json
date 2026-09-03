@@ -116,6 +116,14 @@
       "order": 90
     },
     {
+      "id": "ReportsMenu",
+      "label": "Reports",
+      "icon": "ChartBoxOutline",
+      "route": "Reports",
+      "section": "footer",
+      "order": 95
+    },
+    {
       "id": "FeaturesRoadmapMenu",
       "label": "Features & roadmap",
       "icon": "MapMarkerPath",
@@ -175,6 +183,238 @@
         "app": "launchpad"
       },
       "_note": "The shared CnFlowDetail canvas over the same single engine. Controls render in the NC app sidebar so the canvas keeps full width."
+    },
+    {
+      "id": "Reports",
+      "_note": "ADR-112 / ADR-114 Decision 3. ONE card, deliberately. LaunchPad's register holds a single schema — dashboard — so a second report would either repeat this one or invent a reading the data cannot support. The `widgets` array holds widget descriptors rather than references, so grouping by it would bucket objects and render noise; it is left out rather than shipped as a chart that looks like an answer.",
+      "route": "/reports",
+      "type": "reports",
+      "title": "Reports",
+      "config": {
+        "description": "Pick a report to open it.",
+        "cards": [
+          {
+            "id": "DashboardsReport",
+            "label": "Dashboards",
+            "description": "How many dashboards there are, and who they belong to.",
+            "icon": "ViewDashboardOutline",
+            "route": "DashboardsReport"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DashboardsReport",
+      "route": "/reports/dashboards",
+      "type": "dashboard",
+      "title": "Dashboards",
+      "_note": "Declarative over the app's own register. Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate: a multi-value or relative-date filter is accepted and then silently not applied.",
+      "config": {
+        "widgets": [
+          {
+            "id": "dash-total",
+            "title": "Dashboards",
+            "type": "stat",
+            "content": {
+              "label": "Dashboards",
+              "icon": "ViewDashboardOutline",
+              "route": {
+                "name": "dashboards"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count"
+              }
+            }
+          },
+          {
+            "id": "dash-personal",
+            "title": "Personal",
+            "type": "stat",
+            "content": {
+              "label": "Personal",
+              "icon": "ViewDashboardOutline",
+              "route": {
+                "name": "dashboards"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count",
+                "filter": {
+                  "type": "user"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-shared",
+            "title": "Shared with a group",
+            "type": "stat",
+            "content": {
+              "label": "Shared with a group",
+              "icon": "Sitemap",
+              "route": {
+                "name": "dashboards"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count",
+                "filter": {
+                  "type": "group_shared"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-templates",
+            "title": "Admin templates",
+            "type": "stat",
+            "content": {
+              "label": "Admin templates",
+              "icon": "FileReplaceOutline",
+              "route": {
+                "name": "admin-templates"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count",
+                "filter": {
+                  "type": "admin_template"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-by-type",
+            "title": "Who they belong to",
+            "type": "chart",
+            "content": {
+              "chartKind": "donut",
+              "legendPosition": "bottom",
+              "emptyLabel": "No dashboards yet",
+              "dataSource": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "aggregate": {
+                  "groupBy": "type",
+                  "metric": "count"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-recent",
+            "title": "Most recent",
+            "type": "object-table",
+            "content": {
+              "register": "launchpad",
+              "schema": "dashboard",
+              "filter": {},
+              "sort": {
+                "field": "created",
+                "dir": "desc"
+              },
+              "limit": 8,
+              "hideHeader": true,
+              "emptyText": "No dashboards yet",
+              "viewAllRoute": {
+                "name": "dashboards"
+              },
+              "viewAllLabel": "Open a dashboard",
+              "columns": [
+                {
+                  "key": "title",
+                  "label": "Dashboard"
+                },
+                {
+                  "key": "type",
+                  "label": "Kind"
+                },
+                {
+                  "key": "version",
+                  "label": "Version"
+                }
+              ]
+            }
+          }
+        ],
+        "layout": [
+          {
+            "id": "1",
+            "widgetId": "dash-total",
+            "gridX": 0,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "2",
+            "widgetId": "dash-personal",
+            "gridX": 3,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "3",
+            "widgetId": "dash-shared",
+            "gridX": 6,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "4",
+            "widgetId": "dash-templates",
+            "gridX": 9,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "5",
+            "widgetId": "dash-by-type",
+            "gridX": 0,
+            "gridY": 2,
+            "gridWidth": 12,
+            "gridHeight": 4,
+            "showTitle": true
+          },
+          {
+            "id": "6",
+            "widgetId": "dash-recent",
+            "gridX": 0,
+            "gridY": 6,
+            "gridWidth": 12,
+            "gridHeight": 4,
+            "showTitle": true
+          }
+        ]
+      }
     },
     {
       "id": "FeaturesRoadmap",

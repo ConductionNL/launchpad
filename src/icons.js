@@ -4,6 +4,7 @@
  */
 
 import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOutline.vue'
+import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import MapMarkerPath from 'vue-material-design-icons/MapMarkerPath.vue'
@@ -32,6 +33,7 @@ export const LAUNCHPAD_ICONS = {
 	// Menu: "Dashboards" + the register's Dashboard schema (ADR-077 Tier A
 	// concept `dashboard`).
 	BookOpenVariantOutline,
+	ChartBoxOutline,
 	MapMarkerPath,
 	Sitemap,
 	ViewDashboardOutline,

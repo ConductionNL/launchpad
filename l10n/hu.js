@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkciók és ütemterv",
     "Maximum dashboards per user" : "Felhasználónkénti maximális irányítópultok száma",
     "Maximum widgets per dashboard" : "Irányítópultonkénti maximális modulok száma",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = korlátlan. A korlát csökkentése soha nem törli a meglévő irányítópultokat; csak az újak létrehozását tiltja, amíg a felhasználók ismét a korlát alá nem kerülnek.",

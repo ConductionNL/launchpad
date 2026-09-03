@@ -9,7 +9,12 @@
         "Kiosk playlists": "Playlists tal-kjosk",
         "New playlist": "Playlist ġdida",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Ipponta wirja tal-ħajt jew skrin tar-riċeviment lejn URL ta' playlist biex iddawwar dashboards mingħajr chrome u mingħajr sorveljanza.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards", "%n dashboards", "%n dashboards"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboards",
+            "%n dashboards",
+            "%n dashboards"
+        ],
         "refresh every {seconds}s": "iffriskja kull {seconds}s",
         "Copy URL": "Ikkopja l-URL",
         "Revoke": "Irrevoka",
@@ -1061,6 +1066,7 @@
         "Bridge": "Pont",
         "No widgets match this filter": "L-ebda widget ma jaqbel ma' dan il-filtru",
         "Catalog": "Katalgu",
-        "General": "Ġenerali"
+        "General": "Ġenerali",
+        "Features & roadmap": "Funzjonijiet u pjan direzzjonali"
     }
 }

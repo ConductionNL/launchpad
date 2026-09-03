@@ -9,7 +9,13 @@
         "Kiosk playlists": "Seinmliostaí caisc",
         "New playlist": "Seinmliosta nua",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Dírigh taispeáint bhalla nó scáileán fáiltithe ar URL seinmliosta chun deais-chláir a rothlú gan chróm agus gan freastal.",
-        "_%n dashboard_::_%n dashboards_": ["%n deais-chlár","%n dheais-chlár","%n dheais-chlár","%n ndeais-chlár","%n deais-chlár"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n deais-chlár",
+            "%n dheais-chlár",
+            "%n dheais-chlár",
+            "%n ndeais-chlár",
+            "%n deais-chlár"
+        ],
         "refresh every {seconds}s": "athnuaigh gach {seconds}s",
         "Copy URL": "Cóipeáil URL",
         "Revoke": "Cúlghair",
@@ -1061,6 +1067,7 @@
         "Bridge": "Droichead",
         "No widgets match this filter": "Níl aon ghiuirléidí a mheaitseálann an scagaire seo",
         "Catalog": "Catalóg",
-        "General": "Ginearálta"
+        "General": "Ginearálta",
+        "Features & roadmap": "Gnéithe agus treochlár"
     }
 }

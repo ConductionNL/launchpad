@@ -9,7 +9,10 @@
         "Kiosk playlists": "Kioszk lejátszási listák",
         "New playlist": "Új lejátszási lista",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Irányítson egy fali kijelzőt vagy recepciós képernyőt egy lejátszási lista URL-jére, hogy az irányítópultok felügyelet nélkül, kezelőfelület nélkül váltakozzanak.",
-        "_%n dashboard_::_%n dashboards_": ["%n irányítópult","%n irányítópult"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n irányítópult",
+            "%n irányítópult"
+        ],
         "refresh every {seconds}s": "frissítés {seconds} másodpercenként",
         "Copy URL": "URL másolása",
         "Revoke": "Visszavonás",
@@ -1061,6 +1064,7 @@
         "Bridge": "Híd",
         "No widgets match this filter": "Egyetlen modul sem felel meg ennek a szűrőnek",
         "Catalog": "Katalógus",
-        "General": "Általános"
+        "General": "Általános",
+        "Features & roadmap": "Funkciók és ütemterv"
     }
 }

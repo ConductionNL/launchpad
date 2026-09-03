@@ -9,7 +9,10 @@
         "Kiosk playlists": "Kiosk oynatma listeleri",
         "New playlist": "Yeni oynatma listesi",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Panoları çerçevesiz ve gözetimsiz olarak döndürmek için bir duvar ekranını veya karşılama ekranını bir oynatma listesi adresine yönlendirin.",
-        "_%n dashboard_::_%n dashboards_": ["%n pano","%n pano"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n pano",
+            "%n pano"
+        ],
         "refresh every {seconds}s": "her {seconds}sn yenile",
         "Copy URL": "Adresi kopyala",
         "Revoke": "İptal et",
@@ -1061,6 +1064,7 @@
         "Bridge": "Köprü",
         "No widgets match this filter": "Bu filtreyle eşleşen widget yok",
         "Catalog": "Katalog",
-        "General": "Genel"
+        "General": "Genel",
+        "Features & roadmap": "Özellikler ve yol haritası"
     }
 }

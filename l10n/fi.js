@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Ominaisuudet ja tiekartta",
     "Maximum dashboards per user" : "Koontinäyttöjen enimmäismäärä käyttäjää kohden",
     "Maximum widgets per dashboard" : "Pienoisohjelmien enimmäismäärä koontinäyttöä kohden",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = rajaton. Rajan alentaminen ei koskaan poista olemassa olevia koontinäyttöjä; se vain estää uusien luomisen, kunnes käyttäjät ovat taas rajan alapuolella.",

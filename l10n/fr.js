@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Fonctionnalités et feuille de route",
     "Maximum dashboards per user" : "Nombre maximal de tableaux de bord par utilisateur",
     "Maximum widgets per dashboard" : "Nombre maximal de widgets par tableau de bord",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = illimité. Réduire une limite ne supprime jamais les tableaux de bord existants ; cela bloque uniquement les nouveaux jusqu’à ce que les utilisateurs repassent sous la limite.",

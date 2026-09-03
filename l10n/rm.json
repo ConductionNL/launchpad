@@ -9,7 +9,10 @@
         "Kiosk playlists": "Glistas da reproducziun da kiosk",
         "New playlist": "Nova glista da reproducziun",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Drizza in display da paraid u in visur da recepziun sin in URL d'ina glista da reproducziun per rotar dashboards senza chrome e senza surveglianza.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboards"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboards"
+        ],
         "refresh every {seconds}s": "actualisar mintga {seconds}s",
         "Copy URL": "Copiar l'URL",
         "Revoke": "Revocar",
@@ -1061,6 +1064,7 @@
         "Bridge": "Punt",
         "No widgets match this filter": "Nagins widgets correspundan a quest filter",
         "Catalog": "Catalog",
-        "General": "General"
+        "General": "General",
+        "Features & roadmap": "Funcziuns e plan da svilup"
     }
 }

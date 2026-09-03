@@ -9,7 +9,11 @@
         "Kiosk playlists": "Киоск листе репродукције",
         "New playlist": "Нова листа репродукције",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Усмерите зидни екран или екран рецепције на URL листе репродукције да би се контролне табле смењивале без оквира и без надзора.",
-        "_%n dashboard_::_%n dashboards_": ["%n контролна табла", "%n контролне табле", "%n контролних табли"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n контролна табла",
+            "%n контролне табле",
+            "%n контролних табли"
+        ],
         "refresh every {seconds}s": "освежи сваких {seconds}s",
         "Copy URL": "Копирај URL",
         "Revoke": "Опозови",
@@ -1061,6 +1065,7 @@
         "Bridge": "Мост",
         "No widgets match this filter": "Ниједан виџет не одговара овом филтеру",
         "Catalog": "Каталог",
-        "General": "Опште"
+        "General": "Опште",
+        "Features & roadmap": "Функције и план развоја"
     }
 }

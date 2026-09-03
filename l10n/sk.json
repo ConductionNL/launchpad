@@ -9,7 +9,11 @@
         "Kiosk playlists": "Playlisty kiosku",
         "New playlist": "Nový playlist",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Nasmerujte nástenný displej alebo recepčnú obrazovku na URL playlistu, aby rotovali dashboardy bez ovládacích prvkov a bez obsluhy.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboardy", "%n dashboardov"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboardy",
+            "%n dashboardov"
+        ],
         "refresh every {seconds}s": "obnovovať každých {seconds}s",
         "Copy URL": "Kopírovať URL",
         "Revoke": "Odvolať",
@@ -1061,6 +1065,7 @@
         "Bridge": "Most",
         "No widgets match this filter": "Žiadne widgety nezodpovedajú tomuto filtru",
         "Catalog": "Katalóg",
-        "General": "Všeobecné"
+        "General": "Všeobecné",
+        "Features & roadmap": "Funkcie a plán vývoja"
     }
 }

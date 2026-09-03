@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Функції та дорожня карта",
     "Maximum dashboards per user" : "Максимальна кількість дашбордів на користувача",
     "Maximum widgets per dashboard" : "Максимальна кількість віджетів на дашборд",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = без обмежень. Зниження ліміту ніколи не видаляє наявні дашборди; воно лише блокує створення нових, доки користувачі не повернуться під ліміт.",

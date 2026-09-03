@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Gnéithe agus treochlár",
     "Maximum dashboards per user" : "Uaslíon deais-chláir in aghaidh an úsáideora",
     "Maximum widgets per dashboard" : "Uaslíon giuirléidí in aghaidh an deais-chláir",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = gan teorainn. Ní scriosann ísliú teorann deais-chláir atá ann cheana; ní dhéanann sé ach cinn nua a bhac go dtí go mbeidh úsáideoirí faoin teorainn arís.",

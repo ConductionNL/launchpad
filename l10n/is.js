@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Eiginleikar og vegvísir",
     "Maximum dashboards per user" : "Hámarksfjöldi mælaborða á notanda",
     "Maximum widgets per dashboard" : "Hámarksfjöldi viðmótshluta á mælaborð",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ótakmarkað. Lækkun á mörkum eyðir aldrei núverandi mælaborðum; hún hindrar aðeins ný þar til notendur eru aftur undir mörkunum.",

@@ -9,7 +9,11 @@
         "Kiosk playlists": "Kiosko grojaraščiai",
         "New playlist": "Naujas grojaraštis",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Nukreipkite sieninį ekraną ar registratūros ekraną į grojaraščio URL, kad skydeliai keistųsi be sąsajos ir be priežiūros.",
-        "_%n dashboard_::_%n dashboards_": ["%n skydelis","%n skydeliai","%n skydelių"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n skydelis",
+            "%n skydeliai",
+            "%n skydelių"
+        ],
         "refresh every {seconds}s": "atnaujinti kas {seconds}s",
         "Copy URL": "Kopijuoti URL",
         "Revoke": "Atšaukti",
@@ -1061,6 +1065,7 @@
         "Bridge": "Tiltas",
         "No widgets match this filter": "Šio filtro neatitinka nė vienas valdiklis",
         "Catalog": "Katalogas",
-        "General": "Bendra"
+        "General": "Bendra",
+        "Features & roadmap": "Funkcijos ir planas"
     }
 }

@@ -9,7 +9,11 @@
         "Kiosk playlists": "Киоскные плейлисты",
         "New playlist": "Новый плейлист",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Направьте настенный дисплей или экран ресепшена на URL плейлиста, чтобы ротировать дашборды без интерфейса и без присмотра.",
-        "_%n dashboard_::_%n dashboards_": ["%n дашборд", "%n дашборда", "%n дашбордов"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n дашборд",
+            "%n дашборда",
+            "%n дашбордов"
+        ],
         "refresh every {seconds}s": "обновлять каждые {seconds} с",
         "Copy URL": "Копировать URL",
         "Revoke": "Отозвать",
@@ -1061,6 +1065,7 @@
         "Bridge": "Мост",
         "No widgets match this filter": "Ни один виджет не соответствует этому фильтру",
         "Catalog": "Каталог",
-        "General": "Общие"
+        "General": "Общие",
+        "Features & roadmap": "Функции и дорожная карта"
     }
 }

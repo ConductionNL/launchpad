@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcijos ir planas",
     "Maximum dashboards per user" : "Didžiausias skydelių skaičius vienam naudotojui",
     "Maximum widgets per dashboard" : "Didžiausias valdiklių skaičius viename skydelyje",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neribota. Apribojimo sumažinimas niekada netrina esamų skydelių; jis tik blokuoja naujų kūrimą, kol naudotojai vėl bus mažiau už ribą.",

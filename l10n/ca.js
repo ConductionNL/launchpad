@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funcions i full de ruta",
     "Maximum dashboards per user" : "Màxim de taulers per usuari",
     "Maximum widgets per dashboard" : "Màxim de ginys per tauler",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = il·limitat. Reduir un límit mai no suprimeix els taulers existents; només bloqueja els nous fins que els usuaris tornin a estar per sota del límit.",

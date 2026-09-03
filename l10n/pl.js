@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcje i plan rozwoju",
     "Maximum dashboards per user" : "Maksymalna liczba pulpitów na użytkownika",
     "Maximum widgets per dashboard" : "Maksymalna liczba widżetów na pulpit",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = bez ograniczeń. Obniżenie limitu nigdy nie usuwa istniejących pulpitów; jedynie blokuje nowe, dopóki użytkownicy nie zejdą poniżej limitu.",

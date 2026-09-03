@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Функције и план развоја",
     "Maximum dashboards per user" : "Максималан број контролних табли по кориснику",
     "Maximum widgets per dashboard" : "Максималан број виџета по контролној табли",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = неограничено. Снижавање ограничења никада не брише постојеће контролне табле; само блокира нове док се корисници не врате испод ограничења.",

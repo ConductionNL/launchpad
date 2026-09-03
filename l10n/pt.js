@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funcionalidades e roteiro",
     "Maximum dashboards per user" : "Máximo de painéis por utilizador",
     "Maximum widgets per dashboard" : "Máximo de widgets por painel",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ilimitado. Reduzir um limite nunca elimina os painéis existentes; apenas bloqueia os novos até que os utilizadores voltem a estar abaixo do limite.",

@@ -9,7 +9,10 @@
         "Kiosk playlists": "Playlist chiosco",
         "New playlist": "Nuova playlist",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Punta un display a parete o uno schermo di accoglienza all’URL di una playlist per ruotare le dashboard senza interfaccia e senza presidio.",
-        "_%n dashboard_::_%n dashboards_": ["%n dashboard", "%n dashboard"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n dashboard",
+            "%n dashboard"
+        ],
         "refresh every {seconds}s": "aggiorna ogni {seconds}s",
         "Copy URL": "Copia URL",
         "Revoke": "Revoca",
@@ -1061,6 +1064,7 @@
         "Bridge": "Bridge",
         "No widgets match this filter": "Nessun widget corrisponde a questo filtro",
         "Catalog": "Catalogo",
-        "General": "Generale"
+        "General": "Generale",
+        "Features & roadmap": "Funzionalità e roadmap"
     }
 }

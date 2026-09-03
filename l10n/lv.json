@@ -9,7 +9,11 @@
         "Kiosk playlists": "Kioska atskaņošanas saraksti",
         "New playlist": "Jauns atskaņošanas saraksts",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Norādiet sienas displeju vai reģistratūras ekrānu uz atskaņošanas saraksta URL, lai rotētu informācijas paneļus bez rāmja un bez uzraudzības.",
-        "_%n dashboard_::_%n dashboards_": ["%n informācijas panelis","%n informācijas paneļi","%n informācijas paneļu"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n informācijas panelis",
+            "%n informācijas paneļi",
+            "%n informācijas paneļu"
+        ],
         "refresh every {seconds}s": "atsvaidzināt ik pēc {seconds}s",
         "Copy URL": "Kopēt URL",
         "Revoke": "Atsaukt",
@@ -1061,6 +1065,7 @@
         "Bridge": "Tilts",
         "No widgets match this filter": "Neviens sīkrīks neatbilst šim filtram",
         "Catalog": "Katalogs",
-        "General": "Vispārīgi"
+        "General": "Vispārīgi",
+        "Features & roadmap": "Funkcijas un ceļvedis"
     }
 }

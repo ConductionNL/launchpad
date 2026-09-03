@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Značajke i plan razvoja",
     "Maximum dashboards per user" : "Najveći broj nadzornih ploča po korisniku",
     "Maximum widgets per dashboard" : "Najveći broj widgeta po nadzornoj ploči",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neograničeno. Smanjenje ograničenja nikada ne briše postojeće nadzorne ploče; samo blokira nove dok se korisnici ponovno ne vrate ispod ograničenja.",

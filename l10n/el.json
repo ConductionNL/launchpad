@@ -9,7 +9,10 @@
         "Kiosk playlists": "Λίστες αναπαραγωγής kiosk",
         "New playlist": "Νέα λίστα αναπαραγωγής",
         "Point a wall display or reception screen at a playlist URL to rotate dashboards chrome-less and unattended.": "Στρέψτε μια οθόνη τοίχου ή μια οθόνη υποδοχής σε ένα URL λίστας αναπαραγωγής για να εναλλάσσετε πίνακες χωρίς πλαίσιο και χωρίς επίβλεψη.",
-        "_%n dashboard_::_%n dashboards_": ["%n πίνακας","%n πίνακες"],
+        "_%n dashboard_::_%n dashboards_": [
+            "%n πίνακας",
+            "%n πίνακες"
+        ],
         "refresh every {seconds}s": "ανανέωση κάθε {seconds}δ",
         "Copy URL": "Αντιγραφή URL",
         "Revoke": "Ανάκληση",
@@ -1061,6 +1064,7 @@
         "Bridge": "Γέφυρα",
         "No widgets match this filter": "Δεν υπάρχουν γραφικά στοιχεία που να ταιριάζουν με αυτό το φίλτρο",
         "Catalog": "Κατάλογος",
-        "General": "Γενικά"
+        "General": "Γενικά",
+        "Features & roadmap": "Λειτουργίες και οδικός χάρτης"
     }
 }

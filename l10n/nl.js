@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Functies en roadmap",
     "share_not_found" : "Gedeeld dashboard niet gevonden",
     "share_expired" : "Dit gedeelde dashboard is verlopen",
     "share_password_required" : "Wachtwoord vereist om dit dashboard te bekijken",

@@ -1088,6 +1088,8 @@
         "Who they belong to": "Kihez tartoznak",
         "Kind": "Fajta",
         "Version": "Verzió",
-        "How many dashboards there are, and who they belong to.": "Hány irányítópult van, és kihez tartoznak."
+        "How many dashboards there are, and who they belong to.": "Hány irányítópult van, és kihez tartoznak.",
+        "Store": "Áruház",
+        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Telepítsen más szervezetek által közzétett nyilvántartásokat, sémákat és folyamatokat."
     }
 }

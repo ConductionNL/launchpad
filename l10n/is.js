@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Hverjum þau tilheyra",
     "Kind": "Tegund",
     "Version": "Útgáfa",
-    "How many dashboards there are, and who they belong to.": "Hversu mörg mælaborð eru til og hverjum þau tilheyra."
+    "How many dashboards there are, and who they belong to.": "Hversu mörg mælaborð eru til og hverjum þau tilheyra.",
+    "Store": "Verslun",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Settu upp skrár, skemu og flæði sem aðrar stofnanir hafa birt."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

@@ -1148,7 +1148,9 @@ OC.L10N.register(
     "Who they belong to": "Van wie ze zijn",
     "Kind": "Soort",
     "Version": "Versie",
-    "How many dashboards there are, and who they belong to.": "Hoeveel dashboards er zijn, en van wie ze zijn."
+    "How many dashboards there are, and who they belong to.": "Hoeveel dashboards er zijn, en van wie ze zijn.",
+    "Store": "Store",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installeer registers, schema's en flows die andere organisaties hebben gepubliceerd."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Cé leis iad",
     "Kind": "Cineál",
     "Version": "Leagan",
-    "How many dashboards there are, and who they belong to.": "Cé mhéad painéal atá ann, agus cé leis iad."
+    "How many dashboards there are, and who they belong to.": "Cé mhéad painéal atá ann, agus cé leis iad.",
+    "Store": "Siopa",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Suiteáil cláir, scéimeanna agus sruthanna a d'fhoilsigh eagraíochtaí eile."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

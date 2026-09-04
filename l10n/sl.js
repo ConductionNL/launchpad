@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Komu pripadajo",
     "Kind": "Vrsta",
     "Version": "Različica",
-    "How many dashboards there are, and who they belong to.": "Koliko je nadzornih plošč in komu pripadajo."
+    "How many dashboards there are, and who they belong to.": "Koliko je nadzornih plošč in komu pripadajo.",
+    "Store": "Trgovina",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Namestite registre, sheme in tokove, ki so jih objavile druge organizacije."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Σε ποιον ανήκουν",
     "Kind": "Είδος",
     "Version": "Έκδοση",
-    "How many dashboards there are, and who they belong to.": "Πόσοι πίνακες υπάρχουν και σε ποιον ανήκουν."
+    "How many dashboards there are, and who they belong to.": "Πόσοι πίνακες υπάρχουν και σε ποιον ανήκουν.",
+    "Store": "Κατάστημα",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Εγκαταστήστε μητρώα, σχήματα και ροές που έχουν δημοσιεύσει άλλοι οργανισμοί."
 },
 "nplurals=2; plural=(n != 1);"
 );

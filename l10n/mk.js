@@ -1112,7 +1112,9 @@ OC.L10N.register(
     "Who they belong to": "Кому припаѓаат",
     "Kind": "Вид",
     "Version": "Верзија",
-    "How many dashboards there are, and who they belong to.": "Колку контролни табли има и кому припаѓаат."
+    "How many dashboards there are, and who they belong to.": "Колку контролни табли има и кому припаѓаат.",
+    "Store": "Продавница",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Инсталирајте регистри, шеми и текови објавени од други организации."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

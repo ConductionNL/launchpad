@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Kam tie pieder",
     "Kind": "Veids",
     "Version": "Versija",
-    "How many dashboards there are, and who they belong to.": "Cik ir infopaneļu un kam tie pieder."
+    "How many dashboards there are, and who they belong to.": "Cik ir infopaneļu un kam tie pieder.",
+    "Store": "Veikals",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalējiet reģistrus, shēmas un plūsmas, ko publicējušas citas organizācijas."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

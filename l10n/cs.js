@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Komu patří",
     "Kind": "Druh",
     "Version": "Verze",
-    "How many dashboards there are, and who they belong to.": "Kolik je přehledů a komu patří."
+    "How many dashboards there are, and who they belong to.": "Kolik je přehledů a komu patří.",
+    "Store": "Obchod",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Nainstalujte registry, schémata a toky zveřejněné jinými organizacemi."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

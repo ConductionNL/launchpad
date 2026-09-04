@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Ta' min huma",
     "Kind": "Tip",
     "Version": "Verżjoni",
-    "How many dashboards there are, and who they belong to.": "Kemm hemm dashboards, u ta' min huma."
+    "How many dashboards there are, and who they belong to.": "Kemm hemm dashboards, u ta' min huma.",
+    "Store": "Ħanut",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installa reġistri, skemi u flussi ppubblikati minn organizzazzjonijiet oħra."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

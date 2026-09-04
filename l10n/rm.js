@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Tgi ch'els appartegnan",
     "Kind": "Gener",
     "Version": "Versiun",
-    "How many dashboards there are, and who they belong to.": "Quants panels ch'i dat e tgi ch'els appartegnan."
+    "How many dashboards there are, and who they belong to.": "Quants panels ch'i dat e tgi ch'els appartegnan.",
+    "Store": "Butia",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installescha registers, schemas e process ch'autras organisaziuns han publitgà."
 },
 "nplurals=2; plural=(n != 1);"
 );

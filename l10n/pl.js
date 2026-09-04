@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Do kogo należą",
     "Kind": "Rodzaj",
     "Version": "Wersja",
-    "How many dashboards there are, and who they belong to.": "Ile jest pulpitów i do kogo należą."
+    "How many dashboards there are, and who they belong to.": "Ile jest pulpitów i do kogo należą.",
+    "Store": "Sklep",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Zainstaluj rejestry, schematy i przepływy opublikowane przez inne organizacje."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

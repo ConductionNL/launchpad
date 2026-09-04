@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Кому вони належать",
     "Kind": "Вид",
     "Version": "Версія",
-    "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать."
+    "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать.",
+    "Store": "Магазин",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Встановлюйте реєстри, схеми та потоки, опубліковані іншими організаціями."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

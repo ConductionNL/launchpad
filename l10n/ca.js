@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "A qui pertanyen",
     "Kind": "Tipus",
     "Version": "Versió",
-    "How many dashboards there are, and who they belong to.": "Quants taulers hi ha i a qui pertanyen."
+    "How many dashboards there are, and who they belong to.": "Quants taulers hi ha i a qui pertanyen.",
+    "Store": "Botiga",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instal·leu registres, esquemes i fluxos publicats per altres organitzacions."
 },
 "nplurals=2; plural=(n != 1);"
 );

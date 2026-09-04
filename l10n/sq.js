@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Kujt i përkasin",
     "Kind": "Lloji",
     "Version": "Versioni",
-    "How many dashboards there are, and who they belong to.": "Sa panele ka dhe kujt i përkasin."
+    "How many dashboards there are, and who they belong to.": "Sa panele ka dhe kujt i përkasin.",
+    "Store": "Dyqani",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instaloni regjistra, skema dhe rrjedha të publikuara nga organizata të tjera."
 },
 "nplurals=2; plural=(n != 1);"
 );

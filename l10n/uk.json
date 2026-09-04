@@ -1089,6 +1089,8 @@
         "Who they belong to": "Кому вони належать",
         "Kind": "Вид",
         "Version": "Версія",
-        "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать."
+        "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать.",
+        "Store": "Магазин",
+        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Встановлюйте реєстри, схеми та потоки, опубліковані іншими організаціями."
     }
 }

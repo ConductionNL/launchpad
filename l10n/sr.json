@@ -1089,6 +1089,8 @@
         "Who they belong to": "Коме припадају",
         "Kind": "Врста",
         "Version": "Верзија",
-        "How many dashboards there are, and who they belong to.": "Колико има контролних табли и коме припадају."
+        "How many dashboards there are, and who they belong to.": "Колико има контролних табли и коме припадају.",
+        "Store": "Продавница",
+        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Инсталирајте регистре, шеме и токове које су објавиле друге организације."
     }
 }

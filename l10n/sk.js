@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Komu patria",
     "Kind": "Druh",
     "Version": "Verzia",
-    "How many dashboards there are, and who they belong to.": "Koľko je prehľadov a komu patria."
+    "How many dashboards there are, and who they belong to.": "Koľko je prehľadov a komu patria.",
+    "Store": "Obchod",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Nainštalujte registre, schémy a toky zverejnené inými organizáciami."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

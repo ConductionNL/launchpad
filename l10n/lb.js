@@ -1112,7 +1112,9 @@ OC.L10N.register(
     "Who they belong to": "Wiem se gehéieren",
     "Kind": "Aart",
     "Version": "Versioun",
-    "How many dashboards there are, and who they belong to.": "Wéi vill Dashboards et gëtt a wiem se gehéieren."
+    "How many dashboards there are, and who they belong to.": "Wéi vill Dashboards et gëtt a wiem se gehéieren.",
+    "Store": "Buttek",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installéiert Registeren, Schemaen a Flows déi aner Organisatiounen publizéiert hunn."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1121,7 +1121,9 @@ OC.L10N.register(
     "Who they belong to": "Cui aparțin",
     "Kind": "Fel",
     "Version": "Versiune",
-    "How many dashboards there are, and who they belong to.": "Câte tablouri de bord există și cui aparțin."
+    "How many dashboards there are, and who they belong to.": "Câte tablouri de bord există și cui aparțin.",
+    "Store": "Magazin",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalați registre, scheme și fluxuri publicate de alte organizații."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

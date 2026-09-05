@@ -226,18 +226,23 @@ class PageController extends Controller {
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->apply();
 
-		// REQ-SHELL-001: pass the chrome slot ids so Nextcloud treats
-		// `#app-workspace` as the main content slot and allocates no left
-		// navigation panel (the runtime shell renders its own slide-in
-		// sidebar via `dashboard-switcher-sidebar`). Renderer parameter
-		// names match the Nextcloud chrome conventions.
+		// 🔴 NO CHROME SLOT IDS. This used to pass
+		// `'id-app-navigation' => null` (REQ-SHELL-001), which suppressed
+		// Nextcloud's left navigation panel because the app rendered its own
+		// slide-in sidebar and nothing else.
+		//
+		// `launchpad-manifest-tier-3` roots the app on `CnAppRoot`, which
+		// renders `NcContent` — and `NcContent` allocates that panel for
+		// `CnAppNav` itself. Suppressing it here would leave the shared
+		// chrome, ADR-114's four footer destinations included, with nowhere to
+		// render: not an error, an empty rail. Every other app in the fleet
+		// passes no slot ids and lets `NcContent` do it.
+		//
+		// The slide-in sidebar is unaffected; it lives inside the workspace
+		// view, not in the chrome slot.
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
-			templateName: 'index',
-			params: [
-				'id-app-content' => '#app-workspace',
-				'id-app-navigation' => null,
-			]
+			templateName: 'index'
 		);
 
 		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());

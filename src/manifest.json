@@ -111,7 +111,7 @@
     },
     {
       "id": "admin-settings",
-      "label": "Settings",
+      "label": "Admin settings",
       "icon": "CogOutline",
       "route": "/admin/settings",
       "section": "settings",
@@ -206,7 +206,7 @@
       "id": "admin-settings",
       "route": "/admin/settings",
       "type": "custom",
-      "title": "Settings",
+      "title": "Admin settings",
       "component": "AdminSettingsRedirect",
       "_note": "REDIRECTS to /settings/admin/launchpad. The admin surface is a Nextcloud settings section (lib/Settings/LaunchPadAdmin.php, mounted by src/admin.js), not an in-app page — the component this once named, AdminSettingsPage, has never existed. The route resolves so the menu entry is not a dead link, and lands where the functionality is."
     },

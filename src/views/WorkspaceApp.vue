@@ -1,5 +1,16 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 
+<!--
+  - @visual exclude Not a new screen. WorkspaceApp is this app's oldest and,
+  - until `launchpad-manifest-tier-3`, its ONLY surface: `App.vue` rendered it
+  - directly, with no router. This change moves it under the `/` and
+  - `/dashboards/:id` routes, which is why gate-26 sees it as a newly declared
+  - page component — its appearance is unchanged, and a baseline captured now
+  - would be a baseline of the screen that already shipped. The behaviour that
+  - IS new (the route param selecting a dashboard) is covered by
+  - `tests/e2e/app-chrome.spec.ts`.
+  -->
+
 <template>
 	<div class="workspace-shell" :class="orgNavWrapperClass">
 		<!-- Org-wide navigation rail (REQ-ONAV-005, REQ-ONAV-008).
@@ -325,9 +336,20 @@ export default {
 		 *
 		 * @param {string|undefined} id The route's dashboard id.
 		 * @return {void}
+		 *
+		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
 		 */
 		'$route.params.id': {
 			immediate: true,
+
+			/**
+			 * Select the dashboard the route names.
+			 *
+			 * @param {string|undefined} id The route's dashboard id.
+			 * @return {void}
+			 *
+			 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+			 */
 			handler(id) {
 				if (id === undefined || id === null || id === '') {
 					return

@@ -4,7 +4,7 @@
 -->
 
 <template>
-	<div class="admin-settings-redirect">
+	<div class="admin-settings-redirect" data-testid="AdminSettingsRedirect">
 		<p>{{ t('launchpad', 'Opening the administration settings…') }}</p>
 		<a :href="target">{{
 			t('launchpad', 'Continue to the administration settings')
@@ -42,6 +42,8 @@ export default {
 		 * The Nextcloud admin section for this app.
 		 *
 		 * @return {string} The settings URL.
+		 *
+		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-006-a-declared-page-names-a-component-that-exists
 		 */
 		target() {
 			return generateUrl('/settings/admin/launchpad')

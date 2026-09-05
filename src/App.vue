@@ -125,6 +125,8 @@ export default {
 		 * table were built from at boot.
 		 *
 		 * @return {object} The manifest.
+		 *
+		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-004-the-shared-chrome-renders-with-the-workspace-inside-it
 		 */
 		liveManifest() {
 			return this.runtimeManifest?.value ?? this.manifest

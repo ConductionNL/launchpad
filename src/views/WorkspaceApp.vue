@@ -309,6 +309,40 @@ export default {
 		},
 	},
 
+	watch: {
+		/**
+		 * `/dashboards/:id` selects the dashboard (dashboard-deeplinking).
+		 *
+		 * 🔴 A DASHBOARD HAD NO ADDRESS UNTIL `launchpad-manifest-tier-3`.
+		 * Switching was Pinia state that never touched the URL, so a dashboard
+		 * could not be linked, bookmarked or reopened — and the manifest's
+		 * `/dashboards/:id` page routed nowhere. The watcher is `immediate` so
+		 * a cold deep link selects on arrival, not only on a later change.
+		 *
+		 * A missing or unknown id is left alone deliberately: the store's own
+		 * resolver already picks a sensible active dashboard, and overriding it
+		 * here would make a bad link empty the page instead of falling back.
+		 *
+		 * @param {string|undefined} id The route's dashboard id.
+		 * @return {void}
+		 */
+		'$route.params.id': {
+			immediate: true,
+			handler(id) {
+				if (id === undefined || id === null || id === '') {
+					return
+				}
+
+				const store = useDashboardStore()
+				if (String(store.activeDashboardId) === String(id)) {
+					return
+				}
+
+				store.switchDashboard(id)
+			},
+		},
+	},
+
 	mounted() {
 		document.addEventListener('keydown', this.onDocumentKeydown)
 	},

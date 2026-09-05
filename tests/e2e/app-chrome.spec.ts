@@ -77,19 +77,22 @@ test.describe('app chrome (ADR-114)', () => {
 		await dismissSetupWizard(page)
 	})
 
-	test("the shell is LaunchPad's own, not the shared CnAppNav one", async ({
+	test('the shared chrome renders, with the workspace inside it', async ({
 		page,
 	}) => {
-		// The premise every other test here rests on, asserted rather than
-		// assumed. It is also the tripwire: an app that quietly starts rooting
-		// on CnAppRoot fails HERE, where the reason is written down, instead of
-		// leaving four tests passing against chrome that moved.
+		// 🔴 THIS TEST USED TO ASSERT THE OPPOSITE. Until
+		// `launchpad-manifest-tier-3` this app did not root on `CnAppRoot` and
+		// rendered no `CnAppNav`, so the test asserted the ABSENCE of one and
+		// existed as a tripwire for exactly this change. Adoption inverted it.
+		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+			timeout: 30_000,
+		})
+
+		// ...and the workspace is still the thing on the dashboard route. The
+		// grid IS this app; a shell that renders without it would be a
+		// regression the nav assertion alone would not catch.
 		await expect(page.locator('.workspace-shell')).toBeVisible()
 		await expect(page.locator('#launchpad-main-content')).toBeAttached()
-		await expect(
-			page.locator('[data-testid="cn-nav"]'),
-			'LaunchPad now renders CnAppNav — the chrome tests below should assert it instead of its own shell',
-		).toHaveCount(0)
 	})
 
 	test('the chrome declares Documentation, Store, Reports and Features & roadmap', async () => {
@@ -137,20 +140,6 @@ test.describe('app chrome (ADR-114)', () => {
 	})
 
 	test('each declared chrome destination opens', async ({ page }) => {
-		// 🔴 EXPECTED TO FAIL, AND FILED. LaunchPad declares nine pages and
-		// serves ONE: `/store`, `/reports` and `/flows` each redirect to
-		// `/dashboard`. It has no vue-router at all — `createRouter` appears
-		// nowhere in src/ — because navigation is Pinia state that never
-		// touches the URL. `main.js` calls this Tier 1 and names the change
-		// that fixes it; that change is now filed at
-		// `openspec/changes/launchpad-manifest-tier-3/`.
-		//
-		// `test.fail()` rather than a skip, deliberately: a skipped test proves
-		// nothing and quietly stops being read, while this one FAILS THE RUN
-		// the moment routing lands. That is the notification we want — the
-		// marker comes off in the same change that makes it pass.
-		test.fail()
-
 		const manifest = JSON.parse(
 			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			require('fs').readFileSync(
@@ -180,12 +169,6 @@ test.describe('app chrome (ADR-114)', () => {
 	test('Reports lists the one report this app can honestly offer', async ({
 		page,
 	}) => {
-		// 🔴 EXPECTED TO FAIL UNTIL ROUTING LANDS — see
-		// `openspec/changes/launchpad-manifest-tier-3/`. This app serves one
-		// page; the route below redirects to `/dashboard`. `test.fail()` rather
-		// than a skip, so the run goes red the moment it starts passing.
-		test.fail()
-
 		// One card, deliberately. LaunchPad's register holds a single schema —
 		// dashboard — so a second report would either repeat this one or invent
 		// a reading the data cannot support. If a schema is added later and no
@@ -206,12 +189,6 @@ test.describe('app chrome (ADR-114)', () => {
 	test('the dashboards report renders real numbers, not empty cards', async ({
 		page,
 	}) => {
-		// 🔴 EXPECTED TO FAIL UNTIL ROUTING LANDS — see
-		// `openspec/changes/launchpad-manifest-tier-3/`. This app serves one
-		// page; the route below redirects to `/dashboard`. `test.fail()` rather
-		// than a skip, so the run goes red the moment it starts passing.
-		test.fail()
-
 		await page.goto(`${APP_BASE}/reports/dashboards`)
 		await expect(page.locator('.workspace-shell')).toBeVisible({
 			timeout: 30_000,
@@ -228,12 +205,6 @@ test.describe('app chrome (ADR-114)', () => {
 	test('Store opens the hosted store surface, which this app writes no backend for', async ({
 		page,
 	}) => {
-		// 🔴 EXPECTED TO FAIL UNTIL ROUTING LANDS — see
-		// `openspec/changes/launchpad-manifest-tier-3/`. This app serves one
-		// page; the route below redirects to `/dashboard`. `test.fail()` rather
-		// than a skip, so the run goes red the moment it starts passing.
-		test.fail()
-
 		await page.goto(`${APP_BASE}/store`, { waitUntil: 'domcontentloaded' })
 
 		await expect(page).toHaveURL(/\/apps\/launchpad\/store(\?|$)/, {
@@ -266,13 +237,47 @@ test.describe('app chrome (ADR-114)', () => {
 		).toBeVisible({ timeout: 30_000 })
 	})
 
-	test('the Flows page opens', async ({ page }) => {
-		// 🔴 EXPECTED TO FAIL UNTIL ROUTING LANDS — see
-		// `openspec/changes/launchpad-manifest-tier-3/`. This app serves one
-		// page; the route below redirects to `/dashboard`. `test.fail()` rather
-		// than a skip, so the run goes red the moment it starts passing.
-		test.fail()
+	test('a dashboard has an address, so it can be linked and reopened', async ({
+		page,
+	}) => {
+		// 🔴 A DASHBOARD HAD NO ADDRESS. Switching was Pinia state that never
+		// touched the URL, so `/dashboards/:id` — declared in the manifest all
+		// along — routed nowhere and a dashboard could not be linked,
+		// bookmarked or reopened (`dashboard-deeplinking`).
+		await page.goto(`${APP_BASE}/`, { waitUntil: 'domcontentloaded' })
+		await expect(page.locator('.workspace-shell')).toBeVisible({
+			timeout: 30_000,
+		})
 
+		// Ask the app which dashboards this user has, rather than seeding an
+		// id: a hardcoded one passes on the instance it was written against
+		// and nowhere else.
+		const dashboards = await page.evaluate(async () => {
+			const res = await fetch(
+				`${window.location.origin}/index.php/apps/launchpad/api/dashboard`,
+				{ headers: { 'OCS-APIREQUEST': 'true' } },
+			)
+			return res.ok ? await res.json() : null
+		})
+		const id = dashboards?.dashboards?.[0]?.id ?? dashboards?.[0]?.id
+		test.skip(
+			id === undefined || id === null,
+			'no dashboard is visible to this user, so there is no address to assert',
+		)
+
+		await page.goto(`${APP_BASE}/dashboards/${id}`, {
+			waitUntil: 'domcontentloaded',
+		})
+		await expect(page).toHaveURL(
+			new RegExp(`/dashboards/${String(id)}(\\?|$)`),
+			{ timeout: 15_000 },
+		)
+		await expect(page.locator('.workspace-shell')).toBeVisible({
+			timeout: 30_000,
+		})
+	})
+
+	test('the Flows page opens', async ({ page }) => {
 		await page.goto(`${APP_BASE}/flows`, { waitUntil: 'domcontentloaded' })
 		await expect(page).toHaveURL(/\/apps\/launchpad\/flows(\?|$)/, {
 			timeout: 15_000,

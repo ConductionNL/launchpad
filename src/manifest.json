@@ -86,7 +86,7 @@
     ]
   },
   "store": {
-    "_note": "Configuration exchange, not rows. A configuration set carries the registers, schemas, objects, views, flows, sources and mappings that make one way of working hold together. There is deliberately NO `installable` allowlist: a set exists to introduce schemas the instance does not have YET, so listing schemas this app already owns would refuse exactly the sets worth installing. The trust boundary for a bundle is its publisher, enforced by the engine's source allowlist and trusted-key check. \u26a0\ufe0f An EMPTY `installable` means install NOTHING, not install anything \u2014 omitting the key and declaring an empty list are different things.",
+    "_note": "Configuration exchange, not rows. A configuration set carries the registers, schemas, objects, views, flows, sources and mappings that make one way of working hold together. There is deliberately NO `installable` allowlist: a set exists to introduce schemas the instance does not have YET, so listing schemas this app already owns would refuse exactly the sets worth installing. The trust boundary for a bundle is its publisher, enforced by the engine's source allowlist and trusted-key check. ⚠️ An EMPTY `installable` means install NOTHING, not install anything — omitting the key and declaring an empty list are different things.",
     "types": [
       "openregister.configset",
       "openregister.flows"
@@ -160,6 +160,14 @@
   ],
   "pages": [
     {
+      "id": "Workspace",
+      "_note": "type:custom because the grid IS this app's product: a GridStack surface with drag-and-drop placement, per-widget conditional visibility and admin templates. No declarative page type describes it, and rendering it as type:dashboard would replace it with the generic widget renderer.",
+      "route": "/",
+      "type": "custom",
+      "component": "WorkspaceApp",
+      "title": "Dashboard"
+    },
+    {
       "id": "Store",
       "route": "/store",
       "type": "store",
@@ -174,21 +182,22 @@
     {
       "id": "dashboard-detail",
       "route": "/dashboards/:id",
-      "type": "dashboard",
+      "type": "custom",
       "title": "launchpad.pages.dashboard",
-      "_note": "Bundled STUB for the ADR-036 Decision-8 runtime-manifest pattern: the real per-user dashboard pages are assembled server-side by GET /apps/launchpad/api/manifest from the user's visible dashboards and replace this manifest at boot. widgets[] is intentionally empty here — LaunchPad has no static home page. The 'dashboards' menu entry targets this page by ID rather than by path, which is the pairing the SERVER emits: ManifestController::buildManifest() sets each menu entry's route to its page's id ('dashboard-'.$slug) while the page carries the path ('/'.$slug). The stub previously said '/dashboards' — a path matching neither this page ('/dashboards/:id') nor anything the runtime builder produces — so the single menu entry LaunchPad ships resolved to nothing.",
+      "_note": "type:custom for the same reason as Workspace: this is the grid addressed by dashboard id, not a declarative dashboard page. The :id selects the active dashboard (dashboard-deeplinking).",
       "widgets": [],
       "config": {
         "documentationUrl": "https://launchpad.conduction.nl"
-      }
+      },
+      "component": "WorkspaceApp"
     },
     {
       "id": "admin-templates-index",
       "route": "/admin/templates",
       "type": "custom",
       "title": "launchpad.pages.adminTemplates",
-      "component": "TemplatesPage",
-      "_note": "Admin CRUD over the launchpad app-config/templates table, rendered by LaunchPad's own admin chrome (src/components/admin/tabs/TemplatesPage.vue). No OpenRegister register/schema backs this data, so the declarative index page type (which requires register + schema) cannot apply.",
+      "component": "AdminSettingsRedirect",
+      "_note": "REDIRECTS to /settings/admin/launchpad. TemplatesPage is a TAB inside the Nextcloud admin section, not a page of its own; routing it in-app would render half an admin surface next to the real one.",
       "config": {
         "documentationUrl": "https://launchpad.conduction.nl"
       }
@@ -198,8 +207,8 @@
       "route": "/admin/settings",
       "type": "custom",
       "title": "launchpad.pages.adminSettings",
-      "component": "AdminSettingsPage",
-      "_note": "Bespoke admin settings surface (tile/template management forms) rendered by LaunchPad's own router; manages app-config state that no declarative widget vocabulary covers."
+      "component": "AdminSettingsRedirect",
+      "_note": "REDIRECTS to /settings/admin/launchpad. The admin surface is a Nextcloud settings section (lib/Settings/LaunchPadAdmin.php, mounted by src/admin.js), not an in-app page — the component this once named, AdminSettingsPage, has never existed. The route resolves so the menu entry is not a dead link, and lands where the functionality is."
     },
     {
       "id": "Flows",

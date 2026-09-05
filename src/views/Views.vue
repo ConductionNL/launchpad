@@ -7,28 +7,49 @@
 		     `update:modelValue` — neither of which the sidebar declares —
 		     and the panel would never open. Bind both halves explicitly.
 		     Once `runtime-shell` ships and replaces this view with
-		     `WorkspaceApp.vue`, the same binding shape applies. -->
-		<DashboardSwitcherSidebar
-			:isOpen="sidebarOpen"
-			:groupName="primaryGroupName"
-			:groupDashboards="sidebarGroupDashboards"
-			:userDashboards="sidebarUserDashboards"
-			:activeDashboardId="activeDashboard?.id"
-			:allowUserDashboards="allowUserDashboards"
-			:canEdit="canEdit"
-			:defaultUuid="defaultDashboardUuid"
-			:dashboardQuotaReached="dashboardQuotaReached"
-			:dashboardQuotaTooltip="dashboardQuotaTooltip"
-			:isEditMode="isEditMode"
-			@update:open="sidebarOpen = $event"
-			@switch="onSidebarSwitch"
-			@createDashboard="onSidebarCreateDashboard"
-			@deleteDashboard="onSidebarDeleteDashboard"
-			@toggleEdit="onRowToggleEdit"
-			@openConfig="onRowOpenConfig"
-			@addCustomWidget="onRowAddCustomWidget"
-			@setDefault="onRowSetDefault" />
-		<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
+		     `WorkspaceApp.vue`, the same binding shape applies.
+
+		     TELEPORTED TO BODY, and the reason is a stacking context, not a
+		     z-index. The sidebar and its backdrop are `position: fixed`, but
+		     fixed positioning does not escape a stacking context — it only
+		     escapes the scroll flow. Until #551 this view WAS the page, so
+		     there was no context to escape. #551 adopted the shared shell, so
+		     this view now renders inside `#app-content`, a sibling of
+		     `.app-navigation`, and NcAppNavigation carries `z-index: 1400` on
+		     ITSELF. A sibling with a z-index paints above the whole of a
+		     sibling subtree whose own z-index is auto, so the sidebar's 1500
+		     could never win: it was competing inside a box that had already
+		     lost.
+
+		     That cost 58 e2e failures across eleven specs, every one of them
+		     `locator.click` timing out with the SAME interceptor named in the
+		     log, `[data-testid="cn-nav"] .app-navigation`. Raising the number
+		     again would not have helped. Teleporting makes the sidebar a
+		     sibling of the navigation rather than a descendant of the content,
+		     which is the only place its z-index means what it says. -->
+		<Teleport to="body">
+			<DashboardSwitcherSidebar
+				:isOpen="sidebarOpen"
+				:groupName="primaryGroupName"
+				:groupDashboards="sidebarGroupDashboards"
+				:userDashboards="sidebarUserDashboards"
+				:activeDashboardId="activeDashboard?.id"
+				:allowUserDashboards="allowUserDashboards"
+				:canEdit="canEdit"
+				:defaultUuid="defaultDashboardUuid"
+				:dashboardQuotaReached="dashboardQuotaReached"
+				:dashboardQuotaTooltip="dashboardQuotaTooltip"
+				:isEditMode="isEditMode"
+				@update:open="sidebarOpen = $event"
+				@switch="onSidebarSwitch"
+				@createDashboard="onSidebarCreateDashboard"
+				@deleteDashboard="onSidebarDeleteDashboard"
+				@toggleEdit="onRowToggleEdit"
+				@openConfig="onRowOpenConfig"
+				@addCustomWidget="onRowAddCustomWidget"
+				@setDefault="onRowSetDefault" />
+			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
+		</Teleport>
 
 		<!-- Floating controls in top right.
 		     Wave3.3 removed the floating `DashboardConfigMenu` (cog) — its

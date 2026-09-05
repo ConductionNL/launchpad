@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkciók és ütemterv",
     "Maximum dashboards per user" : "Felhasználónkénti maximális irányítópultok száma",
     "Maximum widgets per dashboard" : "Irányítópultonkénti maximális modulok száma",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = korlátlan. A korlát csökkentése soha nem törli a meglévő irányítópultokat; csak az újak létrehozását tiltja, amíg a felhasználók ismét a korlát alá nem kerülnek.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Törlés",
     "Close" : "Bezárás",
     "New dashboard name" : "Új irányítópult neve",
-    "Delete this dashboard? This cannot be undone." : "Törli ezt az irányítópultot? Ez nem vonható vissza."
+    "Delete this dashboard? This cannot be undone." : "Törli ezt az irányítópultot? Ez nem vonható vissza.",
+    "Reports": "Jelentések",
+    "Pick a report to open it.": "Válasszon egy jelentést a megnyitáshoz.",
+    "Open": "Nyitott",
+    "In progress": "Folyamatban",
+    "Blocked": "Blokkolva",
+    "Date": "Dátum",
+    "Due": "Határidő",
+    "Assignee": "Felelős",
+    "Who": "Ki",
+    "What": "Mit",
+    "Minutes": "Perc",
+    "Entries": "Bejegyzések",
+    "Most recent": "Legutóbbi",
+    "Per person": "Személyenként",
+    "By status": "Állapot szerint",
+    "By priority": "Prioritás szerint",
+    "Personal": "Személyes",
+    "Shared with a group": "Csoporttal megosztva",
+    "Admin templates": "Rendszergazdai sablonok",
+    "Who they belong to": "Kihez tartoznak",
+    "Kind": "Fajta",
+    "Version": "Verzió",
+    "How many dashboards there are, and who they belong to.": "Hány irányítópult van, és kihez tartoznak.",
+    "Store": "Áruház",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Telepítsen más szervezetek által közzétett nyilvántartásokat, sémákat és folyamatokat."
 },
 "nplurals=2; plural=(n != 1);"
 );

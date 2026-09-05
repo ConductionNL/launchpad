@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcije in načrt razvoja",
     "Maximum dashboards per user" : "Največje število nadzornih plošč na uporabnika",
     "Maximum widgets per dashboard" : "Največje število gradnikov na nadzorno ploščo",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neomejeno. Znižanje omejitve nikoli ne izbriše obstoječih nadzornih plošč; le prepreči nove, dokler uporabniki niso spet pod omejitvijo.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Izbriši",
     "Close" : "Zapri",
     "New dashboard name" : "Novo ime nadzorne plošče",
-    "Delete this dashboard? This cannot be undone." : "Izbrišem to nadzorno ploščo? Tega ni mogoče razveljaviti."
+    "Delete this dashboard? This cannot be undone." : "Izbrišem to nadzorno ploščo? Tega ni mogoče razveljaviti.",
+    "Reports": "Poročila",
+    "Pick a report to open it.": "Izberite poročilo, da ga odprete.",
+    "Open": "Odprto",
+    "In progress": "V teku",
+    "Blocked": "Blokirano",
+    "Date": "Datum",
+    "Due": "Rok",
+    "Assignee": "Dodeljeno",
+    "Who": "Kdo",
+    "What": "Kaj",
+    "Minutes": "Minute",
+    "Entries": "Vnosi",
+    "Most recent": "Najnovejše",
+    "Per person": "Na osebo",
+    "By status": "Po stanju",
+    "By priority": "Po prednosti",
+    "Personal": "Osebno",
+    "Shared with a group": "Deljeno s skupino",
+    "Admin templates": "Skrbniške predloge",
+    "Who they belong to": "Komu pripadajo",
+    "Kind": "Vrsta",
+    "Version": "Različica",
+    "How many dashboards there are, and who they belong to.": "Koliko je nadzornih plošč in komu pripadajo.",
+    "Store": "Trgovina",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Namestite registre, sheme in tokove, ki so jih objavile druge organizacije."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

@@ -12,11 +12,21 @@
       },
       {
         "id": "demo-data",
-        "type": "run-action",
-        "action": "install-demo-data",
-        "title": "Demo data (optional)",
+        "type": "choice",
+        "display": "cards",
+        "optionsSource": "datasets",
+        "configKey": "demo_dataset",
+        "title": "Load example data?",
         "required": false,
-        "body": "Load a small example dataset so the lists, detail pages and dashboards show a working product straight away. The data is obviously sample data, it is safe to run more than once, and it can be removed afterwards. Skip this on a production install."
+        "body": "Example data fills the lists, detail pages and dashboards so you can see the app working straight away. Pick \"None\" on a production install."
+      },
+      {
+        "id": "load-demo-data",
+        "type": "run-action",
+        "action": "load-demo-data",
+        "title": "Load the example data",
+        "required": false,
+        "body": "Loads what you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards."
       },
       {
         "id": "done",
@@ -75,6 +85,14 @@
       }
     ]
   },
+  "store": {
+    "_note": "Configuration exchange, not rows. A configuration set carries the registers, schemas, objects, views, flows, sources and mappings that make one way of working hold together. There is deliberately NO `installable` allowlist: a set exists to introduce schemas the instance does not have YET, so listing schemas this app already owns would refuse exactly the sets worth installing. The trust boundary for a bundle is its publisher, enforced by the engine's source allowlist and trusted-key check. ⚠️ An EMPTY `installable` means install NOTHING, not install anything — omitting the key and declaring an empty list are different things.",
+    "types": [
+      "openregister.configset",
+      "openregister.flows"
+    ],
+    "localRegister": "launchpad"
+  },
   "menu": [
     {
       "id": "dashboards",
@@ -106,27 +124,80 @@
       "route": "Flows",
       "section": "settings",
       "order": 96
+    },
+    {
+      "id": "Documentation",
+      "label": "Documentation",
+      "icon": "BookOpenVariantOutline",
+      "href": "https://launchpad.conduction.nl",
+      "section": "footer",
+      "order": 90
+    },
+    {
+      "id": "StoreMenu",
+      "label": "Store",
+      "icon": "StoreOutline",
+      "route": "Store",
+      "section": "footer",
+      "order": 92
+    },
+    {
+      "id": "ReportsMenu",
+      "label": "Reports",
+      "icon": "ChartBoxOutline",
+      "route": "Reports",
+      "section": "footer",
+      "order": 95
+    },
+    {
+      "id": "FeaturesRoadmapMenu",
+      "label": "Features & roadmap",
+      "icon": "MapMarkerPath",
+      "route": "FeaturesRoadmap",
+      "section": "footer",
+      "order": 100
     }
   ],
   "pages": [
     {
+      "id": "Workspace",
+      "_note": "type:custom because the grid IS this app's product: a GridStack surface with drag-and-drop placement, per-widget conditional visibility and admin templates. No declarative page type describes it, and rendering it as type:dashboard would replace it with the generic widget renderer.",
+      "route": "/",
+      "type": "custom",
+      "component": "WorkspaceApp",
+      "title": "Dashboard"
+    },
+    {
+      "id": "Store",
+      "route": "/store",
+      "type": "store",
+      "title": "Store",
+      "config": {
+        "app": "launchpad",
+        "title": "Store",
+        "description": "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them."
+      },
+      "_note": "ADR-114 Decision 4 / ADR-080. Declarative: openregister hosts the store plane, so this app writes NO store controller. With no registry configured the page renders the app's built-in items and makes NO network call."
+    },
+    {
       "id": "dashboard-detail",
       "route": "/dashboards/:id",
-      "type": "dashboard",
+      "type": "custom",
       "title": "launchpad.pages.dashboard",
-      "_note": "Bundled STUB for the ADR-036 Decision-8 runtime-manifest pattern: the real per-user dashboard pages are assembled server-side by GET /apps/launchpad/api/manifest from the user's visible dashboards and replace this manifest at boot. widgets[] is intentionally empty here — LaunchPad has no static home page. The 'dashboards' menu entry targets this page by ID rather than by path, which is the pairing the SERVER emits: ManifestController::buildManifest() sets each menu entry's route to its page's id ('dashboard-'.$slug) while the page carries the path ('/'.$slug). The stub previously said '/dashboards' — a path matching neither this page ('/dashboards/:id') nor anything the runtime builder produces — so the single menu entry LaunchPad ships resolved to nothing.",
+      "_note": "type:custom for the same reason as Workspace: this is the grid addressed by dashboard id, not a declarative dashboard page. The :id selects the active dashboard (dashboard-deeplinking).",
       "widgets": [],
       "config": {
         "documentationUrl": "https://launchpad.conduction.nl"
-      }
+      },
+      "component": "WorkspaceApp"
     },
     {
       "id": "admin-templates-index",
       "route": "/admin/templates",
       "type": "custom",
       "title": "launchpad.pages.adminTemplates",
-      "component": "TemplatesPage",
-      "_note": "Admin CRUD over the launchpad app-config/templates table, rendered by LaunchPad's own admin chrome (src/components/admin/tabs/TemplatesPage.vue). No OpenRegister register/schema backs this data, so the declarative index page type (which requires register + schema) cannot apply.",
+      "component": "AdminSettingsRedirect",
+      "_note": "REDIRECTS to /settings/admin/launchpad. TemplatesPage is a TAB inside the Nextcloud admin section, not a page of its own; routing it in-app would render half an admin surface next to the real one.",
       "config": {
         "documentationUrl": "https://launchpad.conduction.nl"
       }
@@ -136,8 +207,8 @@
       "route": "/admin/settings",
       "type": "custom",
       "title": "launchpad.pages.adminSettings",
-      "component": "AdminSettingsPage",
-      "_note": "Bespoke admin settings surface (tile/template management forms) rendered by LaunchPad's own router; manages app-config state that no declarative widget vocabulary covers."
+      "component": "AdminSettingsRedirect",
+      "_note": "REDIRECTS to /settings/admin/launchpad. The admin surface is a Nextcloud settings section (lib/Settings/LaunchPadAdmin.php, mounted by src/admin.js), not an in-app page — the component this once named, AdminSettingsPage, has never existed. The route resolves so the menu entry is not a dead link, and lands where the functionality is."
     },
     {
       "id": "Flows",
@@ -159,6 +230,248 @@
         "app": "launchpad"
       },
       "_note": "The shared CnFlowDetail canvas over the same single engine. Controls render in the NC app sidebar so the canvas keeps full width."
+    },
+    {
+      "id": "Reports",
+      "_note": "ADR-112 / ADR-114 Decision 3. ONE card, deliberately. LaunchPad's register holds a single schema — dashboard — so a second report would either repeat this one or invent a reading the data cannot support. The `widgets` array holds widget descriptors rather than references, so grouping by it would bucket objects and render noise; it is left out rather than shipped as a chart that looks like an answer.",
+      "route": "/reports",
+      "type": "reports",
+      "title": "Reports",
+      "config": {
+        "description": "Pick a report to open it.",
+        "cards": [
+          {
+            "id": "DashboardsReport",
+            "label": "Dashboards",
+            "description": "How many dashboards there are, and who they belong to.",
+            "icon": "ViewDashboardOutline",
+            "route": "DashboardsReport"
+          }
+        ]
+      }
+    },
+    {
+      "id": "DashboardsReport",
+      "route": "/reports/dashboards",
+      "type": "dashboard",
+      "title": "Dashboards",
+      "_note": "Declarative over the app's own register. Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate: a multi-value or relative-date filter is accepted and then silently not applied.",
+      "config": {
+        "widgets": [
+          {
+            "id": "dash-total",
+            "title": "Dashboards",
+            "type": "stat",
+            "content": {
+              "label": "Dashboards",
+              "icon": "ViewDashboardOutline",
+              "route": {
+                "name": "dashboards"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count"
+              }
+            }
+          },
+          {
+            "id": "dash-personal",
+            "title": "Personal",
+            "type": "stat",
+            "content": {
+              "label": "Personal",
+              "icon": "ViewDashboardOutline",
+              "route": {
+                "name": "dashboards"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count",
+                "filter": {
+                  "type": "user"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-shared",
+            "title": "Shared with a group",
+            "type": "stat",
+            "content": {
+              "label": "Shared with a group",
+              "icon": "Sitemap",
+              "route": {
+                "name": "dashboards"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count",
+                "filter": {
+                  "type": "group_shared"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-templates",
+            "title": "Admin templates",
+            "type": "stat",
+            "content": {
+              "label": "Admin templates",
+              "icon": "FileReplaceOutline",
+              "route": {
+                "name": "admin-templates"
+              },
+              "format": {
+                "style": "decimal",
+                "decimals": 0
+              },
+              "source": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "metric": "count",
+                "filter": {
+                  "type": "admin_template"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-by-type",
+            "title": "Who they belong to",
+            "type": "chart",
+            "content": {
+              "chartKind": "donut",
+              "legendPosition": "bottom",
+              "emptyLabel": "No dashboards yet",
+              "dataSource": {
+                "register": "launchpad",
+                "schema": "dashboard",
+                "aggregate": {
+                  "groupBy": "type",
+                  "metric": "count"
+                }
+              }
+            }
+          },
+          {
+            "id": "dash-recent",
+            "title": "Most recent",
+            "type": "object-table",
+            "content": {
+              "register": "launchpad",
+              "schema": "dashboard",
+              "filter": {},
+              "sort": {
+                "field": "created",
+                "dir": "desc"
+              },
+              "limit": 8,
+              "hideHeader": true,
+              "emptyText": "No dashboards yet",
+              "viewAllRoute": {
+                "name": "dashboards"
+              },
+              "viewAllLabel": "Open a dashboard",
+              "columns": [
+                {
+                  "key": "title",
+                  "label": "Dashboard"
+                },
+                {
+                  "key": "type",
+                  "label": "Kind"
+                },
+                {
+                  "key": "version",
+                  "label": "Version"
+                }
+              ]
+            }
+          }
+        ],
+        "layout": [
+          {
+            "id": "1",
+            "widgetId": "dash-total",
+            "gridX": 0,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "2",
+            "widgetId": "dash-personal",
+            "gridX": 3,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "3",
+            "widgetId": "dash-shared",
+            "gridX": 6,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "4",
+            "widgetId": "dash-templates",
+            "gridX": 9,
+            "gridY": 0,
+            "gridWidth": 3,
+            "gridHeight": 2,
+            "showTitle": false
+          },
+          {
+            "id": "5",
+            "widgetId": "dash-by-type",
+            "gridX": 0,
+            "gridY": 2,
+            "gridWidth": 12,
+            "gridHeight": 4,
+            "showTitle": true
+          },
+          {
+            "id": "6",
+            "widgetId": "dash-recent",
+            "gridX": 0,
+            "gridY": 6,
+            "gridWidth": 12,
+            "gridHeight": 4,
+            "showTitle": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "FeaturesRoadmap",
+      "route": "/features-roadmap",
+      "type": "roadmap",
+      "title": "Features & roadmap",
+      "config": {
+        "documentationUrl": "https://launchpad.conduction.nl"
+      },
+      "_note": "ADR-018 / ADR-114 Decision 5. Rendered by the shared CnFeaturesAndRoadmapView, which reads the committed docs/features.json and OpenRegister's GitHub proxy. No per-app customisation of the view itself."
     }
   ],
   "walkthrough": {

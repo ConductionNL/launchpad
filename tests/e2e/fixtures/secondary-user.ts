@@ -14,14 +14,15 @@
  * `acknowledgements.ts` — rather than faking session state.
  */
 
-import {
-	request as pwRequest,
-	type APIRequestContext,
-	type Browser,
-	type BrowserContext,
-	type Page,
+import type {
+	APIRequestContext,
+	Browser,
+	BrowserContext,
+	Page,
 } from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl'
+
+import { request as pwRequest } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',

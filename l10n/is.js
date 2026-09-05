@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Eiginleikar og vegvísir",
     "Maximum dashboards per user" : "Hámarksfjöldi mælaborða á notanda",
     "Maximum widgets per dashboard" : "Hámarksfjöldi viðmótshluta á mælaborð",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ótakmarkað. Lækkun á mörkum eyðir aldrei núverandi mælaborðum; hún hindrar aðeins ný þar til notendur eru aftur undir mörkunum.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Eyða",
     "Close" : "Loka",
     "New dashboard name" : "Nýtt heiti stjórnborðs",
-    "Delete this dashboard? This cannot be undone." : "Eyða þessu stjórnborði? Þessu er ekki hægt að afturkalla."
+    "Delete this dashboard? This cannot be undone." : "Eyða þessu stjórnborði? Þessu er ekki hægt að afturkalla.",
+    "Reports": "Skýrslur",
+    "Pick a report to open it.": "Veldu skýrslu til að opna hana.",
+    "Open": "Opið",
+    "In progress": "Í vinnslu",
+    "Blocked": "Lokað",
+    "Date": "Dagsetning",
+    "Due": "Skiladagur",
+    "Assignee": "Úthlutað",
+    "Who": "Hver",
+    "What": "Hvað",
+    "Minutes": "Mínútur",
+    "Entries": "Færslur",
+    "Most recent": "Nýjast",
+    "Per person": "Á mann",
+    "By status": "Eftir stöðu",
+    "By priority": "Eftir forgangi",
+    "Personal": "Persónulegt",
+    "Shared with a group": "Deilt með hópi",
+    "Admin templates": "Sniðmát stjórnanda",
+    "Who they belong to": "Hverjum þau tilheyra",
+    "Kind": "Tegund",
+    "Version": "Útgáfa",
+    "How many dashboards there are, and who they belong to.": "Hversu mörg mælaborð eru til og hverjum þau tilheyra.",
+    "Store": "Verslun",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Settu upp skrár, skemu og flæði sem aðrar stofnanir hafa birt."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

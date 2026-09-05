@@ -16,11 +16,14 @@
  * NC 28 / 29 / 30.
  */
 
-import { chromium, request, type FullConfig } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import type { FullConfig } from '@playwright/test'
+
+import { chromium, request } from '@playwright/test'
 import { execSync } from 'child_process'
-import * as path from 'path'
 import * as fs from 'fs'
-import { BASE_URL } from './support/baseUrl'
+import * as path from 'path'
+import { BASE_URL } from './support/baseUrl.ts'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -48,7 +51,7 @@ function ensureBundleBuilt(): void {
 	if (fs.existsSync(BUNDLE_PATH)) {
 		return
 	}
-	// eslint-disable-next-line no-console
+
 	console.log(
 		`[playwright globalSetup] bundle missing at ${BUNDLE_PATH}; running 'npm run build' once…`,
 	)
@@ -116,6 +119,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 	}
 
 	await dismissFirstRunWizard(page)
+	await markSupportNoteSeen(page)
 
 	// Persist the storage state so individual specs reuse the session.
 	/*
@@ -147,7 +151,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 					'cn-walkthrough-seen:launchpad',
 					'999.0.0',
 				)
-			} catch (e) {
+			} catch {
 				// localStorage unavailable — specs fall back to dismissing by hand.
 			}
 		})
@@ -186,9 +190,87 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
  * @param {import('@playwright/test').Page} page an authenticated page.
  * @return {Promise<void>}
  */
-async function dismissFirstRunWizard(
-	page: import('@playwright/test').Page,
-): Promise<void> {
+/**
+ * Record the first-open support note as seen, for the whole run.
+ *
+ * 🔴 IT MASKS EVERY CLICK UNTIL SOMETHING DISMISSES IT. `CnAppRoot` mounts
+ * `CnSupportDialog` on first open by default, and like every nc-vue dialog it
+ * renders a `modal-mask` whose subtree intercepts pointer events:
+ *
+ *     <div data-testid-modal="cn-support-dialog" class="dialog__modal modal-mask">
+ *     subtree intercepts pointer events
+ *
+ * This app rooted on `CnAppRoot` in `launchpad-manifest-tier-3`, and the first
+ * run after that adoption came back 62 failed / 85 passed — every one of the 62
+ * a click that never became actionable, across a dozen unrelated spec files.
+ * The chrome spec was among the survivors only because it happens to dismiss
+ * `[data-testid="cn-modal"]` in its own `beforeEach`.
+ *
+ * Dismissal persists per USER through the app's preferences endpoint, so
+ * setting it once here settles it for every spec in the run — the same shape as
+ * `dismissFirstRunWizard` above. Best-effort: a non-2xx is warned about, not
+ * fatal, because a run against an instance without the route should still tell
+ * you what it found rather than refusing to start.
+ *
+ * ⚠️ NOT `:support-dialog="false"` in the app. That would take a real feature
+ * away from real users to make the tests quiet.
+ *
+ * @param {import('@playwright/test').Page} page an authenticated page.
+ * @return {Promise<void>}
+ */
+async function markSupportNoteSeen(page: Page): Promise<void> {
+	try {
+		const status = await page.evaluate(async () => {
+			const token =
+				document
+					.querySelector('head[data-requesttoken]')
+					?.getAttribute('data-requesttoken')
+				?? document.getElementById('requesttoken')?.getAttribute('value')
+				?? ''
+			const res = await fetch(
+				'/index.php/apps/launchpad/api/preferences/support-dialog-seen',
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: token,
+						'OCS-APIRequest': 'true',
+					},
+					body: JSON.stringify({ value: '1' }),
+				},
+			)
+			return res.status
+		})
+		if (status >= 400) {
+			console.warn(
+				`[playwright globalSetup] support-note dismissal returned ${status}; `
+					+ 'specs will hit a modal mask over every click.',
+			)
+		}
+
+		// AND the localStorage fallback the composable drops to when the
+		// server read fails, so a flaky preferences call cannot put the mask
+		// back. `cn-support-dialog-shown:<appId>` is nextcloud-vue's key. The
+		// page is already on the instance origin after login, which is the
+		// origin storageState persists — the same reason the walkthrough
+		// sentinel above is set here rather than per spec.
+		await page.evaluate(() => {
+			try {
+				window.localStorage.setItem('cn-support-dialog-shown:launchpad', '1')
+			} catch {
+				// A browser with site data blocked. The server preference above
+				// is the real mechanism; this is belt and braces.
+			}
+		})
+	} catch (error) {
+		console.warn(
+			'[playwright globalSetup] could not record the support note as seen:',
+			error,
+		)
+	}
+}
+
+async function dismissFirstRunWizard(page: Page): Promise<void> {
 	try {
 		const status = await page.evaluate(async () => {
 			const token =
@@ -204,14 +286,12 @@ async function dismissFirstRunWizard(
 			return res.status
 		})
 		if (status >= 400 && status !== 404) {
-			// eslint-disable-next-line no-console
 			console.warn(
 				`[playwright globalSetup] first-run wizard dismissal returned ${status}; `
 					+ 'specs may hit a modal over the app.',
 			)
 		}
 	} catch (error) {
-		// eslint-disable-next-line no-console
 		console.warn(
 			'[playwright globalSetup] could not dismiss the first-run wizard:',
 			error,

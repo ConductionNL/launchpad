@@ -15,13 +15,16 @@
  * @spec openspec/changes/allow-personal-dashboards-flag/tasks.md#task-3.5
  */
 
-import { test, expect, type APIRequestContext } from '@playwright/test'
-import { BASE_URL as BASE } from './support/baseUrl'
+import type { request } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
-	type SeededDashboard,
-} from './support/dashboardFixture'
+} from './support/dashboardFixture.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -33,7 +36,7 @@ const APP_URL = '/index.php/apps/launchpad'
 
 /** Make an authenticated request context using HTTP Basic auth. */
 async function adminApi(playwright: {
-	request: { newContext: typeof import('@playwright/test').request.newContext }
+	request: { newContext: typeof request.newContext }
 }): Promise<APIRequestContext> {
 	return playwright.request.newContext({
 		baseURL: BASE,
@@ -52,7 +55,6 @@ async function setAllowUserDashboards(
 	// the environment already matches.  We log rather than throw so the
 	// test still runs and produces a meaningful failure message.
 	if (!res.ok()) {
-		// eslint-disable-next-line no-console
 		console.warn(
 			`setAllowUserDashboards(${enabled}): PUT returned ${res.status()}`,
 		)

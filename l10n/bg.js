@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Функции и пътна карта",
     "Maximum dashboards per user" : "Максимален брой табла на потребител",
     "Maximum widgets per dashboard" : "Максимален брой джаджи на табло",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = неограничено. Намаляването на ограничение никога не изтрива съществуващи табла; то само блокира новите, докато потребителите не се върнат под ограничението.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Изтриване",
     "Close" : "Затваряне",
     "New dashboard name" : "Ново име на таблото",
-    "Delete this dashboard? This cannot be undone." : "Да се изтрие ли това табло? Това не може да бъде отменено."
+    "Delete this dashboard? This cannot be undone." : "Да се изтрие ли това табло? Това не може да бъде отменено.",
+    "Reports": "Отчети",
+    "Pick a report to open it.": "Изберете отчет, за да го отворите.",
+    "Open": "Отворени",
+    "In progress": "В процес",
+    "Blocked": "Блокирани",
+    "Date": "Дата",
+    "Due": "Краен срок",
+    "Assignee": "Възложено на",
+    "Who": "Кой",
+    "What": "Какво",
+    "Minutes": "Минути",
+    "Entries": "Записи",
+    "Most recent": "Най-скорошни",
+    "Per person": "На човек",
+    "By status": "По статус",
+    "By priority": "По приоритет",
+    "Personal": "Лични",
+    "Shared with a group": "Споделено с група",
+    "Admin templates": "Административни шаблони",
+    "Who they belong to": "На кого принадлежат",
+    "Kind": "Вид",
+    "Version": "Версия",
+    "How many dashboards there are, and who they belong to.": "Колко табла има и на кого принадлежат.",
+    "Store": "Магазин",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Инсталирайте регистри, схеми и потоци, публикувани от други организации."
 },
 "nplurals=2; plural=(n != 1);"
 );

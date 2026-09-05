@@ -28,21 +28,23 @@
  * it would not have proven the scenario it was tagged with.
  */
 
-import { test, expect } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, test } from '@playwright/test'
+import { request } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
 	openSidebar,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+} from './fixtures/widget-flow.ts'
+import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
-	type SeededDashboard,
-} from './support/dashboardFixture'
-import { BASE_URL } from './support/baseUrl'
-import { request, type APIRequestContext } from '@playwright/test'
+} from './support/dashboardFixture.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Veçoritë dhe plani i zhvillimit",
     "Maximum dashboards per user" : "Numri maksimal i paneleve për përdorues",
     "Maximum widgets per dashboard" : "Numri maksimal i widget-eve për panel",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = i pakufizuar. Ulja e një kufiri nuk fshin kurrë panelet ekzistuese; ajo vetëm bllokon krijimin e të rejave derisa përdoruesit të kthehen nën kufi.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Fshi",
     "Close" : "Mbyll",
     "New dashboard name" : "Emri i ri i pultit",
-    "Delete this dashboard? This cannot be undone." : "Të fshihet ky pult? Kjo nuk mund të zhbëhet."
+    "Delete this dashboard? This cannot be undone." : "Të fshihet ky pult? Kjo nuk mund të zhbëhet.",
+    "Reports": "Raportet",
+    "Pick a report to open it.": "Zgjidhni një raport për ta hapur.",
+    "Open": "Hapur",
+    "In progress": "Në vazhdim",
+    "Blocked": "Bllokuar",
+    "Date": "Data",
+    "Due": "Afati",
+    "Assignee": "Caktuar për",
+    "Who": "Kush",
+    "What": "Çfarë",
+    "Minutes": "Minuta",
+    "Entries": "Regjistrime",
+    "Most recent": "Më të fundit",
+    "Per person": "Për person",
+    "By status": "Sipas statusit",
+    "By priority": "Sipas përparësisë",
+    "Personal": "Personale",
+    "Shared with a group": "Ndarë me një grup",
+    "Admin templates": "Modele administrimi",
+    "Who they belong to": "Kujt i përkasin",
+    "Kind": "Lloji",
+    "Version": "Versioni",
+    "How many dashboards there are, and who they belong to.": "Sa panele ka dhe kujt i përkasin.",
+    "Store": "Dyqani",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instaloni regjistra, skema dhe rrjedha të publikuara nga organizata të tjera."
 },
 "nplurals=2; plural=(n != 1);"
 );

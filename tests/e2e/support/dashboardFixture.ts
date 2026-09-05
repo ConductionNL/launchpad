@@ -37,7 +37,9 @@
  * and the reason tile-quick-search calls both.
  */
 
-import { expect, type APIRequestContext } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+
+import { expect } from '@playwright/test'
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'

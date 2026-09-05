@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funksjoner og veikart",
     "Maximum dashboards per user" : "Maksimalt antall dashbord per bruker",
     "Maximum widgets per dashboard" : "Maksimalt antall widgeter per dashbord",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ubegrenset. Å senke en grense sletter aldri eksisterende dashbord; den blokkerer kun nye til brukerne igjen er under grensen.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Slett",
     "Close" : "Lukk",
     "New dashboard name" : "Nytt kontrollpanelnavn",
-    "Delete this dashboard? This cannot be undone." : "Slette dette kontrollpanelet? Dette kan ikke angres."
+    "Delete this dashboard? This cannot be undone." : "Slette dette kontrollpanelet? Dette kan ikke angres.",
+    "Reports": "Rapporter",
+    "Pick a report to open it.": "Velg en rapport for å åpne den.",
+    "Open": "Åpen",
+    "In progress": "Pågår",
+    "Blocked": "Blokkert",
+    "Date": "Dato",
+    "Due": "Frist",
+    "Assignee": "Tildelt",
+    "Who": "Hvem",
+    "What": "Hva",
+    "Minutes": "Minutter",
+    "Entries": "Oppføringer",
+    "Most recent": "Nyeste",
+    "Per person": "Per person",
+    "By status": "Etter status",
+    "By priority": "Etter prioritet",
+    "Personal": "Personlig",
+    "Shared with a group": "Delt med en gruppe",
+    "Admin templates": "Administratormaler",
+    "Who they belong to": "Hvem de tilhører",
+    "Kind": "Type",
+    "Version": "Versjon",
+    "How many dashboards there are, and who they belong to.": "Hvor mange dashbord det er, og hvem de tilhører.",
+    "Store": "Butikk",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installer registre, skjemaer og flyter som andre organisasjoner har publisert."
 },
 "nplurals=2; plural=(n != 1);"
 );

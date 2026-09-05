@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Özellikler ve yol haritası",
     "Maximum dashboards per user" : "Kullanıcı başına en fazla pano",
     "Maximum widgets per dashboard" : "Pano başına en fazla araç",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = sınırsız. Bir sınırın düşürülmesi var olan panoları asla silmez; yalnızca kullanıcılar sınırın altına dönene kadar yenilerinin oluşturulmasını engeller.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Sil",
     "Close" : "Kapat",
     "New dashboard name" : "Yeni pano adı",
-    "Delete this dashboard? This cannot be undone." : "Bu pano silinsin mi? Bu işlem geri alınamaz."
+    "Delete this dashboard? This cannot be undone." : "Bu pano silinsin mi? Bu işlem geri alınamaz.",
+    "Reports": "Raporlar",
+    "Pick a report to open it.": "Açmak için bir rapor seçin.",
+    "Open": "Açık",
+    "In progress": "Devam ediyor",
+    "Blocked": "Engellendi",
+    "Date": "Tarih",
+    "Due": "Bitiş",
+    "Assignee": "Atanan",
+    "Who": "Kim",
+    "What": "Ne",
+    "Minutes": "Dakika",
+    "Entries": "Kayıtlar",
+    "Most recent": "En yeni",
+    "Per person": "Kişi başına",
+    "By status": "Duruma göre",
+    "By priority": "Önceliğe göre",
+    "Personal": "Kişisel",
+    "Shared with a group": "Bir grupla paylaşıldı",
+    "Admin templates": "Yönetici şablonları",
+    "Who they belong to": "Kime ait oldukları",
+    "Kind": "Tür",
+    "Version": "Sürüm",
+    "How many dashboards there are, and who they belong to.": "Kaç panonun olduğu ve kime ait oldukları.",
+    "Store": "Mağaza",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Diğer kuruluşların yayımladığı kayıtları, şemaları ve akışları yükleyin."
 },
 "nplurals=2; plural=(n != 1);"
 );

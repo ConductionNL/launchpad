@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funcionalidades e roteiro",
     "Maximum dashboards per user" : "Máximo de painéis por utilizador",
     "Maximum widgets per dashboard" : "Máximo de widgets por painel",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ilimitado. Reduzir um limite nunca elimina os painéis existentes; apenas bloqueia os novos até que os utilizadores voltem a estar abaixo do limite.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Eliminar",
     "Close" : "Fechar",
     "New dashboard name" : "Novo nome do painel",
-    "Delete this dashboard? This cannot be undone." : "Eliminar este painel? Esta ação não pode ser anulada."
+    "Delete this dashboard? This cannot be undone." : "Eliminar este painel? Esta ação não pode ser anulada.",
+    "Reports": "Relatórios",
+    "Pick a report to open it.": "Escolha um relatório para o abrir.",
+    "Open": "Aberto",
+    "In progress": "Em curso",
+    "Blocked": "Bloqueado",
+    "Date": "Data",
+    "Due": "Prazo",
+    "Assignee": "Atribuído a",
+    "Who": "Quem",
+    "What": "O quê",
+    "Minutes": "Minutos",
+    "Entries": "Entradas",
+    "Most recent": "Mais recentes",
+    "Per person": "Por pessoa",
+    "By status": "Por estado",
+    "By priority": "Por prioridade",
+    "Personal": "Pessoal",
+    "Shared with a group": "Partilhado com um grupo",
+    "Admin templates": "Modelos de administração",
+    "Who they belong to": "A quem pertencem",
+    "Kind": "Tipo",
+    "Version": "Versão",
+    "How many dashboards there are, and who they belong to.": "Quantos painéis existem e a quem pertencem.",
+    "Store": "Loja",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instale registos, esquemas e fluxos publicados por outras organizações."
 },
 "nplurals=2; plural=(n != 1);"
 );

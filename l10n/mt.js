@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funzjonijiet u pjan direzzjonali",
     "Maximum dashboards per user" : "Numru massimu ta' dashboards għal kull utent",
     "Maximum widgets per dashboard" : "Numru massimu ta' widgets għal kull dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = bla limitu. It-tnaqqis ta' limitu qatt ma jħassar dashboards eżistenti; jimblokka biss oħrajn ġodda sakemm l-utenti jerġgħu jkunu taħt il-limitu.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Ħassar",
     "Close" : "Agħlaq",
     "New dashboard name" : "Isem ta' dashboard ġdid",
-    "Delete this dashboard? This cannot be undone." : "Tħassar dan id-dashboard? Dan ma jistax jiġi annullat."
+    "Delete this dashboard? This cannot be undone." : "Tħassar dan id-dashboard? Dan ma jistax jiġi annullat.",
+    "Reports": "Rapporti",
+    "Pick a report to open it.": "Agħżel rapport biex tiftħu.",
+    "Open": "Miftuħ",
+    "In progress": "Għaddej",
+    "Blocked": "Imblukkat",
+    "Date": "Data",
+    "Due": "Skadenza",
+    "Assignee": "Assenjat lil",
+    "Who": "Min",
+    "What": "Xiex",
+    "Minutes": "Minuti",
+    "Entries": "Entrati",
+    "Most recent": "L-aktar reċenti",
+    "Per person": "Għal kull persuna",
+    "By status": "Skont l-istatus",
+    "By priority": "Skont il-prijorità",
+    "Personal": "Personali",
+    "Shared with a group": "Maqsum ma' grupp",
+    "Admin templates": "Mudelli tal-amministratur",
+    "Who they belong to": "Ta' min huma",
+    "Kind": "Tip",
+    "Version": "Verżjoni",
+    "How many dashboards there are, and who they belong to.": "Kemm hemm dashboards, u ta' min huma.",
+    "Store": "Ħanut",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installa reġistri, skemi u flussi ppubblikati minn organizzazzjonijiet oħra."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

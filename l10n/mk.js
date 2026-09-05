@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Функции и патоказ",
     "Maximum dashboards per user" : "Максимален број контролни табли по корисник",
     "Maximum widgets per dashboard" : "Максимален број виџети по контролна табла",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = неограничено. Намалувањето на ограничувањето никогаш не ги брише постоечките контролни табли; само ги блокира новите додека корисниците не се вратат под ограничувањето.",
@@ -1088,7 +1089,32 @@ OC.L10N.register(
     "No dashboards in this group yet" : "Сè уште нема контролни табли во оваа група",
     "Rename" : "Преименувај",
     "New dashboard name" : "Ново име на контролната табла",
-    "Delete this dashboard? This cannot be undone." : "Да се избрише оваа контролна табла? Ова не може да се поништи."
+    "Delete this dashboard? This cannot be undone." : "Да се избрише оваа контролна табла? Ова не може да се поништи.",
+    "Reports": "Извештаи",
+    "Pick a report to open it.": "Изберете извештај за да го отворите.",
+    "Open": "Отворено",
+    "In progress": "Во тек",
+    "Blocked": "Блокирано",
+    "Date": "Датум",
+    "Due": "Рок",
+    "Assignee": "Доделено",
+    "Who": "Кој",
+    "What": "Што",
+    "Minutes": "Минути",
+    "Entries": "Записи",
+    "Most recent": "Најнови",
+    "Per person": "По лице",
+    "By status": "По статус",
+    "By priority": "По приоритет",
+    "Personal": "Лично",
+    "Shared with a group": "Споделено со група",
+    "Admin templates": "Администраторски шаблони",
+    "Who they belong to": "Кому припаѓаат",
+    "Kind": "Вид",
+    "Version": "Верзија",
+    "How many dashboards there are, and who they belong to.": "Колку контролни табли има и кому припаѓаат.",
+    "Store": "Продавница",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Инсталирајте регистри, шеми и текови објавени од други организации."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

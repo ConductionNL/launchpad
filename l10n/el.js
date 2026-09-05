@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Λειτουργίες και οδικός χάρτης",
     "Maximum dashboards per user" : "Μέγιστος αριθμός πινάκων ανά χρήστη",
     "Maximum widgets per dashboard" : "Μέγιστος αριθμός widget ανά πίνακα",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = απεριόριστο. Η μείωση ενός ορίου δεν διαγράφει ποτέ υπάρχοντες πίνακες· απλώς μπλοκάρει τη δημιουργία νέων μέχρι οι χρήστες να επανέλθουν κάτω από το όριο.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Διαγραφή",
     "Close" : "Κλείσιμο",
     "New dashboard name" : "Νέο όνομα πίνακα",
-    "Delete this dashboard? This cannot be undone." : "Διαγραφή αυτού του πίνακα; Αυτό δεν μπορεί να αναιρεθεί."
+    "Delete this dashboard? This cannot be undone." : "Διαγραφή αυτού του πίνακα; Αυτό δεν μπορεί να αναιρεθεί.",
+    "Reports": "Αναφορές",
+    "Pick a report to open it.": "Επιλέξτε μια αναφορά για να την ανοίξετε.",
+    "Open": "Ανοιχτά",
+    "In progress": "Σε εξέλιξη",
+    "Blocked": "Μπλοκαρισμένα",
+    "Date": "Ημερομηνία",
+    "Due": "Προθεσμία",
+    "Assignee": "Ανατέθηκε σε",
+    "Who": "Ποιος",
+    "What": "Τι",
+    "Minutes": "Λεπτά",
+    "Entries": "Καταχωρίσεις",
+    "Most recent": "Πιο πρόσφατα",
+    "Per person": "Ανά άτομο",
+    "By status": "Ανά κατάσταση",
+    "By priority": "Ανά προτεραιότητα",
+    "Personal": "Προσωπικά",
+    "Shared with a group": "Κοινόχρηστο με ομάδα",
+    "Admin templates": "Πρότυπα διαχειριστή",
+    "Who they belong to": "Σε ποιον ανήκουν",
+    "Kind": "Είδος",
+    "Version": "Έκδοση",
+    "How many dashboards there are, and who they belong to.": "Πόσοι πίνακες υπάρχουν και σε ποιον ανήκουν.",
+    "Store": "Κατάστημα",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Εγκαταστήστε μητρώα, σχήματα και ροές που έχουν δημοσιεύσει άλλοι οργανισμοί."
 },
 "nplurals=2; plural=(n != 1);"
 );

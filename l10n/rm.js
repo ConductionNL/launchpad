@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funcziuns e plan da svilup",
     "Maximum dashboards per user" : "Maximum da dashboards per utilisader",
     "Maximum widgets per dashboard" : "Maximum da widgets per dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = senza limita. Sbassar ina limita stizza mai dashboards existents; el bloccha mo ils nums fin che ils utilisaders èn puspè sut la limita.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Stizzar",
     "Close" : "Serrar",
     "New dashboard name" : "Nov num da la tabla da cumond",
-    "Delete this dashboard? This cannot be undone." : "Stizzar questa tabla da cumond? Quai na po betg vegnir revocà."
+    "Delete this dashboard? This cannot be undone." : "Stizzar questa tabla da cumond? Quai na po betg vegnir revocà.",
+    "Reports": "Rapports",
+    "Pick a report to open it.": "Tscherni in rapport per l'avrir.",
+    "Open": "Avert",
+    "In progress": "En lavur",
+    "Blocked": "Bloccà",
+    "Date": "Data",
+    "Due": "Termin",
+    "Assignee": "Attribuì a",
+    "Who": "Tgi",
+    "What": "Tge",
+    "Minutes": "Minutas",
+    "Entries": "Endataziuns",
+    "Most recent": "Ils pli novs",
+    "Per person": "Per persuna",
+    "By status": "Tenor il status",
+    "By priority": "Tenor la prioritad",
+    "Personal": "Persunal",
+    "Shared with a group": "Cundividì cun ina gruppa",
+    "Admin templates": "Models d'administratur",
+    "Who they belong to": "Tgi ch'els appartegnan",
+    "Kind": "Gener",
+    "Version": "Versiun",
+    "How many dashboards there are, and who they belong to.": "Quants panels ch'i dat e tgi ch'els appartegnan.",
+    "Store": "Butia",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installescha registers, schemas e process ch'autras organisaziuns han publitgà."
 },
 "nplurals=2; plural=(n != 1);"
 );

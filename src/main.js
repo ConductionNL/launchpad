@@ -31,6 +31,8 @@
 import {
 	CnNcDashboardWidgetForm,
 	CnNcWidgetWidget,
+	CnPageRenderer,
+	defaultPageTypes,
 	registerBuiltinDashboardWidgets,
 	registerDashboardWidget,
 	registerIcons,
@@ -41,9 +43,11 @@ import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { createPinia } from 'pinia'
 import { createApp, h, reactive } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
+import registry from './registry.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
@@ -88,10 +92,11 @@ registerDashboardWidget('nc-widget', {
 	icon: 'ViewDashboard',
 })
 
-// Tier 1 manifest adoption (ADR-024): register the bundled manifest with
-// nc-vue so the shared shell can read menu/page declarations. The vue-router
-// definition below remains hand-wired (Tier 1 — not yet manifest-driven).
-// Tier 3 (launchpad-manifest-tier-3) will replace hand-wired routes.
+// Tier 3 manifest adoption (ADR-024, `launchpad-manifest-tier-3`): the
+// manifest is registered with nc-vue AND drives the route table below, so a
+// page this app declares is a page it serves. Before this, it declared nine
+// and served one — `/store`, `/reports` and `/flows` each redirected to the
+// dashboard, because there was no router at all.
 // `useAppManifest` comes from the package barrel. It was previously required
 // from a `@conduction/nextcloud-vue/composables` SUBPATH, which the package
 // does not expose (it declares no `exports` map) — so the require always threw
@@ -158,14 +163,73 @@ const manifestLoading = reactive({ value: true })
 })()
 // --- End runtime manifest loader ---
 
+// A CLONE, not the barrel export. Library barrel exports are non-extensible
+// (webpack ESM module records) and the router attaches internal bookkeeping to
+// a route's `component`, which throws on a frozen object in some bundle shapes.
+const RoutePageRenderer = { ...CnPageRenderer }
+
+/**
+ * The base path vue-router should strip from the URL.
+ *
+ * ⚠️ Read from the LOCATION, with `generateUrl` only as the fallback. Nextcloud
+ * serves an app under both `/apps/launchpad/…` and `/index.php/apps/launchpad/…`
+ * and a base that assumes one form makes every route on the other miss — which
+ * presents as the shell rendering with an empty content area, not as an error.
+ *
+ * @return {string} The router base.
+ */
+function routerBase() {
+	const match = window.location.pathname.match(/^(.*\/apps\/launchpad)(?:\/|$)/)
+	return match ? match[1] : generateUrl('/apps/launchpad')
+}
+
+/**
+ * Build the vue-router config from the manifest. Each declared page becomes one
+ * route, named for its `id`, so a page cannot be declared without being served.
+ *
+ * @param {object} manifest The merged manifest.
+ * @return {Array<object>} vue-router 4 routes.
+ */
+function routesFromManifest(manifest) {
+	const routes = (manifest.pages ?? []).map((page) => ({
+		name: page.id,
+		path: page.route,
+		component: RoutePageRenderer,
+		props: page.route.includes(':'),
+	}))
+
+	// ⚠️ vue-router 4 REMOVED the bare `path: '*'` wildcard, and does not warn:
+	// the route simply never matches, so an unknown URL renders the shell with
+	// an empty content area. The named-param form is the v4 spelling.
+	routes.push({ path: '/:pathMatch(.*)*', redirect: '/' })
+	return routes
+}
+
+const router = createRouter({
+	history: createWebHistory(routerBase()),
+	routes: routesFromManifest(mergedManifest),
+})
+
+// Shallow copies: the library exports `defaultPageTypes` and the registry as
+// FROZEN module objects in some bundle shapes, and the renderer may attach
+// bookkeeping to what it is handed.
+const pageTypesProp = { ...defaultPageTypes }
+const registryProp = { ...registry }
+
 const app = createApp({
 	name: 'LaunchpadRoot',
-	render: () => h(App),
+	render: () =>
+		h(App, {
+			manifest: mergedManifest,
+			registry: registryProp,
+			pageTypes: pageTypesProp,
+		}),
 })
 
 // Global t/n — an app-level mixin replaces Vue 2's global Vue.mixin.
 app.mixin({ methods: { t, n } })
 app.use(pinia)
+app.use(router)
 
 // ADR-036 Decision 8: expose runtime manifest refs so descendants can
 // reactively access the live per-user manifest. `reactive()` (Vue 2's

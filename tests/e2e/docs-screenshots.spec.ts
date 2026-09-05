@@ -33,9 +33,11 @@
  * via `--grep` (e.g. `--grep "user track"`).
  */
 
-import { test, expect, type Page } from '@playwright/test'
-import * as path from 'path'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
 import * as fs from 'fs'
+import * as path from 'path'
 
 const SHOT_ROOT = path.resolve(
 	__dirname,

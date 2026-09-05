@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Gnéithe agus treochlár",
     "Maximum dashboards per user" : "Uaslíon deais-chláir in aghaidh an úsáideora",
     "Maximum widgets per dashboard" : "Uaslíon giuirléidí in aghaidh an deais-chláir",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = gan teorainn. Ní scriosann ísliú teorann deais-chláir atá ann cheana; ní dhéanann sé ach cinn nua a bhac go dtí go mbeidh úsáideoirí faoin teorainn arís.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Scrios",
     "Close" : "Dún",
     "New dashboard name" : "Ainm deaise nua",
-    "Delete this dashboard? This cannot be undone." : "Scrios an deais seo? Ní féidir é seo a chealú."
+    "Delete this dashboard? This cannot be undone." : "Scrios an deais seo? Ní féidir é seo a chealú.",
+    "Reports": "Tuairiscí",
+    "Pick a report to open it.": "Roghnaigh tuairisc chun í a oscailt.",
+    "Open": "Oscailte",
+    "In progress": "Ar siúl",
+    "Blocked": "Bactha",
+    "Date": "Dáta",
+    "Due": "Spriocdháta",
+    "Assignee": "Sannta do",
+    "Who": "Cé",
+    "What": "Cad",
+    "Minutes": "Nóiméad",
+    "Entries": "Iontrálacha",
+    "Most recent": "Is déanaí",
+    "Per person": "In aghaidh an duine",
+    "By status": "De réir stádais",
+    "By priority": "De réir tosaíochta",
+    "Personal": "Pearsanta",
+    "Shared with a group": "Roinnte le grúpa",
+    "Admin templates": "Teimpléid riarthóra",
+    "Who they belong to": "Cé leis iad",
+    "Kind": "Cineál",
+    "Version": "Leagan",
+    "How many dashboards there are, and who they belong to.": "Cé mhéad painéal atá ann, agus cé leis iad.",
+    "Store": "Siopa",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Suiteáil cláir, scéimeanna agus sruthanna a d'fhoilsigh eagraíochtaí eile."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

@@ -18,7 +18,7 @@
         "slug": "launchpad",
         "title": "LaunchPad Register",
         "version": "1.0.1",
-        "description": "LaunchPad dashboards stored as OpenRegister objects — the source of the v2 runtime manifest (ADR-036 Decision 8).",
+        "description": "LaunchPad dashboards stored as OpenRegister objects. They are the source of the v2 runtime manifest.",
         "published": true,
         "schemas": ["dashboard"],
         "folder": "LaunchPad"
@@ -106,7 +106,7 @@
           "groupId": {
             "title": "Group ID",
             "type": "string",
-            "description": "Nextcloud group ID for group_shared dashboards. Reserved value 'default' means visible to every user (REQ-DASH-012). Absent for user and admin_template dashboards — the property is not in `required`, which is how OpenRegister models optionality. A union type such as [\"string\", \"null\"] is REJECTED by the schema importer (only scalar types are accepted), and that rejection is what silently prevented this whole schema — and therefore the register's reference to it — from ever being created.",
+            "description": "Nextcloud group ID for group_shared dashboards. The reserved value 'default' means visible to every user. It is absent for user and admin_template dashboards: the property is not in `required`, which is how OpenRegister models optionality.",
             "example": "marketing"
           }
         },
@@ -189,7 +189,7 @@
             },
             "slug": "welcome-to-launchpad",
             "title": "Welcome to LaunchPad",
-            "description": "Default landing dashboard visible to every user — powered by the 'default' synthetic group (REQ-DASH-012)",
+            "description": "Default landing dashboard visible to every user, powered by the 'default' synthetic group",
             "version": "1.0.0",
             "type": "group_shared",
             "groupId": "default",
@@ -222,7 +222,7 @@
             },
             "slug": "active-campaigns",
             "title": "Active Campaigns",
-            "description": "Marketing team shared dashboard — scoped to the 'marketing' group (REQ-DASH-011)",
+            "description": "Marketing team shared dashboard, scoped to the 'marketing' group",
             "version": "1.0.0",
             "type": "group_shared",
             "groupId": "marketing",
@@ -263,7 +263,7 @@
             },
             "slug": "sprint-overview",
             "title": "Sprint Overview",
-            "description": "Engineering team shared dashboard — scoped to the 'engineering' group (REQ-DASH-011)",
+            "description": "Engineering team shared dashboard, scoped to the 'engineering' group",
             "version": "1.0.0",
             "type": "group_shared",
             "groupId": "engineering",

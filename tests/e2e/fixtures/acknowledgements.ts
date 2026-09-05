@@ -27,18 +27,22 @@
  * outstanding for the admin user at the start of every run.
  */
 
-import { request as pwRequest, type APIRequestContext } from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl'
+import type { APIRequestContext } from '@playwright/test'
+
+import { request as pwRequest } from '@playwright/test'
+import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 const ACTIVE_DASHBOARD_URL = `${BASE}/index.php/apps/launchpad/api/dashboard`
-const ADD_WIDGET_URL = (dashboardId: number) =>
-	`${BASE}/index.php/apps/launchpad/api/dashboard/${dashboardId}/widgets`
-const UPDATE_PLACEMENT_URL = (placementId: number) =>
-	`${BASE}/index.php/apps/launchpad/api/widgets/${placementId}`
+function ADD_WIDGET_URL(dashboardId: number) {
+	return `${BASE}/index.php/apps/launchpad/api/dashboard/${dashboardId}/widgets`
+}
+function UPDATE_PLACEMENT_URL(placementId: number) {
+	return `${BASE}/index.php/apps/launchpad/api/widgets/${placementId}`
+}
 
 const MARKER = 'E2E acknowledgement fixture — do not remove'
 const PROMPT_TEXT = 'E2E: please confirm you have read this.'

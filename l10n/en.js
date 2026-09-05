@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Features & roadmap",
     "share_not_found" : "Share not found",
     "share_expired" : "This share has expired",
     "share_password_required" : "Password required to access this share",

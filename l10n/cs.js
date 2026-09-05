@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkce a plán vývoje",
     "Maximum dashboards per user" : "Maximální počet dashboardů na uživatele",
     "Maximum widgets per dashboard" : "Maximální počet widgetů na dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neomezeno. Snížení limitu nikdy neodstraní stávající dashboardy; pouze zablokuje nové, dokud se uživatelé nevrátí pod limit.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Smazat",
     "Close" : "Zavřít",
     "New dashboard name" : "Název nové nástěnky",
-    "Delete this dashboard? This cannot be undone." : "Smazat tuto nástěnku? Tuto akci nelze vrátit zpět."
+    "Delete this dashboard? This cannot be undone." : "Smazat tuto nástěnku? Tuto akci nelze vrátit zpět.",
+    "Reports": "Sestavy",
+    "Pick a report to open it.": "Vyberte sestavu, kterou chcete otevřít.",
+    "Open": "Otevřené",
+    "In progress": "Probíhá",
+    "Blocked": "Blokováno",
+    "Date": "Datum",
+    "Due": "Termín",
+    "Assignee": "Přiřazeno",
+    "Who": "Kdo",
+    "What": "Co",
+    "Minutes": "Minuty",
+    "Entries": "Záznamy",
+    "Most recent": "Nejnovější",
+    "Per person": "Na osobu",
+    "By status": "Podle stavu",
+    "By priority": "Podle priority",
+    "Personal": "Osobní",
+    "Shared with a group": "Sdíleno se skupinou",
+    "Admin templates": "Šablony správce",
+    "Who they belong to": "Komu patří",
+    "Kind": "Druh",
+    "Version": "Verze",
+    "How many dashboards there are, and who they belong to.": "Kolik je přehledů a komu patří.",
+    "Store": "Obchod",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Nainstalujte registry, schémata a toky zveřejněné jinými organizacemi."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

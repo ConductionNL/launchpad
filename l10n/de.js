@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funktionen und Roadmap",
     "Maximum dashboards per user" : "Maximale Dashboards pro Benutzer",
     "Maximum widgets per dashboard" : "Maximale Widgets pro Dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = unbegrenzt. Das Verringern eines Limits löscht niemals vorhandene Dashboards; es blockiert nur neue, bis Benutzer wieder unter dem Limit sind.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Löschen",
     "Close" : "Schließen",
     "New dashboard name" : "Neuer Dashboard-Name",
-    "Delete this dashboard? This cannot be undone." : "Dieses Dashboard löschen? Dies kann nicht rückgängig gemacht werden."
+    "Delete this dashboard? This cannot be undone." : "Dieses Dashboard löschen? Dies kann nicht rückgängig gemacht werden.",
+    "Reports": "Berichte",
+    "Pick a report to open it.": "Wählen Sie einen Bericht, um ihn zu öffnen.",
+    "Open": "Offen",
+    "In progress": "In Bearbeitung",
+    "Blocked": "Blockiert",
+    "Date": "Datum",
+    "Due": "Fällig",
+    "Assignee": "Zugewiesen an",
+    "Who": "Wer",
+    "What": "Was",
+    "Minutes": "Minuten",
+    "Entries": "Einträge",
+    "Most recent": "Zuletzt",
+    "Per person": "Pro Person",
+    "By status": "Nach Status",
+    "By priority": "Nach Priorität",
+    "Personal": "Persönlich",
+    "Shared with a group": "Mit einer Gruppe geteilt",
+    "Admin templates": "Administrator-Vorlagen",
+    "Who they belong to": "Wem sie gehören",
+    "Kind": "Art",
+    "Version": "Version",
+    "How many dashboards there are, and who they belong to.": "Wie viele Dashboards es gibt und wem sie gehören.",
+    "Store": "Store",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installieren Sie Register, Schemata und Flows, die andere Organisationen veröffentlicht haben."
 },
 "nplurals=2; plural=(n != 1);"
 );

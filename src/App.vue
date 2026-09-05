@@ -129,7 +129,58 @@ export default {
 		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-004-the-shared-chrome-renders-with-the-workspace-inside-it
 		 */
 		liveManifest() {
-			return this.runtimeManifest?.value ?? this.manifest
+			const runtime = this.runtimeManifest?.value
+			if (!runtime) {
+				return this.manifest
+			}
+
+			/*
+			 * MERGED, NOT REPLACED, and the difference is the whole app.
+			 *
+			 * `/api/manifest` is NOT this app's manifest. ManifestController
+			 * says so in its own docblock: it assembles a document from the
+			 * user's OpenRegister dashboard objects, one `type: "dashboard"`
+			 * page and one menu entry per dashboard, and "when the user has no
+			 * dashboards the manifest returns empty pages/menu".
+			 *
+			 * This used to be `runtime ?? this.manifest`. An empty object is
+			 * truthy, so a user with no dashboards got a manifest with NO pages
+			 * and NO menu — and since `launchpad-manifest-tier-3` builds the
+			 * router and the nav FROM the manifest, the app rendered nothing at
+			 * all. Measured on a clean install: `#workspace-vue` held 7 bytes,
+			 * an empty comment, against 43,564 for the same instance before the
+			 * tier-3 adoption.
+			 *
+			 * A user WITH dashboards was no better off, only less obviously:
+			 * the runtime document still replaced the nine declared pages, the
+			 * ADR-114 footer and the walkthrough, which is what the chrome and
+			 * routing specs were failing on.
+			 *
+			 * So the two are composed, which is what each is for. The bundled
+			 * manifest owns the app's declared surfaces; the runtime one
+			 * contributes the dashboards that only the server can know about,
+			 * and the live `runtime` block.
+			 */
+			const byId = (entries) => {
+				const seen = new Map()
+				for (const entry of entries) {
+					if (entry && entry.id !== undefined) {
+						seen.set(entry.id, entry)
+					}
+				}
+				return [...seen.values()]
+			}
+
+			return {
+				...this.manifest,
+				...(runtime.runtime ? { runtime: runtime.runtime } : {}),
+				pages: byId([
+					...(this.manifest.pages ?? []),
+					...(runtime.pages ?? []),
+				]),
+
+				menu: byId([...(this.manifest.menu ?? []), ...(runtime.menu ?? [])]),
+			}
 		},
 	},
 }

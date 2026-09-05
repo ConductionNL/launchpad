@@ -96,14 +96,14 @@
   "menu": [
     {
       "id": "dashboards",
-      "label": "launchpad.menu.dashboards",
+      "label": "Dashboards",
       "icon": "ViewDashboardOutline",
-      "route": "dashboard-detail",
+      "route": "Workspace",
       "section": "main"
     },
     {
       "id": "admin-templates",
-      "label": "launchpad.menu.adminTemplates",
+      "label": "Templates",
       "icon": "FileReplaceOutline",
       "route": "/admin/templates",
       "section": "settings",
@@ -111,7 +111,7 @@
     },
     {
       "id": "admin-settings",
-      "label": "launchpad.menu.adminSettings",
+      "label": "Admin settings",
       "icon": "CogOutline",
       "route": "/admin/settings",
       "section": "settings",
@@ -183,7 +183,7 @@
       "id": "dashboard-detail",
       "route": "/dashboards/:id",
       "type": "custom",
-      "title": "launchpad.pages.dashboard",
+      "title": "Dashboard",
       "_note": "type:custom for the same reason as Workspace: this is the grid addressed by dashboard id, not a declarative dashboard page. The :id selects the active dashboard (dashboard-deeplinking).",
       "widgets": [],
       "config": {
@@ -195,7 +195,7 @@
       "id": "admin-templates-index",
       "route": "/admin/templates",
       "type": "custom",
-      "title": "launchpad.pages.adminTemplates",
+      "title": "Templates",
       "component": "AdminSettingsRedirect",
       "_note": "REDIRECTS to /settings/admin/launchpad. TemplatesPage is a TAB inside the Nextcloud admin section, not a page of its own; routing it in-app would render half an admin surface next to the real one.",
       "config": {
@@ -206,7 +206,7 @@
       "id": "admin-settings",
       "route": "/admin/settings",
       "type": "custom",
-      "title": "launchpad.pages.adminSettings",
+      "title": "Admin settings",
       "component": "AdminSettingsRedirect",
       "_note": "REDIRECTS to /settings/admin/launchpad. The admin surface is a Nextcloud settings section (lib/Settings/LaunchPadAdmin.php, mounted by src/admin.js), not an in-app page — the component this once named, AdminSettingsPage, has never existed. The route resolves so the menu entry is not a dead link, and lands where the functionality is."
     },
@@ -491,7 +491,7 @@
             "body": "A short tour of the main screens. It takes under a minute, and you can close it at any point and pick it up again from the help menu.",
             "target": {
               "kind": "page",
-              "ref": "dashboard-detail"
+              "ref": "Workspace"
             },
             "advanceOn": {
               "type": "manual"
@@ -504,11 +504,11 @@
             "task": "Click Dashboards in the menu",
             "target": {
               "kind": "nav-item",
-              "ref": "dashboard-detail"
+              "ref": "dashboards"
             },
             "advanceOn": {
               "type": "route-match",
-              "route": "dashboard-detail"
+              "route": "Workspace"
             }
           },
           {
@@ -518,7 +518,7 @@
             "task": "Open Flows from the menu",
             "target": {
               "kind": "nav-item",
-              "ref": "Flows"
+              "ref": "FlowsMenu"
             },
             "advanceOn": {
               "type": "route-match",

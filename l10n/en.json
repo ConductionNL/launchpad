@@ -1065,6 +1065,7 @@
         "AI insight unavailable — the local LLM source is not configured": "AI insight unavailable — the local LLM source is not configured",
         "Generate insight": "Generate insight",
         "Total spend: {amount}": "Total spend: {amount}",
-        "Features & roadmap": "Features & roadmap"
+        "Features & roadmap": "Features & roadmap",
+        "Admin settings": "Admin settings"
     }
 }

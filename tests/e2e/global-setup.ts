@@ -120,6 +120,7 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 
 	await dismissFirstRunWizard(page)
 	await markSupportNoteSeen(page)
+	await settleSetupWizard(page)
 
 	// Persist the storage state so individual specs reuse the session.
 	/*
@@ -218,6 +219,66 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
  * @param {import('@playwright/test').Page} page an authenticated page.
  * @return {Promise<void>}
  */
+/**
+ * Record the setup wizard's outstanding choice, so it does not open over the app.
+ *
+ * ⚠️ COMPLETED IS NOT THE SAME AS SETTLED, and that distinction is the whole
+ * bug. `GET /api/setup/status` answered `"completed": true` while still
+ * reporting `steps: { "demo-data": { done: false }, "load-demo-data":
+ * { done: false } }`, and `CnAppRoot` opens the wizard while ANY step is
+ * outstanding, optional or not (nextcloud-vue#806). So the wizard opened on a
+ * setup that called itself complete.
+ *
+ * It is not a cosmetic overlay. `cn-wizard-dialog` is an `aria-modal` that
+ * INTERCEPTS POINTER EVENTS, so every click in the app lands on the dialog and
+ * the failure names a button that the same log calls visible, enabled and
+ * stable. Measured locally against a clean instance: with the wizard up,
+ * dashboard-sharing failed 4 of 4; with it settled, runtime-shell-canEdit and
+ * add-widget-modal went to 10 passed, 0 failed.
+ *
+ * This app had no wizard at all until `launchpad-manifest-tier-3` rooted it on
+ * `CnAppRoot`, which is why nothing here had to account for one before.
+ *
+ * Recording the CHOICE is what settles it, not writing the completion key: the
+ * choice is what marks both `demo-data` and its dependent `load-demo-data`
+ * done. `none` is the honest answer for a test run, and it imports nothing.
+ *
+ * @param page A page already authenticated against the instance.
+ */
+async function settleSetupWizard(page: Page): Promise<void> {
+	try {
+		const status = await page.evaluate(async () => {
+			const token =
+				document
+					.querySelector('head[data-requesttoken]')
+					?.getAttribute('data-requesttoken')
+				?? document.getElementById('requesttoken')?.getAttribute('value')
+				?? ''
+			const res = await fetch('/index.php/apps/launchpad/api/setup/config', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					requesttoken: token,
+					'OCS-APIRequest': 'true',
+				},
+				body: JSON.stringify({ demo_dataset: 'none' }),
+			})
+			return res.status
+		})
+		if (status >= 400) {
+			console.warn(
+				`[playwright globalSetup] setup-wizard settle returned ${status}; `
+					+ 'specs will hit a wizard mask over every click.',
+			)
+		}
+	} catch (error) {
+		console.warn(
+			'[playwright globalSetup] could not settle the setup wizard:',
+			error,
+		)
+	}
+}
+
 async function markSupportNoteSeen(page: Page): Promise<void> {
 	try {
 		const status = await page.evaluate(async () => {

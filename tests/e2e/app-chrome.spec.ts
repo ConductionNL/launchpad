@@ -189,8 +189,16 @@ test.describe('app chrome (ADR-114)', () => {
 	test('the dashboards report renders real numbers, not empty cards', async ({
 		page,
 	}) => {
-		await page.goto(`${APP_BASE}/reports/dashboards`)
-		await expect(page.locator('.workspace-shell')).toBeVisible({
+		await page.goto(`${APP_BASE}/reports/dashboards`, {
+			waitUntil: 'domcontentloaded',
+		})
+
+		// 🔴 THE SHARED CHROME, NOT `.workspace-shell`. This asserted the
+		// workspace here, and it passed for the wrong reason: before
+		// `launchpad-manifest-tier-3` every URL fell back to the dashboard, so
+		// the workspace was on every page. It routes now, and this page is the
+		// report — the workspace being ABSENT is the change working.
+		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
 			timeout: 30_000,
 		})
 		await expect(
@@ -211,11 +219,14 @@ test.describe('app chrome (ADR-114)', () => {
 			timeout: 15_000,
 		})
 
+		// Same as the report above: the store page is not the workspace, and
+		// asserting `.workspace-shell` here passed only while nothing routed.
+		//
 		// The page is declarative: openregister hosts the store plane, so this
 		// app ships NO store controller (ADR-080, ADR-114 Decision 4). With no
 		// registry configured it renders the app's own items and makes NO
 		// network call, so this must pass on a plain instance.
-		await expect(page.locator('.workspace-shell')).toBeVisible({
+		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
 			timeout: 30_000,
 		})
 	})

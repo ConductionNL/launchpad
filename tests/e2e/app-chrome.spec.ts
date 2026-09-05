@@ -18,13 +18,28 @@
  * its title and no value, silently. So the assertion below looks for a VALUE,
  * not just for the card.
  *
- * ⚠️ SCOPE EVERY SELECTOR TO `[data-testid="cn-nav"]`. An unscoped selector
- * also matches Nextcloud's own user menu, which is attached-but-hidden:
- * `waitFor({state:'attached'})` passes on it and the click never becomes
- * actionable, so the spec fails with "Target page has been closed" — a timeout
- * wearing a crash's clothes.
+ * 🔴 LAUNCHPAD DOES NOT RENDER `CnAppNav`, AND THAT IS DELIBERATE. It does not
+ * root on `CnAppRoot`/`NcContent`; `App.vue` says so and writes its own
+ * `.workspace-shell` (org navigation rail, slide-in sidebar, branded
+ * DashboardFooter) with its own skip link. So there is no
+ * `[data-testid="cn-nav"]` and no `.cn-app-nav__footer-list` on any page.
  *
- * ⚠️ SETTINGS ENTRIES ARE ATTACHED, NOT VISIBLE, inside a collapsed foldout.
+ * These five tests asserted both, from the commit that gave this app a Store
+ * (2026-09-04) onward, and the E2E leg has been red on every push since: a
+ * `beforeEach` waiting 30 s for a nav that cannot appear, reported as five
+ * broken features.
+ *
+ * What the chrome IS here: four destinations the manifest declares in its
+ * `footer` section — Documentation (an external href), Store, Reports and
+ * Features & roadmap — each of which must resolve to a page this app hosts.
+ * That is what these tests check now: the shell it renders, and the
+ * destinations it declares, by route rather than by a nav entry that does not
+ * exist. A gate can prove the entries are DECLARED; only a browser can prove
+ * the destinations RENDER, which is what the failure modes above are about.
+ *
+ * ⚠️ IF LAUNCHPAD EVER ADOPTS `CnAppRoot`, the first test below fails on
+ * purpose: it asserts the absence, so the adoption cannot land silently while
+ * these tests keep passing against a shell that is no longer there.
  */
 
 import type { Page } from '@playwright/test'
@@ -56,41 +71,84 @@ async function dismissSetupWizard(page: Page): Promise<void> {
 test.describe('app chrome (ADR-114)', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto(`${APP_BASE}/`, { waitUntil: 'domcontentloaded' })
-		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+		await expect(page.locator('.workspace-shell')).toBeVisible({
 			timeout: 30_000,
 		})
 		await dismissSetupWizard(page)
 	})
 
-	test('the footer reads Documentation, Store, Reports, Features & roadmap, each with a glyph', async ({
+	test("the shell is LaunchPad's own, not the shared CnAppNav one", async ({
 		page,
 	}) => {
-		const footer = page.locator(
-			'[data-testid="cn-nav"] .cn-app-nav__footer-list',
+		// The premise every other test here rests on, asserted rather than
+		// assumed. It is also the tripwire: an app that quietly starts rooting
+		// on CnAppRoot fails HERE, where the reason is written down, instead of
+		// leaving four tests passing against chrome that moved.
+		await expect(page.locator('.workspace-shell')).toBeVisible()
+		await expect(page.locator('#launchpad-main-content')).toBeAttached()
+		await expect(
+			page.locator('[data-testid="cn-nav"]'),
+			'LaunchPad now renders CnAppNav — the chrome tests below should assert it instead of its own shell',
+		).toHaveCount(0)
+	})
+
+	test('the chrome declares Documentation, Store, Reports and Features & roadmap, and each destination resolves', async ({
+		page,
+	}) => {
+		// The manifest is read here rather than restated, so a renamed or
+		// dropped entry is a failure instead of a silently stale literal.
+
+		const manifest = JSON.parse(
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			require('fs').readFileSync(
+				// eslint-disable-next-line @typescript-eslint/no-require-imports
+				require('path').resolve(__dirname, '../../src/manifest.json'),
+				'utf-8',
+			),
 		)
-		await expect(footer).toBeAttached({ timeout: 15_000 })
+		const footer = (manifest.menu ?? [])
+			.filter((e: any) => e.section === 'footer')
+			.sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
 
-		const rows = footer.locator('li')
-		const texts = (await rows.allInnerTexts())
-			.map((t) => t.trim())
-			.filter(Boolean)
+		expect(
+			footer.map((e: any) => e.label),
+			'ADR-114 declares four footer destinations, in this order',
+		).toEqual(['Documentation', 'Store', 'Reports', 'Features & roadmap'])
 
-		const seen = texts.filter((t) =>
-			/Documentation|Store|Reports|roadmap/i.test(t),
+		// A GLYPH ON EVERY ONE. An icon name that is not registered renders no
+		// glyph — not a fallback, not a console error; this app shipped one.
+		for (const entry of footer) {
+			expect(entry.icon, `${entry.label} declares no icon`).toBeTruthy()
+		}
+
+		// Documentation leaves the app, so it is an href and there is nothing
+		// here to render. The other three name a page this app must host.
+		expect(footer[0].href, 'Documentation must be an external href').toMatch(
+			/^https:\/\//,
 		)
-		expect(seen.length).toBe(4)
-		expect(seen[0]).toMatch(/Documentation/i)
-		expect(seen[1]).toMatch(/Store/i)
-		expect(seen[2]).toMatch(/Reports/i)
-		expect(seen[3]).toMatch(/roadmap/i)
 
-		// A glyph on every row. This app registers only a handful of icons, and
-		// ChartBoxOutline had to be added for the Reports entry; without it the
-		// row renders a blank space and nothing complains.
-		for (const row of await rows.all()) {
+		const pages = new Map(
+			(manifest.pages ?? []).map((p: any) => [p.id, p.route]),
+		)
+		for (const entry of footer.slice(1)) {
+			const route = pages.get(entry.route)
+			expect(
+				route,
+				`${entry.label} names page "${entry.route}", which this app does not host`,
+			).toBeTruthy()
+
+			// AND IT RENDERS. A row that goes nowhere is the failure mode a
+			// manifest gate cannot see, so each destination is opened.
+			await page.goto(`${APP_BASE}${route}`, {
+				waitUntil: 'domcontentloaded',
+			})
 			await expect(
-				row.locator('svg, .material-design-icon').first(),
-			).toBeAttached()
+				page.locator('.workspace-shell'),
+				`${entry.label} (${route}) did not render the app shell`,
+			).toBeVisible({ timeout: 30_000 })
+			await expect(page).toHaveURL(new RegExp(`${route}(\\?|$)`), {
+				timeout: 15_000,
+			})
 		}
 	})
 
@@ -101,11 +159,9 @@ test.describe('app chrome (ADR-114)', () => {
 		// dashboard — so a second report would either repeat this one or invent
 		// a reading the data cannot support. If a schema is added later and no
 		// report follows, this count is what notices.
-		const nav = page.locator('[data-testid="cn-nav"]')
-		await nav
-			.locator('[data-testid="cn-nav-entry-ReportsMenu"] a')
-			.first()
-			.click()
+		// By route: the Reports destination is declared in the manifest's footer
+		// section, and this app renders no nav entry to click (see the top).
+		await page.goto(`${APP_BASE}/reports`, { waitUntil: 'domcontentloaded' })
 		await expect(page).toHaveURL(/\/apps\/launchpad\/reports(\?|$)/, {
 			timeout: 15_000,
 		})
@@ -122,7 +178,7 @@ test.describe('app chrome (ADR-114)', () => {
 		page,
 	}) => {
 		await page.goto(`${APP_BASE}/reports/dashboards`)
-		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+		await expect(page.locator('.workspace-shell')).toBeVisible({
 			timeout: 30_000,
 		})
 		await expect(
@@ -137,13 +193,7 @@ test.describe('app chrome (ADR-114)', () => {
 	test('Store opens the hosted store surface, which this app writes no backend for', async ({
 		page,
 	}) => {
-		const footer = page.locator(
-			'[data-testid="cn-nav"] .cn-app-nav__footer-list',
-		)
-		await footer
-			.getByRole('link', { name: /^Store$/ })
-			.first()
-			.click()
+		await page.goto(`${APP_BASE}/store`, { waitUntil: 'domcontentloaded' })
 
 		await expect(page).toHaveURL(/\/apps\/launchpad\/store(\?|$)/, {
 			timeout: 15_000,
@@ -153,29 +203,34 @@ test.describe('app chrome (ADR-114)', () => {
 		// app ships NO store controller (ADR-080, ADR-114 Decision 4). With no
 		// registry configured it renders the app's own items and makes NO
 		// network call, so this must pass on a plain instance.
-		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible()
+		await expect(page.locator('.workspace-shell')).toBeVisible({
+			timeout: 30_000,
+		})
 	})
 
-	test('the settings foldout carries Personal settings, Admin settings and Flows', async ({
+	test('admin settings and Flows are reachable, which is what the foldout was for', async ({
 		page,
 	}) => {
-		const nav = page.locator('[data-testid="cn-nav"]')
-
-		await expect(nav.locator('[data-testid="cn-nav-settings"]')).toBeAttached({
-			timeout: 15_000,
+		// ⚠️ NOT A FOLDOUT TEST ANY MORE, and it cannot be. The settings
+		// foldout is `CnAppNav`'s, and this app renders no CnAppNav — the
+		// personal-settings entry in particular is a nav widget with no
+		// equivalent in `.workspace-shell`, so there is nothing here to assert
+		// about it. What survives is the part that is about LaunchPad rather
+		// than about the nav component: the two destinations exist and open.
+		await page.goto('/settings/admin/launchpad', {
+			waitUntil: 'domcontentloaded',
 		})
 		await expect(
-			nav.locator('[data-testid="cn-nav-personal-settings"]'),
-		).toBeAttached()
-		await expect(
-			nav.locator('[data-testid="cn-nav-entry-FlowsMenu"]'),
-		).toBeAttached()
+			page.locator('#app-content, main').first(),
+			'the admin settings section did not render',
+		).toBeVisible({ timeout: 30_000 })
 
-		const admin = nav.locator('[data-testid="cn-nav-admin-settings"]')
-		await expect(admin).toBeAttached()
-		await expect(admin.locator('a').first()).toHaveAttribute(
-			'href',
-			/\/settings\/admin\/launchpad$/,
-		)
+		await page.goto(`${APP_BASE}/flows`, { waitUntil: 'domcontentloaded' })
+		await expect(page.locator('.workspace-shell')).toBeVisible({
+			timeout: 30_000,
+		})
+		await expect(page).toHaveURL(/\/apps\/launchpad\/flows(\?|$)/, {
+			timeout: 15_000,
+		})
 	})
 })

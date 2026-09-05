@@ -46,7 +46,7 @@
 		"dompurify": "^3.4.14",
 		"gridstack": "^12.2.1",
 		"marked": "^18.0.3",
-		"pinia": "~2.1.7",
+		"pinia": "~4.0.3",
 		"vue": "^3.5.42",
 		"vue-loader": "^17.4.2",
 		"vue-material-design-icons": "^5.2.0",

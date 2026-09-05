@@ -58,91 +58,117 @@
 		     destructive + edit actions sit alongside switching. The
 		     hamburger keeps its place (top-right entry point when the
 		     sidebar is closed). -->
-		<div class="launchpad-floating-controls">
-			<!-- Active-dashboard cog: the same per-dashboard action menu that
+		<!-- TELEPORTED FOR THE SAME REASON AS THE SIDEBAR, and specifically
+		     because of it. These controls are `position: fixed` with
+		     `z-index: 1000`, chosen to sit just above the backdrop's original
+		     999 so that "click the hamburger again to close the sidebar"
+		     works — the sidebar is open, the backdrop is up, and the toggle
+		     has to stay reachable through it.
+
+		     Teleporting the backdrop to body broke that pairing: the backdrop
+		     became a body-level sibling and these controls stayed inside
+		     `#app-content`, whose own z-index is auto, so the backdrop painted
+		     over them whatever number they carried. `runtime-shell-canEdit`
+		     caught it immediately, with the backdrop named as the interceptor
+		     over a button the log calls visible, enabled and stable.
+
+		     Both halves have to move for the ordering between them to mean
+		     anything. -->
+		<Teleport to="body">
+			<div class="launchpad-floating-controls">
+				<!-- Active-dashboard cog: the same per-dashboard action menu that
 			     sits on every sidebar row (DashboardRowActions), but bound to
 			     the currently active dashboard so the user can Edit / Configure
 			     / Add widget / Set default / Delete it directly from the
 			     top-right cluster without opening the sidebar first. Reuses the
 			     existing onRow* handlers; `maybeSwitchTo` is a no-op because the
 			     target is already active. -->
-			<!-- Active-dashboard cog. Styled `secondary` with a 20px icon so
+				<!-- Active-dashboard cog. Styled `secondary` with a 20px icon so
 			     it matches the adjacent dashboards (hamburger) button, and
 			     carries the Share action (dashboard-sharing spec) in-menu
 			     rather than as a standalone top-bar button. -->
-			<DashboardRowActions
-				v-if="activeDashboard"
-				:dashboard="activeDashboard"
-				:source="activeDashboardSource"
-				:canEdit="canEdit"
-				:canShare="canShareActiveDashboard"
-				:defaultUuid="defaultDashboardUuid"
-				:isEditMode="isEditMode"
-				:activeDashboardId="activeDashboard.id"
-				buttonType="secondary"
-				:iconSize="20"
-				class="launchpad-active-dashboard-cog"
-				@toggleEdit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
-				@openConfig="onRowOpenConfig(activeDashboard, activeDashboardSource)"
-				@addCustomWidget="
-					onRowAddCustomWidget(activeDashboard, activeDashboardSource)
-				"
-				@setDefault="onRowSetDefault(activeDashboard, activeDashboardSource)"
-				@share="openShareDrawer"
-				@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
-			<NcButton
-				variant="secondary"
-				:aria-label="t('launchpad', 'Dashboards')"
-				class="launchpad-sidebar-toggle"
-				@click="sidebarOpen = !sidebarOpen">
-				<template #icon>
-					<MenuIcon :size="20" />
-				</template>
-			</NcButton>
-			<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
+				<DashboardRowActions
+					v-if="activeDashboard"
+					:dashboard="activeDashboard"
+					:source="activeDashboardSource"
+					:canEdit="canEdit"
+					:canShare="canShareActiveDashboard"
+					:defaultUuid="defaultDashboardUuid"
+					:isEditMode="isEditMode"
+					:activeDashboardId="activeDashboard.id"
+					buttonType="secondary"
+					:iconSize="20"
+					class="launchpad-active-dashboard-cog"
+					@toggleEdit="
+						onRowToggleEdit(activeDashboard, activeDashboardSource)
+					"
+					@openConfig="
+						onRowOpenConfig(activeDashboard, activeDashboardSource)
+					"
+					@addCustomWidget="
+						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
+					"
+					@setDefault="
+						onRowSetDefault(activeDashboard, activeDashboardSource)
+					"
+					@share="openShareDrawer"
+					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
+				<NcButton
+					variant="secondary"
+					:aria-label="t('launchpad', 'Dashboards')"
+					class="launchpad-sidebar-toggle"
+					@click="sidebarOpen = !sidebarOpen">
+					<template #icon>
+						<MenuIcon :size="20" />
+					</template>
+				</NcButton>
+				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
 			     visually unchanged. -->
-			<span
-				v-if="outstandingAcknowledgementCount > 0"
-				class="launchpad-ack-indicator"
-				data-testid="acknowledgement-outstanding-count"
-				:title="t('launchpad', 'You have items awaiting acknowledgement')">
-				{{
-					n(
-						'launchpad',
-						'%n item to acknowledge',
-						'%n items to acknowledge',
-						outstandingAcknowledgementCount,
-					)
-				}}
-			</span>
-			<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
+				<span
+					v-if="outstandingAcknowledgementCount > 0"
+					class="launchpad-ack-indicator"
+					data-testid="acknowledgement-outstanding-count"
+					:title="
+						t('launchpad', 'You have items awaiting acknowledgement')
+					">
+					{{
+						n(
+							'launchpad',
+							'%n item to acknowledge',
+							'%n items to acknowledge',
+							outstandingAcknowledgementCount,
+						)
+					}}
+				</span>
+				<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
 			     report opener. Only shown to an editor when the active
 			     dashboard carries at least one acknowledgement requirement. -->
-			<NcButton
-				v-if="canShareActiveDashboard"
-				variant="tertiary"
-				:aria-label="t('launchpad', 'Share')"
-				class="mydash-share-action"
-				data-test="dashboard-share-action"
-				@click="openShareDrawer">
-				<template #icon>
-					<ShareVariant :size="20" />
-				</template>
-				{{ t('launchpad', 'Share') }}
-			</NcButton>
-			<NcButton
-				v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
-				variant="secondary"
-				:aria-label="t('launchpad', 'Read receipts')"
-				data-testid="open-acknowledgement-report"
-				@click="
-					openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
-				">
-				{{ t('launchpad', 'Read receipts') }}
-			</NcButton>
-		</div>
+				<NcButton
+					v-if="canShareActiveDashboard"
+					variant="tertiary"
+					:aria-label="t('launchpad', 'Share')"
+					class="mydash-share-action"
+					data-test="dashboard-share-action"
+					@click="openShareDrawer">
+					<template #icon>
+						<ShareVariant :size="20" />
+					</template>
+					{{ t('launchpad', 'Share') }}
+				</NcButton>
+				<NcButton
+					v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
+					variant="secondary"
+					:aria-label="t('launchpad', 'Read receipts')"
+					data-testid="open-acknowledgement-report"
+					@click="
+						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
+					">
+					{{ t('launchpad', 'Read receipts') }}
+				</NcButton>
+			</div>
+		</Teleport>
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -2128,7 +2154,13 @@ export default {
 	display: flex;
 	gap: 8px;
 	align-items: center;
-	z-index: 1000;
+	/*
+	 * Above the sidebar backdrop's 1450, which is what keeps "click the
+	 * hamburger again to close" working while the sidebar is open. Only
+	 * meaningful together with the Teleport in the template: inside
+	 * `#app-content` no value here can beat a body-level sibling.
+	 */
+	z-index: 1460;
 }
 
 .launchpad-ack-indicator {

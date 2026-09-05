@@ -1135,6 +1135,7 @@
         "Version": "Versie",
         "How many dashboards there are, and who they belong to.": "Hoeveel dashboards er zijn, en van wie ze zijn.",
         "Store": "Store",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installeer registers, schema's en flows die andere organisaties hebben gepubliceerd."
+        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installeer registers, schema's en flows die andere organisaties hebben gepubliceerd.",
+        "Admin settings": "Beheerinstellingen"
     }
 }

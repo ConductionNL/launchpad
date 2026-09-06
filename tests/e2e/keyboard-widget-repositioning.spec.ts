@@ -29,7 +29,9 @@
  *   @e2e keyboard-widget-repositioning::move-panel-traps-focus
  */
 
-import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
 
 /**
  * Navigate to launchpad, wait for the grid to hydrate, and switch into edit
@@ -37,7 +39,7 @@ import { test, expect } from '@playwright/test'
  *
  * @param {import('@playwright/test').Page} page Playwright page fixture.
  */
-async function openInEditMode(page: import('@playwright/test').Page) {
+async function openInEditMode(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
 	try {
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })

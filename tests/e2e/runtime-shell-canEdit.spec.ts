@@ -22,13 +22,13 @@
  * @spec openspec/architecture/adr-023-action-authorization.md
  */
 
-import { test, expect, request as pwRequest } from '@playwright/test'
+import { expect, request as pwRequest, test } from '@playwright/test'
 import {
-	provisionThrowawayUser,
 	deprovisionUser,
 	loginAs,
-} from './fixtures/secondary-user'
-import { BASE_URL as BASE } from './support/baseUrl'
+	provisionThrowawayUser,
+} from './fixtures/secondary-user.ts'
+import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',

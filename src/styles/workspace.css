@@ -86,3 +86,61 @@
 .cn-label-widget__text {
 	min-width: 0;
 }
+
+/* =========================================================
+   AN NcSelect DROPDOWN INSIDE A MODAL IS UNCLICKABLE WITHOUT THIS.
+
+   NcSelect defaults `appendToBody` to true, so vue-select moves the
+   open menu to `<body>` and positions it with inline styles. Its
+   z-index reads `var(--vs-dropdown-z-index)`, declared on `body` as
+   9999 — by nc-vue's own chunk stylesheet AND by this app's
+   `css/launchpad.css`, which re-declares it there deliberately
+   (ConductionNL/nextcloud-vue#864) because nc-vue 9.10 moved the
+   declaration onto the select root, where the appended menu cannot
+   inherit it.
+
+   ⚠️ THAT WORKAROUND FIXES THE SCOPE. THIS ONE FIXES THE VALUE.
+   They are not duplicates. #864 makes the menu receive a value at
+   all; 9999 is still below every modal, so the menu was inheriting
+   a number that could not win.
+
+   NcModal does not use a fixed z-index either. It assigns one at
+   RUNTIME, counting up as modals open — measured 10005 for the
+   first and 10010 for the second on one page. Every one of those is
+   above 9999, so the modal always wins and the menu is drawn
+   underneath it.
+
+   The failure never names the select. `document.elementFromPoint()`
+   at the option's own centre returns whatever modal content sits
+   over it, so Playwright reports "<p class="dashboard-config__hint">
+   intercepts pointer events" and a reader goes looking at the hint.
+   Eleven launchpad e2e tests failed this way across two specs, the
+   sharee picker and the conditional-visibility rule rows.
+
+   ⚠️ THIS IS NOT THE SAME BUG as the `.dashboard-config__field--select`
+   rule in DashboardConfigModal.vue, and that rule does not help here.
+   It raises the FIELD so a menu rendered INSIDE the modal clears the
+   fields below it. This menu is not inside the modal at all.
+
+   10100 clears nc-vue's modal counter with room for several stacked
+   modals. Verified in a browser: with it, the topmost element at the
+   option's centre is the option.
+
+   ⚠️ THE VARIABLE IS SET ON THE MENU, NOT ON `body`, AND NOT AS A
+   PLAIN `z-index`. Both of those lose. A plain `.vs__dropdown-menu
+   { z-index }` is overridden by nc-vue's own same-specificity rule in
+   `_plugin-vue_export-helper-*.chunk.css`, which loads AFTER this
+   file — measured, the rule was present in the bundle and the
+   computed value stayed 9999. And redeclaring the variable on
+   `:root` loses to nc-vue's declaration on `body`, which is more
+   specific for everything inside it. Declaring it on the element
+   itself beats an inherited value whatever the source order, so this
+   needs no `!important`.
+
+   The real fix belongs upstream in nextcloud-vue, where the two
+   numbers should be related rather than coincidental. Reported
+   there; this keeps the app usable meanwhile.
+   ========================================================= */
+.vs__dropdown-menu {
+	--vs-dropdown-z-index: 10100;
+}

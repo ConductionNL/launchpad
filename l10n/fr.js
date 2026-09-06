@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Fonctionnalités et feuille de route",
     "Maximum dashboards per user" : "Nombre maximal de tableaux de bord par utilisateur",
     "Maximum widgets per dashboard" : "Nombre maximal de widgets par tableau de bord",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = illimité. Réduire une limite ne supprime jamais les tableaux de bord existants ; cela bloque uniquement les nouveaux jusqu’à ce que les utilisateurs repassent sous la limite.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Supprimer",
     "Close" : "Fermer",
     "New dashboard name" : "Nouveau nom du tableau de bord",
-    "Delete this dashboard? This cannot be undone." : "Supprimer ce tableau de bord ? Cette action est irréversible."
+    "Delete this dashboard? This cannot be undone." : "Supprimer ce tableau de bord ? Cette action est irréversible.",
+    "Reports": "Rapports",
+    "Pick a report to open it.": "Choisissez un rapport pour l'ouvrir.",
+    "Open": "Ouvert",
+    "In progress": "En cours",
+    "Blocked": "Bloqué",
+    "Date": "Date",
+    "Due": "Échéance",
+    "Assignee": "Assigné à",
+    "Who": "Qui",
+    "What": "Quoi",
+    "Minutes": "Minutes",
+    "Entries": "Entrées",
+    "Most recent": "Les plus récents",
+    "Per person": "Par personne",
+    "By status": "Par statut",
+    "By priority": "Par priorité",
+    "Personal": "Personnel",
+    "Shared with a group": "Partagé avec un groupe",
+    "Admin templates": "Modèles d'administration",
+    "Who they belong to": "À qui ils appartiennent",
+    "Kind": "Type",
+    "Version": "Version",
+    "How many dashboards there are, and who they belong to.": "Combien de tableaux de bord il y a, et à qui ils appartiennent.",
+    "Store": "Boutique",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installez des registres, schémas et flux publiés par d'autres organisations."
 },
 "nplurals=2; plural=(n > 1);"
 );

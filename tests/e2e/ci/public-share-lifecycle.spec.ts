@@ -61,7 +61,9 @@
  * @spec openspec/specs/dashboard-public-share/spec.md
  */
 
-import { expect, request, test, type APIRequestContext } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+
+import { expect, request, test } from '@playwright/test'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -132,10 +134,12 @@ async function anonymousApi(baseURL: string): Promise<APIRequestContext> {
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'
-const shareUrl = (uuid: string) =>
-	`/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`
-const sharesUrl = (uuid: string) =>
-	`/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares`
+function shareUrl(uuid: string) {
+	return `/index.php/apps/launchpad/api/dashboards/${uuid}/public-share`
+}
+function sharesUrl(uuid: string) {
+	return `/index.php/apps/launchpad/api/dashboards/${uuid}/public-shares`
+}
 const dataUrl = (token: string) => `/index.php/apps/launchpad/s/${token}/data`
 
 /**

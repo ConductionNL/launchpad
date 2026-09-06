@@ -40,8 +40,11 @@
  * @spec openspec/changes/add-dashboard-sharing-e2e-coverage/tasks.md
  */
 
-import { test, expect, type Page } from '@playwright/test'
-import { ensureKnownPassword, loginAs } from './fixtures/secondary-user'
+import type { Locator } from '@playwright/test'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import { ensureKnownPassword, loginAs } from './fixtures/secondary-user.ts'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
@@ -100,11 +103,7 @@ async function openSharingTab(page: Page) {
  * @param {import('@playwright/test').Locator} panel the sharing panel.
  * @param {string} sharee the user id to search for and select.
  */
-async function addSharee(
-	page: Page,
-	panel: import('@playwright/test').Locator,
-	sharee: string,
-) {
+async function addSharee(page: Page, panel: Locator, sharee: string) {
 	const combobox = panel.getByLabel(/share with users and groups/i).first()
 	await combobox.click()
 	await combobox.fill(sharee)

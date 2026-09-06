@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funktsioonid ja teekaart",
     "Maximum dashboards per user" : "Töölaudade maksimumarv kasutaja kohta",
     "Maximum widgets per dashboard" : "Vidinate maksimumarv töölaua kohta",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = piiramatu. Piirangu vähendamine ei kustuta kunagi olemasolevaid töölaudu; see üksnes blokeerib uute loomise, kuni kasutajad on jälle piirist allpool.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Kustuta",
     "Close" : "Sulge",
     "New dashboard name" : "Uue töölaua nimi",
-    "Delete this dashboard? This cannot be undone." : "Kustutada see töölaud? Seda ei saa tagasi võtta."
+    "Delete this dashboard? This cannot be undone." : "Kustutada see töölaud? Seda ei saa tagasi võtta.",
+    "Reports": "Aruanded",
+    "Pick a report to open it.": "Vali aruanne, et see avada.",
+    "Open": "Avatud",
+    "In progress": "Töös",
+    "Blocked": "Blokeeritud",
+    "Date": "Kuupäev",
+    "Due": "Tähtaeg",
+    "Assignee": "Määratud",
+    "Who": "Kes",
+    "What": "Mis",
+    "Minutes": "Minutid",
+    "Entries": "Kirjed",
+    "Most recent": "Uusimad",
+    "Per person": "Isiku kohta",
+    "By status": "Staatuse järgi",
+    "By priority": "Prioriteedi järgi",
+    "Personal": "Isiklik",
+    "Shared with a group": "Jagatud rühmaga",
+    "Admin templates": "Administraatori mallid",
+    "Who they belong to": "Kellele need kuuluvad",
+    "Kind": "Liik",
+    "Version": "Versioon",
+    "How many dashboards there are, and who they belong to.": "Kui palju töölaudu on ja kellele need kuuluvad.",
+    "Store": "Pood",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Paigalda registrid, skeemid ja voog, mille teised organisatsioonid on avaldanud."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -27,13 +27,15 @@
  *   @e2e grid-layout::positions-survive-reload
  */
 
-import { test, expect } from '@playwright/test'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+} from './fixtures/widget-flow.ts'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()
@@ -46,7 +48,7 @@ test.beforeAll(async () => {
  * @param {import('@playwright/test').Page} page Playwright page.
  * @return {Promise<Array<{id: string, x: number, y: number, w: number, h: number}>>} items
  */
-async function getGridItems(page: import('@playwright/test').Page) {
+async function getGridItems(page: Page) {
 	return page.evaluate(() => {
 		const items = Array.from(document.querySelectorAll('.grid-stack-item'))
 		return items.map((el) => ({
@@ -81,7 +83,7 @@ function hasOverlap(items: Array<{ x: number; y: number; w: number; h: number }>
 }
 
 /** Add a single Label widget via the cog-menu Add Widget flow. */
-async function addLabelWidget(page: import('@playwright/test').Page, text: string) {
+async function addLabelWidget(page: Page, text: string) {
 	await openAddWidgetModal(page)
 	const dialog = page.getByRole('dialog', { name: /add widget/i }).first()
 	await dialog.getByLabel(/widget type/i).selectOption({ label: 'Label' })

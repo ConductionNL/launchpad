@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Функции и дорожная карта",
     "Maximum dashboards per user" : "Максимальное количество панелей на пользователя",
     "Maximum widgets per dashboard" : "Максимальное количество виджетов на панель",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = без ограничений. Снижение лимита никогда не удаляет существующие панели; оно лишь блокирует создание новых, пока пользователи не вернутся в пределы лимита.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Удалить",
     "Close" : "Закрыть",
     "New dashboard name" : "Новое название панели управления",
-    "Delete this dashboard? This cannot be undone." : "Удалить эту панель управления? Это нельзя отменить."
+    "Delete this dashboard? This cannot be undone." : "Удалить эту панель управления? Это нельзя отменить.",
+    "Reports": "Отчёты",
+    "Pick a report to open it.": "Выберите отчёт, чтобы открыть его.",
+    "Open": "Открыто",
+    "In progress": "В работе",
+    "Blocked": "Заблокировано",
+    "Date": "Дата",
+    "Due": "Срок",
+    "Assignee": "Назначено",
+    "Who": "Кто",
+    "What": "Что",
+    "Minutes": "Минуты",
+    "Entries": "Записи",
+    "Most recent": "Самые новые",
+    "Per person": "На человека",
+    "By status": "По статусу",
+    "By priority": "По приоритету",
+    "Personal": "Личные",
+    "Shared with a group": "Общее с группой",
+    "Admin templates": "Шаблоны администратора",
+    "Who they belong to": "Кому они принадлежат",
+    "Kind": "Вид",
+    "Version": "Версия",
+    "How many dashboards there are, and who they belong to.": "Сколько есть панелей и кому они принадлежат.",
+    "Store": "Магазин",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Установите реестры, схемы и потоки, опубликованные другими организациями."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

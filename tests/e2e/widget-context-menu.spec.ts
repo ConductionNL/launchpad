@@ -27,7 +27,10 @@
  *   @e2e widget-context-menu::remove-persists-across-reload
  */
 
-import { test, expect, type Locator } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import type { Locator } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
 
 /**
  * Wait for a locator's `boundingBox()` to stop changing before reading it.
@@ -82,7 +85,7 @@ async function waitForStableBox(locator: Locator, timeoutMs = 2_000) {
  *
  * @param {import('@playwright/test').Page} page Playwright page fixture.
  */
-async function openInEditMode(page: import('@playwright/test').Page) {
+async function openInEditMode(page: Page) {
 	await page.goto('/index.php/apps/launchpad')
 	try {
 		await page.waitForSelector('.launchpad-sidebar-toggle', { timeout: 20_000 })
@@ -160,7 +163,7 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		expect(menuBox).not.toBeNull()
 		// The menu's right edge must not overflow the 800 px viewport.
 		// REQ-WDG-017 compliance check.
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
 		expect(menuBox!.x + menuBox!.width).toBeLessThanOrEqual(800)
 
 		// Dismiss via Cancel.
@@ -196,7 +199,7 @@ test.describe('widget-context-menu (REQ-WDG-015..017)', () => {
 		const menuBox = await menu.boundingBox()
 		expect(menuBox).not.toBeNull()
 		// REQ-WDG-017: the menu bottom must not exceed the 600 px viewport.
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
 		expect(menuBox!.y + menuBox!.height).toBeLessThanOrEqual(600)
 
 		await page.locator('[data-testid="ctx-cancel"]').click()

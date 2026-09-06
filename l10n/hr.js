@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Značajke i plan razvoja",
     "Maximum dashboards per user" : "Najveći broj nadzornih ploča po korisniku",
     "Maximum widgets per dashboard" : "Najveći broj widgeta po nadzornoj ploči",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neograničeno. Smanjenje ograničenja nikada ne briše postojeće nadzorne ploče; samo blokira nove dok se korisnici ponovno ne vrate ispod ograničenja.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Izbriši",
     "Close" : "Zatvori",
     "New dashboard name" : "Naziv nove nadzorne ploče",
-    "Delete this dashboard? This cannot be undone." : "Izbrisati ovu nadzornu ploču? Ovo se ne može poništiti."
+    "Delete this dashboard? This cannot be undone." : "Izbrisati ovu nadzornu ploču? Ovo se ne može poništiti.",
+    "Reports": "Izvješća",
+    "Pick a report to open it.": "Odaberite izvješće da ga otvorite.",
+    "Open": "Otvoreno",
+    "In progress": "U tijeku",
+    "Blocked": "Blokirano",
+    "Date": "Datum",
+    "Due": "Rok",
+    "Assignee": "Dodijeljeno",
+    "Who": "Tko",
+    "What": "Što",
+    "Minutes": "Minute",
+    "Entries": "Unosi",
+    "Most recent": "Najnovije",
+    "Per person": "Po osobi",
+    "By status": "Po statusu",
+    "By priority": "Po prioritetu",
+    "Personal": "Osobno",
+    "Shared with a group": "Podijeljeno s grupom",
+    "Admin templates": "Administratorski predlošci",
+    "Who they belong to": "Kome pripadaju",
+    "Kind": "Vrsta",
+    "Version": "Verzija",
+    "How many dashboards there are, and who they belong to.": "Koliko nadzornih ploča ima i kome pripadaju.",
+    "Store": "Trgovina",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalirajte registre, sheme i tokove koje su objavile druge organizacije."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -17,19 +17,19 @@
  * @spec openspec/changes/resource-serving/tasks.md#task-8
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import * as path from 'path'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+} from './fixtures/widget-flow.ts'
 // Resolve the target instance through the one module the whole suite (and the
 // Playwright config) shares, so this spec can never target a different
 // Nextcloud than the rest of the run — and can never fall back to the shared
 // :8080 dev container, which no longer has a default at all.
-import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
+import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 

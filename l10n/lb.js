@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funktiounen a Roadmap",
     "Maximum dashboards per user" : "Maximal Dashboards pro Benotzer",
     "Maximum widgets per dashboard" : "Maximal Widgets pro Dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = onbegrenzt. D'Erofsetze vun enger Limitt läscht ni existéierend Dashboards; et blockéiert nëmme nei bis d'Benotzer erëm ënner der Limitt sinn.",
@@ -1088,7 +1089,32 @@ OC.L10N.register(
     "No dashboards in this group yet" : "Nach keng Dashboards an dëser Grupp",
     "Rename" : "Ëmbenennen",
     "New dashboard name" : "Neien Dashboard-Numm",
-    "Delete this dashboard? This cannot be undone." : "Dëse Dashboard läschen? Dëst kann net réckgängeg gemaach ginn."
+    "Delete this dashboard? This cannot be undone." : "Dëse Dashboard läschen? Dëst kann net réckgängeg gemaach ginn.",
+    "Reports": "Berichter",
+    "Pick a report to open it.": "Wielt e Bericht fir en opzemaachen.",
+    "Open": "Op",
+    "In progress": "A Gaang",
+    "Blocked": "Blockéiert",
+    "Date": "Datum",
+    "Due": "Fälleg",
+    "Assignee": "Zougewisen",
+    "Who": "Wien",
+    "What": "Wat",
+    "Minutes": "Minutten",
+    "Entries": "Andeel",
+    "Most recent": "Am rezentsten",
+    "Per person": "Pro Persoun",
+    "By status": "No Status",
+    "By priority": "No Prioritéit",
+    "Personal": "Perséinlech",
+    "Shared with a group": "Mat enger Grupp gedeelt",
+    "Admin templates": "Adminschablounen",
+    "Who they belong to": "Wiem se gehéieren",
+    "Kind": "Aart",
+    "Version": "Versioun",
+    "How many dashboards there are, and who they belong to.": "Wéi vill Dashboards et gëtt a wiem se gehéieren.",
+    "Store": "Buttek",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installéiert Registeren, Schemaen a Flows déi aner Organisatiounen publizéiert hunn."
 },
 "nplurals=2; plural=(n != 1);"
 );

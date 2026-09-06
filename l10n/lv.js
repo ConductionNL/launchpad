@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcijas un ceļvedis",
     "Maximum dashboards per user" : "Maksimālais informācijas paneļu skaits uz lietotāju",
     "Maximum widgets per dashboard" : "Maksimālais logrīku skaits uz informācijas paneli",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neierobežots. Ierobežojuma samazināšana nekad nedzēš esošos informācijas paneļus; tā tikai bloķē jaunus, līdz lietotāji atkal ir zem ierobežojuma.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Dzēst",
     "Close" : "Aizvērt",
     "New dashboard name" : "Jaunā vadības paneļa nosaukums",
-    "Delete this dashboard? This cannot be undone." : "Dzēst šo vadības paneli? To nevar atsaukt."
+    "Delete this dashboard? This cannot be undone." : "Dzēst šo vadības paneli? To nevar atsaukt.",
+    "Reports": "Pārskati",
+    "Pick a report to open it.": "Izvēlieties pārskatu, lai to atvērtu.",
+    "Open": "Atvērts",
+    "In progress": "Notiek",
+    "Blocked": "Bloķēts",
+    "Date": "Datums",
+    "Due": "Termiņš",
+    "Assignee": "Piešķirts",
+    "Who": "Kurš",
+    "What": "Kas",
+    "Minutes": "Minūtes",
+    "Entries": "Ieraksti",
+    "Most recent": "Jaunākie",
+    "Per person": "Uz personu",
+    "By status": "Pēc statusa",
+    "By priority": "Pēc prioritātes",
+    "Personal": "Personīgi",
+    "Shared with a group": "Koplietots ar grupu",
+    "Admin templates": "Administratora veidnes",
+    "Who they belong to": "Kam tie pieder",
+    "Kind": "Veids",
+    "Version": "Versija",
+    "How many dashboards there are, and who they belong to.": "Cik ir infopaneļu un kam tie pieder.",
+    "Store": "Veikals",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalējiet reģistrus, shēmas un plūsmas, ko publicējušas citas organizācijas."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

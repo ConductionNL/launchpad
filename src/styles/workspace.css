@@ -92,8 +92,17 @@
 
    NcSelect defaults `appendToBody` to true, so vue-select moves the
    open menu to `<body>` and positions it with inline styles. Its
-   z-index reads `var(--vs-dropdown-z-index)`, and nc-vue declares
-   that variable on `body` as 9999.
+   z-index reads `var(--vs-dropdown-z-index)`, declared on `body` as
+   9999 — by nc-vue's own chunk stylesheet AND by this app's
+   `css/launchpad.css`, which re-declares it there deliberately
+   (ConductionNL/nextcloud-vue#864) because nc-vue 9.10 moved the
+   declaration onto the select root, where the appended menu cannot
+   inherit it.
+
+   ⚠️ THAT WORKAROUND FIXES THE SCOPE. THIS ONE FIXES THE VALUE.
+   They are not duplicates. #864 makes the menu receive a value at
+   all; 9999 is still below every modal, so the menu was inheriting
+   a number that could not win.
 
    NcModal does not use a fixed z-index either. It assigns one at
    RUNTIME, counting up as modals open — measured 10005 for the

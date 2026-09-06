@@ -75,6 +75,22 @@
  *
  * Re-declaring it on `body` restores exactly what 9.9.0 did, and is harmless
  * once upstream fixes the scope: the value is identical either way.
+ *
+ * ⚠️ THIS FIXES THE SCOPE, NOT THE VALUE, AND 9999 IS STILL TOO LOW.
+ * `src/styles/workspace.css` carries a SECOND rule raising the same variable
+ * to 10100 on the menu itself. They are not duplicates and removing either
+ * brings a different failure back:
+ *
+ *   - This one restores INHERITANCE, so the menu receives a value at all.
+ *   - That one raises the VALUE above NcModal, which does not use a fixed
+ *     z-index: it assigns one at RUNTIME, counting up as modals open —
+ *     measured 10005 for the first open modal and 10010 for the second. Every
+ *     one of those beats 9999, so with only this rule the menu still renders
+ *     under any modal.
+ *
+ * So when ConductionNL/nextcloud-vue#864 is closed and this block is deleted,
+ * the 10100 rule must STAY until nc-vue relates the two numbers rather than
+ * choosing them independently.
  */
 body {
 	--vs-dropdown-z-index: 9999;

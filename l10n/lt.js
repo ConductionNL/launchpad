@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcijos ir planas",
     "Maximum dashboards per user" : "Didžiausias skydelių skaičius vienam naudotojui",
     "Maximum widgets per dashboard" : "Didžiausias valdiklių skaičius viename skydelyje",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = neribota. Apribojimo sumažinimas niekada netrina esamų skydelių; jis tik blokuoja naujų kūrimą, kol naudotojai vėl bus mažiau už ribą.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Ištrinti",
     "Close" : "Užverti",
     "New dashboard name" : "Naujas valdymo skydo pavadinimas",
-    "Delete this dashboard? This cannot be undone." : "Ištrinti šį valdymo skydą? To negalima atšaukti."
+    "Delete this dashboard? This cannot be undone." : "Ištrinti šį valdymo skydą? To negalima atšaukti.",
+    "Reports": "Ataskaitos",
+    "Pick a report to open it.": "Pasirinkite ataskaitą, kad ją atidarytumėte.",
+    "Open": "Atviras",
+    "In progress": "Vykdoma",
+    "Blocked": "Užblokuota",
+    "Date": "Data",
+    "Due": "Terminas",
+    "Assignee": "Priskirta",
+    "Who": "Kas",
+    "What": "Kas",
+    "Minutes": "Minutės",
+    "Entries": "Įrašai",
+    "Most recent": "Naujausi",
+    "Per person": "Vienam asmeniui",
+    "By status": "Pagal būseną",
+    "By priority": "Pagal prioritetą",
+    "Personal": "Asmeniniai",
+    "Shared with a group": "Bendrinama su grupe",
+    "Admin templates": "Administratoriaus šablonai",
+    "Who they belong to": "Kam jie priklauso",
+    "Kind": "Rūšis",
+    "Version": "Versija",
+    "How many dashboards there are, and who they belong to.": "Kiek yra skydelių ir kam jie priklauso.",
+    "Store": "Parduotuvė",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Įdiekite registrus, schemas ir srautus, kuriuos paskelbė kitos organizacijos."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

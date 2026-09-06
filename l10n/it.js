@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funzionalità e roadmap",
     "Maximum dashboards per user" : "Numero massimo di dashboard per utente",
     "Maximum widgets per dashboard" : "Numero massimo di widget per dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = illimitato. La riduzione di un limite non elimina mai le dashboard esistenti; blocca solo quelle nuove finché gli utenti non tornano sotto il limite.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Elimina",
     "Close" : "Chiudi",
     "New dashboard name" : "Nuovo nome della dashboard",
-    "Delete this dashboard? This cannot be undone." : "Eliminare questa dashboard? L'operazione non può essere annullata."
+    "Delete this dashboard? This cannot be undone." : "Eliminare questa dashboard? L'operazione non può essere annullata.",
+    "Reports": "Report",
+    "Pick a report to open it.": "Scegli un report per aprirlo.",
+    "Open": "Aperto",
+    "In progress": "In corso",
+    "Blocked": "Bloccato",
+    "Date": "Data",
+    "Due": "Scadenza",
+    "Assignee": "Assegnato a",
+    "Who": "Chi",
+    "What": "Cosa",
+    "Minutes": "Minuti",
+    "Entries": "Voci",
+    "Most recent": "Più recenti",
+    "Per person": "Per persona",
+    "By status": "Per stato",
+    "By priority": "Per priorità",
+    "Personal": "Personale",
+    "Shared with a group": "Condiviso con un gruppo",
+    "Admin templates": "Modelli di amministrazione",
+    "Who they belong to": "A chi appartengono",
+    "Kind": "Tipo",
+    "Version": "Versione",
+    "How many dashboards there are, and who they belong to.": "Quante dashboard ci sono e a chi appartengono.",
+    "Store": "Store",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installa registri, schemi e flussi pubblicati da altre organizzazioni."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -802,6 +802,12 @@ export default {
 	left: 0;
 	bottom: 0;
 	width: 280px;
+	/*
+	 * Above NcAppNavigation's own 1400. This only started mattering with #551:
+	 * before the shared shell this view was the page, and nothing else claimed
+	 * the left 280px. See the Teleport in Views.vue for why the number alone
+	 * was not enough.
+	 */
 	z-index: 1500;
 	background: var(--color-main-background, #fff);
 	border-right: 1px solid var(--color-border, #e0e0e0);

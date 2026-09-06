@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funktioner og køreplan",
     "Maximum dashboards per user" : "Maksimalt antal dashboards pr. bruger",
     "Maximum widgets per dashboard" : "Maksimalt antal widgets pr. dashboard",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = ubegrænset. Sænkning af en grænse sletter aldrig eksisterende dashboards; den blokerer kun nye, indtil brugerne igen er under grænsen.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Slet",
     "Close" : "Luk",
     "New dashboard name" : "Nyt dashboard-navn",
-    "Delete this dashboard? This cannot be undone." : "Slet dette dashboard? Dette kan ikke fortrydes."
+    "Delete this dashboard? This cannot be undone." : "Slet dette dashboard? Dette kan ikke fortrydes.",
+    "Reports": "Rapporter",
+    "Pick a report to open it.": "Vælg en rapport for at åbne den.",
+    "Open": "Åben",
+    "In progress": "I gang",
+    "Blocked": "Blokeret",
+    "Date": "Dato",
+    "Due": "Forfalder",
+    "Assignee": "Tildelt",
+    "Who": "Hvem",
+    "What": "Hvad",
+    "Minutes": "Minutter",
+    "Entries": "Poster",
+    "Most recent": "Nyeste",
+    "Per person": "Per person",
+    "By status": "Efter status",
+    "By priority": "Efter prioritet",
+    "Personal": "Personlig",
+    "Shared with a group": "Delt med en gruppe",
+    "Admin templates": "Administratorskabeloner",
+    "Who they belong to": "Hvem de tilhører",
+    "Kind": "Type",
+    "Version": "Version",
+    "How many dashboards there are, and who they belong to.": "Hvor mange dashboards der er, og hvem de tilhører.",
+    "Store": "Butik",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installer registre, skemaer og flows, som andre organisationer har udgivet."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -36,7 +36,7 @@
  *   @e2e dashboard-switcher::click-a-default-group-dashboard
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('wave3 runtime-shell + sidebar UX', () => {
 	test.beforeEach(async ({ page }) => {

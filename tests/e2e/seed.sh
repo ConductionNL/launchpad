@@ -93,6 +93,34 @@ for entry in "${SEED_ACCOUNTS[@]}"; do
 	rc=1
 done
 
+# ── Settle the support note for every seeded account ─────────────────────────
+# SAME SHAPE AS THE WIZARD ABOVE, ONE DIALOG FURTHER ON. `CnAppRoot` mounts
+# `CnSupportDialog` on a user's first visit, and it is an `aria-modal` overlay
+# that INTERCEPTS POINTER EVENTS rather than merely covering the page.
+#
+# `global-setup.ts` records it as seen, but through the logged-in admin's own
+# preference, and the marker is PER USER. So the suite settles it for exactly
+# one of the people it logs in as. Measured after the wizard and the select
+# z-index were fixed: "recipient sees the shared dashboard in their switcher"
+# was the last failure standing in dashboard-sharing, and the call log named
+# `data-testid-modal="cn-support-dialog"` intercepting a
+# `.launchpad-sidebar-toggle` the same log calls visible, enabled and stable.
+#
+# Written with occ rather than through the API because occ is the only thing
+# here that can write ANOTHER user's preference: the app's
+# `/api/preferences/support-dialog-seen` endpoint writes the caller's own.
+#
+# Best-effort per account, like the wizard above: a failure here costs a masked
+# click, not a wrong result, and should not stop the suite from starting.
+for entry in "${SEED_ACCOUNTS[@]}"; do
+	uid="${entry%%:*}"
+	if ${OCC} user:setting "${uid}" launchpad pref_support-dialog-seen 1 >/dev/null 2>&1; then
+		echo "settled the support note for ${uid}"
+	else
+		echo "could not settle the support note for ${uid} — continuing" >&2
+	fi
+done
+
 
 # ── Settle the demo-data decision ────────────────────────────────────────────
 # 🔴 OR THE SETUP WIZARD MASKS EVERY CLICK. ADR-111 added an OPTIONAL

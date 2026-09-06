@@ -47,7 +47,9 @@
  * @spec openspec/specs/dashboard-public-share/spec.md
  */
 
-import { expect, request, test, type APIRequestContext } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
+
+import { expect, request, test } from '@playwright/test'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',

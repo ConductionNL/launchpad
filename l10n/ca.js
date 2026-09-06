@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funcions i full de ruta",
     "Maximum dashboards per user" : "Màxim de taulers per usuari",
     "Maximum widgets per dashboard" : "Màxim de ginys per tauler",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = il·limitat. Reduir un límit mai no suprimeix els taulers existents; només bloqueja els nous fins que els usuaris tornin a estar per sota del límit.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Suprimeix",
     "Close" : "Tanca",
     "New dashboard name" : "Nom del tauler nou",
-    "Delete this dashboard? This cannot be undone." : "Voleu suprimir aquest tauler? Això no es pot desfer."
+    "Delete this dashboard? This cannot be undone." : "Voleu suprimir aquest tauler? Això no es pot desfer.",
+    "Reports": "Informes",
+    "Pick a report to open it.": "Trieu un informe per obrir-lo.",
+    "Open": "Obert",
+    "In progress": "En curs",
+    "Blocked": "Bloquejat",
+    "Date": "Data",
+    "Due": "Venciment",
+    "Assignee": "Assignat a",
+    "Who": "Qui",
+    "What": "Què",
+    "Minutes": "Minuts",
+    "Entries": "Entrades",
+    "Most recent": "Més recents",
+    "Per person": "Per persona",
+    "By status": "Per estat",
+    "By priority": "Per prioritat",
+    "Personal": "Personal",
+    "Shared with a group": "Compartit amb un grup",
+    "Admin templates": "Plantilles d'administració",
+    "Who they belong to": "A qui pertanyen",
+    "Kind": "Tipus",
+    "Version": "Versió",
+    "How many dashboards there are, and who they belong to.": "Quants taulers hi ha i a qui pertanyen.",
+    "Store": "Botiga",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instal·leu registres, esquemes i fluxos publicats per altres organitzacions."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -67,7 +67,7 @@ function hoistGlobalOptions(options) {
 	const hoisted = {}
 	let found = false
 	for (const key of HOISTED_KEYS) {
-		if (Object.prototype.hasOwnProperty.call(options, key)) {
+		if (Object.hasOwn(options, key)) {
 			hoisted[key] = options[key]
 			found = true
 		}
@@ -116,7 +116,9 @@ function adaptOptions(options) {
 
 export * from '../../node_modules/@vue/test-utils/dist/vue-test-utils.esm-bundler.mjs'
 
-export const mount = (component, options) =>
-	vtu.mount(component, adaptOptions(options))
-export const shallowMount = (component, options) =>
-	vtu.shallowMount(component, adaptOptions(options))
+export function mount(component, options) {
+	return vtu.mount(component, adaptOptions(options))
+}
+export function shallowMount(component, options) {
+	return vtu.shallowMount(component, adaptOptions(options))
+}

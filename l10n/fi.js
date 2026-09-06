@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Ominaisuudet ja tiekartta",
     "Maximum dashboards per user" : "Koontinäyttöjen enimmäismäärä käyttäjää kohden",
     "Maximum widgets per dashboard" : "Pienoisohjelmien enimmäismäärä koontinäyttöä kohden",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = rajaton. Rajan alentaminen ei koskaan poista olemassa olevia koontinäyttöjä; se vain estää uusien luomisen, kunnes käyttäjät ovat taas rajan alapuolella.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Poista",
     "Close" : "Sulje",
     "New dashboard name" : "Uuden kojelaudan nimi",
-    "Delete this dashboard? This cannot be undone." : "Poistetaanko tämä kojelauta? Tätä ei voi kumota."
+    "Delete this dashboard? This cannot be undone." : "Poistetaanko tämä kojelauta? Tätä ei voi kumota.",
+    "Reports": "Raportit",
+    "Pick a report to open it.": "Valitse raportti avataksesi sen.",
+    "Open": "Avoin",
+    "In progress": "Käynnissä",
+    "Blocked": "Estetty",
+    "Date": "Päivämäärä",
+    "Due": "Määräpäivä",
+    "Assignee": "Vastuuhenkilö",
+    "Who": "Kuka",
+    "What": "Mitä",
+    "Minutes": "Minuutit",
+    "Entries": "Merkinnät",
+    "Most recent": "Uusimmat",
+    "Per person": "Henkilöä kohti",
+    "By status": "Tilan mukaan",
+    "By priority": "Prioriteetin mukaan",
+    "Personal": "Henkilökohtainen",
+    "Shared with a group": "Jaettu ryhmän kanssa",
+    "Admin templates": "Ylläpitäjän mallit",
+    "Who they belong to": "Kenelle ne kuuluvat",
+    "Kind": "Laji",
+    "Version": "Versio",
+    "How many dashboards there are, and who they belong to.": "Kuinka monta koontinäyttöä on ja kenelle ne kuuluvat.",
+    "Store": "Kauppa",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Asenna muiden organisaatioiden julkaisemia rekistereitä, skeemoja ja vuokaavioita."
 },
 "nplurals=2; plural=(n != 1);"
 );

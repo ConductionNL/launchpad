@@ -24,7 +24,7 @@
  *   @e2e launchpad-adopt-or-abstractions::manifest-loads-on-app-boot
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 const APP_URL = '/index.php/apps/launchpad'
 const MANIFEST_GLOB = '**/apps/launchpad/api/manifest*'

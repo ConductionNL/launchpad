@@ -48,7 +48,14 @@ export default {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	z-index: 999;
+	/*
+	 * Above NcAppNavigation's own 1400, and below the sidebar's 1500 that it
+	 * sits behind. At 999 the navigation painted over the backdrop, so a click
+	 * meant to dismiss the sidebar navigated instead. Only meaningful together
+	 * with the Teleport in Views.vue: inside `#app-content` no value here can
+	 * beat a sibling subtree that already carries a z-index.
+	 */
+	z-index: 1450;
 	background: rgba(0, 0, 0, 0.2);
 	cursor: pointer;
 }

@@ -77,14 +77,9 @@
  * @spec openspec/specs/conditional-visibility-editor/spec.md
  */
 
-import {
-	expect,
-	request,
-	test,
-	type APIRequestContext,
-	type Locator,
-	type Page,
-} from '@playwright/test'
+import type { APIRequestContext, Locator, Page } from '@playwright/test'
+
+import { expect, request, test } from '@playwright/test'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',

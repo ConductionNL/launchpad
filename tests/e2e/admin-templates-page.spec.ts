@@ -31,8 +31,8 @@
  * and the editor is dismissed without submitting.
  */
 
-import { test, expect } from '@playwright/test'
-import { BASE_URL as BASE } from './support/baseUrl'
+import { expect, test } from '@playwright/test'
+import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',

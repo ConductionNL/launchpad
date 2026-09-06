@@ -20,13 +20,13 @@
  *   @e2e text-display-widget::form-rejects-empty-text
  */
 
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+} from './fixtures/widget-flow.ts'
 
 test.beforeAll(async () => {
 	await ensureDefaultWidgetRestriction()

@@ -29,15 +29,17 @@
  * "element is outside of the viewport" retries that made the popup version red.
  */
 
-import { test, expect, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
 import * as path from 'path'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
 import {
+	closeSidebar,
 	gotoLaunchPad,
 	openAddWidgetModal,
-	closeSidebar,
-} from './fixtures/widget-flow'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
-import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl'
+} from './fixtures/widget-flow.ts'
+import { BASE_URL as NEXTCLOUD_URL } from './support/baseUrl.ts'
 
 const APP_ID = process.env.APP_ID || 'launchpad'
 

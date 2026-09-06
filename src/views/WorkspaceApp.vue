@@ -1,5 +1,16 @@
 <!-- SPDX-License-Identifier: EUPL-1.2 -->
 
+<!--
+  - @visual exclude Not a new screen. WorkspaceApp is this app's oldest and,
+  - until `launchpad-manifest-tier-3`, its ONLY surface: `App.vue` rendered it
+  - directly, with no router. This change moves it under the `/` and
+  - `/dashboards/:id` routes, which is why gate-26 sees it as a newly declared
+  - page component — its appearance is unchanged, and a baseline captured now
+  - would be a baseline of the screen that already shipped. The behaviour that
+  - IS new (the route param selecting a dashboard) is covered by
+  - `tests/e2e/app-chrome.spec.ts`.
+  -->
+
 <template>
 	<div class="workspace-shell" :class="orgNavWrapperClass">
 		<!-- Org-wide navigation rail (REQ-ONAV-005, REQ-ONAV-008).
@@ -306,6 +317,51 @@ export default {
 				'workspace-shell--org-nav-'
 					+ (this.orgNavStore.position || 'hidden'),
 			]
+		},
+	},
+
+	watch: {
+		/**
+		 * `/dashboards/:id` selects the dashboard (dashboard-deeplinking).
+		 *
+		 * 🔴 A DASHBOARD HAD NO ADDRESS UNTIL `launchpad-manifest-tier-3`.
+		 * Switching was Pinia state that never touched the URL, so a dashboard
+		 * could not be linked, bookmarked or reopened — and the manifest's
+		 * `/dashboards/:id` page routed nowhere. The watcher is `immediate` so
+		 * a cold deep link selects on arrival, not only on a later change.
+		 *
+		 * A missing or unknown id is left alone deliberately: the store's own
+		 * resolver already picks a sensible active dashboard, and overriding it
+		 * here would make a bad link empty the page instead of falling back.
+		 *
+		 * @param {string|undefined} id The route's dashboard id.
+		 * @return {void}
+		 *
+		 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+		 */
+		'$route.params.id': {
+			immediate: true,
+
+			/**
+			 * Select the dashboard the route names.
+			 *
+			 * @param {string|undefined} id The route's dashboard id.
+			 * @return {void}
+			 *
+			 * @spec openspec/changes/launchpad-manifest-tier-3/specs/manifest-routing/spec.md#requirement-req-route-003-a-dashboard-has-an-address
+			 */
+			handler(id) {
+				if (id === undefined || id === null || id === '') {
+					return
+				}
+
+				const store = useDashboardStore()
+				if (String(store.activeDashboardId) === String(id)) {
+					return
+				}
+
+				store.switchDashboard(id)
+			},
 		},
 	},
 

@@ -36,15 +36,11 @@
  *   @e2e label-widget::newly-added-label-uses-registry-defaults
  */
 
-import {
-	test,
-	expect,
-	request as pwRequest,
-	type APIRequestContext,
-} from '@playwright/test'
-import { BASE_URL as BASE } from '../support/baseUrl'
+import type { APIRequestContext } from '@playwright/test'
 
-import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions'
+import { expect, request as pwRequest, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
+import { BASE_URL as BASE } from '../support/baseUrl.ts'
 
 const ADMIN_CREDS = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',

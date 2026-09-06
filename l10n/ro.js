@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funcții și foaie de parcurs",
     "Maximum dashboards per user" : "Numărul maxim de tablouri de bord per utilizator",
     "Maximum widgets per dashboard" : "Numărul maxim de widgeturi per tablou de bord",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = nelimitat. Reducerea unei limite nu șterge niciodată tablourile de bord existente; blochează doar pe cele noi până când utilizatorii revin sub limită.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Ștergeți",
     "Close" : "Închideți",
     "New dashboard name" : "Numele noului tablou de bord",
-    "Delete this dashboard? This cannot be undone." : "Ștergeți acest tablou de bord? Această acțiune nu poate fi anulată."
+    "Delete this dashboard? This cannot be undone." : "Ștergeți acest tablou de bord? Această acțiune nu poate fi anulată.",
+    "Reports": "Rapoarte",
+    "Pick a report to open it.": "Alegeți un raport pentru a-l deschide.",
+    "Open": "Deschis",
+    "In progress": "În curs",
+    "Blocked": "Blocat",
+    "Date": "Dată",
+    "Due": "Scadență",
+    "Assignee": "Atribuit lui",
+    "Who": "Cine",
+    "What": "Ce",
+    "Minutes": "Minute",
+    "Entries": "Intrări",
+    "Most recent": "Cele mai recente",
+    "Per person": "Per persoană",
+    "By status": "După stare",
+    "By priority": "După prioritate",
+    "Personal": "Personal",
+    "Shared with a group": "Partajat cu un grup",
+    "Admin templates": "Șabloane de administrare",
+    "Who they belong to": "Cui aparțin",
+    "Kind": "Fel",
+    "Version": "Versiune",
+    "How many dashboards there are, and who they belong to.": "Câte tablouri de bord există și cui aparțin.",
+    "Store": "Magazin",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalați registre, scheme și fluxuri publicate de alte organizații."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

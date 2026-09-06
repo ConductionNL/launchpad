@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Features & roadmap" : "Funkcje i plan rozwoju",
     "Maximum dashboards per user" : "Maksymalna liczba pulpitów na użytkownika",
     "Maximum widgets per dashboard" : "Maksymalna liczba widżetów na pulpit",
     "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit." : "0 = bez ograniczeń. Obniżenie limitu nigdy nie usuwa istniejących pulpitów; jedynie blokuje nowe, dopóki użytkownicy nie zejdą poniżej limitu.",
@@ -1097,7 +1098,32 @@ OC.L10N.register(
     "Delete" : "Usuń",
     "Close" : "Zamknij",
     "New dashboard name" : "Nazwa nowego pulpitu",
-    "Delete this dashboard? This cannot be undone." : "Usunąć ten pulpit? Tej operacji nie można cofnąć."
+    "Delete this dashboard? This cannot be undone." : "Usunąć ten pulpit? Tej operacji nie można cofnąć.",
+    "Reports": "Raporty",
+    "Pick a report to open it.": "Wybierz raport, aby go otworzyć.",
+    "Open": "Otwarte",
+    "In progress": "W toku",
+    "Blocked": "Zablokowane",
+    "Date": "Data",
+    "Due": "Termin",
+    "Assignee": "Przypisane do",
+    "Who": "Kto",
+    "What": "Co",
+    "Minutes": "Minuty",
+    "Entries": "Wpisy",
+    "Most recent": "Najnowsze",
+    "Per person": "Na osobę",
+    "By status": "Według statusu",
+    "By priority": "Według priorytetu",
+    "Personal": "Osobiste",
+    "Shared with a group": "Udostępnione grupie",
+    "Admin templates": "Szablony administratora",
+    "Who they belong to": "Do kogo należą",
+    "Kind": "Rodzaj",
+    "Version": "Wersja",
+    "How many dashboards there are, and who they belong to.": "Ile jest pulpitów i do kogo należą.",
+    "Store": "Sklep",
+    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Zainstaluj rejestry, schematy i przepływy opublikowane przez inne organizacje."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

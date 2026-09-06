@@ -27,8 +27,10 @@
  *   @e2e grid-layout::minimum-grid-height
  */
 
-import { test, expect } from '@playwright/test'
-import { gotoLaunchPad } from './fixtures/widget-flow'
+import type { Page } from '@playwright/test'
+
+import { expect, test } from '@playwright/test'
+import { gotoLaunchPad } from './fixtures/widget-flow.ts'
 
 /**
  * Read GridStack's live column count for the rendered grid.
@@ -36,7 +38,7 @@ import { gotoLaunchPad } from './fixtures/widget-flow'
  * @param {import('@playwright/test').Page} page Playwright page.
  * @return {Promise<number>} The active column count.
  */
-async function readColumns(page: import('@playwright/test').Page): Promise<number> {
+async function readColumns(page: Page): Promise<number> {
 	await page.waitForFunction(
 		() => {
 			const el = document.querySelector('.grid-stack') as

@@ -13,14 +13,16 @@
  *   @e2e add-widget-modal::edit-mode-no-stale-state-on-reopen
  */
 
-import { test, expect, request, type APIRequestContext } from '@playwright/test'
-import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions'
+import type { APIRequestContext } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
+
+import { expect, request, test } from '@playwright/test'
+import { ensureDefaultWidgetRestriction } from './fixtures/role-feature-permissions.ts'
+import { BASE_URL } from './support/baseUrl.ts'
 import {
 	removeSeededDashboard,
 	seedActiveDashboard,
-	type SeededDashboard,
-} from './support/dashboardFixture'
-import { BASE_URL } from './support/baseUrl'
+} from './support/dashboardFixture.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',

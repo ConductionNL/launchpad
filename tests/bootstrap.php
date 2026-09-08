@@ -31,11 +31,91 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // (PHPUNIT_USE_NC_BOOTSTRAP=1) or when the environment is pre-configured
 // (e.g. a running NC container). Fall back to OCP stubs otherwise so that
 // unit tests can run in any CI builder container without a live NC install.
+//
+// "Pre-configured" means INSTALLED, not merely checked out. `lib/base.php`
+// from a source tree that was never installed (the workspace checkout above
+// apps-extra/ has a 0-byte config/config.php) still declares `OC` and builds
+// `\OC::$server` before it throws "Not installed". That server cannot be
+// undone (`OC::$server` is a typed static), so from then on every
+// `\OC::$server->get()` in the code under test hits a container that knows
+// none of this app's registrations and autowires from scratch; constructor
+// cycles then recurse until memory runs out (19 GB and 6 GB of swap in one
+// openregister run on 2026-09-08). The decision therefore has to be made
+// BEFORE base.php is loaded, on the `installed` flag in config/config.php.
+
+/**
+ * Tell whether a Nextcloud root is an INSTALLED instance, not just a source tree.
+ *
+ * @param string $ncRoot Candidate Nextcloud root.
+ *
+ * @return bool True when config/config.php declares `installed => true`.
+ */
+function launchpad_nc_root_is_installed(string $ncRoot): bool
+{
+	$configFile = $ncRoot . '/config/config.php';
+	if (is_file($configFile) === false || filesize($configFile) === 0) {
+		return false;
+	}
+
+	// The config file is a plain `$CONFIG = [...]` script; including it in a
+	// closure keeps `$CONFIG` out of the global scope.
+	$config = (static function () use ($configFile): array {
+		$CONFIG = [];
+		try {
+			include $configFile;
+		} catch (\Throwable) {
+			return [];
+		}
+
+		if (is_array($CONFIG) === false) {
+			return [];
+		}
+
+		return $CONFIG;
+	})();
+
+	return ($config['installed'] ?? false) === true;
+}//end launchpad_nc_root_is_installed()
+
+$ncRoot = realpath(__DIR__ . '/../../..');
 $ncBasePhp = __DIR__ . '/../../../lib/base.php';
-$ncUseFull = (file_exists($ncBasePhp) === true)
+$ncRequested = (file_exists($ncBasePhp) === true)
 	&& getenv('PHPUNIT_USE_NC_BOOTSTRAP') === '1';
+$ncUseFull = $ncRequested === true
+	&& $ncRoot !== false
+	&& launchpad_nc_root_is_installed($ncRoot) === true;
+if ($ncRequested === true && $ncUseFull === false) {
+	fwrite(
+		STDERR,
+		sprintf(
+			"[launchpad/tests/bootstrap] Nextcloud root at %s is not an installed instance (config/config.php lacks installed => true); "
+			. "skipping lib/base.php and running with composer autoload and OCP stubs only (pure-unit mode).\n",
+			(string) $ncRoot
+		)
+	);
+}
+
 if ($ncUseFull === true) {
-	include_once $ncBasePhp;
+	try {
+		include_once $ncBasePhp;
+	} catch (\Throwable $e) {
+		// The root passed the installed check but base.php still failed
+		// (unreachable database, broken app, ...). `OC::$server` is a typed
+		// static that already holds a half-built container, so falling through
+		// to the OCP stubs would be a lie that costs gigabytes. Stop the run
+		// and say why.
+		fwrite(
+			STDERR,
+			sprintf(
+				"[launchpad/tests/bootstrap] Nextcloud root at %s could not be initialised (%s).\n"
+				. "  A half-booted server cannot be undone, so the run stops here rather than pretending to be pure-unit.\n"
+				. "  Fix the instance, or unset PHPUNIT_USE_NC_BOOTSTRAP for pure-unit mode.\n",
+				(string) $ncRoot,
+				$e->getMessage()
+			)
+		);
+		exit(1);
+	}
 } elseif (is_dir(__DIR__ . '/../vendor/nextcloud/ocp/OCP') === true) {
 	// Outside the container we register the OCP stubs from
 	// vendor/nextcloud/ocp so unit tests that mock OCP interfaces

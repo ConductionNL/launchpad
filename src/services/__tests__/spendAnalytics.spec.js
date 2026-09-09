@@ -146,8 +146,8 @@ describe('spendAnalytics data layer', () => {
 		expect(resolveDeepLink('financeq', 'transaction', 'tx-1')).toBe(
 			'/apps/financeq/transaction/tx-1',
 		)
-		expect(resolveDeepLink('procest', 'vendor', 'acme')).toBe(
-			'/apps/procest/vendor/acme',
+		expect(resolveDeepLink('dossiq', 'vendor', 'acme')).toBe(
+			'/apps/dossiq/vendor/acme',
 		)
 	})
 })

@@ -23,7 +23,22 @@ import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { GraphQLSourceError, queryGraphql } from './graphqlClient.js'
 
-/** Sibling app ids this widget reads from (REQ-SAW-004). */
+/**
+ * Sibling app ids this widget reads from (REQ-SAW-004).
+ *
+ * NOT REPOINTED, DELIBERATELY (2026-09-09). `procest` is a retired app id and
+ * its successor is `dossiq`, but renaming it here would look like a fix and be
+ * none: both ids feed `queryGraphql()`, which builds `/apps/<app>/graphql`, and
+ * that route is published by NO fleet app under either name. Read off dossiq
+ * `development`: `appinfo/routes.php` has no `graphql` entry at all. OpenRegister
+ * serves GraphQL at `/apps/openregister/api/graphql`, so the endpoint this module
+ * needs is OR's, not the sibling's, and `resolveGraphqlUrl()` is what has to
+ * change. `financeq` is not a fleet app at all.
+ *
+ * Fix the endpoint first; the id then follows in the same change, resolved
+ * through `OC.appswebroots` rather than hardcoded, so an instance on either
+ * release keeps working.
+ */
 export const SPEND_SOURCES = Object.freeze({
 	FINANCE: 'financeq',
 	PROCEST: 'procest',
@@ -215,6 +230,20 @@ export const LLM_SOURCE_ALIAS = 'local-llm'
  * @spec openspec/specs/launchpad-spend-analytics-widget/spec.md
  */
 export async function fetchSpendNarrative({ summary, timeoutMs = 5000 }) {
+	// NOT REPOINTED, DELIBERATELY (2026-09-09). `openconnector` is retired and
+	// its successor is `integriq`, but `/api/sources/{source}/call` is not a
+	// route integriq publishes, and `git log -S` over openconnector's full
+	// history finds it was never added under the old name either. Integriq's
+	// SourcesController exposes only `test`, `logs` and the two circuit-breaker
+	// actions, and the app has no LLM/inference endpoint at all: no `local-llm`,
+	// no Ollama reference anywhere in the repo.
+	//
+	// Renaming the segment would turn one 404 into another while the diff read
+	// as a fix, and would hide the real gap: REQ-SAW-006 depends on a connector
+	// surface that does not exist. The nearest published thing is
+	// `POST /api/datasource/{sourceId}/resolve`, a read-only dashboard value
+	// resolver that dispatches a GET, which is not an inference call. This needs
+	// an integriq-side endpoint before the name here means anything.
 	const url = generateUrl('/apps/openconnector/api/sources/{source}/call', {
 		source: LLM_SOURCE_ALIAS,
 	})

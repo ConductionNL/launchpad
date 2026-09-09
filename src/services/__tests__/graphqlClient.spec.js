@@ -55,11 +55,11 @@ describe('graphqlClient (REQ-SAW-004 / REQ-SAW-005)', () => {
 	it('maps a 404 to a not_installed GraphQLSourceError', async () => {
 		axios.post.mockRejectedValue({ response: { status: 404 } })
 		await expect(
-			queryGraphql({ app: 'procest', query: 'q' }),
+			queryGraphql({ app: 'dossiq', query: 'q' }),
 		).rejects.toMatchObject({
 			name: 'GraphQLSourceError',
 			code: 'not_installed',
-			app: 'procest',
+			app: 'dossiq',
 		})
 	})
 

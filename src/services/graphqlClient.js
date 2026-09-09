@@ -62,7 +62,7 @@ export class GraphQLSourceError extends Error {
 /**
  * Resolve a sibling app id to its OR-mounted GraphQL endpoint URL.
  *
- * @param {string} app the sibling app id (e.g. `financeq`, `procest`)
+ * @param {string} app the sibling app id (e.g. `financeq`, `dossiq`)
  * @return {string} the absolute Nextcloud route for the app's `/graphql`
  */
 function resolveGraphqlUrl(app) {

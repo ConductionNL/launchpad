@@ -34,7 +34,7 @@
 		"prepare": "git config core.hooksPath .githooks || true"
 	},
 	"dependencies": {
-		"@conduction/nextcloud-vue": "^2.41.1",
+		"@conduction/nextcloud-vue": "^2.44.1",
 		"@mdi/js": "^7.4.47",
 		"@nextcloud/axios": "^2.6.0",
 		"@nextcloud/dialogs": "^7.4.1",
@@ -66,7 +66,7 @@
 		"@typescript-eslint/parser": "^8.70.0",
 		"@vitejs/plugin-vue": "^6.0.8",
 		"@vitest/coverage-v8": "^4.1.11",
-		"@vitest/ui": "^5.0.0",
+		"@vitest/ui": "^4.1.11",
 		"@vue/compiler-sfc": "^3.5.13",
 		"@vue/server-renderer": "^3.5.42",
 		"@vue/test-utils": "^2.5.0",

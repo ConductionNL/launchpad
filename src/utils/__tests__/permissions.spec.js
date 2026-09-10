@@ -24,8 +24,8 @@
 
 import { describe, expect, it } from 'vitest'
 import manifest from '../../manifest.json'
-import { currentPermissions, permits } from '../permissions.js'
 import { permissionGuard, routesFromManifest } from '../manifestRoutes.js'
+import { currentPermissions, permits } from '../permissions.js'
 
 /**
  * `CnAppNav.passesPermission`, copied verbatim from

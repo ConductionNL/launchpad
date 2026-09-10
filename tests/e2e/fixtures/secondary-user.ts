@@ -23,6 +23,7 @@ import type {
 
 import { request as pwRequest } from '@playwright/test'
 import { BASE_URL as BASE } from '../support/baseUrl.ts'
+import { installBundleOverride } from '../support/bundleOverride.ts'
 
 const ADMIN = {
 	user: process.env.NC_ADMIN_USER ?? 'admin',
@@ -156,6 +157,12 @@ export async function loginAs(
 		baseURL: BASE,
 		storageState: undefined,
 	})
+
+	// Before the first navigation, because Playwright routing only applies to
+	// requests a context makes after the route is installed. A no-op unless
+	// `LAUNCHPAD_BUNDLE_DIR` is set; see support/bundleOverride.ts.
+	await installBundleOverride(context)
+
 	const page = await context.newPage()
 	await page.goto('/index.php/login')
 	await page.locator('input[name="user"]').fill(username)

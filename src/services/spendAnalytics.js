@@ -244,6 +244,15 @@ export async function fetchSpendNarrative({ summary, timeoutMs = 5000 }) {
 	// `POST /api/datasource/{sourceId}/resolve`, a read-only dashboard value
 	// resolver that dispatches a GET, which is not an inference call. This needs
 	// an integriq-side endpoint before the name here means anything.
+	//
+	// @stale-fleet-app-id exclude the route exists under NEITHER name. Re-verified
+	// 2026-09-10 against integriq `development`: SourcesController publishes only
+	// test, logs, tripCircuitBreaker and resetCircuitBreaker, and
+	// `git log -S "sources/{source}/call"` and `git log -S "sources#call"` over its
+	// full 3,960-commit history, which spans the whole openconnector era, both
+	// return nothing. The app has no inference endpoint at all. REQ-SAW-006 waits
+	// on an integriq surface that has never been built, so repointing the segment
+	// would turn one 404 into another while hiding that gap.
 	const url = generateUrl('/apps/openconnector/api/sources/{source}/call', {
 		source: LLM_SOURCE_ALIAS,
 	})

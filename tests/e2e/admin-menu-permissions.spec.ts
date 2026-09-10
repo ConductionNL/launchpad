@@ -316,18 +316,28 @@ test.describe('manifest permission: the admin surfaces', () => {
 				// So the assertion is that the browser is still inside this
 				// app and no longer on an admin path.
 				//
-				// Pinning the exact landing URL was the earlier mistake here:
-				// the guard sends the browser to '/', and LaunchPad resolves
-				// '/' onward to its active dashboard, so a WORKING redirect
-				// arrives at `/apps/launchpad/dashboard` and an
-				// `${APP_BASE}/?$` pattern called that a failure. An
-				// assertion that only passes for one incidental spelling of
-				// success is as useless as one that cannot fail.
+				// Pinning the exact landing URL was the earlier mistake here,
+				// and it was made twice. First the pattern was
+				// `${APP_BASE}/?$`, but the guard sends the browser to '/'
+				// and LaunchPad resolves '/' onward to its active dashboard,
+				// so a WORKING redirect arrives at `/apps/launchpad/dashboard`
+				// and was called a failure. Then the replacement anchored the
+				// path at the start with `^`, which passes locally and fails
+				// in CI: Nextcloud there serves `index.php` routing, so the
+				// same working redirect arrives at
+				// `/index.php/apps/launchpad/dashboard`.
+				//
+				// So the test is UNANCHORED and built from APP_BASE rather
+				// than a literal. It asks the only question that matters,
+				// which is whether the browser is somewhere under this app,
+				// and it stays false for the unguarded outcome: an unguarded
+				// route lands on `/settings/admin/launchpad`, under either
+				// routing style, which does not contain `/apps/launchpad/`.
 				const landed = new URL(page.url())
 				expect(
 					landed.pathname,
 					'a non-admin was not bounced back into the app',
-				).toMatch(/^\/apps\/launchpad\//)
+				).toMatch(new RegExp(`${APP_BASE}/`))
 				expect(
 					landed.pathname,
 					'a non-admin still reached an admin surface',

@@ -393,6 +393,140 @@ class DemoShowcasesServiceTest extends TestCase {
 		$zip->close();
 	}
 
+	/**
+	 * REQ-DEMO-001: every bundled id resolves to a REAL archive that
+	 * carries the manifest fields the gallery reads.
+	 *
+	 * Every other test in this file writes its own fixture ZIP into a temp
+	 * directory, which is right for exercising the service but means the
+	 * archives actually shipped in `data/demo-showcases/` were never opened
+	 * by any test. A showcase added to `BUNDLED_IDS` with a missing,
+	 * malformed or mis-named ZIP would therefore pass the whole suite and
+	 * fail on a user's instance, where the only symptom is a gallery entry
+	 * that will not install.
+	 *
+	 * @return void
+	 */
+	public function testEveryBundledIdShipsAReadableArchive(): void {
+		$root = dirname(path: __DIR__, levels: 3) . '/data/demo-showcases';
+
+		foreach (DemoShowcasesService::BUNDLED_IDS as $showcaseId) {
+			$path = $root . '/' . $showcaseId . '/' . $showcaseId . '.zip';
+			$this->assertFileExists(
+				filename: $path,
+				message: $showcaseId . ' is in BUNDLED_IDS but ships no archive'
+			);
+
+			$zip = new \ZipArchive();
+			$this->assertTrue(
+				condition: $zip->open(filename: $path) === true,
+				message: $showcaseId . ' archive is not a readable ZIP'
+			);
+
+			$raw = $zip->getFromName(name: 'manifest.json');
+			$this->assertNotFalse($raw, $showcaseId . ' has no manifest.json');
+
+			$manifest = json_decode(json: (string)$raw, associative: true);
+			$this->assertIsArray(actual: $manifest, message: $showcaseId . ' manifest.json is not JSON');
+
+			// The id has to agree with where the file was found, or the
+			// gallery lists one showcase and installs another.
+			$this->assertSame(
+				expected: $showcaseId,
+				actual: $manifest['showcaseId'] ?? null,
+				message: $showcaseId . ' manifest declares a different showcaseId'
+			);
+
+			foreach (['showcaseName', 'showcaseDescription', 'showcaseLanguage', 'schemaVersion'] as $key) {
+				$this->assertArrayHasKey(
+					key: $key,
+					array: $manifest,
+					message: $showcaseId . ' manifest is missing ' . $key
+				);
+			}
+
+			$dashboards = [];
+			for ($i = 0; $i < $zip->numFiles; $i++) {
+				$name = (string)$zip->getNameIndex(index: $i);
+				if (str_starts_with(haystack: $name, needle: 'dashboards/') === true
+					&& str_ends_with(haystack: $name, needle: '.json') === true
+				) {
+					$dashboards[] = $name;
+				}
+			}
+
+			$this->assertCount(
+				expectedCount: (int)($manifest['dashboardCount'] ?? 0),
+				haystack: $dashboards,
+				message: $showcaseId . ' ships a different number of dashboards than it declares'
+			);
+
+			$zip->close();
+		}//end foreach
+	}//end testEveryBundledIdShipsAReadableArchive()
+
+	/**
+	 * REQ-DEMO-001: the role showcase installs as a read-only group
+	 * dashboard, and places the four widgets a case handler works from.
+	 *
+	 * A showcase is authored on somebody's instance as their PERSONAL
+	 * dashboard. Shipping that shape would hand every installing admin a
+	 * dashboard owned by a user id that does not exist there, so the
+	 * re-shaping to `group_shared` is the part worth pinning.
+	 *
+	 * @return void
+	 */
+	public function testCaseHandlerShowcaseIsAReadOnlyGroupDashboard(): void {
+		$root = dirname(path: __DIR__, levels: 3) . '/data/demo-showcases';
+		$zip = new \ZipArchive();
+		$this->assertTrue(condition: $zip->open(filename: $root . '/case-handler/case-handler.zip') === true);
+
+		$payload = null;
+		for ($i = 0; $i < $zip->numFiles; $i++) {
+			$name = (string)$zip->getNameIndex(index: $i);
+			if (str_starts_with(haystack: $name, needle: 'dashboards/') === true
+				&& str_ends_with(haystack: $name, needle: '.json') === true
+			) {
+				$payload = json_decode(json: (string)$zip->getFromName(name: $name), associative: true);
+				break;
+			}
+		}
+
+		$zip->close();
+		$this->assertIsArray(actual: $payload, message: 'case-handler ships no dashboard payload');
+
+		$this->assertSame(expected: 'group_shared', actual: $payload['type'] ?? null);
+		$this->assertArrayHasKey(key: 'userId', array: $payload);
+		$this->assertNull(actual: $payload['userId'], message: 'a showcase must not carry its author');
+		$this->assertSame(expected: 'view_only', actual: $payload['permissionLevel'] ?? null);
+		$this->assertSame(expected: 'showcase-case-handler', actual: $payload['slug'] ?? null);
+
+		$types = array_map(
+			callback: static fn (array $w) => $w['widgetId'] ?? '',
+			array: ($payload['widgets'] ?? [])
+		);
+		$this->assertCount(expectedCount: 4, haystack: $types);
+		$this->assertSame(
+			expected: ['object-list', 'nc-widget', 'calendar', 'nc-widget'],
+			actual: $types,
+			message: 'the case handler dashboard places cases, tasks, today and mail'
+		);
+
+		// The calendar widget must ship with NO calendar chosen: the ids on
+		// the authoring instance mean nothing anywhere else, and pointing a
+		// stranger's widget at calendar "1" is worse than asking them.
+		$calendar = null;
+		foreach (($payload['widgets'] ?? []) as $widget) {
+			if (($widget['widgetId'] ?? '') === 'calendar') {
+				$calendar = $widget;
+				break;
+			}
+		}
+
+		$this->assertIsArray(actual: $calendar);
+		$this->assertSame(expected: [], actual: $calendar['content']['internalCalendars'] ?? null);
+	}//end testCaseHandlerShowcaseIsAReadOnlyGroupDashboard()
+
 	private function rrmdir(string $dir): void {
 		if (is_dir(filename: $dir) === false) {
 			return;

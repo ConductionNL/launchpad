@@ -79,13 +79,22 @@ class DemoShowcasesService {
 	/**
 	 * Bundled showcase IDs.
 	 *
-	 * The set is fixed at v1 (REQ-DEMO-001). The Dutch fictional
-	 * organisation names mirror the reference source dataset so
-	 * existing copy / screenshots remain reusable.
+	 * Two kinds, and the difference is what a reader is meant to take
+	 * away. The five Dutch fictional ORGANISATIONS mirror the reference
+	 * source dataset so existing copy and screenshots stay reusable;
+	 * they answer "what does an intranet built on this look like".
+	 *
+	 * `case-handler` is the first ROLE showcase and answers a different
+	 * question: what one person's working day looks like on one page.
+	 * It is in English because the widgets it places are the fleet's own
+	 * (a dossiq case list, the Tasks app, a calendar, unread mail) and
+	 * those carry English labels, so a Dutch shell around English
+	 * content would read as a half-translation.
 	 *
 	 * @var array<int, string>
 	 */
 	public const BUNDLED_IDS = [
+		'case-handler',
 		'de-bron',
 		'de-linden',
 		'gemeente-duin',

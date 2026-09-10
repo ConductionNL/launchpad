@@ -49,6 +49,11 @@ import { LAUNCHPAD_ICONS } from './icons.js'
 import bundledStub from './manifest.json'
 import registry from './registry.js'
 import { loadInitialState } from './utils/loadInitialState.js'
+import { currentPermissions } from './utils/permissions.js'
+import {
+	permissionGuard,
+	routesFromManifest,
+} from './utils/manifestRoutes.js'
 import { logger } from './utils/logger.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 
@@ -183,32 +188,22 @@ function routerBase() {
 	return match ? match[1] : generateUrl('/apps/launchpad')
 }
 
-/**
- * Build the vue-router config from the manifest. Each declared page becomes one
- * route, named for its `id`, so a page cannot be declared without being served.
- *
- * @param {object} manifest The merged manifest.
- * @return {Array<object>} vue-router 4 routes.
- */
-function routesFromManifest(manifest) {
-	const routes = (manifest.pages ?? []).map((page) => ({
-		name: page.id,
-		path: page.route,
-		component: RoutePageRenderer,
-		props: page.route.includes(':'),
-	}))
-
-	// ⚠️ vue-router 4 REMOVED the bare `path: '*'` wildcard, and does not warn:
-	// the route simply never matches, so an unknown URL renders the shell with
-	// an empty content area. The named-param form is the v4 spelling.
-	routes.push({ path: '/:pathMatch(.*)*', redirect: '/' })
-	return routes
-}
+// The permissions this account holds, from the server's own answer rather than
+// from `window`. `initialState.isAdmin` is pushed by `PageController` and
+// defaults to `false`, so a server that has not deployed the key yet denies
+// rather than permits. One list, read by BOTH surfaces: the nav filter in
+// `App.vue` and the route guard below. They used to disagree because the nav
+// had no list at all.
+const permissions = currentPermissions(initialState.isAdmin)
 
 const router = createRouter({
 	history: createWebHistory(routerBase()),
-	routes: routesFromManifest(mergedManifest),
+	routes: routesFromManifest(mergedManifest, RoutePageRenderer),
 })
+
+// The route half of `permission`. Without it, hiding the nav entry is the whole
+// gate and a typed URL walks straight past it.
+router.beforeEach((to) => permissionGuard(to, permissions))
 
 // Shallow copies: the library exports `defaultPageTypes` and the registry as
 // FROZEN module objects in some bundle shapes, and the renderer may attach
@@ -223,6 +218,7 @@ const app = createApp({
 			manifest: mergedManifest,
 			registry: registryProp,
 			pageTypes: pageTypesProp,
+			permissions,
 		}),
 })
 

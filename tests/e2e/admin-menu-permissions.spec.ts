@@ -80,7 +80,11 @@ const APP_BASE = '/apps/launchpad'
  * is about the route: whether an admin's entry resolves to a working link.
  */
 const ADMIN_PAGES = [
-	{ id: 'admin-templates', path: '/admin/templates', route: 'admin-templates-index' },
+	{
+		id: 'admin-templates',
+		path: '/admin/templates',
+		route: 'admin-templates-index',
+	},
 	{ id: 'admin-settings', path: '/admin/settings', route: 'admin-settings' },
 ] as const
 
@@ -96,9 +100,8 @@ const UNGATED_ENTRY_ID = 'dashboards'
  */
 async function whoami(page: Page): Promise<{ uid: unknown; isAdmin: unknown }> {
 	return page.evaluate(() => ({
-		 
 		uid: (window as any).OC?.getCurrentUser?.()?.uid ?? null,
-		 
+
 		isAdmin: (window as any).OC?.isUserAdmin?.() ?? null,
 	}))
 }
@@ -390,7 +393,9 @@ test.describe('manifest permission: the admin surfaces', () => {
 		// items with no anchor — visible, inert, and for everybody.
 		for (const { path: routePath, route } of ADMIN_PAGES) {
 			await expect(
-				page.locator(`[data-cn-route="${route}"] a, a[href$="${routePath}"]`).first(),
+				page
+					.locator(`[data-cn-route="${route}"] a, a[href$="${routePath}"]`)
+					.first(),
 				`admin-gated menu entry "${route}" renders no working link`,
 			).toBeAttached()
 		}

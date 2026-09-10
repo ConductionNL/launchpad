@@ -103,7 +103,8 @@ export async function installBundleOverride(
 
 		await route.fulfill({
 			status: 200,
-			contentType: CONTENT_TYPES[path.extname(name)] ?? 'application/octet-stream',
+			contentType:
+				CONTENT_TYPES[path.extname(name)] ?? 'application/octet-stream',
 			body: fs.readFileSync(file),
 		})
 	})

@@ -50,10 +50,7 @@ import bundledStub from './manifest.json'
 import registry from './registry.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 import { logger } from './utils/logger.js'
-import {
-	permissionGuard,
-	routesFromManifest,
-} from './utils/manifestRoutes.js'
+import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { mergeManifestFragments } from './utils/mergeManifestFragments.js'
 import { currentPermissions } from './utils/permissions.js'
 

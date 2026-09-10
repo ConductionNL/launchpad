@@ -55,7 +55,9 @@ describe('currentPermissions', () => {
 		expect(held).not.toContain('admin')
 		// The second half is the whole test. `[]` also fails `toContain`, and
 		// `[]` is exactly the value that made CnAppNav render everything.
-		expect(held.length, 'an empty list fails OPEN in CnAppNav').toBeGreaterThan(0)
+		expect(held.length, 'an empty list fails OPEN in CnAppNav').toBeGreaterThan(
+			0,
+		)
 	})
 
 	it('grants admin to an admin', () => {
@@ -160,14 +162,17 @@ describe('permissionGuard', () => {
 	})
 
 	it('lets a non-admin through a route that declares nothing', () => {
-		expect(permissionGuard({ path: '/', meta: { permission: '' } }, nonAdmin)).toBe(
-			true,
-		)
+		expect(
+			permissionGuard({ path: '/', meta: { permission: '' } }, nonAdmin),
+		).toBe(true)
 	})
 
 	it('DENIES a gated route when the guard is handed no list at all', () => {
 		expect(
-			permissionGuard({ path: '/admin/settings', meta: { permission: 'admin' } }),
+			permissionGuard({
+				path: '/admin/settings',
+				meta: { permission: 'admin' },
+			}),
 		).toEqual({ path: '/' })
 	})
 })
@@ -181,7 +186,9 @@ describe('the shipped manifest, gated as a non-admin', () => {
 
 		// Guard the guard: if nothing declares a permission any more, this
 		// whole describe block is vacuous and must say so out loud.
-		expect(gated.length, 'no menu entry declares a permission').toBeGreaterThan(0)
+		expect(gated.length, 'no menu entry declares a permission').toBeGreaterThan(
+			0,
+		)
 
 		for (const item of gated) {
 			expect(

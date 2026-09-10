@@ -114,9 +114,14 @@ async function whoami(page: Page): Promise<{ uid: unknown; isAdmin: unknown }> {
  */
 async function openApp(page: Page): Promise<void> {
 	await page.goto(`${APP_BASE}/`, { waitUntil: 'domcontentloaded' })
-	await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 30_000 })
+
+	// 60s, not 30s. A cold boot of this app on a loaded instance went past 30s
+	// and turned a run that had already passed on the same bundle red at
+	// `.workspace-shell`. A guard test whose setup is marginal reports the
+	// environment, not the guard.
+	await expect(page.locator('.workspace-shell')).toBeVisible({ timeout: 60_000 })
 	await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
-		timeout: 30_000,
+		timeout: 60_000,
 	})
 }
 
@@ -249,6 +254,31 @@ test.describe('manifest permission: the admin surfaces', () => {
 				account.password,
 			)
 			try {
+				// IDENTITY FIRST, AND ON A PAGE THAT CAN ANSWER IT.
+				//
+				// `whoami` used to be read after navigating to the gated
+				// route. Against an unguarded bundle that lands on
+				// /settings/admin/launchpad, which Nextcloud refuses to a
+				// non-admin with an error page that loads no `OC` bundle at
+				// all, so `OC.getCurrentUser()` returned null and the test
+				// died on "expected e2e-perm-..., received null". Red for the
+				// right underlying reason, reported as something else
+				// entirely.
+				//
+				// Reading it here also puts the check where it belongs: the
+				// session is confirmed to be the throwaway non-admin BEFORE
+				// the action under test, not after.
+				await openApp(page)
+
+				const who = await whoami(page)
+				expect(
+					who.uid,
+					'the session under test is the throwaway account',
+				).toBe(account.username)
+				expect(who.isAdmin, 'the account under test is not an admin').toBe(
+					false,
+				)
+
 				await page.goto(`${APP_BASE}${route}`, {
 					waitUntil: 'domcontentloaded',
 				})
@@ -271,12 +301,6 @@ test.describe('manifest permission: the admin surfaces', () => {
 					.locator('.workspace-shell')
 					.waitFor({ state: 'visible', timeout: 30_000 })
 					.catch(() => undefined)
-
-				const who = await whoami(page)
-				expect(who.uid).toBe(account.username)
-				expect(who.isAdmin, 'the account under test is not an admin').toBe(
-					false,
-				)
 
 				// WHERE IT LANDED, not merely that it left, and not pinned to
 				// one exact path.

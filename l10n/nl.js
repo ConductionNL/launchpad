@@ -1150,7 +1150,7 @@ OC.L10N.register(
     "Version": "Versie",
     "How many dashboards there are, and who they belong to.": "Hoeveel dashboards er zijn, en van wie ze zijn.",
     "Store": "Store",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installeer registers, schema's en flows die andere organisaties hebben gepubliceerd.",
+    "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.": "Installeer een dashboard dat een andere organisatie publiceerde. Wijs LaunchPad naar een register en bekijk het aanbod.",
     "Load example data?": "Voorbeeldgegevens laden?",
     "Example data fills the lists, detail pages and dashboards so you can see the app working straight away. Pick \"None\" on a production install.": "Voorbeeldgegevens vullen de lijsten, detailpagina’s en dashboards, zodat je de app meteen ziet werken. Kies \"Geen\" op een productieomgeving.",
     "Load the example data": "Laad de voorbeeldgegevens",

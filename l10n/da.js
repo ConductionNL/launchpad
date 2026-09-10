@@ -1122,8 +1122,7 @@ OC.L10N.register(
     "Kind": "Type",
     "Version": "Version",
     "How many dashboards there are, and who they belong to.": "Hvor mange dashboards der er, og hvem de tilhører.",
-    "Store": "Butik",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installer registre, skemaer og flows, som andre organisationer har udgivet."
+    "Store": "Butik"
 },
 "nplurals=2; plural=(n != 1);"
 );

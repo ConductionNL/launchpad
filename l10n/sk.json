@@ -1090,7 +1090,6 @@
         "Kind": "Druh",
         "Version": "Verzia",
         "How many dashboards there are, and who they belong to.": "Koľko je prehľadov a komu patria.",
-        "Store": "Obchod",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Nainštalujte registre, schémy a toky zverejnené inými organizáciami."
+        "Store": "Obchod"
     }
 }

@@ -1135,7 +1135,7 @@
         "Version": "Versie",
         "How many dashboards there are, and who they belong to.": "Hoeveel dashboards er zijn, en van wie ze zijn.",
         "Store": "Store",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installeer registers, schema's en flows die andere organisaties hebben gepubliceerd.",
+        "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.": "Installeer een dashboard dat een andere organisatie publiceerde. Wijs LaunchPad naar een register en bekijk het aanbod.",
         "Admin settings": "Beheerinstellingen"
     }
 }

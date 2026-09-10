@@ -1122,8 +1122,7 @@ OC.L10N.register(
     "Kind": "Art",
     "Version": "Version",
     "How many dashboards there are, and who they belong to.": "Wie viele Dashboards es gibt und wem sie gehören.",
-    "Store": "Store",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installieren Sie Register, Schemata und Flows, die andere Organisationen veröffentlicht haben."
+    "Store": "Store"
 },
 "nplurals=2; plural=(n != 1);"
 );

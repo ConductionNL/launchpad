@@ -175,16 +175,27 @@ return only whether one is set. The token value MUST NOT appear in any response.
 
 ---
 
-### Requirement: REQ-STORE-008 The declared store block MUST describe dashboards
+### Requirement: REQ-STORE-008 The manifest MUST NOT declare a store block
 
-`src/manifest.json`'s `store` block SHALL declare the `dashboard-template` schema
-and MUST NOT declare `types`. A non-empty `types` selects the engine's federated
-configuration path, which trades OpenRegister configuration sets and cannot
-produce a dashboard.
+`src/manifest.json` MUST NOT carry a `store` key. That block exists to configure
+OpenRegister's `GenericStoreController`, which LaunchPad does not use, so a block
+here would declare a schema and card fields that nothing reads while
+`StoreService` declares the ones that are used.
 
-#### Scenario: The block does not select federated discovery
+A non-empty `types` list is the specific harm, because it selects the engine's
+federated configuration path. The block on `development` declared
+`openregister.configset` and `openregister.flows`, which trade registers, schemas
+and flows. Had the routes existed, the store page would have offered
+configuration sets to somebody looking for a dashboard.
 
-- **GIVEN** the manifest's `store` block
-- **WHEN** it is read
-- **THEN** it MUST declare a `schema` of `dashboard-template`
-- **AND** it MUST NOT declare a non-empty `types` list
+#### Scenario: No store block is declared
+
+- **GIVEN** `src/manifest.json`
+- **WHEN** it is decoded
+- **THEN** it MUST NOT contain a `store` key
+
+#### Scenario: The store page still declares itself
+
+- **GIVEN** the same manifest
+- **WHEN** its pages are read
+- **THEN** exactly one page MUST carry `type` of `store`

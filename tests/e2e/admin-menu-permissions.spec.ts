@@ -252,9 +252,25 @@ test.describe('manifest permission: the admin surfaces', () => {
 				await page.goto(`${APP_BASE}${route}`, {
 					waitUntil: 'domcontentloaded',
 				})
-				await expect(page.locator('.workspace-shell')).toBeVisible({
-					timeout: 30_000,
-				})
+				// A SETTLE, NOT AN ASSERTION, and the rejection is swallowed
+				// on purpose: the shell is asserted properly further down,
+				// once the URL has been checked.
+				//
+				// The order matters more than it looks. This wait used to be
+				// an assertion in this position, and against an unguarded
+				// bundle it is the FIRST thing to fail, so both tests
+				// reported `.workspace-shell` not visible. That is true, and
+				// it is not the point: the shell is missing because the
+				// browser left LaunchPad for /settings/admin/launchpad, which
+				// is to say the non-admin reached the admin surface. "Shell
+				// not visible" equally describes an app that failed to boot,
+				// so the run could not tell a security failure from a broken
+				// build. Checking the URL first makes the failure name
+				// itself.
+				await page
+					.locator('.workspace-shell')
+					.waitFor({ state: 'visible', timeout: 30_000 })
+					.catch(() => undefined)
 
 				const who = await whoami(page)
 				expect(who.uid).toBe(account.username)
@@ -293,6 +309,14 @@ test.describe('manifest permission: the admin surfaces', () => {
 					page.locator('[data-testid="AdminSettingsRedirect"]'),
 					'the admin redirect page rendered for a non-admin',
 				).toHaveCount(0)
+
+				// And the app is genuinely on screen. Without this, a page
+				// that rendered nothing at all satisfies every assertion
+				// above.
+				await expect(
+					page.locator('.workspace-shell'),
+					'the app did not render after the redirect',
+				).toBeVisible({ timeout: 30_000 })
 			} finally {
 				await context.close()
 			}

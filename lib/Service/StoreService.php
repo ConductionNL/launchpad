@@ -156,6 +156,8 @@ class StoreService {
 	 *
 	 * @return array{outcome: string, cards: array<int, array<string, mixed>>}
 	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-003-the-engines-outcome-must-reach-the-caller-unchanged
 	 */
 	public function search(?string $query = null, ?string $kind = null): array {
@@ -163,7 +165,6 @@ class StoreService {
 			return ['outcome' => self::OUTCOME_NOT_CONFIGURED, 'cards' => []];
 		}
 
-		/** @psalm-suppress MixedMethodCall */
 		$result = $this->discovery->search(
 			descriptor: $this->descriptor(),
 			query: $query,
@@ -175,10 +176,13 @@ class StoreService {
 		}
 
 		$cards = ($result['cards'] ?? []);
+		if (is_array($cards) === false) {
+			$cards = [];
+		}
 
 		return [
 			'outcome' => (string)($result['outcome'] ?? self::OUTCOME_NOT_CONFIGURED),
-			'cards' => (is_array($cards) === true) ? $cards : [],
+			'cards' => $cards,
 		];
 	}//end search()
 
@@ -199,6 +203,8 @@ class StoreService {
 	 *
 	 * @return array{success: bool, message: string, components: array<int, array<string, string>>}
 	 *
+	 * @psalm-suppress MixedMethodCall The discovery client is untyped on purpose.
+	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-005-an-install-must-reuse-importservice-not-reimplement-it
 	 */
 	public function install(string $slug, string $userId): array {
@@ -206,7 +212,6 @@ class StoreService {
 			return $this->failure(message: 'No dashboard registry is available on this instance.');
 		}
 
-		/** @psalm-suppress MixedMethodCall */
 		$item = $this->discovery->resolve(descriptor: $this->descriptor(), slug: $slug);
 		if (is_array($item) === false) {
 			return $this->failure(message: 'That template could not be found in the registry.');
@@ -312,6 +317,8 @@ class StoreService {
 	 * @return object The engine's StoreDescriptor.
 	 *
 	 * @throws RuntimeException When OpenRegister supplied a client but not a descriptor class.
+	 *
+	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
 	 */
 	private function descriptor(): object {
 		$class = self::DESCRIPTOR_CLASS;
@@ -319,7 +326,6 @@ class StoreService {
 			throw new RuntimeException(message: 'OpenRegister store descriptor is unavailable.');
 		}
 
-		/** @psalm-suppress MixedMethodCall */
 		return new $class(
 			appId: Application::APP_ID,
 			schema: self::REMOTE_SCHEMA,
@@ -431,10 +437,13 @@ class StoreService {
 		$index = 0;
 		foreach ($dashboards as $payload) {
 			$name = (string)($payload['name'] ?? $payload['uuid'] ?? 'dashboard');
-			$components[] = [
-				'schema' => $name,
-				'status' => ($index < $imported) ? 'installed' : 'refused',
-			];
+
+			$status = 'refused';
+			if ($index < $imported) {
+				$status = 'installed';
+			}
+
+			$components[] = ['schema' => $name, 'status' => $status];
 			$index++;
 		}
 
@@ -480,8 +489,11 @@ class StoreService {
 	 */
 	private function encode(array $payload): string {
 		$encoded = json_encode(value: $payload, flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+		if ($encoded === false) {
+			return '{}';
+		}
 
-		return ($encoded === false) ? '{}' : $encoded;
+		return $encoded;
 	}//end encode()
 
 	/**

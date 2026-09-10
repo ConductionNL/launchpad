@@ -101,12 +101,9 @@ class StoreController extends Controller {
 			);
 		}
 
-		$query = $this->request->getParam('q');
-		$kind = $this->request->getParam('kind');
-
 		$result = $this->storeService->search(
-			query: (is_string($query) === true) ? $query : null,
-			kind: (is_string($kind) === true) ? $kind : null
+			query: $this->stringParam(name: 'q'),
+			kind: $this->stringParam(name: 'kind')
 		);
 
 		return new JSONResponse(
@@ -209,7 +206,10 @@ class StoreController extends Controller {
 	 */
 	private function stringParam(string $name): ?string {
 		$value = $this->request->getParam($name);
+		if (is_string($value) === false) {
+			return null;
+		}
 
-		return (is_string($value) === true) ? $value : null;
+		return $value;
 	}//end stringParam()
 }//end class

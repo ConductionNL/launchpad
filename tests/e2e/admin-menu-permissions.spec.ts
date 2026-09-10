@@ -262,9 +262,33 @@ test.describe('manifest permission: the admin surfaces', () => {
 					false,
 				)
 
-				// The destination, not only the absence of the page. "Not on the
-				// admin route" is also true of a page that failed to load.
-				await expect(page).toHaveURL(new RegExp(`${APP_BASE}/?$`))
+				// WHERE IT LANDED, not merely that it left, and not pinned to
+				// one exact path.
+				//
+				// Two different wrong outcomes look alike if you only assert
+				// that the admin page is absent. The guard letting the route
+				// through lands on Nextcloud's own admin settings, because
+				// `AdminSettingsRedirect` bounces there; the app failing to
+				// boot lands nowhere at all. Both are "not the admin route".
+				// So the assertion is that the browser is still inside this
+				// app and no longer on an admin path.
+				//
+				// Pinning the exact landing URL was the earlier mistake here:
+				// the guard sends the browser to '/', and LaunchPad resolves
+				// '/' onward to its active dashboard, so a WORKING redirect
+				// arrives at `/apps/launchpad/dashboard` and an
+				// `${APP_BASE}/?$` pattern called that a failure. An
+				// assertion that only passes for one incidental spelling of
+				// success is as useless as one that cannot fail.
+				const landed = new URL(page.url())
+				expect(
+					landed.pathname,
+					'a non-admin was not bounced back into the app',
+				).toMatch(/^\/apps\/launchpad\//)
+				expect(
+					landed.pathname,
+					'a non-admin still reached an admin surface',
+				).not.toMatch(/\/admin\//)
 				await expect(
 					page.locator('[data-testid="AdminSettingsRedirect"]'),
 					'the admin redirect page rendered for a non-admin',

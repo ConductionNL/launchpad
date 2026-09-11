@@ -81,6 +81,17 @@ class ImportService {
 	public const ERR_INVALID_DASHBOARD = 'invalidDashboard';
 
 	/**
+	 * Internal payload key holding the UUID an archive gave a dashboard.
+	 *
+	 * Set by {@see self::remapUuids()} when it mints a fresh UUID, and read
+	 * only when reporting an error, so the admin is told which file in their
+	 * archive went wrong rather than a UUID this import invented.
+	 *
+	 * @var string
+	 */
+	private const KEY_SOURCE_UUID = '__sourceUuid__';
+
+	/**
 	 * Builds placements from their exported form; see PlacementPayloadHydrator
 	 * for which fields travel and why this is one builder and not two. It
 	 * holds no state and has no dependencies, so it is constructed here rather
@@ -263,6 +274,11 @@ class ImportService {
 			$original = (string)($dashboard['uuid'] ?? '');
 			if ($original !== '' && isset($uuidMap[$original]) === true) {
 				$dashboard['uuid'] = $uuidMap[$original];
+				// Keep the UUID the archive used. A dashboard that is then
+				// SKIPPED never exists under the new one, so reporting the new
+				// UUID names a row nobody can look up and a file the admin
+				// cannot find. The source UUID is the file's own name.
+				$dashboard[self::KEY_SOURCE_UUID] = $original;
 			}
 
 			$parent = $dashboard['parentUuid'] ?? null;
@@ -299,7 +315,9 @@ class ImportService {
 		$errors = [];
 
 		foreach ($dashboards as $payload) {
-			$uuid = (string)($payload['uuid'] ?? '');
+			// The archive's UUID, not the one a remap may have minted: it is
+			// what the admin can find in their file.
+			$uuid = $this->reportableUuid(payload: $payload);
 			$missing = $this->validateDashboardPayload(payload: $payload);
 			if ($missing !== null) {
 				$skipped++;
@@ -339,7 +357,7 @@ class ImportService {
 				$skipped++;
 				$errors[] = [
 					'type' => self::ERR_INVALID_DASHBOARD,
-					'uuid' => $uuid,
+					'uuid' => $this->reportableUuid(payload: $payload),
 					'message' => 'Failed to import dashboard: ' . $e->getMessage(),
 				];
 				$this->logger->warning(
@@ -498,10 +516,26 @@ class ImportService {
 
 		return [
 			'type' => self::ERR_INVALID_DASHBOARD,
-			'uuid' => (string)($payload['uuid'] ?? ''),
+			'uuid' => $this->reportableUuid(payload: $payload),
 			'message' => 'Missing required field: ' . $missing,
 		];
 	}//end invalidDashboardError()
+
+	/**
+	 * The UUID to name in an error: the archive's, not the remapped one.
+	 *
+	 * @param array<string, mixed> $payload The dashboard payload.
+	 *
+	 * @return string The UUID the archive used, or the current one.
+	 */
+	private function reportableUuid(array $payload): string {
+		$source = (string)($payload[self::KEY_SOURCE_UUID] ?? '');
+		if ($source !== '') {
+			return $source;
+		}
+
+		return (string)($payload['uuid'] ?? '');
+	}//end reportableUuid()
 
 	/**
 	 * Hydrate a Dashboard entity from a payload.

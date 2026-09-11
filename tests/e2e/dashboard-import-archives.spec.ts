@@ -91,10 +91,16 @@ async function importThroughThePage(
 	})
 
 	if (options.preserveUuids === true) {
+		// Click the switch's LABEL. NcCheckboxRadioSwitch hides the real
+		// `input` behind a styled span, so `check()` on the input times out
+		// against the span that covers it — the same control a person clicks.
 		await page
-			.locator('.launchpad-export-import input[type="checkbox"]')
-			.first()
-			.check()
+			.locator('.launchpad-export-import')
+			.getByText('Preserve original dashboard UUIDs')
+			.click()
+		await expect(
+			page.locator('.launchpad-export-import input[type="checkbox"]').first(),
+		).toBeChecked()
 	}
 
 	const pending = page.waitForResponse(

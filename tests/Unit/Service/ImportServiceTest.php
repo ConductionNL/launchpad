@@ -306,6 +306,44 @@ class ImportServiceTest extends TestCase {
 	}//end testACorruptDashboardFileIsNamedInTheError()
 
 	/**
+	 * REQ-EXIM-008 "Dashboard JSON missing required fields": the error names the
+	 * UUID the ARCHIVE used.
+	 *
+	 * With `preserveUuids=false` every dashboard is given a fresh UUID before
+	 * validation runs, so a skipped dashboard used to be reported under a UUID
+	 * this import had just invented — a row that does not exist, and a name the
+	 * admin cannot find in the file they uploaded. Found by the e2e that drives
+	 * the admin page.
+	 *
+	 * @return void
+	 */
+	public function testASkippedDashboardIsReportedUnderTheArchivesUuid(): void {
+		$zipPath = $this->makeZip(entries: [
+			'manifest.json' => (string)json_encode(value: ['schemaVersion' => 1, 'scope' => 'site']),
+			// No `name`, so validation skips it.
+			'dashboards/nameless.json' => (string)json_encode(
+				value: ['uuid' => 'archive-uuid', 'widgets' => []]
+			),
+		]);
+
+		$this->dashboardMapper->method('findByUuid')
+			->willThrowException(exception: new DoesNotExistException(msg: 'no'));
+
+		try {
+			$result = $this->service->import(zipPath: $zipPath, preserveUuids: false, currentUserId: 'admin');
+		} finally {
+			@unlink(filename: $zipPath);
+		}
+
+		$this->assertSame(expected: 1, actual: $result['skippedDashboardCount']);
+		$this->assertSame(
+			expected: 'archive-uuid',
+			actual: $result['errors'][0]['uuid'],
+			message: 'the error must name the UUID the archive used, not a remapped one'
+		);
+	}//end testASkippedDashboardIsReportedUnderTheArchivesUuid()
+
+	/**
 	 * REQ-EXIM-009 "Version mismatch does not corrupt existing data": an
 	 * archive from a newer LaunchPad tells the admin to upgrade, and a
 	 * nonsense version does not.

@@ -306,7 +306,10 @@ test.describe('demo showcase — case-handler', () => {
 		})
 		expect(activate.status(), await activate.text()).toBeLessThan(300)
 
-		await page.goto(APP_URL)
+		// `domcontentloaded`, not the default `load`: this instance takes 55-60s
+		// to fire `load` on the workspace page, which is the entire configured
+		// navigationTimeout. The selector wait below is the real gate.
+		await page.goto(APP_URL, { waitUntil: 'domcontentloaded' })
 		await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', {
 			timeout: 20_000,
 		})

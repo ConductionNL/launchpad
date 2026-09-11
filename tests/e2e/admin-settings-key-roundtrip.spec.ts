@@ -150,8 +150,15 @@ async function writeSettings(
 	return await res.json()
 }
 
-test.describe.configure({ mode: 'serial' })
-
+/*
+ * NOT `serial`. Each test below arranges its own precondition through the SHORT
+ * spelling, which works on fixed and unfixed code alike, so none depends on
+ * another's leftovers. That independence is worth keeping: under `serial` the
+ * first red test skips the remaining six, and the run list would then show one
+ * failure where five distinct keys are broken — the reviewer could not tell how
+ * wide the defect is. The config already pins `workers: 1` and
+ * `fullyParallel: false`, so they still run one at a time.
+ */
 test.describe('admin settings — the keys GET publishes are the keys PUT accepts', () => {
 	let api: APIRequestContext
 	let baseline: Record<string, unknown>
@@ -247,6 +254,13 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		 *
 		 * Unpinned, this is exactly the kind of tie-break that flips during a
 		 * later refactor without anything going red.
+		 *
+		 * ⚠️ BE HONEST ABOUT WHAT THIS PROVES TODAY. On unfixed code the long
+		 * spelling is dropped entirely, so this test passes without the tie-break
+		 * ever being exercised — "short wins" and "long is ignored" are the same
+		 * observation here. It only starts measuring the rule once the PUT side
+		 * binds both names, which is precisely when the rule starts to exist. It
+		 * is a green line in the run list that is not yet evidence.
 		 */
 		await writeSettings(api, { allowUserDash: false })
 		expect((await readSettings(api)).allowUserDashboards).toBe(false)
@@ -266,6 +280,19 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		page,
 	}) => {
 		/*
+		 * TWO FULL SHELL LOADS IN ONE TEST, AND THEY ARE NOT CHEAP. Measured on
+		 * this fleet's dev instance, one `/apps/launchpad` load takes 55-60s to
+		 * settle the workspace shell — a 13 MB main bundle plus, with the legacy
+		 * widget bridge on, every enabled app's widget scripts. Two of them
+		 * overrun the config's 60s per-test timeout, and the symptom is not a
+		 * timeout message but `locator.click: Target page, context or browser has
+		 * been closed`, which reads like a bug in the test. `test.slow()` triples
+		 * the budget, the same way `spec-coverage/demo-data-setup-step.spec.ts`
+		 * buys room for its genuinely slow import.
+		 */
+		test.slow()
+
+		/*
 		 * 🔴 THE BROWSER LEG. The tests above prove the value reaches storage.
 		 * This one proves it reaches a user, which is the reason the setting
 		 * exists at all — `allowUserDashboards` is pushed into the initial state
@@ -277,7 +304,13 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		 * still show the expected UI.
 		 */
 		const addButton = async (): Promise<void> => {
-			await page.goto(APP_URL)
+			// `domcontentloaded`, not the default `load`. This instance serves a
+			// 13 MB main bundle and, with the legacy widget bridge on, the widget
+			// scripts of every enabled app on top — measured at 55-60s to fire
+			// `load`, which is the config's whole 60s navigationTimeout. The
+			// `waitForSelector` below is the real gate anyway: it waits for the
+			// shell to have rendered, which `load` does not promise either.
+			await page.goto(APP_URL, { waitUntil: 'domcontentloaded' })
 			await page.waitForSelector(
 				'.launchpad-floating-controls, .workspace-shell',
 				{ timeout: 20_000 },

@@ -11,8 +11,6 @@ Dashboard export and import allow LaunchPad administrators to create versioned s
 ## Data Model
 
 
-@e2e exclude Most scenarios here are archive-format, service or API contracts, covered by PHPUnit (ExportServiceTest, ImportServiceTest) and Newman rather than a browser. The browser-observable path is still exercised: the admin Operations tab imports archives, and the REQ-EXIM-004 round-trip scenario is cited by tests/e2e/dashboard-export-import-roundtrip.spec.ts.
-
 ### ZIP Container Format: `launchpad-export-v1.zip`
 
 ```
@@ -68,12 +66,14 @@ The export output MUST be a ZIP container with a versioned schema that includes 
 - AND the manifest MUST declare `scope: "dashboard"` and `dashboardCount: 1`
 - AND all file paths inside the ZIP MUST be relative (no leading `/`)
 
+@e2e exclude The admin page exports the whole site; there is no control for exporting one dashboard, so only a direct API caller reaches this. The archive layout is pinned by ExportServiceTest::testExportDashboardProducesValidArchive. Its metadata-fields and assets clauses are REQ-EXIM-006 and REQ-EXIM-007, which were deferred and never built.
+
 #### Scenario: Site export includes all dashboards
 - GIVEN an admin exports the entire site via `POST /api/admin/export?scope=site`
 - WHEN the export completes
 - THEN the ZIP MUST contain one JSON file per dashboard in `dashboards/` (personal, admin_template, group_shared)
 - AND the manifest MUST declare `scope: "site"` and `dashboardCount: N` matching the actual count
-- AND a single `metadata-fields.json` MUST be present listing all metadata field definitions in the instance
+- AND a single `metadata-fields.json` MUST be present (what it should contain is REQ-EXIM-006, which is not implemented: the file is always an empty list)
 
 #### Scenario: Manifest schema version enforces forward compatibility
 - GIVEN the export ZIP is created with `manifest.json`
@@ -87,7 +87,11 @@ The export output MUST be a ZIP container with a versioned schema that includes 
 - THEN all file references MUST use relative asset paths (e.g., `"assets/icons/dashboard-icon.png"` or `"assets/widgets/<placement-uuid>/image.png"`)
 - AND these paths MUST correspond to actual files in the ZIP archive
 
+@e2e exclude Not implemented. The export reserves empty `assets/icons/` and `assets/widgets/<uuid>/` directories and writes no asset bytes or paths (change task 1.5), and asset import was deferred with task 2.6. See REQ-EXIM-007.
+
 ### Requirement: REQ-EXIM-002 Dashboard Scope Export
+
+@e2e exclude Single-dashboard export has no control on the admin page, which offers "Download all dashboards" only, so none of these is reachable from a browser. They are pinned by AdminControllerExportImportTest: testExportDashboardNotFoundReturns404, testExportDashboardRejectsInvalidUuidFormat and testExportDashboardRequiresUuid (each asserting the message, not just the status), and by ExportServiceTest::testSerializeDashboardEmbedsWidgets and testExportDashboardProducesValidArchive. The metadata-fields clause is REQ-EXIM-006 and not implemented.
 
 An admin MUST be able to export a single dashboard with all its configuration, widgets, and associated assets. The export MUST include only the selected dashboard and its dependencies (metadata fields and assets).
 
@@ -117,11 +121,13 @@ An admin MUST be able to export a single dashboard with all its configuration, w
 An admin MUST be able to export all dashboards in the instance in a single operation. The export MUST include all personal, admin_template, and group_shared dashboards, plus all metadata field definitions and assets.
 
 #### Scenario: Site export includes all dashboard types
-- GIVEN the instance contains 5 personal dashboards, 2 admin templates, and 1 group_shared dashboard
-- WHEN a Nextcloud admin calls `POST /api/admin/export?scope=site`
-- THEN the response MUST be HTTP 200 with a ZIP containing all 8 `dashboards/<uuid>.json` files
-- AND the manifest `dashboardCount` MUST be `8`
-- AND the `metadata-fields.json` MUST contain all metadata field definitions used across all 8 dashboards (deduplicated by key)
+- GIVEN the instance contains personal dashboards, admin templates and group_shared dashboards
+- WHEN a Nextcloud admin exports the site, from the admin page or `POST /api/admin/export?scope=site`
+- THEN the archive MUST contain one `dashboards/<uuid>.json` for every dashboard in the instance, of every one of those three types
+- AND the manifest `dashboardCount` MUST equal the number of dashboard files in the archive
+- AND every dashboard file MUST be readable and carry its uuid, name and widgets
+- NOTE: This scenario used to read "5 personal, 2 admin templates and 1 group_shared, so dashboardCount MUST be 8". No test can arrange exactly that on an instance it shares with other suites' fixtures, and demanding it would measure those fixtures rather than the export. What it is about is that a site export leaves no dashboard out and that the manifest agrees with the archive, which is what is now written and tested.
+- NOTE: The metadata field definitions this scenario also asked for are REQ-EXIM-006 and are not implemented.
 
 #### Scenario: Empty instance site export
 - GIVEN an instance with no dashboards
@@ -130,6 +136,8 @@ An admin MUST be able to export all dashboards in the instance in a single opera
 - AND the manifest MUST declare `dashboardCount: 0`
 - AND the `dashboards/` directory MUST be empty (or absent)
 
+@e2e exclude Needs an instance with no dashboards at all; the e2e suite shares its instance with every other spec's fixtures, and emptying it would destroy their data. Pinned by ExportServiceTest::testEmptySiteExportIsAValidArchiveWithNoDashboards.
+
 #### Scenario: Memory efficiency for large site exports
 - GIVEN an instance with 1000+ dashboards
 - WHEN an admin calls `POST /api/admin/export?scope=site`
@@ -137,6 +145,8 @@ An admin MUST be able to export all dashboards in the instance in a single opera
 - AND the system MUST stream the ZIP data to the response body
 - AND peak memory usage MUST NOT exceed 100 MB (independent of dashboard count)
 - NOTE: Implementation MUST use streaming writes via ZipArchive or equivalent
+
+@e2e exclude A load measurement, not a browser behaviour: it needs 1000+ dashboards and a memory profile. The archive is built on disk with ZipArchive and streamed (change tasks 8.1 and 8.3), but the 100 MB bound has never been measured — task 8.2 was deferred and is still open.
 
 ### Requirement: REQ-EXIM-004 Import Endpoint
 
@@ -185,7 +195,7 @@ An imported dashboard and each imported placement MUST be written with `created_
 - WHEN admin imports the ZIP
 - THEN the system MUST return HTTP 200 (partial success)
 - AND the response MUST include `importedDashboardCount: 2, skippedDashboardCount: 1`
-- AND the `errors` array MUST contain an error message identifying the corrupt dashboard
+- AND the `errors` array MUST identify the corrupt dashboard by the archive entry that failed, for example `dashboards/<uuid>.json is not valid JSON`, with its `uuid` taken from that file name
 - AND the other 2 valid dashboards MUST be imported
 
 #### Scenario: Import multipart file upload
@@ -237,9 +247,20 @@ When importing dashboards with preserved UUIDs, the system MUST detect and repor
 - WHEN the import includes dashboards with existing UUIDs
 - THEN the system MUST behave as if `preserveUuids=false` (assign fresh UUIDs)
 
+@e2e exclude The admin page always sends the switch's state, so a browser cannot omit the parameter; only a direct caller can. The default lives on the controller signature and is pinned by AdminControllerExportImportTest::testImportDefaultsToFreshUuids.
+
 ### Requirement: REQ-EXIM-006 Metadata Field Collision Handling
 
+@e2e exclude Not implemented, so there is nothing to drive. The export writes `metadata-fields.json` as an empty list and every dashboard's `metadataFieldAssignments` as `[]`; the import never reads that file; `ImportService::ERR_FIELD_TYPE_MISMATCH` has been declared and unused since the first commit. Change tasks 2.4, 2.5, 3.1, 9.6 and 9.7 were deferred and never picked up. Their stated reason (no MetadataFieldMapper on the parent stack) is now stale: lib/Db/MetadataFieldMapper.php exists.
+
 When importing dashboards that reference metadata fields, the system MUST detect field collisions by key. If a collision occurs with the same field type, reuse the existing field; if types differ, skip the affected dashboard and report the mismatch.
+
+#### Scenario: An export carries the metadata field definitions its dashboards use
+- GIVEN dashboards that reference metadata fields
+- WHEN an admin exports them, at either scope
+- THEN `metadata-fields.json` MUST list every metadata field definition those dashboards use, deduplicated by key
+- AND each dashboard's `metadataFieldAssignments` MUST name the fields it uses
+- NOTE: This is where REQ-EXIM-001, REQ-EXIM-002 and REQ-EXIM-003 used to state the same promise in passing. It is written once, here, beside the import half that has to read it back.
 
 #### Scenario: Reuse existing field on key collision (same type)
 - GIVEN the instance has a metadata field `{key: "department", type: "string"}`
@@ -273,6 +294,8 @@ When importing dashboards that reference metadata fields, the system MUST detect
 - AND both dashboards MUST be imported with correct field bindings
 
 ### Requirement: REQ-EXIM-007 Asset Import and Collision Handling
+
+@e2e exclude Not implemented, so there is nothing to drive. The export reserves empty `assets/icons/` and `assets/widgets/<uuid>/` directories and writes no bytes (change task 1.5); asset import was deferred with task 2.6 and the collision-rename test with 9.8, pending a read/write-by-uuid surface on the dashboard-icons and resource-uploads capabilities.
 
 When importing dashboards with asset references (icons, widget uploads), the system MUST extract and restore those assets to Nextcloud storage. On filename collision, assets MUST be renamed with a collision-suffix rather than overwriting existing files.
 
@@ -313,7 +336,8 @@ The import process MUST validate the ZIP structure, manifest schema, and per-das
 #### Scenario: Reject unsupported schema version
 - GIVEN a ZIP with `manifest.json` containing `schemaVersion: 2`
 - WHEN admin calls `POST /api/admin/import`
-- THEN the system MUST return HTTP 400 with error message `"Unsupported manifest schema version: 2. Only version 1 is supported."`
+- THEN the system MUST return HTTP 400 with error message `"Unsupported manifest schema version: 2. Only version 1 is supported. Upgrade LaunchPad to import archives of version 2."`
+- AND a version BELOW 1 MUST be refused too, without the upgrade advice: it is a broken manifest, not an older format
 - AND no dashboards MUST be imported
 
 #### Scenario: Reject manifest with invalid JSON
@@ -331,6 +355,7 @@ The import process MUST validate the ZIP structure, manifest schema, and per-das
 - WHEN admin imports
 - THEN the system MUST skip that dashboard
 - AND report in `errors` array: `{type: "invalidDashboard", uuid: "<uuid>", message: "Missing required field: name"}`
+- AND that `uuid` MUST be the one the ARCHIVE used, not a UUID the import minted while remapping
 - AND other valid dashboards in the batch MUST still be imported
 
 #### Scenario: ZIP file is not a valid ZIP archive
@@ -354,6 +379,8 @@ The export format MUST support forward-compatible versioning. Only `schemaVersio
 - AND the importer MUST refuse `schemaVersion: 2` on v1-only instances with HTTP 400
 - AND migration tooling (if needed) MUST be provided in a separate change proposal
 
+@e2e exclude A documentation and process requirement: it asks for a future ADR and for migration tooling in a separate change proposal, neither of which a test can observe. Its one behavioural clause, that a v2 archive is refused with HTTP 400, is covered under REQ-EXIM-008.
+
 #### Scenario: Version mismatch does not corrupt existing data
 - GIVEN an instance running export/import for `schemaVersion: 1`
 - WHEN an unsupported `schemaVersion: 2` ZIP is encountered
@@ -362,6 +389,8 @@ The export format MUST support forward-compatible versioning. Only `schemaVersio
 - AND the user MUST be instructed to upgrade LaunchPad if they need to import v2 archives
 
 ### Requirement: REQ-EXIM-010 CLI Commands for Export and Import
+
+@e2e exclude `occ` commands have no browser surface. They are implemented in lib/Command/ExportCommand.php and lib/Command/ImportCommand.php and have no tests of their own, so their output strings and exit codes are unverified.
 
 Administrators MUST be able to export and import dashboards via command-line interface for automation, backup scripting, and disaster recovery workflows.
 
@@ -407,6 +436,8 @@ Each dashboard import MUST be wrapped in a database transaction to ensure consis
 - AND the dashboard MUST NOT partially exist in the database
 - AND the error MUST be reported in the `errors` array
 
+@e2e exclude Needs a widget insert to fail in the middle of a dashboard, which no uploaded archive can force: whatever the file contains, the importer builds rows the database accepts. Pinned by ImportServiceTest::testPartialFailureRollsBackOneDashboard.
+
 #### Scenario: Partial import on multi-dashboard failure
 - GIVEN a ZIP with 10 dashboards, where dashboard #5 has corrupt widget JSON
 - WHEN import processes the batch
@@ -421,9 +452,13 @@ Each dashboard import MUST be wrapped in a database transaction to ensure consis
 - AND the ZIP output MUST be streamed to the HTTP response in chunks
 - AND peak memory usage MUST remain under 100 MB
 
+@e2e exclude The same load measurement as REQ-EXIM-003's memory scenario: 1000 dashboards and a memory profile, which change task 8.2 deferred and nobody has measured since.
+
 #### Scenario: Streaming preserves response stream integrity
 - GIVEN an export of 500 dashboards is being streamed
 - WHEN the response body is transmitted to the client
 - THEN the resulting ZIP file on disk MUST be valid and extractable
 - AND the manifest and all dashboard files MUST be intact
+
+@e2e exclude Needs 500 dashboards. That the streamed archive arrives valid and extractable, with its manifest and every dashboard file intact, is asserted at this instance's size by tests/e2e/dashboard-site-export.spec.ts.
 

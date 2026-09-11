@@ -467,9 +467,18 @@ All v1 bundled showcases are NL-only. Each showcase ZIP contains a single `nl/` 
 
 ### Requirement: REQ-DEMO-008 Read-only showcase source files
 
-@e2e exclude Not verified by any test yet: nothing asserts the gallery offers only Install and Uninstall. Note "Installed dashboard is fully editable" conflicts with the view_only permission bundled showcases install with (REQ-DEMO-001).
+@e2e exclude No browser test covers this requirement. The edit rule is pinned by PermissionServiceGroupSharedTest (a member reads, an Editor or a LaunchPad admin edits) and forking by DashboardServiceForkTest; nothing yet asserts the gallery offers only Install and Uninstall.
 
-Bundled showcase ZIP archives under `showcases/` are read-only template definitions and MUST NOT be edited or deleted by admins via the admin UI. Only the installed dashboard (a copy in `oc_launchpad_dashboards` table) is mutable. The admin UI MUST display showcase templates as non-editable and non-deletable, with "Install" and "Uninstall" buttons for managing installations only.
+Bundled showcase archives under `data/demo-showcases/` are read-only source definitions and MUST NOT be edited or deleted through the admin UI, which offers "Install" and "Uninstall" only.
+
+Installing a showcase creates a `group_shared` dashboard in the `default` group with `permissionLevel: view_only` (REQ-DEMO-001). Who may change it follows the rule for every group-shared dashboard (`PermissionService::getEffectivePermissionLevel()`), not the stored level alone:
+
+- Nextcloud admins, LaunchPad admins and users with the Editor role or higher get `full` and MUST be able to edit it: widgets, layout, name.
+- Everyone else MUST see it read-only.
+
+Anyone who wants an editable version of their own MUST be able to fork it. The sidebar's "Add dashboard" button forks the dashboard currently shown into a personal copy (REQ-DASH-020, `POST /api/dashboards/{uuid}/fork`), and the copy carries every widget with its `content` and tile fields. Forking is refused while personal dashboards are switched off (REQ-ASET-003) and is bound by the per-user dashboard quota.
+
+**Why this was rewritten.** It used to say "Installed dashboard is fully editable", which read as a contradiction of the `view_only` the showcases install with. Both were half the rule: `view_only` is what the audience gets, and admins and Editors can still edit.
 
 #### Scenario: Showcase source files are not listed in editable templates
 - **GIVEN** admin views the template management or dashboard list
@@ -477,11 +486,23 @@ Bundled showcase ZIP archives under `showcases/` are read-only template definiti
 - **THEN** showcase source files MUST NOT appear
 - **AND** showcase installations (installed dashboards) MUST appear as regular group-shared dashboards
 
-#### Scenario: Installed dashboard is fully editable
-- **GIVEN** admin has installed showcase `horizon-labs`
-- **WHEN** they view the installed dashboard
-- **THEN** it MUST be editable like any other group-shared dashboard
-- **AND** they MUST be able to modify widgets, rename, reorder, etc.
+#### Scenario: An installed showcase is read-only for its audience
+- **GIVEN** showcase `case-handler` is installed
+- **AND** user "alice" holds no admin or Editor role
+- **WHEN** she opens it
+- **THEN** she MUST be able to see it
+- **AND** she MUST NOT be able to change its widgets, layout or name
+
+#### Scenario: Admins and Editors can edit an installed showcase
+- **GIVEN** showcase `case-handler` is installed
+- **WHEN** a LaunchPad admin, a Nextcloud admin or a user with the Editor role opens it
+- **THEN** they MUST be able to edit it like any other group-shared dashboard
+
+#### Scenario: A user makes an editable copy of an installed showcase
+- **GIVEN** showcase `case-handler` is installed and personal dashboards are allowed
+- **WHEN** a user viewing it presses "Add dashboard" in the sidebar
+- **THEN** a personal copy MUST be created that they own and can edit
+- **AND** the copy MUST carry every widget with its configuration
 
 #### Scenario: Admin UI prevents editing showcase source
 - **GIVEN** the admin UI displaying a showcase card

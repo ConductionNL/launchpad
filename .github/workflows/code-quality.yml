@@ -370,3 +370,34 @@ jobs:
       # deliberate). Floating both halves keeps caller and callee in step,
       # which is the only configuration in which a pinned path cannot expire.
       enable-hydra-gates: true
+
+  # ── l10n parity, as a WARNING ─────────────────────────────────────────────
+  # tests/l10n/check-l10n-parity.js ran in no CI lane, so #559 left 35 of the
+  # 36 required locales without "Admin settings" and nothing noticed for six
+  # days: gate-102 only guards nl.json, and only for manifest strings.
+  #
+  # It lives HERE, in this repo's own workflow, and not in the shared
+  # ConductionNL/.github quality.yml, whose changes reach the whole fleet the
+  # minute they merge. And it ships as a warning first, the way every new check
+  # does: a failure raises an annotation and marks this step, but
+  # `continue-on-error` keeps the job and the run green. Make it blocking once
+  # it has held for a while, by deleting `continue-on-error`.
+  #
+  # Dependency-free Node, so it needs no `npm ci`.
+  l10n-parity:
+    name: l10n parity (warning only)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Every required locale carries every source key
+        continue-on-error: true
+        run: |
+          if ! npm run --silent check:l10n-parity; then
+            echo "::warning title=l10n parity::A required locale is missing a translation. Warning only, not blocking: see this step's log for the locale and the key."
+            exit 1
+          fi

@@ -253,5 +253,39 @@ test.describe('the site export an administrator downloads', () => {
 		expect((await response.json())?.error).toContain(
 			'Unsupported manifest schema version: 2',
 		)
+
+		// The scenario names 2 and 0 as examples: a version BELOW the supported
+		// one is not an older archive, it is a broken manifest, and it is
+		// refused just the same.
+		const claimingZero = buildZip(
+			Object.entries(archive).map(([name, content]) => ({
+				name,
+				content:
+					name === 'manifest.json'
+						? JSON.stringify({
+								...readJsonEntry(archive, 'manifest.json'),
+								schemaVersion: 0,
+							})
+						: content,
+			})),
+		)
+		await page.locator('[data-test="import-file-input"]').setInputFiles({
+			name: 'version-zero.zip',
+			mimeType: 'application/zip',
+			buffer: claimingZero,
+		})
+		const pendingZero = page.waitForResponse(
+			(res) =>
+				res.url().includes('/api/admin/import')
+				&& res.request().method() === 'POST',
+			{ timeout: 60_000 },
+		)
+		await page.locator('[data-test="import-submit"]').click()
+		const zeroResponse = await pendingZero
+
+		expect(zeroResponse.status()).toBe(400)
+		expect((await zeroResponse.json())?.error).toContain(
+			'Unsupported manifest schema version: 0',
+		)
 	})
 })

@@ -1090,7 +1090,6 @@
         "Kind": "Vrsta",
         "Version": "Verzija",
         "How many dashboards there are, and who they belong to.": "Koliko nadzornih ploča ima i kome pripadaju.",
-        "Store": "Trgovina",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalirajte registre, sheme i tokove koje su objavile druge organizacije."
+        "Store": "Trgovina"
     }
 }

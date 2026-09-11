@@ -219,6 +219,14 @@ class ImportService {
 		if (is_int($version) === false || $version !== self::SCHEMA_VERSION) {
 			$head = 'Unsupported manifest schema version: ' . (string)$version . '.';
 			$tail = ' Only version ' . (string)self::SCHEMA_VERSION . ' is supported.';
+			// An archive from a NEWER LaunchPad is the one case the admin can
+			// act on, and REQ-EXIM-009 asks for them to be told how. A version
+			// below 1 is not an older format, it is a broken manifest, so it
+			// gets no such advice.
+			if (is_int($version) === true && $version > self::SCHEMA_VERSION) {
+				$tail .= ' Upgrade LaunchPad to import archives of version ' . (string)$version . '.';
+			}
+
 			throw new InvalidArgumentException(message: ($head . $tail));
 		}
 
@@ -295,11 +303,7 @@ class ImportService {
 			$missing = $this->validateDashboardPayload(payload: $payload);
 			if ($missing !== null) {
 				$skipped++;
-				$errors[] = [
-					'type' => self::ERR_INVALID_DASHBOARD,
-					'uuid' => $uuid,
-					'message' => 'Missing required field: ' . $missing,
-				];
+				$errors[] = $this->invalidDashboardError(payload: $payload, missing: $missing);
 				continue;
 			}
 
@@ -465,6 +469,39 @@ class ImportService {
 
 		return null;
 	}//end validateDashboardPayload()
+
+	/**
+	 * The error entry for a dashboard the import has to skip.
+	 *
+	 * A dashboard file that is not valid JSON has no `uuid` to report, so it
+	 * used to come back as `uuid: ""` with the message "Missing required
+	 * field: corrupt JSON payload", which names neither the file nor what is
+	 * wrong with it. REQ-EXIM-004 asks for the corrupt dashboard to be
+	 * identified; the archive entry name is the only identity it has, and the
+	 * file name is the exported UUID.
+	 *
+	 * @param array<string, mixed> $payload The payload that failed validation.
+	 * @param string               $missing What validation reported missing.
+	 *
+	 * @return array<string, string> The entry for the `errors` array.
+	 */
+	private function invalidDashboardError(array $payload, string $missing): array {
+		if (isset($payload['__corrupt__']) === true) {
+			$entry = (string)($payload['__entry__'] ?? '');
+			return [
+				'type' => self::ERR_INVALID_DASHBOARD,
+				'uuid' => basename(path: $entry, suffix: '.json'),
+				'entry' => $entry,
+				'message' => $entry . ' is not valid JSON',
+			];
+		}
+
+		return [
+			'type' => self::ERR_INVALID_DASHBOARD,
+			'uuid' => (string)($payload['uuid'] ?? ''),
+			'message' => 'Missing required field: ' . $missing,
+		];
+	}//end invalidDashboardError()
 
 	/**
 	 * Hydrate a Dashboard entity from a payload.

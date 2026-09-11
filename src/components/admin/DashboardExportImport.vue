@@ -181,6 +181,18 @@ export default {
 				const data = err?.response?.data
 				if (data && Array.isArray(data.errors)) {
 					this.importResult = data
+				} else if (typeof data?.error === 'string' && data.error !== '') {
+					// Show the server's reason. It used to be swallowed in
+					// favour of "please try again", so an admin whose archive
+					// was refused for a nameable reason (no manifest.json, not
+					// a ZIP, a schema version this LaunchPad cannot read) was
+					// told only that something went wrong, and REQ-EXIM-009's
+					// "instruct the user to upgrade" could never reach them.
+					this.importError = this.t(
+						'launchpad',
+						'Import failed: {reason}',
+						{ reason: data.error },
+					)
 				} else {
 					this.importError = this.t(
 						'launchpad',

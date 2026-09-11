@@ -27,24 +27,40 @@ Settings are stored as key-value pairs:
 | `allow_multiple_dashboards` | `allowMultipleDashboards` | boolean | `true` | Whether users can have more than one dashboard |
 | `default_permission_level` | `defaultPermissionLevel` | string | `add_only` | Default permission level for user-created dashboards |
 | `default_grid_columns` | `defaultGridColumns` | integer | `12` | Default number of grid columns for new dashboards |
+| `link_create_file_extensions` | `linkCreateFileExtensions` | `string[]` | `["txt","md","docx","xlsx","csv","odt"]` | Extensions the link-button widget's "create file" action may create (REQ-LBN-004). An empty stored list resolves to the default. |
+| `content_storage` | `launchpad.content_storage` | string | `database` | Active content storage backend (REQ-GFSB-006). The response key is dotted, unlike the others. |
+| `default_share_permission_level` | `defaultSharePermissionLevel` | string | `add_only` | Org-wide default permission for a new share (dashboard-sharing spec) |
+| `forced_share_groups` | `forcedShareGroups` | `string[]` | `[]` | Groups every new dashboard is force-shared with (dashboard-sharing spec) |
+| `legacy_widget_bridge_enabled` | `legacyWidgetBridgeEnabled` | boolean | `false` | Whether the workspace reads Nextcloud's widget registry (legacy-widget-bridge spec) |
+| `max_dashboards_per_user` | `maxDashboardsPerUser` | integer | `0` | Personal dashboard quota per user, `0` = unlimited (REQ-QUOTA-001) |
+| `max_widgets_per_dashboard` | `maxWidgetsPerDashboard` | integer | `0` | Placement quota per dashboard, `0` = unlimited (REQ-QUOTA-001) |
+| `quicksearch_fallback_target` | `quicksearchFallbackTarget` | string | `none` | Quick-search no-match fallback: `none`, `unified-search` or an https URL template (REQ-QSEARCH-004). A stored value that no longer validates reads as `none`. |
 | `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
 NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts each setting under the key the GET response uses (`defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`) and under its short parameter name (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`). When both arrive in one body the short name wins. See REQ-ASET-002.
 ## Requirements
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
-Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with all four settings using camelCase keys.
+Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the twelve settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
-- THEN the system MUST return HTTP 200 with all settings at their default values:
+- THEN the system MUST return HTTP 200 with all twelve settings at their default values:
   ```json
   {
     "defaultPermissionLevel": "add_only",
     "allowUserDashboards": false,
     "allowMultipleDashboards": true,
-    "defaultGridColumns": 12
+    "defaultGridColumns": 12,
+    "linkCreateFileExtensions": ["txt", "md", "docx", "xlsx", "csv", "odt"],
+    "launchpad.content_storage": "database",
+    "defaultSharePermissionLevel": "add_only",
+    "forcedShareGroups": [],
+    "legacyWidgetBridgeEnabled": false,
+    "maxDashboardsPerUser": 0,
+    "maxWidgetsPerDashboard": 0,
+    "quicksearchFallbackTarget": "none"
   }
   ```
 - NOTE: `allowUserDashboards` defaults to `false` (REQ-ASET-003) — admins MUST opt in to personal dashboard creation.
@@ -52,15 +68,8 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 #### Scenario: Get settings after modification
 - GIVEN the admin has set `allowUserDashboards` to `false`
 - WHEN the admin sends GET /api/admin/settings
-- THEN the system MUST return the updated value:
-  ```json
-  {
-    "defaultPermissionLevel": "add_only",
-    "allowUserDashboards": false,
-    "allowMultipleDashboards": true,
-    "defaultGridColumns": 12
-  }
-  ```
+- THEN the response MUST carry `"allowUserDashboards": false`
+- AND the other eleven keys MUST still be present with their current values
 
 #### Scenario: Non-admin user retrieves settings
 - GIVEN a regular user "alice"
@@ -77,8 +86,9 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 #### Scenario: Settings response format consistency
 - GIVEN the admin has configured various settings at different times
 - WHEN GET /api/admin/settings is called
-- THEN the response MUST always return exactly four keys: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`
+- THEN the response MUST always return exactly the twelve keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `launchpad.content_storage`, `defaultSharePermissionLevel`, `forcedShareGroups`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`
 - AND no additional keys MUST be present in the response
+- NOTE: This scenario said "exactly four keys" long after the response had grown to twelve. The list above is taken from `AdminSettingsService::getSettings()`; a key added there MUST be added here and to the Defined Settings table.
 - AND the response MUST be a flat JSON object (no nesting)
 
 ### Requirement: Update Admin Settings (REQ-ASET-002)

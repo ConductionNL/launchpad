@@ -11,7 +11,7 @@ Dashboard export and import allow LaunchPad administrators to create versioned s
 ## Data Model
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
+@e2e exclude Most scenarios here are archive-format, service or API contracts, covered by PHPUnit (ExportServiceTest, ImportServiceTest) and Newman rather than a browser. The browser-observable path is still exercised: the admin Operations tab imports archives, and the REQ-EXIM-004 round-trip scenario is cited by tests/e2e/dashboard-export-import-roundtrip.spec.ts.
 
 ### ZIP Container Format: `launchpad-export-v1.zip`
 
@@ -141,6 +141,25 @@ An admin MUST be able to export all dashboards in the instance in a single opera
 ### Requirement: REQ-EXIM-004 Import Endpoint
 
 An admin MUST be able to import a previously exported ZIP archive into the same or a different LaunchPad instance. The import process MUST validate the ZIP structure, create or update dashboards, handle collisions, and return a summary of imported/skipped records.
+
+Each imported widget MUST arrive as it was exported, apart from what names the exporting instance. Its `content` (a text widget's text, the register an object-list reads, the widget an nc-widget proxies), its `customTitle`, `customIcon`, `styleConfig`, grid position, and for a tile its `tileType` and every tile field MUST be carried. Fields that point at a row or a workflow on the exporting instance MUST NOT be carried: `id`, `dashboardId`, `templatePlacementId`, `isCompulsory`, the `acknowledgement*` fields and `announcementKey`. One builder (`PlacementPayloadHydrator`) does this for every path that reads an archive: this import, the store install that feeds it, and the bundled showcase installer.
+
+An imported dashboard and each imported placement MUST be written with `created_at` and `updated_at` set to the time of the import. Both columns are NOT NULL on both tables.
+
+**Why this was written down.** Until the fix the importer set neither timestamp, so on any database that enforces NOT NULL the dashboard insert failed and the dashboard was reported as skipped: no import had landed a dashboard at all (measured on PostgreSQL, SQLSTATE 23502 on `created_at`). Behind that, the importer kept only each widget's grid, style and title, so even a landed dashboard would have lost every widget's configuration and every tile's identity. The store install path hands its payload to this importer, so store installs failed the same way. The unit tests mocked the mapper and saw neither.
+
+#### Scenario: An exported dashboard imported again keeps every widget's configuration
+- GIVEN a dashboard whose widgets are configured: a text widget with text, an object-list with a register and schema, an nc-widget proxying `tasks`, and a tile with its type, icon, colours and link
+- WHEN an admin exports it and imports the archive through the admin page
+- THEN every imported widget MUST carry the content, title, icon, style and tile fields it was exported with
+- AND the imported text widget MUST render its text
+
+#### Scenario: A dashboard installed from a store arrives with its widgets configured
+- GIVEN a registry template whose dashboard carries configured widgets
+- WHEN an admin installs it from the store
+- THEN each placement MUST carry the `content` the template declared
+
+@e2e exclude Needs a second, publishing instance to install from, which neither CI nor the dev environment has; pinned by StoreServiceTest::testAStoreInstallArrivesWithItsWidgetsConfigured, which runs the real importer behind the store.
 
 #### Scenario: Import valid ZIP creates new dashboards
 - GIVEN a valid `launchpad-export-v1.zip` with 3 dashboards

@@ -51,6 +51,40 @@ class AdminSettingsServiceTest extends TestCase {
 		);
 	}//end testGetSettingsReturnsDefaults()
 
+	/**
+	 * REQ-ASET-001 "Settings response format consistency": the response holds
+	 * exactly the twelve documented keys, each at its documented default.
+	 *
+	 * The spec said "exactly four keys" long after the response had grown to
+	 * twelve, because nothing compared the two. This pins the whole response,
+	 * so a key added to getSettings() without the spec (and this list) fails
+	 * here by name.
+	 *
+	 * @return void
+	 */
+	public function testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturn([]);
+
+		$this->assertSame(
+			[
+				'defaultPermissionLevel' => 'add_only',
+				'allowUserDashboards' => false,
+				'allowMultipleDashboards' => true,
+				'defaultGridColumns' => 12,
+				'linkCreateFileExtensions' => ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
+				'launchpad.content_storage' => 'database',
+				'defaultSharePermissionLevel' => 'add_only',
+				'forcedShareGroups' => [],
+				'legacyWidgetBridgeEnabled' => false,
+				'maxDashboardsPerUser' => 0,
+				'maxWidgetsPerDashboard' => 0,
+				'quicksearchFallbackTarget' => 'none',
+			],
+			$this->service->getSettings(),
+			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
+		);
+	}//end testGetSettingsReturnsExactlyTheDocumentedKeysAtTheirDefaults()
+
 	public function testGetSettingsReturnsStoredValues(): void {
 		$this->settingMapper->method('getAllAsArray')->willReturn(
 			[

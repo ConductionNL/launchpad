@@ -38,7 +38,6 @@ use DateTimeImmutable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
@@ -128,6 +127,16 @@ class DemoShowcasesService {
 	private ?array $launchpadWidgetTypes = null;
 
 	/**
+	 * Builds placements from the archive; see PlacementPayloadHydrator for
+	 * which fields travel and why the importer uses the same one. It holds
+	 * no state and has no dependencies, so it is constructed here rather
+	 * than injected.
+	 *
+	 * @var PlacementPayloadHydrator
+	 */
+	private readonly PlacementPayloadHydrator $placementHydrator;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param DashboardMapper $dashboardMapper Dashboard data mapper.
@@ -160,6 +169,7 @@ class DemoShowcasesService {
 		private readonly IURLGenerator $urlGenerator,
 		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
+		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
 
 	/**
@@ -385,7 +395,7 @@ class DemoShowcasesService {
 		try {
 			$persisted = $this->dashboardMapper->insert(entity: $dashboard);
 			foreach ($valid as $widgetPayload) {
-				$placement = $this->buildPlacement(
+				$placement = $this->placementHydrator->hydrate(
 					dashboardId: (int)$persisted->getId(),
 					payload: $widgetPayload
 				);
@@ -784,98 +794,6 @@ class DemoShowcasesService {
 
 		return $dashboard;
 	}//end buildDashboardEntity()
-
-	/**
-	 * Hydrate a WidgetPlacement entity from a payload.
-	 *
-	 * Mirrors {@see ImportService::buildPlacement} so the showcase
-	 * format and the export-import format stay byte-compatible.
-	 *
-	 * @param int $dashboardId The freshly-inserted
-	 *                         dashboard ID.
-	 * @param array<string, mixed> $payload The widget payload.
-	 *
-	 * @return WidgetPlacement The placement entity.
-	 *
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-	 *      Field-by-field guards mirror the export-import format and
-	 *      are clearer than a map-driven setter.
-	 * @SuppressWarnings(PHPMD.NPathComplexity)
-	 *      Consequence of the same field-by-field guards: each optional
-	 *      payload key contributes an independent present/absent branch, so
-	 *      the acyclic-path count multiplies across fields even though the
-	 *      method is a flat sequence with no nesting.
-	 */
-	private function buildPlacement(
-		int $dashboardId,
-		array $payload,
-	): WidgetPlacement {
-		$placement = new WidgetPlacement();
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setDashboardId($dashboardId);
-		$placement->setWidgetId((string)($payload['widgetId'] ?? ''));
-		$placement->setGridX((int)($payload['gridX'] ?? 0));
-		$placement->setGridY((int)($payload['gridY'] ?? 0));
-		$placement->setGridWidth((int)($payload['gridWidth'] ?? 4));
-		$placement->setGridHeight((int)($payload['gridHeight'] ?? 4));
-		$placement->setIsVisible((int)($payload['isVisible'] ?? 1));
-		$placement->setShowTitle((int)($payload['showTitle'] ?? 1));
-		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
-		$placement->setCreatedAt($now);
-		$placement->setUpdatedAt($now);
-
-		if (isset($payload['styleConfig']) === true && is_array($payload['styleConfig']) === true) {
-			$placement->setStyleConfigArray(config: $payload['styleConfig']);
-		}
-
-		if (isset($payload['customTitle']) === true) {
-			$placement->setCustomTitle((string)$payload['customTitle']);
-		}
-
-		// A registry widget's configuration lives in `content`: which
-		// register an object-list reads, which Nextcloud widget an nc-widget
-		// proxies, how a calendar is laid out. Without this copy the
-		// placements land but every one of them is unconfigured, which the
-		// installer cannot notice and the admin sees as blank tiles.
-		if (isset($payload['content']) === true && is_array($payload['content']) === true) {
-			$placement->setContentArray(content: $payload['content']);
-		}
-
-		// Tile fields — see WidgetPlacement::jsonSerialize().
-		if (isset($payload['tileType']) === true) {
-			$placement->setTileType((string)$payload['tileType']);
-			$placement->setTileTitle((string)($payload['tileTitle'] ?? ''));
-			if (isset($payload['tileIcon']) === true) {
-				$placement->setTileIcon((string)$payload['tileIcon']);
-			}
-
-			if (isset($payload['tileIconType']) === true) {
-				$placement->setTileIconType((string)$payload['tileIconType']);
-			}
-
-			if (isset($payload['tileBackgroundColor']) === true) {
-				$placement->setTileBackgroundColor((string)$payload['tileBackgroundColor']);
-			}
-
-			if (isset($payload['tileTextColor']) === true) {
-				$placement->setTileTextColor((string)$payload['tileTextColor']);
-			}
-
-			if (isset($payload['tileLinkType']) === true) {
-				$placement->setTileLinkType((string)$payload['tileLinkType']);
-			}
-
-			if (isset($payload['tileLinkValue']) === true) {
-				$placement->setTileLinkValue((string)$payload['tileLinkValue']);
-			}
-		}//end if
-
-		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-
-		return $placement;
-	}//end buildPlacement()
 
 	/**
 	 * Persist the per-showcase install marker.

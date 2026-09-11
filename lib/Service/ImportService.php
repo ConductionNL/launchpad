@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
@@ -81,6 +81,16 @@ class ImportService {
 	public const ERR_INVALID_DASHBOARD = 'invalidDashboard';
 
 	/**
+	 * Builds placements from their exported form; see PlacementPayloadHydrator
+	 * for which fields travel and why this is one builder and not two. It
+	 * holds no state and has no dependencies, so it is constructed here rather
+	 * than injected.
+	 *
+	 * @var PlacementPayloadHydrator
+	 */
+	private readonly PlacementPayloadHydrator $placementHydrator;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param DashboardMapper $dashboardMapper Dashboard data mapper.
@@ -94,6 +104,7 @@ class ImportService {
 		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
 
 	/**
@@ -309,7 +320,7 @@ class ImportService {
 							continue;
 						}
 
-						$placement = $this->buildPlacement(
+						$placement = $this->placementHydrator->hydrate(
 							dashboardId: (int)$persisted->getId(),
 							payload: $widgetPayload
 						);
@@ -486,6 +497,19 @@ class ImportService {
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$dashboard->setIsDefault(0);
 
+		// `created_at` and `updated_at` are NOT NULL with no default
+		// (DashboardTableBuilder). Nothing here set them, so on every database
+		// that enforces NOT NULL the insert failed, the dashboard was reported
+		// as skipped, and no import had landed a dashboard at all: measured on
+		// PostgreSQL as SQLSTATE 23502 on created_at. The unit tests mock the
+		// mapper, so none of them could see it. An import creates a new row,
+		// so it gets the time of the import rather than the exported one.
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setCreatedAt($now);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setUpdatedAt($now);
+
 		return $dashboard;
 	}//end buildEntity()
 
@@ -641,50 +665,6 @@ class ImportService {
 			$dashboard->setPublicationStatus((string)$payload['publicationStatus']);
 		}
 	}//end applyEntityPlacement()
-
-	/**
-	 * Hydrate a WidgetPlacement entity from a payload.
-	 *
-	 * @param int $dashboardId The freshly-inserted dashboard ID.
-	 * @param array<string, mixed> $payload The widget payload.
-	 *
-	 * @return WidgetPlacement The placement entity (not yet persisted).
-	 */
-	private function buildPlacement(
-		int $dashboardId,
-		array $payload,
-	): WidgetPlacement {
-		$placement = new WidgetPlacement();
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setDashboardId($dashboardId);
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setWidgetId((string)($payload['widgetId'] ?? ''));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setGridX((int)($payload['gridX'] ?? 0));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setGridY((int)($payload['gridY'] ?? 0));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setGridWidth((int)($payload['gridWidth'] ?? 4));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setGridHeight((int)($payload['gridHeight'] ?? 4));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setIsVisible((int)($payload['isVisible'] ?? 1));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setShowTitle((int)($payload['showTitle'] ?? 1));
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
-
-		if (isset($payload['styleConfig']) === true && is_array($payload['styleConfig']) === true) {
-			$placement->setStyleConfigArray(config: $payload['styleConfig']);
-		}
-
-		if (isset($payload['customTitle']) === true) {
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$placement->setCustomTitle((string)$payload['customTitle']);
-		}
-
-		return $placement;
-	}//end buildPlacement()
 
 	/**
 	 * Generate a v4 UUID for re-mapped imports.

@@ -82,7 +82,9 @@ class ImportService {
 
 	/**
 	 * Builds placements from their exported form; see PlacementPayloadHydrator
-	 * for which fields travel and why this is one builder and not two.
+	 * for which fields travel and why this is one builder and not two. It
+	 * holds no state and has no dependencies, so it is constructed here rather
+	 * than injected.
 	 *
 	 * @var PlacementPayloadHydrator
 	 */
@@ -95,22 +97,14 @@ class ImportService {
 	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
 	 * @param IDBConnection $db Database connection.
 	 * @param LoggerInterface $logger PSR-3 logger.
-	 * @param PlacementPayloadHydrator|null $placementHydrator Builds each
-	 *                                                         placement from
-	 *                                                         its exported
-	 *                                                         form; shared
-	 *                                                         with the
-	 *                                                         showcase
-	 *                                                         installer.
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
-		?PlacementPayloadHydrator $placementHydrator = null,
 	) {
-		$this->placementHydrator = $placementHydrator ?? new PlacementPayloadHydrator();
+		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
 
 	/**

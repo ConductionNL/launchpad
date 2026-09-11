@@ -128,7 +128,9 @@ class DemoShowcasesService {
 
 	/**
 	 * Builds placements from the archive; see PlacementPayloadHydrator for
-	 * which fields travel and why the importer uses the same one.
+	 * which fields travel and why the importer uses the same one. It holds
+	 * no state and has no dependencies, so it is constructed here rather
+	 * than injected.
 	 *
 	 * @var PlacementPayloadHydrator
 	 */
@@ -155,12 +157,6 @@ class DemoShowcasesService {
 	 *                                               (SB1 fix, REQ-CSC-001).
 	 *                                               Nullable for backwards-
 	 *                                               compat.
-	 * @param PlacementPayloadHydrator|null $placementHydrator Builds each
-	 *                                                         placement from
-	 *                                                         the archive;
-	 *                                                         shared with the
-	 *                                                         dashboard
-	 *                                                         importer.
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,
@@ -172,9 +168,8 @@ class DemoShowcasesService {
 		private readonly ILockingProvider $lockingProvider,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly ?IEventDispatcher $eventDispatcher = null,
-		?PlacementPayloadHydrator $placementHydrator = null,
 	) {
-		$this->placementHydrator = $placementHydrator ?? new PlacementPayloadHydrator();
+		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
 
 	/**

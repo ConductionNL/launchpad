@@ -105,36 +105,65 @@ class PlacementPayloadHydrator {
 			$placement->setCustomIcon((string)$payload['customIcon']);
 		}
 
-		if (isset($payload['tileType']) === true) {
-			$placement->setTileType((string)$payload['tileType']);
-			// A tile always gets a title, empty if the payload has none.
-			$placement->setTileTitle((string)($payload['tileTitle'] ?? ''));
-			foreach (self::TILE_FIELDS as $field) {
-				if (isset($payload[$field]) === true) {
-					$placement->{'set' . ucfirst($field)}((string)$payload[$field]);
-				}
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$this->applyTile(placement: $placement, payload: $payload);
+		$this->applyBlobs(placement: $placement, payload: $payload);
+
+		return $placement;
+	}//end hydrate()
+
+	/**
+	 * Copy a tile's type and fields, when the payload is a tile.
+	 *
+	 * @param WidgetPlacement      $placement The placement being built.
+	 * @param array<string, mixed> $payload   The exported payload.
+	 *
+	 * @return void
+	 */
+	private function applyTile(WidgetPlacement $placement, array $payload): void {
+		if (isset($payload['tileType']) === false) {
+			return;
+		}
+
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$placement->setTileType((string)$payload['tileType']);
+		// A tile always gets a title, empty if the payload has none.
+		$placement->setTileTitle((string)($payload['tileTitle'] ?? ''));
+		foreach (self::TILE_FIELDS as $field) {
+			if (isset($payload[$field]) === true) {
+				$placement->{'set' . ucfirst($field)}((string)$payload[$field]);
 			}
 		}
 
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+	}//end applyTile()
 
+	/**
+	 * Copy the two JSON blobs: `styleConfig` and `content`.
+	 *
+	 * A registry widget's configuration lives in `content`: which register an
+	 * object-list reads, which Nextcloud widget an nc-widget proxies, what a
+	 * text widget says. Without it the placement lands and renders as an
+	 * unconfigured widget, which nothing on the way in can notice. Export
+	 * writes an empty blob as `{}`, which decodes to `[]`; that carries
+	 * nothing, so the column is left NULL rather than set to `[]`.
+	 *
+	 * @param WidgetPlacement      $placement The placement being built.
+	 * @param array<string, mixed> $payload   The exported payload.
+	 *
+	 * @return void
+	 */
+	private function applyBlobs(WidgetPlacement $placement, array $payload): void {
 		if (isset($payload['styleConfig']) === true && is_array($payload['styleConfig']) === true) {
 			$placement->setStyleConfigArray(config: $payload['styleConfig']);
 		}
 
-		// A registry widget's configuration lives in `content`: which register
-		// an object-list reads, which Nextcloud widget an nc-widget proxies,
-		// what a text widget says. Without it the placement lands and renders
-		// as an unconfigured widget, which nothing on the way in can notice.
-		// Export writes an empty blob as `{}`, which decodes to `[]`; that
-		// carries nothing, so the column is left NULL rather than set to `[]`.
 		if (isset($payload['content']) === true
 			&& is_array($payload['content']) === true
 			&& $payload['content'] !== []
 		) {
 			$placement->setContentArray(content: $payload['content']);
 		}
-
-		return $placement;
-	}//end hydrate()
+	}//end applyBlobs()
 }//end class

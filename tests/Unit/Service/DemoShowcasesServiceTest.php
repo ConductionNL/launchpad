@@ -363,6 +363,130 @@ class DemoShowcasesServiceTest extends TestCase {
 		$this->assertSame(expected: ['unknown-id'], actual: $skipped);
 	}
 
+	/**
+	 * REQ-DEMO-005: installing the REAL bundled `case-handler` archive places
+	 * all four of its widgets, configured.
+	 *
+	 * This runs the install path, not just the zip. The earlier archive tests
+	 * opened `case-handler.zip` and checked its shape, which is how a showcase
+	 * that installed with ZERO widgets passed the suite: `partitionWidgets()`
+	 * knew only tiles and Nextcloud dashboard ids, and all four widgets here
+	 * are LaunchPad types (`object-list`, `nc-widget`, `calendar`). Measured
+	 * in CI on launchpad#606: `skippedWidgets` was all four.
+	 *
+	 * The Nextcloud registry is empty on purpose. That is the CI instance
+	 * (no Tasks, no Mail installed), and it proves the two `nc-widget`
+	 * proxies are kept on their TYPE rather than on whether their target app
+	 * is present.
+	 *
+	 * The content assertions guard the second half of the same defect:
+	 * `buildPlacement()` did not copy `content`, so even a kept widget would
+	 * have landed without knowing what to show.
+	 *
+	 * @return void
+	 */
+	public function testInstallingTheRealCaseHandlerArchivePlacesAllFourWidgets(): void {
+		$this->service->setDataDirForTesting(
+			path: dirname(path: __DIR__, levels: 3) . '/data/demo-showcases'
+		);
+
+		$this->dashboardManager->method('getWidgets')->willReturn([]);
+		$this->appConfig->method('getValueString')->willReturn('');
+
+		$persisted = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setId(55);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setUuid('installed-case-handler');
+		$this->dashboardMapper->method('insert')->willReturn($persisted);
+
+		$placed = [];
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$placed): WidgetPlacement {
+				$placed[] = $placement;
+				return $placement;
+			}
+		);
+
+		$result = $this->service->installShowcase(showcaseId: 'case-handler', lang: 'en');
+
+		$this->assertSame(
+			expected: [],
+			actual: $result['skippedWidgets'],
+			message: 'the case-handler install dropped widgets it can render'
+		);
+		$this->assertSame(
+			expected: ['object-list', 'nc-widget', 'calendar', 'nc-widget'],
+			actual: array_map(
+				callback: static fn (WidgetPlacement $p): string => (string)$p->getWidgetId(),
+				array: $placed
+			),
+			message: 'the install must write the four case-handler widgets, in order'
+		);
+
+		$contents = array_map(
+			callback: static fn (WidgetPlacement $p): array => $p->getContentArray(),
+			array: $placed
+		);
+		$this->assertSame(expected: 'dossiq', actual: $contents[0]['register'] ?? null);
+		$this->assertSame(expected: 'case', actual: $contents[0]['schema'] ?? null);
+		$this->assertSame(expected: 'tasks', actual: $contents[1]['widgetId'] ?? null);
+		$this->assertArrayHasKey(key: 'internalCalendars', array: $contents[2]);
+		$this->assertSame(expected: 'mail-unread', actual: $contents[3]['widgetId'] ?? null);
+	}//end testInstallingTheRealCaseHandlerArchivePlacesAllFourWidgets()
+
+	/**
+	 * REQ-DEMO-005: a Nextcloud widget id whose app is not installed is still
+	 * skipped, next to LaunchPad types that are kept.
+	 *
+	 * Admitting LaunchPad's own types must not turn the filter into "keep
+	 * everything". `mail-unread` is a real Nextcloud dashboard widget, absent
+	 * from this registry the way it is on an instance without the Mail app;
+	 * that is the case the skip exists for. `recommendations` is registered
+	 * and kept, `text` is a LaunchPad type and kept.
+	 *
+	 * @return void
+	 */
+	public function testInstallStillSkipsANextcloudWidgetWhoseAppIsMissing(): void {
+		$this->writeFixtureZip(
+			showcaseId: 'de-bron',
+			manifest: ['schemaVersion' => 1, 'showcaseName' => 'De Bron', 'showcaseLanguage' => 'nl'],
+			dashboardPayload: $this->validDashboardPayload(
+				uuid: 'src-uuid',
+				widgets: [
+					['widgetId' => 'text', 'content' => ['text' => 'Hello']],
+					['widgetId' => 'mail-unread', 'gridX' => 4],
+					['widgetId' => 'recommendations', 'gridX' => 8],
+				]
+			),
+		);
+
+		$registered = $this->createMock(originalClassName: IWidget::class);
+		$registered->method('getId')->willReturn('recommendations');
+		$this->dashboardManager->method('getWidgets')->willReturn([$registered]);
+		$this->appConfig->method('getValueString')->willReturn('');
+
+		$persisted = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setId(8);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setUuid('installed-uuid');
+		$this->dashboardMapper->method('insert')->willReturn($persisted);
+
+		$placed = [];
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$placed): WidgetPlacement {
+				$placed[] = (string)$placement->getWidgetId();
+				return $placement;
+			}
+		);
+
+		$result = $this->service->installShowcase(showcaseId: 'de-bron');
+
+		$this->assertSame(expected: ['mail-unread'], actual: $result['skippedWidgets']);
+		$this->assertSame(expected: ['text', 'recommendations'], actual: $placed);
+	}//end testInstallStillSkipsANextcloudWidgetWhoseAppIsMissing()
+
 	private function validDashboardPayload(string $uuid, array $widgets): array {
 		return [
 			'uuid' => $uuid,

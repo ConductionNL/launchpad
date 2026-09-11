@@ -103,11 +103,29 @@ class DemoShowcasesService {
 	];
 
 	/**
+	 * Where the list of LaunchPad's own widget types lives.
+	 *
+	 * Shared with the frontend: `widgetRegistry.completeness.spec.js`
+	 * asserts the registry's keys equal this file, so the types the
+	 * installer keeps and the types the workspace can render cannot drift.
+	 *
+	 * @var string
+	 */
+	private const WIDGET_TYPES_PATH = __DIR__ . '/../widget-types.json';
+
+	/**
 	 * Optional data-directory override (test seam).
 	 *
 	 * @var string|null
 	 */
 	private ?string $dataDirOverride = null;
+
+	/**
+	 * LaunchPad widget types, keyed by type, loaded once per instance.
+	 *
+	 * @var array<string, true>|null
+	 */
+	private ?array $launchpadWidgetTypes = null;
 
 	/**
 	 * Constructor.
@@ -475,13 +493,32 @@ class DemoShowcasesService {
 	}//end getInstalledUuid()
 
 	/**
-	 * Cross-reference a widget collection against the registered
-	 * Nextcloud dashboard widget registry, returning valid + skipped
-	 * partitions (REQ-DEMO-005).
+	 * Split a showcase's widgets into the ones to place and the ones to
+	 * skip (REQ-DEMO-005).
 	 *
-	 * Tile placements (rows where `tileType` is non-null) are always
-	 * considered valid — tiles are owned by LaunchPad itself and do not
-	 * require a third-party widget registration.
+	 * A widget is kept when LaunchPad can render it. That is true in three
+	 * cases, checked in this order:
+	 *
+	 * 1. it is a tile (`tileType` set), rendered by LaunchPad's tile renderer;
+	 * 2. its `widgetId` is one of LaunchPad's OWN widget types
+	 *    (`lib/widget-types.json`: `object-list`, `nc-widget`, `calendar`,
+	 *    `text` and the rest), rendered by the workspace's widget registry;
+	 * 3. its `widgetId` is a Nextcloud dashboard widget registered on this
+	 *    instance (`IManager::getWidgets()`), rendered through the bridge.
+	 *
+	 * Anything else is skipped, which is what the skip exists for: a bare
+	 * Nextcloud widget id whose app is not installed here.
+	 *
+	 * Case 2 is new. Before it, a LaunchPad type counted as "unknown"
+	 * because it is not in Nextcloud's registry, so the `case-handler`
+	 * showcase, built entirely from LaunchPad types, installed as an empty
+	 * dashboard and still reported success.
+	 *
+	 * An `nc-widget` is kept whatever widget it proxies. The check is on the
+	 * widget's TYPE, as REQ-DEMO-005 words it; whether the proxied app is
+	 * installed decides what the tile shows, not whether it exists. Checking
+	 * the target here would make a showcase's shape depend on which apps an
+	 * instance happens to have.
 	 *
 	 * @param array<int, mixed> $widgets Widget payloads from the
 	 *                                   showcase JSON.
@@ -495,6 +532,8 @@ class DemoShowcasesService {
 		foreach ($this->dashboardManager->getWidgets() as $widget) {
 			$registered[$widget->getId()] = true;
 		}
+
+		$ownTypes = $this->getLaunchpadWidgetTypes();
 
 		$valid = [];
 		$skipped = [];
@@ -513,7 +552,9 @@ class DemoShowcasesService {
 				continue;
 			}
 
-			if (isset($registered[$widgetId]) === true) {
+			if (isset($ownTypes[$widgetId]) === true
+				|| isset($registered[$widgetId]) === true
+			) {
 				$valid[] = $widget;
 				continue;
 			}
@@ -525,6 +566,51 @@ class DemoShowcasesService {
 
 		return [$valid, $skipped];
 	}//end partitionWidgets()
+
+	/**
+	 * Load LaunchPad's own widget types from `lib/widget-types.json`.
+	 *
+	 * Throws rather than returning an empty set when the file is missing or
+	 * unreadable. An empty set is exactly the defect this list fixes: every
+	 * LaunchPad widget in a showcase would be skipped and the install would
+	 * still report success, which is the failure nobody noticed the first
+	 * time. A packaging error must be loud.
+	 *
+	 * @return array<string, true> The types, keyed for `isset()` lookups.
+	 *
+	 * @throws RuntimeException When the list is missing or malformed.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	private function getLaunchpadWidgetTypes(): array {
+		if ($this->launchpadWidgetTypes !== null) {
+			return $this->launchpadWidgetTypes;
+		}
+
+		$decoded = null;
+		if (is_readable(filename: self::WIDGET_TYPES_PATH) === true) {
+			$raw = file_get_contents(filename: self::WIDGET_TYPES_PATH);
+			if (is_string($raw) === true) {
+				$decoded = json_decode(json: $raw, associative: true);
+			}
+		}
+
+		if (is_array($decoded) === false || is_array($decoded['types'] ?? null) === false) {
+			throw new RuntimeException(
+				message: 'LaunchPad widget type list missing or malformed: ' . self::WIDGET_TYPES_PATH
+			);
+		}
+
+		$types = [];
+		foreach ($decoded['types'] as $type) {
+			if (is_string($type) === true && $type !== '') {
+				$types[$type] = true;
+			}
+		}
+
+		$this->launchpadWidgetTypes = $types;
+		return $types;
+	}//end getLaunchpadWidgetTypes()
 
 	/**
 	 * Resolve the on-disk ZIP path for a showcase ID.
@@ -745,6 +831,15 @@ class DemoShowcasesService {
 
 		if (isset($payload['customTitle']) === true) {
 			$placement->setCustomTitle((string)$payload['customTitle']);
+		}
+
+		// A registry widget's configuration lives in `content`: which
+		// register an object-list reads, which Nextcloud widget an nc-widget
+		// proxies, how a calendar is laid out. Without this copy the
+		// placements land but every one of them is unconfigured, which the
+		// installer cannot notice and the admin sees as blank tiles.
+		if (isset($payload['content']) === true && is_array($payload['content']) === true) {
+			$placement->setContentArray(content: $payload['content']);
 		}
 
 		// Tile fields — see WidgetPlacement::jsonSerialize().

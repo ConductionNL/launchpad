@@ -79,13 +79,22 @@ class DemoShowcasesService {
 	/**
 	 * Bundled showcase IDs.
 	 *
-	 * The set is fixed at v1 (REQ-DEMO-001). The Dutch fictional
-	 * organisation names mirror the reference source dataset so
-	 * existing copy / screenshots remain reusable.
+	 * Two kinds, and the difference is what a reader is meant to take
+	 * away. The five Dutch fictional ORGANISATIONS mirror the reference
+	 * source dataset so existing copy and screenshots stay reusable;
+	 * they answer "what does an intranet built on this look like".
+	 *
+	 * `case-handler` is the first ROLE showcase and answers a different
+	 * question: what one person's working day looks like on one page.
+	 * It is in English because the widgets it places are the fleet's own
+	 * (a dossiq case list, the Tasks app, a calendar, unread mail) and
+	 * those carry English labels, so a Dutch shell around English
+	 * content would read as a half-translation.
 	 *
 	 * @var array<int, string>
 	 */
 	public const BUNDLED_IDS = [
+		'case-handler',
 		'de-bron',
 		'de-linden',
 		'gemeente-duin',
@@ -223,15 +232,29 @@ class DemoShowcasesService {
 			$installedDashboardId = $installedUuid;
 		}
 
+		// The imagePath() call THROWS when the image is absent, and this runs once per
+		// showcase inside the listing, so one showcase without a preview used
+		// to 500 the whole gallery. A missing thumbnail is a cosmetic gap in
+		// one card, not a reason to hide the other five.
+		$thumbnailUrl = null;
+		try {
+			$thumbnailUrl = $this->urlGenerator->imagePath(
+				Application::APP_ID,
+				'showcases/' . $showcaseId . '.png'
+			);
+		} catch (\RuntimeException $e) {
+			$this->logger->warning(
+				message: 'Showcase ' . $showcaseId . ' has no preview image',
+				context: ['exception' => $e]
+			);
+		}
+
 		return [
 			'id' => $showcaseId,
 			'name' => (string)($manifest['showcaseName'] ?? $showcaseId),
 			'description' => (string)($manifest['showcaseDescription'] ?? ''),
 			'language' => (string)($manifest['showcaseLanguage'] ?? 'nl'),
-			'thumbnailUrl' => $this->urlGenerator->imagePath(
-				Application::APP_ID,
-				'showcases/' . $showcaseId . '.png'
-			),
+			'thumbnailUrl' => $thumbnailUrl,
 			'isInstalled' => $installedUuid !== '',
 			'installedDashboardUuid' => $installedDashboardId,
 		];

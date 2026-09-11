@@ -28,7 +28,9 @@
  * installed, the authenticated owner storage state from
  * `tests/e2e/global-setup.ts`, and at least one recipient account
  * ("recipient" by default, overridable via LAUNCHPAD_E2E_SHAREE) that the
- * owner can share to. In CI the Hydra pipeline wires this up; locally run
+ * owner can share to. The owner's personal dashboard is NOT a prerequisite:
+ * this file seeds its own in `beforeAll` and removes it in `afterAll`.
+ * In CI the Hydra pipeline wires this up; locally run
  * `npm run test:e2e` after starting the dev stack.
  *
  * Gate-19 @e2e traceability:
@@ -40,11 +42,17 @@
  * @spec openspec/changes/add-dashboard-sharing-e2e-coverage/tasks.md
  */
 
-import type { Locator } from '@playwright/test'
+import type { APIRequestContext, Locator } from '@playwright/test'
 import type { Page } from '@playwright/test'
+import type { SeededDashboard } from './support/dashboardFixture.ts'
 
-import { expect, test } from '@playwright/test'
+import { expect, request, test } from '@playwright/test'
 import { ensureKnownPassword, loginAs } from './fixtures/secondary-user.ts'
+import { BASE_URL } from './support/baseUrl.ts'
+import {
+	removeSeededDashboard,
+	seedActiveDashboard,
+} from './support/dashboardFixture.ts'
 
 // The recipient account the owner shares to. Overridable so the same spec
 // works against fixtures that seed a different second user.
@@ -55,6 +63,17 @@ const SHAREE = process.env.LAUNCHPAD_E2E_SHAREE ?? 'recipient'
 // pre-seeded account's original password is not known to the suite.
 const RECIPIENT_PASSWORD =
 	process.env.LAUNCHPAD_E2E_SHAREE_PASS ?? 'Recipient-e2e-A1!'
+
+const ADMIN = {
+	user: process.env.NC_ADMIN_USER ?? 'admin',
+	pass: process.env.NC_ADMIN_PASS ?? 'admin',
+}
+
+/** Admin API client for seeding and cleanup. */
+let api: APIRequestContext
+
+/** The personal dashboard this file shares. Seeded in `beforeAll`. */
+let seeded: SeededDashboard | null = null
 
 /**
  * Open the active personal dashboard's config modal and switch to the
@@ -77,11 +96,21 @@ async function openSharingTab(page: Page) {
 		timeout: 8_000,
 	})
 
-	// Open the active personal dashboard's cog menu → "Dashboard settings".
+	// Open THIS FILE'S dashboard's cog menu → "Dashboard settings".
+	//
+	// It used to take the first personal row it could find, and this file
+	// created none. On a fresh instance the admin has no personal dashboard,
+	// so there was no row and all four tests timed out here, run alone. In the
+	// full suite they passed on a dashboard some EARLIER spec left behind,
+	// which is the ambient-state trap tests/e2e/support/dashboardFixture.ts
+	// was written to close. The row is now picked by the seeded name, so a
+	// warm instance with other personal dashboards cannot redirect it either.
+	if (seeded === null) {
+		throw new Error('dashboard-sharing: beforeAll did not seed a dashboard')
+	}
 	const activeRow = page
-		.locator(
-			'[data-source="user"].dashboard-switcher-sidebar__item.active, [data-source="user"].dashboard-switcher-sidebar__item',
-		)
+		.locator('[data-source="user"].dashboard-switcher-sidebar__item')
+		.and(page.locator(`[aria-label="${seeded.name}"]`))
 		.first()
 	await activeRow.locator('.dashboard-row-actions button').first().click()
 	await page.locator('[data-testid="cog-dashboard-config"]').click()
@@ -131,6 +160,26 @@ async function saveConfig(page: Page) {
 }
 
 test.describe('dashboard-sharing UI (REQ-SHARE-001/002/004)', () => {
+	// One dashboard for the whole file, not one per test: the tests build on
+	// each other (add a share, change its level, remove it), exactly as they
+	// always did on the borrowed dashboard.
+	test.beforeAll(async () => {
+		api = await request.newContext({
+			baseURL: BASE_URL,
+			httpCredentials: { username: ADMIN.user, password: ADMIN.pass },
+			extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+		})
+		seeded = await seedActiveDashboard(api, `E2E Sharing ${Date.now()}`)
+	})
+
+	// In afterAll, so the dashboard (and the share on it) goes even when a
+	// test fails part-way, and the file leaves nothing behind.
+	test.afterAll(async () => {
+		await removeSeededDashboard(api, seeded)
+		seeded = null
+		await api?.dispose()
+	})
+
 	test('owner adds a user share and it appears in the shares list', async ({
 		page,
 	}) => {

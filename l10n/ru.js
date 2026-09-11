@@ -1122,8 +1122,7 @@ OC.L10N.register(
     "Kind": "Вид",
     "Version": "Версия",
     "How many dashboards there are, and who they belong to.": "Сколько есть панелей и кому они принадлежат.",
-    "Store": "Магазин",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Установите реестры, схемы и потоки, опубликованные другими организациями."
+    "Store": "Магазин"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

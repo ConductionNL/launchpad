@@ -1122,8 +1122,7 @@ OC.L10N.register(
     "Kind": "Tür",
     "Version": "Sürüm",
     "How many dashboards there are, and who they belong to.": "Kaç panonun olduğu ve kime ait oldukları.",
-    "Store": "Mağaza",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Diğer kuruluşların yayımladığı kayıtları, şemaları ve akışları yükleyin."
+    "Store": "Mağaza"
 },
 "nplurals=2; plural=(n != 1);"
 );

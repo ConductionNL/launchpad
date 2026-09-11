@@ -39,11 +39,15 @@
  * the right four. Any one of those alone can be green while the operator gets a
  * blank page.
  *
- * WHY THE `internalCalendars` CHECK IS HERE. The `calendar` widget renders from
- * `content.internalCalendars`, and an EMPTY list is not an error — it fetches
- * nothing and returns zero events with zero failures. A showcase that ships the
- * key empty gives every installer a silently blank tile. Asserting it is
- * populated is the only way that stays visible.
+ * WHY `internalCalendars` IS CHECKED FOR SHAPE AND NOT FOR CONTENT. The
+ * showcase ships the list EMPTY on purpose (ConductionNL/launchpad#605): the
+ * calendar ids on the authoring instance mean nothing anywhere else, and
+ * pointing a stranger's widget at calendar "1" is worse than asking them. That
+ * is right, and the unit test on that change pins the empty list. The cost is
+ * worth knowing though: an empty list is not an error, it fetches nothing and
+ * returns zero events with zero failures, so until the installer picks a
+ * calendar the tile reads like a quiet day. This spec asserts only that the
+ * widget is configured as a calendar at all.
  *
  * WHAT THIS DOES NOT ASSERT. That the Tasks and Mail tiles render CONTENT. Both
  * are `nc-widget` proxies and the Tasks widget implements only `IWidget` with
@@ -53,8 +57,7 @@
  * on makes the workspace load every enabled app's widget scripts, measured at
  * ~118 MB on this fleet). The frames are asserted; their innards are not.
  *
- * @spec exclude Pins a bundled asset added by the case-handler showcase change;
- *       the openspec delta for it lives on that change, not here.
+ * @spec openspec/specs/demo-data-showcases/spec.md
  */
 
 import type { APIRequestContext, request } from '@playwright/test'
@@ -163,6 +166,7 @@ test.describe('demo showcase — case-handler', () => {
 		await api.dispose()
 	})
 
+	// @e2e demo-data-showcases::a-showcase-declares-the-language-of-its-own-copy
 	test('the showcase is listed among the bundled ones', async () => {
 		const res = await api.get(SHOWCASES)
 		expect(res.status(), await res.text()).toBe(200)
@@ -184,8 +188,23 @@ test.describe('demo showcase — case-handler', () => {
 			String(entry!.thumbnailUrl ?? ''),
 			'the card needs a thumbnail path to render',
 		).toContain(SHOWCASE_ID)
+
+		/*
+		 * The language is declared per showcase, not assumed for the set. The
+		 * five organisation showcases are Dutch; `case-handler` is the first
+		 * role showcase and is English because the widgets it places carry
+		 * English labels. A gallery that labelled it "nl" would promise the
+		 * admin a Dutch dashboard and install an English one.
+		 */
+		expect(entry!.language, 'case-handler declares English copy').toBe('en')
+		const organisation = list.find((s) => s.id === 'gemeente-duin')
+		expect(
+			organisation?.language,
+			'an organisation showcase stays Dutch next to the role showcase',
+		).toBe('nl')
 	})
 
+	// @e2e demo-data-showcases::a-role-showcase-installs-as-a-read-only-group-dashboard
 	test('installing it skips nothing', async () => {
 		// Start from a known state: the uninstall is idempotent, so this is safe
 		// whether or not a previous run left the showcase behind. Without it a
@@ -218,6 +237,7 @@ test.describe('demo showcase — case-handler', () => {
 		).toEqual([])
 	})
 
+	// @e2e demo-data-showcases::a-role-showcase-installs-as-a-read-only-group-dashboard
 	test('it installs a read-only group dashboard carrying the four promised widgets', async () => {
 		expect(installedUuid, 'the install test must run first').toBeTruthy()
 		const id = await idForUuid(api, installedUuid!)
@@ -271,11 +291,10 @@ test.describe('demo showcase — case-handler', () => {
 		)
 
 		/*
-		 * 🔴 A CALENDAR WITH NO CALENDARS IS SILENTLY BLANK. An empty
-		 * `internalCalendars` list is not an error condition: it fetches
-		 * nothing and returns zero events with zero failures, so the tile shows
-		 * an empty agenda and looks like a quiet day. This is the only
-		 * assertion that can tell the two apart.
+		 * The calendar must arrive configured AS a calendar: a placement with
+		 * no `internalCalendars` key at all is a widget that never learned what
+		 * it renders from. The list itself is shipped empty on purpose (see the
+		 * file header), so its length is deliberately not asserted.
 		 */
 		const calendar = placements.find((p) => p.widgetId === 'calendar')
 		expect(
@@ -286,11 +305,6 @@ test.describe('demo showcase — case-handler', () => {
 			Array.isArray(calendar!.content!.internalCalendars),
 			'the calendar widget renders from content.internalCalendars',
 		).toBe(true)
-		expect(
-			(calendar!.content!.internalCalendars as unknown[]).length,
-			'internalCalendars is empty, so this tile fetches nothing and renders '
-				+ 'an empty agenda without reporting a single failure',
-		).toBeGreaterThan(0)
 	})
 
 	test('all four widgets render as frames on the installed dashboard', async ({

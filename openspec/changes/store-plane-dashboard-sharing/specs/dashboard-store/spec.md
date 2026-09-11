@@ -3,7 +3,7 @@ capability: dashboard-store
 status: draft
 ---
 
-# Dashboard Store — New capability from change `store-plane-dashboard-sharing`
+# Dashboard store: new capability from change `store-plane-dashboard-sharing`
 
 ## Context
 
@@ -45,7 +45,7 @@ rather than reaching the registry URL.
 - **THEN** it MUST contain `store#search` at `/api/store/items`
 - **AND** it MUST contain `store#install` at `/api/store/items/{slug}/install`
 
-@e2e exclude route-table shape — asserted by reading appinfo/routes.php in tests/Unit/Support/StoreWiringTest.php; the browser consequence is the next scenario
+@e2e exclude route-table shape: asserted by reading appinfo/routes.php in tests/Unit/Support/StoreWiringTest.php; the browser consequence is the next scenario
 
 #### Scenario: An unconfigured store shows the not-configured state
 
@@ -122,7 +122,7 @@ normalised cards, so there is no local identifier to guess and no IDOR to create
 - **THEN** `search` MUST carry `#[NoAdminRequired]`
 - **AND** `install` MUST carry `#[AuthorizedAdminSetting]`
 
-@e2e exclude attribute presence — asserted by reflection in tests/Unit/Controller/StoreControllerTest.php; the two scenarios below prove the attributes hold at runtime
+@e2e exclude attribute presence: asserted by reflection in tests/Unit/Controller/StoreControllerTest.php; the two scenarios below prove the attributes hold at runtime
 
 #### Scenario: A non-admin is refused the registry config
 

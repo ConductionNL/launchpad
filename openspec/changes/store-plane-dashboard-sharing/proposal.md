@@ -21,13 +21,18 @@ would have offered the wrong thing.
 
 ## Affected code units
 
-- **NEW** `lib/Service/StoreService.php` — descriptor construction, discovery delegation, payload to ZIP materialisation, install
-- **NEW** `lib/Controller/StoreController.php` — the three store endpoints and the registry config endpoints
+- **NEW** `lib/Service/StoreService.php`: descriptor construction, discovery delegation, payload to ZIP materialisation, install
+- **NEW** `lib/Controller/StoreController.php`: the three store endpoints and the registry config endpoints
 - **NEW** `tests/Unit/Service/StoreServiceTest.php`
 - **NEW** `tests/Unit/Controller/StoreControllerTest.php`
-- **MODIFY** `appinfo/routes.php` — register the store routes the page already calls
-- **MODIFY** `lib/AppInfo/Application.php` — bind `StoreService` with an optional `GenericStoreService`
-- **MODIFY** `src/manifest.json` — replace the configuration-set store block with a dashboard-template one
+- **MODIFY** `appinfo/routes.php`: register the store routes the page already calls
+- **MODIFY** `lib/AppInfo/Application.php`: bind `StoreService` with an optional `GenericStoreService`
+- **NEW** `src/components/admin/DashboardRegistrySettings.vue`: the registry form on Beheer ▸ Sharing
+- **NEW** `src/components/admin/__tests__/DashboardRegistrySettings.spec.js`
+- **NEW** `tests/e2e/dashboard-store.spec.ts`
+- **MODIFY** `src/components/admin/tabs/SharingTab.vue`: host the registry form
+- **MODIFY** `src/services/api.js`: `getStoreConfig()` and `updateStoreConfig()`
+- **MODIFY** `src/manifest.json`: remove the configuration-set store block, which configured an engine controller LaunchPad does not use
 
 ## Capabilities
 

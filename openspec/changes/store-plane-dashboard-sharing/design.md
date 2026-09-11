@@ -112,8 +112,9 @@ admin settings do not go there: `AdminSettingsService` writes through
 
 So the keys the engine reads are reachable only by `occ config:app:set`. We add a
 small admin-gated config endpoint that reads and writes those three keys in
-`IAppConfig`. The token is write-only across it: the read returns whether a token
-is set, never the token.
+`IAppConfig`, and a form for it on Beheer ▸ Sharing. The token is write-only
+across both: the read returns whether a token is set, never the token, and the
+form's token field always starts empty.
 
 ## The install mechanism
 

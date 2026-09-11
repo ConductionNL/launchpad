@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Administravimo nustatymai",
     "Features & roadmap" : "Funkcijos ir planas",
     "Maximum dashboards per user" : "Didžiausias skydelių skaičius vienam naudotojui",
     "Maximum widgets per dashboard" : "Didžiausias valdiklių skaičius viename skydelyje",

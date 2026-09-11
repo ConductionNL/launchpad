@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Administreerimise seaded",
     "Features & roadmap" : "Funktsioonid ja teekaart",
     "Maximum dashboards per user" : "Töölaudade maksimumarv kasutaja kohta",
     "Maximum widgets per dashboard" : "Vidinate maksimumarv töölaua kohta",

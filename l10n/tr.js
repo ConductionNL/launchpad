@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Yönetim ayarları",
     "Features & roadmap" : "Özellikler ve yol haritası",
     "Maximum dashboards per user" : "Kullanıcı başına en fazla pano",
     "Maximum widgets per dashboard" : "Pano başına en fazla araç",

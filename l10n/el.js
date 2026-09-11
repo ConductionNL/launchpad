@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Ρυθμίσεις διαχείρισης",
     "Features & roadmap" : "Λειτουργίες και οδικός χάρτης",
     "Maximum dashboards per user" : "Μέγιστος αριθμός πινάκων ανά χρήστη",
     "Maximum widgets per dashboard" : "Μέγιστος αριθμός widget ανά πίνακα",

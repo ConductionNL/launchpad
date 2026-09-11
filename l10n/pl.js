@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Ustawienia administracyjne",
     "Features & roadmap" : "Funkcje i plan rozwoju",
     "Maximum dashboards per user" : "Maksymalna liczba pulpitów na użytkownika",
     "Maximum widgets per dashboard" : "Maksymalna liczba widżetów na pulpit",

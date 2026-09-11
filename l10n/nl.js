@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Beheerinstellingen",
     "Features & roadmap" : "Functies en roadmap",
     "share_not_found" : "Gedeeld dashboard niet gevonden",
     "share_expired" : "Dit gedeelde dashboard is verlopen",

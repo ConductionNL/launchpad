@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Ylläpitäjän asetukset",
         "Maximum dashboards per user": "Koontinäyttöjen enimmäismäärä käyttäjää kohden",
         "Maximum widgets per dashboard": "Pienoisohjelmien enimmäismäärä koontinäyttöä kohden",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = rajoittamaton. Rajan alentaminen ei koskaan poista olemassa olevia koontinäyttöjä; se vain estää uusien luomisen, kunnes käyttäjät ovat jälleen rajan alapuolella.",

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Paràmetres d'administració",
     "Features & roadmap" : "Funcions i full de ruta",
     "Maximum dashboards per user" : "Màxim de taulers per usuari",
     "Maximum widgets per dashboard" : "Màxim de ginys per tauler",

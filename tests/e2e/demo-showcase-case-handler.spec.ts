@@ -12,34 +12,29 @@
  *
  * 🔴 WHY "EXACTLY FOUR" IS THE ASSERTION AND NOT A DETAIL
  * ======================================================
- * `DemoShowcasesService::partitionWidgets()` decides what actually lands.
- * A widget survives only if it carries a non-empty `tileType` (a LaunchPad
- * tile), or if its `widgetId` appears in Nextcloud's own dashboard registry
- * — `IManager::getWidgets()`. Everything else is dropped into
- * `skippedWidgets` and the install still answers success.
+ * `DemoShowcasesService::partitionWidgets()` decides what actually lands, and
+ * when this spec was written it kept a widget only if it was a tile or its
+ * `widgetId` was in Nextcloud's own dashboard registry (`IManager::getWidgets()`).
+ * Everything else went into `skippedWidgets` and the install still answered
+ * success. None of `object-list`, `nc-widget` or `calendar` is a Nextcloud
+ * registry id: they are LaunchPad's own widget types.
  *
- * None of this showcase's four widgets is a tile, and NONE of `object-list`,
- * `nc-widget` or `calendar` is a Nextcloud-registry id: they are LaunchPad's
- * own widget types, registered in the frontend bundle. Measured against the
- * live registry on the dev instance (`GET /ocs/v2.php/apps/dashboard/api/v1/widgets`),
- * which lists `tasks`, `mail`, `mail-unread`, `activity`, `spreed` and friends
- * — and no `calendar`, no `nc-widget`, no `object-list`.
+ * So this showcase installed as an EMPTY dashboard. Measured twice on
+ * 2026-09-11: once by calling that `partitionWidgets()` inside the dev
+ * container on the shipped `case-handler.zip` payload, against the live
+ * 39-widget registry, with a raw `mail-unread` row and a tile row as controls
+ * (both controls kept, all four showcase widgets skipped); and once in this
+ * spec's first CI run on launchpad#606, which reported
+ * `skippedWidgets: ["object-list","nc-widget","calendar","nc-widget"]`, zero
+ * placements and zero rendered frames. The existing showcases hit the same
+ * filter: `van-der-berg` lost its `calendar`, while its tiles and its `mail`
+ * widget (a Nextcloud registry id) landed.
  *
- * Measured on the same instance with the five existing showcases: installing
- * `van-der-berg` answered
- *
- *     {"installedDashboardUuid":"fc39…","skippedWidgets":["calendar"],"alreadyInstalled":false}
- *
- * — its three tiles and its `mail` widget landed (`mail` IS a Nextcloud registry
- * id), its `calendar` did not, and the response was still a success. A showcase built entirely from LaunchPad-native widget
- * types therefore installs an EMPTY dashboard and reports it as installed.
- *
- * Measured directly for THIS archive on 2026-09-11: `partitionWidgets()` from
- * ConductionNL/launchpad#605 (byte-identical to the deployed copy) called inside
- * the dev container on the shipped `case-handler.zip` payload, against the live
- * 39-widget registry, with a raw `mail-unread` row and a tile row added as
- * controls. Both controls came back valid; the showcase's own four came back
- * `skipped: ["object-list","nc-widget","calendar","nc-widget"]`.
+ * Fixed in the same PR: LaunchPad's own types now live in
+ * `lib/widget-types.json`, which the installer reads and the frontend registry
+ * is tested against. The installer also copies each widget's `content`, which
+ * it never did, so the placements now arrive configured. The configuration
+ * assertions below guard that second half.
  *
  * So the assertion here is deliberately not "the endpoint answered 200". It is
  * `skippedWidgets` being empty AND four placements existing AND their ids being
@@ -257,6 +252,7 @@ test.describe('demo showcase — case-handler', () => {
 	})
 
 	// @e2e demo-data-showcases::a-role-showcase-installs-as-a-read-only-group-dashboard
+	// @e2e demo-data-showcases::a-launchpad-widget-type-is-installed-although-nextcloud-does-not-register-it
 	test('installing it skips nothing', async () => {
 		expect(installStatus, JSON.stringify(installBody)).toBeLessThan(300)
 		const body = installBody
@@ -266,23 +262,24 @@ test.describe('demo showcase — case-handler', () => {
 		).toBeTruthy()
 
 		/*
-		 * THE ASSERTION. `partitionWidgets` silently drops any widget whose id
-		 * is not in Nextcloud's dashboard registry and is not a tile, and the
-		 * install still succeeds. Every widget in this showcase is a
-		 * LaunchPad-native type, so this list being empty is the difference
-		 * between the promised dashboard and a blank one.
+		 * THE ASSERTION. `partitionWidgets` drops a widget it believes it
+		 * cannot render and the install still succeeds, so a wrong belief is
+		 * silent. Every widget in this showcase is a LaunchPad-native type,
+		 * which is exactly what it used to get wrong: this list being empty is
+		 * the difference between the promised dashboard and a blank one.
 		 */
 		expect(
 			body.skippedWidgets,
 			`the install dropped widgets and reported success anyway: `
 				+ `${JSON.stringify(body.skippedWidgets)}. `
-				+ `DemoShowcasesService::partitionWidgets() only admits LaunchPad `
-				+ `tiles and ids present in IManager::getWidgets(); object-list, `
-				+ `nc-widget and calendar are none of those.`,
+				+ `DemoShowcasesService::partitionWidgets() must keep LaunchPad's own `
+				+ `types (lib/widget-types.json) as well as tiles and ids in `
+				+ `IManager::getWidgets().`,
 		).toEqual([])
 	})
 
 	// @e2e demo-data-showcases::a-role-showcase-installs-as-a-read-only-group-dashboard
+	// @e2e demo-data-showcases::a-kept-widget-keeps-its-configuration
 	test('it installs a read-only group dashboard carrying the four promised widgets', async () => {
 		expect(
 			installedUuid,

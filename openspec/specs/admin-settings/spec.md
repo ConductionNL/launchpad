@@ -10,7 +10,7 @@ Admin settings provide Nextcloud administrators with global configuration option
 
 ## Data Model
 
-@e2e exclude all scenarios test REST/service/config API — admin UI reads settings from API; no dedicated Playwright-testable UI flow shipped in v1.0.5
+@e2e exclude Most scenarios here are REST, service or config contracts, covered by PHPUnit and Newman rather than a browser. The browser-observable parts are still exercised: the two REQ-ASET-002 round-trip scenarios are cited by tests/e2e/admin-settings-key-roundtrip.spec.ts, and the personal-dashboard flag's sidebar effect is covered by tests/e2e/allow-personal-dashboards-flag.spec.ts.
 
 ### Admin Settings (oc_launchpad_admin_settings)
 Settings are stored as key-value pairs:
@@ -29,7 +29,7 @@ Settings are stored as key-value pairs:
 | `default_grid_columns` | `defaultGridColumns` | integer | `12` | Default number of grid columns for new dashboards |
 | `group_order` | n/a (separate `/api/admin/groups` endpoints) | `string[]` (JSON) | `[]` | Ordered list of Nextcloud group IDs that are "active" for LaunchPad workspace routing (REQ-ASET-012). Read via `AdminSettingsService::getGroupOrder()`; written via `setGroupOrder()`. Corrupt JSON resolves to `[]`. |
 
-NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts abbreviated camelCase parameter names: `defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`.
+NOTE: The DB stores settings with snake_case keys, but the API response returns camelCase keys. The factory default for `defaultPermissionLevel` is `add_only` (Dashboard::PERMISSION_ADD_ONLY), NOT `full`. The API update endpoint accepts each setting under the key the GET response uses (`defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`) and under its short parameter name (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`). When both arrive in one body the short name wins. See REQ-ASET-002.
 ## Requirements
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
@@ -90,7 +90,21 @@ Administrators MUST be able to update individual or multiple admin settings in a
 - WHEN they send PUT /api/admin/settings with body `{"allowUserDash": false}`
 - THEN the system MUST update the `allowUserDashboards` setting to `false`
 - AND the response MUST return HTTP 200 with `{"status": "ok"}`
-- NOTE: The API update endpoint accepts abbreviated camelCase parameter names (`defaultPermLevel`, `allowUserDash`, `allowMultiDash`, `defaultGridCols`), NOT the full response key names. The response returns `{"status": "ok"}`, NOT the full settings object.
+- NOTE: The update endpoint accepts a setting under the key GET returns (`allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultPermissionLevel`) as well as under its short parameter name (`allowUserDash`, `allowMultiDash`, `defaultGridCols`, `linkCreateFileExts`, `defaultPermLevel`). The response returns `{"status": "ok"}`, NOT the full settings object.
+- NOTE: Until launchpad#605 this endpoint accepted ONLY the short names. Nextcloud leaves a parameter it cannot bind at its default, every one of these defaults to null, and null means "not supplied", so a caller that sent the GET keys wrote nothing and was still answered `{"status": "ok"}`. This note used to describe that as the contract.
+
+#### Scenario: A settings object read from GET can be written back through PUT
+- GIVEN the admin reads GET /api/admin/settings
+- WHEN they change one value and send it back under the same key, for example PUT with body `{"allowUserDashboards": false}` or `{"defaultGridColumns": 8}`
+- THEN the system MUST store the new value
+- AND a following GET MUST return it
+- AND this MUST hold for each of `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions` and `defaultPermissionLevel`
+
+#### Scenario: Both spellings in one body resolve to the short one
+- GIVEN the admin sends PUT /api/admin/settings with body `{"allowUserDash": true, "allowUserDashboards": false}`
+- WHEN the settings are updated
+- THEN `allowUserDashboards` MUST be `true`
+- NOTE: The short name is the documented parameter and the one the admin UI sends, so an alias MUST NOT override it.
 
 #### Scenario: Update multiple settings at once
 - GIVEN the admin wants to change several settings

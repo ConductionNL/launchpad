@@ -28,20 +28,19 @@
  * STATUS CODE — it is the re-read. Every test below writes, then reads back, and
  * fails on the value rather than on the response.
  *
- * ⚠️ THIS SPEC CONTRADICTS THE SPEC TEXT AS WRITTEN TODAY. REQ-ASET-002's
- * scenario "Update a single boolean setting" carries a NOTE reading "The API
- * update endpoint accepts abbreviated camelCase parameter names ... NOT the full
- * response key names." That NOTE describes the defect and blesses it. The fix
- * that makes these tests pass has to retire that sentence; until it does, this
- * file is the honest description of what a caller needs and the spec is not.
+ * THE SPEC USED TO BLESS THE DEFECT. REQ-ASET-002's scenario "Update a single
+ * boolean setting" carried a NOTE reading "The API update endpoint accepts
+ * abbreviated camelCase parameter names ... NOT the full response key names."
+ * That note was rewritten alongside these tests, and REQ-ASET-002 gained the two
+ * scenarios this file cites: the GET-to-PUT round trip, and the rule that the
+ * short name wins when both arrive.
  *
  * WHAT IS DELIBERATELY NOT ASSERTED. That an unknown key is *rejected*. It is
  * not — REQ-ASET-002 "Update with unknown setting key" says unrecognised keys
  * are ignored, and that stays true. The defect was never that unknown keys are
  * ignored; it was that the endpoint's OWN read vocabulary was among them.
  *
- * @spec exclude REQ-ASET-002's NOTE currently documents the defect as intended
- *       behaviour, so there is no scenario to cite until the fix rewrites it.
+ * @spec openspec/specs/admin-settings/spec.md
  */
 
 import type { APIRequestContext, Page, request } from '@playwright/test'
@@ -246,6 +245,7 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 	})
 
 	for (const { long, short, probe, counterProbe } of ALIASED_KEYS) {
+		// @e2e admin-settings::a-settings-object-read-from-get-can-be-written-back-through-put
 		test(`PUT accepts the response key "${long}" and the value actually lands`, async () => {
 			// Arrange through the SHORT spelling, which works on unfixed code.
 			// Without this the probe could coincide with the value already
@@ -276,6 +276,7 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		})
 	}
 
+	// @e2e admin-settings::both-spellings-in-one-body-resolve-to-the-short-one
 	test('a body carrying BOTH spellings resolves to the short one', async () => {
 		/*
 		 * Accepting two names for one setting creates a case that did not exist
@@ -308,6 +309,7 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		).toBe(true)
 	})
 
+	// @e2e admin-settings::a-settings-object-read-from-get-can-be-written-back-through-put
 	test('a value written through the response key reaches the rendered app', async ({
 		page,
 	}) => {

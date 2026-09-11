@@ -92,4 +92,31 @@ class DashboardDeletedEventTest extends TestCase {
 
 		$this->assertInstanceOf(expected: Event::class, actual: $event);
 	}//end testExtendsNextcloudEventBase()
+
+	/**
+	 * REQ-CSC-001: the event carries the deleted row's id when given, else null.
+	 *
+	 * Listeners on tables keyed by `dashboard_id` need it, because the row is
+	 * already gone when the event fires.
+	 *
+	 * @return void
+	 */
+	public function testCarriesTheDashboardIdWhenGivenAndNullOtherwise(): void {
+		$withId = new DashboardDeletedEvent(
+			dashboardUuid: 'x',
+			ownerUserId: 'y',
+			type: 'user',
+			deletedAt: new DateTimeImmutable(),
+			dashboardId: 42,
+		);
+		$withoutId = new DashboardDeletedEvent(
+			dashboardUuid: 'x',
+			ownerUserId: 'y',
+			type: 'user',
+			deletedAt: new DateTimeImmutable(),
+		);
+
+		$this->assertSame(expected: 42, actual: $withId->getDashboardId());
+		$this->assertNull(actual: $withoutId->getDashboardId());
+	}//end testCarriesTheDashboardIdWhenGivenAndNullOtherwise()
 }//end class

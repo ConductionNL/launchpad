@@ -1114,7 +1114,6 @@ OC.L10N.register(
     "Kind": "Врста",
     "Version": "Верзија",
     "How many dashboards there are, and who they belong to.": "Колико има контролних табли и коме припадају.",
-    "Store": "Продавница",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Инсталирајте регистре, шеме и токове које су објавиле друге организације."
+    "Store": "Продавница"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

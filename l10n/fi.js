@@ -1123,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Laji",
     "Version": "Versio",
     "How many dashboards there are, and who they belong to.": "Kuinka monta koontinäyttöä on ja kenelle ne kuuluvat.",
-    "Store": "Kauppa",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Asenna muiden organisaatioiden julkaisemia rekistereitä, skeemoja ja vuokaavioita."
+    "Store": "Kauppa"
 },
 "nplurals=2; plural=(n != 1);"
 );

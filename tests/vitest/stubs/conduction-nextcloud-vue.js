@@ -47,6 +47,8 @@ const stub = (name) => ({ name, render: () => h('div') })
 export const NcModal = stub('NcModal')
 export const NcButton = stub('NcButton')
 export const NcTextField = stub('NcTextField')
+export const NcPasswordField = stub('NcPasswordField')
+export const NcNoteCard = stub('NcNoteCard')
 export const NcSelect = stub('NcSelect')
 export const NcEmptyContent = stub('NcEmptyContent')
 export const NcAppNavigation = stub('NcAppNavigation')
@@ -437,6 +439,8 @@ export default {
 	NcModal,
 	NcButton,
 	NcTextField,
+	NcPasswordField,
+	NcNoteCard,
 	NcSelect,
 	NcEmptyContent,
 	NcAppNavigation,

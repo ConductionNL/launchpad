@@ -1123,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Rodzaj",
     "Version": "Wersja",
     "How many dashboards there are, and who they belong to.": "Ile jest pulpitów i do kogo należą.",
-    "Store": "Sklep",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Zainstaluj rejestry, schematy i przepływy opublikowane przez inne organizacje."
+    "Store": "Sklep"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

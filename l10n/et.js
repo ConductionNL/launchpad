@@ -1123,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Liik",
     "Version": "Versioon",
     "How many dashboards there are, and who they belong to.": "Kui palju töölaudu on ja kellele need kuuluvad.",
-    "Store": "Pood",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Paigalda registrid, skeemid ja voog, mille teised organisatsioonid on avaldanud."
+    "Store": "Pood"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1123,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Type",
     "Version": "Versjon",
     "How many dashboards there are, and who they belong to.": "Hvor mange dashbord det er, og hvem de tilhører.",
-    "Store": "Butikk",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installer registre, skjemaer og flyter som andre organisasjoner har publisert."
+    "Store": "Butikk"
 },
 "nplurals=2; plural=(n != 1);"
 );

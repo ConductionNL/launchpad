@@ -28,6 +28,7 @@ Specs are worked in five tiers. The tier decides the order, not the size.
 
 1. **Tier 0, safety (8 specs, 343 scenarios).** Who may see, change or share what. A false green here reads as proof that a protection works. Started on 2026-09-11.
 2. **Tier 1, data integrity (11 specs, 341 scenarios).** Deletes, cascades, versions, locks, quotas and bulk writes. #612 shows why: write paths tested only against a mocked database.
+   Since #617, CI's PHPUnit boots a real Nextcloud, so a write path can be pinned by a database test as well as an e2e. #617 checked all 33 insert sites against the 73 required columns and found two more silent failures: Confluence import never saved a dashboard, and a role permission saved without a name hit the database constraint.
 3. **Tier 2, core surfaces (19 specs, 823 scenarios).** Dashboards, widgets, the grid, tiles, templates and the setup wizard.
 4. **Tier 3, widgets (24 specs, 817 scenarios).** One spec per widget type.
 5. **Tier 4, admin, operations and integrations (14 specs, 419 scenarios).** CLI commands, background jobs, metrics and search providers. Many of these have no browser surface, so expect honest exclusions naming the PHPUnit or Newman test, rather than new e2e.

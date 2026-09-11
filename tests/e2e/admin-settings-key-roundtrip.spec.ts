@@ -151,22 +151,55 @@ async function writeSettings(
 }
 
 /*
- * NOT `serial`. Each test below arranges its own precondition through the SHORT
- * spelling, which works on fixed and unfixed code alike, so none depends on
- * another's leftovers. That independence is worth keeping: under `serial` the
- * first red test skips the remaining six, and the run list would then show one
- * failure where five distinct keys are broken — the reviewer could not tell how
- * wide the defect is. The config already pins `workers: 1` and
- * `fullyParallel: false`, so they still run one at a time.
+ * NOT `serial`. Under `serial` the first red test skips the remaining six, and
+ * the run list would show one failure where five distinct keys are broken — the
+ * reviewer could not tell how wide the defect is. The config already pins
+ * `workers: 1` and `fullyParallel: false`, so they still run one at a time.
+ *
+ * 🔴 WHAT MAKES THAT SAFE IS `afterEach`, AND IT WAS MISSING AT FIRST. These
+ * tests used to rely on each one arranging its own precondition, and that held
+ * only while the writes were broken. The first CI run against the fixed
+ * controller proved it: the `allowMultipleDashboards` test really did leave the
+ * flag `false`, which caps every user at one dashboard, and the browser leg two
+ * tests later failed its PRECONDITION — the Add-Dashboard control was on screen
+ * but disabled, and a disabled control swaps its accessible name for the quota
+ * tooltip ("You have reached the limit of 1 dashboards"). Reproduced on the dev
+ * instance by applying exactly that leaked state. A leak that only exists once
+ * the fix works is invisible on the code the test was written against.
  */
 test.describe('admin settings — the keys GET publishes are the keys PUT accepts', () => {
 	let api: APIRequestContext
 	let baseline: Record<string, unknown>
 	let seeded: SeededDashboard | null = null
 
+	/**
+	 * Put every aliased key back to the value it had before this file ran.
+	 *
+	 * Written through the SHORT spellings on purpose: they work on fixed and
+	 * unfixed code alike, so the restore succeeds whether or not the fix is
+	 * present — which is the one situation a cleanup must not depend on.
+	 *
+	 * @return nothing.
+	 */
+	const restoreBaseline = async (): Promise<void> => {
+		const restore: Record<string, unknown> = {}
+		for (const { long, short } of ALIASED_KEYS) {
+			if (baseline[long] !== undefined) {
+				restore[short] = baseline[long]
+			}
+		}
+		await api.put(SETTINGS, { data: restore })
+	}
+
 	test.beforeAll(async ({ playwright }) => {
 		api = await adminApi({ request: playwright.request })
 		baseline = await readSettings(api)
+
+		// Seeding a second personal dashboard is refused outright ("Multiple
+		// dashboards not allowed") while `allowMultipleDashboards` is off and
+		// the admin already owns one — measured on the dev instance. The
+		// baseline is restored in `afterAll`.
+		await api.put(SETTINGS, { data: { allowMultiDash: true } })
 
 		/*
 		 * SEED A DASHBOARD FOR THE BROWSER LEG. `.launchpad-sidebar-toggle`
@@ -194,22 +227,21 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 	 * ones that work on unfixed code, so cleanup succeeds whether or not the
 	 * fix is present.
 	 */
+	test.afterEach(async () => {
+		if (api !== undefined && baseline !== undefined) {
+			await restoreBaseline()
+		}
+	})
+
 	test.afterAll(async () => {
 		if (api === undefined || baseline === undefined) {
 			return
 		}
 		// Personal-dashboard creation must be ON for the delete to be allowed,
-		// and one of the tests above may have left it OFF.
+		// and the baseline may have it OFF.
 		await api.put(SETTINGS, { data: { allowUserDash: true } })
 		await removeSeededDashboard(api, seeded)
-
-		const restore: Record<string, unknown> = {}
-		for (const { long, short } of ALIASED_KEYS) {
-			if (baseline[long] !== undefined) {
-				restore[short] = baseline[long]
-			}
-		}
-		await api.put(SETTINGS, { data: restore })
+		await restoreBaseline()
 		await api.dispose()
 	})
 
@@ -319,7 +351,13 @@ test.describe('admin settings — the keys GET publishes are the keys PUT accept
 		}
 
 		// Precondition through the short spelling: flag ON, control present.
-		await writeSettings(api, { allowUserDash: true })
+		// `allowMultiDash` is set too because the control's accessible name
+		// depends on it: with multiple dashboards off, the admin is at a quota
+		// of one and the button renders DISABLED, named after the quota
+		// tooltip rather than "Add dashboard". A baseline with that flag off
+		// would fail this precondition for a reason unrelated to the setting
+		// under test.
+		await writeSettings(api, { allowUserDash: true, allowMultiDash: true })
 		await addButton()
 		const sidebar = page.locator('.dashboard-switcher-sidebar')
 		const add = sidebar.getByRole('button', {

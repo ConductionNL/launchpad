@@ -30,8 +30,8 @@
  *
  *     {"installedDashboardUuid":"fc39…","skippedWidgets":["calendar"],"alreadyInstalled":false}
  *
- * — its three tiles landed, its `calendar` and `mail` did not, and the response
- * was still a success. A showcase built entirely from LaunchPad-native widget
+ * — its three tiles and its `mail` widget landed (`mail` IS a Nextcloud registry
+ * id), its `calendar` did not, and the response was still a success. A showcase built entirely from LaunchPad-native widget
  * types therefore installs an EMPTY dashboard and reports it as installed.
  *
  * Measured directly for THIS archive on 2026-09-11: `partitionWidgets()` from
@@ -120,19 +120,29 @@ async function adminApi(playwright: {
  * (`/api/dashboards/{uuid}/resolved`) answers translations rather than
  * placements. Measured both ways on the dev instance before writing this.
  *
+ * 🔴 `/api/dashboards/visible`, NOT `/api/dashboards`. The plain list returns
+ * only the caller's OWN dashboards, and a showcase installs as a
+ * `group_shared` dashboard owned by nobody, so it is never in that list. The
+ * first CI run of this spec looked it up there and failed with "the install
+ * reported uuid … but /api/dashboards does not list it" — a lookup bug that
+ * would have stayed red after the showcase itself was fixed. Measured on the
+ * dev instance with `van-der-berg`: absent from `/api/dashboards`, present in
+ * `/api/dashboards/visible` and `/api/dashboards/group/default`, and
+ * `/api/dashboard/{id}` then answers its placements.
+ *
  * @param api an admin-authenticated request context.
  * @param uuid the dashboard UUID the install returned.
  * @return the dashboard's numeric id.
  */
 async function idForUuid(api: APIRequestContext, uuid: string): Promise<number> {
-	const res = await api.get(`${API}/dashboards`)
+	const res = await api.get(`${API}/dashboards/visible`)
 	expect(res.status(), await res.text()).toBe(200)
 	const body = await res.json()
 	const items = (body.items ?? body) as Array<{ id: number; uuid: string }>
 	const found = items.find((d) => d.uuid === uuid)
 	expect(
 		found,
-		`the install reported uuid ${uuid} but /api/dashboards does not list it`,
+		`the install reported uuid ${uuid} but /api/dashboards/visible does not list it`,
 	).toBeTruthy()
 	return Number(found!.id)
 }
@@ -161,9 +171,19 @@ test.describe('demo showcase — case-handler', () => {
 	let installStatus = 0
 	let installBody: Record<string, unknown> = {}
 	let installedUuid: string | null = null
+	let previousActiveUuid: string | null = null
 
 	test.beforeAll(async ({ playwright }) => {
 		api = await adminApi({ request: playwright.request })
+
+		// The render test below switches the admin's active dashboard to the
+		// showcase. Remember what it was, so `afterAll` can hand it back rather
+		// than leave a preference pointing at a dashboard it then uninstalls.
+		const active = await api.get(`${API}/dashboard`)
+		if (active.ok()) {
+			const uuid = (await active.json())?.dashboard?.uuid
+			previousActiveUuid = typeof uuid === 'string' ? uuid : null
+		}
 
 		// Start from a known state. The uninstall is idempotent, so this is safe
 		// whether or not an earlier run left the showcase behind, and without it
@@ -190,6 +210,11 @@ test.describe('demo showcase — case-handler', () => {
 			return
 		}
 		await api.delete(`${SHOWCASES}/${SHOWCASE_ID}`)
+		if (previousActiveUuid !== null) {
+			await api.post(`${API}/dashboards/active`, {
+				data: { uuid: previousActiveUuid },
+			})
+		}
 		await api.dispose()
 	})
 

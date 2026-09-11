@@ -26,50 +26,22 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest'
+import widgetTypes from '../../../lib/widget-types.json'
 
 beforeEach(() => {
 	globalThis.t = (_app, key) => key
 })
 
-// Canonical widget type set. Sorted alphabetically. Update in lockstep
-// with `src/constants/widgetRegistry.js` whenever a widget capability is
-// added or removed -- the tests below will fail with a precise diff if
-// this constant drifts out of sync with the registry.
-const EXPECTED_TYPES = [
-	'calendar',
-	'clock',
-	'container',
-	'divider',
-	'files',
-	'header',
-	'iframe',
-	'image',
-	'label',
-	'link',
-	'links',
-	'livetile',
-	'menu',
-	'nc-widget',
-	'news',
-	'people',
-	'quicklinks',
-	// tile-quick-search: the quick-search bar became a placeable widget
-	// rather than runtime-shell chrome (REQ-QSEARCH-001).
-	'search',
-	'spend-analytics',
-	'text',
-	'tile',
-	'video',
-	'weather',
-	// Analytics widgets (OpenBuild parity) — OpenRegister-data-driven.
-	'stat',
-	'delta',
-	'gauge',
-	'object-list',
-	'chart',
-	'stats-block',
-	'table',
-]
+// Canonical widget type set, read from `lib/widget-types.json` rather than
+// written out here. That file is the ONE list both sides consult: this spec
+// asserts the frontend registry equals it, and
+// `DemoShowcasesService::partitionWidgets()` keeps a showcase widget whose type
+// is on it. While the list lived only in this file the PHP side could not see
+// it, and the case-handler showcase installed with none of its four widgets
+// (`object-list`, `nc-widget`, `calendar`) because the server knew only tiles
+// and Nextcloud dashboard ids. Add or remove a type in the registry AND the
+// JSON in the same commit; the tests below fail with a precise diff otherwise.
+const EXPECTED_TYPES = widgetTypes.types
 
 describe('widgetRegistry completeness (REQ-WDG-023)', () => {
 	it('registry keys MUST equal EXPECTED_TYPES (set equality)', async () => {
@@ -89,7 +61,7 @@ describe('widgetRegistry completeness (REQ-WDG-023)', () => {
 		if (unexpectedInRegistry.length) {
 			diagnostic.push(
 				`DRIFT: widgetRegistry contains type(s) not in EXPECTED_TYPES: ${JSON.stringify(unexpectedInRegistry)}. `
-					+ 'Update EXPECTED_TYPES in widgetRegistry.completeness.spec.js',
+					+ 'Add them to lib/widget-types.json, which the showcase installer reads too',
 			)
 		}
 

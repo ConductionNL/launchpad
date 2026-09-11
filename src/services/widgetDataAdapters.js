@@ -12,7 +12,6 @@
  * working data sources.
  */
 
-import { generateUrl } from '@nextcloud/router'
 import {
 	fetchFinanceSummary,
 	fetchSpendNarrative,
@@ -108,21 +107,15 @@ export function buildWidgetDataProvide(getPlacementId) {
 
 /**
  * Per-widget-type extra props for the nc-vue renderers that take a prop rather
- * than an injection: News' `itemsEndpoint` builder and Files' `apiBase`.
+ * than an injection: Files' `apiBase`.
+ *
+ * `news` was here too; it now lives in LaunchPad and calls its own endpoint.
  *
  * @param {string} widgetId the placement widget type.
  * @return {object} extra props to v-bind onto the renderer (empty for most types).
  * @spec openspec/specs/news-widget/spec.md#requirement-req-news-003-fetch-and-merge-feed-items
  */
 export function buildRendererExtraProps(widgetId) {
-	if (widgetId === 'news') {
-		return {
-			itemsEndpoint: (placementId) =>
-				generateUrl('/apps/launchpad/api/widgets/news/{placementId}/items', {
-					placementId,
-				}),
-		}
-	}
 	if (widgetId === 'files') {
 		return { apiBase: '/apps/launchpad' }
 	}

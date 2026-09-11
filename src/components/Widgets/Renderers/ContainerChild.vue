@@ -73,9 +73,9 @@ export default {
 
 	computed: {
 		/**
-		 * Per-type extra props for nc-vue renderers that take a prop (news
-		 * `itemsEndpoint`, files `apiBase`). The container child placement
-		 * carries the type in `placement.type`.
+		 * Per-type extra props for nc-vue renderers that take a prop (files
+		 * `apiBase`). The container child placement carries the type in
+		 * `placement.type`.
 		 *
 		 * @return {object} extra props to v-bind onto the child renderer.
 		 */

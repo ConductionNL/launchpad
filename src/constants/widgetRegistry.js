@@ -77,6 +77,10 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue
 // LaunchPad-only registration pattern as `clock`/`weather`.
 import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
 import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+// `news` — moved out of nc-vue, whose renderer had no way to fetch a feed.
+// LaunchPad owns the feed path, so it owns the widget.
+import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
+import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 // `search` — the quick-search / launcher bar, formerly runtime-shell chrome
 // (openspec/specs/tile-quick-search). Registered below like the other
 // LaunchPad-only types.
@@ -232,6 +236,26 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// `news` — RSS/Atom headlines fetched server-side
+// (openspec/specs/news-widget). Registered after the shared catalog import, so
+// this entry replaces the communal one while nc-vue still ships it.
+registerDashboardWidget('news', {
+	renderer: NewsWidget,
+	form: NewsWidgetForm,
+	defaultContent: {
+		feedUrls: [],
+		layout: 'list',
+		itemLimit: 10,
+		showThumbnails: true,
+		showSummary: true,
+		summaryMaxChars: 200,
+		dateFormat: 'relative',
+		metadataFilter: null,
+	},
+	displayName: 'News',
+	icon: 'RssBox',
 })
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal

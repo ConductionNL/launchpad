@@ -309,9 +309,10 @@ test.describe('demo showcase — case-handler', () => {
 		expect(objectList?.content?.register, 'the case list reads dossiq').toBe(
 			'dossiq',
 		)
-		expect(objectList?.content?.schema, 'the case list reads the case schema').toBe(
-			'case',
-		)
+		expect(
+			objectList?.content?.schema,
+			'the case list reads the case schema',
+		).toBe('case')
 
 		/*
 		 * The calendar must arrive configured AS a calendar: a placement with
@@ -350,9 +351,12 @@ test.describe('demo showcase — case-handler', () => {
 		// to fire `load` on the workspace page, which is the entire configured
 		// navigationTimeout. The selector wait below is the real gate.
 		await page.goto(APP_URL, { waitUntil: 'domcontentloaded' })
-		await page.waitForSelector('.launchpad-floating-controls, .workspace-shell', {
-			timeout: 20_000,
-		})
+		await page.waitForSelector(
+			'.launchpad-floating-controls, .workspace-shell',
+			{
+				timeout: 20_000,
+			},
+		)
 
 		/*
 		 * Count the rendered grid items rather than trusting the API count

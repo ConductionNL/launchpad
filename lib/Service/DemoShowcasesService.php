@@ -232,15 +232,29 @@ class DemoShowcasesService {
 			$installedDashboardId = $installedUuid;
 		}
 
+		// The imagePath() call THROWS when the image is absent, and this runs once per
+		// showcase inside the listing, so one showcase without a preview used
+		// to 500 the whole gallery. A missing thumbnail is a cosmetic gap in
+		// one card, not a reason to hide the other five.
+		$thumbnailUrl = null;
+		try {
+			$thumbnailUrl = $this->urlGenerator->imagePath(
+				Application::APP_ID,
+				'showcases/' . $showcaseId . '.png'
+			);
+		} catch (\RuntimeException $e) {
+			$this->logger->warning(
+				message: 'Showcase ' . $showcaseId . ' has no preview image',
+				context: ['exception' => $e]
+			);
+		}
+
 		return [
 			'id' => $showcaseId,
 			'name' => (string)($manifest['showcaseName'] ?? $showcaseId),
 			'description' => (string)($manifest['showcaseDescription'] ?? ''),
 			'language' => (string)($manifest['showcaseLanguage'] ?? 'nl'),
-			'thumbnailUrl' => $this->urlGenerator->imagePath(
-				Application::APP_ID,
-				'showcases/' . $showcaseId . '.png'
-			),
+			'thumbnailUrl' => $thumbnailUrl,
 			'isInstalled' => $installedUuid !== '',
 			'installedDashboardUuid' => $installedDashboardId,
 		];

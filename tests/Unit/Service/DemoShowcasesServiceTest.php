@@ -527,6 +527,68 @@ class DemoShowcasesServiceTest extends TestCase {
 		$this->assertSame(expected: [], actual: $calendar['content']['internalCalendars'] ?? null);
 	}//end testCaseHandlerShowcaseIsAReadOnlyGroupDashboard()
 
+	/**
+	 * Every bundled id ships the preview image the gallery asks for.
+	 *
+	 * `IURLGenerator::imagePath()` THROWS for an image that does not exist,
+	 * and the setUp() stand-in above always returns a string, so no unit test
+	 * here could see it. CI's Newman lane did: adding `case-handler` without
+	 * `img/showcases/case-handler.png` turned GET /api/admin/demo-showcases
+	 * into a 500 for every showcase, not just the new one.
+	 *
+	 * @return void
+	 */
+	public function testEveryBundledIdShipsAPreviewImage(): void {
+		$root = dirname(path: __DIR__, levels: 3) . '/img/showcases';
+		foreach (DemoShowcasesService::BUNDLED_IDS as $showcaseId) {
+			$this->assertFileExists(
+				filename: $root . '/' . $showcaseId . '.png',
+				message: $showcaseId . ' is in BUNDLED_IDS but has no img/showcases preview'
+			);
+		}
+	}//end testEveryBundledIdShipsAPreviewImage()
+
+	/**
+	 * A showcase with no preview still lists, with a null thumbnail.
+	 *
+	 * The guard above keeps the bundled set honest; this one keeps the
+	 * listing standing when it is not. One missing image is a cosmetic gap
+	 * in one card, not a reason to hide every other showcase behind a 500.
+	 *
+	 * @return void
+	 */
+	public function testAMissingPreviewDoesNotFailTheListing(): void {
+		$throwing = $this->createMock(originalClassName: IURLGenerator::class);
+		$throwing->method('imagePath')->willThrowException(
+			new \RuntimeException('image not found: image:showcases/de-bron.png webroot: serverroot:')
+		);
+
+		$service = new DemoShowcasesService(
+			dashboardMapper: $this->dashboardMapper,
+			placementMapper: $this->placementMapper,
+			db: $this->db,
+			appConfig: $this->appConfig,
+			dashboardManager: $this->dashboardManager,
+			logger: new NullLogger(),
+			lockingProvider: $this->lockingProvider,
+			urlGenerator: $throwing,
+		);
+		$service->setDataDirForTesting(path: $this->fixtureDir);
+
+		$this->writeFixtureZip(
+			showcaseId: 'de-bron',
+			manifest: ['schemaVersion' => 1, 'showcaseName' => 'De Bron', 'showcaseLanguage' => 'nl'],
+			dashboardPayload: $this->validDashboardPayload(uuid: 'a-uuid', widgets: []),
+		);
+		$this->appConfig->method('getValueString')->willReturn('');
+
+		$row = $service->describeShowcase(showcaseId: 'de-bron');
+
+		$this->assertIsArray(actual: $row, message: 'a missing preview must not drop the showcase');
+		$this->assertSame(expected: 'de-bron', actual: $row['id']);
+		$this->assertNull(actual: $row['thumbnailUrl']);
+	}//end testAMissingPreviewDoesNotFailTheListing()
+
 	private function rrmdir(string $dir): void {
 		if (is_dir(filename: $dir) === false) {
 			return;

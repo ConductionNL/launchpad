@@ -469,7 +469,8 @@ class DemoShowcasesService {
 						dashboardUuid: $deletedUuid,
 						ownerUserId:   (string)($dashboard->getUserId() ?? ''),
 						type:          (string)($dashboard->getType() ?? Dashboard::TYPE_GROUP_SHARED),
-						deletedAt:     new DateTimeImmutable()
+						deletedAt:     new DateTimeImmutable(),
+						dashboardId:   $dashId
 					)
 				);
 			}

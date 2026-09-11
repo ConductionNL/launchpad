@@ -891,7 +891,8 @@ class BulkOperationService {
 					dashboardUuid: $rowUuid,
 					ownerUserId:   (string)($dashboard->getUserId() ?? $userId),
 					type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
-					deletedAt:     new DateTimeImmutable()
+					deletedAt:     new DateTimeImmutable(),
+					dashboardId:   (int)$dashboard->getId()
 				)
 			);
 		}

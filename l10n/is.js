@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Stillingar stjórnunar",
     "Features & roadmap" : "Eiginleikar og vegvísir",
     "Maximum dashboards per user" : "Hámarksfjöldi mælaborða á notanda",
     "Maximum widgets per dashboard" : "Hámarksfjöldi viðmótshluta á mælaborð",

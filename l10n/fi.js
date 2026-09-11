@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Ylläpitäjän asetukset",
     "Features & roadmap" : "Ominaisuudet ja tiekartta",
     "Maximum dashboards per user" : "Koontinäyttöjen enimmäismäärä käyttäjää kohden",
     "Maximum widgets per dashboard" : "Pienoisohjelmien enimmäismäärä koontinäyttöä kohden",

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funzjonijiet u pjan direzzjonali",
     "Maximum dashboards per user" : "Numru massimu ta' dashboards għal kull utent",
     "Maximum widgets per dashboard" : "Numru massimu ta' widgets għal kull dashboard",

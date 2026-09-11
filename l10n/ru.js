@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Параметры сервера",
     "Features & roadmap" : "Функции и дорожная карта",
     "Maximum dashboards per user" : "Максимальное количество панелей на пользователя",
     "Maximum widgets per dashboard" : "Максимальное количество виджетов на панель",

@@ -383,7 +383,8 @@ class AdminTemplateService {
 					dashboardUuid: $deletedUuid,
 					ownerUserId:   (string)($template->getUserId() ?? ''),
 					type:          Dashboard::TYPE_ADMIN_TEMPLATE,
-					deletedAt:     new DateTimeImmutable()
+					deletedAt:     new DateTimeImmutable(),
+					dashboardId:   $id
 				)
 			);
 		}

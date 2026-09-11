@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Административни настройки",
     "Features & roadmap" : "Функции и пътна карта",
     "Maximum dashboards per user" : "Максимален брой табла на потребител",
     "Maximum widgets per dashboard" : "Максимален брой джаджи на табло",

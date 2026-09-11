@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Rendszergazdai beállítások",
     "Features & roadmap" : "Funkciók és ütemterv",
     "Maximum dashboards per user" : "Felhasználónkénti maximális irányítópultok száma",
     "Maximum widgets per dashboard" : "Irányítópultonkénti maximális modulok száma",

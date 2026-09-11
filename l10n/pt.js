@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funcionalidades e roteiro",
     "Maximum dashboards per user" : "Máximo de painéis por utilizador",
     "Maximum widgets per dashboard" : "Máximo de widgets por painel",

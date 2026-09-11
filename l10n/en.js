@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Admin settings",
     "Features & roadmap" : "Features & roadmap",
     "share_not_found" : "Share not found",
     "share_expired" : "This share has expired",

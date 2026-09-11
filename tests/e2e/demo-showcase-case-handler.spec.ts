@@ -34,6 +34,13 @@
  * was still a success. A showcase built entirely from LaunchPad-native widget
  * types therefore installs an EMPTY dashboard and reports it as installed.
  *
+ * Measured directly for THIS archive on 2026-09-11: `partitionWidgets()` from
+ * ConductionNL/launchpad#605 (byte-identical to the deployed copy) called inside
+ * the dev container on the shipped `case-handler.zip` payload, against the live
+ * 39-widget registry, with a raw `mail-unread` row and a tile row added as
+ * controls. Both controls came back valid; the showcase's own four came back
+ * `skipped: ["object-list","nc-widget","calendar","nc-widget"]`.
+ *
  * So the assertion here is deliberately not "the endpoint answered 200". It is
  * `skippedWidgets` being empty AND four placements existing AND their ids being
  * the right four. Any one of those alone can be green while the operator gets a
@@ -140,14 +147,34 @@ async function readDashboard(
 	return await res.json()
 }
 
-test.describe.configure({ mode: 'serial' })
-
+/*
+ * NOT `serial`, and the install happens ONCE, in `beforeAll`. Under `serial` a
+ * red install test skips every test after it, so a showcase that installs
+ * empty would show one failure and hide the fact that the composition and the
+ * rendered grid are wrong too. Installing up front lets each test report its
+ * own verdict on the same install. If Playwright restarts the worker after a
+ * failure it re-runs this hook, which uninstalls first, so the later tests
+ * still measure a fresh install rather than a leftover.
+ */
 test.describe('demo showcase — case-handler', () => {
 	let api: APIRequestContext
+	let installStatus = 0
+	let installBody: Record<string, unknown> = {}
 	let installedUuid: string | null = null
 
 	test.beforeAll(async ({ playwright }) => {
 		api = await adminApi({ request: playwright.request })
+
+		// Start from a known state. The uninstall is idempotent, so this is safe
+		// whether or not an earlier run left the showcase behind, and without it
+		// a re-run would take the `alreadyInstalled` path and measure nothing.
+		await api.delete(`${SHOWCASES}/${SHOWCASE_ID}`)
+
+		const res = await api.post(`${SHOWCASES}/${SHOWCASE_ID}/install`)
+		installStatus = res.status()
+		installBody = await res.json().catch(async () => ({ raw: await res.text() }))
+		const uuid = String(installBody.installedDashboardUuid ?? '')
+		installedUuid = /^[0-9a-f-]{36}$/.test(uuid) ? uuid : null
 	})
 
 	/*
@@ -206,19 +233,12 @@ test.describe('demo showcase — case-handler', () => {
 
 	// @e2e demo-data-showcases::a-role-showcase-installs-as-a-read-only-group-dashboard
 	test('installing it skips nothing', async () => {
-		// Start from a known state: the uninstall is idempotent, so this is safe
-		// whether or not a previous run left the showcase behind. Without it a
-		// re-run would take the `alreadyInstalled` path and measure nothing.
-		await api.delete(`${SHOWCASES}/${SHOWCASE_ID}`)
-
-		const res = await api.post(`${SHOWCASES}/${SHOWCASE_ID}/install`)
-		expect(res.status(), await res.text()).toBeLessThan(300)
-		const body = await res.json()
-
-		installedUuid = String(body.installedDashboardUuid ?? '')
-		expect(installedUuid, 'the install must name the dashboard it created').toMatch(
-			/^[0-9a-f-]{36}$/,
-		)
+		expect(installStatus, JSON.stringify(installBody)).toBeLessThan(300)
+		const body = installBody
+		expect(
+			installedUuid,
+			`the install must name the dashboard it created: ${JSON.stringify(body)}`,
+		).toBeTruthy()
 
 		/*
 		 * THE ASSERTION. `partitionWidgets` silently drops any widget whose id
@@ -239,7 +259,10 @@ test.describe('demo showcase — case-handler', () => {
 
 	// @e2e demo-data-showcases::a-role-showcase-installs-as-a-read-only-group-dashboard
 	test('it installs a read-only group dashboard carrying the four promised widgets', async () => {
-		expect(installedUuid, 'the install test must run first').toBeTruthy()
+		expect(
+			installedUuid,
+			`the install in beforeAll produced no dashboard: ${JSON.stringify(installBody)}`,
+		).toBeTruthy()
 		const id = await idForUuid(api, installedUuid!)
 		const { dashboard, placements } = await readDashboard(api, id)
 
@@ -310,7 +333,10 @@ test.describe('demo showcase — case-handler', () => {
 	test('all four widgets render as frames on the installed dashboard', async ({
 		page,
 	}) => {
-		expect(installedUuid, 'the install test must run first').toBeTruthy()
+		expect(
+			installedUuid,
+			`the install in beforeAll produced no dashboard: ${JSON.stringify(installBody)}`,
+		).toBeTruthy()
 
 		// Make the showcase the active dashboard for this user, the way the
 		// switcher does — the shell resolves through the per-user UUID

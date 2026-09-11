@@ -40,6 +40,7 @@ use OCP\EventDispatcher\Event;
  * @see \OCA\LaunchPad\Listener\LocksListener
  * @see \OCA\LaunchPad\Listener\VersionsListener
  * @see \OCA\LaunchPad\Listener\PublicSharesListener
+ * @see \OCA\LaunchPad\Listener\DashboardSharesListener
  * @see \OCA\LaunchPad\Listener\MetadataValuesListener
  * @see \OCA\LaunchPad\Listener\TranslationsListener
  * @see \OCA\LaunchPad\Listener\ViewAnalyticsListener
@@ -53,12 +54,15 @@ final class DashboardDeletedEvent extends Event {
 	 * @param string $ownerUserId The owner user ID at the time of deletion.
 	 * @param string $type The dashboard type (`user`, `group_shared`, `admin_template`).
 	 * @param DateTimeImmutable $deletedAt The instant the soft-delete completed.
+	 * @param int|null $dashboardId The integer id of the deleted row, or null
+	 *                              when the dispatcher did not have it.
 	 */
 	public function __construct(
 		private readonly string $dashboardUuid,
 		private readonly string $ownerUserId,
 		private readonly string $type,
 		private readonly DateTimeImmutable $deletedAt,
+		private readonly ?int $dashboardId = null,
 	) {
 		parent::__construct();
 	}//end __construct()
@@ -102,4 +106,26 @@ final class DashboardDeletedEvent extends Event {
 	public function getDeletedAt(): DateTimeImmutable {
 		return $this->deletedAt;
 	}//end getDeletedAt()
+
+	/**
+	 * Get the integer id of the deleted dashboard row.
+	 *
+	 * 🔴 WHY THE EVENT CARRIES THE ID AT ALL. Every dispatcher fires this
+	 * event AFTER the dashboard row is gone. A dependent table keyed on
+	 * `dashboard_id` therefore cannot be cleaned by translating the UUID
+	 * through `oc_launchpad_dashboards`: that subquery finds nothing, and
+	 * the delete silently removes zero rows. `oc_launchpad_dashboard_shares`
+	 * is such a table, which is why `DashboardSharesListener` reads this.
+	 *
+	 * Null when a dispatcher did not supply it. A listener that needs it
+	 * must then fall back to the UUID, which only works while the row
+	 * still exists.
+	 *
+	 * @return int|null The dashboard id, or null.
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md#requirement-req-csc-001-dashboarddeletedevent-definition
+	 */
+	public function getDashboardId(): ?int {
+		return $this->dashboardId;
+	}//end getDashboardId()
 }//end class

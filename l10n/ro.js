@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Setări de administrare",
     "Features & roadmap" : "Funcții și foaie de parcurs",
     "Maximum dashboards per user" : "Numărul maxim de tablouri de bord per utilizator",
     "Maximum widgets per dashboard" : "Numărul maxim de widgeturi per tablou de bord",

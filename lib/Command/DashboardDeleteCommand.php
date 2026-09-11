@@ -262,7 +262,8 @@ class DashboardDeleteCommand extends CommandBase {
 				dashboardUuid: $uuid,
 				ownerUserId:   (string)($dashboard->getUserId() ?? ''),
 				type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
-				deletedAt:     new DateTimeImmutable()
+				deletedAt:     new DateTimeImmutable(),
+				dashboardId:   (int)$dashboard->getId()
 			)
 		);
 	}//end applyDeletion()

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Pārvaldīšanas iestatījumi",
     "Features & roadmap" : "Funkcijas un ceļvedis",
     "Maximum dashboards per user" : "Maksimālais informācijas paneļu skaits uz lietotāju",
     "Maximum widgets per dashboard" : "Maksimālais logrīku skaits uz informācijas paneli",

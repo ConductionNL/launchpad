@@ -64,6 +64,7 @@ import type { APIRequestContext } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
 import { ensureDefaultWidgetRestriction } from '../fixtures/role-feature-permissions.ts'
+import { BASE_URL } from '../support/baseUrl.ts'
 
 /*
  * THE WIDGET THE REQ-SHARE-004 TEST ADDS, AND WHY IT IS NOT `label`.
@@ -105,13 +106,14 @@ const ADMIN = {
 
 /*
  * `baseURL` is a TEST-scoped Playwright option and cannot be destructured in
- * a worker-scoped hook. The neighbouring public-share specs read the same
- * environment variable the config resolves it from; so does this file.
+ * a worker-scoped hook, so the hooks here use the same resolver the config
+ * does, tests/e2e/support/baseUrl.ts.
  */
-const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(
-	/\/$/,
-	'',
-)
+// Through the shared resolver, not a private read of `BASE_URL`. That read
+// ignored `PLAYWRIGHT_BASE_URL`, the variable tests/e2e/support/baseUrl.ts
+// documents, so a local run that set only it failed here with `Invalid URL`.
+// CI exports `BASE_URL`, which the resolver still honours.
+const ENV_BASE_URL = BASE_URL
 
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'
 const DASHBOARDS = '/index.php/apps/launchpad/api/dashboard'
@@ -912,5 +914,103 @@ test.describe('REQ-SHARE-009 bulk replace', () => {
 
 		await owner.dispose()
 		await asBob.dispose()
+	})
+})
+
+/**
+ * How many share rows point at a dashboard that no longer exists.
+ *
+ * 🔴 WHY THIS, AND NOT THE SHARE LIST OR THE RECIPIENT'S VIEW. An orphaned
+ * share row is unreachable from every product path: its dashboard is gone, so
+ * the share list answers 404 and the recipient's visible list drops it,
+ * whether or not the row was deleted. Those assertions pass with or without
+ * the cascade and so cannot prove it. The orphan count can.
+ *
+ * It is read through a DRY-RUN purge, not `/api/admin/cleanup/scan`. The scan
+ * serves a cached result for 300 seconds and only a real purge invalidates
+ * it, so a before/after pair of scans compares the same cached number with
+ * itself. The dry run counts live, inside a rolled-back transaction, and
+ * deletes nothing.
+ *
+ * @param admin An admin API client.
+ * @return The number of orphaned user and group share rows.
+ */
+async function orphanedShareCount(admin: APIRequestContext): Promise<number> {
+	const res = await admin.post(
+		'/index.php/apps/launchpad/api/admin/cleanup/purge',
+		{
+			data: { categories: ['expired_share_tokens'], dryRun: true },
+		},
+	)
+	expect(res.status(), await res.text()).toBe(200)
+	const body = await res.json()
+	expect(body.dryRun, 'the orphan count must come from a dry run').toBe(true)
+	return Number(body.purgedByCategory?.expired_share_tokens ?? 0)
+}
+
+test.describe('REQ-CSC-002 deleting a dashboard removes its shares', () => {
+	// @e2e dashboard-cascade-events::user-and-group-shares-are-deleted-with-their-dashboard
+	test('deleting a dashboard removes its user and group shares', async () => {
+		const owner = await apiAs(ADMIN)
+		const asBob = await apiAs(bob)
+		const asCarol = await apiAs(carol)
+		const dash = await createDashboard(owner, 'cascade')
+
+		for (const [shareType, shareWith] of [
+			['user', bob.user],
+			['group', salesGroup],
+		]) {
+			const grant = await owner.post(sharesUrl(dash.id), {
+				data: { shareType, shareWith, permissionLevel: 'view_only' },
+			})
+			expect(grant.status(), await grant.text()).toBeLessThan(300)
+		}
+
+		// CONTROLS: both shares exist, and both recipients see the dashboard.
+		// Without these, every absence below would also hold for a share that
+		// was never made.
+		expect(
+			await listShares(owner, dash.id),
+			'CONTROL: the user share and the group share both exist',
+		).toHaveLength(2)
+		expect(
+			(await listVisible(asBob)).map((d) => Number(d.id)),
+			'CONTROL: the named recipient sees the dashboard',
+		).toContain(dash.id)
+		expect(
+			(await listVisible(asCarol)).map((d) => Number(d.id)),
+			'CONTROL: the group member sees the dashboard',
+		).toContain(dash.id)
+
+		const orphansBefore = await orphanedShareCount(owner)
+
+		const deleted = await owner.delete(dashboardUrl(dash.id))
+		expect(deleted.status(), await deleted.text()).toBeLessThan(300)
+
+		// What a person sees: gone for both recipients, and not listed.
+		expect(
+			(await listVisible(asBob)).map((d) => Number(d.id)),
+			'the named recipient still sees a deleted dashboard',
+		).not.toContain(dash.id)
+		expect(
+			(await listVisible(asCarol)).map((d) => Number(d.id)),
+			'the group member still sees a deleted dashboard',
+		).not.toContain(dash.id)
+		const shareList = await owner.get(sharesUrl(dash.id))
+		expect(
+			shareList.status(),
+			'the share API still answers for a deleted dashboard',
+		).toBe(404)
+
+		// What only the database knows: the two share rows went with it.
+		// This is the assertion the cascade decides; see orphanedShareCount.
+		expect(
+			await orphanedShareCount(owner),
+			'deleting the dashboard left its user and group shares behind',
+		).toBe(orphansBefore)
+
+		await owner.dispose()
+		await asBob.dispose()
+		await asCarol.dispose()
 	})
 })

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Административни параметри",
     "Features & roadmap" : "Функции и патоказ",
     "Maximum dashboards per user" : "Максимален број контролни табли по корисник",
     "Maximum widgets per dashboard" : "Максимален број виџети по контролна табла",

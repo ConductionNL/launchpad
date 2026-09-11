@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Socruithe riaracháin",
     "Features & roadmap" : "Gnéithe agus treochlár",
     "Maximum dashboards per user" : "Uaslíon deais-chláir in aghaidh an úsáideora",
     "Maximum widgets per dashboard" : "Uaslíon giuirléidí in aghaidh an deais-chláir",

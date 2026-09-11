@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Адміністрування",
     "Features & roadmap" : "Функції та дорожня карта",
     "Maximum dashboards per user" : "Максимальна кількість дашбордів на користувача",
     "Maximum widgets per dashboard" : "Максимальна кількість віджетів на дашборд",

@@ -23,6 +23,7 @@ use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
+use OCA\LaunchPad\Listener\DashboardSharesListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
@@ -200,6 +201,10 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
 			listener: PublicSharesListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
+			listener: DashboardSharesListener::class
 		);
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,

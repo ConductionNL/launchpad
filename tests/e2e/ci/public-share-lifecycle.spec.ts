@@ -64,6 +64,7 @@
 import type { APIRequestContext } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
+import { BASE_URL } from '../support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
@@ -190,13 +191,14 @@ let priorAllowUserDash = true
 /*
  * `baseURL` is a TEST-scoped option, so it cannot be destructured in a
  * worker-scoped hook — Playwright rejects that with "Fixture "baseURL" has
- * "test" scope but is used in beforeAll hook". These hooks read the same
- * environment variable the config resolves it from.
+ * "test" scope but is used in beforeAll hook". These hooks use the same
+ * resolver the config does, tests/e2e/support/baseUrl.ts.
  */
-const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(
-	/\/$/,
-	'',
-)
+// Through the shared resolver, not a private read of `BASE_URL`. That read
+// ignored `PLAYWRIGHT_BASE_URL`, the variable tests/e2e/support/baseUrl.ts
+// documents, so a local run that set only it failed here with `Invalid URL`.
+// CI exports `BASE_URL`, which the resolver still honours.
+const ENV_BASE_URL = BASE_URL
 
 test.beforeAll(async () => {
 	const admin = await apiAs(ENV_BASE_URL, ADMIN)

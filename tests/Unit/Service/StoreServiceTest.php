@@ -23,10 +23,16 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\OpenRegister\AppHost\Service\GenericStoreService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IAppConfig;
+use OCP\IDBConnection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -85,6 +91,72 @@ class StoreServiceTest extends TestCase {
 			}
 		);
 	}//end setUp()
+
+	/**
+	 * REQ-STORE-005: a template installed from a registry arrives with its
+	 * widgets configured.
+	 *
+	 * Every other install test here mocks the importer, which proves the
+	 * payload reaches it and nothing about what it does with the payload. This
+	 * one runs the REAL `ImportService` behind the store. That matters because
+	 * the importer used to drop each widget's `content`, so a store install
+	 * placed an object-list that knew no register and a text widget with no
+	 * text, and reported success.
+	 *
+	 * @return void
+	 */
+	public function testAStoreInstallArrivesWithItsWidgetsConfigured(): void {
+		$dashboards = $this->createMock(originalClassName: DashboardMapper::class);
+		$dashboards->method('findByUuid')->willThrowException(exception: new DoesNotExistException(msg: 'no'));
+		$persisted = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setId(31);
+		$dashboards->method('insert')->willReturn($persisted);
+
+		$placed = [];
+		$placements = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+		$placements->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$placed): WidgetPlacement {
+				$placed[] = $placement;
+				return $placement;
+			}
+		);
+
+		$importer = new ImportService(
+			dashboardMapper: $dashboards,
+			placementMapper: $placements,
+			db: $this->createMock(originalClassName: IDBConnection::class),
+			logger: new NullLogger(),
+		);
+
+		$discovery = $this->createMock(GenericStoreService::class);
+		$discovery->method('resolve')->willReturn([
+			'slug' => 'case-desk',
+			'title' => 'Case desk',
+			'dashboards' => [[
+				'uuid' => 'store-dash',
+				'name' => 'Case desk',
+				'widgets' => [
+					['widgetId' => 'object-list', 'content' => ['register' => 'dossiq', 'schema' => 'case']],
+					['widgetId' => 'text', 'content' => ['text' => 'Start here']],
+				],
+			]],
+		]);
+
+		$store = new StoreService(
+			discovery: $discovery,
+			importService: $importer,
+			appConfig: $this->appConfig,
+			logger: new NullLogger()
+		);
+
+		$result = $store->install(slug: 'case-desk', userId: 'alice');
+
+		$this->assertTrue($result['success'], $result['message']);
+		$this->assertCount(2, $placed);
+		$this->assertSame(['register' => 'dossiq', 'schema' => 'case'], $placed[0]->getContentArray());
+		$this->assertSame(['text' => 'Start here'], $placed[1]->getContentArray());
+	}//end testAStoreInstallArrivesWithItsWidgetsConfigured()
 
 	/**
 	 * Build the service under test.

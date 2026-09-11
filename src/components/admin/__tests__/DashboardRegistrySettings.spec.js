@@ -30,13 +30,21 @@ vi.mock('@nextcloud/dialogs', () => ({
 	showSuccess: vi.fn(),
 }))
 
-const fieldStub = (name) => ({
-	name,
-	props: ['modelValue', 'label'],
-	emits: ['update:modelValue'],
-	template:
-		'<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-})
+/**
+ * A field stub that round-trips `v-model` through a real `<input>`.
+ *
+ * @param {string} name The component name it stands in for.
+ * @return {object} The stub component.
+ */
+function fieldStub(name) {
+	return {
+		name,
+		props: ['modelValue', 'label'],
+		emits: ['update:modelValue'],
+		template:
+			'<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+	}
+}
 
 const stubs = {
 	NcTextField: fieldStub('NcTextField'),

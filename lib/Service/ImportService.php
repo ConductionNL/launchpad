@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -501,6 +502,19 @@ class ImportService {
 		$dashboard->setIsActive(0);
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$dashboard->setIsDefault(0);
+
+		// `created_at` and `updated_at` are NOT NULL with no default
+		// (DashboardTableBuilder). Nothing here set them, so on every database
+		// that enforces NOT NULL the insert failed, the dashboard was reported
+		// as skipped, and no import had landed a dashboard at all: measured on
+		// PostgreSQL as SQLSTATE 23502 on created_at. The unit tests mock the
+		// mapper, so none of them could see it. An import creates a new row,
+		// so it gets the time of the import rather than the exported one.
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setCreatedAt($now);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setUpdatedAt($now);
 
 		return $dashboard;
 	}//end buildEntity()

@@ -349,6 +349,69 @@ class ImportServiceTest extends TestCase {
 	}
 
 	/**
+	 * An imported dashboard and its placements carry the timestamps the
+	 * schema requires.
+	 *
+	 * `created_at` and `updated_at` are NOT NULL without a default on both
+	 * `launchpad_dashboards` (DashboardTableBuilder) and
+	 * `launchpad_widget_placements` (PlacementTableBuilder). The importer set
+	 * neither, so on a real database every dashboard insert failed and was
+	 * reported as skipped: no import had ever landed a dashboard. Measured on
+	 * PostgreSQL as SQLSTATE 23502 on created_at. Every other test in this file
+	 * mocks the mapper and so accepts a row the database would refuse; this
+	 * one looks at the row.
+	 *
+	 * @return void
+	 */
+	public function testAnImportedRowCarriesTheTimestampsTheSchemaRequires(): void {
+		$zipPath = $this->makeZip(entries: [
+			'manifest.json' => (string)json_encode(value: ['schemaVersion' => 1, 'scope' => 'dashboard']),
+			'dashboards/ts-uuid.json' => (string)json_encode(value: [
+				'uuid' => 'ts-uuid',
+				'name' => 'Timestamps',
+				'widgets' => [['widgetId' => 'text', 'content' => ['text' => 'x']]],
+			]),
+		]);
+
+		$this->dashboardMapper->method('findByUuid')
+			->willThrowException(exception: new DoesNotExistException(msg: 'no'));
+
+		$rows = [];
+		$this->dashboardMapper->method('insert')->willReturnCallback(
+			static function (Dashboard $dashboard) use (&$rows): Dashboard {
+				$rows[] = $dashboard;
+				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+				$dashboard->setId(5);
+				return $dashboard;
+			}
+		);
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$rows): WidgetPlacement {
+				$rows[] = $placement;
+				return $placement;
+			}
+		);
+
+		try {
+			$this->service->import(zipPath: $zipPath, preserveUuids: false, currentUserId: 'admin');
+		} finally {
+			@unlink(filename: $zipPath);
+		}
+
+		$this->assertCount(expectedCount: 2, haystack: $rows, message: 'one dashboard and one placement row');
+		foreach ($rows as $row) {
+			$this->assertNotEmpty(
+				actual: $row->getCreatedAt(),
+				message: get_class($row) . ' reached the mapper without created_at, which the schema declares NOT NULL'
+			);
+			$this->assertNotEmpty(
+				actual: $row->getUpdatedAt(),
+				message: get_class($row) . ' reached the mapper without updated_at, which the schema declares NOT NULL'
+			);
+		}
+	}//end testAnImportedRowCarriesTheTimestampsTheSchemaRequires()
+
+	/**
 	 * REQ-EXIM-002 + REQ-EXIM-004: a dashboard that goes out through export
 	 * and back in through import keeps every widget's configuration.
 	 *

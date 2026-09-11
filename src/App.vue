@@ -17,6 +17,7 @@
 		:manifest="liveManifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
+		:permissions="permissions"
 		appId="launchpad" />
 </template>
 
@@ -113,6 +114,31 @@ export default {
 		pageTypes: {
 			type: Object,
 			required: true,
+		},
+
+		/**
+		 * The permission strings this account holds, built by
+		 * `utils/permissions.js` from the server's `isAdmin` answer and
+		 * forwarded to `CnAppNav`'s filter.
+		 *
+		 * 🔴 THIS PROP USED TO BE ABSENT, and its absence was the bug.
+		 * `manifest.menu` declares `permission: "admin"` on `admin-templates`
+		 * and `admin-settings`, and `CnAppNav.passesPermission` reads a missing
+		 * or empty list as "the app did not say" and renders the entry anyway:
+		 *
+		 *     if (!this.permissions || this.permissions.length === 0) return true
+		 *
+		 * So both admin entries rendered for every authenticated account and
+		 * the declaration did nothing. `currentPermissions()` never answers an
+		 * empty array, which is what keeps that escape from firing.
+		 *
+		 * `required: false` with a DENYING default rather than `required: true`:
+		 * a mount that forgets this prop should hide the gated entries, not
+		 * throw a dev-only warning in production and show them.
+		 */
+		permissions: {
+			type: Array,
+			default: () => ['user'],
 		},
 	},
 

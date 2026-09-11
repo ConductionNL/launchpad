@@ -98,8 +98,7 @@ export default {
 	 * Provide the data-source adapters the nc-vue data widgets inject
 	 * (`cnPeopleSource` / `cnSpendAnalyticsSource`), bridging them to
 	 * launchpad's existing endpoints/services so the shared renderers stay
-	 * app-agnostic. News uses the `itemsEndpoint` prop instead (see
-	 * `rendererProps`).
+	 * app-agnostic.
 	 *
 	 * @return {object} the injected data-source adapters.
 	 */
@@ -182,9 +181,9 @@ export default {
 		},
 
 		/**
-		 * Per-widget-type extra props bound onto the registry renderer.
-		 * nc-vue's CnNewsWidget pulls items from a consumer-supplied
-		 * `itemsEndpoint` builder pointing at launchpad's news endpoint.
+		 * Per-widget-type extra props bound onto the registry renderer —
+		 * nc-vue's CnFilesWidget takes its launchpad backend as an `apiBase`
+		 * prop rather than an injection.
 		 *
 		 * @return {object} extra props for `<component :is>` (empty for most types).
 		 */

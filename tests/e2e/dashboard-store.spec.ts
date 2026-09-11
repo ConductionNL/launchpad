@@ -186,7 +186,16 @@ async function openStore(
 	await expect(page.locator('[data-testid="store-page"]')).toBeVisible({
 		timeout: 60_000,
 	})
-	return { status: res.status(), body: await res.json() }
+	// Parsed defensively. An unrouted endpoint answers Nextcloud's HTML 404
+	// page, and letting `res.json()` throw on it reports a SyntaxError instead
+	// of the status assertion that names the actual defect.
+	let body: Record<string, unknown>
+	try {
+		body = (await res.json()) as Record<string, unknown>
+	} catch {
+		body = {}
+	}
+	return { status: res.status(), body }
 }
 
 /**

@@ -85,7 +85,6 @@
       }
     ]
   },
-  "_storeNote": "There is deliberately NO `store` block. That block configures OpenRegister's GenericStoreController, and LaunchPad does not use it: a dashboard lives in LaunchPad's own tables, so neither `writeObject` nor `setAppConfig` nor a federated configuration bundle can write one. LaunchPad ships Controller\\StoreController instead, which the engine's alias yields to, and that class holds the schema and card fields. A block here would be a second place to declare them and nothing would read it. The block this replaced declared `openregister.configset` types, which would have offered configuration sets to somebody looking for a dashboard.",
   "menu": [
     {
       "id": "dashboards",
@@ -170,7 +169,7 @@
         "title": "Store",
         "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers."
       },
-      "_note": "ADR-080. Discovery is engine-owned: openregister's GenericStoreService owns the SSRF guard, the redirect refusal and the Bearer-only token. Install is LaunchPad's, in Controller\\StoreController, and runs through the existing ImportService. With no registry configured the page makes NO network call and reports not_configured."
+      "_note": "ADR-080. Discovery is engine-owned: openregister's GenericStoreService owns the SSRF guard, the redirect refusal and the Bearer-only token. Install is LaunchPad's, in Controller\\StoreController, and runs through the existing ImportService. With no registry configured the page makes NO network call and reports not_configured. There is deliberately NO top-level `store` block: it configures the engine's GenericStoreController, which cannot write a LaunchPad dashboard, so the engine alias yields to the leaf controller. The block this replaced declared `openregister.configset` types, which would have offered configuration sets to somebody looking for a dashboard."
     },
     {
       "id": "dashboard-detail",

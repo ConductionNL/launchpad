@@ -1,0 +1,42 @@
+{
+	"_comment": [
+		"The widget types LaunchPad renders itself, keyed by the `widgetId` a placement carries.",
+		"One list, two readers. src/constants/__tests__/widgetRegistry.completeness.spec.js asserts",
+		"the frontend widgetRegistry's keys EQUAL this list, and DemoShowcasesService::partitionWidgets()",
+		"keeps a showcase widget whose type is on it. Before this file the PHP side knew only tiles and",
+		"Nextcloud dashboard ids, so the case-handler showcase installed with none of its four widgets.",
+		"Add or remove a type in the registry and here in the same commit; the vitest names the drift."
+	],
+	"types": [
+		"calendar",
+		"chart",
+		"clock",
+		"container",
+		"delta",
+		"divider",
+		"files",
+		"gauge",
+		"header",
+		"iframe",
+		"image",
+		"label",
+		"link",
+		"links",
+		"livetile",
+		"menu",
+		"nc-widget",
+		"news",
+		"object-list",
+		"people",
+		"quicklinks",
+		"search",
+		"spend-analytics",
+		"stat",
+		"stats-block",
+		"table",
+		"text",
+		"tile",
+		"video",
+		"weather"
+	]
+}

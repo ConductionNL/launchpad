@@ -118,8 +118,6 @@ The system maintains a registry of installed showcases by querying existing dash
 ## Requirements
 
 
-@e2e exclude pure backend — all scenarios are PHP/service/API/data-layer; no UI surface
-
 ### Requirement: REQ-DEMO-001 Bundled showcase ZIP archives
 
 The system MUST ship a showcase ZIP archive per bundled id under
@@ -173,11 +171,15 @@ remain a v2 goal.
 - **AND** each ZIP MUST contain a `manifest.json` parseable as JSON, carrying the required fields
 - **AND** each `manifest.json` `showcaseId` MUST equal the directory and file name it was read from
 
+@e2e exclude Archive shape is a packaging contract with no browser surface; pinned for every bundled id by DemoShowcasesServiceTest::testEveryBundledIdShipsAReadableArchive.
+
 #### Scenario: export.json version is checked against minimum app version
 - **GIVEN** showcase `de-bron` with `"requiresMinVersion": "0.8.11"` in `export.json`
 - **WHEN** the running app version is older than `0.8.11`
 - **THEN** the system MUST reject the install with HTTP 422 and a clear version mismatch message
 - **AND** the showcase MUST still appear in the list endpoint with `isInstalled: false`
+
+@e2e exclude Not implemented: the archives carry a manifest.json with no requiresMinVersion, and the install path has no version check or 422 response.
 
 #### Scenario: A showcase declares the language of its own copy
 - **GIVEN** showcase `gemeente-duin` and showcase `case-handler`
@@ -198,7 +200,11 @@ remain a v2 goal.
 - **AND** the showcase MUST NOT appear in the available list
 - **AND** installation attempts MUST return HTTP 500
 
+@e2e exclude The bundled archives are all valid, so a browser run cannot arrange a broken one; a missing archive is pinned by DemoShowcasesServiceTest::testDescribeShowcaseReturnsNullWhenZipMissing, a malformed one by no test yet.
+
 ### Requirement: REQ-DEMO-002 List available showcases endpoint
+
+@e2e exclude Endpoint auth and install-state flags are API contracts: 401/403 and the list shape are pinned by AdminDemoShowcasesControllerTest and Newman's GET /api/admin/demo-showcases. The case-handler gallery entry is covered in the browser under REQ-DEMO-001.
 
 The system MUST expose `GET /api/admin/demo-showcases` returning a JSON array of available showcases. Response format:
 
@@ -242,6 +248,8 @@ The endpoint MUST be admin-only (HTTP 403 for non-admin users). Response MUST in
 - **AND** MUST NOT include `installedDashboardUuid` (or it MUST be null)
 
 ### Requirement: REQ-DEMO-003 Install showcase endpoint
+
+@e2e exclude The endpoint contract (201, 200 when already installed, 404, 403, surfaced skips) is pinned by AdminDemoShowcasesControllerTest and Newman's unknown-id 404; the group_shared result is covered in the browser for case-handler under REQ-DEMO-001. The nl/ locale tree, metadata.sourceLanguage and media extraction scenarios describe behaviour the archive format does not have.
 
 The system MUST expose `POST /api/admin/demo-showcases/{id}/install` creating an installed showcase as a `group_shared` dashboard with `groupId = 'default'`. An optional `?lang=` query parameter is accepted for forward compatibility but always resolves to `nl` in v1. The created dashboard MUST be visible to all users (via REQ-DASH-012). Response format:
 
@@ -305,6 +313,8 @@ If any widget types are unknown at install time, they MUST be silently skipped a
 
 ### Requirement: REQ-DEMO-004 Idempotent installation
 
+@e2e exclude Not observable in the browser beyond the gallery's installed state; pinned by DemoShowcasesServiceTest::testInstallIsIdempotent and AdminDemoShowcasesControllerTest::testInstallReturns200WhenAlreadyInstalled. Installation is tracked by an app-config marker, not by dashboard metadata as written.
+
 Reinstalling an already-installed showcase MUST return the existing dashboard's UUID without creating a duplicate. The system MUST track installation state by querying existing `group_shared` dashboards with matching `showcaseId` in metadata.
 
 > **NOTE**: The reference implementation tracked idempotency using a single app-wide boolean flag, which only supports one demo dataset. LaunchPad's per-showcase `metadata.showcaseId` approach is more granular and is the correct design for a multi-showcase system. This is a LaunchPad improvement, not a port.
@@ -324,20 +334,53 @@ Reinstalling an already-installed showcase MUST return the existing dashboard's 
 
 ### Requirement: REQ-DEMO-005 Widget type validation and skip-on-missing
 
-At install time, the system MUST validate each widget type in the showcase against the registered widget registry. If a widget type is not registered (unknown), it MUST be silently skipped, recorded in the response, and logged; the installation MUST succeed with valid widgets only. The 8 widget types known to ship in bundled showcases are: `heading`, `text`, `divider`, `links`, `image`, `file`, `news`, `video`, `people`.
+At install time the system MUST decide, per widget, whether LaunchPad can render it, and place only those. A widget MUST be kept when any of these holds:
 
-#### Scenario: All known widget types are installed
-- **GIVEN** a showcase with widgets of types `heading`, `text`, and `image` (all registered)
-- **WHEN** the showcase is installed
-- **THEN** all 3 widgets MUST be created
+- it is a tile (`tileType` set), rendered by LaunchPad's tile renderer;
+- its `widgetId` is one of LaunchPad's own widget types, listed in `lib/widget-types.json` (`object-list`, `nc-widget`, `calendar`, `text` and the rest);
+- its `widgetId` is a Nextcloud dashboard widget registered on this instance (`IManager::getWidgets()`).
+
+Anything else MUST be skipped, recorded in `skippedWidgets` and logged, and the installation MUST still succeed with the widgets that were kept. The case this exists for is a bare Nextcloud widget id whose app is not installed.
+
+`lib/widget-types.json` is the one list of LaunchPad's own types. The frontend widget registry MUST equal it (`widgetRegistry.completeness.spec.js` reads the same file), so the types the installer keeps and the types the workspace renders cannot drift. A missing or malformed list MUST fail the install loudly rather than skip every LaunchPad widget.
+
+An `nc-widget` MUST be kept whatever Nextcloud widget it proxies. The check is on the widget's type; whether the proxied app is installed decides what the tile shows, not whether it is placed. Checking the target would make a showcase's shape depend on which apps an instance happens to have.
+
+A kept widget MUST keep its configuration: its `content` (the register an object-list reads, the widget an nc-widget proxies, a calendar's layout) MUST be copied onto the placement.
+
+**Why this requirement was rewritten.** It used to say widgets were validated against "the registered widget registry", and the code read that as Nextcloud's registry only. LaunchPad's own types are not in it, so the `case-handler` showcase, built entirely from them, installed as an empty dashboard and still reported success. Behind that, the installer did not copy `content`, so a kept widget would have landed unconfigured. The first was caught by the e2e in `tests/e2e/demo-showcase-case-handler.spec.ts`, not by the unit suite, which opened the archive but never ran the install. The second was found while fixing the first, and the same e2e's configuration assertions would have been its next failure.
+
+#### Scenario: A LaunchPad widget type is installed although Nextcloud does not register it
+- **GIVEN** showcase `case-handler`, whose widgets are `object-list`, `nc-widget`, `calendar` and `nc-widget`
+- **AND** none of those ids is in Nextcloud's dashboard registry
+- **WHEN** an admin installs it
+- **THEN** all four widgets MUST be placed
 - **AND** `skippedWidgets` MUST be empty
 
+#### Scenario: A kept widget keeps its configuration
+- **GIVEN** showcase `case-handler`
+- **WHEN** an admin installs it
+- **THEN** the `object-list` placement MUST read register `dossiq`, schema `case`
+- **AND** the two `nc-widget` placements MUST proxy `tasks` and `mail-unread`
+- **AND** the `calendar` placement MUST carry its `internalCalendars` setting
+
+#### Scenario: A Nextcloud widget whose app is not installed is skipped
+- **GIVEN** a showcase with a `text` widget, a `recommendations` widget and a `mail-unread` widget
+- **AND** Nextcloud registers `recommendations` but not `mail-unread`, because the Mail app is not installed
+- **WHEN** the showcase is installed
+- **THEN** `text` and `recommendations` MUST be placed
+- **AND** `skippedWidgets` MUST be `["mail-unread"]`
+
+@e2e exclude Needs an instance where a Nextcloud widget's app is deliberately absent, and no bundled showcase carries such a widget in a stable way; pinned by DemoShowcasesServiceTest::testInstallStillSkipsANextcloudWidgetWhoseAppIsMissing.
+
 #### Scenario: Unknown widget type is skipped
-- **GIVEN** a showcase with widget type `future-timeline` (not registered)
+- **GIVEN** a showcase with widget type `future-timeline` (neither a LaunchPad type nor registered)
 - **WHEN** the showcase is installed
 - **THEN** that widget MUST NOT be created
 - **AND** `skippedWidgets` MUST include `"future-timeline"`
 - **AND** other widgets in the showcase MUST still be created
+
+@e2e exclude The bundled archives contain no unknown widget type, so no browser run can arrange one; pinned by DemoShowcasesServiceTest::testInstallSkipsUnknownWidgetTypes and testPartitionWidgetsTreatsTilesAsValid.
 
 #### Scenario: Mixed valid and invalid widgets
 - **GIVEN** a showcase with 5 widgets: 3 known, 2 unknown
@@ -347,13 +390,26 @@ At install time, the system MUST validate each widget type in the showcase again
 - **AND** `skippedWidgets` MUST be `["unknown-1", "unknown-2"]`
 - **AND** the response MUST warn the admin
 
+@e2e exclude Same limit as the scenario above, the bundled archives carry no unknown types; the partition is pinned by DemoShowcasesServiceTest and the surfaced list by AdminDemoShowcasesControllerTest::testInstallSurfacesSkippedWidgets.
+
+#### Scenario: The list of LaunchPad types is the list the workspace renders
+- **GIVEN** `lib/widget-types.json` and the frontend widget registry
+- **WHEN** the frontend unit tests run
+- **THEN** the registry's keys MUST equal the types in `lib/widget-types.json`
+
+@e2e exclude A build-time contract with no runtime surface, enforced by src/constants/__tests__/widgetRegistry.completeness.spec.js, which reads lib/widget-types.json.
+
 #### Scenario: Skip is logged for audit
 - **GIVEN** a showcase installation with skipped widgets
 - **WHEN** the installation completes
 - **THEN** the system MUST log the event with showcase ID, widget types skipped, and admin user ID
 - **AND** logs MUST be queryable for audit purposes
 
+@e2e exclude Log output has no browser surface. Note the install log today carries the showcase id, dashboard uuid, skipped list and language, but not the admin user id this scenario asks for.
+
 ### Requirement: REQ-DEMO-006 Uninstall showcase endpoint
+
+@e2e exclude An API contract pinned by the DemoShowcasesServiceTest uninstall tests, the AdminDemoShowcasesControllerTest destroy tests and Newman's DELETE. The case-handler e2e uninstalls in afterAll but asserts nothing about it.
 
 The system MUST expose `DELETE /api/admin/demo-showcases/{id}` soft-removing an installed showcase (delete the dashboard and cascade to widget placements). The endpoint MUST be idempotent: calling it twice MUST both return HTTP 204, whether the showcase was installed or not.
 
@@ -391,11 +447,15 @@ All v1 bundled showcases are NL-only. Each showcase ZIP contains a single `nl/` 
 - **THEN** the system MUST load and install from the `nl/` locale tree
 - **AND** the dashboard metadata MUST record `sourceLanguage: 'nl'`
 
+@e2e exclude Describes an nl/ locale tree the archive format does not have; each showcase declares its language in its manifest instead (see REQ-DEMO-001).
+
 #### Scenario: Language parameter accepted for forward compatibility
 - **GIVEN** admin sends `POST /api/admin/demo-showcases/de-linden/install?lang=en`
 - **WHEN** no `en/` locale exists in the ZIP
 - **THEN** the system MUST fall back to `nl/` (the only available locale)
 - **AND** MUST NOT return an error — graceful fallback is required
+
+@e2e exclude An API parameter with no browser surface; the ?lang= value is passed through as the source language and has no test of its own.
 
 #### Scenario: List endpoint includes language code
 - **GIVEN** showcase list response
@@ -403,7 +463,11 @@ All v1 bundled showcases are NL-only. Each showcase ZIP contains a single `nl/` 
 - **THEN** each item MUST include a `language` field (e.g. `'nl'`)
 - **AND** the frontend MUST display the language to the admin
 
+@e2e exclude Only partly covered: the case-handler e2e asserts the language field on two entries (case-handler and gemeente-duin), not every item, and nothing checks that the gallery displays it.
+
 ### Requirement: REQ-DEMO-008 Read-only showcase source files
+
+@e2e exclude Not verified by any test yet: nothing asserts the gallery offers only Install and Uninstall. Note "Installed dashboard is fully editable" conflicts with the view_only permission bundled showcases install with (REQ-DEMO-001).
 
 Bundled showcase ZIP archives under `showcases/` are read-only template definitions and MUST NOT be edited or deleted by admins via the admin UI. Only the installed dashboard (a copy in `oc_launchpad_dashboards` table) is mutable. The admin UI MUST display showcase templates as non-editable and non-deletable, with "Install" and "Uninstall" buttons for managing installations only.
 
@@ -426,6 +490,8 @@ Bundled showcase ZIP archives under `showcases/` are read-only template definiti
 - **AND** MUST NOT offer "Edit" or "Delete source" options
 
 ### Requirement: REQ-DEMO-009 CLI commands for operations
+
+@e2e exclude occ commands have no browser surface. DemoShowcasesInstallCommand and DemoShowcasesListCommand have no tests yet.
 
 The system MUST expose two Symfony console commands for showcase management.
 

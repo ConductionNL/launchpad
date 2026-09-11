@@ -82,18 +82,12 @@ class DashboardSharesListener implements IEventListener {
 		}
 
 		$uuid = $event->getDashboardUuid();
-		$dashboardId = $event->getDashboardId();
 
 		try {
-			if ($dashboardId !== null && $dashboardId > 0) {
-				$deleted = $this->shareMapper->deleteByDashboardId(
-					dashboardId: $dashboardId
-				);
-			} else {
-				$deleted = $this->shareMapper->deleteByDashboardUuid(
-					dashboardUuid: $uuid
-				);
-			}
+			$deleted = $this->deleteShares(
+				uuid: $uuid,
+				dashboardId: $event->getDashboardId()
+			);
 
 			$this->logger->debug(
 				message: sprintf(
@@ -116,4 +110,26 @@ class DashboardSharesListener implements IEventListener {
 			);
 		}//end try
 	}//end handle()
+
+	/**
+	 * Delete the shares by id, or by UUID when the event carries no id.
+	 *
+	 * The id path is the one that works after the dashboard row is gone, which
+	 * is when every dispatcher fires. The UUID path translates through
+	 * `oc_launchpad_dashboards` and only works while the row still exists.
+	 *
+	 * @param string   $uuid        The deleted dashboard's UUID.
+	 * @param int|null $dashboardId The deleted row's id, or null.
+	 *
+	 * @return int The number of share rows deleted.
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md#requirement-req-csc-003-dependent-data-listener-group
+	 */
+	private function deleteShares(string $uuid, ?int $dashboardId): int {
+		if ($dashboardId !== null && $dashboardId > 0) {
+			return $this->shareMapper->deleteByDashboardId(dashboardId: $dashboardId);
+		}
+
+		return $this->shareMapper->deleteByDashboardUuid(dashboardUuid: $uuid);
+	}//end deleteShares()
 }//end class

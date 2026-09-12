@@ -65,10 +65,7 @@ module.exports = {
 		// matched here; only plain unit tests that live beside the e2e
 		// helpers are, such as the shared-instance guard, which is pure
 		// logic and needs no browser.
-		include: [
-			'src/**/__tests__/**/*.spec.{js,ts}',
-			'tests/e2e/**/*.test.ts',
-		],
+		include: ['src/**/__tests__/**/*.spec.{js,ts}', 'tests/e2e/**/*.test.ts'],
 		setupFiles: [path.resolve(__dirname, 'tests/vitest/setup.js')],
 		server: {
 			deps: {

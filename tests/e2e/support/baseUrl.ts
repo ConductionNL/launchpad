@@ -60,9 +60,7 @@ if (!RAW) {
 /**
  * The base URL of the Nextcloud under test, without a trailing slash.
  */
-export const BASE_URL: string = assertInstancePermitted(
-	RAW.replace(/\/+$/, ''),
-)
+export const BASE_URL: string = assertInstancePermitted(RAW.replace(/\/+$/, ''))
 
 /**
  * Build an absolute URL against the instance under test.

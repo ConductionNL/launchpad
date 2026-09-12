@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Ustawienia administracyjne",
         "Maximum dashboards per user": "Maksymalna liczba pulpitów na użytkownika",
         "Maximum widgets per dashboard": "Maksymalna liczba widżetów na pulpit",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = bez ograniczeń. Obniżenie limitu nigdy nie usuwa istniejących pulpitów; jedynie blokuje nowe, dopóki użytkownicy nie zejdą poniżej limitu.",
@@ -1090,7 +1091,6 @@
         "Kind": "Rodzaj",
         "Version": "Wersja",
         "How many dashboards there are, and who they belong to.": "Ile jest pulpitów i do kogo należą.",
-        "Store": "Sklep",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Zainstaluj rejestry, schematy i przepływy opublikowane przez inne organizacje."
+        "Store": "Sklep"
     }
 }

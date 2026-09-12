@@ -23,6 +23,7 @@ use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Listener\CspListener;
+use OCA\LaunchPad\Listener\DashboardSharesListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
@@ -36,7 +37,9 @@ use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
+use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\PublicShareContext;
+use OCA\LaunchPad\Service\StoreService;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -92,6 +95,11 @@ class Application extends App implements IBootstrap {
 		// runtime app id `launchpad`; the engine reads the manifest under it and
 		// emits the launchpad_ Prometheus prefix, preserving the contract.
 		$this->registerObservability(context: $context);
+
+		// Store plane (ADR-080). Same laziness as above: the discovery client is
+		// resolved through self::optional(), so an instance without OpenRegister
+		// gets a store that reports `not_configured` rather than a fatal.
+		$this->registerStore(context: $context);
 	}//end register()
 
 	/**
@@ -196,6 +204,10 @@ class Application extends App implements IBootstrap {
 		);
 		$context->registerEventListener(
 			event: DashboardDeletedEvent::class,
+			listener: DashboardSharesListener::class
+		);
+		$context->registerEventListener(
+			event: DashboardDeletedEvent::class,
 			listener: MetadataValuesListener::class
 		);
 		$context->registerEventListener(
@@ -233,6 +245,44 @@ class Application extends App implements IBootstrap {
 			listener: CspListener::class
 		);
 	}//end registerIntegrations()
+
+	/**
+	 * Wire the store service (ADR-080).
+	 *
+	 * `GenericStoreService` is OpenRegister's, and OpenRegister is optional:
+	 * LaunchPad declares no `<app>` dependency on it, so it can be absent or
+	 * disabled. The class is named as a STRING and resolved through
+	 * {@see self::optional()}, so nothing touches an `OCA\OpenRegister\…`
+	 * symbol at registration time and a missing engine degrades the store to
+	 * `not_configured` instead of fatalling NC bootstrap.
+	 *
+	 * `StoreController` is NOT registered here. Declaring the class is already
+	 * what stops the engine aliasing its own `GenericStoreController` at that
+	 * name, and its remaining collaborators resolve by type.
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-002-an-absent-openregister-must-degrade-never-fatal
+	 */
+	private function registerStore(IRegistrationContext $context): void {
+		$context->registerService(
+			StoreService::class,
+			// @psalm-suppress UnusedClosureParam,TooManyArguments
+			static function (\Psr\Container\ContainerInterface $c): StoreService {
+				return new StoreService(
+					discovery: self::optional(
+						container: $c,
+						id: 'OCA\\OpenRegister\\AppHost\\Service\\GenericStoreService'
+					),
+					importService: $c->get(ImportService::class),
+					appConfig: $c->get(\OCP\IAppConfig::class),
+					logger: $c->get(\Psr\Log\LoggerInterface::class)
+				);
+			}
+		);
+	}//end registerStore()
 
 	/**
 	 * Wire the AppHost observability controllers (ADR-040).

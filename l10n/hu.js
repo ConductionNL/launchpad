@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Rendszergazdai beállítások",
     "Features & roadmap" : "Funkciók és ütemterv",
     "Maximum dashboards per user" : "Felhasználónkénti maximális irányítópultok száma",
     "Maximum widgets per dashboard" : "Irányítópultonkénti maximális modulok száma",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Fajta",
     "Version": "Verzió",
     "How many dashboards there are, and who they belong to.": "Hány irányítópult van, és kihez tartoznak.",
-    "Store": "Áruház",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Telepítsen más szervezetek által közzétett nyilvántartásokat, sémákat és folyamatokat."
+    "Store": "Áruház"
 },
 "nplurals=2; plural=(n != 1);"
 );

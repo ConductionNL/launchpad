@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Yönetim ayarları",
         "Maximum dashboards per user": "Kullanıcı başına en fazla pano",
         "Maximum widgets per dashboard": "Pano başına en fazla araç",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = sınırsız. Bir sınırın düşürülmesi var olan panoları asla silmez; yalnızca kullanıcılar sınırın altına dönene kadar yenilerinin oluşturulmasını engeller.",
@@ -1089,7 +1090,6 @@
         "Kind": "Tür",
         "Version": "Sürüm",
         "How many dashboards there are, and who they belong to.": "Kaç panonun olduğu ve kime ait oldukları.",
-        "Store": "Mağaza",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Diğer kuruluşların yayımladığı kayıtları, şemaları ve akışları yükleyin."
+        "Store": "Mağaza"
     }
 }

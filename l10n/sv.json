@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Administration",
         "Maximum dashboards per user": "Maximalt antal dashboards per användare",
         "Maximum widgets per dashboard": "Maximalt antal widgets per dashboard",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = obegränsat. Att sänka en gräns raderar aldrig befintliga dashboards; den blockerar endast nya tills användarna åter ligger under gränsen.",
@@ -1089,7 +1090,6 @@
         "Kind": "Typ",
         "Version": "Version",
         "How many dashboards there are, and who they belong to.": "Hur många instrumentpaneler det finns, och vem de tillhör.",
-        "Store": "Butik",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installera register, scheman och flöden som andra organisationer har publicerat."
+        "Store": "Butik"
     }
 }

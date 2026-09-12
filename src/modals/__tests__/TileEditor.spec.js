@@ -55,7 +55,7 @@ describe('TileEditor legacy-icon display', () => {
 	})
 
 	it('passes a custom icon URL through unchanged', () => {
-		const url = '/apps/nldesign/img/icons/Star.svg'
+		const url = '/apps/thematiq/img/icons/Star.svg'
 		const wrapper = mountEditor({
 			id: 4,
 			title: 'Url',
@@ -87,8 +87,8 @@ describe('TileEditor onIcon / isUrlIcon', () => {
 
 	it('onIcon stores a custom URL as iconType "url"', () => {
 		const wrapper = mountEditor({ id: 2, title: 'X', icon: '', iconType: 'svg' })
-		wrapper.vm.onIcon('/apps/nldesign/img/icons/Star.svg')
-		expect(wrapper.vm.form.icon).toBe('/apps/nldesign/img/icons/Star.svg')
+		wrapper.vm.onIcon('/apps/thematiq/img/icons/Star.svg')
+		expect(wrapper.vm.form.icon).toBe('/apps/thematiq/img/icons/Star.svg')
 		expect(wrapper.vm.form.iconType).toBe('url')
 	})
 

@@ -235,12 +235,15 @@ class DashboardShareMapper extends QBMapper {
 	/**
 	 * Delete all shares for a dashboard.
 	 *
+	 * Keyed on the integer id, so it works after the dashboard row itself
+	 * has been deleted, which is when `DashboardDeletedEvent` fires.
+	 *
 	 * @param int $dashboardId The dashboard ID.
 	 *
-	 * @return void
+	 * @return int The number of rows deleted.
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
-	public function deleteByDashboardId(int $dashboardId): void {
+	public function deleteByDashboardId(int $dashboardId): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete(delete: $this->getTableName())
 			->where(
@@ -253,7 +256,7 @@ class DashboardShareMapper extends QBMapper {
 				)
 			);
 
-		$qb->executeStatement();
+		return $qb->executeStatement();
 	}//end deleteByDashboardId()
 
 	/**
@@ -460,9 +463,14 @@ class DashboardShareMapper extends QBMapper {
 	/**
 	 * Delete all shares for a dashboard identified by UUID.
 	 *
-	 * Uses a subquery to translate the UUID to an integer dashboard_id so
-	 * the caller (DashboardDeletedEvent) never has to resolve the ID itself.
-	 * Triggered by cascade-event processing (REQ-CSC-003).
+	 * Uses a subquery to translate the UUID to an integer dashboard_id.
+	 *
+	 * ⚠️ ONLY WHILE THE DASHBOARD ROW STILL EXISTS. This used to say it was
+	 * triggered by cascade-event processing. Nothing called it, and it could
+	 * not have worked there: `DashboardDeletedEvent` fires after the row is
+	 * gone, so the subquery matches nothing and zero rows are deleted.
+	 * `DashboardSharesListener` deletes by id and uses this only as the
+	 * fallback for an event that carries no id.
 	 *
 	 * @param string $dashboardUuid The dashboard UUID.
 	 *

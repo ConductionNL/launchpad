@@ -27,6 +27,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\ExportService;
 use OCA\LaunchPad\Service\FooterService;
 use OCA\LaunchPad\Service\ImportService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -104,6 +105,69 @@ class AdminControllerExportImportTest extends TestCase {
 		$this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
 	}
 
+	/**
+	 * REQ-EXIM-002 "Export non-existent dashboard": a UUID nothing answers to
+	 * is a 404, not a 500 and not an empty archive.
+	 *
+	 * @return void
+	 */
+	public function testExportDashboardNotFoundReturns404(): void {
+		$this->loginAsAdmin();
+		$this->exportService->method('exportDashboard')->willThrowException(
+			exception: new DoesNotExistException(msg: 'no such dashboard')
+		);
+
+		$response = $this->controller->export(
+			scope: 'dashboard',
+			dashboardUuid: '00000000-0000-0000-0000-000000000000'
+		);
+
+		$this->assertInstanceOf(expected: JSONResponse::class, actual: $response);
+		$this->assertSame(expected: Http::STATUS_NOT_FOUND, actual: $response->getStatus());
+	}//end testExportDashboardNotFoundReturns404()
+
+	/**
+	 * REQ-EXIM-005 "preserveUuids parameter default is false": omitting the
+	 * parameter imports with fresh UUIDs.
+	 *
+	 * The admin page always sends the switch's state, so only a direct caller
+	 * can leave it out; this is where that default lives.
+	 *
+	 * @return void
+	 */
+	public function testImportDefaultsToFreshUuids(): void {
+		$this->loginAsAdmin();
+
+		$seen = null;
+		$this->importService->method('import')->willReturnCallback(
+			static function (string $zipPath, bool $preserveUuids, string $userId) use (&$seen): array {
+				$seen = $preserveUuids;
+				return [
+					'status' => 'ok',
+					'importedDashboardCount' => 0,
+					'skippedDashboardCount' => 0,
+					'errors' => [],
+					'manifest' => [],
+				];
+			}
+		);
+
+		$tmp = (string)tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-default-');
+		$_FILES['file'] = ['tmp_name' => $tmp, 'name' => 'archive.zip', 'error' => 0, 'size' => 1];
+
+		try {
+			$this->controller->import();
+		} finally {
+			unset($_FILES['file']);
+			@unlink(filename: $tmp);
+		}
+
+		$this->assertFalse(
+			condition: $seen,
+			message: 'omitting preserveUuids must import with fresh UUIDs'
+		);
+	}//end testImportDefaultsToFreshUuids()
+
 	public function testExportNonAdminForbidden(): void {
 		$this->loginAsNonAdmin();
 
@@ -138,6 +202,10 @@ class AdminControllerExportImportTest extends TestCase {
 
 		$this->assertInstanceOf(expected: JSONResponse::class, actual: $response);
 		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		$this->assertSame(
+			expected: 'dashboardUuid parameter is required when scope=dashboard',
+			actual: $response->getData()['error'] ?? null
+		);
 	}
 
 	public function testExportDashboardRejectsInvalidUuidFormat(): void {
@@ -150,6 +218,11 @@ class AdminControllerExportImportTest extends TestCase {
 
 		$this->assertInstanceOf(expected: JSONResponse::class, actual: $response);
 		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+		// REQ-EXIM-002 pins the message, not just the status.
+		$this->assertSame(
+			expected: 'Invalid dashboard UUID format',
+			actual: $response->getData()['error'] ?? null
+		);
 	}
 
 	public function testImportMissingFileReturns400(): void {

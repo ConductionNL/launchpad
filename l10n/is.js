@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Stillingar stjórnunar",
     "Features & roadmap" : "Eiginleikar og vegvísir",
     "Maximum dashboards per user" : "Hámarksfjöldi mælaborða á notanda",
     "Maximum widgets per dashboard" : "Hámarksfjöldi viðmótshluta á mælaborð",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Tegund",
     "Version": "Útgáfa",
     "How many dashboards there are, and who they belong to.": "Hversu mörg mælaborð eru til og hverjum þau tilheyra.",
-    "Store": "Verslun",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Settu upp skrár, skemu og flæði sem aðrar stofnanir hafa birt."
+    "Store": "Verslun"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

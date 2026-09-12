@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Impostazioni di amministrazione",
     "Features & roadmap" : "Funzionalità e roadmap",
     "Maximum dashboards per user" : "Numero massimo di dashboard per utente",
     "Maximum widgets per dashboard" : "Numero massimo di widget per dashboard",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Tipo",
     "Version": "Versione",
     "How many dashboards there are, and who they belong to.": "Quante dashboard ci sono e a chi appartengono.",
-    "Store": "Store",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installa registri, schemi e flussi pubblicati da altre organizzazioni."
+    "Store": "Store"
 },
 "nplurals=2; plural=(n != 1);"
 );

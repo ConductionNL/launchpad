@@ -21,6 +21,24 @@ return [
 		['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
 		['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
 
+		// Store plane (ADR-080). LaunchPad declares a `type: "store"` page, which
+		// renders CnStorePage, which calls the item routes on mount and on an install
+		// click. Without them that page is in the navigation and 404s.
+		//
+		// Discovery is OpenRegister's `GenericStoreService`; install is ours,
+		// because a dashboard lives in LaunchPad's tables and no engine install
+		// op can write one. `store#*` therefore resolves to
+		// `OCA\LaunchPad\Controller\StoreController`, which is also what keeps
+		// the engine's alias off this app (see that class).
+		//
+		// The slug requirement matches the engine's, so a malformed slug fails
+		// at the router rather than inside a registry URL.
+		['name' => 'store#search', 'url' => '/api/store/items', 'verb' => 'GET'],
+		['name' => 'store#getConfig', 'url' => '/api/store/config', 'verb' => 'GET'],
+		['name' => 'store#updateConfig', 'url' => '/api/store/config', 'verb' => 'PUT'],
+		['name' => 'store#install', 'url' => '/api/store/items/{slug}/install', 'verb' => 'POST',
+		 'requirements' => ['slug' => '[a-z0-9][a-z0-9\-]*[a-z0-9]']],
+
 		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
 		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
 		['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],

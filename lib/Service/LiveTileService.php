@@ -6,14 +6,17 @@
  * Resolves a `livetile` widget placement's configured data source to a
  * value, server-side (REQ-LIVETILE-003). Two source modes:
  *
- *  - `connector` — OpenConnector's `dashboard-http-datasource` capability
- *    is called through its documented runtime source-run API, ONLY when a
+ *  - `connector` — Integriq's `dashboard-http-datasource` capability is
+ *    called through its documented runtime resolve API, ONLY when a
  *    capability probe confirms the app is installed AND the expected
- *    service is resolvable. This file never statically imports an
- *    OpenConnector class (REQ-LIVETILE-005 "No direct class dependency") —
- *    the FQCN is referenced only as a string, exactly mirroring
+ *    service is resolvable. This file never statically imports an Integriq
+ *    class (REQ-LIVETILE-005 "No direct class dependency") — the FQCN is
+ *    referenced only as a string, exactly mirroring
  *    {@see WeatherService::WEATHER_STATUS_SERVICE_CLASS}'s reuse of the
- *    optional `weather_status` app.
+ *    optional `weather_status` app. Both the id and the namespace are
+ *    resolved through {@see FleetAppId} rather than hardcoded, because the
+ *    fleet rename moved both and an instance in the field may still be on
+ *    either name.
  *  - `url` — a server-side allow-listed HTTP GET, extracting a value via a
  *    JSONPath-lite expression (`$.a.b`, `$.a[0].b`). The allow-list
  *    (`livetile_allowed_hosts`, IAppConfig) is enforced FAIL-CLOSED: an
@@ -48,6 +51,7 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Support\FleetAppId;
 use OCP\App\IAppManager;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -62,12 +66,12 @@ use Throwable;
  * readings.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Combines dual-source
- *     resolution (OpenConnector leaf + allow-listed direct GET), JSONPath-
+ *     resolution (Integriq leaf + allow-listed direct GET), JSONPath-
  *     lite extraction, formatting, badge thresholding, caching, and
  *     stale-fallback in one cohesive unit — mirrors WeatherService's shape
  *     for the same class of capability.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Same cause as the complexity
- *     above: the dual-source resolution necessarily reaches OpenConnector, the
+ *     above: the dual-source resolution necessarily reaches Integriq, the
  *     HTTP client, the cache and the config. The collaborators are the feature.
  * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
@@ -113,31 +117,42 @@ class LiveTileService {
 	public const CONFIG_KEY_ALLOWED_HOSTS = 'livetile_allowed_hosts';
 
 	/**
-	 * App id of the optional OpenConnector leaf.
+	 * Canonical name of the optional connector leaf. Never used as a literal
+	 * app id: {@see FleetAppId} maps it onto whichever of `integriq` /
+	 * `openconnector` this instance actually registered, so the probe works
+	 * on a migrated instance and on one still running an older release.
 	 *
 	 * @var string
 	 */
-	private const OPENCONNECTOR_APP_ID = 'openconnector';
+	private const CONNECTOR_APP = 'integriq';
 
 	/**
-	 * FQCN of OpenConnector's dashboard data-source resolver, referenced
-	 * only as a string so this file never hard-requires the class to
-	 * exist (REQ-LIVETILE-005 "No direct class dependency") — resolved
-	 * through the container only when the capability probe passes.
+	 * Class name of the connector's dashboard data-source resolver, RELATIVE
+	 * to the app's PSR-4 root and referenced only as a string so this file
+	 * never hard-requires the class to exist (REQ-LIVETILE-005 "No direct
+	 * class dependency"). {@see FleetAppId::classCandidates()} prefixes it
+	 * with `OCA\Integriq` and then `OCA\OpenConnector`.
+	 *
+	 * Verified against integriq `development` (2026-09-09): the class lives
+	 * at `lib/Service/Datasource/DashboardDatasourceService.php` and shipped
+	 * under `OCA\OpenConnector\Service\Datasource` before the rename. The
+	 * previous value here named `Service\DashboardDataSourceService` — an
+	 * extra namespace segment short and a capital `S` out — which has never
+	 * existed under either name.
 	 *
 	 * @var string
 	 */
-	private const OPENCONNECTOR_DATASOURCE_SERVICE_CLASS = 'OCA\\OpenConnector\\Service\\DashboardDataSourceService';
+	private const CONNECTOR_DATASOURCE_SERVICE_CLASS = 'Service\\Datasource\\DashboardDatasourceService';
 
 	/**
-	 * Method OpenConnector's data-source resolver is expected to expose:
-	 * `resolveDashboardValue(string $sourceId, string $valueExpr): array{value: mixed}`.
+	 * Method the connector's data-source resolver exposes:
+	 * `resolve(string $sourceId, string $valueExpr, array $params = [], ?int $ttl = null): array{value: mixed, fetchedAt: string, stale: bool}`.
 	 * Guarded with `method_exists()` before every call — a shape mismatch
 	 * degrades to "source unavailable" rather than a fatal error.
 	 *
 	 * @var string
 	 */
-	private const OPENCONNECTOR_DATASOURCE_METHOD = 'resolveDashboardValue';
+	private const CONNECTOR_DATASOURCE_METHOD = 'resolve';
 
 	/**
 	 * Badge threshold states, in priority order for icon/label fallback.
@@ -156,9 +171,10 @@ class LiveTileService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether `openconnector` is enabled.
+	 * @param IAppManager $appManager Detects whether the connector leaf is enabled,
+	 *                                under whichever id it registered.
 	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      OpenConnector's data-source service
+	 *                                      Integriq's data-source service
 	 *                                      (REQ-LIVETILE-005 capability probe).
 	 * @param IClientService $clientService HTTP client factory for the direct-URL fetch.
 	 * @param ICacheFactory $cacheFactory Backing factory for the distributed value cache.
@@ -283,24 +299,34 @@ class LiveTileService {
 	}//end validateSourceConfig()
 
 	/**
-	 * Whether the OpenConnector `dashboard-http-datasource` capability is
+	 * Whether Integriq's `dashboard-http-datasource` capability is
 	 * currently resolvable — app enabled AND the expected service present
 	 * in the container. Never throws (REQ-LIVETILE-005).
 	 *
 	 * @return boolean
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) FleetAppId is a stateless resolver.
+	 *
 	 * @spec openspec/specs/live-data-tile-widget/spec.md
 	 */
 	public function isConnectorAvailable(): bool {
 		try {
-			if ($this->appManager->isEnabledForUser(appId: self::OPENCONNECTOR_APP_ID) === false) {
+			$enabled = FleetAppId::isEnabledForUser(
+				appManager: $this->appManager,
+				canonical: self::CONNECTOR_APP
+			);
+			if ($enabled === false) {
 				return false;
 			}
 
-			return $this->container->has(id: self::OPENCONNECTOR_DATASOURCE_SERVICE_CLASS);
+			return FleetAppId::hasService(
+				container: $this->container,
+				canonical: self::CONNECTOR_APP,
+				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
+			);
 		} catch (Throwable $exception) {
 			$this->logger->info(
-				message: 'LiveTileService: OpenConnector capability probe failed, treating as absent',
+				message: 'LiveTileService: connector capability probe failed, treating as absent',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
 			return false;
@@ -331,7 +357,7 @@ class LiveTileService {
 	}//end fetchFresh()
 
 	/**
-	 * Resolve via OpenConnector's `dashboard-http-datasource` capability
+	 * Resolve via Integriq's `dashboard-http-datasource` capability
 	 * (REQ-LIVETILE-005). Returns `null` — never throws — when the
 	 * capability probe fails, the service's expected method is absent, or
 	 * the call itself fails; the caller then falls back to a stale cached
@@ -343,6 +369,8 @@ class LiveTileService {
 	 * @param array<string,mixed> $config The placement's resolved config (`sourceId`, `valueExpr`).
 	 *
 	 * @return array<string,mixed>|null `{rawValue: mixed}` or `null`.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) FleetAppId is a stateless resolver.
 	 */
 	private function fetchFromConnector(array $config): ?array {
 		if ($this->isConnectorAvailable() === false) {
@@ -356,15 +384,23 @@ class LiveTileService {
 		}
 
 		try {
-			$service = $this->container->get(id: self::OPENCONNECTOR_DATASOURCE_SERVICE_CLASS);
-			if (method_exists(object_or_class: $service, method: self::OPENCONNECTOR_DATASOURCE_METHOD) === false) {
+			$service = FleetAppId::getService(
+				container: $this->container,
+				canonical: self::CONNECTOR_APP,
+				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
+			);
+			if ($service === null) {
 				return null;
 			}
 
-			$result = $service->{self::OPENCONNECTOR_DATASOURCE_METHOD}($sourceId, $valueExpr);
+			if (method_exists(object_or_class: $service, method: self::CONNECTOR_DATASOURCE_METHOD) === false) {
+				return null;
+			}
+
+			$result = $service->{self::CONNECTOR_DATASOURCE_METHOD}($sourceId, $valueExpr);
 		} catch (Throwable $exception) {
 			$this->logger->info(
-				message: 'LiveTileService: OpenConnector source-run call failed',
+				message: 'LiveTileService: connector resolve call failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
 			return null;

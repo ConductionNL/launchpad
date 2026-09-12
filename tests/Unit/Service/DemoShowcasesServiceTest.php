@@ -363,6 +363,130 @@ class DemoShowcasesServiceTest extends TestCase {
 		$this->assertSame(expected: ['unknown-id'], actual: $skipped);
 	}
 
+	/**
+	 * REQ-DEMO-005: installing the REAL bundled `case-handler` archive places
+	 * all four of its widgets, configured.
+	 *
+	 * This runs the install path, not just the zip. The earlier archive tests
+	 * opened `case-handler.zip` and checked its shape, which is how a showcase
+	 * that installed with ZERO widgets passed the suite: `partitionWidgets()`
+	 * knew only tiles and Nextcloud dashboard ids, and all four widgets here
+	 * are LaunchPad types (`object-list`, `nc-widget`, `calendar`). Measured
+	 * in CI on launchpad#606: `skippedWidgets` was all four.
+	 *
+	 * The Nextcloud registry is empty on purpose. That is the CI instance
+	 * (no Tasks, no Mail installed), and it proves the two `nc-widget`
+	 * proxies are kept on their TYPE rather than on whether their target app
+	 * is present.
+	 *
+	 * The content assertions guard the second half of the same defect:
+	 * `buildPlacement()` did not copy `content`, so even a kept widget would
+	 * have landed without knowing what to show.
+	 *
+	 * @return void
+	 */
+	public function testInstallingTheRealCaseHandlerArchivePlacesAllFourWidgets(): void {
+		$this->service->setDataDirForTesting(
+			path: dirname(path: __DIR__, levels: 3) . '/data/demo-showcases'
+		);
+
+		$this->dashboardManager->method('getWidgets')->willReturn([]);
+		$this->appConfig->method('getValueString')->willReturn('');
+
+		$persisted = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setId(55);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setUuid('installed-case-handler');
+		$this->dashboardMapper->method('insert')->willReturn($persisted);
+
+		$placed = [];
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$placed): WidgetPlacement {
+				$placed[] = $placement;
+				return $placement;
+			}
+		);
+
+		$result = $this->service->installShowcase(showcaseId: 'case-handler', lang: 'en');
+
+		$this->assertSame(
+			expected: [],
+			actual: $result['skippedWidgets'],
+			message: 'the case-handler install dropped widgets it can render'
+		);
+		$this->assertSame(
+			expected: ['object-list', 'nc-widget', 'calendar', 'nc-widget'],
+			actual: array_map(
+				callback: static fn (WidgetPlacement $p): string => (string)$p->getWidgetId(),
+				array: $placed
+			),
+			message: 'the install must write the four case-handler widgets, in order'
+		);
+
+		$contents = array_map(
+			callback: static fn (WidgetPlacement $p): array => $p->getContentArray(),
+			array: $placed
+		);
+		$this->assertSame(expected: 'dossiq', actual: $contents[0]['register'] ?? null);
+		$this->assertSame(expected: 'case', actual: $contents[0]['schema'] ?? null);
+		$this->assertSame(expected: 'tasks', actual: $contents[1]['widgetId'] ?? null);
+		$this->assertArrayHasKey(key: 'internalCalendars', array: $contents[2]);
+		$this->assertSame(expected: 'mail-unread', actual: $contents[3]['widgetId'] ?? null);
+	}//end testInstallingTheRealCaseHandlerArchivePlacesAllFourWidgets()
+
+	/**
+	 * REQ-DEMO-005: a Nextcloud widget id whose app is not installed is still
+	 * skipped, next to LaunchPad types that are kept.
+	 *
+	 * Admitting LaunchPad's own types must not turn the filter into "keep
+	 * everything". `mail-unread` is a real Nextcloud dashboard widget, absent
+	 * from this registry the way it is on an instance without the Mail app;
+	 * that is the case the skip exists for. `recommendations` is registered
+	 * and kept, `text` is a LaunchPad type and kept.
+	 *
+	 * @return void
+	 */
+	public function testInstallStillSkipsANextcloudWidgetWhoseAppIsMissing(): void {
+		$this->writeFixtureZip(
+			showcaseId: 'de-bron',
+			manifest: ['schemaVersion' => 1, 'showcaseName' => 'De Bron', 'showcaseLanguage' => 'nl'],
+			dashboardPayload: $this->validDashboardPayload(
+				uuid: 'src-uuid',
+				widgets: [
+					['widgetId' => 'text', 'content' => ['text' => 'Hello']],
+					['widgetId' => 'mail-unread', 'gridX' => 4],
+					['widgetId' => 'recommendations', 'gridX' => 8],
+				]
+			),
+		);
+
+		$registered = $this->createMock(originalClassName: IWidget::class);
+		$registered->method('getId')->willReturn('recommendations');
+		$this->dashboardManager->method('getWidgets')->willReturn([$registered]);
+		$this->appConfig->method('getValueString')->willReturn('');
+
+		$persisted = new Dashboard();
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setId(8);
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$persisted->setUuid('installed-uuid');
+		$this->dashboardMapper->method('insert')->willReturn($persisted);
+
+		$placed = [];
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$placed): WidgetPlacement {
+				$placed[] = (string)$placement->getWidgetId();
+				return $placement;
+			}
+		);
+
+		$result = $this->service->installShowcase(showcaseId: 'de-bron');
+
+		$this->assertSame(expected: ['mail-unread'], actual: $result['skippedWidgets']);
+		$this->assertSame(expected: ['text', 'recommendations'], actual: $placed);
+	}//end testInstallStillSkipsANextcloudWidgetWhoseAppIsMissing()
+
 	private function validDashboardPayload(string $uuid, array $widgets): array {
 		return [
 			'uuid' => $uuid,
@@ -392,6 +516,202 @@ class DemoShowcasesServiceTest extends TestCase {
 		);
 		$zip->close();
 	}
+
+	/**
+	 * REQ-DEMO-001: every bundled id resolves to a REAL archive that
+	 * carries the manifest fields the gallery reads.
+	 *
+	 * Every other test in this file writes its own fixture ZIP into a temp
+	 * directory, which is right for exercising the service but means the
+	 * archives actually shipped in `data/demo-showcases/` were never opened
+	 * by any test. A showcase added to `BUNDLED_IDS` with a missing,
+	 * malformed or mis-named ZIP would therefore pass the whole suite and
+	 * fail on a user's instance, where the only symptom is a gallery entry
+	 * that will not install.
+	 *
+	 * @return void
+	 */
+	public function testEveryBundledIdShipsAReadableArchive(): void {
+		$root = dirname(path: __DIR__, levels: 3) . '/data/demo-showcases';
+
+		foreach (DemoShowcasesService::BUNDLED_IDS as $showcaseId) {
+			$path = $root . '/' . $showcaseId . '/' . $showcaseId . '.zip';
+			$this->assertFileExists(
+				filename: $path,
+				message: $showcaseId . ' is in BUNDLED_IDS but ships no archive'
+			);
+
+			$zip = new \ZipArchive();
+			$this->assertTrue(
+				condition: $zip->open(filename: $path) === true,
+				message: $showcaseId . ' archive is not a readable ZIP'
+			);
+
+			$raw = $zip->getFromName(name: 'manifest.json');
+			$this->assertNotFalse($raw, $showcaseId . ' has no manifest.json');
+
+			$manifest = json_decode(json: (string)$raw, associative: true);
+			$this->assertIsArray(actual: $manifest, message: $showcaseId . ' manifest.json is not JSON');
+
+			// The id has to agree with where the file was found, or the
+			// gallery lists one showcase and installs another.
+			$this->assertSame(
+				expected: $showcaseId,
+				actual: $manifest['showcaseId'] ?? null,
+				message: $showcaseId . ' manifest declares a different showcaseId'
+			);
+
+			foreach (['showcaseName', 'showcaseDescription', 'showcaseLanguage', 'schemaVersion'] as $key) {
+				$this->assertArrayHasKey(
+					key: $key,
+					array: $manifest,
+					message: $showcaseId . ' manifest is missing ' . $key
+				);
+			}
+
+			$dashboards = [];
+			for ($i = 0; $i < $zip->numFiles; $i++) {
+				$name = (string)$zip->getNameIndex(index: $i);
+				if (str_starts_with(haystack: $name, needle: 'dashboards/') === true
+					&& str_ends_with(haystack: $name, needle: '.json') === true
+				) {
+					$dashboards[] = $name;
+				}
+			}
+
+			$this->assertCount(
+				expectedCount: (int)($manifest['dashboardCount'] ?? 0),
+				haystack: $dashboards,
+				message: $showcaseId . ' ships a different number of dashboards than it declares'
+			);
+
+			$zip->close();
+		}//end foreach
+	}//end testEveryBundledIdShipsAReadableArchive()
+
+	/**
+	 * REQ-DEMO-001: the role showcase installs as a read-only group
+	 * dashboard, and places the four widgets a case handler works from.
+	 *
+	 * A showcase is authored on somebody's instance as their PERSONAL
+	 * dashboard. Shipping that shape would hand every installing admin a
+	 * dashboard owned by a user id that does not exist there, so the
+	 * re-shaping to `group_shared` is the part worth pinning.
+	 *
+	 * @return void
+	 */
+	public function testCaseHandlerShowcaseIsAReadOnlyGroupDashboard(): void {
+		$root = dirname(path: __DIR__, levels: 3) . '/data/demo-showcases';
+		$zip = new \ZipArchive();
+		$this->assertTrue(condition: $zip->open(filename: $root . '/case-handler/case-handler.zip') === true);
+
+		$payload = null;
+		for ($i = 0; $i < $zip->numFiles; $i++) {
+			$name = (string)$zip->getNameIndex(index: $i);
+			if (str_starts_with(haystack: $name, needle: 'dashboards/') === true
+				&& str_ends_with(haystack: $name, needle: '.json') === true
+			) {
+				$payload = json_decode(json: (string)$zip->getFromName(name: $name), associative: true);
+				break;
+			}
+		}
+
+		$zip->close();
+		$this->assertIsArray(actual: $payload, message: 'case-handler ships no dashboard payload');
+
+		$this->assertSame(expected: 'group_shared', actual: $payload['type'] ?? null);
+		$this->assertArrayHasKey(key: 'userId', array: $payload);
+		$this->assertNull(actual: $payload['userId'], message: 'a showcase must not carry its author');
+		$this->assertSame(expected: 'view_only', actual: $payload['permissionLevel'] ?? null);
+		$this->assertSame(expected: 'showcase-case-handler', actual: $payload['slug'] ?? null);
+
+		$types = array_map(
+			callback: static fn (array $w) => $w['widgetId'] ?? '',
+			array: ($payload['widgets'] ?? [])
+		);
+		$this->assertCount(expectedCount: 4, haystack: $types);
+		$this->assertSame(
+			expected: ['object-list', 'nc-widget', 'calendar', 'nc-widget'],
+			actual: $types,
+			message: 'the case handler dashboard places cases, tasks, today and mail'
+		);
+
+		// The calendar widget must ship with NO calendar chosen: the ids on
+		// the authoring instance mean nothing anywhere else, and pointing a
+		// stranger's widget at calendar "1" is worse than asking them.
+		$calendar = null;
+		foreach (($payload['widgets'] ?? []) as $widget) {
+			if (($widget['widgetId'] ?? '') === 'calendar') {
+				$calendar = $widget;
+				break;
+			}
+		}
+
+		$this->assertIsArray(actual: $calendar);
+		$this->assertSame(expected: [], actual: $calendar['content']['internalCalendars'] ?? null);
+	}//end testCaseHandlerShowcaseIsAReadOnlyGroupDashboard()
+
+	/**
+	 * Every bundled id ships the preview image the gallery asks for.
+	 *
+	 * `IURLGenerator::imagePath()` THROWS for an image that does not exist,
+	 * and the setUp() stand-in above always returns a string, so no unit test
+	 * here could see it. CI's Newman lane did: adding `case-handler` without
+	 * `img/showcases/case-handler.png` turned GET /api/admin/demo-showcases
+	 * into a 500 for every showcase, not just the new one.
+	 *
+	 * @return void
+	 */
+	public function testEveryBundledIdShipsAPreviewImage(): void {
+		$root = dirname(path: __DIR__, levels: 3) . '/img/showcases';
+		foreach (DemoShowcasesService::BUNDLED_IDS as $showcaseId) {
+			$this->assertFileExists(
+				filename: $root . '/' . $showcaseId . '.png',
+				message: $showcaseId . ' is in BUNDLED_IDS but has no img/showcases preview'
+			);
+		}
+	}//end testEveryBundledIdShipsAPreviewImage()
+
+	/**
+	 * A showcase with no preview still lists, with a null thumbnail.
+	 *
+	 * The guard above keeps the bundled set honest; this one keeps the
+	 * listing standing when it is not. One missing image is a cosmetic gap
+	 * in one card, not a reason to hide every other showcase behind a 500.
+	 *
+	 * @return void
+	 */
+	public function testAMissingPreviewDoesNotFailTheListing(): void {
+		$throwing = $this->createMock(originalClassName: IURLGenerator::class);
+		$throwing->method('imagePath')->willThrowException(
+			new \RuntimeException('image not found: image:showcases/de-bron.png webroot: serverroot:')
+		);
+
+		$service = new DemoShowcasesService(
+			dashboardMapper: $this->dashboardMapper,
+			placementMapper: $this->placementMapper,
+			db: $this->db,
+			appConfig: $this->appConfig,
+			dashboardManager: $this->dashboardManager,
+			logger: new NullLogger(),
+			lockingProvider: $this->lockingProvider,
+			urlGenerator: $throwing,
+		);
+		$service->setDataDirForTesting(path: $this->fixtureDir);
+
+		$this->writeFixtureZip(
+			showcaseId: 'de-bron',
+			manifest: ['schemaVersion' => 1, 'showcaseName' => 'De Bron', 'showcaseLanguage' => 'nl'],
+			dashboardPayload: $this->validDashboardPayload(uuid: 'a-uuid', widgets: []),
+		);
+		$this->appConfig->method('getValueString')->willReturn('');
+
+		$row = $service->describeShowcase(showcaseId: 'de-bron');
+
+		$this->assertIsArray(actual: $row, message: 'a missing preview must not drop the showcase');
+		$this->assertSame(expected: 'de-bron', actual: $row['id']);
+		$this->assertNull(actual: $row['thumbnailUrl']);
+	}//end testAMissingPreviewDoesNotFailTheListing()
 
 	private function rrmdir(string $dir): void {
 		if (is_dir(filename: $dir) === false) {

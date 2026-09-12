@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Skrbniške nastavitve",
         "Maximum dashboards per user": "Največje število nadzornih plošč na uporabnika",
         "Maximum widgets per dashboard": "Največje število gradnikov na nadzorno ploščo",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = neomejeno. Zmanjšanje omejitve nikoli ne izbriše obstoječih nadzornih plošč; le prepreči nove, dokler uporabniki niso ponovno pod omejitvijo.",
@@ -1091,7 +1092,6 @@
         "Kind": "Vrsta",
         "Version": "Različica",
         "How many dashboards there are, and who they belong to.": "Koliko je nadzornih plošč in komu pripadajo.",
-        "Store": "Trgovina",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Namestite registre, sheme in tokove, ki so jih objavile druge organizacije."
+        "Store": "Trgovina"
     }
 }

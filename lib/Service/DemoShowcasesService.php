@@ -38,7 +38,6 @@ use DateTimeImmutable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
@@ -79,13 +78,22 @@ class DemoShowcasesService {
 	/**
 	 * Bundled showcase IDs.
 	 *
-	 * The set is fixed at v1 (REQ-DEMO-001). The Dutch fictional
-	 * organisation names mirror the reference source dataset so
-	 * existing copy / screenshots remain reusable.
+	 * Two kinds, and the difference is what a reader is meant to take
+	 * away. The five Dutch fictional ORGANISATIONS mirror the reference
+	 * source dataset so existing copy and screenshots stay reusable;
+	 * they answer "what does an intranet built on this look like".
+	 *
+	 * `case-handler` is the first ROLE showcase and answers a different
+	 * question: what one person's working day looks like on one page.
+	 * It is in English because the widgets it places are the fleet's own
+	 * (a dossiq case list, the Tasks app, a calendar, unread mail) and
+	 * those carry English labels, so a Dutch shell around English
+	 * content would read as a half-translation.
 	 *
 	 * @var array<int, string>
 	 */
 	public const BUNDLED_IDS = [
+		'case-handler',
 		'de-bron',
 		'de-linden',
 		'gemeente-duin',
@@ -94,11 +102,39 @@ class DemoShowcasesService {
 	];
 
 	/**
+	 * Where the list of LaunchPad's own widget types lives.
+	 *
+	 * Shared with the frontend: `widgetRegistry.completeness.spec.js`
+	 * asserts the registry's keys equal this file, so the types the
+	 * installer keeps and the types the workspace can render cannot drift.
+	 *
+	 * @var string
+	 */
+	private const WIDGET_TYPES_PATH = __DIR__ . '/../widget-types.json';
+
+	/**
 	 * Optional data-directory override (test seam).
 	 *
 	 * @var string|null
 	 */
 	private ?string $dataDirOverride = null;
+
+	/**
+	 * LaunchPad widget types, keyed by type, loaded once per instance.
+	 *
+	 * @var array<string, true>|null
+	 */
+	private ?array $launchpadWidgetTypes = null;
+
+	/**
+	 * Builds placements from the archive; see PlacementPayloadHydrator for
+	 * which fields travel and why the importer uses the same one. It holds
+	 * no state and has no dependencies, so it is constructed here rather
+	 * than injected.
+	 *
+	 * @var PlacementPayloadHydrator
+	 */
+	private readonly PlacementPayloadHydrator $placementHydrator;
 
 	/**
 	 * Constructor.
@@ -133,6 +169,7 @@ class DemoShowcasesService {
 		private readonly IURLGenerator $urlGenerator,
 		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
+		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
 
 	/**
@@ -223,15 +260,29 @@ class DemoShowcasesService {
 			$installedDashboardId = $installedUuid;
 		}
 
+		// The imagePath() call THROWS when the image is absent, and this runs once per
+		// showcase inside the listing, so one showcase without a preview used
+		// to 500 the whole gallery. A missing thumbnail is a cosmetic gap in
+		// one card, not a reason to hide the other five.
+		$thumbnailUrl = null;
+		try {
+			$thumbnailUrl = $this->urlGenerator->imagePath(
+				Application::APP_ID,
+				'showcases/' . $showcaseId . '.png'
+			);
+		} catch (\RuntimeException $e) {
+			$this->logger->warning(
+				message: 'Showcase ' . $showcaseId . ' has no preview image',
+				context: ['exception' => $e]
+			);
+		}
+
 		return [
 			'id' => $showcaseId,
 			'name' => (string)($manifest['showcaseName'] ?? $showcaseId),
 			'description' => (string)($manifest['showcaseDescription'] ?? ''),
 			'language' => (string)($manifest['showcaseLanguage'] ?? 'nl'),
-			'thumbnailUrl' => $this->urlGenerator->imagePath(
-				Application::APP_ID,
-				'showcases/' . $showcaseId . '.png'
-			),
+			'thumbnailUrl' => $thumbnailUrl,
 			'isInstalled' => $installedUuid !== '',
 			'installedDashboardUuid' => $installedDashboardId,
 		];
@@ -344,7 +395,7 @@ class DemoShowcasesService {
 		try {
 			$persisted = $this->dashboardMapper->insert(entity: $dashboard);
 			foreach ($valid as $widgetPayload) {
-				$placement = $this->buildPlacement(
+				$placement = $this->placementHydrator->hydrate(
 					dashboardId: (int)$persisted->getId(),
 					payload: $widgetPayload
 				);
@@ -418,7 +469,8 @@ class DemoShowcasesService {
 						dashboardUuid: $deletedUuid,
 						ownerUserId:   (string)($dashboard->getUserId() ?? ''),
 						type:          (string)($dashboard->getType() ?? Dashboard::TYPE_GROUP_SHARED),
-						deletedAt:     new DateTimeImmutable()
+						deletedAt:     new DateTimeImmutable(),
+						dashboardId:   $dashId
 					)
 				);
 			}
@@ -452,13 +504,32 @@ class DemoShowcasesService {
 	}//end getInstalledUuid()
 
 	/**
-	 * Cross-reference a widget collection against the registered
-	 * Nextcloud dashboard widget registry, returning valid + skipped
-	 * partitions (REQ-DEMO-005).
+	 * Split a showcase's widgets into the ones to place and the ones to
+	 * skip (REQ-DEMO-005).
 	 *
-	 * Tile placements (rows where `tileType` is non-null) are always
-	 * considered valid — tiles are owned by LaunchPad itself and do not
-	 * require a third-party widget registration.
+	 * A widget is kept when LaunchPad can render it. That is true in three
+	 * cases, checked in this order:
+	 *
+	 * 1. it is a tile (`tileType` set), rendered by LaunchPad's tile renderer;
+	 * 2. its `widgetId` is one of LaunchPad's OWN widget types
+	 *    (`lib/widget-types.json`: `object-list`, `nc-widget`, `calendar`,
+	 *    `text` and the rest), rendered by the workspace's widget registry;
+	 * 3. its `widgetId` is a Nextcloud dashboard widget registered on this
+	 *    instance (`IManager::getWidgets()`), rendered through the bridge.
+	 *
+	 * Anything else is skipped, which is what the skip exists for: a bare
+	 * Nextcloud widget id whose app is not installed here.
+	 *
+	 * Case 2 is new. Before it, a LaunchPad type counted as "unknown"
+	 * because it is not in Nextcloud's registry, so the `case-handler`
+	 * showcase, built entirely from LaunchPad types, installed as an empty
+	 * dashboard and still reported success.
+	 *
+	 * An `nc-widget` is kept whatever widget it proxies. The check is on the
+	 * widget's TYPE, as REQ-DEMO-005 words it; whether the proxied app is
+	 * installed decides what the tile shows, not whether it exists. Checking
+	 * the target here would make a showcase's shape depend on which apps an
+	 * instance happens to have.
 	 *
 	 * @param array<int, mixed> $widgets Widget payloads from the
 	 *                                   showcase JSON.
@@ -472,6 +543,8 @@ class DemoShowcasesService {
 		foreach ($this->dashboardManager->getWidgets() as $widget) {
 			$registered[$widget->getId()] = true;
 		}
+
+		$ownTypes = $this->getLaunchpadWidgetTypes();
 
 		$valid = [];
 		$skipped = [];
@@ -490,7 +563,9 @@ class DemoShowcasesService {
 				continue;
 			}
 
-			if (isset($registered[$widgetId]) === true) {
+			if (isset($ownTypes[$widgetId]) === true
+				|| isset($registered[$widgetId]) === true
+			) {
 				$valid[] = $widget;
 				continue;
 			}
@@ -502,6 +577,51 @@ class DemoShowcasesService {
 
 		return [$valid, $skipped];
 	}//end partitionWidgets()
+
+	/**
+	 * Load LaunchPad's own widget types from `lib/widget-types.json`.
+	 *
+	 * Throws rather than returning an empty set when the file is missing or
+	 * unreadable. An empty set is exactly the defect this list fixes: every
+	 * LaunchPad widget in a showcase would be skipped and the install would
+	 * still report success, which is the failure nobody noticed the first
+	 * time. A packaging error must be loud.
+	 *
+	 * @return array<string, true> The types, keyed for `isset()` lookups.
+	 *
+	 * @throws RuntimeException When the list is missing or malformed.
+	 *
+	 * @spec openspec/specs/demo-data-showcases/spec.md
+	 */
+	private function getLaunchpadWidgetTypes(): array {
+		if ($this->launchpadWidgetTypes !== null) {
+			return $this->launchpadWidgetTypes;
+		}
+
+		$decoded = null;
+		if (is_readable(filename: self::WIDGET_TYPES_PATH) === true) {
+			$raw = file_get_contents(filename: self::WIDGET_TYPES_PATH);
+			if (is_string($raw) === true) {
+				$decoded = json_decode(json: $raw, associative: true);
+			}
+		}
+
+		if (is_array($decoded) === false || is_array($decoded['types'] ?? null) === false) {
+			throw new RuntimeException(
+				message: 'LaunchPad widget type list missing or malformed: ' . self::WIDGET_TYPES_PATH
+			);
+		}
+
+		$types = [];
+		foreach ($decoded['types'] as $type) {
+			if (is_string($type) === true && $type !== '') {
+				$types[$type] = true;
+			}
+		}
+
+		$this->launchpadWidgetTypes = $types;
+		return $types;
+	}//end getLaunchpadWidgetTypes()
 
 	/**
 	 * Resolve the on-disk ZIP path for a showcase ID.
@@ -674,89 +794,6 @@ class DemoShowcasesService {
 
 		return $dashboard;
 	}//end buildDashboardEntity()
-
-	/**
-	 * Hydrate a WidgetPlacement entity from a payload.
-	 *
-	 * Mirrors {@see ImportService::buildPlacement} so the showcase
-	 * format and the export-import format stay byte-compatible.
-	 *
-	 * @param int $dashboardId The freshly-inserted
-	 *                         dashboard ID.
-	 * @param array<string, mixed> $payload The widget payload.
-	 *
-	 * @return WidgetPlacement The placement entity.
-	 *
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-	 *      Field-by-field guards mirror the export-import format and
-	 *      are clearer than a map-driven setter.
-	 * @SuppressWarnings(PHPMD.NPathComplexity)
-	 *      Consequence of the same field-by-field guards: each optional
-	 *      payload key contributes an independent present/absent branch, so
-	 *      the acyclic-path count multiplies across fields even though the
-	 *      method is a flat sequence with no nesting.
-	 */
-	private function buildPlacement(
-		int $dashboardId,
-		array $payload,
-	): WidgetPlacement {
-		$placement = new WidgetPlacement();
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$placement->setDashboardId($dashboardId);
-		$placement->setWidgetId((string)($payload['widgetId'] ?? ''));
-		$placement->setGridX((int)($payload['gridX'] ?? 0));
-		$placement->setGridY((int)($payload['gridY'] ?? 0));
-		$placement->setGridWidth((int)($payload['gridWidth'] ?? 4));
-		$placement->setGridHeight((int)($payload['gridHeight'] ?? 4));
-		$placement->setIsVisible((int)($payload['isVisible'] ?? 1));
-		$placement->setShowTitle((int)($payload['showTitle'] ?? 1));
-		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
-		$placement->setCreatedAt($now);
-		$placement->setUpdatedAt($now);
-
-		if (isset($payload['styleConfig']) === true && is_array($payload['styleConfig']) === true) {
-			$placement->setStyleConfigArray(config: $payload['styleConfig']);
-		}
-
-		if (isset($payload['customTitle']) === true) {
-			$placement->setCustomTitle((string)$payload['customTitle']);
-		}
-
-		// Tile fields — see WidgetPlacement::jsonSerialize().
-		if (isset($payload['tileType']) === true) {
-			$placement->setTileType((string)$payload['tileType']);
-			$placement->setTileTitle((string)($payload['tileTitle'] ?? ''));
-			if (isset($payload['tileIcon']) === true) {
-				$placement->setTileIcon((string)$payload['tileIcon']);
-			}
-
-			if (isset($payload['tileIconType']) === true) {
-				$placement->setTileIconType((string)$payload['tileIconType']);
-			}
-
-			if (isset($payload['tileBackgroundColor']) === true) {
-				$placement->setTileBackgroundColor((string)$payload['tileBackgroundColor']);
-			}
-
-			if (isset($payload['tileTextColor']) === true) {
-				$placement->setTileTextColor((string)$payload['tileTextColor']);
-			}
-
-			if (isset($payload['tileLinkType']) === true) {
-				$placement->setTileLinkType((string)$payload['tileLinkType']);
-			}
-
-			if (isset($payload['tileLinkValue']) === true) {
-				$placement->setTileLinkValue((string)$payload['tileLinkValue']);
-			}
-		}//end if
-
-		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-
-		return $placement;
-	}//end buildPlacement()
 
 	/**
 	 * Persist the per-showcase install marker.

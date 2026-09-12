@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Setări de administrare",
         "Maximum dashboards per user": "Numărul maxim de tablouri de bord per utilizator",
         "Maximum widgets per dashboard": "Numărul maxim de widgeturi per tablou de bord",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = nelimitat. Reducerea unei limite nu șterge niciodată tablourile de bord existente; blochează doar pe cele noi până când utilizatorii revin sub limită.",
@@ -1090,7 +1091,6 @@
         "Kind": "Fel",
         "Version": "Versiune",
         "How many dashboards there are, and who they belong to.": "Câte tablouri de bord există și cui aparțin.",
-        "Store": "Magazin",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instalați registre, scheme și fluxuri publicate de alte organizații."
+        "Store": "Magazin"
     }
 }

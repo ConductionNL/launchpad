@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funktiounen a Roadmap",
     "Maximum dashboards per user" : "Maximal Dashboards pro Benotzer",
     "Maximum widgets per dashboard" : "Maximal Widgets pro Dashboard",
@@ -1113,8 +1114,7 @@ OC.L10N.register(
     "Kind": "Aart",
     "Version": "Versioun",
     "How many dashboards there are, and who they belong to.": "Wéi vill Dashboards et gëtt a wiem se gehéieren.",
-    "Store": "Buttek",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installéiert Registeren, Schemaen a Flows déi aner Organisatiounen publizéiert hunn."
+    "Store": "Buttek"
 },
 "nplurals=2; plural=(n != 1);"
 );

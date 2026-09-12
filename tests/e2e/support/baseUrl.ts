@@ -27,7 +27,14 @@
  *     everywhere it mattered. `NEXTCLOUD_URL` and `NC_BASE_URL` are the names
  *     this repo's own docs and docker-compose helpers have always used, so they
  *     stay honoured; only the fallback value is gone.
+ *
+ *  3. A target that names the shared instance has to say so. The resolved URL
+ *     goes through `assertInstancePermitted`, which refuses loopback port 80
+ *     or 8080 unless the run set an opt-in variable holding that same origin.
+ *     See tests/e2e/shared-instance.ts.
  */
+
+import { assertInstancePermitted } from '../shared-instance.ts'
 
 const RAW =
 	process.env.PLAYWRIGHT_BASE_URL?.trim()
@@ -53,7 +60,9 @@ if (!RAW) {
 /**
  * The base URL of the Nextcloud under test, without a trailing slash.
  */
-export const BASE_URL: string = RAW.replace(/\/+$/, '')
+export const BASE_URL: string = assertInstancePermitted(
+	RAW.replace(/\/+$/, ''),
+)
 
 /**
  * Build an absolute URL against the instance under test.

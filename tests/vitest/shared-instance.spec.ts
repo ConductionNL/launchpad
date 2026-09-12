@@ -22,27 +22,28 @@ import {
 	normaliseOrigin,
 	occPrefix,
 	SHARED_INSTANCE_FLAG,
-} from './shared-instance.ts'
-
-/*
- * The guard exempts a CI runner, because there localhost:8080 is the job's own
- * throwaway Nextcloud. Vitest runs on that same runner, so without clearing
- * these two the refusal cases below return instead of throwing and the file
- * fails on CI and nowhere else.
- */
-beforeEach(() => {
-	vi.stubEnv('CI', '')
-	vi.stubEnv('GITHUB_ACTIONS', '')
-})
-
-afterEach(() => {
-	vi.unstubAllEnvs()
-})
+} from '../e2e/shared-instance.ts'
 
 /** An environment with neither flag set. */
 const NONE = {} as NodeJS.ProcessEnv
 
+/*
+ * The guard exempts CI, and a unit runner runs ON CI. So without this, the
+ * three refusal cases below pass on a laptop and fail on every runner:
+ * measured before the stub, `CI=true npx vitest run` gave 3 failed, 7 passed.
+ * A test whose verdict depends on where it runs is worse than no test.
+ */
+
 describe(`${APP_ID} shared-instance guard`, () => {
+	beforeEach(() => {
+		vi.stubEnv('CI', '')
+		vi.stubEnv('GITHUB_ACTIONS', '')
+	})
+
+	afterEach(() => {
+		vi.unstubAllEnvs()
+	})
+
 	it('folds every loopback spelling onto localhost', () => {
 		expect(normaliseOrigin('http://127.0.0.1:8080')).toBe(
 			'http://localhost:8080',

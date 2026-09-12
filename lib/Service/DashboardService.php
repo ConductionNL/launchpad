@@ -486,6 +486,27 @@ class DashboardService {
 			return $result;
 		}
 
+		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
+		// REQ-RFP-002 says a new user is seeded from their group's
+		// RoleLayoutDefault rows. Since #361 seeds one `default`
+		// group-shared dashboard on install, the step below matched for
+		// EVERY new user, so `tryCreateFromTemplate()` at the end of this
+		// method never ran and no role layout was ever seeded. Measured on a
+		// fresh instance: a user in a group with layout defaults resolved to
+		// the shared `default` dashboard and owned nothing.
+		//
+		// Narrow on purpose: only an instance that configured role layout
+		// defaults for one of this user's groups takes the new path, and
+		// `tryCreateFromTemplate()` still answers null when personal
+		// dashboards are switched off, which falls through to the old
+		// behaviour.
+		if ($this->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
+			$result = $this->tryCreateFromTemplate(userId: $userId);
+			if ($result !== null) {
+				return $result;
+			}
+		}
+
 		$result = $this->resolveDefaultGroupDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
@@ -2527,6 +2548,40 @@ class DashboardService {
 	 *
 	 * @return array|null The dashboard result or null.
 	 */
+	/**
+	 * A root slug for this user's auto-provisioned dashboard that no sibling holds.
+	 *
+	 * Root slugs share one namespace across every owner, so 'my-dashboard'
+	 * belongs to whoever provisioned first. The owner's id is appended for
+	 * everyone else, and a random segment settles the rest.
+	 *
+	 * @param string $userId The owner.
+	 *
+	 * @return string A slug free at root, or the plain one when nothing holds it.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function uniqueRootSlugFor(string $userId): string {
+		$base = SlugGenerator::slugify(name: 'My Dashboard');
+		$candidates = [$base, ($base . '-' . SlugGenerator::slugify(name: $userId))];
+		$candidates[] = ($base . '-' . bin2hex(random_bytes(4)));
+
+		foreach ($candidates as $candidate) {
+			if ($candidate === '' || $candidate === $base . '-') {
+				continue;
+			}
+
+			try {
+				$this->treeService->validateSlugUnique(parentUuid: null, slug: $candidate);
+				return $candidate;
+			} catch (InvalidArgumentException) {
+				continue;
+			}
+		}
+
+		return ($base . '-' . bin2hex(random_bytes(6)));
+	}//end uniqueRootSlugFor()
+
 	private function tryCreateFromTemplate(string $userId): ?array {
 		$allowUserDashboards = $this->getAllowUserDashboards();
 
@@ -2543,9 +2598,17 @@ class DashboardService {
 		}
 
 		if ($allowUserDashboards === true) {
+			// 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
+			// `validateSlugUnique()` looks for any root dashboard with this
+			// slug, whoever owns it, and every auto-provisioned dashboard is
+			// named 'My Dashboard'. So the SECOND user ever to reach this
+			// branch got `Slug must be unique among siblings` and the request
+			// answered HTTP 500 with no dashboard at all. Measured on a fresh
+			// instance: the first user provisioned, the next one 500'd.
 			$dashboard = $this->createDashboard(
 				userId: $userId,
-				name: 'My Dashboard'
+				name: 'My Dashboard',
+				slug: $this->uniqueRootSlugFor(userId: $userId)
 			);
 
 			// REQ-RFP-002: when no admin template applies, prefer seeding
@@ -2563,11 +2626,17 @@ class DashboardService {
 				);
 			}
 
-			$placements = $this->createDefaultPlacements(
-				dashboardId: $dashboard->getId()
-			);
+			// The comment above says the hardcoded pair is a FALLBACK, and it
+			// was not: it was created on every path, so a role-seeded layout
+			// came out carrying the role defaults AND tile/tile/tile/files.
 			if ($seeded > 0) {
 				$placements = $this->placementMapper->findByDashboardId(
+					dashboardId: $dashboard->getId()
+				);
+			}
+
+			if ($seeded === 0) {
+				$placements = $this->createDefaultPlacements(
 					dashboardId: $dashboard->getId()
 				);
 			}

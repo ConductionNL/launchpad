@@ -623,6 +623,56 @@ class RoleFeaturePermissionService {
 	}//end isWidgetAllowed()
 
 	/**
+	 * Whether this user has RoleLayoutDefault rows to be seeded from.
+	 *
+	 * Resolved exactly as {@see self::seedLayoutFromRoleDefaults()} resolves
+	 * them, so the two cannot disagree: the first group of `group_order` the
+	 * user belongs to that has defaults wins, and a group outside
+	 * `group_order` seeds nothing.
+	 *
+	 * Read by DashboardService before it falls back to the instance-wide
+	 * default dashboard, so a user who has a role layout gets it.
+	 *
+	 * @param string $userId The user.
+	 *
+	 * @return bool True when at least one RoleLayoutDefault applies.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	public function hasRoleLayoutDefaultsFor(string $userId): bool {
+		return ($this->resolveLayoutDefaultsFor(userId: $userId) !== []);
+	}//end hasRoleLayoutDefaultsFor()
+
+	/**
+	 * The RoleLayoutDefault rows that apply to this user, in seeding order.
+	 *
+	 * @param string $userId The user.
+	 *
+	 * @return array<int, \OCA\LaunchPad\Db\RoleLayoutDefault> The rows, or an empty array.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function resolveLayoutDefaultsFor(string $userId): array {
+		$userGroups = $this->groupIdsForUser(userId: $userId);
+		if ($userGroups === []) {
+			return [];
+		}
+
+		foreach ($this->adminSettings->getGroupOrder() as $gid) {
+			if (in_array(needle: $gid, haystack: $userGroups, strict: true) === false) {
+				continue;
+			}
+
+			$defaults = $this->defaultMapper->findByGroupId(groupId: $gid);
+			if (count(value: $defaults) > 0) {
+				return $defaults;
+			}
+		}
+
+		return [];
+	}//end resolveLayoutDefaultsFor()
+
+	/**
 	 * Seed the default layout for a freshly created dashboard from the
 	 * RoleLayoutDefault rows attached to the user's primary group.
 	 *
@@ -647,25 +697,8 @@ class RoleFeaturePermissionService {
 			return 0;
 		}
 
-		$userGroups = $this->groupIdsForUser(userId: $userId);
-		if ($userGroups === []) {
-			return 0;
-		}
-
-		$groupOrder = $this->adminSettings->getGroupOrder();
-		$defaults = [];
-		foreach ($groupOrder as $gid) {
-			if (in_array(needle: $gid, haystack: $userGroups, strict: true) === false) {
-				continue;
-			}
-
-			$defaults = $this->defaultMapper->findByGroupId(groupId: $gid);
-			if (count(value: $defaults) > 0) {
-				break;
-			}
-		}
-
-		if (count(value: $defaults) === 0) {
+		$defaults = $this->resolveLayoutDefaultsFor(userId: $userId);
+		if ($defaults === []) {
 			return 0;
 		}
 
@@ -687,6 +720,11 @@ class RoleFeaturePermissionService {
 			$placement->setGridHeight($default->getGridHeight());
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$placement->setSortOrder($default->getSortOrder());
+			// REQ-RFP-002: isCompulsory is part of the layout the admin
+			// defined, and it was dropped here, so a compulsory role widget
+			// seeded as removable. The scenario names it explicitly.
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$placement->setIsCompulsory($default->getIsCompulsory());
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$placement->setShowTitle(1);
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters

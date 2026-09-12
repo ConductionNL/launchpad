@@ -148,6 +148,7 @@ class RoleFeaturePermissionService {
 		}
 
 		$entity = $this->resolvePermissionEntity(groupId: $groupId);
+		$this->requireNameForNewRow(isNew: ($entity->getId() === null), data: $data);
 
 		$this->applyPermissionCopy(entity: $entity, data: $data);
 		$this->applyPermissionWidgetLists(entity: $entity, data: $data);
@@ -315,6 +316,7 @@ class RoleFeaturePermissionService {
 			groupId: $groupId,
 			widgetId: $widgetId
 		);
+		$this->requireNameForNewRow(isNew: ($entity->getId() === null), data: $data);
 
 		$this->applyLayoutDefaultCopy(entity: $entity, data: $data);
 		$this->applyLayoutDefaultGeometry(entity: $entity, data: $data);
@@ -783,4 +785,28 @@ class RoleFeaturePermissionService {
 
 		return $this->adminTemplateService->getUserGroupIdsFor(userId: $userId);
 	}//end groupIdsForUser()
+	/**
+	 * Refuse a new row that carries no `name`.
+	 *
+	 * `name` is NOT NULL with no default in both tables, and the spec lists it
+	 * as required. The copy helpers set it only when the payload carries it, so
+	 * a new row without it used to reach the database with the column missing
+	 * and fail there with SQLSTATE 23502, which the API reported as a bare
+	 * "Operation failed". An existing row keeps its stored name, and an empty
+	 * string is still accepted, as the admin editors send one.
+	 *
+	 * @param bool                 $isNew Whether the save will INSERT.
+	 * @param array<string, mixed> $data  The request payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a new row carries no name.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md
+	 */
+	private function requireNameForNewRow(bool $isNew, array $data): void {
+		if ($isNew === true && array_key_exists(key: 'name', array: $data) === false) {
+			throw new InvalidArgumentException(message: 'name is required');
+		}
+	}//end requireNameForNewRow()
 }//end class

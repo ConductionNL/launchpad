@@ -36,5 +36,21 @@
         -->
         <ini name="memory_limit" value="2G"/>
         <env name="PHPUNIT_RUN" value="1"/>
+        <!--
+            Boot the real Nextcloud WHEN THIS TREE SITS INSIDE AN INSTALLED ONE,
+            which is exactly CI's PHPUnit job (server/apps/launchpad inside a
+            server it installed with `occ maintenance:install`). Unset, that job
+            ran every test against OCP stubs, so a test that needs a real
+            database skipped there and could never fail. That is how #612
+            shipped: the importer never set created_at, every insert failed
+            with SQLSTATE 23502, and the mocked unit tests stayed green.
+
+            Outside an installed instance (a plain clone running
+            `composer check:strict`), tests/bootstrap.php refuses the full boot
+            on its own `installed` check, prints one line saying so, and falls
+            back to the stubs. Measured before enabling: the whole suite under
+            a full boot, on Nextcloud 34 with PostgreSQL, 1690 tests, exit 0.
+        -->
+        <env name="PHPUNIT_USE_NC_BOOTSTRAP" value="1"/>
     </php>
 </phpunit>

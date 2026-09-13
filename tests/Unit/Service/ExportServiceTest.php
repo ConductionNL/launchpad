@@ -180,6 +180,54 @@ class ExportServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-EXIM-003 "Empty instance site export": an instance with no dashboards
+	 * still exports a valid archive.
+	 *
+	 * No e2e can arrange this: the suite shares an instance with every other
+	 * spec's fixtures, and emptying it would be destroying their data.
+	 *
+	 * @return void
+	 */
+	public function testEmptySiteExportIsAValidArchiveWithNoDashboards(): void {
+		$this->dashboardMapper->method('findAdminTemplates')->willReturn([]);
+		$this->dashboardMapper->method('findByParent')->willReturn([]);
+		$this->dashboardMapper->method('findDescendants')->willReturn([]);
+		$this->groupManager->method('search')->willReturn([]);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+
+		$response = $this->service->exportSite(currentUserId: 'admin');
+
+		$reflection = new \ReflectionObject(object: $response);
+		$prop = $reflection->getProperty(name: 'filePath');
+		$prop->setAccessible(accessible: true);
+		$tempPath = (string)$prop->getValue(object: $response);
+
+		$zip = new ZipArchive();
+		$this->assertTrue(condition: $zip->open(filename: $tempPath) === true);
+
+		/** @var array<string, mixed> $manifest */
+		$manifest = json_decode(
+			json: (string)$zip->getFromName(name: 'manifest.json'),
+			associative: true
+		);
+		$this->assertSame(expected: 'site', actual: $manifest['scope']);
+		$this->assertSame(expected: 0, actual: $manifest['dashboardCount']);
+
+		$dashboards = [];
+		for ($i = 0; $i < $zip->numFiles; $i++) {
+			$name = (string)$zip->getNameIndex(index: $i);
+			if (str_starts_with(haystack: $name, needle: 'dashboards/') === true
+				&& str_ends_with(haystack: $name, needle: '.json') === true
+			) {
+				$dashboards[] = $name;
+			}
+		}
+
+		$this->assertSame(expected: [], actual: $dashboards);
+		$zip->close();
+	}//end testEmptySiteExportIsAValidArchiveWithNoDashboards()
+
+	/**
 	 * REQ-EXIM-003: site export aggregates admin templates and personal
 	 * dashboards and stamps the manifest with the count.
 	 *

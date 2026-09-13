@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Адміністрування",
         "Maximum dashboards per user": "Максимальна кількість дашбордів на користувача",
         "Maximum widgets per dashboard": "Максимальна кількість віджетів на дашборд",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = без обмежень. Зниження ліміту ніколи не видаляє наявні дашборди; воно лише блокує створення нових, доки користувачі не повернуться під ліміт.",
@@ -1090,7 +1091,6 @@
         "Kind": "Вид",
         "Version": "Версія",
         "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать.",
-        "Store": "Магазин",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Встановлюйте реєстри, схеми та потоки, опубліковані іншими організаціями."
+        "Store": "Магазин"
     }
 }

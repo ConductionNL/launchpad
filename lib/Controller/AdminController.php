@@ -416,6 +416,13 @@ class AdminController extends Controller {
 	/**
 	 * Update admin settings.
 	 *
+	 * Five settings are read under one name and written under another: GET
+	 * answers `allowUserDashboards`, this PUT took only `allowUserDash`. An
+	 * unrecognised key binds to null, null means "not supplied", so a caller
+	 * round-tripping GET into PUT wrote nothing and was told `{"status":
+	 * "ok"}`. Both spellings are accepted; the short one wins, since
+	 * AdminSettings.vue sends it. Covered by AdminControllerSettingsAliasTest.
+	 *
 	 * @param string|null $defaultPermLevel Default permission level.
 	 * @param bool|null $allowUserDash Allow user dashboards.
 	 * @param bool|null $allowMultiDash Allow multiple dashboards.
@@ -456,6 +463,11 @@ class AdminController extends Controller {
 	 *                                               `{query}`.
 	 *                                               tile-quick-search
 	 *                                               REQ-QSEARCH-004.
+	 * @param string|null $defaultPermissionLevel Alias of `$defaultPermLevel`.
+	 * @param bool|null $allowUserDashboards Alias of `$allowUserDash`.
+	 * @param bool|null $allowMultipleDashboards Alias of `$allowMultiDash`.
+	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
+	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -475,7 +487,19 @@ class AdminController extends Controller {
 		?int $maxDashboardsPerUser = null,
 		?int $maxWidgetsPerDashboard = null,
 		?string $quicksearchFallbackTarget = null,
+		?string $defaultPermissionLevel = null,
+		?bool $allowUserDashboards = null,
+		?bool $allowMultipleDashboards = null,
+		?int $defaultGridColumns = null,
+		?array $linkCreateFileExtensions = null,
 	): JSONResponse {
+		// Read-side aliases, see the docblock. Short form wins.
+		$defaultPermLevel ??= $defaultPermissionLevel;
+		$allowUserDash ??= $allowUserDashboards;
+		$allowMultiDash ??= $allowMultipleDashboards;
+		$defaultGridCols ??= $defaultGridColumns;
+		$linkCreateFileExts ??= $linkCreateFileExtensions;
+
 		try {
 			$this->settingsService->updateSettings(
 				defaultPermLevel: $defaultPermLevel,

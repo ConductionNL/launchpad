@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Administravimo nustatymai",
     "Features & roadmap" : "Funkcijos ir planas",
     "Maximum dashboards per user" : "Didžiausias skydelių skaičius vienam naudotojui",
     "Maximum widgets per dashboard" : "Didžiausias valdiklių skaičius viename skydelyje",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Rūšis",
     "Version": "Versija",
     "How many dashboards there are, and who they belong to.": "Kiek yra skydelių ir kam jie priklauso.",
-    "Store": "Parduotuvė",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Įdiekite registrus, schemas ir srautus, kuriuos paskelbė kitos organizacijos."
+    "Store": "Parduotuvė"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

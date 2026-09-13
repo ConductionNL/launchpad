@@ -328,7 +328,7 @@ export default {
 	methods: {
 		/**
 		 * Store the picked icon. CnIconBrowser emits an SVG path (MDI) or a URL
-		 * (NlDesign/upload); derive iconType from the value so TileWidget renders
+		 * (Thematiq/upload); derive iconType from the value so TileWidget renders
 		 * the right element. `isCustomIconUrl` is the REQ-ICON-005 URL/name
 		 * discriminator — `iconType` is derived from it rather than guessed,
 		 * so a picked value and its stored type can never disagree.

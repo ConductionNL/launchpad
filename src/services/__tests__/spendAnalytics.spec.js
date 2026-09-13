@@ -129,6 +129,11 @@ describe('spendAnalytics data layer', () => {
 		const result = await fetchSpendNarrative({ summary: { total: 100 } })
 		expect(result).toEqual({ available: true, narrative: 'Spend is up 12%.' })
 		const [url, body] = axios.post.mock.calls[0]
+		// @stale-fleet-app-id exclude this pins the path the caller deliberately
+		// leaves stale. integriq publishes no `/api/sources/{source}/call` under
+		// either name (re-verified 2026-09-10 by git log -S over its full history),
+		// so the assertion moves in the same change that gives REQ-SAW-006 a real
+		// integriq endpoint to call. See fetchSpendNarrative in spendAnalytics.js.
 		expect(url).toContain('/apps/openconnector/')
 		expect(url).not.toContain('11434')
 		// Conduction local-LLM defaults.
@@ -146,8 +151,8 @@ describe('spendAnalytics data layer', () => {
 		expect(resolveDeepLink('financeq', 'transaction', 'tx-1')).toBe(
 			'/apps/financeq/transaction/tx-1',
 		)
-		expect(resolveDeepLink('procest', 'vendor', 'acme')).toBe(
-			'/apps/procest/vendor/acme',
+		expect(resolveDeepLink('dossiq', 'vendor', 'acme')).toBe(
+			'/apps/dossiq/vendor/acme',
 		)
 	})
 })

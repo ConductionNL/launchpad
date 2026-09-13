@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Configuraciones de administración",
         "Maximum dashboards per user": "Máximo de paneles por usuario",
         "Maximum widgets per dashboard": "Máximo de widgets por panel",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = sin límite. Reducir un límite nunca elimina los paneles existentes; solo bloquea los nuevos hasta que los usuarios vuelvan a estar por debajo del límite.",
@@ -1089,7 +1090,6 @@
         "Kind": "Tipo",
         "Version": "Versión",
         "How many dashboards there are, and who they belong to.": "Cuántos paneles hay y a quién pertenecen.",
-        "Store": "Tienda",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instale registros, esquemas y flujos publicados por otras organizaciones."
+        "Store": "Tienda"
     }
 }

@@ -100,7 +100,8 @@ class TreeListener implements IEventListener {
 						dashboardUuid: $childUuid,
 						ownerUserId:   $childOwnerId,
 						type:          $childType,
-						deletedAt:     $deletedAt
+						deletedAt:     $deletedAt,
+						dashboardId:   $child->getId()
 					)
 				);
 			}//end foreach

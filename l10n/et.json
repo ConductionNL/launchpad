@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Administreerimise seaded",
         "Maximum dashboards per user": "Töölaudade maksimumarv kasutaja kohta",
         "Maximum widgets per dashboard": "Vidinate maksimumarv töölaua kohta",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = piiramatu. Piirangu vähendamine ei kustuta kunagi olemasolevaid töölaudu; see üksnes blokeerib uute loomise, kuni kasutajad on jälle piirist allpool.",
@@ -1089,7 +1090,6 @@
         "Kind": "Liik",
         "Version": "Versioon",
         "How many dashboards there are, and who they belong to.": "Kui palju töölaudu on ja kellele need kuuluvad.",
-        "Store": "Pood",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Paigalda registrid, skeemid ja voog, mille teised organisatsioonid on avaldanud."
+        "Store": "Pood"
     }
 }

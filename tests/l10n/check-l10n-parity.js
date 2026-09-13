@@ -20,7 +20,10 @@
  *      for plural arrays, no element may be empty.
  *
  * Values identical to English are allowed (cognates / proper nouns / acronyms
- * are legitimately the same) and only counted.
+ * are legitimately the same) and are NOT reported. This used to say they were
+ * "counted"; nothing counts them. So an English copy standing in for a missing
+ * translation passes silently, and it can only be found by its key. Name any
+ * such copy in the commit that adds it.
  *
  * Sparse override locales (en, en_US and any other regional en_*) are skipped.
  *

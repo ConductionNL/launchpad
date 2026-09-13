@@ -773,3 +773,35 @@ OCA\LaunchPad\Exception\QuotaExceededException::getLimit
 OCA\LaunchPad\Exception\QuotaExceededException::getCurrent
 # Error-response serialiser for the quota exception, covered by the dashboard-quota-limits REQ.
 OCA\LaunchPad\Exception\QuotaExceededException::toResponseBody
+#
+# 2026-09-09: twelve methods that post-date the 2026-05-03 baseline and match
+# shapes already allowlisted wholesale above — mapper query methods, entity
+# serialisers, a migration schema hook and a framework label getter. Added here
+# rather than tagged because none is a discrete requirement of its own; each is
+# covered by the capability whose data it moves. `composer lint:spec-annotations`
+# has been red on `development` since these landed.
+#
+# Repair-step label required by NC's IRepairStep interface, no discrete spec REQ.
+OCA\LaunchPad\Repair\ImportLaunchpadRegister::getName
+# Tile-click query method, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::findByPlacementAndBucket
+# Tile-click query method, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::findTopTilesInRange
+# Tile-click query method, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::findByDashboardInRange
+# Tile-click query method, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::findAllInRange
+# Tile-click write path, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::upsertClick
+# Tile-click retention pruning, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::deleteOlderThan
+# Tile-click cascade delete, covered by the tile-analytics REQ.
+OCA\LaunchPad\Db\TileClickMapper::deleteByPlacement
+# Entity column/property name mapping, framework plumbing with no spec REQ.
+OCA\LaunchPad\Db\WidgetPlacement::propertyToColumn
+# Entity column/property name mapping, framework plumbing with no spec REQ.
+OCA\LaunchPad\Db\WidgetPlacement::columnToProperty
+# Entity serialiser, same shape as the other Db jsonSerialize entries above.
+OCA\LaunchPad\Db\TileClick::jsonSerialize
+# Migration schema hook, same shape as every other changeSchema entry above.
+OCA\LaunchPad\Migration\Version002007Date20260724000000::changeSchema

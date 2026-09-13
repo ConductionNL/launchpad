@@ -25,6 +25,10 @@ The system MUST define a `DashboardDeletedEvent` class at `lib/Event/DashboardDe
 - AND `getOwnerUserId()` MUST return `'alice'`
 - AND `getType()` MUST return `'user'`
 - AND `getDeletedAt()` MUST return a `\DateTimeImmutable` equal to `2026-05-01T10:00:00Z`
+- AND `getDashboardId()` MUST return the deleted row's integer id when the dispatcher supplied it, and `null` otherwise
+- NOTE: every dispatcher fires after the dashboard row is gone, so a listener for a table keyed on `dashboard_id` cannot recover the id from the UUID. It MUST read `getDashboardId()`. Every dispatcher in LaunchPad supplies it.
+
+@e2e exclude event payload shape with no HTTP surface; asserted in tests/Unit/Event/DashboardDeletedEventTest.php
 
 #### Scenario: Event is dispatched after soft-delete and before response
 
@@ -64,7 +68,9 @@ Every listener MUST be registered in `Application` via `IEventDispatcher::addLis
 
 - GIVEN LaunchPad is bootstrapped
 - WHEN `Application::register()` runs
-- THEN `IEventDispatcher` MUST have listeners registered for `DashboardDeletedEvent::class` covering: `WidgetPlacementsListener`, `CommentsListener`, `ReactionsListener`, `LocksListener`, `VersionsListener`, `PublicSharesListener`, `MetadataValuesListener`, `TranslationsListener`, `ViewAnalyticsListener`, `TreeListener`
+- THEN `IEventDispatcher` MUST have listeners registered for `DashboardDeletedEvent::class` covering: `WidgetPlacementsListener`, `CommentsListener`, `ReactionsListener`, `LocksListener`, `VersionsListener`, `PublicSharesListener`, `DashboardSharesListener`, `MetadataValuesListener`, `TranslationsListener`, `ViewAnalyticsListener`, `TreeListener`
+
+@e2e exclude registration is wiring with no HTTP surface; asserted by running Application::register() in tests/Unit/Listener/DashboardSharesListenerTest.php
 
 #### Scenario: Lifecycle listeners are registered for NC events
 
@@ -84,8 +90,8 @@ Every listener MUST be registered in `Application` via `IEventDispatcher::addLis
 
 A set of listeners MUST clean up every dependent table when `DashboardDeletedEvent` fires. Listeners for disjoint data MUST execute independently and MUST NOT interfere with each other.
 
-- NOTE: Of the ten listeners in this group, only `CommentsListener` is derived from the reference implementation's pattern, which uses `ICommentsManager::deleteCommentsAtObject()` as its sole cleanup mechanism for a single listener registered on the delete event.
-- NOTE: The remaining nine listeners — `WidgetPlacementsListener`, `ReactionsListener`, `LocksListener`, `VersionsListener`, `PublicSharesListener`, `MetadataValuesListener`, `TranslationsListener`, `ViewAnalyticsListener`, and `TreeListener` — are LaunchPad-specific additions. The reference implementation cleans those targets (if they exist at all) either inline in the service layer or not at all; LaunchPad's richer schema warrants dedicated listeners. The table list MUST be validated against LaunchPad's actual migration files before implementation.
+- NOTE: Of the eleven listeners in this group, only `CommentsListener` is derived from the reference implementation's pattern, which uses `ICommentsManager::deleteCommentsAtObject()` as its sole cleanup mechanism for a single listener registered on the delete event.
+- NOTE: The remaining ten listeners: `WidgetPlacementsListener`, `ReactionsListener`, `LocksListener`, `VersionsListener`, `PublicSharesListener`, `DashboardSharesListener`, `MetadataValuesListener`, `TranslationsListener`, `ViewAnalyticsListener`, and `TreeListener` — are LaunchPad-specific additions. The reference implementation cleans those targets (if they exist at all) either inline in the service layer or not at all; LaunchPad's richer schema warrants dedicated listeners. The table list MUST be validated against LaunchPad's actual migration files before implementation.
 - NOTE: `TreeListener` (see REQ-CSC-010) is a LaunchPad improvement over the reference implementation. The reference silently deletes child pages via a recursive filesystem operation without firing the delete event for each child, meaning child-level dependent data (locks, analytics, etc.) is never cleaned up. LaunchPad's `TreeListener` corrects this gap by explicitly dispatching `DashboardDeletedEvent` for each child so that the full listener stack runs for every node in the tree.
 
 #### Scenario: Widget placements are deleted on dashboard delete
@@ -111,6 +117,15 @@ A set of listeners MUST clean up every dependent table when `DashboardDeletedEve
 - THEN both rows MUST have `revokedAt` set to the current timestamp
 - AND neither row MUST be hard-deleted (audit trail is preserved)
 - NOTE: LaunchPad-specific listener — the reference implementation has no public-shares table.
+
+#### Scenario: User and group shares are deleted with their dashboard
+
+- GIVEN dashboard `D1` is shared with user `bob` and with group `sales`, two rows in `oc_launchpad_dashboard_shares`
+- WHEN `D1` is deleted and `DashboardDeletedEvent` fires
+- THEN `DashboardSharesListener` MUST delete both rows, keyed on the event's `getDashboardId()`
+- AND neither `bob` nor a member of `sales` MUST see `D1` any longer
+- AND no share row pointing at `D1` MUST remain for the orphan sweep to find
+- NOTE: until this listener existed, the rows stayed behind until `OrphanedSharesCategory` swept them. That sweep stays, for rows orphaned before the fix.
 
 #### Scenario: Versions file is deleted in GroupFolder mode
 

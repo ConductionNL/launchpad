@@ -370,3 +370,45 @@ jobs:
       # deliberate). Floating both halves keeps caller and callee in step,
       # which is the only configuration in which a pinned path cannot expire.
       enable-hydra-gates: true
+      # ── Cost controls (see ConductionNL/.github#596, #599) ───────────────
+      # Run PHPUnit and Playwright only when the diff could change their
+      # verdict. Fails safe TOWARDS running: an unreadable diff, a force-push,
+      # a branch creation or a dispatch all run everything, and a filtered
+      # skip is a declared state in the Quality Report, not a missing one.
+      enable-path-filtering: true
+      # PR-time PHPUnit runs the primary PHP against the newest declared
+      # Nextcloud; the full matrix still runs on every push to a default
+      # branch and on the release PR into beta. Breadth moves from
+      # per-commit to per-merge, it is not dropped.
+      reduce-pr-matrix: true
+
+  # ── l10n parity, as a WARNING ─────────────────────────────────────────────
+  # tests/l10n/check-l10n-parity.js ran in no CI lane, so #559 left 35 of the
+  # 36 required locales without "Admin settings" and nothing noticed for six
+  # days: gate-102 only guards nl.json, and only for manifest strings.
+  #
+  # It lives HERE, in this repo's own workflow, and not in the shared
+  # ConductionNL/.github quality.yml, whose changes reach the whole fleet the
+  # minute they merge. And it ships as a warning first, the way every new check
+  # does: a failure raises an annotation and marks this step, but
+  # `continue-on-error` keeps the job and the run green. Make it blocking once
+  # it has held for a while, by deleting `continue-on-error`.
+  #
+  # Dependency-free Node, so it needs no `npm ci`.
+  l10n-parity:
+    name: l10n parity (warning only)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Every required locale carries every source key
+        continue-on-error: true
+        run: |
+          if ! npm run --silent check:l10n-parity; then
+            echo "::warning title=l10n parity::A required locale is missing a translation. Warning only, not blocking: see this step's log for the locale and the key."
+            exit 1
+          fi

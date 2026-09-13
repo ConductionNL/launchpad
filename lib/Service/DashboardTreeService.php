@@ -562,7 +562,8 @@ class DashboardTreeService {
 					dashboardUuid: $targetUuid,
 					ownerUserId:   (string)($target->getUserId() ?? $fallback->getUserId() ?? ''),
 					type:          (string)($target->getType() ?? $fallback->getType() ?? Dashboard::TYPE_USER),
-					deletedAt:     $deletedAt
+					deletedAt:     $deletedAt,
+					dashboardId:   $targetId
 				)
 			);
 		}

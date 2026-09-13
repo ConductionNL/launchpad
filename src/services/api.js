@@ -686,6 +686,33 @@ export const api = {
 	},
 
 	/**
+	 * Read the dashboard registry connection. Admin-only on the server.
+	 *
+	 * The response never carries the token, only `tokenConfigured`.
+	 *
+	 * @return {Promise} Axios response resolving to
+	 *   `{ registryUrl, registryRegister, tokenConfigured, available }`.
+	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-009-an-administrator-must-be-able-to-connect-a-registry-without-a-shell
+	 */
+	getStoreConfig() {
+		return axios.get(`${baseUrl}/api/store/config`)
+	},
+
+	/**
+	 * Write the dashboard registry connection. Admin-only on the server.
+	 *
+	 * Omit a key to leave it unchanged. Send `registryToken: ''` to clear the
+	 * token; any other string replaces it.
+	 *
+	 * @param {object} data Any of `registryUrl`, `registryRegister`, `registryToken`.
+	 * @return {Promise} Axios response resolving to the redacted connection.
+	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-009-an-administrator-must-be-able-to-connect-a-registry-without-a-shell
+	 */
+	updateStoreConfig(data) {
+		return axios.put(`${baseUrl}/api/store/config`, data)
+	},
+
+	/**
 	 * Persist changed instance-wide admin settings.
 	 *
 	 * @param {object} data Changed settings keys and their new values.

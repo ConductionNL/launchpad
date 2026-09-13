@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Admin settings",
     "Features & roadmap" : "Veçoritë dhe plani i zhvillimit",
     "Maximum dashboards per user" : "Numri maksimal i paneleve për përdorues",
     "Maximum widgets per dashboard" : "Numri maksimal i widget-eve për panel",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Lloji",
     "Version": "Versioni",
     "How many dashboards there are, and who they belong to.": "Sa panele ka dhe kujt i përkasin.",
-    "Store": "Dyqani",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instaloni regjistra, skema dhe rrjedha të publikuara nga organizata të tjera."
+    "Store": "Dyqani"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -7,7 +7,7 @@
  * validation), REQ-LIVETILE-003 (JSONPath-lite value extraction, TTL
  * cache hit, stale fallback, allow-list fail-closed at fetch time),
  * REQ-LIVETILE-004 (formatting, threshold badge), and REQ-LIVETILE-005
- * (connector-absent capability probe, no static OpenConnector import).
+ * (connector-absent capability probe, no static Integriq import).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Service
@@ -126,6 +126,33 @@ class LiveTileServiceTest extends TestCase {
 		$placement->setContentArray($config);
 		return $placement;
 	}//end placementWithConfig()
+
+	/**
+	 * Present the connector leaf under exactly ONE installed id, the way a
+	 * real instance does.
+	 *
+	 * The rename means an instance answers to `integriq` OR `openconnector`,
+	 * never both, and `IAppManager::isInstalled()` on the other name returns
+	 * false rather than raising — which is precisely how a stale literal took
+	 * this integration dark without a log line. Mocking per-id keeps that
+	 * asymmetry in the test instead of flattening it to "true".
+	 *
+	 * @param string $installedId The id this fake instance registered.
+	 */
+	private function connectorInstalledAs(string $installedId): void {
+		$this->appManager->method('isInstalled')
+			->willReturnCallback(static fn (string $appId): bool => $appId === $installedId);
+		$this->appManager->method('isEnabledForUser')
+			->willReturnCallback(static fn (string $appId): bool => $appId === $installedId);
+	}//end connectorInstalledAs()
+
+	/**
+	 * No candidate id for the connector leaf is installed.
+	 */
+	private function connectorAbsent(): void {
+		$this->appManager->method('isInstalled')->willReturn(false);
+		$this->appManager->method('isEnabledForUser')->willReturn(false);
+	}//end connectorAbsent()
 
 	private function allowHost(string $host): void {
 		$this->appConfig->method('getValueString')->willReturn(json_encode([$host]));
@@ -426,7 +453,7 @@ class LiveTileServiceTest extends TestCase {
 	// -------------------------------------------------------------
 
 	public function testConnectorAbsentDegradesToNullStaleWithNoCache(): void {
-		$this->appManager->method('isEnabledForUser')->with('openconnector')->willReturn(false);
+		$this->connectorAbsent();
 		$placement = $this->placementWithConfig(id: 11, config: [
 			'sourceMode' => 'connector',
 			'sourceId' => 'src-1',
@@ -442,18 +469,54 @@ class LiveTileServiceTest extends TestCase {
 	}//end testConnectorAbsentDegradesToNullStaleWithNoCache()
 
 	public function testIsConnectorAvailableFalseWhenAppDisabled(): void {
-		$this->appManager->method('isEnabledForUser')->with('openconnector')->willReturn(false);
+		$this->connectorAbsent();
 		$this->assertFalse($this->service->isConnectorAvailable());
 	}//end testIsConnectorAvailableFalseWhenAppDisabled()
 
 	public function testIsConnectorAvailableTrueWhenAppEnabledAndServicePresent(): void {
-		$this->appManager->method('isEnabledForUser')->with('openconnector')->willReturn(true);
+		$this->connectorInstalledAs(installedId: 'integriq');
 		$this->container->method('has')->willReturn(true);
 		$this->assertTrue($this->service->isConnectorAvailable());
 	}//end testIsConnectorAvailableTrueWhenAppEnabledAndServicePresent()
 
+	/**
+	 * An instance still on the pre-rename release must resolve too.
+	 *
+	 * This is the half a plain literal cannot satisfy in either direction:
+	 * hardcoding `openconnector` breaks a migrated instance, hardcoding
+	 * `integriq` breaks this one, and both failures are silent.
+	 */
+	public function testIsConnectorAvailableTrueOnAnInstanceStillOnTheOldAppId(): void {
+		$this->connectorInstalledAs(installedId: 'openconnector');
+		$this->container->method('has')
+			->willReturnCallback(
+				static fn (string $id): bool => $id === 'OCA\OpenConnector\Service\Datasource\DashboardDatasourceService'
+			);
+
+		$this->assertTrue($this->service->isConnectorAvailable());
+	}//end testIsConnectorAvailableTrueOnAnInstanceStillOnTheOldAppId()
+
+	/**
+	 * The probe must ask for the class name the connector really ships.
+	 *
+	 * Pins the FQCN read out of integriq `development`: the container answers
+	 * only for that exact name, so a regression to the previous
+	 * `Service\DashboardDataSourceService` — an extra namespace segment short
+	 * and a capital `S` out — reddens here instead of degrading to an empty
+	 * tile in production.
+	 */
+	public function testProbeAsksForTheConnectorsRealServiceClass(): void {
+		$this->connectorInstalledAs(installedId: 'integriq');
+		$this->container->method('has')
+			->willReturnCallback(
+				static fn (string $id): bool => $id === 'OCA\Integriq\Service\Datasource\DashboardDatasourceService'
+			);
+
+		$this->assertTrue($this->service->isConnectorAvailable());
+	}//end testProbeAsksForTheConnectorsRealServiceClass()
+
 	public function testValidateSourceConfigFlagsConnectorUnavailable(): void {
-		$this->appManager->method('isEnabledForUser')->willReturn(false);
+		$this->connectorAbsent();
 
 		$errors = $this->service->validateSourceConfig(config: [
 			'sourceMode' => 'connector',
@@ -463,13 +526,22 @@ class LiveTileServiceTest extends TestCase {
 		$this->assertContains('connector_unavailable', $errors);
 	}//end testValidateSourceConfigFlagsConnectorUnavailable()
 
+	/**
+	 * The fake below mirrors the REAL surface of
+	 * `OCA\Integriq\Service\Datasource\DashboardDatasourceService::resolve()`
+	 * as read off integriq `development` — name, parameters and the
+	 * `{value, fetchedAt, stale}` return shape. The previous fake declared
+	 * `resolveDashboardValue()`, a method that has never existed in that
+	 * app's history, so this test passed against a contract nothing on the
+	 * other side implements.
+	 */
 	public function testResolvesViaConnectorWhenAvailable(): void {
-		$this->appManager->method('isEnabledForUser')->with('openconnector')->willReturn(true);
+		$this->connectorInstalledAs(installedId: 'integriq');
 		$this->container->method('has')->willReturn(true);
 
 		$connectorService = new class {
-			public function resolveDashboardValue(string $sourceId, string $valueExpr): array {
-				return ['value' => 77];
+			public function resolve(string $sourceId, string $valueExpr, array $params = [], ?int $ttl = null): array {
+				return ['value' => 77, 'fetchedAt' => '2026-09-09T12:00:00+00:00', 'stale' => false];
 			}
 		};
 		$this->container->method('get')->willReturn($connectorService);

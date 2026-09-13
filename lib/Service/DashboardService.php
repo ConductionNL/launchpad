@@ -937,7 +937,8 @@ class DashboardService {
 				dashboardUuid: $uuid,
 				ownerUserId:   $resolvedOwnerId,
 				type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
-				deletedAt:     new DateTimeImmutable()
+				deletedAt:     new DateTimeImmutable(),
+				dashboardId:   $dashboard->getId()
 			)
 		);
 	}//end dispatchDashboardDeleted()
@@ -1200,7 +1201,8 @@ class DashboardService {
 					dashboardUuid: $deletedUuid,
 					ownerUserId:   $actorUserId,
 					type:          (string)($dashboard->getType() ?? Dashboard::TYPE_GROUP_SHARED),
-					deletedAt:     new DateTimeImmutable()
+					deletedAt:     new DateTimeImmutable(),
+					dashboardId:   $dashboard->getId()
 				)
 			);
 		}

@@ -41,15 +41,17 @@
 import type { APIRequestContext, Page } from '@playwright/test'
 
 import { expect, request, test } from '@playwright/test'
+import { BASE_URL } from './support/baseUrl.ts'
 
 const ADMIN = {
 	user: process.env.ADMIN_USER ?? process.env.NC_ADMIN_USER ?? 'admin',
 	pass: process.env.ADMIN_PASSWORD ?? process.env.NC_ADMIN_PASS ?? 'admin',
 }
-const ENV_BASE_URL = (process.env.BASE_URL ?? process.env.NC_BASE_URL ?? '').replace(
-	/\/$/,
-	'',
-)
+// Through the shared resolver, not a private read of `BASE_URL`. That read
+// ignored `PLAYWRIGHT_BASE_URL`, the variable tests/e2e/support/baseUrl.ts
+// documents, so a local run that set only it failed here with `Invalid URL`.
+// CI exports `BASE_URL`, which the resolver still honours.
+const ENV_BASE_URL = BASE_URL
 
 const APP_URL = '/index.php/apps/launchpad'
 const SETTINGS = '/index.php/apps/launchpad/api/admin/settings'

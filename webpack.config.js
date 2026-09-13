@@ -32,7 +32,19 @@ webpackConfig.resolve = {
 		// Deduplicate shared packages so the aliased library source uses
 		// the same instances as the app (prevents dual-Pinia / dual-Vue bugs).
 		vue$: path.resolve(__dirname, 'node_modules/vue'),
-		pinia$: path.resolve(__dirname, 'node_modules/pinia'),
+		// pinia 4 JOINED THE ESM-ONLY CATEGORY DESCRIBED JUST BELOW. 2.1.7
+		// declared `main: index.js` and `module: dist/pinia.mjs`, so a
+		// directory alias resolved; 4.0.3 declares NEITHER, only an `exports`
+		// map of `{".": "./dist/pinia.js"}`. The directory alias then bypasses
+		// `exports`, finds no main/index, and resolves to nothing — and because
+		// webpack names the ISSUER, the error reads
+		//
+		//     Can't resolve 'pinia' in
+		//       node_modules/@conduction/nextcloud-vue/dist/esm/composables
+		//
+		// which looks like a broken shared library rather than a stale line
+		// here. Same shape as the `@nextcloud/axios` alias that broke on 2.6.0.
+		pinia$: path.resolve(__dirname, 'node_modules/pinia/dist/pinia.js'),
 		// @nextcloud/vue@9 and @nextcloud/dialogs@7 (the Vue-3 lines) are
 		// ESM-only: no `main`/`module`, just an `exports` map with a single
 		// "import" condition. Aliasing to the package DIRECTORY (as before)

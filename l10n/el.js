@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Ρυθμίσεις διαχείρισης",
     "Features & roadmap" : "Λειτουργίες και οδικός χάρτης",
     "Maximum dashboards per user" : "Μέγιστος αριθμός πινάκων ανά χρήστη",
     "Maximum widgets per dashboard" : "Μέγιστος αριθμός widget ανά πίνακα",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Είδος",
     "Version": "Έκδοση",
     "How many dashboards there are, and who they belong to.": "Πόσοι πίνακες υπάρχουν και σε ποιον ανήκουν.",
-    "Store": "Κατάστημα",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Εγκαταστήστε μητρώα, σχήματα και ροές που έχουν δημοσιεύσει άλλοι οργανισμοί."
+    "Store": "Κατάστημα"
 },
 "nplurals=2; plural=(n != 1);"
 );

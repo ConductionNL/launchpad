@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Nastavenia administrácie",
     "Features & roadmap" : "Funkcie a plán vývoja",
     "Maximum dashboards per user" : "Maximálny počet dashboardov na používateľa",
     "Maximum widgets per dashboard" : "Maximálny počet widgetov na dashboard",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Druh",
     "Version": "Verzia",
     "How many dashboards there are, and who they belong to.": "Koľko je prehľadov a komu patria.",
-    "Store": "Obchod",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Nainštalujte registre, schémy a toky zverejnené inými organizáciami."
+    "Store": "Obchod"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

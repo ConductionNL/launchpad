@@ -1,5 +1,6 @@
 {
     "translations": {
+        "Admin settings": "Stillingar stjórnunar",
         "Maximum dashboards per user": "Hámarksfjöldi mælaborða á notanda",
         "Maximum widgets per dashboard": "Hámarksfjöldi viðmótshluta á mælaborð",
         "0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.": "0 = ótakmarkað. Lækkun á mörkum eyðir aldrei núverandi mælaborðum; hún hindrar aðeins ný þar til notendur eru aftur undir mörkunum.",
@@ -1089,7 +1090,6 @@
         "Kind": "Tegund",
         "Version": "Útgáfa",
         "How many dashboards there are, and who they belong to.": "Hversu mörg mælaborð eru til og hverjum þau tilheyra.",
-        "Store": "Verslun",
-        "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Settu upp skrár, skemu og flæði sem aðrar stofnanir hafa birt."
+        "Store": "Verslun"
     }
 }

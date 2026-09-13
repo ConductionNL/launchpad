@@ -202,7 +202,8 @@ class UserDeletedListener implements IEventListener {
 							dashboardUuid: $deletedUuid,
 							ownerUserId:   $deletedUserId,
 							type:          (string)($dashboard->getType() ?? Dashboard::TYPE_USER),
-							deletedAt:     new DateTimeImmutable()
+							deletedAt:     new DateTimeImmutable(),
+							dashboardId:   $dashboardId
 						)
 					);
 				}

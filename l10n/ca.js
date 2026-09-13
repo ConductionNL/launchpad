@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Paràmetres d'administració",
     "Features & roadmap" : "Funcions i full de ruta",
     "Maximum dashboards per user" : "Màxim de taulers per usuari",
     "Maximum widgets per dashboard" : "Màxim de ginys per tauler",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Tipus",
     "Version": "Versió",
     "How many dashboards there are, and who they belong to.": "Quants taulers hi ha i a qui pertanyen.",
-    "Store": "Botiga",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Instal·leu registres, esquemes i fluxos publicats per altres organitzacions."
+    "Store": "Botiga"
 },
 "nplurals=2; plural=(n != 1);"
 );

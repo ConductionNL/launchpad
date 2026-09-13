@@ -1,6 +1,7 @@
 OC.L10N.register(
     "launchpad",
     {
+    "Admin settings" : "Admin settings",
     "Features & roadmap" : "Funcziuns e plan da svilup",
     "Maximum dashboards per user" : "Maximum da dashboards per utilisader",
     "Maximum widgets per dashboard" : "Maximum da widgets per dashboard",
@@ -1122,8 +1123,7 @@ OC.L10N.register(
     "Kind": "Gener",
     "Version": "Versiun",
     "How many dashboards there are, and who they belong to.": "Quants panels ch'i dat e tgi ch'els appartegnan.",
-    "Store": "Butia",
-    "Install dashboard configurations that other organisations have published: a set of tiles, a layout, or the flows behind them.": "Installescha registers, schemas e process ch'autras organisaziuns han publitgà."
+    "Store": "Butia"
 },
 "nplurals=2; plural=(n != 1);"
 );

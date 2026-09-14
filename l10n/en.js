@@ -1101,7 +1101,20 @@ OC.L10N.register(
     "AI insight" : "AI insight",
     "AI insight unavailable — the local LLM source is not configured" : "AI insight unavailable — the local LLM source is not configured",
     "Generate insight" : "Generate insight",
-    "Total spend: {amount}" : "Total spend: {amount}"
+    "Total spend: {amount}" : "Total spend: {amount}",
+    "Integrations" : "Integrations",
+    "Connection" : "Connection",
+    "Status" : "Status",
+    "Status message" : "Status message",
+    "Last checked" : "Last checked",
+    "All connections" : "All connections",
+    "Add integration" : "Add integration",
+    "Open settings" : "Open settings",
+    "Configured" : "Configured",
+    "Limited" : "Limited",
+    "Not configured" : "Not configured",
+    "Simulated" : "Simulated",
+    "Error" : "Error"
 },
 "nplurals=2; plural=(n != 1);"
 );

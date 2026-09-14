@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Druh",
     "Version": "Verze",
     "How many dashboards there are, and who they belong to.": "Kolik je přehledů a komu patří.",
-    "Store": "Obchod"
+    "Store": "Obchod",
+    "Integrations" : "Integrace",
+    "Connection" : "Připojení",
+    "Status" : "Stav",
+    "Status message" : "Zpráva o stavu",
+    "Last checked" : "Naposledy zkontrolováno",
+    "All connections" : "Všechna připojení",
+    "Add integration" : "Přidat integraci",
+    "Open settings" : "Otevřít nastavení",
+    "Configured" : "Nastaveno",
+    "Limited" : "Omezeno",
+    "Not configured" : "Nenastaveno",
+    "Simulated" : "Simulováno",
+    "Error" : "Chyba"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Laji",
     "Version": "Versio",
     "How many dashboards there are, and who they belong to.": "Kuinka monta koontinäyttöä on ja kenelle ne kuuluvat.",
-    "Store": "Kauppa"
+    "Store": "Kauppa",
+    "Integrations" : "Integraatiot",
+    "Connection" : "Yhteys",
+    "Status" : "Tila",
+    "Status message" : "Tilaviesti",
+    "Last checked" : "Viimeksi tarkistettu",
+    "All connections" : "Kaikki yhteydet",
+    "Add integration" : "Lisää integraatio",
+    "Open settings" : "Avaa asetukset",
+    "Configured" : "Määritetty",
+    "Limited" : "Rajoitettu",
+    "Not configured" : "Ei määritetty",
+    "Simulated" : "Simuloitu",
+    "Error" : "Virhe"
 },
 "nplurals=2; plural=(n != 1);"
 );

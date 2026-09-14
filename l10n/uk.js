@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Вид",
     "Version": "Версія",
     "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать.",
-    "Store": "Магазин"
+    "Store": "Магазин",
+    "Integrations" : "Інтеграції",
+    "Connection" : "Підключення",
+    "Status" : "Статус",
+    "Status message" : "Повідомлення про статус",
+    "Last checked" : "Остання перевірка",
+    "All connections" : "Усі підключення",
+    "Add integration" : "Додати інтеграцію",
+    "Open settings" : "Відкрити налаштування",
+    "Configured" : "Налаштовано",
+    "Limited" : "Обмежено",
+    "Not configured" : "Не налаштовано",
+    "Simulated" : "Змодельовано",
+    "Error" : "Помилка"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

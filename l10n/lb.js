@@ -1114,7 +1114,20 @@ OC.L10N.register(
     "Kind": "Aart",
     "Version": "Versioun",
     "How many dashboards there are, and who they belong to.": "Wéi vill Dashboards et gëtt a wiem se gehéieren.",
-    "Store": "Buttek"
+    "Store": "Buttek",
+    "Integrations" : "Integratiounen",
+    "Connection" : "Verbindung",
+    "Status" : "Status",
+    "Status message" : "Statusmeldung",
+    "Last checked" : "Lescht gepréift",
+    "All connections" : "All Verbindungen",
+    "Add integration" : "Integratioun derbäisetzen",
+    "Open settings" : "Astellungen opmaachen",
+    "Configured" : "Konfiguréiert",
+    "Limited" : "Limitéiert",
+    "Not configured" : "Net konfiguréiert",
+    "Simulated" : "Simuléiert",
+    "Error" : "Feeler"
 },
 "nplurals=2; plural=(n != 1);"
 );

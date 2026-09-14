@@ -1091,6 +1091,19 @@
         "Kind": "Вид",
         "Version": "Версія",
         "How many dashboards there are, and who they belong to.": "Скільки є дашбордів і кому вони належать.",
-        "Store": "Магазин"
+        "Store": "Магазин",
+        "Integrations": "Інтеграції",
+        "Connection": "Підключення",
+        "Status": "Статус",
+        "Status message": "Повідомлення про статус",
+        "Last checked": "Остання перевірка",
+        "All connections": "Усі підключення",
+        "Add integration": "Додати інтеграцію",
+        "Open settings": "Відкрити налаштування",
+        "Configured": "Налаштовано",
+        "Limited": "Обмежено",
+        "Not configured": "Не налаштовано",
+        "Simulated": "Змодельовано",
+        "Error": "Помилка"
     }
 }

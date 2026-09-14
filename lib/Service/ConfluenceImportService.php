@@ -462,6 +462,14 @@ class ConfluenceImportService {
 		$placement->setShowTitle(1);
 		$placement->setSortOrder(0);
 
+		// `created_at` and `updated_at` are NOT NULL with no default. Without
+		// these two lines every page's placement insert failed with SQLSTATE
+		// 23502, the page rolled back, and the import reported it as skipped:
+		// the same defect #612 fixed in ImportService.
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$placement->setCreatedAt($now);
+		$placement->setUpdatedAt($now);
+
 		$placement->setStyleConfigArray(
 			config: [
 				'text' => '',

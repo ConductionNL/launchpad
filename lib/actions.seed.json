@@ -1,7 +1,7 @@
 {
   "$comment": "ADR-023 action matrix seed for launchpad. Administrative actions are admin-only; the ordinary end-user surface carries the \"@all\" sentinel (every authenticated user) so a fresh install is usable by non-admins. Every \"@all\" action below is still gated per object by PermissionService (ownership / share level / group membership) — \"@all\" grants the right to CALL the endpoint, never the right to touch someone else's dashboard. Narrow or broaden via Admin Settings > LaunchPad > Action authorization.",
   "actions": {
-    "admin.get-my-role": ["admin"],
+    "admin.get-my-role": ["admin", "@all"],
     "admin-org-navigation.get-org-navigation": ["admin"],
     "admin-org-navigation.get-position": ["admin"],
     "analytics.top-dashboards": ["admin"],

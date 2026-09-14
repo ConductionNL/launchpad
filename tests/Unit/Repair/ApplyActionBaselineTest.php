@@ -211,4 +211,68 @@ class ApplyActionBaselineTest extends TestCase {
 			$written['dashboard.list']
 		);
 	}//end testMissingEntryIsSeededWithTheBaseline()
+	/**
+	 * REQ-ROLE-006: an instance that already applied baseline v1 receives
+	 * `admin.get-my-role` from v2, so `GET /api/me/role` stops answering 403
+	 * to every non-admin — the only users it exists for.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV1GainsTheOwnRoleLookup(): void {
+		$this->appConfig->method('getValueInt')->willReturn(1);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'admin.get-my-role' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth
+			->expects($this->once())
+			->method('setMatrix')
+			->willReturnCallback(
+				function (array $matrix) use (&$written) {
+					$written = $matrix;
+				}
+			);
+
+		$this->step->run($this->output);
+
+		$this->assertIsArray($written, 'v2 must rewrite the matrix for an instance at v1');
+		$this->assertArrayHasKey('admin.get-my-role', $written);
+		$this->assertContains(
+			ActionAuthService::GROUP_ALL_USERS,
+			$written['admin.get-my-role'],
+			'the own-role lookup must be open to every signed-in user after v2'
+		);
+	}//end testAnInstanceAtV1GainsTheOwnRoleLookup()
+
+	/**
+	 * An instance at v1 is NOT re-broadened wholesale. An action an admin has
+	 * since set back to admin-only looks exactly like the pristine default;
+	 * re-applying the whole baseline would overrule that decision, so v2
+	 * touches only what it added.
+	 *
+	 * @return void
+	 */
+	public function testAnInstanceAtV1KeepsAnAdminsLaterRestriction(): void {
+		$this->appConfig->method('getValueInt')->willReturn(1);
+		$this->actionAuth->method('getMatrix')->willReturn([
+			'dashboard.create' => ['admin'],
+			'admin.get-my-role' => ['admin'],
+		]);
+
+		$written = null;
+		$this->actionAuth->method('setMatrix')->willReturnCallback(
+			function (array $matrix) use (&$written) {
+				$written = $matrix;
+			}
+		);
+
+		$this->step->run($this->output);
+
+		$this->assertSame(
+			['admin'],
+			$written['dashboard.create'],
+			'an admin-only restriction made after v1 must survive the v2 upgrade'
+		);
+	}//end testAnInstanceAtV1KeepsAnAdminsLaterRestriction()
 }//end class

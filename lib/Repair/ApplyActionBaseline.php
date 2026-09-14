@@ -67,7 +67,28 @@ class ApplyActionBaseline implements IRepairStep {
 	 * The baseline revision this build ships. Bump when the shipped
 	 * baseline changes AND the change should reach existing instances.
 	 */
-	private const BASELINE_VERSION = 1;
+	private const BASELINE_VERSION = 2;
+
+	/**
+	 * Actions each revision ADDED to the baseline, keyed by revision.
+	 *
+	 * An instance that already applied an earlier revision only receives
+	 * what later revisions added. Re-applying the whole baseline would
+	 * re-broaden every action an admin has since set back to admin-only,
+	 * because such an entry looks exactly like the pristine default; that
+	 * would overrule a deliberate decision, so later revisions list their
+	 * additions instead.
+	 *
+	 * v2: `admin.get-my-role`. `GET /api/me/role` exists so a user can learn
+	 * their own LaunchPad role (REQ-ROLE-006: "any authenticated user"), and
+	 * it was seeded admin-only, so every user it exists for got HTTP 403. It
+	 * returns only the caller's own role, so opening it widens nothing.
+	 *
+	 * @var array<int, array<int, string>>
+	 */
+	private const REVISION_ADDITIONS = [
+		2 => ['admin.get-my-role'],
+	];
 
 	/**
 	 * Constructor.
@@ -119,7 +140,7 @@ class ApplyActionBaseline implements IRepairStep {
 			return;
 		}
 
-		$baseline = $this->readBaseline();
+		$baseline = $this->baselineSince(applied: $applied, baseline: $this->readBaseline());
 		if (count($baseline) === 0) {
 			$output->warning(
 				'actions.seed.json unreadable or declares no baseline actions — matrix left unchanged.'
@@ -186,6 +207,32 @@ class ApplyActionBaseline implements IRepairStep {
 		);
 
 	}//end run()
+
+	/**
+	 * Narrow the baseline to what an instance at `$applied` has not had yet.
+	 *
+	 * A fresh instance (revision 0) takes the whole baseline. An instance at
+	 * an earlier revision takes only the actions later revisions added.
+	 *
+	 * @param int                               $applied  The revision already applied.
+	 * @param array<string, array<int, string>> $baseline The full baseline.
+	 *
+	 * @return array<string, array<int, string>> The part still to apply.
+	 */
+	private function baselineSince(int $applied, array $baseline): array {
+		if ($applied === 0) {
+			return $baseline;
+		}
+
+		$added = [];
+		foreach (self::REVISION_ADDITIONS as $revision => $actions) {
+			if ($revision > $applied) {
+				$added = array_merge($added, $actions);
+			}
+		}
+
+		return array_intersect_key($baseline, array_flip($added));
+	}//end baselineSince()
 
 	/**
 	 * Read the baseline entries from the shipped seed.

@@ -141,3 +141,38 @@ describe('widgetRegistry — LaunchPad overlay', () => {
 		expect(seen, 'displayName should pass through the t() helper').not.toBeNull()
 	})
 })
+
+/**
+ * `news` moved out of nc-vue into LaunchPad: the communal renderer could only
+ * read an `itemsEndpoint` that no other app supplies, while the feeds it names
+ * are fetched and cached here. These pin that the registry resolves LaunchPad's
+ * own components, not the communal ones.
+ */
+describe('widgetRegistry — news is LaunchPad-owned', () => {
+	it('resolves the news renderer and form to LaunchPad components', async () => {
+		const { getWidgetTypeEntry } = await import('../widgetRegistry.js')
+		const entry = getWidgetTypeEntry('news')
+		expect(entry).toBeTruthy()
+		expect(entry.renderer?.name).toBe('NewsWidget')
+		expect(entry.form?.name).toBe('NewsWidgetForm')
+	})
+
+	it('keeps the content shape a pre-move placement was authored with', async () => {
+		const { getDefaultContent } = await import('../widgetRegistry.js')
+		expect(getDefaultContent('news')).toEqual({
+			feedUrls: [],
+			layout: 'list',
+			itemLimit: 10,
+			showThumbnails: true,
+			showSummary: true,
+			summaryMaxChars: 200,
+			dateFormat: 'relative',
+			metadataFilter: null,
+		})
+	})
+
+	it('still offers news in the type picker', async () => {
+		const { listWidgetTypes } = await import('../widgetRegistry.js')
+		expect(listWidgetTypes()).toContain('news')
+	})
+})

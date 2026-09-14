@@ -2542,13 +2542,6 @@ class DashboardService {
 	}//end findFirstGroupSharedWhere()
 
 	/**
-	 * Try to create a dashboard from a template or empty.
-	 *
-	 * @param string $userId The user ID.
-	 *
-	 * @return array|null The dashboard result or null.
-	 */
-	/**
 	 * A root slug for this user's auto-provisioned dashboard that no sibling holds.
 	 *
 	 * Root slugs share one namespace across every owner, so 'my-dashboard'
@@ -2582,6 +2575,13 @@ class DashboardService {
 		return ($base . '-' . bin2hex(random_bytes(6)));
 	}//end uniqueRootSlugFor()
 
+	/**
+	 * Try to create a dashboard from a template or empty.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The dashboard result or null.
+	 */
 	private function tryCreateFromTemplate(string $userId): ?array {
 		$allowUserDashboards = $this->getAllowUserDashboards();
 

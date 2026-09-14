@@ -27,10 +27,7 @@
 				×
 			</button>
 		</div>
-		<button
-			type="button"
-			class="news-widget-form__feed-add"
-			@click="addFeedUrl">
+		<button type="button" class="news-widget-form__feed-add" @click="addFeedUrl">
 			+ {{ t('launchpad', 'Add feed URL') }}
 		</button>
 
@@ -65,7 +62,9 @@
 			:modelValue="String(summaryMaxChars)"
 			type="number"
 			:label="t('launchpad', 'Summary max characters')"
-			@update:modelValue="updateNumericField('summaryMaxChars', $event, 0, 5000)" />
+			@update:modelValue="
+				updateNumericField('summaryMaxChars', $event, 0, 5000)
+			" />
 
 		<NcSelect
 			:modelValue="dateFormat"
@@ -168,15 +167,39 @@ export default {
 		const hasFilter = filter !== null && typeof filter === 'object'
 		return {
 			feedUrls: Array.isArray(initial.feedUrls) ? [...initial.feedUrls] : [],
-			layout: ALLOWED_LAYOUTS.includes(initial.layout) ? initial.layout : DEFAULT_CONTENT.layout,
-			itemLimit: typeof initial.itemLimit === 'number' ? initial.itemLimit : DEFAULT_CONTENT.itemLimit,
-			showThumbnails: initial.showThumbnails === undefined ? DEFAULT_CONTENT.showThumbnails : initial.showThumbnails === true,
-			showSummary: initial.showSummary === undefined ? DEFAULT_CONTENT.showSummary : initial.showSummary === true,
-			summaryMaxChars: typeof initial.summaryMaxChars === 'number' ? initial.summaryMaxChars : DEFAULT_CONTENT.summaryMaxChars,
+			layout: ALLOWED_LAYOUTS.includes(initial.layout)
+				? initial.layout
+				: DEFAULT_CONTENT.layout,
+
+			itemLimit:
+				typeof initial.itemLimit === 'number'
+					? initial.itemLimit
+					: DEFAULT_CONTENT.itemLimit,
+
+			showThumbnails:
+				initial.showThumbnails === undefined
+					? DEFAULT_CONTENT.showThumbnails
+					: initial.showThumbnails === true,
+
+			showSummary:
+				initial.showSummary === undefined
+					? DEFAULT_CONTENT.showSummary
+					: initial.showSummary === true,
+
+			summaryMaxChars:
+				typeof initial.summaryMaxChars === 'number'
+					? initial.summaryMaxChars
+					: DEFAULT_CONTENT.summaryMaxChars,
+
 			dateFormat: initial.dateFormat === 'absolute' ? 'absolute' : 'relative',
 			metadataFilterEnabled: hasFilter,
-			metadataFieldKey: hasFilter && typeof filter.fieldKey === 'string' ? filter.fieldKey : '',
-			metadataValue: hasFilter && typeof filter.value === 'string' ? filter.value : '',
+			metadataFieldKey:
+				hasFilter && typeof filter.fieldKey === 'string'
+					? filter.fieldKey
+					: '',
+
+			metadataValue:
+				hasFilter && typeof filter.value === 'string' ? filter.value : '',
 		}
 	},
 
@@ -185,6 +208,7 @@ export default {
 		 * The layout dropdown options.
 		 *
 		 * @return {Array<{value: string, label: string}>} the options.
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		layoutOptions() {
 			return [
@@ -198,11 +222,18 @@ export default {
 		 * The date-format dropdown options.
 		 *
 		 * @return {Array<{value: string, label: string}>} the options.
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		dateFormatOptions() {
 			return [
-				{ value: 'relative', label: t('launchpad', 'Relative (2 hours ago)') },
-				{ value: 'absolute', label: t('launchpad', 'Absolute (2026-05-01 14:30)') },
+				{
+					value: 'relative',
+					label: t('launchpad', 'Relative (2 hours ago)'),
+				},
+				{
+					value: 'absolute',
+					label: t('launchpad', 'Absolute (2026-05-01 14:30)'),
+				},
 			]
 		},
 
@@ -210,6 +241,7 @@ export default {
 		 * The assembled `content` payload emitted to the parent.
 		 *
 		 * @return {object} the content blob.
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		assembledContent() {
 			const filter = this.metadataFilterEnabled
@@ -233,6 +265,7 @@ export default {
 		 * Emit `update:content` with the current assembled payload.
 		 *
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		emitUpdate() {
 			this.$emit('update:content', this.assembledContent)
@@ -244,6 +277,7 @@ export default {
 		 * @param {string} field the field name.
 		 * @param {string|boolean} value the new value.
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		updateField(field, value) {
 			this[field] = value
@@ -258,6 +292,7 @@ export default {
 		 * @param {number} min the lower bound.
 		 * @param {number} max the upper bound.
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		updateNumericField(field, value, min, max) {
 			const parsed = parseInt(value, 10)
@@ -275,6 +310,7 @@ export default {
 		 * @param {number} index the feed index.
 		 * @param {string} value the new URL.
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		updateFeedUrl(index, value) {
 			this.feedUrls[index] = value
@@ -285,6 +321,7 @@ export default {
 		 * Append an empty feed URL row, then emit.
 		 *
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		addFeedUrl() {
 			this.feedUrls.push('')
@@ -296,6 +333,7 @@ export default {
 		 *
 		 * @param {number} index the feed index.
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		removeFeedUrl(index) {
 			this.feedUrls.splice(index, 1)
@@ -307,6 +345,7 @@ export default {
 		 *
 		 * @param {boolean} enabled the new enabled state.
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		toggleMetadataFilter(enabled) {
 			this.metadataFilterEnabled = enabled
@@ -319,6 +358,7 @@ export default {
 		 * @param {string} field `'fieldKey'` or `'value'`.
 		 * @param {string} value the new value.
 		 * @return {void}
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		updateMetadataField(field, value) {
 			if (field === 'fieldKey') {
@@ -333,21 +373,34 @@ export default {
 		 * Validate that every feed URL is http(s). An empty list is allowed.
 		 *
 		 * @return {string[]} the validation errors (empty when valid).
+		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		validate() {
 			const errors = []
 			for (const url of this.feedUrls) {
 				if (typeof url !== 'string' || url.trim() === '') {
-					errors.push(t('launchpad', 'Empty feed URL — remove it or fill it in'))
+					errors.push(
+						t('launchpad', 'Empty feed URL — remove it or fill it in'),
+					)
 					continue
 				}
 				if (!/^https?:\/\//i.test(url.trim())) {
-					errors.push(t('launchpad', 'Feed URL must start with http:// or https://'))
+					errors.push(
+						t(
+							'launchpad',
+							'Feed URL must start with http:// or https://',
+						),
+					)
 				}
 			}
 			if (this.metadataFilterEnabled) {
 				if (this.metadataFieldKey.trim() === '') {
-					errors.push(t('launchpad', 'Metadata field key is required when filter is enabled'))
+					errors.push(
+						t(
+							'launchpad',
+							'Metadata field key is required when filter is enabled',
+						),
+					)
 				}
 			}
 			return errors

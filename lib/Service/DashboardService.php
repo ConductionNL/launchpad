@@ -486,28 +486,7 @@ class DashboardService {
 			return $result;
 		}
 
-		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
-		// REQ-RFP-002 says a new user is seeded from their group's
-		// RoleLayoutDefault rows. Since #361 seeds one `default`
-		// group-shared dashboard on install, the step below matched for
-		// EVERY new user, so `tryCreateFromTemplate()` at the end of this
-		// method never ran and no role layout was ever seeded. Measured on a
-		// fresh instance: a user in a group with layout defaults resolved to
-		// the shared `default` dashboard and owned nothing.
-		//
-		// Narrow on purpose: only an instance that configured role layout
-		// defaults for one of this user's groups takes the new path, and
-		// `tryCreateFromTemplate()` still answers null when personal
-		// dashboards are switched off, which falls through to the old
-		// behaviour.
-		if ($this->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
-			$result = $this->tryCreateFromTemplate(userId: $userId);
-			if ($result !== null) {
-				return $result;
-			}
-		}
-
-		$result = $this->resolveDefaultGroupDashboard(userId: $userId);
+		$result = $this->resolveRoleLayoutOrDefaultGroupDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
@@ -530,6 +509,44 @@ class DashboardService {
 
 		return $this->tryCreateFromTemplate(userId: $userId);
 	}//end getEffectiveDashboard()
+
+	/**
+	 * The user's role layout when their groups carry one, else the instance default.
+	 *
+	 * Kept out of getEffectiveDashboard() so that method takes this as one
+	 * step: inline, the extra branches put it over phpmd's NPath threshold.
+	 *
+	 * @param string $userId The user to resolve for.
+	 *
+	 * @return array|null The built dashboard result, or null when neither exists.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function resolveRoleLayoutOrDefaultGroupDashboard(string $userId): ?array {
+		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
+		// REQ-RFP-002 says a new user is seeded from their group's
+		// RoleLayoutDefault rows. Since #361 seeds one `default`
+		// group-shared dashboard on install, the default group step matched
+		// for EVERY new user, so `tryCreateFromTemplate()` at the end of
+		// getEffectiveDashboard() never ran and no role layout was ever
+		// seeded. Measured on a fresh instance: a user in a group with layout
+		// defaults resolved to the shared `default` dashboard and owned
+		// nothing.
+		//
+		// Narrow on purpose: only an instance that configured role layout
+		// defaults for one of this user's groups takes the new path, and
+		// `tryCreateFromTemplate()` still answers null when personal
+		// dashboards are switched off, which falls through to the old
+		// behaviour.
+		if ($this->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
+			$result = $this->tryCreateFromTemplate(userId: $userId);
+			if ($result !== null) {
+				return $result;
+			}
+		}
+
+		return $this->resolveDefaultGroupDashboard(userId: $userId);
+	}//end resolveRoleLayoutOrDefaultGroupDashboard()
 
 	/**
 	 * Resolve an instance-wide dashboard on the reserved `default` group.
@@ -2618,7 +2635,7 @@ class DashboardService {
 			// The dependency is nullable to keep legacy PHPUnit doubles (built
 			// before role-based-content shipped) working — when null we treat
 			// it as "no defaults seeded" so the legacy hardcoded fallback runs.
-			$seeded = false;
+			$seeded = 0;
 			if ($this->roleFeaturePerm !== null) {
 				$seeded = $this->roleFeaturePerm->seedLayoutFromRoleDefaults(
 					userId: $userId,
@@ -2629,6 +2646,7 @@ class DashboardService {
 			// The comment above says the hardcoded pair is a FALLBACK, and it
 			// was not: it was created on every path, so a role-seeded layout
 			// came out carrying the role defaults AND tile/tile/tile/files.
+			$placements = [];
 			if ($seeded > 0) {
 				$placements = $this->placementMapper->findByDashboardId(
 					dashboardId: $dashboard->getId()

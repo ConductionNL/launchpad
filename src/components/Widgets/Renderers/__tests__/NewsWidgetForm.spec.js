@@ -105,4 +105,36 @@ describe('NewsWidgetForm', () => {
 		wrapper.vm.toggleMetadataFilter(false)
 		expect(wrapper.vm.assembledContent.metadataFilter).toBeNull()
 	})
+
+	describe('validate()', () => {
+		it('passes with no feed URLs and no metadata filter', () => {
+			const wrapper = mountForm()
+			expect(wrapper.vm.validate()).toEqual([])
+		})
+
+		it('rejects an empty feed URL row', () => {
+			const wrapper = mountForm()
+			wrapper.vm.addFeedUrl()
+			expect(wrapper.vm.validate()).toEqual([
+				'Empty feed URL — remove it or fill it in',
+			])
+		})
+
+		it('rejects a non-http(s) feed URL', () => {
+			const wrapper = mountForm()
+			wrapper.vm.addFeedUrl()
+			wrapper.vm.updateFeedUrl(0, 'ftp://example.com/feed.xml')
+			expect(wrapper.vm.validate()).toEqual([
+				'Feed URL must start with http:// or https://',
+			])
+		})
+
+		it('rejects a blank metadata field key when the filter is enabled', () => {
+			const wrapper = mountForm()
+			wrapper.vm.toggleMetadataFilter(true)
+			expect(wrapper.vm.validate()).toEqual([
+				'Metadata field key is required when filter is enabled',
+			])
+		})
+	})
 })

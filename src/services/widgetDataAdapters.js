@@ -113,7 +113,10 @@ export function buildWidgetDataProvide(getPlacementId) {
  *
  * @param {string} widgetId the placement widget type.
  * @return {object} extra props to v-bind onto the renderer (empty for most types).
- * @spec openspec/specs/news-widget/spec.md#requirement-req-news-003-fetch-and-merge-feed-items
+ * @spec exclude wiring-only prop mapping — the only case is Files' `apiBase`, which
+ * carries no widget-specific requirement of its own; news now fetches via its own
+ * prop rather than an extra prop, so REQ-NEWS-003 coverage lives on
+ * NewsWidget.loadItems() instead.
  */
 export function buildRendererExtraProps(widgetId) {
 	if (widgetId === 'files') {

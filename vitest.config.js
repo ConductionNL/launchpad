@@ -60,7 +60,12 @@ module.exports = {
 		// overruns the 10s default hook timeout on a loaded machine — the
 		// symptom is "Hook timed out in 10000ms" with no assertion failure.
 		hookTimeout: 30000,
-		include: ['src/**/__tests__/**/*.spec.{js,ts}'],
+		// `tests/e2e/**/*.test.ts` is the second entry on purpose. The e2e
+		// suite's own Playwright specs are named `*.spec.ts` and are not
+		// matched here; only plain unit tests that live beside the e2e
+		// helpers are, such as the shared-instance guard, which is pure
+		// logic and needs no browser.
+		include: ['src/**/__tests__/**/*.spec.{js,ts}', 'tests/vitest/**/*.spec.ts'],
 		setupFiles: [path.resolve(__dirname, 'tests/vitest/setup.js')],
 		server: {
 			deps: {

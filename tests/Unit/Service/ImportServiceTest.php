@@ -258,6 +258,126 @@ class ImportServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-EXIM-004 "Invalid JSON in dashboard file skips that dashboard": the
+	 * error names the corrupt file.
+	 *
+	 * A file that is not valid JSON has no `uuid` to report, so it used to come
+	 * back as `uuid: ""` with "Missing required field: corrupt JSON payload",
+	 * which identified nothing. The entry name is its only identity, and the
+	 * file name is the exported UUID.
+	 *
+	 * @return void
+	 */
+	public function testACorruptDashboardFileIsNamedInTheError(): void {
+		$good = static fn (string $uuid): string => (string)json_encode(
+			value: ['uuid' => $uuid, 'name' => 'Good ' . $uuid, 'widgets' => []]
+		);
+		$zipPath = $this->makeZip(entries: [
+			'manifest.json' => (string)json_encode(value: ['schemaVersion' => 1, 'scope' => 'site']),
+			'dashboards/good-one.json' => $good('good-one'),
+			'dashboards/broken-uuid.json' => '{"uuid": "broken-uuid", "name": ',
+			'dashboards/good-two.json' => $good('good-two'),
+		]);
+
+		$this->dashboardMapper->method('findByUuid')
+			->willThrowException(exception: new DoesNotExistException(msg: 'no'));
+		$this->dashboardMapper->method('insert')->willReturnCallback(
+			static function (Dashboard $dashboard): Dashboard {
+				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+				$dashboard->setId(3);
+				return $dashboard;
+			}
+		);
+
+		try {
+			$result = $this->service->import(zipPath: $zipPath, preserveUuids: false, currentUserId: 'admin');
+		} finally {
+			@unlink(filename: $zipPath);
+		}
+
+		$this->assertSame(expected: 2, actual: $result['importedDashboardCount']);
+		$this->assertSame(expected: 1, actual: $result['skippedDashboardCount']);
+		$this->assertCount(expectedCount: 1, haystack: $result['errors']);
+		$this->assertSame(expected: 'broken-uuid', actual: $result['errors'][0]['uuid']);
+		$this->assertSame(
+			expected: 'dashboards/broken-uuid.json is not valid JSON',
+			actual: $result['errors'][0]['message']
+		);
+	}//end testACorruptDashboardFileIsNamedInTheError()
+
+	/**
+	 * REQ-EXIM-008 "Dashboard JSON missing required fields": the error names the
+	 * UUID the ARCHIVE used.
+	 *
+	 * With `preserveUuids=false` every dashboard is given a fresh UUID before
+	 * validation runs, so a skipped dashboard used to be reported under a UUID
+	 * this import had just invented — a row that does not exist, and a name the
+	 * admin cannot find in the file they uploaded. Found by the e2e that drives
+	 * the admin page.
+	 *
+	 * @return void
+	 */
+	public function testASkippedDashboardIsReportedUnderTheArchivesUuid(): void {
+		$zipPath = $this->makeZip(entries: [
+			'manifest.json' => (string)json_encode(value: ['schemaVersion' => 1, 'scope' => 'site']),
+			// No `name`, so validation skips it.
+			'dashboards/nameless.json' => (string)json_encode(
+				value: ['uuid' => 'archive-uuid', 'widgets' => []]
+			),
+		]);
+
+		$this->dashboardMapper->method('findByUuid')
+			->willThrowException(exception: new DoesNotExistException(msg: 'no'));
+
+		try {
+			$result = $this->service->import(zipPath: $zipPath, preserveUuids: false, currentUserId: 'admin');
+		} finally {
+			@unlink(filename: $zipPath);
+		}
+
+		$this->assertSame(expected: 1, actual: $result['skippedDashboardCount']);
+		$this->assertSame(
+			expected: 'archive-uuid',
+			actual: $result['errors'][0]['uuid'],
+			message: 'the error must name the UUID the archive used, not a remapped one'
+		);
+	}//end testASkippedDashboardIsReportedUnderTheArchivesUuid()
+
+	/**
+	 * REQ-EXIM-009 "Version mismatch does not corrupt existing data": an
+	 * archive from a newer LaunchPad tells the admin to upgrade, and a
+	 * nonsense version does not.
+	 *
+	 * @return void
+	 */
+	public function testAnArchiveFromANewerVersionSaysToUpgrade(): void {
+		$messageFor = function (int $version): string {
+			$zipPath = $this->makeZip(entries: [
+				'manifest.json' => (string)json_encode(value: ['schemaVersion' => $version, 'scope' => 'site']),
+			]);
+			try {
+				$this->service->import(zipPath: $zipPath, preserveUuids: false, currentUserId: 'admin');
+			} catch (InvalidArgumentException $e) {
+				return $e->getMessage();
+			} finally {
+				@unlink(filename: $zipPath);
+			}
+
+			return '(no exception)';
+		};
+
+		$this->assertSame(
+			expected: 'Unsupported manifest schema version: 2. Only version 1 is supported. '
+				. 'Upgrade LaunchPad to import archives of version 2.',
+			actual: $messageFor(2)
+		);
+		$this->assertSame(
+			expected: 'Unsupported manifest schema version: 0. Only version 1 is supported.',
+			actual: $messageFor(0)
+		);
+	}//end testAnArchiveFromANewerVersionSaysToUpgrade()
+
+	/**
 	 * REQ-EXIM-011: a corrupt widget JSON triggers a per-dashboard
 	 * rollback while sibling dashboards still import successfully.
 	 *

@@ -8,14 +8,12 @@
  * real delete path: `DashboardService::deleteDashboard()`, the real
  * dispatcher and the real cascade listeners, against a real database.
  *
- * ⚠️ THIS SKIPS IN CI, AND SAYS SO. It needs a live Nextcloud database, which
- * the bootstrap provides only with `PHPUNIT_USE_NC_BOOTSTRAP=1` inside an
- * installed instance. CI's PHPUnit job does not set that variable, so there
- * it runs in stub mode and skips. The proof that runs in CI is the e2e test
+ * It needs a live Nextcloud database. phpunit.xml sets PHPUNIT_USE_NC_BOOTSTRAP=1,
+ * so it runs wherever this tree sits inside an installed instance, which is
+ * what CI's PHPUnit job is. This used to say it skipped in CI: it did, until
+ * that line was added. A plain clone still skips it. The e2e twin is
  * "deleting a dashboard removes its user and group shares" in
- * tests/e2e/ci/dashboard-share-api.spec.ts. Run this one inside an instance:
- *
- *   PHPUNIT_USE_NC_BOOTSTRAP=1 ./vendor/bin/phpunit --filter DashboardSharesCascadeDatabaseTest
+ * tests/e2e/ci/dashboard-share-api.spec.ts.
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Listener
@@ -55,9 +53,8 @@ class DashboardSharesCascadeDatabaseTest extends TestCase {
 
 		if (class_exists(class: '\OC', autoload: false) === false) {
 			$this->markTestSkipped(
-				message: 'Needs a live Nextcloud database: run with PHPUNIT_USE_NC_BOOTSTRAP=1 inside an '
-				. 'installed instance. CI runs PHPUnit in stub mode; the CI proof is the e2e in '
-				. 'tests/e2e/ci/dashboard-share-api.spec.ts.'
+				message: 'Needs a live Nextcloud database. CI boots one (phpunit.xml sets '
+				. 'PHPUNIT_USE_NC_BOOTSTRAP=1); a plain clone does not.'
 			);
 		}
 	}//end setUp()

@@ -20,7 +20,7 @@ Counts are scenarios, and scenarios cited by a Playwright test, measured on `dev
 - [ ] 1.5 `dashboard-public-share`: 38 scenarios, 25 cited. In progress 2026-09-11.
 - [ ] 1.6 `dashboard-sharing`: 34 scenarios, 10 cited. In progress 2026-09-11. Supersedes `add-dashboard-sharing-e2e-coverage`.
 - [ ] 1.7 `role-feature-permissions`: 27 scenarios, 0 cited. Queued 2026-09-11, after the permissions PR.
-- [ ] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Queued 2026-09-11, after the permissions PR.
+- [x] 1.8 `launchpad-enterprise-security-access`: 15 scenarios, 0 cited, blanket. Done 2026-09-11: the blanket is replaced by 15 per-scenario verdicts, all `never built`. `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`).
 
 ## 2. Tier 1, data integrity
 

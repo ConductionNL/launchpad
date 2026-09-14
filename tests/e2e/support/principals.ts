@@ -41,16 +41,69 @@ export interface Principal {
 	api: APIRequestContext
 }
 
-/** A request context acting as `username`, over basic auth. */
+/**
+ * A request context acting as `username`, over basic auth.
+ *
+ * 🔴 `storageState: undefined` AND `send: 'always'` ARE BOTH LOAD-BEARING, and
+ * leaving either out makes every probe in these specs run as the ADMIN
+ * instead of the user it names.
+ *
+ * Playwright sends `httpCredentials` only after a 401 challenge, and
+ * `playwright.config.ts` sets a top-level `use.storageState` holding the
+ * admin's session cookie. A context that inherits that cookie is already
+ * authenticated, Nextcloud never challenges, the basic credentials are never
+ * sent, and the request is made as admin under a variable called `alice`.
+ * Measured while writing this file: a "view-only" user added, restyled and
+ * deleted widgets, and a user with no share at all restyled someone else's
+ * widget. Neither was true of the product; both were this context. The same
+ * mistake in the other direction is worse, because an allowed-path test would
+ * have passed for the wrong reason.
+ *
+ * @param username the account to act as.
+ * @param password its password.
+ * @return a context that is that user and nobody else.
+ */
 export async function contextFor(
 	username: string,
 	password: string,
 ): Promise<APIRequestContext> {
 	return pwRequest.newContext({
 		baseURL: BASE,
-		httpCredentials: { username, password },
+		storageState: undefined,
+		httpCredentials: { username, password, send: 'always' },
 		extraHTTPHeaders: { 'OCS-APIRequest': 'true' },
+		// Every call here carries basic auth instead of riding a session, so
+		// Nextcloud authenticates each one from scratch, and provisioning a
+		// brand-new account's home on its first login is slower still. The
+		// suite's 10s action timeout is a UI budget and too tight for that.
+		timeout: 60_000,
 	})
+}
+
+/**
+ * Fail loudly unless a context really is the user it claims to be.
+ *
+ * Every spec here calls this on each principal before probing, so an identity
+ * that silently fell back to the admin session shows up as a failed
+ * precondition rather than as a permission result.
+ *
+ * @param api the context to check.
+ * @param expected the account it must be acting as.
+ * @return nothing; throws when the identity differs.
+ */
+export async function assertActingAs(
+	api: APIRequestContext,
+	expected: string,
+): Promise<void> {
+	const res = await api.get('/ocs/v1.php/cloud/user?format=json')
+	const body = await res.json().catch(() => null)
+	const actual = body?.ocs?.data?.id ?? '(unknown)'
+	if (actual !== expected) {
+		throw new Error(
+			`this context is acting as "${actual}", not "${expected}". Every `
+				+ 'refusal probed with it would be measuring the wrong principal.',
+		)
+	}
 }
 
 /** A request context acting as the Nextcloud admin. */
@@ -121,9 +174,7 @@ export async function addToGroup(
 		{ form: { groupid: groupId } },
 	)
 	if (!res.ok()) {
-		throw new Error(
-			`could not add ${username} to ${groupId}: ${res.status()}`,
-		)
+		throw new Error(`could not add ${username} to ${groupId}: ${res.status()}`)
 	}
 }
 

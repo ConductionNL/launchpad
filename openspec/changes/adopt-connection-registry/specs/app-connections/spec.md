@@ -37,14 +37,14 @@ LaunchPad SHALL declare its outside connections in `lib/Settings/connections.jso
 When `StoreService::updateRegistryConfig()` writes `registry_url`, `registry_register` or `registry_token`, LaunchPad SHALL send `ConnectionRefreshRequestedEvent` with app `launchpad` and key `dashboard-registry` (hydra REQ-CONN-004), and SHALL clear the registry's report memory. The refresh SHALL be sent before any report that follows the save. A save that writes none of those keys SHALL send nothing. The event SHALL be named by string and sent only when the class exists. It SHALL NOT change the result of the save.
 
 #### Scenario: Saving the registry URL asks for a refresh
-@e2e exclude The event is not observable from a browser; tests/Unit/Service/StoreServiceConnectionReportTest.php asserts the refresh and the written keys.
+@e2e exclude The event is not observable from a browser; tests/Unit/Service/Connection/ConnectionCallersTest.php asserts the refresh and the written keys.
 
 - **GIVEN** integriq is installed
 - **WHEN** an admin saves `registry_url`
 - **THEN** LaunchPad SHALL send a refresh request for `dashboard-registry`
 
 #### Scenario: The refresh goes before the report that follows it
-@e2e exclude Event order is not observable from a browser; tests/Unit/Service/StoreServiceConnectionReportTest.php asserts the order.
+@e2e exclude Event order is not observable from a browser; tests/Unit/Service/Connection/ConnectionCallersTest.php asserts the order.
 
 - **GIVEN** a registry search reported `error` two minutes ago
 - **WHEN** an admin saves `registry_url` and a user then searches the store
@@ -71,14 +71,14 @@ LaunchPad SHALL report with `ConnectionStatusReportedEvent` what a registry sear
 - **AND** the search SHALL answer with the same outcome as before this change
 
 #### Scenario: A weather widget with a location and no provider URL reads unconfigured
-@e2e exclude The CI instance sets no weather provider and no widget with a location; tests/Unit/Service/WeatherServiceConnectionReportTest.php asserts the report and the unchanged error response.
+@e2e exclude The CI instance sets no weather provider and no widget with a location; tests/Unit/Service/Connection/ConnectionCallersTest.php asserts the report and the unchanged error response.
 
 - **GIVEN** `weather_provider_url` is empty
 - **WHEN** a weather widget with a location asks for a reading
 - **THEN** LaunchPad SHALL report `weather` as `unconfigured`, naming `weather_provider_url`
 
 #### Scenario: A feed fetch reports only the host
-@e2e exclude A feed needs a host outside the instance; tests/Unit/Service/Connection/ConnectionObservationsTest.php and tests/Unit/Service/WidgetFetchConnectionReportTest.php assert the report and that no path, query or user info reaches it.
+@e2e exclude A feed needs a host outside the instance; tests/Unit/Service/Connection/ConnectionObservationsTest.php and tests/Unit/Service/Connection/ConnectionCallersTest.php assert the report and that no path, query or user info reaches it.
 
 - **GIVEN** a news widget names `https://user:secret@feeds.example.nl/rss?token=abc`
 - **WHEN** the feed host answers HTTP 503
@@ -86,7 +86,7 @@ LaunchPad SHALL report with `ConnectionStatusReportedEvent` what a registry sear
 - **AND** the message SHALL NOT contain the path, the query or the user info
 
 #### Scenario: An empty fail-closed allow-list reads unconfigured
-@e2e exclude The CI instance sets no live tile or health ping; tests/Unit/Service/WidgetFetchConnectionReportTest.php asserts the report for both lists and that a refusal by a non-empty list sends nothing.
+@e2e exclude The CI instance sets no live tile or health ping; tests/Unit/Service/Connection/ConnectionCallersTest.php asserts the report through the health ping service, and tests/Unit/Service/Connection/ConnectionReporterTest.php asserts both lists and that a refusal by a non-empty list sends nothing.
 
 - **GIVEN** `healthping_allowed_hosts` holds no JSON list of hosts
 - **WHEN** a tile's health ping is refused

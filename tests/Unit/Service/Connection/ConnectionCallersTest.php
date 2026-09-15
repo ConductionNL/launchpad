@@ -34,6 +34,7 @@ use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Service\HealthPingService;
 use OCA\LaunchPad\Service\ImportService;
+use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Service\UrlSafetyValidator;
 use OCA\LaunchPad\Service\WeatherService;
@@ -370,6 +371,39 @@ class ConnectionCallersTest extends TestCase {
 			actual: $this->sentRows()
 		);
 	}//end testAFailedCalendarFetchReportsAndStillThrows()
+
+	/**
+	 * A feed host that answers 503 reports the row as error, naming the host and nothing else from the URL.
+	 *
+	 * @return void
+	 */
+	public function testAFailedFeedFetchReportsOnlyTheHost(): void {
+		$validator = $this->createMock(originalClassName: UrlSafetyValidator::class);
+		$validator->method('isSafe')->willReturn(true);
+		$validator->method('checkAllowList')->willReturn(true);
+		$calls     = 0;
+		$appConfig = $this->backedAppConfig();
+
+		$service = new NewsWidgetService(
+			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+			clientService: $this->answeringClients(status: 503, calls: $calls),
+			appConfig: $appConfig,
+			cacheFactory: $this->emptyCacheFactory(),
+			logger: new NullLogger(),
+			urlValidator: $validator,
+			connectionReporter: $this->recordingReporter(appConfig: $appConfig),
+		);
+
+		$secretUrl = 'https://user:secret@feeds.example.nl/rss?token=abc';
+		$answer    = $service->fetchAndMergeFeeds(feedUrls: [$secretUrl]);
+
+		$this->assertSame(expected: 1, actual: $calls);
+		$this->assertSame(expected: [$secretUrl], actual: $answer['failedUrls']);
+		$this->assertSame(
+			expected: [['ConnectionStatusReportedEvent', 'news-feeds', 'error', 'The news feed at feeds.example.nl answered HTTP 503 on the last call.']],
+			actual: $this->sentRows()
+		);
+	}//end testAFailedFeedFetchReportsOnlyTheHost()
 
 	/**
 	 * The weather service on a widget with or without a location, and no provider URL.

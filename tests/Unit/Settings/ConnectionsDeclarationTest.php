@@ -264,7 +264,10 @@ class ConnectionsDeclarationTest extends TestCase {
 		$this->assertStringContainsString(needle: "slug: 'sharing'", haystack: $admin);
 		$this->assertStringContainsString(needle: '<DashboardRegistrySettings />', haystack: $sharing);
 		$this->assertStringContainsString(needle: 'id="section-dashboard-registry"', haystack: $registry);
-		$this->assertStringContainsString(needle: "params.get('tab')", haystack: (string) file_get_contents($this->root() . '/src/components/admin/BeheerTabs.vue'));
+		$this->assertStringContainsString(
+			needle: "params.get('tab')",
+			haystack: (string) file_get_contents($this->root() . '/src/components/admin/BeheerTabs.vue')
+		);
 	}//end testTheRegistryLinkOpensTheSharingTab()
 
 	/**

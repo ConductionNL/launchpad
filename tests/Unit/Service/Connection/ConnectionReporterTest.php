@@ -163,8 +163,12 @@ class ConnectionReporterTest extends TestCase {
 	public function testAnOutcomeAboutOneAddressSendsNothing(): void {
 		$reporter = $this->recordingReporter();
 
-		$this->assertFalse(condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://feeds.example.nl/x', httpStatus: 404));
-		$this->assertFalse(condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://feeds.example.nl/x', httpStatus: 301));
+		$this->assertFalse(
+			condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://feeds.example.nl/x', httpStatus: 404)
+		);
+		$this->assertFalse(
+			condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://feeds.example.nl/x', httpStatus: 301)
+		);
 		$this->assertFalse(condition: $reporter->reportRegistrySearch(outcome: 'something_new', engineAvailable: true));
 
 		$this->assertSame(expected: [], actual: $this->sentEvents);
@@ -197,7 +201,9 @@ class ConnectionReporterTest extends TestCase {
 		$this->assertCount(expectedCount: 1, haystack: $this->sentEvents);
 
 		$this->now = (1_760_000_000 + ConnectionReporter::REPEAT_SECONDS);
-		$this->assertTrue(condition: $reporter->reportCall(key: ConnectionReporter::KEY_ICS_CALENDARS, url: 'https://cal.example.nl/a.ics', httpStatus: 200));
+		$this->assertTrue(
+			condition: $reporter->reportCall(key: ConnectionReporter::KEY_ICS_CALENDARS, url: 'https://cal.example.nl/a.ics', httpStatus: 200)
+		);
 		$this->assertCount(expectedCount: 2, haystack: $this->sentEvents);
 	}//end testABurstOfWidgetFetchesSendsOneReportPerWindow()
 
@@ -213,8 +219,12 @@ class ConnectionReporterTest extends TestCase {
 
 		$this->assertTrue(condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://a.example.nl', httpStatus: 200));
 		for ($load = 0; $load < 20; $load++) {
-			$this->assertFalse(condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://b.example.nl', httpStatus: null));
-			$this->assertFalse(condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://a.example.nl', httpStatus: 200));
+			$this->assertFalse(
+				condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://b.example.nl', httpStatus: null)
+			);
+			$this->assertFalse(
+				condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://a.example.nl', httpStatus: 200)
+			);
 		}
 
 		$this->now += (ConnectionReporter::CHANGE_SECONDS - 1);
@@ -260,8 +270,16 @@ class ConnectionReporterTest extends TestCase {
 
 		$this->assertSame(
 			expected: [
-				['health-ping', 'unconfigured', 'healthping_allowed_hosts holds no JSON list of hosts, so LaunchPad refused the last call. Set it with occ.'],
-				['live-tiles', 'unconfigured', 'livetile_allowed_hosts holds no JSON list of hosts, so LaunchPad refused the last call. Set it with occ.'],
+				[
+					'health-ping',
+					'unconfigured',
+					'healthping_allowed_hosts holds no JSON list of hosts, so LaunchPad refused the last call. Set it with occ.',
+				],
+				[
+					'live-tiles',
+					'unconfigured',
+					'livetile_allowed_hosts holds no JSON list of hosts, so LaunchPad refused the last call. Set it with occ.',
+				],
 			],
 			actual: array_map(static fn (array $row): array => array_slice($row, 1), $this->sentRows())
 		);
@@ -297,7 +315,12 @@ class ConnectionReporterTest extends TestCase {
 		$this->assertSame(
 			expected: [
 				['ConnectionRefreshRequestedEvent', 'dashboard-registry', '', ''],
-				['ConnectionStatusReportedEvent', 'dashboard-registry', 'configured', 'The dashboard registry at registry.gemeente.example answered the last search.'],
+				[
+					'ConnectionStatusReportedEvent',
+					'dashboard-registry',
+					'configured',
+					'The dashboard registry at registry.gemeente.example answered the last search.',
+				],
 			],
 			actual: $this->sentRows()
 		);
@@ -332,7 +355,9 @@ class ConnectionReporterTest extends TestCase {
 		$reporter = $this->reporterWithoutIntegriq(dispatcher: $dispatcher, appConfig: $appConfig, logger: $logger);
 
 		$this->assertFalse(condition: $reporter->reportRegistrySearch(outcome: 'store_unreachable', engineAvailable: true));
-		$this->assertFalse(condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://feeds.example.nl', httpStatus: null));
+		$this->assertFalse(
+			condition: $reporter->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: 'https://feeds.example.nl', httpStatus: null)
+		);
 		$this->assertFalse(condition: $reporter->reportAllowListRefusal(key: ConnectionReporter::KEY_LIVE_TILES));
 		$this->assertFalse(condition: $reporter->reportWeatherNotConfigured());
 		$this->assertSame(expected: [], actual: $reporter->refreshFromSave(savedKeys: ['registry_url']));

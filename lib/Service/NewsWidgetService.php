@@ -906,7 +906,7 @@ class NewsWidgetService {
 			$this->connectionReporter?->reportCall(
 				key: ConnectionReporter::KEY_NEWS_FEEDS,
 				url: $url,
-				httpStatus: $this->connectionReporter?->httpStatusOf(exception: $e)
+				httpStatus: $this->connectionReporter->httpStatusOf(exception: $e)
 			);
 			return null;
 		}//end try

@@ -198,9 +198,19 @@ class ConnectionCallersTest extends TestCase {
 
 		$this->assertSame(
 			expected: [
-				['ConnectionStatusReportedEvent', 'dashboard-registry', 'error', 'The last search could not reach the dashboard registry at old.example.nl.'],
+				[
+					'ConnectionStatusReportedEvent',
+					'dashboard-registry',
+					'error',
+					'The last search could not reach the dashboard registry at old.example.nl.',
+				],
 				['ConnectionRefreshRequestedEvent', 'dashboard-registry', '', ''],
-				['ConnectionStatusReportedEvent', 'dashboard-registry', 'configured', 'The dashboard registry at registry.gemeente.example answered the last search.'],
+				[
+					'ConnectionStatusReportedEvent',
+					'dashboard-registry',
+					'configured',
+					'The dashboard registry at registry.gemeente.example answered the last search.',
+				],
 			],
 			actual: $this->sentRows()
 		);
@@ -222,7 +232,14 @@ class ConnectionCallersTest extends TestCase {
 
 		$this->assertSame(expected: ['outcome' => 'not_configured', 'cards' => []], actual: $store->search());
 		$this->assertSame(
-			expected: [['ConnectionStatusReportedEvent', 'dashboard-registry', 'unavailable', 'OpenRegister is not enabled, so LaunchPad cannot reach a dashboard registry.']],
+			expected: [
+				[
+					'ConnectionStatusReportedEvent',
+					'dashboard-registry',
+					'unavailable',
+					'OpenRegister is not enabled, so LaunchPad cannot reach a dashboard registry.',
+				],
+			],
 			actual: $this->sentRows()
 		);
 	}//end testAStoreWithoutOpenRegisterReportsUnavailable()
@@ -237,7 +254,8 @@ class ConnectionCallersTest extends TestCase {
 		$dispatcher->expects($this->never())->method('dispatchTyped');
 		$appConfig = $this->backedAppConfig();
 
-		$reporter = new class($dispatcher, $appConfig, $this->createMock(originalClassName: ITimeFactory::class), new NullLogger()) extends ConnectionReporter {
+		$time     = $this->createMock(originalClassName: ITimeFactory::class);
+		$reporter = new class($dispatcher, $appConfig, $time, new NullLogger()) extends ConnectionReporter {
 
 			/**
 			 * Integriq is not installed, so no class resolves.
@@ -280,7 +298,9 @@ class ConnectionCallersTest extends TestCase {
 
 		$this->assertSame(expected: 50, actual: $calls);
 		$this->assertSame(
-			expected: [['ConnectionStatusReportedEvent', 'health-ping', 'configured', 'The health ping target at svc.example.nl answered the last call.']],
+			expected: [
+				['ConnectionStatusReportedEvent', 'health-ping', 'configured', 'The health ping target at svc.example.nl answered the last call.'],
+			],
 			actual: $this->sentRows()
 		);
 	}//end testManyPingsSendOneReportPerWindow()
@@ -330,7 +350,14 @@ class ConnectionCallersTest extends TestCase {
 
 		$this->assertSame(expected: 0, actual: $calls);
 		$this->assertSame(
-			expected: [['ConnectionStatusReportedEvent', 'health-ping', 'unconfigured', 'healthping_allowed_hosts holds no JSON list of hosts, so LaunchPad refused the last call. Set it with occ.']],
+			expected: [
+				[
+					'ConnectionStatusReportedEvent',
+					'health-ping',
+					'unconfigured',
+					'healthping_allowed_hosts holds no JSON list of hosts, so LaunchPad refused the last call. Set it with occ.',
+				],
+			],
 			actual: $this->sentRows()
 		);
 	}//end testARefusedPingOnAnEmptyAllowListReportsUnconfigured()
@@ -367,7 +394,9 @@ class ConnectionCallersTest extends TestCase {
 		}
 
 		$this->assertSame(
-			expected: [['ConnectionStatusReportedEvent', 'ics-calendars', 'error', 'The last call to the calendar feed at cal.example.nl got no answer.']],
+			expected: [
+				['ConnectionStatusReportedEvent', 'ics-calendars', 'error', 'The last call to the calendar feed at cal.example.nl got no answer.'],
+			],
 			actual: $this->sentRows()
 		);
 	}//end testAFailedCalendarFetchReportsAndStillThrows()
@@ -400,7 +429,9 @@ class ConnectionCallersTest extends TestCase {
 		$this->assertSame(expected: 1, actual: $calls);
 		$this->assertSame(expected: [$secretUrl], actual: $answer['failedUrls']);
 		$this->assertSame(
-			expected: [['ConnectionStatusReportedEvent', 'news-feeds', 'error', 'The news feed at feeds.example.nl answered HTTP 503 on the last call.']],
+			expected: [
+				['ConnectionStatusReportedEvent', 'news-feeds', 'error', 'The news feed at feeds.example.nl answered HTTP 503 on the last call.'],
+			],
 			actual: $this->sentRows()
 		);
 	}//end testAFailedFeedFetchReportsOnlyTheHost()
@@ -448,7 +479,14 @@ class ConnectionCallersTest extends TestCase {
 		);
 
 		$this->assertSame(
-			expected: [['ConnectionStatusReportedEvent', 'weather', 'unconfigured', 'A weather widget with a location found no provider URL. Set weather_provider_url with occ.']],
+			expected: [
+				[
+					'ConnectionStatusReportedEvent',
+					'weather',
+					'unconfigured',
+					'A weather widget with a location found no provider URL. Set weather_provider_url with occ.',
+				],
+			],
 			actual: $this->sentRows()
 		);
 	}//end testAWeatherWidgetWithALocationAndNoProviderUrlReportsUnconfigured()

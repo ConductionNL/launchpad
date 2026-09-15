@@ -479,7 +479,7 @@ class CalendarWidgetService {
 			$this->connectionReporter?->reportCall(
 				key: ConnectionReporter::KEY_ICS_CALENDARS,
 				url: $url,
-				httpStatus: $this->connectionReporter?->httpStatusOf(exception: $exception)
+				httpStatus: $this->connectionReporter->httpStatusOf(exception: $exception)
 			);
 			throw $exception;
 		}

@@ -62,11 +62,26 @@ class ConnectionObservationsTest extends TestCase {
 	public function testRegistryOutcomes(): void {
 		$url = 'https://registry.example.nl/index.php';
 
-		$this->assertSame(expected: ['configured', 'The dashboard registry at registry.example.nl answered the last search.'], actual: $this->observations->registrySearch(outcome: 'ok', engineAvailable: true, registryUrl: $url));
-		$this->assertSame(expected: 'unconfigured', actual: $this->observations->registrySearch(outcome: 'not_configured', engineAvailable: true, registryUrl: '')[0]);
-		$this->assertSame(expected: ['error', 'The last search could not reach the dashboard registry at registry.example.nl.'], actual: $this->observations->registrySearch(outcome: 'store_unreachable', engineAvailable: true, registryUrl: $url));
-		$this->assertSame(expected: 'error', actual: $this->observations->registrySearch(outcome: 'store_invalid_response', engineAvailable: true, registryUrl: $url)[0]);
-		$this->assertSame(expected: 'limited', actual: $this->observations->registrySearch(outcome: 'rate_limited', engineAvailable: true, registryUrl: $url)[0]);
+		$this->assertSame(
+			expected: ['configured', 'The dashboard registry at registry.example.nl answered the last search.'],
+			actual: $this->observations->registrySearch(outcome: 'ok', engineAvailable: true, registryUrl: $url)
+		);
+		$this->assertSame(
+			expected: 'unconfigured',
+			actual: $this->observations->registrySearch(outcome: 'not_configured', engineAvailable: true, registryUrl: '')[0]
+		);
+		$this->assertSame(
+			expected: ['error', 'The last search could not reach the dashboard registry at registry.example.nl.'],
+			actual: $this->observations->registrySearch(outcome: 'store_unreachable', engineAvailable: true, registryUrl: $url)
+		);
+		$this->assertSame(
+			expected: 'error',
+			actual: $this->observations->registrySearch(outcome: 'store_invalid_response', engineAvailable: true, registryUrl: $url)[0]
+		);
+		$this->assertSame(
+			expected: 'limited',
+			actual: $this->observations->registrySearch(outcome: 'rate_limited', engineAvailable: true, registryUrl: $url)[0]
+		);
 		$this->assertNull(actual: $this->observations->registrySearch(outcome: 'unknown', engineAvailable: true, registryUrl: $url));
 		$this->assertSame(
 			expected: ['unavailable', 'OpenRegister is not enabled, so LaunchPad cannot reach a dashboard registry.'],
@@ -82,15 +97,33 @@ class ConnectionObservationsTest extends TestCase {
 	public function testHttpAnswers(): void {
 		$url = 'https://feeds.example.nl/rss';
 
-		$this->assertSame(expected: ['error', 'The last call to the news feed at feeds.example.nl got no answer.'], actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: null));
-		$this->assertSame(expected: ['error', 'The news feed at feeds.example.nl refused the request (HTTP 401).'], actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 401));
+		$this->assertSame(
+			expected: ['error', 'The last call to the news feed at feeds.example.nl got no answer.'],
+			actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: null)
+		);
+		$this->assertSame(
+			expected: ['error', 'The news feed at feeds.example.nl refused the request (HTTP 401).'],
+			actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 401)
+		);
 		$this->assertSame(expected: 'error', actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 403)[0]);
-		$this->assertSame(expected: ['limited', 'The news feed at feeds.example.nl limited the last call (HTTP 429).'], actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 429));
-		$this->assertSame(expected: ['error', 'The news feed at feeds.example.nl answered HTTP 503 on the last call.'], actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 503));
-		$this->assertSame(expected: ['configured', 'The news feed at feeds.example.nl answered the last call.'], actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 204));
+		$this->assertSame(
+			expected: ['limited', 'The news feed at feeds.example.nl limited the last call (HTTP 429).'],
+			actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 429)
+		);
+		$this->assertSame(
+			expected: ['error', 'The news feed at feeds.example.nl answered HTTP 503 on the last call.'],
+			actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 503)
+		);
+		$this->assertSame(
+			expected: ['configured', 'The news feed at feeds.example.nl answered the last call.'],
+			actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: 204)
+		);
 
 		foreach ([301, 302, 400, 404, 410, 500] as $aboutOneAddress) {
-			$this->assertNull(actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: $aboutOneAddress), message: 'HTTP ' . $aboutOneAddress);
+			$this->assertNull(
+				actual: $this->observations->httpCall(name: 'news feed', url: $url, httpStatus: $aboutOneAddress),
+				message: 'HTTP ' . $aboutOneAddress
+			);
 		}
 	}//end testHttpAnswers()
 
@@ -116,7 +149,10 @@ class ConnectionObservationsTest extends TestCase {
 			}
 		}
 
-		$this->assertSame(expected: ['error', 'The last call to the live tile source got no answer.'], actual: $this->observations->httpCall(name: 'live tile source', url: 'not a url', httpStatus: null));
+		$this->assertSame(
+			expected: ['error', 'The last call to the live tile source got no answer.'],
+			actual: $this->observations->httpCall(name: 'live tile source', url: 'not a url', httpStatus: null)
+		);
 	}//end testOnlyTheHostReachesAMessage()
 
 	/**
@@ -130,7 +166,10 @@ class ConnectionObservationsTest extends TestCase {
 			actual: $this->observations->weatherNotConfigured(configKey: 'weather_provider_url')
 		);
 		$this->assertSame(expected: 'error', actual: $this->observations->weatherInvalidUrl(configKey: 'weather_provider_url')[0]);
-		$this->assertStringContainsString(needle: 'weather_provider_url', haystack: $this->observations->weatherInvalidUrl(configKey: 'weather_provider_url')[1]);
+		$this->assertStringContainsString(
+			needle: 'weather_provider_url',
+			haystack: $this->observations->weatherInvalidUrl(configKey: 'weather_provider_url')[1]
+		);
 	}//end testWeatherMessagesNameTheKey()
 
 	/**
@@ -141,7 +180,11 @@ class ConnectionObservationsTest extends TestCase {
 	public function testAllowListRefusals(): void {
 		$this->assertNull(actual: $this->observations->allowListRefused(configKey: 'livetile_allowed_hosts', rawList: '["a.example.nl"]'));
 		foreach (['', '[]', '{}', 'null', 'a.example.nl,b.example.nl', 'not json'] as $empty) {
-			$this->assertSame(expected: 'unconfigured', actual: $this->observations->allowListRefused(configKey: 'livetile_allowed_hosts', rawList: $empty)[0] ?? null, message: '"' . $empty . '"');
+			$this->assertSame(
+				expected: 'unconfigured',
+				actual: $this->observations->allowListRefused(configKey: 'livetile_allowed_hosts', rawList: $empty)[0] ?? null,
+				message: '"' . $empty . '"'
+			);
 		}
 	}//end testAllowListRefusals()
 

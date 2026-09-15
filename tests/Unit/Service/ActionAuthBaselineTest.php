@@ -56,7 +56,6 @@ class ActionAuthBaselineTest extends TestCase {
 	 * @var array<int, string>
 	 */
 	private const ADMIN_ONLY_ACTIONS = [
-		'admin.get-my-role',
 		'admin-org-navigation.get-org-navigation',
 		'admin-org-navigation.get-position',
 		'analytics.top-dashboards',
@@ -118,6 +117,10 @@ class ActionAuthBaselineTest extends TestCase {
 		'manifest.index',
 		'template.gallery',
 		'tile.index',
+		// REQ-ROLE-006: any authenticated user may ask for their OWN role.
+		// The `admin.` prefix is the controller's, not a privilege level:
+		// getMyRole() only ever answers for the caller.
+		'admin.get-my-role',
 	];
 
 	/** @var IAppConfig&MockObject */

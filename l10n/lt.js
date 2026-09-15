@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Rūšis",
     "Version": "Versija",
     "How many dashboards there are, and who they belong to.": "Kiek yra skydelių ir kam jie priklauso.",
-    "Store": "Parduotuvė"
+    "Store": "Parduotuvė",
+    "Integrations" : "Integracijos",
+    "Connection" : "Ryšys",
+    "Status" : "Būsena",
+    "Status message" : "Būsenos pranešimas",
+    "Last checked" : "Paskutinį kartą patikrinta",
+    "All connections" : "Visi ryšiai",
+    "Add integration" : "Pridėti integraciją",
+    "Open settings" : "Atverti nustatymus",
+    "Configured" : "Sukonfigūruota",
+    "Limited" : "Ribota",
+    "Not configured" : "Nesukonfigūruota",
+    "Simulated" : "Imituota",
+    "Error" : "Klaida"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

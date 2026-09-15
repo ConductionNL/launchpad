@@ -35,6 +35,7 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\App\IAppManager;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -200,6 +201,9 @@ class WeatherService {
 	 * @param IConfig $config Reads the requesting user's locale/language and
 	 *                        the system default.
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or nothing when absent.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly IAppManager $appManager,
@@ -210,6 +214,7 @@ class WeatherService {
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly IConfig $config,
 		private readonly LoggerInterface $logger,
+		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
 
@@ -515,11 +520,17 @@ class WeatherService {
 	 * `null` — never throws — on any failure: no template configured,
 	 * invalid scheme, transport error, non-2xx, or unparseable body.
 	 *
+	 * What the fetch met is reported to integriq's connection registry, at
+	 * most once an hour while it stays the same (adopt-connection-registry).
+	 * The report never changes the reading.
+	 *
 	 * @param string $location The author-configured location string.
 	 * @param string $units `metric` or `imperial`.
 	 * @param string $language The resolved forecast language.
 	 *
 	 * @return array<string,mixed>|null
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	private function fetchFromProviderUrl(string $location, string $units, string $language): ?array {
 		$template = $this->appConfig->getValueString(
@@ -528,6 +539,7 @@ class WeatherService {
 			default: ''
 		);
 		if ($template === '') {
+			$this->connectionReporter?->reportWeatherNotConfigured();
 			return null;
 		}
 
@@ -549,6 +561,7 @@ class WeatherService {
 				message: 'WeatherService: provider URL has an invalid scheme, rejecting',
 				context: ['app' => Application::APP_ID]
 			);
+			$this->connectionReporter?->reportWeatherInvalidUrl();
 			return null;
 		}
 
@@ -570,20 +583,30 @@ class WeatherService {
 				message: 'WeatherService: provider fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
+			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $url, httpStatus: null);
 			return null;
 		}
 
 		$status = (int)$response->getStatusCode();
 		if ($status < 200 || $status >= 300) {
+			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $url, httpStatus: $status);
 			return null;
 		}
 
 		$decoded = json_decode(json: (string)$response->getBody(), associative: true);
-		if (is_array(value: $decoded) === false) {
+		$reading = null;
+		if (is_array(value: $decoded) === true) {
+			$reading = $this->normaliseProviderPayload(payload: $decoded, location: $location, units: $units, language: $language);
+		}
+
+		if ($reading === null) {
+			$this->connectionReporter?->reportWeatherUnreadable(url: $url);
 			return null;
 		}
 
-		return $this->normaliseProviderPayload(payload: $decoded, location: $location, units: $units, language: $language);
+		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $url, httpStatus: $status);
+
+		return $reading;
 	}//end fetchFromProviderUrl()
 
 	/**

@@ -1151,6 +1151,18 @@
         "Registry saved.": "Register opgeslagen.",
         "Token removed.": "Token verwijderd.",
         "The registry could not be saved.": "Het register kon niet worden opgeslagen.",
-        "Admin settings": "Beheerinstellingen"
+        "Admin settings": "Beheerinstellingen",
+        "Integrations": "Koppelingen",
+        "Connection": "Verbinding",
+        "Status message": "Statusbericht",
+        "Last checked": "Laatst gecontroleerd",
+        "All connections": "Alle verbindingen",
+        "Add integration": "Integratie toevoegen",
+        "Open settings": "Instellingen openen",
+        "Configured": "Ingericht",
+        "Limited": "Beperkt",
+        "Not configured": "Niet geconfigureerd",
+        "Simulated": "Gesimuleerd",
+        "Error": "Fout"
     }
 }

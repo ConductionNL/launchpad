@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Вид",
     "Version": "Версия",
     "How many dashboards there are, and who they belong to.": "Сколько есть панелей и кому они принадлежат.",
-    "Store": "Магазин"
+    "Store": "Магазин",
+    "Integrations" : "Интеграции",
+    "Connection" : "Подключение",
+    "Status" : "Статус",
+    "Status message" : "Сообщение о статусе",
+    "Last checked" : "Последняя проверка",
+    "All connections" : "Все подключения",
+    "Add integration" : "Добавить интеграцию",
+    "Open settings" : "Открыть настройки",
+    "Configured" : "Настроено",
+    "Limited" : "Ограничено",
+    "Not configured" : "Не настроено",
+    "Simulated" : "Симулировано",
+    "Error" : "Ошибка"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

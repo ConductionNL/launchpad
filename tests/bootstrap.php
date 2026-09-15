@@ -151,4 +151,21 @@ if (is_dir($serverTestsLib) === true) {
 	$loader->register(true);
 }
 
+// Integriq's connection-registry events (adopt-connection-registry).
+// ConnectionReporter sends them by string class name behind class_exists
+// (ADR-041), so LaunchPad stays installable without integriq. The stubs mirror
+// hydra connection-registry design D6 and integriq's own classes on
+// `development`, and load only when the real classes are absent. They load
+// here, after the OCP autoloader, because they extend OCP's Event; without
+// OCP on the autoload path they are skipped rather than fatal.
+foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as $integriqStubEvent) {
+	if (class_exists('\\OCP\\EventDispatcher\\Event') === true
+		&& class_exists('\\OCA\\Integriq\\Event\\' . $integriqStubEvent) === false
+	) {
+		require_once __DIR__ . '/Stubs/Integriq/Event/' . $integriqStubEvent . '.php';
+	}
+}
+
+unset($integriqStubEvent);
+
 // Bootstrap complete.

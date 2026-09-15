@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Fel",
     "Version": "Versiune",
     "How many dashboards there are, and who they belong to.": "Câte tablouri de bord există și cui aparțin.",
-    "Store": "Magazin"
+    "Store": "Magazin",
+    "Integrations" : "Integrări",
+    "Connection" : "Conexiune",
+    "Status" : "Stare",
+    "Status message" : "Mesaj de stare",
+    "Last checked" : "Ultima verificare",
+    "All connections" : "Toate conexiunile",
+    "Add integration" : "Adaugă integrare",
+    "Open settings" : "Deschide setările",
+    "Configured" : "Configurat",
+    "Limited" : "Limitat",
+    "Not configured" : "Neconfigurat",
+    "Simulated" : "Simulat",
+    "Error" : "Eroare"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

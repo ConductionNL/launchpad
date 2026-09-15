@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Type",
     "Version": "Version",
     "How many dashboards there are, and who they belong to.": "Combien de tableaux de bord il y a, et à qui ils appartiennent.",
-    "Store": "Boutique"
+    "Store": "Boutique",
+    "Integrations" : "Intégrations",
+    "Connection" : "Connexion",
+    "Status" : "Statut",
+    "Status message" : "Message de statut",
+    "Last checked" : "Dernière vérification",
+    "All connections" : "Toutes les connexions",
+    "Add integration" : "Ajouter une intégration",
+    "Open settings" : "Ouvrir les paramètres",
+    "Configured" : "Configuré",
+    "Limited" : "Limité",
+    "Not configured" : "Non configuré",
+    "Simulated" : "Simulé",
+    "Error" : "Erreur"
 },
 "nplurals=2; plural=(n > 1);"
 );

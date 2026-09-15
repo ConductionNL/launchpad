@@ -38,6 +38,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -121,14 +122,18 @@ class StoreService {
 	 * @param ImportService   $importService LaunchPad's one and only dashboard importer.
 	 * @param IAppConfig      $appConfig     Where the engine reads the registry connection.
 	 * @param LoggerInterface $logger        PSR logger — server-side diagnostics only.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a search met and when a save changed the registry, or nothing when absent.
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly ?object $discovery,
 		private readonly ImportService $importService,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
+		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
 
@@ -151,6 +156,29 @@ class StoreService {
 	 * registry would otherwise read as an offline one, and the two need
 	 * different fixes.
 	 *
+	 * The outcome is also reported to integriq's connection registry, at most
+	 * once an hour while it stays the same (adopt-connection-registry). The
+	 * report never changes the answer.
+	 *
+	 * @param string|null $query Optional free-text search term.
+	 * @param string|null $kind  Optional kind filter.
+	 *
+	 * @return array{outcome: string, cards: array<int, array<string, mixed>>}
+	 *
+	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-003-the-engines-outcome-must-reach-the-caller-unchanged
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
+	 */
+	public function search(?string $query = null, ?string $kind = null): array {
+		$answer = $this->searchRegistry(query: $query, kind: $kind);
+
+		$this->connectionReporter?->reportRegistrySearch(outcome: $answer['outcome'], engineAvailable: $this->isAvailable());
+
+		return $answer;
+	}//end search()
+
+	/**
+	 * Ask the discovery engine, and pass its outcome through verbatim.
+	 *
 	 * @param string|null $query Optional free-text search term.
 	 * @param string|null $kind  Optional kind filter.
 	 *
@@ -160,7 +188,7 @@ class StoreService {
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-003-the-engines-outcome-must-reach-the-caller-unchanged
 	 */
-	public function search(?string $query = null, ?string $kind = null): array {
+	private function searchRegistry(?string $query, ?string $kind): array {
 		if ($this->discovery === null) {
 			return ['outcome' => self::OUTCOME_NOT_CONFIGURED, 'cards' => []];
 		}
@@ -184,7 +212,7 @@ class StoreService {
 			'outcome' => (string)($result['outcome'] ?? self::OUTCOME_NOT_CONFIGURED),
 			'cards' => $cards,
 		];
-	}//end search()
+	}//end searchRegistry()
 
 	/**
 	 * Install one remote dashboard template into this instance.
@@ -286,26 +314,39 @@ class StoreService {
 	 * @param string|null $registryToken    Bearer token, or null to leave it.
 	 * @param string|null $registryRegister Remote register segment, or null to leave it.
 	 *
+	 * After the write it asks integriq to resolve the dashboard registry again
+	 * when a registry key was written (adopt-connection-registry). That never
+	 * throws, does nothing without integriq, and goes before any report that
+	 * follows the save.
+	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-007-the-registry-token-must-not-be-readable-back
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-002-a-registry-settings-save-asks-integriq-to-look-again
 	 */
 	public function updateRegistryConfig(
 		?string $registryUrl = null,
 		?string $registryToken = null,
 		?string $registryRegister = null,
 	): void {
+		$written = [];
+
 		if ($registryUrl !== null) {
 			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_URL, trim($registryUrl));
+			$written[] = self::CONFIG_URL;
 		}
 
 		if ($registryToken !== null) {
 			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_TOKEN, trim($registryToken));
+			$written[] = self::CONFIG_TOKEN;
 		}
 
 		if ($registryRegister !== null) {
 			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTER, trim($registryRegister));
+			$written[] = self::CONFIG_REGISTER;
 		}
+
+		$this->connectionReporter?->refreshFromSave(savedKeys: $written);
 	}//end updateRegistryConfig()
 
 	/**

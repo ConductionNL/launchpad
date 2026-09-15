@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -119,6 +120,9 @@ class CalendarWidgetService {
 	 * @param LoggerInterface $logger Logger.
 	 * @param UrlSafetyValidator $urlValidator Shared SSRF / allow-list guard.
 	 * @param IManager|null $calendarMgr NC Calendar manager (optional).
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what an ICS fetch met, or nothing when absent.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
@@ -127,6 +131,7 @@ class CalendarWidgetService {
 		private readonly LoggerInterface $logger,
 		private readonly UrlSafetyValidator $urlValidator,
 		private readonly ?IManager $calendarMgr = null,
+		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 		$this->cache = $cacheFactory->createDistributed(prefix: self::CACHE_NAMESPACE);
 	}//end __construct()
@@ -424,6 +429,11 @@ class CalendarWidgetService {
 	/**
 	 * Fetch the raw ICS body for a URL, using ICache when fresh.
 	 *
+	 * A live fetch (not a cache hit) is reported to integriq's connection
+	 * registry, at most once an hour while it stays the same
+	 * (adopt-connection-registry). The report never changes the body or the
+	 * exception.
+	 *
 	 * @param string $url The URL to fetch.
 	 *
 	 * @return string The raw ICS body.
@@ -431,6 +441,7 @@ class CalendarWidgetService {
 	 * @throws \RuntimeException When the response is too large or non-2xx.
 	 *
 	 * @spec openspec/specs/calendar-widget/spec.md
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function fetchIcsBody(string $url): string {
 		$cacheKey = 'ics_' . md5(string: $url);
@@ -452,16 +463,31 @@ class CalendarWidgetService {
 			);
 		}
 
-		$client = $this->clientService->newClient();
-		$response = $client->get(
-			uri: $url,
-			options: [
-				'timeout' => self::FETCH_TIMEOUT_SECONDS,
-				'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
-				// H2: disable redirect-following so an attacker cannot
-				// chain a public URL to an internal redirect target.
-				'allow_redirects' => false,
-			]
+		try {
+			$client = $this->clientService->newClient();
+			$response = $client->get(
+				uri: $url,
+				options: [
+					'timeout' => self::FETCH_TIMEOUT_SECONDS,
+					'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
+					// H2: disable redirect-following so an attacker cannot
+					// chain a public URL to an internal redirect target.
+					'allow_redirects' => false,
+				]
+			);
+		} catch (Throwable $exception) {
+			$this->connectionReporter?->reportCall(
+				key: ConnectionReporter::KEY_ICS_CALENDARS,
+				url: $url,
+				httpStatus: $this->connectionReporter?->httpStatusOf(exception: $exception)
+			);
+			throw $exception;
+		}
+
+		$this->connectionReporter?->reportCall(
+			key: ConnectionReporter::KEY_ICS_CALENDARS,
+			url: $url,
+			httpStatus: (int)$response->getStatusCode()
 		);
 
 		$body = (string)$response->getBody();

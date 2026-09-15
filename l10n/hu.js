@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Fajta",
     "Version": "Verzió",
     "How many dashboards there are, and who they belong to.": "Hány irányítópult van, és kihez tartoznak.",
-    "Store": "Áruház"
+    "Store": "Áruház",
+    "Integrations" : "Integrációk",
+    "Connection" : "Kapcsolat",
+    "Status" : "Állapot",
+    "Status message" : "Állapotüzenet",
+    "Last checked" : "Utolsó ellenőrzés",
+    "All connections" : "Minden kapcsolat",
+    "Add integration" : "Integráció hozzáadása",
+    "Open settings" : "Beállítások megnyitása",
+    "Configured" : "Beállítva",
+    "Limited" : "Korlátozott",
+    "Not configured" : "Nincs beállítva",
+    "Simulated" : "Szimulált",
+    "Error" : "Hiba"
 },
 "nplurals=2; plural=(n != 1);"
 );

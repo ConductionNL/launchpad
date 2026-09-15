@@ -240,7 +240,14 @@ jobs:
       # dashboard source — exists only on `development`. Pinned to `main` the
       # grant lookup would fail soft to owned-only and the suite would quietly
       # test less than it appears to.
-      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
+      #
+      # integriq is here because the Integrations page reads integriq's
+      # `app_connection` rows (adopt-connection-registry). Without it the page
+      # shows the missing-dependency screen and `tests/e2e/integrations-page.spec.ts`
+      # fails on every run. `app` is `integriq`, read from its appinfo/info.xml
+      # on `development` on 2026-09-15. Its frontend is not built here, so the
+      # spec only asserts that Add integration lands on integriq's URL.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"},{"repo":"ConductionNL/integriq","app":"integriq","ref":"development"}]'
       enable-playwright: true
       # Enforce E2E skip discipline. Re-added: #354 set this and #356 removed
       # it 16 minutes later while rewriting this file's triggers -- not a

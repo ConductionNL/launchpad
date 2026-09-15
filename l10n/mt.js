@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Tip",
     "Version": "Verżjoni",
     "How many dashboards there are, and who they belong to.": "Kemm hemm dashboards, u ta' min huma.",
-    "Store": "Ħanut"
+    "Store": "Ħanut",
+    "Integrations" : "Integrazzjonijiet",
+    "Connection" : "Konnessjoni",
+    "Status" : "Status",
+    "Status message" : "Messaġġ tal-istatus",
+    "Last checked" : "L-aħħar verifika",
+    "All connections" : "Il-konnessjonijiet kollha",
+    "Add integration" : "Żid integrazzjoni",
+    "Open settings" : "Iftaħ is-settings",
+    "Configured" : "Ikkonfigurat",
+    "Limited" : "Limitat",
+    "Not configured" : "Mhux ikkonfigurat",
+    "Simulated" : "Simulat",
+    "Error" : "Żball"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

@@ -1114,7 +1114,20 @@ OC.L10N.register(
     "Kind": "Вид",
     "Version": "Верзија",
     "How many dashboards there are, and who they belong to.": "Колку контролни табли има и кому припаѓаат.",
-    "Store": "Продавница"
+    "Store": "Продавница",
+    "Integrations" : "Интеграции",
+    "Connection" : "Врска",
+    "Status" : "Статус",
+    "Status message" : "Порака за статус",
+    "Last checked" : "Последна проверка",
+    "All connections" : "Сите врски",
+    "Add integration" : "Додај интеграција",
+    "Open settings" : "Отвори поставки",
+    "Configured" : "Конфигурирано",
+    "Limited" : "Ограничено",
+    "Not configured" : "Не е конфигурирано",
+    "Simulated" : "Симулирано",
+    "Error" : "Грешка"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

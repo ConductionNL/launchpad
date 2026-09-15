@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Tipus",
     "Version": "Versió",
     "How many dashboards there are, and who they belong to.": "Quants taulers hi ha i a qui pertanyen.",
-    "Store": "Botiga"
+    "Store": "Botiga",
+    "Integrations" : "Integracions",
+    "Connection" : "Connexió",
+    "Status" : "Estat",
+    "Status message" : "Missatge d'estat",
+    "Last checked" : "Última comprovació",
+    "All connections" : "Totes les connexions",
+    "Add integration" : "Afegeix una integració",
+    "Open settings" : "Obre la configuració",
+    "Configured" : "Configurat",
+    "Limited" : "Limitat",
+    "Not configured" : "No configurat",
+    "Simulated" : "Simulat",
+    "Error" : "Error"
 },
 "nplurals=2; plural=(n != 1);"
 );

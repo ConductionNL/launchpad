@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Είδος",
     "Version": "Έκδοση",
     "How many dashboards there are, and who they belong to.": "Πόσοι πίνακες υπάρχουν και σε ποιον ανήκουν.",
-    "Store": "Κατάστημα"
+    "Store": "Κατάστημα",
+    "Integrations" : "Ενσωματώσεις",
+    "Connection" : "Σύνδεση",
+    "Status" : "Κατάσταση",
+    "Status message" : "Μήνυμα κατάστασης",
+    "Last checked" : "Τελευταίος έλεγχος",
+    "All connections" : "Όλες οι συνδέσεις",
+    "Add integration" : "Προσθήκη ενσωμάτωσης",
+    "Open settings" : "Άνοιγμα ρυθμίσεων",
+    "Configured" : "Ρυθμισμένο",
+    "Limited" : "Περιορισμένο",
+    "Not configured" : "Μη ρυθμισμένο",
+    "Simulated" : "Προσομοιωμένο",
+    "Error" : "Σφάλμα"
 },
 "nplurals=2; plural=(n != 1);"
 );

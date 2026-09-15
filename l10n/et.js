@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Liik",
     "Version": "Versioon",
     "How many dashboards there are, and who they belong to.": "Kui palju töölaudu on ja kellele need kuuluvad.",
-    "Store": "Pood"
+    "Store": "Pood",
+    "Integrations" : "Integratsioonid",
+    "Connection" : "Ühendus",
+    "Status" : "Olek",
+    "Status message" : "Olekuteade",
+    "Last checked" : "Viimati kontrollitud",
+    "All connections" : "Kõik ühendused",
+    "Add integration" : "Lisa integratsioon",
+    "Open settings" : "Ava seaded",
+    "Configured" : "Seadistatud",
+    "Limited" : "Piiratud",
+    "Not configured" : "Seadistamata",
+    "Simulated" : "Simuleeritud",
+    "Error" : "Viga"
 },
 "nplurals=2; plural=(n != 1);"
 );

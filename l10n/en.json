@@ -1066,6 +1066,19 @@
         "Generate insight": "Generate insight",
         "Total spend: {amount}": "Total spend: {amount}",
         "Features & roadmap": "Features & roadmap",
-        "Admin settings": "Admin settings"
+        "Admin settings": "Admin settings",
+        "Integrations": "Integrations",
+        "Connection": "Connection",
+        "Status": "Status",
+        "Status message": "Status message",
+        "Last checked": "Last checked",
+        "All connections": "All connections",
+        "Add integration": "Add integration",
+        "Open settings": "Open settings",
+        "Configured": "Configured",
+        "Limited": "Limited",
+        "Not configured": "Not configured",
+        "Simulated": "Simulated",
+        "Error": "Error"
     }
 }

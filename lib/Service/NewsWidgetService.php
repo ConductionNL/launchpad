@@ -30,6 +30,7 @@ use DOMDocument;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -125,6 +126,9 @@ class NewsWidgetService {
 	 *                                    hold raw feed payloads.
 	 * @param LoggerInterface $logger PSR logger.
 	 * @param UrlSafetyValidator $urlValidator Shared SSRF / allow-list guard.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a feed fetch met, or nothing when absent.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
@@ -133,6 +137,7 @@ class NewsWidgetService {
 		private readonly ICacheFactory $cacheFactory,
 		private readonly LoggerInterface $logger,
 		private readonly UrlSafetyValidator $urlValidator,
+		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
 
@@ -825,9 +830,15 @@ class NewsWidgetService {
 	 * caller can record the URL as failed without short-circuiting the
 	 * other URLs in the batch.
 	 *
+	 * A live fetch (not a cache hit) is reported to integriq's connection
+	 * registry, at most once an hour while it stays the same
+	 * (adopt-connection-registry). The report never changes the payload.
+	 *
 	 * @param string $url Feed URL to fetch.
 	 *
 	 * @return string|null Raw feed payload, or null on failure.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	private function fetchFeedPayload(string $url): ?string {
 		$cache = $this->getCache();
@@ -858,8 +869,11 @@ class NewsWidgetService {
 				$this->logger->warning(
 					message: 'NewsWidget: feed fetch returned HTTP ' . $statusCode . ' for ' . $url
 				);
+				$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
 				return null;
 			}
+
+			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
 
 			$body = (string)$response->getBody();
 			if ($body === '') {
@@ -888,6 +902,11 @@ class NewsWidgetService {
 			$this->logger->warning(
 				message: 'NewsWidget: feed fetch failed for ' . $url,
 				context: ['exception' => $e]
+			);
+			$this->connectionReporter?->reportCall(
+				key: ConnectionReporter::KEY_NEWS_FEEDS,
+				url: $url,
+				httpStatus: $this->connectionReporter->httpStatusOf(exception: $e)
 			);
 			return null;
 		}//end try

@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Typ",
     "Version": "Version",
     "How many dashboards there are, and who they belong to.": "Hur många instrumentpaneler det finns, och vem de tillhör.",
-    "Store": "Butik"
+    "Store": "Butik",
+    "Integrations" : "Integrationer",
+    "Connection" : "Anslutning",
+    "Status" : "Status",
+    "Status message" : "Statusmeddelande",
+    "Last checked" : "Senast kontrollerad",
+    "All connections" : "Alla anslutningar",
+    "Add integration" : "Lägg till integration",
+    "Open settings" : "Öppna inställningar",
+    "Configured" : "Konfigurerad",
+    "Limited" : "Begränsad",
+    "Not configured" : "Inte konfigurerad",
+    "Simulated" : "Simulerad",
+    "Error" : "Fel"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -18,16 +18,13 @@
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:customComponents="customComponents"
-		:formatters="formatters"
 		:permissions="permissions"
 		appId="launchpad" />
 </template>
 
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
-import { translate as ncT } from '@nextcloud/l10n'
 import customComponents from './customComponents.js'
-import { createConnectionFormatters } from './services/connectionRegistry.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 
 /**
@@ -148,22 +145,14 @@ export default {
 	},
 
 	/**
-	 * Static component state: the Integrations page's cell formatters and its
-	 * header-action handler.
+	 * Static component state: the Integrations page's header-action handler.
+	 * The page's formatters are nextcloud-vue built-ins, so none are passed.
 	 *
-	 * @return {{formatters: object, customComponents: object}} The maps CnAppRoot merges over its built-ins.
+	 * @return {{customComponents: object}} The map CnAppRoot merges over its built-ins.
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-004-an-admin-reads-the-connections-on-an-integrations-page
 	 */
 	data() {
 		return {
-			/**
-			 * Named cell formatters merged over CnAppRoot's built-ins.
-			 * `connectionStatus` and `connectionSettingsLabel` render the
-			 * Integrations page (adopt-connection-registry); nextcloud-vue
-			 * 2.46.0 ships neither as a built-in. Static, so not reactive.
-			 */
-			formatters: createConnectionFormatters((source) => ncT('launchpad', source)),
-
 			/**
 			 * The header-action handler map. CnIndexPage resolves a handler
 			 * name against `customComponents` only, never against the v2

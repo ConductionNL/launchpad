@@ -137,7 +137,17 @@ class ConnectionReporterTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnknownCallKeySendsNothing(): void {
-		$reporter = $this->recordingReporter();
+		$dispatcher = $this->createMock(originalClassName: IEventDispatcher::class);
+		$dispatcher->expects($this->never())->method('dispatchTyped');
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		// A typo is refused up front, not by a TypeError the catch-all logs.
+		$logger->expects($this->never())->method('warning');
+		$reporter = new ConnectionReporter(
+			eventDispatcher: $dispatcher,
+			appConfig: $this->backedAppConfig(),
+			timeFactory: $this->createMock(originalClassName: ITimeFactory::class),
+			logger: $logger,
+		);
 
 		$this->assertFalse(condition: $reporter->reportCall(key: 'dashboard-registry', url: 'https://x.example', httpStatus: 200));
 		$this->assertFalse(condition: $reporter->reportCall(key: 'iframes', url: 'https://x.example', httpStatus: 200));
@@ -382,8 +392,9 @@ class ConnectionReporterTest extends TestCase {
 		);
 
 		$this->assertFalse(condition: $reporter->reportRegistrySearch(outcome: 'ok', engineAvailable: true));
-		$this->assertSame(expected: [], actual: $reporter->refreshFromSave(savedKeys: ['registry_url']));
+		// Asserted before the refresh, because the refresh clears this key itself.
 		$this->assertArrayNotHasKey(key: 'connection_report_dashboard-registry', array: $this->configStore);
+		$this->assertSame(expected: [], actual: $reporter->refreshFromSave(savedKeys: ['registry_url']));
 	}//end testAThrowingListenerNeverEscapes()
 
 	/**

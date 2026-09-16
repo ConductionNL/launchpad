@@ -42,9 +42,14 @@ describe('connection formatters', () => {
 	const formatters = createConnectionFormatters(translate)
 
 	it('labels all six statuses, limited included', () => {
-		expect(Object.keys(CONNECTION_STATUS_LABELS).sort()).toEqual(
-			['configured', 'error', 'limited', 'simulated', 'unavailable', 'unconfigured'],
-		)
+		expect(Object.keys(CONNECTION_STATUS_LABELS).sort()).toEqual([
+			'configured',
+			'error',
+			'limited',
+			'simulated',
+			'unavailable',
+			'unconfigured',
+		])
 		expect(formatters.connectionStatus('configured')).toBe('t:Configured')
 		expect(formatters.connectionStatus('limited')).toBe('t:Limited')
 		expect(formatters.connectionStatus('unconfigured')).toBe('t:Not configured')
@@ -70,7 +75,9 @@ describe('connection formatters', () => {
 	})
 
 	it('offers Open settings only when the row has a settings link', () => {
-		expect(formatters.connectionSettingsLabel('/settings/admin/launchpad')).toBe('t:Open settings')
+		expect(formatters.connectionSettingsLabel('/settings/admin/launchpad')).toBe(
+			't:Open settings',
+		)
 		expect(formatters.connectionSettingsLabel('')).toBe('')
 		expect(formatters.connectionSettingsLabel(undefined)).toBe('')
 		expect(formatters.connectionSettingsLabel(null)).toBe('')
@@ -109,8 +116,12 @@ describe('Add integration handler', () => {
 
 		handlers.openIntegriqConnections()
 
-		expect(INTEGRIQ_CONNECTIONS_PATH).toBe('/apps/integriq/connections?app=launchpad&link=1')
-		expect(opened).toEqual(['/index.php/apps/integriq/connections?app=launchpad&link=1'])
+		expect(INTEGRIQ_CONNECTIONS_PATH).toBe(
+			'/apps/integriq/connections?app=launchpad&link=1',
+		)
+		expect(opened).toEqual([
+			'/index.php/apps/integriq/connections?app=launchpad&link=1',
+		])
 	})
 })
 
@@ -144,15 +155,20 @@ describe('the Integrations page declaration', () => {
 		const formatters = createConnectionFormatters(translate)
 
 		for (const column of page.config.columns.filter((c) => c.formatter)) {
-			expect(typeof formatters[column.formatter], column.formatter).toBe('function')
+			expect(typeof formatters[column.formatter], column.formatter).toBe(
+				'function',
+			)
 		}
 
 		// The REAL map CnAppRoot receives, not a fresh copy: CnIndexPage
 		// resolves a handler name against it and silently falls back to
 		// emit-only when the name is missing.
-		const { default: customComponents } = await import('../../customComponents.js')
+		const { default: customComponents } =
+			await import('../../customComponents.js')
 		for (const action of page.config.headerActions) {
-			expect(typeof customComponents[action.handler], action.handler).toBe('function')
+			expect(typeof customComponents[action.handler], action.handler).toBe(
+				'function',
+			)
 		}
 
 		const app = read('src', 'App.vue')
@@ -164,7 +180,10 @@ describe('the Integrations page declaration', () => {
 
 	it('names an icon src/icons.js registers', () => {
 		const icons = read('src', 'icons.js')
-		for (const icon of [menu.icon, ...page.config.headerActions.map((a) => a.icon)]) {
+		for (const icon of [
+			menu.icon,
+			...page.config.headerActions.map((a) => a.icon),
+		]) {
 			expect(icons).toContain(`\n\t${icon},`)
 		}
 	})
@@ -177,6 +196,8 @@ describe('the Integrations page declaration', () => {
 
 		const merged = applyManifestFragments(base, [fragment])
 		expect(merged.pages.filter((p) => p.id === 'Integrations')).toHaveLength(1)
-		expect(merged.menu.filter((m) => m.id === 'IntegrationsMenu')).toHaveLength(1)
+		expect(merged.menu.filter((m) => m.id === 'IntegrationsMenu')).toHaveLength(
+			1,
+		)
 	})
 })

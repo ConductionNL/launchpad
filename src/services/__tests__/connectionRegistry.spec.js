@@ -13,9 +13,9 @@
  * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-004-an-admin-reads-the-connections-on-an-integrations-page
  */
 
+import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/dist/esm/utils/builtInFormatters.js'
 import * as fs from 'fs'
 import * as path from 'path'
-import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/dist/esm/utils/builtInFormatters.js'
 import { describe, expect, it } from 'vitest'
 import { applyManifestFragments } from '../../utils/mergeManifestFragments.js'
 import * as connectionRegistry from '../connectionRegistry.js'

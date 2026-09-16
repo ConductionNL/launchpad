@@ -5,24 +5,20 @@
  * The Integrations page over integriq's connection registry
  * (adopt-connection-registry, hydra connection-registry D8 and D9).
  *
- * The page is declared in JSON and resolves two formatters, one handler and
- * one icon by NAME. A misspelled name renders a raw enum, no glyph, or an Add
+ * The page is declared in JSON and resolves two built-in formatters, one
+ * handler and one icon by NAME. A misspelled name renders a raw enum, no glyph, or an Add
  * integration that does nothing, and none of them logs a thing. So this spec
  * reads the real fragment and checks every name against what has to answer it.
  *
  * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-004-an-admin-reads-the-connections-on-an-integrations-page
  */
 
+import { BUILT_IN_FORMATTERS } from '@conduction/nextcloud-vue/dist/esm/utils/builtInFormatters.js'
 import * as fs from 'fs'
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
 import { applyManifestFragments } from '../../utils/mergeManifestFragments.js'
-import {
-	CONNECTION_STATUS_LABELS,
-	createConnectionFormatters,
-	createConnectionHandlers,
-	INTEGRIQ_CONNECTIONS_PATH,
-} from '../connectionRegistry.js'
+import * as connectionRegistry from '../connectionRegistry.js'
 
 const ROOT = path.resolve(__dirname, '../../..')
 const read = (...parts) => fs.readFileSync(path.join(ROOT, ...parts), 'utf8')
@@ -31,64 +27,30 @@ const page = fragment.pages.find((p) => p.id === 'Integrations')
 const menu = fragment.menu.find((m) => m.id === 'IntegrationsMenu')
 
 /**
- * A translator that marks what it translated, so a missing call shows.
+ * The formatter registry the page renders with, built the way CnAppRoot builds
+ * it: `{ ...BUILT_IN_FORMATTERS, ...props.formatters }`. A local copy passed to
+ * CnAppRoot under a built-in's name wins, so a copy that predates a status
+ * shows that status as its raw word.
  *
- * @param {string} source The English source string.
- * @return {string} The marked string.
+ * @return {Object<string, Function>} Formatter name to formatter.
  */
-const translate = (source) => `t:${source}`
+function pageFormatters() {
+	const local = /createConnectionFormatters\(/.test(read('src', 'App.vue'))
+		? connectionRegistry.createConnectionFormatters((source) => source)
+		: {}
+	return { ...BUILT_IN_FORMATTERS, ...local }
+}
 
 describe('connection formatters', () => {
-	const formatters = createConnectionFormatters(translate)
-
-	it('labels all six statuses, limited included', () => {
-		expect(Object.keys(CONNECTION_STATUS_LABELS).sort()).toEqual([
-			'configured',
-			'error',
-			'limited',
-			'simulated',
-			'unavailable',
-			'unconfigured',
-		])
-		expect(formatters.connectionStatus('configured')).toBe('t:Configured')
-		expect(formatters.connectionStatus('limited')).toBe('t:Limited')
-		expect(formatters.connectionStatus('unconfigured')).toBe('t:Not configured')
-		expect(formatters.connectionStatus('simulated')).toBe('t:Simulated')
-		expect(formatters.connectionStatus('unavailable')).toBe('t:Not available')
-		expect(formatters.connectionStatus('error')).toBe('t:Error')
-	})
-
-	// A connection that works in part is neither working nor broken, so it must
-	// not borrow either label.
-	it('keeps limited apart from configured, not available and error', () => {
-		const limited = formatters.connectionStatus('limited')
-		expect(limited).not.toBe(formatters.connectionStatus('configured'))
-		expect(limited).not.toBe(formatters.connectionStatus('unavailable'))
-		expect(limited).not.toBe(formatters.connectionStatus('error'))
-	})
-
-	it('renders an unknown status as itself and a missing one as empty', () => {
-		expect(formatters.connectionStatus('degraded')).toBe('degraded')
-		expect(formatters.connectionStatus('toString')).toBe('toString')
-		expect(formatters.connectionStatus(null)).toBe('')
-		expect(formatters.connectionStatus(undefined)).toBe('')
-	})
-
-	it('offers Open settings only when the row has a settings link', () => {
-		expect(formatters.connectionSettingsLabel('/settings/admin/launchpad')).toBe(
-			't:Open settings',
-		)
-		expect(formatters.connectionSettingsLabel('')).toBe('')
-		expect(formatters.connectionSettingsLabel(undefined)).toBe('')
-		expect(formatters.connectionSettingsLabel(null)).toBe('')
+	it('reads a switched-off connection as Switched off, from the built-in', () => {
+		expect(pageFormatters().connectionStatus('disabled')).toBe('Switched off')
+		expect(read('src', 'App.vue')).not.toContain(':formatters=')
 	})
 
 	it('ships an English and a Dutch catalogue entry for every label the page shows', () => {
 		const en = JSON.parse(read('l10n', 'en.json')).translations
 		const nl = JSON.parse(read('l10n', 'nl.json')).translations
 		const labels = [
-			...Object.values(CONNECTION_STATUS_LABELS),
-			'Open settings',
 			page.title,
 			menu.label,
 			page.config.folderSidebar.allLabel,
@@ -99,24 +61,20 @@ describe('connection formatters', () => {
 			expect(en[label], `en: ${label}`).toBe(label)
 			expect(nl[label], `nl: ${label}`).toBeTruthy()
 		}
-		expect(nl.Limited).toBe('Beperkt')
-		// The browser reads the .js catalogue, never the .json one.
-		expect(read('l10n', 'nl.js')).toContain('"Limited" : "Beperkt"')
-		expect(read('l10n', 'en.js')).toContain('"Limited" : "Limited"')
 	})
 })
 
 describe('Add integration handler', () => {
 	it('opens integriq on the link dialog, preset to launchpad', () => {
 		const opened = []
-		const handlers = createConnectionHandlers({
+		const handlers = connectionRegistry.createConnectionHandlers({
 			generateUrl: (p) => `/index.php${p}`,
 			assign: (url) => opened.push(url),
 		})
 
 		handlers.openIntegriqConnections()
 
-		expect(INTEGRIQ_CONNECTIONS_PATH).toBe(
+		expect(connectionRegistry.INTEGRIQ_CONNECTIONS_PATH).toBe(
 			'/apps/integriq/connections?app=launchpad&link=1',
 		)
 		expect(opened).toEqual([
@@ -151,8 +109,8 @@ describe('the Integrations page declaration', () => {
 		expect(menu.visibleIf).toEqual({ appInstalled: 'integriq' })
 	})
 
-	it('names only formatters and handlers that exist, and wires both into the app', async () => {
-		const formatters = createConnectionFormatters(translate)
+	it('names only formatters and handlers that exist, and wires the handler into the app', async () => {
+		const formatters = pageFormatters()
 
 		for (const column of page.config.columns.filter((c) => c.formatter)) {
 			expect(typeof formatters[column.formatter], column.formatter).toBe(
@@ -172,9 +130,7 @@ describe('the Integrations page declaration', () => {
 		}
 
 		const app = read('src', 'App.vue')
-		expect(app).toContain(':formatters="formatters"')
 		expect(app).toContain(':customComponents="customComponents"')
-		expect(app).toContain('formatters: createConnectionFormatters(')
 		expect(app).toContain("import customComponents from './customComponents.js'")
 	})
 

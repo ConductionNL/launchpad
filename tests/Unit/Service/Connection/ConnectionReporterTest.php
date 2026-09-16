@@ -44,6 +44,7 @@ use RuntimeException;
  * Unit tests for ConnectionReporter.
  *
  * @covers \OCA\LaunchPad\Service\Connection\ConnectionReporter
+ * @uses \OCA\LaunchPad\Service\Connection\ConnectionObservations
  */
 class ConnectionReporterTest extends TestCase {
 	use ConnectionReporterFixture;

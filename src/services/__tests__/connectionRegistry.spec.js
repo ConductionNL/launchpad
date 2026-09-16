@@ -74,8 +74,12 @@ describe('Add integration handler', () => {
 
 		handlers.openIntegriqConnections()
 
-		expect(connectionRegistry.INTEGRIQ_CONNECTIONS_PATH).toBe('/apps/integriq/connections?app=launchpad&link=1')
-		expect(opened).toEqual(['/index.php/apps/integriq/connections?app=launchpad&link=1'])
+		expect(connectionRegistry.INTEGRIQ_CONNECTIONS_PATH).toBe(
+			'/apps/integriq/connections?app=launchpad&link=1',
+		)
+		expect(opened).toEqual([
+			'/index.php/apps/integriq/connections?app=launchpad&link=1',
+		])
 	})
 })
 
@@ -109,15 +113,20 @@ describe('the Integrations page declaration', () => {
 		const formatters = pageFormatters()
 
 		for (const column of page.config.columns.filter((c) => c.formatter)) {
-			expect(typeof formatters[column.formatter], column.formatter).toBe('function')
+			expect(typeof formatters[column.formatter], column.formatter).toBe(
+				'function',
+			)
 		}
 
 		// The REAL map CnAppRoot receives, not a fresh copy: CnIndexPage
 		// resolves a handler name against it and silently falls back to
 		// emit-only when the name is missing.
-		const { default: customComponents } = await import('../../customComponents.js')
+		const { default: customComponents } =
+			await import('../../customComponents.js')
 		for (const action of page.config.headerActions) {
-			expect(typeof customComponents[action.handler], action.handler).toBe('function')
+			expect(typeof customComponents[action.handler], action.handler).toBe(
+				'function',
+			)
 		}
 
 		const app = read('src', 'App.vue')
@@ -127,7 +136,10 @@ describe('the Integrations page declaration', () => {
 
 	it('names an icon src/icons.js registers', () => {
 		const icons = read('src', 'icons.js')
-		for (const icon of [menu.icon, ...page.config.headerActions.map((a) => a.icon)]) {
+		for (const icon of [
+			menu.icon,
+			...page.config.headerActions.map((a) => a.icon),
+		]) {
 			expect(icons).toContain(`\n\t${icon},`)
 		}
 	})
@@ -140,6 +152,8 @@ describe('the Integrations page declaration', () => {
 
 		const merged = applyManifestFragments(base, [fragment])
 		expect(merged.pages.filter((p) => p.id === 'Integrations')).toHaveLength(1)
-		expect(merged.menu.filter((m) => m.id === 'IntegrationsMenu')).toHaveLength(1)
+		expect(merged.menu.filter((m) => m.id === 'IntegrationsMenu')).toHaveLength(
+			1,
+		)
 	})
 })

@@ -162,7 +162,9 @@ export default {
 			 * Integrations page (adopt-connection-registry); nextcloud-vue
 			 * 2.46.0 ships neither as a built-in. Static, so not reactive.
 			 */
-			formatters: createConnectionFormatters((source) => ncT('launchpad', source)),
+			formatters: createConnectionFormatters((source) =>
+				ncT('launchpad', source),
+			),
 
 			/**
 			 * The header-action handler map. CnIndexPage resolves a handler

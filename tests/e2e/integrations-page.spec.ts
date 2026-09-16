@@ -43,7 +43,8 @@ import { BASE_URL as BASE } from './support/baseUrl.ts'
 const APP = '/index.php/apps/launchpad'
 
 /** Integriq's objects endpoint for LaunchPad's connection rows. */
-const CONNECTIONS_API = '/index.php/apps/openregister/api/objects/integriq/app_connection?app=launchpad&_limit=50'
+const CONNECTIONS_API =
+	'/index.php/apps/openregister/api/objects/integriq/app_connection?app=launchpad&_limit=50'
 
 /** LaunchPad's registry settings, the one writer of the registry keys. */
 const STORE_CONFIG_API = `${APP}/api/store/config`
@@ -89,14 +90,18 @@ async function adminApi(): Promise<APIRequestContext> {
  * @param api An admin request context.
  * @return The rows by key.
  */
-async function rowsByKey(api: APIRequestContext): Promise<Record<string, Record<string, unknown>>> {
+async function rowsByKey(
+	api: APIRequestContext,
+): Promise<Record<string, Record<string, unknown>>> {
 	const res = await api.get(CONNECTIONS_API)
 	expect(res.ok(), `list integriq/app_connection -> ${res.status()}`).toBeTruthy()
 	const body = await res.json()
 	const byKey: Record<string, Record<string, unknown>> = {}
 	for (const row of (body.results ?? []) as Record<string, unknown>[]) {
 		// A row from another app here means the bare filter was dropped.
-		expect(String(row.app), 'a connection row from another app').toBe('launchpad')
+		expect(String(row.app), 'a connection row from another app').toBe(
+			'launchpad',
+		)
 		byKey[String(row.key)] = row
 	}
 	return byKey
@@ -114,7 +119,10 @@ async function rowsByKey(api: APIRequestContext): Promise<Record<string, Record<
 async function registryRow(api: APIRequestContext): Promise<string> {
 	const list = await api.get(CONNECTIONS_API)
 	const rows = list.ok() ? ((await list.json()).results ?? []) : []
-	const row = rows.find((r: Record<string, unknown>) => r.key === 'dashboard-registry' && r.app === 'launchpad')
+	const row = rows.find(
+		(r: Record<string, unknown>) =>
+			r.key === 'dashboard-registry' && r.app === 'launchpad',
+	)
 	return `${String(row?.status ?? '')} ${String(row?.statusMessage ?? '')}`
 }
 
@@ -125,7 +133,11 @@ async function registryRow(api: APIRequestContext): Promise<string> {
  * @param url The registry URL to save.
  * @param block What to do while it is saved.
  */
-async function withRegistryUrl(api: APIRequestContext, url: string, block: () => Promise<void>): Promise<void> {
+async function withRegistryUrl(
+	api: APIRequestContext,
+	url: string,
+	block: () => Promise<void>,
+): Promise<void> {
 	const before = await api.get(STORE_CONFIG_API)
 	expect(before.ok(), `registry config read -> ${before.status()}`).toBeTruthy()
 	const previous = String((await before.json())?.registryUrl ?? '')
@@ -146,7 +158,9 @@ async function withRegistryUrl(api: APIRequestContext, url: string, block: () =>
  * @param page The Playwright page.
  */
 async function openIntegrations(page: Page): Promise<void> {
-	await page.goto(`${APP}/settings/integrations?app=launchpad`, { timeout: 60_000 })
+	await page.goto(`${APP}/settings/integrations?app=launchpad`, {
+		timeout: 60_000,
+	})
 	await expect(page.locator('.cn-index-page')).toBeVisible({ timeout: 30_000 })
 }
 
@@ -161,14 +175,20 @@ test.describe('Integrations over the connection registry', () => {
 		await api.dispose()
 	})
 
-	test('lists the six declared connections, all of them LaunchPad\'s', async ({ page }) => {
+	test("lists the six declared connections, all of them LaunchPad's", async ({
+		page,
+	}) => {
 		const byKey = await rowsByKey(api)
 		expect(Object.keys(byKey).sort()).toEqual(DECLARED.map((d) => d.key).sort())
-		expect(String(byKey['dashboard-registry']?.settingsUrl ?? '')).toBe('/settings/admin/launchpad?tab=sharing#section-dashboard-registry')
+		expect(String(byKey['dashboard-registry']?.settingsUrl ?? '')).toBe(
+			'/settings/admin/launchpad?tab=sharing#section-dashboard-registry',
+		)
 
 		await openIntegrations(page)
 		for (const { title } of DECLARED) {
-			await expect(page.getByRole('row', { name: new RegExp(title, 'i') })).toHaveCount(1)
+			await expect(
+				page.getByRole('row', { name: new RegExp(title, 'i') }),
+			).toHaveCount(1)
 		}
 	})
 
@@ -184,17 +204,23 @@ test.describe('Integrations over the connection registry', () => {
 		await withRegistryUrl(api, UNREACHABLE_REGISTRY, async () => {
 			// One search. Its own answer is not under test: it answers the
 			// unreachable outcome, as it did before this change. What it reports is.
-			const search = await api.get(STORE_SEARCH_API, { failOnStatusCode: false })
+			const search = await api.get(STORE_SEARCH_API, {
+				failOnStatusCode: false,
+			})
 			expect(search.status(), `store search -> ${search.status()}`).toBe(200)
 			expect((await search.json()).outcome).toBe('store_unreachable')
 
 			await expect
 				.poll(() => registryRow(api), { timeout: 15_000 })
-				.toBe('error The last search could not reach the dashboard registry at registry.example.invalid.')
+				.toBe(
+					'error The last search could not reach the dashboard registry at registry.example.invalid.',
+				)
 		})
 	})
 
-	test('sends Add integration to integriq instead of offering a form', async ({ page }) => {
+	test('sends Add integration to integriq instead of offering a form', async ({
+		page,
+	}) => {
 		await openIntegrations(page)
 
 		// No generic Add button: a row nothing declared has nothing to check.
@@ -204,8 +230,14 @@ test.describe('Integrations over the connection registry', () => {
 		// catalogues this change ships, and nothing forces the E2E locale.
 		await page.locator('[data-testid="cn-actions"] button').first().click()
 		await Promise.all([
-			page.waitForURL(/\/apps\/integriq\/connections\?app=launchpad&link=1$/, { timeout: 30_000 }),
-			page.getByRole('menuitem', { name: /Add integration|Integratie toevoegen/i }).click(),
+			page.waitForURL(/\/apps\/integriq\/connections\?app=launchpad&link=1$/, {
+				timeout: 30_000,
+			}),
+			page
+				.getByRole('menuitem', {
+					name: /Add integration|Integratie toevoegen/i,
+				})
+				.click(),
 		])
 	})
 })

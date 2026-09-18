@@ -307,6 +307,7 @@ class DashboardService {
 		private readonly ?QuotaService $quotaService = null,
 		private readonly ?IURLGenerator $urlGenerator = null,
 		private readonly ?ILockingProvider $lockingProvider = null,
+		private readonly ?PersonalLayerService $personalLayers = null,
 	) {
 	}//end __construct()
 
@@ -410,7 +411,11 @@ class DashboardService {
 			if (isset($levels[$dashboard->getId()]) === true) {
 				return [
 					'dashboard' => $dashboard,
-					'placements' => $placements,
+					'placements' => $this->withPersonalLayer(
+						placements: $placements,
+						dashboard: $dashboard,
+						userId: $userId
+					),
 					'permissionLevel' => $levels[$dashboard->getId()],
 				];
 			}
@@ -418,9 +423,45 @@ class DashboardService {
 
 		return $this->dashResolver->buildResult(
 			dashboard: $dashboard,
-			placements: $placements
+			placements: $this->withPersonalLayer(
+				placements: $placements,
+				dashboard: $dashboard,
+				userId: $userId
+			)
 		);
 	}//end getDashboardForUser()
+
+	/**
+	 * Lay the caller's own arrangement over a dashboard somebody else owns.
+	 *
+	 * Their own dashboard is left alone: the arrangement there IS the
+	 * dashboard, and a layer on top of it would be a second place the same
+	 * thing is stored. A caller with no layer gets the placements back
+	 * unchanged, so this costs one miss until somebody uses the feature.
+	 *
+	 * @param array $placements What the owner composed.
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param string $userId The caller.
+	 *
+	 * @return array The placements the caller sees.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	private function withPersonalLayer(
+		array $placements,
+		Dashboard $dashboard,
+		string $userId,
+	): array {
+		if ($this->personalLayers === null || (string)$dashboard->getUserId() === $userId) {
+			return $placements;
+		}
+
+		return $this->personalLayers->applyTo(
+			placements: $placements,
+			userId: $userId,
+			dashboardId: (int)$dashboard->getId()
+		);
+	}//end withPersonalLayer()
 
 	/**
 	 * Get the effective dashboard for a user.

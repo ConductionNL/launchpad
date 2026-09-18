@@ -55,14 +55,21 @@ async function adminApi(playwright: {
 /** The first dashboard the caller can see, with its placements. */
 async function anyVisibleDashboard(
 	api: APIRequestContext,
-): Promise<{ id: number, placements: Array<Record<string, unknown>> }> {
+): Promise<{ id: number; placements: Array<Record<string, unknown>> }> {
 	const res = await api.get(`${API}/dashboards/visible`)
 	expect(res.ok(), 'the visible-dashboards route must answer').toBeTruthy()
 	const body = (await res.json()) as Record<string, unknown>
-	const list = ((body.data ?? body.dashboards ?? body) as Array<Record<string, unknown>>)
-	expect(Array.isArray(list) && list.length > 0, 'the seeded instance has at least one dashboard').toBeTruthy()
+	const list = (body.data ?? body.dashboards ?? body) as Array<
+		Record<string, unknown>
+	>
+	expect(
+		Array.isArray(list) && list.length > 0,
+		'the seeded instance has at least one dashboard',
+	).toBeTruthy()
 
-	const id = Number((list[0].id ?? (list[0].dashboard as Record<string, unknown>)?.id))
+	const id = Number(
+		list[0].id ?? (list[0].dashboard as Record<string, unknown>)?.id,
+	)
 	expect(Number.isFinite(id) && id > 0).toBeTruthy()
 
 	const one = await api.get(`${API}/dashboards/${id}`)
@@ -70,7 +77,10 @@ async function anyVisibleDashboard(
 	const envelope = (await one.json()) as Record<string, unknown>
 	const payload = (envelope.data ?? envelope) as Record<string, unknown>
 
-	return { id, placements: (payload.placements ?? []) as Array<Record<string, unknown>> }
+	return {
+		id,
+		placements: (payload.placements ?? []) as Array<Record<string, unknown>>,
+	}
 }
 
 test.describe('a personal layer over a dashboard somebody else owns', () => {
@@ -88,28 +98,49 @@ test.describe('a personal layer over a dashboard somebody else owns', () => {
 	// @e2e dashboards-and-who-may-see-them::reset-to-the-organisations-arrangement
 	test('a saved arrangement comes back, and the reset removes all of it', async () => {
 		const { id, placements } = await anyVisibleDashboard(api)
-		test.skip(placements.length === 0, 'the seeded dashboard carries no placements')
+		test.skip(
+			placements.length === 0,
+			'the seeded dashboard carries no placements',
+		)
 
 		const first = Number(placements[0].id)
 
 		// Nothing yet: the caller sees what the owner composed.
 		const before = await api.get(LAYER_URL(id))
 		expect(before.ok()).toBeTruthy()
-		expect(((await before.json()) as Record<string, unknown>).hasLayer).toBe(false)
+		expect(((await before.json()) as Record<string, unknown>).hasLayer).toBe(
+			false,
+		)
 
 		const saved = await api.put(LAYER_URL(id), {
-			data: { overrides: { [first]: { sortOrder: 99, gridWidth: 4 } }, hidden: [] },
+			data: {
+				overrides: { [first]: { sortOrder: 99, gridWidth: 4 } },
+				hidden: [],
+			},
 		})
-		expect(saved.ok(), 'a person may arrange a dashboard they can see').toBeTruthy()
+		expect(
+			saved.ok(),
+			'a person may arrange a dashboard they can see',
+		).toBeTruthy()
 
-		const after = (await (await api.get(LAYER_URL(id))).json()) as Record<string, unknown>
+		const after = (await (await api.get(LAYER_URL(id))).json()) as Record<
+			string,
+			unknown
+		>
 		expect(after.hasLayer).toBe(true)
-		expect((after.overrides as Record<string, Record<string, number>>)[String(first)].sortOrder).toBe(99)
+		expect(
+			(after.overrides as Record<string, Record<string, number>>)[
+				String(first)
+			].sortOrder,
+		).toBe(99)
 
 		const reset = await api.delete(LAYER_URL(id))
 		expect(reset.ok()).toBeTruthy()
 
-		const cleared = (await (await api.get(LAYER_URL(id))).json()) as Record<string, unknown>
+		const cleared = (await (await api.get(LAYER_URL(id))).json()) as Record<
+			string,
+			unknown
+		>
 		expect(cleared.hasLayer, 'the reset removes the whole layer').toBe(false)
 		expect(cleared.overrides).toEqual({})
 		expect(cleared.hidden).toEqual([])
@@ -119,7 +150,10 @@ test.describe('a personal layer over a dashboard somebody else owns', () => {
 	test('hiding a compulsory placement is refused and names it', async () => {
 		const { id, placements } = await anyVisibleDashboard(api)
 		const compulsory = placements.find((p) => Number(p.isCompulsory) === 1)
-		test.skip(compulsory === undefined, 'the seeded dashboard carries no compulsory placement')
+		test.skip(
+			compulsory === undefined,
+			'the seeded dashboard carries no compulsory placement',
+		)
 
 		const refused = await api.put(LAYER_URL(id), {
 			data: { overrides: {}, hidden: [Number(compulsory?.id)] },
@@ -132,16 +166,27 @@ test.describe('a personal layer over a dashboard somebody else owns', () => {
 		expect(Number(payload.placementId)).toBe(Number(compulsory?.id))
 
 		// Nothing landed.
-		expect(((await (await api.get(LAYER_URL(id))).json()) as Record<string, unknown>).hasLayer).toBe(false)
+		expect(
+			(
+				(await (await api.get(LAYER_URL(id))).json()) as Record<
+					string,
+					unknown
+				>
+			).hasLayer,
+		).toBe(false)
 	})
 
 	// The least privileged principal that should be refused: nobody at all.
-	test('an unauthenticated caller reads and writes no layer', async ({ playwright }) => {
+	test('an unauthenticated caller reads and writes no layer', async ({
+		playwright,
+	}) => {
 		const anonymous = await playwright.request.newContext({ baseURL: BASE })
 		const read = await anonymous.get(LAYER_URL(1))
 		expect([401, 403, 412].includes(read.status())).toBeTruthy()
 
-		const write = await anonymous.put(LAYER_URL(1), { data: { overrides: {}, hidden: [1] } })
+		const write = await anonymous.put(LAYER_URL(1), {
+			data: { overrides: {}, hidden: [1] },
+		})
 		expect([401, 403, 412].includes(write.status())).toBeTruthy()
 		await anonymous.dispose()
 	})

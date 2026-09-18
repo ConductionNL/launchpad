@@ -156,9 +156,11 @@ class PersonalLayerService {
 
 		if ($isNew === true) {
 			$this->layers->insert($layer);
-		} else {
-			$this->layers->update($layer);
+
+			return ['saved' => true];
 		}
+
+		$this->layers->update($layer);
 
 		return ['saved' => true];
 	}//end save()

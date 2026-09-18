@@ -69,7 +69,7 @@ class PersonalLayerMapper extends QBMapper {
 			->setMaxResults(1);
 
 		try {
-			return $this->findEntity($qb);
+			return $this->findEntity(query: $qb);
 		} catch (DoesNotExistException) {
 			// No layer is the ordinary case: it means this person sees what
 			// the owner composed.

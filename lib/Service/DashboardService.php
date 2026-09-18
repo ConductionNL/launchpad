@@ -283,6 +283,17 @@ class DashboardService {
 	 *                                               cannot produce
 	 *                                               duplicate slugs
 	 *                                               (REQ-DASH-020).
+	 * @param PersonalLayerService|null $personalLayers Optional. Lays a
+	 *                                                  reader's own
+	 *                                                  arrangement over a
+	 *                                                  dashboard somebody
+	 *                                                  else owns. Null
+	 *                                                  returns the owner's
+	 *                                                  placements unchanged,
+	 *                                                  which is what every
+	 *                                                  test that builds this
+	 *                                                  service by hand gets
+	 *                                                  (REQ-DWMS-001).
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,

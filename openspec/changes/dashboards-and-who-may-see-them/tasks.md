@@ -2,12 +2,12 @@
 
 ## 1. The personal layer
 
-- [ ] 1.1 Add a personal layer record keyed by user and dashboard, holding order, size and the hidden set.
-- [ ] 1.2 Apply the layer over a shared dashboard at render time, and only for its owner.
-- [ ] 1.3 Refuse hiding a placement marked compulsory by `admin-templates`.
-- [ ] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
-- [ ] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync.
-- [ ] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
+- [x] 1.1 Add a personal layer record keyed by user and dashboard, holding order, size and the hidden set.
+- [x] 1.2 Apply the layer over a shared dashboard at render time, and only for its owner.
+- [x] 1.3 Refuse hiding a placement marked compulsory by `admin-templates`.
+- [x] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
+- [x] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync.
+- [x] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
 
 ## 2. The report library
 
@@ -65,3 +65,36 @@
 - [ ] 9.1 Give the dossiq lane the consumer half: case widgets contributed to a launchpad dashboard, each declaring the roles that may see it.
 - [ ] 9.2 Agree with the openregister lane which aggregations a shipped report may rely on.
 - [ ] 9.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.
+
+## What shipped, and what has not
+
+**Section 1 is built and covered.** `launchpad_personal_layers` holds one row
+per person per dashboard: the geometry and order they changed, and the
+placements they hid. `PersonalLayerService` lays it over the shared placements
+inside `DashboardService::getDashboardForUser()`, on both the owned-read path
+and the share path, and only for a dashboard the caller does not own. Their own
+dashboard is left alone, because there the arrangement IS the dashboard.
+
+A compulsory placement cannot be hidden, and a save that asks to hide one
+writes nothing at all rather than landing the allowed half. It can still be
+moved. A placement made compulsory after somebody hid it renders again, which
+is checked. The reset is `DELETE`, removes the whole row, and resetting twice
+is not an error. `pruneOrphans()` drops entries for placements a template
+re-sync removed, and deletes the row when the sweep empties it, so nobody is
+left holding an empty personal arrangement.
+
+Three routes, all `#[NoAdminRequired]`, all reading the caller's own user id
+from the session. No route takes a user id from the request, so one person's
+layer is unreachable through another's.
+
+**Sections 2 to 8 are not built.** The report library, the status report,
+activity reporting and its purpose gate, colleague activity, in-widget search,
+geographic reporting and storage reporting are untouched, and their boxes are
+still open above. Section 6 needs Vitest, which cannot run in this checkout:
+`npm ci` refuses because `package.json` and `package-lock.json` are out of
+sync on the base. Writing a component test that cannot be run would be worse
+than leaving the box open.
+
+**Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and
+openregister halves have not been handed over, because sections 2 to 8 are what
+they depend on.

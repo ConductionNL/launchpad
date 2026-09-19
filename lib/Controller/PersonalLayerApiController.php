@@ -38,6 +38,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use stdClass;
 
 /**
  * Read, save and reset a personal dashboard layer.
@@ -87,8 +88,20 @@ class PersonalLayerApiController extends Controller {
 		$layer = $this->mapper->findForUser(userId: (string)$this->userId, dashboardId: $dashboardId);
 		if ($layer === null) {
 			// No layer means this person sees what the owner composed, which
-			// is a state worth answering plainly rather than with a 404.
-			return new JSONResponse(['overrides' => [], 'hidden' => [], 'hasLayer' => false]);
+			// is a state worth answering plainly rather than with a 404. The
+			// answer carries the same keys and the same JSON types as a saved
+			// layer, so a client can read `overrides.<placementId>` and
+			// `hidden` without first branching on `hasLayer`.
+			return new JSONResponse(
+				[
+					'id' => null,
+					'dashboardId' => $dashboardId,
+					'overrides' => new stdClass(),
+					'hidden' => [],
+					'updatedAt' => null,
+					'hasLayer' => false,
+				]
+			);
 		}
 
 		return new JSONResponse($layer->jsonSerialize() + ['hasLayer' => true]);

@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -124,6 +125,7 @@ class DashboardServiceGroupSharedTest extends TestCase {
 			config: $this->config,
 			l10nFactory: $this->l10nFactory,
 			logger: $this->logger,
+			personalLayers: $this->createMock(PersonalLayerService::class),
 			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
 		);
 	}//end setUp()

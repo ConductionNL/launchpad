@@ -176,6 +176,19 @@ class DashboardService {
 	 *                              fork name
 	 *                              (REQ-DASH-020).
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param PersonalLayerService $personalLayers Lays a reader's own
+	 *                                             arrangement over a
+	 *                                             dashboard somebody else
+	 *                                             owns (REQ-DWMS-001).
+	 *                                             Required, not nullable:
+	 *                                             a null here is
+	 *                                             indistinguishable from a
+	 *                                             reader who has no layer,
+	 *                                             so broken wiring would
+	 *                                             store layers and show
+	 *                                             none of them, in silence
+	 *                                             and with every test
+	 *                                             green.
 	 * @param DashboardTranslationService|null $translationService Optional
 	 *                                                             translation
 	 *                                                             service
@@ -283,17 +296,6 @@ class DashboardService {
 	 *                                               cannot produce
 	 *                                               duplicate slugs
 	 *                                               (REQ-DASH-020).
-	 * @param PersonalLayerService|null $personalLayers Optional. Lays a
-	 *                                                  reader's own
-	 *                                                  arrangement over a
-	 *                                                  dashboard somebody
-	 *                                                  else owns. Null
-	 *                                                  returns the owner's
-	 *                                                  placements unchanged,
-	 *                                                  which is what every
-	 *                                                  test that builds this
-	 *                                                  service by hand gets
-	 *                                                  (REQ-DWMS-001).
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,
@@ -309,6 +311,7 @@ class DashboardService {
 		private readonly IConfig $config,
 		private readonly IFactory $l10nFactory,
 		private readonly LoggerInterface $logger,
+		private readonly PersonalLayerService $personalLayers,
 		private readonly ?DashboardTranslationService $translationService = null,
 		private readonly ?DashboardLockMapper $lockMapper = null,
 		private readonly ?FooterService $footerService = null,
@@ -318,7 +321,6 @@ class DashboardService {
 		private readonly ?QuotaService $quotaService = null,
 		private readonly ?IURLGenerator $urlGenerator = null,
 		private readonly ?ILockingProvider $lockingProvider = null,
-		private readonly ?PersonalLayerService $personalLayers = null,
 	) {
 	}//end __construct()
 
@@ -450,6 +452,11 @@ class DashboardService {
 	 * thing is stored. A caller with no layer gets the placements back
 	 * unchanged, so this costs one miss until somebody uses the feature.
 	 *
+	 * The layer service is required rather than nullable. It used to be
+	 * nullable, and a null read exactly like a caller with no layer, so a
+	 * wiring failure would have stored layers and applied none of them
+	 * without a single test noticing.
+	 *
 	 * @param array $placements What the owner composed.
 	 * @param Dashboard $dashboard The dashboard being read.
 	 * @param string $userId The caller.
@@ -463,7 +470,7 @@ class DashboardService {
 		Dashboard $dashboard,
 		string $userId,
 	): array {
-		if ($this->personalLayers === null || (string)$dashboard->getUserId() === $userId) {
+		if ((string)$dashboard->getUserId() === $userId) {
 			return $placements;
 		}
 
@@ -478,13 +485,44 @@ class DashboardService {
 	 * Get the effective dashboard for a user.
 	 * Returns user's active dashboard or applicable admin template.
 	 *
+	 * This is `GET /api/dashboard`, the call the grid loads from, so it is
+	 * the read the personal layer has to reach. The resolution chain below
+	 * has eight exits, several of them inside DashboardResolver, so the
+	 * layer goes on here, once, over whatever the chain settled on, rather
+	 * than at eight places where the ninth would be forgotten.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The effective dashboard data or null.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function getEffectiveDashboard(string $userId): ?array {
+		$result = $this->resolveEffectiveDashboard(userId: $userId);
+		if ($result === null || isset($result['placements']) === false) {
+			return $result;
+		}
+
+		$result['placements'] = $this->withPersonalLayer(
+			placements: $result['placements'],
+			dashboard: $result['dashboard'],
+			userId: $userId
+		);
+
+		return $result;
+	}//end getEffectiveDashboard()
+
+	/**
+	 * The resolution chain behind {@see self::getEffectiveDashboard()}.
+	 *
 	 * @param string $userId The user ID.
 	 *
 	 * @return array|null The effective dashboard data or null.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	public function getEffectiveDashboard(string $userId): ?array {
+	private function resolveEffectiveDashboard(string $userId): ?array {
 		// Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
 		// then the auto-overwriting last-used preference (REQ-DASH-019),
 		// both against the user's full visible set. This honours a
@@ -560,7 +598,7 @@ class DashboardService {
 		}
 
 		return $this->tryCreateFromTemplate(userId: $userId);
-	}//end getEffectiveDashboard()
+	}//end resolveEffectiveDashboard()
 
 	/**
 	 * The user's role layout when their groups carry one, else the instance default.

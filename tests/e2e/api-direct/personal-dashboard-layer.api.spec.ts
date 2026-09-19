@@ -15,6 +15,11 @@
  *   @e2e dashboards-and-who-may-see-them::a-compulsory-widget-cannot-be-hidden
  *   @e2e dashboards-and-who-may-see-them::reset-to-the-organisations-arrangement
  *
+ * The landing read is asserted as well as the layer store. A layer that
+ * round-trips through /personal-layer but never reaches the placements the
+ * grid draws is a feature that stores and shows nothing, which is exactly
+ * what the reader-side PHPUnit coverage was added for.
+ *
  * NOT anchored here, covered by PHPUnit and named so anyone can check:
  *   tests/Unit/Service/PersonalLayerServiceTest.php
  *   (testOneMembersArrangementIsInvisibleToTheOthers,
@@ -55,7 +60,11 @@ async function adminApi(playwright: {
 /** The first dashboard the caller can see, with its placements. */
 async function anyVisibleDashboard(
 	api: APIRequestContext,
-): Promise<{ id: number; placements: Array<Record<string, unknown>> }> {
+): Promise<{
+	id: number
+	ownerId: string | null
+	placements: Array<Record<string, unknown>>
+}> {
 	const res = await api.get(`${API}/dashboards/visible`)
 	expect(res.ok(), 'the visible-dashboards route must answer').toBeTruthy()
 	const body = (await res.json()) as Record<string, unknown>
@@ -77,8 +86,11 @@ async function anyVisibleDashboard(
 	const envelope = (await one.json()) as Record<string, unknown>
 	const payload = (envelope.data ?? envelope) as Record<string, unknown>
 
+	const dashboard = (payload.dashboard ?? {}) as Record<string, unknown>
+
 	return {
 		id,
+		ownerId: (dashboard.userId ?? null) as string | null,
 		placements: (payload.placements ?? []) as Array<Record<string, unknown>>,
 	}
 }
@@ -144,6 +156,50 @@ test.describe('a personal layer over a dashboard somebody else owns', () => {
 		expect(cleared.hasLayer, 'the reset removes the whole layer').toBe(false)
 		expect(cleared.overrides).toEqual({})
 		expect(cleared.hidden).toEqual([])
+	})
+
+	// @e2e dashboards-and-who-may-see-them::a-handler-rearranges-the-team-dashboard-for-themselves
+	test('the saved arrangement reaches the placements the grid reads', async () => {
+		const { id, ownerId, placements } = await anyVisibleDashboard(api)
+		test.skip(
+			placements.length < 2,
+			'this dashboard has too few placements to reorder',
+		)
+		test.skip(
+			ownerId === ADMIN.user,
+			'the caller owns this dashboard, where the arrangement IS the dashboard',
+		)
+
+		const last = Number(placements[placements.length - 1].id)
+
+		await api.delete(LAYER_URL(id))
+		const saved = await api.put(LAYER_URL(id), {
+			data: { overrides: { [last]: { sortOrder: -1 } }, hidden: [] },
+		})
+		expect(saved.ok(), 'the layer must save').toBeTruthy()
+
+		try {
+			// The read the grid does, not the layer store.
+			const read = await api.get(`${API}/dashboard`)
+			expect(read.ok(), 'the landing read must answer').toBeTruthy()
+			const envelope = (await read.json()) as Record<string, unknown>
+			const payload = (envelope.data ?? envelope) as Record<string, unknown>
+			const drawn = (payload.placements ?? []) as Array<
+				Record<string, unknown>
+			>
+			test.skip(
+				Number((payload.dashboard as Record<string, unknown>)?.id) !== id,
+				'the landing read resolved a different dashboard than the one arranged',
+			)
+
+			expect(
+				Number(drawn[0]?.id),
+				'the placement moved to the front must be first in what the grid reads; '
+					+ 'the owner order here means the layer is stored and never shown',
+			).toBe(last)
+		} finally {
+			await api.delete(LAYER_URL(id))
+		}
 	})
 
 	// @e2e dashboards-and-who-may-see-them::a-compulsory-widget-cannot-be-hidden

@@ -8,6 +8,7 @@
 - [x] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
 - [x] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync.
 - [x] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
+- [x] 1.7 PHPUnit from the READER: a saved layer changes what `DashboardService` hands back, on the landing read and on the by-id read, and reaches nobody else.
 
 ## 2. The report library
 
@@ -72,8 +73,19 @@
 per person per dashboard: the geometry and order they changed, and the
 placements they hid. `PersonalLayerService` lays it over the shared placements
 inside `DashboardService::getDashboardForUser()`, on both the owned-read path
-and the share path, and only for a dashboard the caller does not own. Their own
-dashboard is left alone, because there the arrangement IS the dashboard.
+and the share path, and inside `getEffectiveDashboard()`, which is the
+`GET /api/dashboard` the grid loads from. Only for a dashboard the caller does
+not own: their own dashboard is left alone, because there the arrangement IS
+the dashboard.
+
+Two things were fixed once the reader got its own tests. `getEffectiveDashboard()`
+did not apply the layer at all, so a person who arranged the dashboard they land
+on saw their arrangement through the layer endpoint and nowhere else. And the
+layer service was a nullable constructor argument on `DashboardService`, purely
+so that unit tests could leave it out. A null read exactly like a person with no
+layer, so a wiring failure would have stored every layer and shown none of them
+with the whole suite green. It is required now; nothing in the app ever built
+that service without it.
 
 A compulsory placement cannot be hidden, and a save that asks to hide one
 writes nothing at all rather than landing the allowed half. It can still be

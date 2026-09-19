@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
@@ -82,6 +83,7 @@ class DashboardServiceQuotaWiringTest extends TestCase {
 			config: $this->createMock(IConfig::class),
 			l10nFactory: $this->createMock(IFactory::class),
 			logger: $this->createMock(LoggerInterface::class),
+			personalLayers: $this->createMock(PersonalLayerService::class),
 			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
 			quotaService: $quotaService,
 		);

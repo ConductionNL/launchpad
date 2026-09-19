@@ -1174,7 +1174,19 @@ OC.L10N.register(
     "None, I will set this up myself": "Geen, ik richt dit zelf in",
     "Nothing is imported. You start with an empty app and add your own data.": "Er wordt niets geïmporteerd. Je begint met een lege app en voegt zelf gegevens toe.",
     "Example data": "Voorbeeldgegevens",
-    "Sample values for every schema this app supplies, generated from the schemas themselves. It shows the lists, detail pages and dashboards working rather than telling a story. Safe to run more than once, and you can delete it afterwards.": "Voorbeeldwaarden voor elk schema dat deze app levert, gegenereerd uit de schema’s zelf. Het laat de lijsten, detailpagina’s en dashboards werkend zien in plaats van een verhaal te vertellen. Veilig om vaker uit te voeren, en je kunt het daarna verwijderen."
+    "Sample values for every schema this app supplies, generated from the schemas themselves. It shows the lists, detail pages and dashboards working rather than telling a story. Safe to run more than once, and you can delete it afterwards.": "Voorbeeldwaarden voor elk schema dat deze app levert, gegenereerd uit de schema’s zelf. Het laat de lijsten, detailpagina’s en dashboards werkend zien in plaats van een verhaal te vertellen. Veilig om vaker uit te voeren, en je kunt het daarna verwijderen.",
+    "Integrations" : "Koppelingen",
+    "Connection" : "Verbinding",
+    "Status message" : "Statusbericht",
+    "Last checked" : "Laatst gecontroleerd",
+    "All connections" : "Alle verbindingen",
+    "Add integration" : "Integratie toevoegen",
+    "Open settings" : "Instellingen openen",
+    "Configured" : "Ingericht",
+    "Limited" : "Beperkt",
+    "Not configured" : "Niet geconfigureerd",
+    "Simulated" : "Gesimuleerd",
+    "Error" : "Fout"
 },
 "nplurals=2; plural=(n != 1);"
 );

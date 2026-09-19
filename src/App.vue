@@ -17,12 +17,14 @@
 		:manifest="liveManifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
+		:customComponents="customComponents"
 		:permissions="permissions"
 		appId="launchpad" />
 </template>
 
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
+import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 
 /**
@@ -140,6 +142,24 @@ export default {
 			type: Array,
 			default: () => ['user'],
 		},
+	},
+
+	/**
+	 * Static component state: the Integrations page's header-action handler.
+	 * The page's formatters are nextcloud-vue built-ins, so none are passed.
+	 *
+	 * @return {{customComponents: object}} The map CnAppRoot merges over its built-ins.
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-004-an-admin-reads-the-connections-on-an-integrations-page
+	 */
+	data() {
+		return {
+			/**
+			 * The header-action handler map. CnIndexPage resolves a handler
+			 * name against `customComponents` only, never against the v2
+			 * `registry`, so Add integration needs this map.
+			 */
+			customComponents,
+		}
 	},
 
 	computed: {

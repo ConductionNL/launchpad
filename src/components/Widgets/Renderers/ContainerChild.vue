@@ -39,8 +39,9 @@ import {
  * affordances of its own — so child widgets render exactly as they
  * would on the top-level grid. It does, however, provide() the same
  * nc-vue data-source adapters as WidgetRenderer (scoped to this child's
- * placement id) so nested data widgets (people/calendar/spend/news/files)
- * work identically inside a container.
+ * placement id) so nested data widgets (people/calendar/spend/files) work
+ * identically inside a container. News reads `placement.id` off its own
+ * prop instead of an injected source, so it isn't part of this seam.
  */
 export default {
 	name: 'ContainerChild',
@@ -73,9 +74,9 @@ export default {
 
 	computed: {
 		/**
-		 * Per-type extra props for nc-vue renderers that take a prop (news
-		 * `itemsEndpoint`, files `apiBase`). The container child placement
-		 * carries the type in `placement.type`.
+		 * Per-type extra props for nc-vue renderers that take a prop (files
+		 * `apiBase`). The container child placement carries the type in
+		 * `placement.type`.
 		 *
 		 * @return {object} extra props to v-bind onto the child renderer.
 		 */

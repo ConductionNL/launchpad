@@ -51,6 +51,7 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Support\FleetAppId;
 use OCP\App\IAppManager;
 use OCP\Http\Client\IClientService;
@@ -181,6 +182,9 @@ class LiveTileService {
 	 * @param IAppConfig $appConfig Admin config: allow-listed hosts.
 	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or nothing when absent.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly IAppManager $appManager,
@@ -190,6 +194,7 @@ class LiveTileService {
 		private readonly IAppConfig $appConfig,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly LoggerInterface $logger,
+		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
 
@@ -423,6 +428,8 @@ class LiveTileService {
 	 * @param array<string,mixed> $config The placement's resolved config (`url`, `valueExpr`).
 	 *
 	 * @return array<string,mixed>|null `{rawValue: mixed}` or `null`.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	private function fetchFromUrl(array $config): ?array {
 		$url = trim(string: (string)($config['url'] ?? ''));
@@ -439,6 +446,7 @@ class LiveTileService {
 				message: 'LiveTileService: host not on livetile_allowed_hosts, refusing fetch (fail-closed)',
 				context: ['app' => Application::APP_ID]
 			);
+			$this->connectionReporter?->reportAllowListRefusal(key: ConnectionReporter::KEY_LIVE_TILES);
 			return null;
 		}
 
@@ -460,10 +468,12 @@ class LiveTileService {
 				message: 'LiveTileService: direct-URL fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
+			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_LIVE_TILES, url: $url, httpStatus: null);
 			return null;
 		}
 
 		$status = (int)$response->getStatusCode();
+		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_LIVE_TILES, url: $url, httpStatus: $status);
 		if ($status < 200 || $status >= 300) {
 			return null;
 		}

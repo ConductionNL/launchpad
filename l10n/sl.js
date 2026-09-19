@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Vrsta",
     "Version": "Različica",
     "How many dashboards there are, and who they belong to.": "Koliko je nadzornih plošč in komu pripadajo.",
-    "Store": "Trgovina"
+    "Store": "Trgovina",
+    "Integrations" : "Integracije",
+    "Connection" : "Povezava",
+    "Status" : "Stanje",
+    "Status message" : "Sporočilo o stanju",
+    "Last checked" : "Nazadnje preverjeno",
+    "All connections" : "Vse povezave",
+    "Add integration" : "Dodaj integracijo",
+    "Open settings" : "Odpri nastavitve",
+    "Configured" : "Nastavljeno",
+    "Limited" : "Omejeno",
+    "Not configured" : "Ni nastavljeno",
+    "Simulated" : "Simulirano",
+    "Error" : "Napaka"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

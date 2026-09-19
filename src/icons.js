@@ -8,6 +8,7 @@ import ChartBoxOutline from 'vue-material-design-icons/ChartBoxOutline.vue'
 import CogOutline from 'vue-material-design-icons/CogOutline.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import MapMarkerPath from 'vue-material-design-icons/MapMarkerPath.vue'
+import PowerPlugOutline from 'vue-material-design-icons/PowerPlugOutline.vue'
 import Sitemap from 'vue-material-design-icons/Sitemap.vue'
 import StoreOutline from 'vue-material-design-icons/StoreOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
@@ -43,4 +44,6 @@ export const LAUNCHPAD_ICONS = {
 	FileReplaceOutline,
 	// Menu: "Settings" (Tier A concept `settings`).
 	CogOutline,
+	// Menu and header action: "Integrations" (adopt-connection-registry).
+	PowerPlugOutline,
 }

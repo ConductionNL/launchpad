@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Cineál",
     "Version": "Leagan",
     "How many dashboards there are, and who they belong to.": "Cé mhéad painéal atá ann, agus cé leis iad.",
-    "Store": "Siopa"
+    "Store": "Siopa",
+    "Integrations" : "Comhtháthuithe",
+    "Connection" : "Nasc",
+    "Status" : "Stádas",
+    "Status message" : "Teachtaireacht stádais",
+    "Last checked" : "Seiceáilte go deireanach",
+    "All connections" : "Gach nasc",
+    "Add integration" : "Cuir comhtháthú leis",
+    "Open settings" : "Oscail na socruithe",
+    "Configured" : "Cumraithe",
+    "Limited" : "Teoranta",
+    "Not configured" : "Gan chumrú",
+    "Simulated" : "Insamhlaithe",
+    "Error" : "Earráid"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

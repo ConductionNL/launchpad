@@ -1091,6 +1091,19 @@
         "Kind": "Від",
         "Version": "Версія",
         "How many dashboards there are, and who they belong to.": "Колькі ёсць панэляў і каму яны належаць.",
-        "Store": "Крама"
+        "Store": "Крама",
+        "Integrations": "Інтэграцыі",
+        "Connection": "Злучэнне",
+        "Status": "Статус",
+        "Status message": "Паведамленне пра статус",
+        "Last checked": "Апошняя праверка",
+        "All connections": "Усе злучэнні",
+        "Add integration": "Дадаць інтэграцыю",
+        "Open settings": "Адкрыць налады",
+        "Configured": "Наладжана",
+        "Limited": "Абмежавана",
+        "Not configured": "Не наладжана",
+        "Simulated": "Сімулявана",
+        "Error": "Памылка"
     }
 }

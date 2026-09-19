@@ -6,7 +6,7 @@
 - [x] 1.2 Apply the layer over a shared dashboard at render time, and only for its owner.
 - [x] 1.3 Refuse hiding a placement marked compulsory by `admin-templates`.
 - [x] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
-- [x] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync.
+- [ ] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. `pruneOrphans()` is written and tested, and nothing calls it. The reason is below.
 - [x] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
 - [x] 1.7 PHPUnit from the READER: a saved layer changes what `DashboardService` hands back, on the landing read and on the by-id read, and reaches nobody else.
 
@@ -91,9 +91,29 @@ A compulsory placement cannot be hidden, and a save that asks to hide one
 writes nothing at all rather than landing the allowed half. It can still be
 moved. A placement made compulsory after somebody hid it renders again, which
 is checked. The reset is `DELETE`, removes the whole row, and resetting twice
-is not an error. `pruneOrphans()` drops entries for placements a template
-re-sync removed, and deletes the row when the sweep empties it, so nobody is
-left holding an empty personal arrangement.
+is not an error.
+
+`pruneOrphans()` is the exception, and task 1.5 is open again because of it.
+The method drops entries for placements that no longer exist, and deletes the
+row when the sweep empties it. Nothing calls it. Two tests cover it and there
+is no call site in `lib/`, which is the same shape this branch just fixed for
+`withPersonalLayer()`: a method with a green suite and no caller reports the
+same green as one that runs.
+
+Wiring it is not a one-line call, which is why it is a task and not a fix
+here. A re-sync replaces the placements of one dashboard for everybody, and
+`pruneOrphans()` takes one user id. `PersonalLayerMapper` can find a layer by
+user and dashboard and delete it, and it cannot list the layers on a
+dashboard, so there is no query to sweep with. Eight places call
+`deleteByDashboardId()`, and each has to decide whether it is a re-sync that
+should prune or a deletion that should drop the layer outright.
+
+What it costs while it waits is bounded, and it is not a wrong number on
+screen. `applyTo()` walks the live placements and looks up overrides by id,
+so an entry for a placement that is gone is ignored at render time. Placement
+ids come from an autoincrement column and are never reused, so a stale entry
+cannot attach itself to a different widget later. The cost is stale keys in
+the layer row, one per placement ever removed from that dashboard.
 
 Three routes, all `#[NoAdminRequired]`, all reading the caller's own user id
 from the session. No route takes a user id from the request, so one person's
@@ -102,10 +122,12 @@ layer is unreachable through another's.
 **Sections 2 to 8 are not built.** The report library, the status report,
 activity reporting and its purpose gate, colleague activity, in-widget search,
 geographic reporting and storage reporting are untouched, and their boxes are
-still open above. Section 6 needs Vitest, which cannot run in this checkout:
-`npm ci` refuses because `package.json` and `package-lock.json` are out of
-sync on the base. Writing a component test that cannot be run would be worse
-than leaving the box open.
+still open above. Section 6 needs Vitest, and an earlier draft of this file
+said Vitest could not run here because `npm ci` refused over a
+`package.json` and `package-lock.json` that were out of sync. That is not
+true on this tip. The two files agree on every dependency, and
+`npm run test` runs the suite: 748 tests across 69 files. So the reason
+section 6 is open is the plain one. Nobody built it.
 
 **Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and
 openregister halves have not been handed over, because sections 2 to 8 are what

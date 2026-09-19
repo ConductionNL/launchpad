@@ -58,9 +58,7 @@ async function adminApi(playwright: {
 }
 
 /** The first dashboard the caller can see, with its placements. */
-async function anyVisibleDashboard(
-	api: APIRequestContext,
-): Promise<{
+async function anyVisibleDashboard(api: APIRequestContext): Promise<{
 	id: number
 	ownerId: string | null
 	placements: Array<Record<string, unknown>>

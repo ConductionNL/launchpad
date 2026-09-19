@@ -145,7 +145,14 @@ class PersonalLayer extends Entity implements JsonSerializable {
 		return [
 			'id' => $this->getId(),
 			'dashboardId' => $this->getDashboardId(),
-			'overrides' => $this->overridesArray(),
+			// Cast to an object so `overrides` is a JSON object in every
+			// state. PHP encodes an empty array, and an array whose keys
+			// happen to run 0, 1, 2, as `[]`, which hands the client a
+			// different type for the same field depending on what is in it.
+			'overrides' => (object)$this->overridesArray(),
+			// `hidden` is genuinely a list of placement ids, and
+			// `hiddenArray()` runs it through `array_values()`, so it is
+			// always a JSON array and stays one.
 			'hidden' => $this->hiddenArray(),
 			'updatedAt' => $this->getUpdatedAt(),
 		];

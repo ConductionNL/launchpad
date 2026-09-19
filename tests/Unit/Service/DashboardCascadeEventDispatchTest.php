@@ -44,6 +44,7 @@ use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DemoShowcasesService;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\Dashboard\IManager;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -127,6 +128,7 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 			config:               $this->createMock(IConfig::class),
 			l10nFactory:          $this->createMock(IFactory::class),
 			logger:               $this->createMock(LoggerInterface::class),
+			personalLayers:       $this->createMock(PersonalLayerService::class),
 			eventDispatcher:      $this->eventDispatcher,
 		);
 	}//end buildDashboardService()

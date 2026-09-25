@@ -1,0 +1,716 @@
+{
+	"comparedOn": "2026-09-25",
+	"category": "LaunchPad competes as the start page of a digital workplace: the page an employee lands on after signing in, which gathers the tools, links, news and live figures that person needs, arranged per role by an administrator and personalised within limits by the employee. Inside Nextcloud it replaces the built-in Dashboard. Outside Nextcloud the buyer compares it with employee-workspace portals (Workspace 365, Microsoft Viva Connections) and, at the self-hosted end, with homelab start pages (Homarr, Dashy). It is not a business-intelligence tool: charts appear only as widgets over data another app holds, so Grafana, Metabase, Superset and Power BI are out of the category. Written 2026-09-25 from appinfo/info.xml, openspec/specs (79 capabilities), src/manifest.json and lib/Settings/. Correct this paragraph first if it is wrong; the areas, rows and columns follow from it.",
+	"corpus": {
+		"repo": "ConductionNL/launchpad",
+		"file": "openspec/parity/capabilities.json",
+		"research": "intelligence database (container intelligence-db), read 2026-09-25: competitor_apps links 144 competitors to app_slug launchpad, of which 54 are Workspace 365 resellers with no features and 13 are appointment-booking products; competitor_features tags 100 rows launchpad, 87 of them Workspace 365 and 13 booking-product analytics lines that belong to another app. canonical_features holds 2,476 rows for launchpad and 2,627 for mydash, mostly release-note lines, package names and sentence fragments; one carries capability_text. No concurrentie-analyse/launchpad/ or concurrentie-analyse/mydash/ directory exists on disk.",
+		"readAt": "development 961fc8bca368de69b650cf7ac304beeaade37fdb"
+	},
+	"systems": [
+		{
+			"key": "launchpad",
+			"name": "LaunchPad",
+			"vendor": "Conduction",
+			"isSelf": true,
+			"readOn": "2026-09-25",
+			"columnAddedOn": "2026-09-25"
+		},
+		{
+			"key": "workspace-365",
+			"name": "Workspace 365",
+			"vendor": "Workspace 365",
+			"readOn": "2026-04-30",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "not covered by the 113 intelligence-db competitor_features rows for Workspace 365, captured 2026-04-24 and 2026-04-30; nobody has driven the product"
+		},
+		{
+			"key": "microsoft-viva",
+			"name": "Microsoft Viva Connections",
+			"vendor": "Microsoft",
+			"readOn": "2026-04-24",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "not covered by the 16 intelligence-db competitor_features rows for Microsoft Viva, captured 2026-04-24; nobody has driven the product"
+		},
+		{
+			"key": "nextcloud-dashboard",
+			"name": "Nextcloud Dashboard (built-in)",
+			"vendor": "Nextcloud GmbH",
+			"readOn": "2026-04-24",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "not covered by the 14 intelligence-db competitor_features rows for the built-in Dashboard, captured 2026-04-24; it runs on every dev instance and has not been driven for this matrix"
+		},
+		{
+			"key": "homarr",
+			"name": "Homarr",
+			"vendor": "Homarr (open source)",
+			"readOn": "2026-04-24",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "not covered by the 13 intelligence-db feature rows for Homarr captured 2026-04-24 (its 66 release-note rows were not used); nobody has driven the product"
+		},
+		{
+			"key": "dashy",
+			"name": "Dashy",
+			"vendor": "Dashy (open source)",
+			"readOn": "2026-04-24",
+			"columnAddedOn": "2026-09-25",
+			"evidenceGrade": "docs-only",
+			"unknownReason": "not covered by the 13 intelligence-db feature rows for Dashy captured 2026-04-24 (its 138 release-note rows were not used); nobody has driven the product"
+		}
+	],
+	"areas": [
+		{
+			"key": "building",
+			"name": "Building and arranging a dashboard",
+			"name_nl": "Een dashboard bouwen en indelen"
+		},
+		{
+			"key": "dashboards",
+			"name": "Many dashboards and finding your way",
+			"name_nl": "Meerdere dashboards en de weg vinden"
+		},
+		{
+			"key": "launcher",
+			"name": "Tiles and launching apps",
+			"name_nl": "Tegels en apps starten"
+		},
+		{
+			"key": "widgets",
+			"name": "Content on a dashboard",
+			"name_nl": "Inhoud op een dashboard"
+		},
+		{
+			"key": "integrations",
+			"name": "Data from other systems",
+			"name_nl": "Gegevens uit andere systemen"
+		},
+		{
+			"key": "targeting",
+			"name": "Who sees what",
+			"name_nl": "Wie ziet wat"
+		},
+		{
+			"key": "rollout",
+			"name": "Rolling dashboards out to an organisation",
+			"name_nl": "Dashboards uitrollen in een organisatie"
+		},
+		{
+			"key": "sharing",
+			"name": "Sharing and publishing",
+			"name_nl": "Delen en publiceren"
+		},
+		{
+			"key": "engagement",
+			"name": "Announcements and engagement",
+			"name_nl": "Aankondigingen en betrokkenheid"
+		},
+		{
+			"key": "search-ai",
+			"name": "Search and AI",
+			"name_nl": "Zoeken en AI"
+		},
+		{
+			"key": "governance",
+			"name": "Governance and operations",
+			"name_nl": "Beheer en bedrijfsvoering"
+		},
+		{
+			"key": "platform",
+			"name": "Identity, devices and look",
+			"name_nl": "Identiteit, apparaten en uiterlijk"
+		}
+	],
+	"providers": [
+		{
+			"key": "launchpad",
+			"name": "LaunchPad",
+			"kind": "self"
+		},
+		{
+			"key": "nextcloud-vue",
+			"name": "nextcloud-vue, the shared Conduction component library that ships the communal widget renderers",
+			"kind": "app"
+		},
+		{
+			"key": "openregister",
+			"name": "OpenRegister",
+			"kind": "app"
+		},
+		{
+			"key": "nextcloud",
+			"name": "Nextcloud server and its bundled apps",
+			"kind": "platform"
+		}
+	],
+	"pending": [],
+	"capabilities": [
+		{
+			"id": "build-drag",
+			"area": "building",
+			"name": "Drag a widget to a new place on the dashboard.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/views/Views.vue:183",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page (/apps/launchpad/), after choosing Edit dashboard in the dashboard menu",
+			"evidence": {
+				"nextcloud-dashboard": "intelligence-db competitor_features#28701 'Drag-and-drop widget reordering' (captured 2026-04-24): users can drag widgets to rearrange the layout",
+				"homarr": "intelligence-db competitor_features#28620 'Drag-and-drop grid editor' (captured 2026-04-24): place, resize, reorder tiles and widgets on a responsive grid"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-resize",
+			"area": "building",
+			"name": "Resize a widget by dragging its edge.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "yes",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/views/Views.vue:183",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page in edit mode, the same grid as build-drag",
+			"evidence": {
+				"homarr": "intelligence-db competitor_features#28620 'Drag-and-drop grid editor' (captured 2026-04-24): place, resize, reorder"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-keyboard",
+			"area": "building",
+			"name": "Move and resize a widget with the keyboard alone.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/modals/WidgetMovePanel.vue:27; src/components/Widgets/WidgetContextMenu.vue:27",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, widget context menu, Move",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-columns",
+			"area": "building",
+			"name": "Choose how many columns the dashboard grid has.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Service/AdminSettingsService.php:124; src/components/admin/AdminSettings.vue:96",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Admin settings (/settings/admin/launchpad), Default settings, Default grid columns",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code",
+			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users."
+		},
+		{
+			"id": "build-responsive",
+			"area": "building",
+			"name": "The layout reflows to fit a narrow screen.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/views/Views.vue:650",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page at any viewport width",
+			"evidence": {
+				"nextcloud-dashboard": "intelligence-db competitor_features#28708 'Responsive + accessible' (captured 2026-04-24): responsive on mobile",
+				"homarr": "intelligence-db competitor_features#28620 'Drag-and-drop grid editor' (captured 2026-04-24): a responsive grid"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-container",
+			"area": "building",
+			"name": "Group widgets inside a box that has its own small grid.",
+			"launchpad": "yes",
+			"workspace-365": "partial",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue:52; src/constants/widgetRegistry.js:16",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, Add widget, Container",
+			"evidence": {
+				"workspace-365": "intelligence-db competitor_features#29069 'Embed Tile Group' (captured 2026-04-24): groups embedded external content as a tile cluster, not arbitrary widgets"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-style",
+			"area": "building",
+			"name": "Change one widget's colours, border and title.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/views/Views.vue:309",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, widget context menu, Edit",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-picker",
+			"area": "building",
+			"name": "Pick a widget from a searchable list of everything you may add.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/modals/WidgetPickerModal.vue:21; src/views/Views.vue:273",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, dashboard menu, Add widget",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-nc-widgets",
+			"area": "building",
+			"name": "Add any widget another Nextcloud app offers, such as Files, Calendar or Talk.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "yes",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Service/WidgetService.php:86; src/constants/widgetRegistry.js:141",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, Add widget, Nextcloud widget",
+			"evidence": {
+				"nextcloud-dashboard": "intelligence-db competitor_features#28698 'Built-in widgets (Files/Calendar/Talk/Mail)' (captured 2026-04-24): Recommended Files, Upcoming Events, Talk Mentions, Mail, Deck Tasks and Notes widgets"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "nc-dashboard-widget-proxy",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-no-overlap",
+			"area": "building",
+			"name": "A new widget lands in a free spot instead of on top of another.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/composables/useGridManager.js:221",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, any Add widget action",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "medium",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-edit-lock",
+			"area": "building",
+			"name": "Edit a shared dashboard without a colleague's edits overwriting yours at the same moment.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/DashboardLockService.php:116",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing: /api/dashboards/{uuid}/lock has no caller anywhere in src/",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-locking",
+			"featureConfidence": "high",
+			"origin": "own-code",
+			"note": "The lock service and its four routes exist; no page acquires or shows a lock, so a user cannot reach it."
+		},
+		{
+			"id": "build-personal-hide",
+			"area": "building",
+			"name": "Hide widgets you do not need on a shared dashboard without changing it for everyone else.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "partial",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/PersonalLayerService.php:15",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing: /api/dashboards/{dashboardId}/personal-layer has no caller in src/",
+			"evidence": {
+				"nextcloud-dashboard": "intelligence-db competitor_features#28699 'Per-user layout persistence' (captured 2026-04-24): each user can show or hide widgets, but on their own single dashboard, not over a shared one"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "permissions",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "build-config-file",
+			"area": "building",
+			"name": "Describe a whole dashboard in a text file and load it.",
+			"launchpad": "partial",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Service/ImportService.php:138; lib/Command/ImportCommand.php:36",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Admin settings, Operations tab, Export and import; and occ launchpad import",
+			"evidence": {
+				"dashy": "intelligence-db competitor_features#28633 'YAML config + visual UI editor' (captured 2026-04-24): edit conf.yml by hand or use the UI editor that writes back to YAML"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-export-import",
+			"featureConfidence": "high",
+			"origin": "own-code",
+			"note": "Import takes a ZIP of the JSON export. That moves a dashboard between servers; it is not a hand-authored configuration workflow."
+		},
+		{
+			"id": "build-rollback",
+			"area": "building",
+			"name": "Roll a dashboard back to how it looked last week.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/DashboardVersionService.php:433",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing: /api/dashboards/{uuid}/versions and its restore route have no caller in src/",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-versioning",
+			"featureConfidence": "high",
+			"origin": "own-code",
+			"note": "openspec/features.overlay.json advertises dashboard-versioning as stable (\"You roll a dashboard back to last week in one step\"); no page reaches it."
+		},
+		{
+			"id": "dash-many",
+			"area": "dashboards",
+			"name": "Keep several dashboards and switch between them.",
+			"launchpad": "yes",
+			"workspace-365": "partial",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "yes",
+			"dashy": "partial",
+			"built": {
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:224",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, Dashboards sidebar",
+			"evidence": {
+				"workspace-365": "intelligence-db competitor_features#28712 'Company dashboard' (captured 2026-04-24): a personal dashboard plus one company dashboard, two fixed boards",
+				"nextcloud-dashboard": "intelligence-db competitor_features#28706 'Single global dashboard per user' (captured 2026-04-24): each user has exactly one dashboard",
+				"homarr": "intelligence-db competitor_features#28623 'Multi-board support' (captured 2026-04-24): several named boards with distinct layouts",
+				"dashy": "intelligence-db competitor_features#28638 'Multi-page sections' (captured 2026-04-24): services split across pages with sub-navigation, not separate dashboards per person"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-default",
+			"area": "dashboards",
+			"name": "Mark one dashboard as the one that opens first.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardRowActions.vue:90",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, dashboard menu, Set as default",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-describe",
+			"area": "dashboards",
+			"name": "Give a dashboard a title, a description and an icon.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/modals/DashboardConfigModal.vue:75; src/modals/DashboardConfigModal.vue:87",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, dashboard menu, Dashboard configuration, General tab",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-icons",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-copy",
+			"area": "dashboards",
+			"name": "Start a new personal dashboard as a copy of the one you are looking at.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Service/DashboardService.php:2190; src/views/Views.vue:2037",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, Dashboards sidebar, Add dashboard",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-link",
+			"area": "dashboards",
+			"name": "Open a particular dashboard straight from a link to it.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Controller/PageController.php:127; src/manifest.json:176",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "/apps/launchpad/dashboards/{id} and /apps/launchpad/{path}",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-deeplinking",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-shared-list",
+			"area": "dashboards",
+			"name": "See the dashboards other people shared with you in one list.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "partial",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:326",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page, Dashboards sidebar, Shared with you",
+			"evidence": {
+				"homarr": "intelligence-db competitor_features#28624 'Per-user boards (v1.0+)' (captured 2026-04-24): boards assigned per user and group; a shared-with-you list is not described"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-sharing",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-tree",
+			"area": "dashboards",
+			"name": "Arrange dashboards in a tree of parent and child pages.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/DashboardTreeService.php:105",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing: the store action loadDashboardTree has no caller outside src/stores/",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "medium",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-empty",
+			"area": "dashboards",
+			"name": "Be offered to create your first dashboard when you have none.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"evidence": "src/views/WorkspaceApp.vue:81",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "Workspace page with no dashboards",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "high",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-languages",
+			"area": "dashboards",
+			"name": "Show the same dashboard in the reader's own language.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/DashboardTranslationService.php:93",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing: /api/dashboards/{uuid}/translations and /resolved have no caller in src/",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-language-content",
+			"featureConfidence": "medium",
+			"origin": "own-code"
+		},
+		{
+			"id": "dash-metadata",
+			"area": "dashboards",
+			"name": "Record extra facts on a dashboard, such as the owning department.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/MetadataService.php:71",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing: the store actions fetchMetadataFields and updateDashboardMetadata have no component caller",
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-metadata-fields",
+			"featureConfidence": "medium",
+			"origin": "own-code"
+		}
+	]
+}

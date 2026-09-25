@@ -75,7 +75,7 @@
 		"eslint": "^10.10.0",
 		"eslint-config-prettier": "^10.1.8",
 		"jsdom": "^30.0.1",
-		"prettier": "^3.9.6",
+		"prettier": "^3.9.8",
 		"stylelint": "^17.15.0",
 		"terser-webpack-plugin": "^5.3.11",
 		"typescript": "^5.4.0",

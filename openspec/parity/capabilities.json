@@ -137,7 +137,7 @@
 			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
 			"evidenceGrade": "docs-only",
-			"unknownReason": "source read at v35.0.1 on 2026-09-26, not driven; every row was settled from the code, so no unknown remains in this column",
+			"unknownReason": "source read at v35.0.1 on 2026-09-26; every row was settled from the code except where a cell says 'not checked' with its own reason",
 			"sourceRead": {
 				"repo": "https://github.com/nextcloud/server",
 				"tag": "v35.0.1",
@@ -200,7 +200,7 @@
 			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
 			"evidenceGrade": "driven",
-			"unknownReason": "source read at v1.77.2 and driven on 2026-09-26; every row was settled, so no unknown remains in this column",
+			"unknownReason": "source read at v1.77.2 on 2026-09-26; every row was settled from the code except where a cell says 'not checked' with its own reason",
 			"sourceRead": {
 				"repo": "https://github.com/homarr-labs/homarr",
 				"tag": "v1.77.2",
@@ -264,7 +264,7 @@
 			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
 			"evidenceGrade": "driven",
-			"unknownReason": "source read at 4.7.0 and driven on 2026-09-26; every row was settled, so no unknown remains in this column",
+			"unknownReason": "source read at 4.7.0 on 2026-09-26; every row was settled from the code except where a cell says 'not checked' with its own reason",
 			"sourceRead": {
 				"repo": "https://github.com/Lissy93/dashy",
 				"tag": "4.7.0",
@@ -411,6 +411,11 @@
 			"key": "nextcloud",
 			"name": "Nextcloud server and its bundled apps",
 			"kind": "platform"
+		},
+		{
+			"key": "dossiq",
+			"name": "Dossiq, the case app, which ships Nextcloud dashboard widgets",
+			"kind": "app"
 		}
 	],
 	"pending": [
@@ -1641,7 +1646,7 @@
 			"area": "widgets",
 			"name": "Play a video on a dashboard.",
 			"launchpad": "yes",
-			"workspace-365": "yes",
+			"workspace-365": "unknown",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "yes",
@@ -1653,7 +1658,7 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Video",
 			"evidence": {
-				"workspace-365": "intelligence-db competitor_features#29071 'YouTube tile' (captured 2026-04-24): embedded YouTube video tile; not re-confirmed in vendor docs on 2026-09-26",
+				"workspace-365": "not checked: the April reading (intelligence-db competitor_features#29071, captured 2026-04-24) records no source URL (its spec_path is empty and the competitor has no analysis_path), and the vendor documentation read on 2026-09-26 did not confirm it, so the earlier yes is withdrawn until a public page is found",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for video, player: none",
 				"homarr": "source read at v1.77.2: packages/widgets/src/video/ Video Stream widget (en.json:2756 'Embed a video stream or video from a camera or a website') with autoplay, muted, controls options",
 				"dashy": "source read at 4.7.0: no video widget in the registry (src/components/Widgets/WidgetBase.vue:53-148); a video page can be shown through the iframe widget (IframeWidget.vue:3-11 allow fullscreen)",
@@ -2388,7 +2393,7 @@
 			"area": "targeting",
 			"name": "Show a widget based on a profile field such as department or location.",
 			"launchpad": "yes",
-			"workspace-365": "yes",
+			"workspace-365": "unknown",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
@@ -2400,7 +2405,7 @@
 			},
 			"reachedOn": "Workspace page, Visibility rules, attribute rule",
 			"evidence": {
-				"workspace-365": "intelligence-db competitor_features#29083 'Tile targeting by department / location / contract type' (captured 2026-04-24): scoped to department, function, location or contract type; not re-confirmed in vendor docs on 2026-09-26",
+				"workspace-365": "not checked: the April reading (intelligence-db competitor_features#29083, captured 2026-04-24) records no source URL (its spec_path is empty and the competitor has no analysis_path), and the vendor documentation read on 2026-09-26 did not confirm it, so the earlier yes is withdrawn until a public page is found",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for department, location, profile field: none; the only profile field read is the user's birthdate (apps/dashboard/lib/Service/DashboardService.php:75-94)",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:49 user table has no department or location field and items carry no visibility rules (packages/validation/src/shared.ts:16)",
 				"dashy": "source read at 4.7.0: src/utils/IsVisibleToUser.js:48-78 reads only username, groups and roles; no rule on department, location or other profile claims",
@@ -3703,7 +3708,7 @@
 			"name": "Ask an assistant in plain language and get answers from the organisation's own content.",
 			"launchpad": "no",
 			"workspace-365": "yes",
-			"microsoft-viva": "yes",
+			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "no",
 			"dashy": "no",
@@ -3715,7 +3720,7 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/500975-faq-ai-in-workspace-365-kelly 'Kelly only sees sources the user can access'; https://support.workspace365.net/en/articles/836094-release-notes-workspace-365-v4-48 Kelly out of beta (read 2026-09-26)",
-				"microsoft-viva": "intelligence-db competitor_features#28749 'Microsoft 365 Copilot in Viva' (captured 2026-04-24): Copilot Q&A across Viva modules; not re-confirmed in vendor docs on 2026-09-26",
+				"microsoft-viva": "not checked: the April reading (intelligence-db competitor_features#28749, captured 2026-04-24) records no source URL (its spec_path is empty and the competitor has no analysis_path), and the vendor documentation read on 2026-09-26 did not confirm it, so the earlier yes is withdrawn until a public page is found",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/settings/src/components/AdminAI.vue:8-9 core only offers task processing plumbing; the Assistant app is not in core/shipped.json and searched apps/dashboard for assistant, ai: none",
 				"homarr": "source read at v1.77.2: no built-in assistant or LLM call: searched apps/nextjs/src and packages for openai, llm, chat, assistant: only the MCP server for outside AI clients (apps/nextjs/src/app/api/mcp/[transport]/route.ts:4) and a 'Copy AI prompt' helper for custom widgets",
 				"dashy": "source read at 4.7.0: searched src and services for llm, openai, assistant, chat: none"
@@ -4401,6 +4406,891 @@
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
 			"origin": "competitor"
+		},
+		{
+			"id": "d-widget-twice",
+			"area": "building",
+			"name": "Add the same kind of widget twice, each with its own settings.",
+			"launchpad": "yes",
+			"workspace-365": "yes",
+			"microsoft-viva": "partial",
+			"nextcloud-dashboard": "no",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "src/modals/WidgetPickerModal.vue:36; lib/Migration/PlacementTableBuilder.php:239"
+			},
+			"reachedOn": "Workspace page, Edit dashboard, Add widget: a widget already placed is only marked as placed and can be added again, each placement with its own settings",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/483000-shortcut-tile each shortcut tile has its own Icon, Color, Name, Webpage and Destination; admins publish them as apps and users with permission add personal ones (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards each card added via '+ Add a card' has its own property pane (a Web link card holds one Link), so authors can place several; but users may add only one Quick Links card: https://support.microsoft.com/office/3da30f39-684a-4bde-bb81-2e1407d59b52 'add one Quick Links card' (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:44-56 sanitizeLayout drops duplicate widget ids, so each widget appears once; open request #24658 (10 reactions)",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:413-421 each item is its own row with kind and its own options, so a kind can be placed any number of times from the item picker (apps/nextjs/src/components/board/items/item-select-modal.tsx:132 createItem); en.json:1634 'Duplicate item' copies a widget (apps/nextjs/src/components/board/items/item-actions.tsx:42)",
+				"dashy": "source read at 4.7.0: src/utils/config/ConfigSchema.json:1468-1510 a section's widgets is an array where each entry has its own type and options, so the same type can appear twice; added and edited per entry in edit mode (src/components/InteractiveEditor/EditWidget.vue:12, :120 widgetIndex)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "grid-layout",
+			"featureConfidence": "medium",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/nextcloud/server/issues/24658",
+			"note": "A placed widget stays clickable in the picker (WidgetPickerModal.vue:36, :165 isPlaced only styles it) and the placement table has no unique index on dashboard and widget (PlacementTableBuilder.php:239-248)."
+		},
+		{
+			"id": "d-teams",
+			"area": "widgets",
+			"name": "See your teams and the files, chats and boards they share on the dashboard.",
+			"launchpad": "no",
+			"workspace-365": "partial",
+			"microsoft-viva": "partial",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/482822-release-notes-workspace-365-v4-35-0 'Items in the Documents, Teams and SharePoint live tiles now open directly according to the user's preferred open method'; a Teams live tile shows teams and their files; chats and boards on the tile not documented (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards OneDrive card shows 'recent, shared, and favorite files'; Teams app card opens one Teams personal app; no card listing a user's teams, channels or chats found (the dashboard itself runs inside Teams) (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: core/Controller/TeamsApiController.php exists for teams, but git ls-tree apps/*/lib/Dashboard shows only files and user_status widgets and apps/dashboard has no team reference; open request #22897 (11 reactions, most upvoted dashboard request)",
+				"homarr": "source read at v1.77.2: searched packages/widgets/src, packages/integrations/src and apps/nextjs/src for team, teams: only the Archive Team Warrior integration (packages/integrations/src/archive-team-warrior/archive-team-warrior-integration.ts); no widget listing a user's teams or their shared files, chats or boards (widget list packages/widgets/src/manifest.ts)",
+				"dashy": "source read at 4.7.0: searched src for team, teams: only src/components/Widgets/SportsScores.vue (sports teams); no widget for a user's teams or shared content in the widget registry (src/components/Widgets)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/nextcloud/server/issues/22897",
+			"note": "Searched src and lib for circles, teams and ITeamManager: only a 'People & teams' label in src/dialogs/CreateGroupDashboardModal.vue:152, which picks a group dashboard template. No widget shows Nextcloud Teams or their shared resources."
+		},
+		{
+			"id": "d-account-move",
+			"area": "rollout",
+			"name": "Take your dashboard layout along when your account moves to another server.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "partial",
+			"dashy": "partial",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: https://support.workspace365.net/en/articles/175490 on domain or tenant migrations covers object IDs, UPNs and SSO only and says nothing about keeping personal tiles or spaces (read 2026-09-26)",
+				"microsoft-viva": "not checked: searched learn.microsoft.com/sharepoint/homesites for moving dashboard personalisation across tenants; nothing found. Personal changes sync across a user's own devices only (support.microsoft.com/office/3da30f39-684a-4bde-bb81-2e1407d59b52) (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:205 layout is plain user config; open request #57423 says user_migration does not carry dashboard settings",
+				"homarr": "source read at v1.77.2: an admin can move a whole instance: manage, Tools, Backup exports and restores the full database with all users and boards (apps/nextjs/src/app/[locale]/manage/tools/backup/page.tsx, en.json:5173-5190), and setup can import from another instance (en.json:16-58); nothing moves one user's boards to another server",
+				"dashy": "source read at 4.7.0: Dashy has no user accounts; the whole layout is one config file that can be downloaded (src/components/InteractiveEditor/ExportConfigMenu.vue:11-20) and loaded elsewhere from a URL (src/components/Configuration/RemoteConfigLoader.vue); no per-user migration"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-export-import",
+			"featureConfidence": "medium",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/nextcloud/server/issues/57423",
+			"note": "Searched lib for IMigrator and UserMigration: LaunchPad registers no user_migration migrator, so a moved account arrives without its dashboards. Admin export and import of dashboards exists (row r-export), which is a different path."
+		},
+		{
+			"id": "d-link-target",
+			"area": "launcher",
+			"name": "Choose whether links on the dashboard open in the same tab or a new one.",
+			"launchpad": "partial",
+			"workspace-365": "yes",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "src/components/TileWidget.vue:41"
+			},
+			"reachedOn": "Workspace page, any tile",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/483000-shortcut-tile 'Choose whether the link opens in a new window or in the current window' (Destination setting); hub item links also carry 'open in new tab' (release notes v4.19.0, articles/247394) (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards describes fixed behaviour only (Web link card: 'Access a site without leaving the SharePoint app in Teams'; OneDrive Office files open in their Teams app); no author or user setting for same or new tab found (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/components/ApiDashboardWidgetItem.vue:38 passes item.link as targetUrl with no user or admin setting; searched apps/dashboard for target, same tab: none; open request #51332",
+				"homarr": "source read at v1.77.2: open in new tab is a per-tile option (packages/widgets/src/app/index.ts:23 openInNewTab, default true) with no board-level default in packages/db/schema/sqlite.ts:262; issue 3778 is open",
+				"dashy": "source read at 4.7.0: src/utils/config/ConfigSchema.json:1293-1300 each item takes target newtab, sametab, parent, modal or workspace, and :250-256 appConfig defaultOpeningMethod sets it for the whole dashboard; both editable in the interactive editor (src/components/InteractiveEditor/EditItem.vue)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "tiles",
+			"featureConfidence": "medium",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/nextcloud/server/issues/51332",
+			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778."
+		},
+		{
+			"id": "d-auto-refresh",
+			"area": "widgets",
+			"name": "Refresh widget content on its own without reloading the page.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "src/components/WidgetRenderer.vue:442"
+			},
+			"reachedOn": "Workspace page, any Nextcloud widget that declares a reload interval, and live value tiles",
+			"evidence": {
+				"workspace-365": "not checked: live tile articles read (Zaaksysteem 175605, TOPdesk 175599) do not state a refresh interval; the TOPdesk article 'does not specify how often the tile refreshes' (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards says Viva Learning and Pulse card content 'is dynamic', but no statement that cards refresh without a page reload; SPFx ACE docs not settled (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IReloadableWidget.php:18 interval per widget, apps/dashboard/src/DashboardApp.vue:305-315 reloads items on that interval; kept in the Vue 3 migration of the dashboard (PR #62624, merged 2026-07-29)",
+				"homarr": "source read at v1.77.2: packages/widgets/src/refetch-intervals.ts:8-30 refetch intervals per widget query (5 s for dns hole, downloads, health monitoring), applied in apps/nextjs/src/app/[locale]/_client-providers/trpc.tsx:128; live widgets use websocket subscriptions (packages/widgets/src/beszel/_shared/use-live-stats.ts:45)",
+				"dashy": "source read at 4.7.0: src/utils/config/ConfigSchema.json:1481-1485 widget updateInterval in seconds, run by src/mixins/WidgetMixin.js:54-79 setInterval calling update() without a page reload"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "nc-dashboard-widget-proxy",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/nextcloud/server/pull/62624",
+			"note": "Nextcloud widgets that declare reloadInterval are refreshed on a timer (WidgetRenderer.vue:442-447, :536 setupAutoRefresh); live value tiles refresh on their own interval (row w-live-value)."
+		},
+		{
+			"id": "d-idp-groups",
+			"area": "platform",
+			"name": "Group membership follows the groups sent by the identity provider at sign-in.",
+			"launchpad": "yes",
+			"workspace-365": "partial",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "partial",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "nextcloud/server",
+				"evidence": "lib/Service/RuleEvaluatorService.php:125"
+			},
+			"reachedOn": "every targeting rule and group dashboard; group membership itself comes from the Nextcloud login app",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175388-automated-user-provisioning-via-scim groups and memberships come from Entra ID by SCIM, which 'synchronises at a fixed interval of about 40 minutes'; 'Members of nested groups are not imported directly'; not taken at sign-in (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/use-audience-targeting-sharepoint-app-in-teams targeting uses Microsoft Entra security, Microsoft 365 and dynamic groups directly, the identity provider's own groups (per r-docs notes, read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: core/shipped.json:54 user_ldap is shipped and takes groups from the directory; group mapping from SAML or OIDC sign-in claims lives in the user_saml and user_oidc app store apps, which are not in this source or in core/shipped.json, so it was not verified here",
+				"homarr": "source read at v1.77.2: packages/auth/env.ts:44 AUTH_OIDC_GROUPS_ATTRIBUTE and packages/auth/events.ts:33 assign groups from the id_token at sign-in; env.ts:45 lets admins manage OIDC users' groups locally instead (v1.66.1 'add local group support for OIDC users'); LDAP group class at env.ts:65",
+				"dashy": "source read at 4.7.0: src/utils/auth/OidcAuth.js:250-257 groups and roles are read from the OIDC profile at sign-in (also groups_direct), src/utils/auth/KeycloakAuth.js:89-112 the same for Keycloak; they drive showForGroups visibility and admin rights (src/utils/IsVisibleToUser.js); Dashy keeps no group store of its own"
+			},
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": "conditional-visibility",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.66.1",
+			"note": "LaunchPad targets Nextcloud groups (RuleEvaluatorService.php:125, the same path as row t-groups), and the Nextcloud login apps (user_oidc, user_saml) provision those groups from the identity provider's claims at sign-in. LaunchPad itself holds no group sync; the platform does."
+		},
+		{
+			"id": "d-tour",
+			"area": "rollout",
+			"name": "Take a guided tour of the dashboard and the admin area on first use.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "partial",
+			"homarr": "yes",
+			"dashy": "no",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/nextcloud-vue",
+				"evidence": "src/manifest.json:475"
+			},
+			"reachedOn": "Workspace page on first visit, 'Getting started' tour, and again from the help menu",
+			"evidence": {
+				"workspace-365": "not checked: https://support.workspace365.net/en/articles/175363-full-guide-for-user and FAQ for users (175611) describe first login and navigation but no in-product guided tour; Academy webinars exist instead (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview and the user dashboard article support.microsoft.com/office/3da30f39-684a-4bde-bb81-2e1407d59b52 mention no first-run tour or coach marks (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for tour, onboarding: only a firstRun flag (apps/dashboard/lib/Controller/DashboardController.php:72-74, apps/dashboard/src/DashboardApp.vue:328-329) that fades a first-visit hint on scroll; the shipped firstrunwizard app (core/shipped.json:26) shows welcome slides but is not in this source, and nothing tours the admin area",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/onboarding/board-tour.tsx:18 board tour (edit mode, settings, switcher, profile) with strings at en.json onboardingTour; users can reset tours in their settings (en.json management.page.user.setting.general.item.onboardingTours)",
+				"dashy": "source read at 4.7.0: searched src for tour, walkthrough, onboarding, welcome: only src/components/Settings/LocalConfigWarning.vue:5-12, a dismissable notice about locally saved config; no guided tour"
+			},
+			"provider": "nextcloud-vue",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "changelog",
+			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.64.0",
+			"note": "The manifest declares a first-visit walkthrough (manifest.json:471-500, trigger first-visit, per-user completion key) that the shared shell renders: nextcloud-vue CnAppRoot.vue:464 mounts CnWalkthrough from manifest.walkthrough (nextcloud-vue development d239cf54), and App.vue:16 mounts CnAppRoot."
+		},
+		{
+			"id": "d-pwa",
+			"area": "platform",
+			"name": "Install the dashboard on a phone's home screen as an app.",
+			"launchpad": "yes",
+			"workspace-365": "yes",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "nextcloud/server",
+				"evidence": "src/views/WorkspaceApp.vue:480"
+			},
+			"reachedOn": "any LaunchPad page, through the browser's install option",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175386-mobile-app native app from the App Store or Google Play opens 'your Workspace on a phone or tablet'; 'Availability of the mobile app can differ per country' (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview 'Easily accessed through the desktop, tablet, or mobile versions of the Microsoft Teams app'; mobile uses tabs for dashboard, news and resources (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:49 links every app page, the dashboard included, to a web app manifest served by apps/theming/lib/Controller/ThemingController.php:487-510 with start_url, icons and display standalone (switch theming.standalone_window.enabled)",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/manifest.ts:9 web app manifest with display standalone; apps/nextjs/src/components/layout/service-worker-registration.tsx:8 registers a service worker (v1.61.0 'add pwa support')",
+				"dashy": "source read at 4.7.0: public/manifest.json:6-7 start_url and display standalone, vite.config.mjs:60 builds the manifest, and src/utils/InitServiceWorker.js:85 registers the optional service worker"
+			},
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "changelog",
+			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.61.0",
+			"note": "The web app manifest is Nextcloud's: nextcloud/server v35.0.1 apps/theming/lib/Controller/ThemingController.php:459-510 serves a per-app manifest with start_url and display standalone (route /apps/theming/manifest/{app}). LaunchPad adds nothing of its own; the cited LaunchPad line is its use of the theme variables the installed app inherits."
+		},
+		{
+			"id": "d-rest-api",
+			"area": "governance",
+			"name": "Read and change dashboards through a documented REST API.",
+			"launchpad": "partial",
+			"workspace-365": "partial",
+			"microsoft-viva": "partial",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "appinfo/routes.php:18"
+			},
+			"reachedOn": "no documentation page; the JSON routes are what the LaunchPad pages themselves call",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175551-api-documentation REST API covers users, groups, memberships, available user apps, announcements, events and activity feed; no endpoints for spaces, tiles or tile groups (read 2026-09-26)",
+				"microsoft-viva": "https://pnp.github.io/pnpcore/using-the-sdk/vivaconnections-intro.html PnP Core SDK 'GetVivaDashboard', 'AddACE', 'UpdateACE', 'RemoveACE' read and change the dashboard; that is a community .NET SDK, no Microsoft-documented dashboard REST endpoint found on learn.microsoft.com (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/openapi.json:518 documents GET and POST /ocs/v2.php/apps/dashboard/api/v3/layout, plus widgets (:426), widget items (:175, :302) and statuses (:738); the layout calls act on the calling user's own dashboard only (apps/dashboard/lib/Controller/DashboardApiController.php:188-206)",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/[...trpc]/route.ts:3 OpenAPI handler over tRPC procedures (packages/api/src/open-api.ts:1 generateOpenApiDocument, e.g. POST /api/boards at packages/api/src/router/board.ts:282); admin API keys (packages/api/src/router/apiKeys.ts:36); Swagger page in manage, Tools, API",
+				"dashy": "source read at 4.7.0: services/endpoints/api/openapi.yml:75-330 OpenAPI 3.1 spec for configs, sections and items (GET, PUT, PATCH, DELETE), opt-in with ENABLE_API and API_TOKEN; 'First version of REST API' in 4.4.0"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "changelog",
+			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.50.0",
+			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0."
+		},
+		{
+			"id": "d-proxy",
+			"area": "platform",
+			"name": "Send outbound requests for widgets through the organisation's HTTP proxy.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "partial",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "lib/Service/LiveTileService.php:455"
+			},
+			"reachedOn": "every widget that fetches from outside: news, calendar feeds, live tiles, weather, health pings, iframe checks",
+			"evidence": {
+				"workspace-365": "not checked: https://support.workspace365.net/en/articles/175370 (Microsoft 365, on-premises and hybrid variants) and the administration collection say nothing about an outbound HTTP proxy (read 2026-09-26)",
+				"microsoft-viva": "not checked: SaaS in Microsoft 365; https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards and the card designer docs route data through SharePoint REST or Microsoft Graph only; no outbound proxy setting found (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Http/Client/Client.php:45-74 every outbound request through the shared HTTP client uses the 'proxy' and 'proxyuserpwd' system settings (:135-141), which widget providers use for their fetches",
+				"homarr": "source read at v1.77.2: packages/core/src/infrastructure/http/http-agent.ts:14 UndiciHttpAgent extends EnvHttpProxyAgent, so HTTP_PROXY and HTTPS_PROXY settings apply to integration calls (v1.48.0 'add proxy support')",
+				"dashy": "source read at 4.7.0: widget calls go from the browser, which uses the device's proxy; with useProxy (src/utils/config/ConfigSchema.json:1491-1494) the Dashy server fetches through services/utils/request.js:151-165 plain http and https agents, and a search of services and server.js for HTTP_PROXY, HTTPS_PROXY, proxy agent found nothing"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "live-data-tile-widget",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.48.0",
+			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none."
+		},
+		{
+			"id": "d-single-logout",
+			"area": "platform",
+			"name": "Signing out of the dashboard also signs you out at the identity provider.",
+			"launchpad": "unknown",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "no",
+			"dashy": "yes",
+			"built": {
+				"state": "none",
+				"owner": "nextcloud/server"
+			},
+			"reachedOn": "not checked",
+			"evidence": {
+				"workspace-365": "not checked: https://support.workspace365.net/en/articles/175497-sign-out-redirect-url only 'will redirect you to the configured URL after signing out of Workspace 365'; whether that ends the Entra session is not stated (read 2026-09-26)",
+				"microsoft-viva": "not checked: the experience runs inside Teams or the SharePoint home site with Entra sign-in (https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview); no statement about sign-out propagation found (read 2026-09-26)",
+				"nextcloud-dashboard": "not checked: core logout (core/Controller/LoginController.php:81-94) only ends the Nextcloud session and returns to the login form; logout at the identity provider is done by the user_saml or user_oidc app store apps, which are not in this source",
+				"homarr": "source read at v1.77.2: packages/auth/providers/oidc/oidc-provider.ts has no end-session or back-channel logout; searched packages/auth and apps/nextjs/src for end_session, endSession, backchannel: none; issue 5154 is open",
+				"dashy": "source read at 4.7.0: src/utils/auth/OidcAuth.js:272-280 logout calls signoutRedirect, which sends the user to the provider's end-session endpoint with post_logout_redirect_uri (:88); Keycloak logout at src/utils/auth/KeycloakAuth.js:67-72"
+			},
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/homarr-labs/homarr/issues/5154",
+			"note": "not checked: single logout is the Nextcloud login app's job (user_oidc or user_saml), which was not read in this pass; LaunchPad has no logout code of its own (searched src and lib for logout and end_session)."
+		},
+		{
+			"id": "d-import-bookmarks",
+			"area": "launcher",
+			"name": "Import browser bookmarks as tiles.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: user guide 175363 and FAQ for users 175611 cover creating shortcut tiles by hand ('+ Add tiles') but no import of browser bookmarks (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Quick links card takes links added one by one ('+ Add link', up to 20); no bookmark import found (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for bookmark: none; the dashboard has no link tiles to import into (apps/dashboard/src/DashboardApp.vue:17-54)",
+				"homarr": "source read at v1.77.2: no bookmark file importer: searched packages and apps/nextjs/src for netscape, bookmarks.html, bookmark import (only the bookmarks widget at packages/widgets/src/manifest.ts:47); issue 1014 is open",
+				"dashy": "source read at 4.7.0: searched src and services for bookmark, netscape: only src/components/Widgets/Linkding.vue:33, a widget reading a Linkding server's bookmarks; no import of a browser bookmark file into items"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "tiles",
+			"featureConfidence": "medium",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/homarr-labs/homarr/issues/1014",
+			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export)."
+		},
+		{
+			"id": "d-notes",
+			"area": "widgets",
+			"name": "Keep personal notes on the start page.",
+			"launchpad": "partial",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "yes",
+			"dashy": "no",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/nextcloud-vue",
+				"evidence": "lib/widget-types.json:37"
+			},
+			"reachedOn": "Workspace page, Add widget, Text, on a personal dashboard",
+			"evidence": {
+				"workspace-365": "not checked: live tile integrations collection (support.workspace365.net/en/collections/791485) and user guide 175363 list no personal notes tile; the text editor tile (480271) is admin content (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards toolbox lists no notes card (card designer, Approvals, Assigned tasks, Events, Folder, My Sites, News, OneDrive, People, Power Apps, Quick links, Shifts, Stay Engaged, Stream, Teams app, Learning, Pulse, Web link) (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for note: no hits; the only bundled widgets are apps/files/lib/Dashboard/FavoriteWidget.php and apps/user_status/lib/Dashboard/UserStatusWidget.php, and no notes app is in core/shipped.json (a Notes widget needs the app store Notes app)",
+				"homarr": "source read at v1.77.2: packages/widgets/src/notebook/index.ts:6-24 notebook widget with rich text content edited in place on the board (packages/widgets/src/notebook/notebook.tsx:92, :220-221 saves the content); on a user's own board it holds personal notes",
+				"dashy": "source read at 4.7.0: searched src/components/Widgets for note, sticky, memo: no notes widget (registry src/components/Widgets/WidgetBase.vue:53-148); request #636 open, also Ideas discussion #1756 'Sticky Note Widget'"
+			},
+			"provider": "nextcloud-vue",
+			"providerHow": "read-from-code",
+			"feature": "text-display-widget",
+			"featureConfidence": "medium",
+			"origin": "featureRequest",
+			"originUrl": "https://github.com/Lissy93/dashy/issues/636",
+			"note": "A text widget on your own dashboard can hold notes (widget-types.json:37, rendered by nextcloud-vue), but it is edited in dashboard edit mode, not a quick notepad you type into in place."
+		},
+		{
+			"id": "d-internal-url",
+			"area": "launcher",
+			"name": "A tile opens the internal address on the office network and the public one elsewhere.",
+			"launchpad": "no",
+			"workspace-365": "partial",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "yes",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175495-conditional-access 'With IP ranges you can choose on which IP range(s) the app is available ... e.g. the company network' and the same app can be offered locally or as a remote app; one tile with an internal and a public address is not documented (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Web link and Quick links cards take one URL per link; no network-dependent address found (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: the dashboard has no link tiles (apps/dashboard/src/DashboardApp.vue:17-54 renders only widgets); searched apps/dashboard for internal, local url, network: none",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:423-430 an app has one href plus a pingUrl used only for the status check; packages/widgets/src/app/component.tsx:147 links to that one href; searched packages/widgets/src/app for internal, localUrl, lan: none",
+				"dashy": "source read at 4.7.0: ConfigSchema.json:1156-1172 item localUrl with timeout and re-check interval, probed by src/mixins/ItemMixin.js:28-30; added in 4.4.0 (PR 2207 'Local item URL fallbacks')"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "tiles",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.4.0",
+			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on."
+		},
+		{
+			"id": "d-theme-per-dashboard",
+			"area": "platform",
+			"name": "Give each dashboard its own theme, language and layout.",
+			"launchpad": "partial",
+			"workspace-365": "partial",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "no",
+			"homarr": "partial",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "lib/Migration/DashboardTableBuilder.php:173"
+			},
+			"reachedOn": "Workspace page, dashboard settings",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175374-branding-your-workspace-environment 'A branding can be assigned on user- and group level'; per-space themes not mentioned; language is a per-user choice (FAQ for users 175611) (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview multiple home sites, each 'a targeted experience' with its own dashboard (two or more, up to 50, need Viva Suite or Communications licences), multilingual dashboards and a theme per site (edit-sharepoint-app-in-teams, per r-docs notes) (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: each user has one dashboard (apps/dashboard/lib/Service/DashboardService.php:33-38 one layout list); theme and language are account-wide settings (apps/theming/lib/Themes, DarkTheme.php:39), so there is no second dashboard to theme differently",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:261-286 each board has its own colors, background image, opacity, custom CSS, logo, favicon and item radius, and its own layouts (:325-332 columnCount per breakpoint); language and color scheme are per user (sqlite.ts:68), not per board",
+				"dashy": "source read at 4.7.0: src/store.js:153-164 a page's own appConfig overrides the root's (theme, language, layout, icon size), and pageInfo favicon and color per page; 4.0.0 notes 'Per-page config: theme, language, layout, icon size, favicon'"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboards",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.0.0",
+			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255)."
+		},
+		{
+			"id": "d-open-inside",
+			"area": "launcher",
+			"name": "Open an app inside the dashboard beside the list of tiles instead of in a new tab.",
+			"launchpad": "partial",
+			"workspace-365": "yes",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "no",
+			"homarr": "partial",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "src/components/Widgets/Renderers/IframeWidget.vue:38"
+			},
+			"reachedOn": "Workspace page, Add widget, Embed",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175604-web-content-iframe web content shows a site in an iframe as a tile among tile groups 'or as a full Space'; custom tile sizes since v4.15 (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Web link card: 'Access a site without leaving the SharePoint app in Teams'; OneDrive card opens Office files in their Teams app (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src for iframe, embed: none; widget items only link out (apps/dashboard/src/components/ApiDashboardWidgetItem.vue:38 targetUrl)",
+				"homarr": "source read at v1.77.2: packages/widgets/src/iframe/index.ts:6-20 an iframe widget embeds a fixed page on the board; app tiles only open in the same or a new tab (packages/widgets/src/app/component.tsx:147), there is no side panel that opens an app next to the tiles",
+				"dashy": "source read at 4.7.0: src/views/Workspace.vue:1-12 workspace view with a tile sidebar and embedded web content, optional multi-tasking (MultiTaskingWebComtent.vue); hideFromWorkspace (ConfigSchema.json:1279) added in 3.2.0 PR 1969"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "iframe-embed-widget",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
+			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41)."
+		},
+		{
+			"id": "d-search-prefix",
+			"area": "search-ai",
+			"name": "Send a search straight to a chosen site, such as the ticket system, with a short prefix.",
+			"launchpad": "no",
+			"workspace-365": "partial",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "partial",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175653-global-search users 'search by category' (Announcements, Apps, Email, Files, Folders, Knowledge articles, People, plus OpenIMS or Egnyte when configured); no prefix syntax to send a query to another site (read 2026-09-26)",
+				"microsoft-viva": "not checked: Microsoft 365 roadmap 562015 'Scoped Search for SharePoint app in Teams' scopes search to SharePoint global search (cached roadmap, read 2026-09-26); no prefix to an external site found",
+				"nextcloud-dashboard": "source read at v35.0.1: core/src/components/UnifiedSearch/UnifiedSearchModal.vue:51-68 lets a user pick one search provider as a filter, and :149-153 opt in to external providers from integration apps; searched core/src/components/UnifiedSearch for bang and prefix: no typed shortcut that sends the query to a site",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:476-480 search engines with a unique short code, typed as !short in the spotlight (packages/spotlight/src/modes/external/search-engines-search-group.tsx:344-392); admins add custom engines by URL template in manage, Search engines",
+				"dashy": "source read at 4.7.0: src/components/Settings/SearchBar.vue:183-194 search bangs pick the engine from a prefix, ConfigSchema.json:512-525 custom searchBangs; 3.2.0 PR 1915 adds URL detection in the search box"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "changelog",
+			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
+			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none."
+		},
+		{
+			"id": "d-dark-mode",
+			"area": "platform",
+			"name": "The dashboard follows the device's light or dark mode.",
+			"launchpad": "yes",
+			"workspace-365": "yes",
+			"microsoft-viva": "partial",
+			"nextcloud-dashboard": "yes",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "nextcloud/server",
+				"evidence": "src/views/WorkspaceApp.vue:480"
+			},
+			"reachedOn": "every page",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175374-branding-your-workspace-environment 'Light and dark theme support' (read 2026-09-26)",
+				"microsoft-viva": "roadmap 526788 (Launched) 'two official Microsoft-designed dark themes for SharePoint sites'; https://learn.microsoft.com/en-us/sharepoint/homesites/edit-sharepoint-app-in-teams dark themes are not applied on mobile (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/lib/Themes/DefaultTheme.php:61-66 'Enable the system default' theme, which applies apps/theming/lib/Themes/DarkTheme.php:38-39 under prefers-color-scheme: dark; chosen in the user's Appearance and accessibility settings and applied to the dashboard like every page",
+				"homarr": "source read at v1.77.2: packages/definitions/src/user.ts:1 color schemes auto, light and dark, stored per user (packages/db/schema/sqlite.ts:68); auto follows prefers-color-scheme (apps/nextjs/src/styles/color-scheme.scss:4-9)",
+				"dashy": "source read at 4.7.0: ConfigSchema.json:359-368 dayTheme and nightTheme, chosen by prefers-color-scheme in src/store.js:211-213; 3.2.0 PR 1770 'auto dark/light theme switch based on OS preference'"
+			},
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "changelog",
+			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
+			"note": "LaunchPad draws with Nextcloud's theme variables (WorkspaceApp.vue:480, :500), and Nextcloud's theming app switches them by the device's colour scheme through media-query themes (nextcloud/server v35.0.1 apps/theming/lib/Service/ThemeInjectionService.php:39-48). Also mined from https://www.microsoft.com/releasecommunications/api/v1/m365."
+		},
+		{
+			"id": "d-tile-sort",
+			"area": "launcher",
+			"name": "Choose how tiles in a group are sorted, such as alphabetically, by last use or at random.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "yes",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: user guide 175363 and FAQ for admins 175608 describe drag and drop reordering and automatic gap filling, no sort by name, last use or random (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards card order is set by the author and users drag cards; sort options exist only inside Folder (date, A-Z) and Stream playlist cards, not for cards (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: the dashboard has no tile groups to sort (apps/dashboard/src/DashboardApp.vue:17-54 one flat widget list in the order the user dragged); searched apps/dashboard for sort, alphabetical, random: none",
+				"homarr": "source read at v1.77.2: tiles sit where they are placed on the grid, and the bookmarks widget keeps a hand-sorted list (packages/widgets/src/bookmarks/index.tsx:29 sortableItemList); searched packages/widgets/src/app, bookmarks and apps/nextjs/src/components/board for sortBy, alphabetic, random: none",
+				"dashy": "source read at 4.7.0: ConfigSchema.json:924-940 section sortBy (most-used, last-used, alphabetical, provider, item-id, random), applied in src/utils/SortItems.js:38-39; provider and item-id added in 4.6.0 PR 2243"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "tiles",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.6.0",
+			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120)."
+		},
+		{
+			"id": "d-ai-write",
+			"area": "search-ai",
+			"name": "An AI helper improves the wording of an announcement or email while you write it.",
+			"launchpad": "no",
+			"workspace-365": "yes",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "partial",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "v4.45 (2026-07-23) 'Kelly can now help you improve selected text in the Hub and the email composer'; v4.46 extends it to the title field (read 2026-09-26)",
+				"microsoft-viva": "not checked: announcements page has no writing aid; Copilot in SharePoint pages not read",
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/TaskProcessing/TaskTypes defines writing tasks such as TextToTextReformulation.php:46-56 'Reformulate text', TextToTextImprove and TextToTextChangeTone, served by core/Controller/TaskProcessingApiController.php; the writing UI (Assistant) and the model providers are app store apps not in this source, and the dashboard has no announcement or mail editor",
+				"homarr": "source read at v1.77.2: searched packages and apps/nextjs/src (ts, tsx) for openai, ollama, llm, anthropic as words: none; the only AI touch is a button that copies a prompt for building a custom widget (en.json:871); there is no announcement or email editor",
+				"dashy": "source read at 4.7.0: searched src and services for openai, ollama, llm: none; Dashy has no announcement or email editor to help with"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "changelog",
+			"originUrl": "https://support.workspace365.net/en/articles/747342-release-notes-workspace-365-v4-45",
+			"note": "Searched src and lib for assistant, TextProcessing and ITaskProcessing: no writing help. LaunchPad has no announcement editor to attach one to (row e-announcements is no)."
+		},
+		{
+			"id": "d-room-free",
+			"area": "widgets",
+			"name": "See whether a meeting room is free while you plan a meeting from the workplace.",
+			"launchpad": "no",
+			"workspace-365": "yes",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "partial",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "v4.45 'The Calendar app now shows whether a meeting room is available while you plan an event' (read 2026-09-26)",
+				"microsoft-viva": "not checked: available-dashboard-cards lists no room booking card",
+				"nextcloud-dashboard": "source read at v35.0.1: the shipped dav app models rooms as bookable principals (apps/dav/lib/CalDAV/ResourceBooking/RoomPrincipalBackend.php:23) with free-busy lookup (apps/dav/lib/CalDAV/FreeBusy/FreeBusyGenerator.php:17); the room backend and the Calendar app where a meeting is planned come from the app store and are not in this source",
+				"homarr": "source read at v1.77.2: searched packages/widgets/src/calendar and packages/integrations/src for room, rooms, freebusy: only mock media session names; the calendar widget shows events and has no room availability",
+				"dashy": "source read at 4.7.0: searched src for room, rooms, freebusy: only the locale string 'chat room' (src/assets/locales/en.json:527); src/components/Widgets/Calendar.vue lists ICS events with no room availability"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "calendar-widget",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://support.workspace365.net/en/articles/747342-release-notes-workspace-365-v4-45",
+			"note": "The calendar widget lists events (row w-calendar); searched src and lib for room, resource booking and free-busy: nothing shows room availability."
+		},
+		{
+			"id": "d-profile-fields",
+			"area": "widgets",
+			"name": "Colleague profiles show extra fields such as office location taken from the identity provider.",
+			"launchpad": "partial",
+			"workspace-365": "yes",
+			"microsoft-viva": "partial",
+			"nextcloud-dashboard": "yes",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "lib/Service/PeopleWidgetService.php:91"
+			},
+			"reachedOn": "Workspace page, Add widget, People",
+			"evidence": {
+				"workspace-365": "v4.46 (2026-08-19) 'map up to five fields from Entra ID to custom fields in Workspace 365' (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards People card reads contact information from Entra ID; custom fields not described (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: apps/profile/lib/Controller/ProfilePageController.php:52-56 profile page /u/{user} shows address, organisation, role and headline (lib/private/Profile/ProfileManager.php:70-76, lib/public/Accounts/IAccountManager.php:96-127); the shipped user_ldap fills them from directory attributes (apps/user_ldap/lib/Configuration.php:78-83)",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:49-74 a user has only name, email, image and preferences; searched sqlite.ts for location, office, department: none, and there is no colleague profile page",
+				"dashy": "source read at 4.7.0: no user directory or profile page; src/utils/auth/OidcAuth.js:250-255 keeps only groups and roles from the profile for visibility rules"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "people-widget",
+			"featureConfidence": "medium",
+			"origin": "changelog",
+			"originUrl": "https://support.workspace365.net/en/articles/766599-release-notes-workspace-365-v4-46",
+			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre."
+		},
+		{
+			"id": "d-news-preview",
+			"area": "engagement",
+			"name": "Preview a news item before it is published.",
+			"launchpad": "no",
+			"workspace-365": "yes",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "Productboard launched 2025 'Preview of hub items before publishing' (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/viva/connections/announcements-viva-connections 'Select Next to review the details of your announcement' before sending (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for news, announcement: none; no news authoring in this source (the shipped nextcloud_announcements app, core/shipped.json:29, only relays vendor news)",
+				"homarr": "source read at v1.77.2: searched packages/translation/src/lang/en.json for announcement, publish, draft: none; news appears only through the RSS feed widget (packages/widgets/src/rssFeed), with no authoring or preview",
+				"dashy": "source read at 4.7.0: searched src/assets/locales/en.json for announcement, draft, publish: none; news comes only from feed widgets such as src/components/Widgets/RssFeed.vue and NewsHeadlines.vue, with no authoring"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "news-widget",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched",
+			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing."
+		},
+		{
+			"id": "d-recurring-events",
+			"area": "engagement",
+			"name": "Events repeat on a schedule instead of being created one by one.",
+			"launchpad": "no",
+			"workspace-365": "no",
+			"microsoft-viva": "no",
+			"nextcloud-dashboard": "partial",
+			"homarr": "partial",
+			"dashy": "partial",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "Productboard Planned tab lists 'Recurrence of events (repeat) Hub', so it is not available yet (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards 'Recurring events aren't supported' on the Events card (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: the shipped CalDAV server stores and expands repeating events (apps/dav/lib/CalDAV/CalDavBackend.php:2332-2335); creating them and the calendar dashboard widget belong to the Calendar app, which is not in this source",
+				"homarr": "source read at v1.77.2: the calendar widget shows repeating events, expanded from a Nextcloud calendar (packages/integrations/src/nextcloud/nextcloud.integration.ts:105-119); events are created in the source calendar, Homarr cannot create them",
+				"dashy": "source read at 4.7.0: src/components/Widgets/Calendar.vue:87-108 reads ICS feeds and src/utils/IcsParser.js:197, :273 expands RRULE repeats; events are made in the source calendar, Dashy cannot create them"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "roadmap",
+			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/4-planned",
+			"note": "LaunchPad runs no internal events (row e-events is no); the calendar widget only reads calendars."
+		},
+		{
+			"id": "d-content-review",
+			"area": "governance",
+			"name": "Content owners are reminded to review or retire old pages and articles.",
+			"launchpad": "no",
+			"workspace-365": "no",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "Productboard Planned tab lists 'Content review and lifecycle management system', not yet available (read 2026-09-26)",
+				"microsoft-viva": "not checked: roadmap https://www.microsoft.com/releasecommunications/api/v1/m365 item 560541 'Governance Reviews Dashboard for Site Owners' is In development and covers site settings, not content age",
+				"nextcloud-dashboard": "source read at v35.0.1: this source has no pages or articles with an owner; searched apps/dashboard/lib for review, expire, stale: none (page and wiki content comes from app store apps such as Collectives)",
+				"homarr": "source read at v1.77.2: Homarr has no articles or content pages; en.json:4786 'Review' is only the last step of the create-user wizard, and a search of en.json for content owner and expire found only certificate and API key expiry",
+				"dashy": "source read at 4.7.0: Dashy has no articles or content pages; searched src/assets/locales/en.json for review, stale: only config preview strings (:129-138)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "roadmap",
+			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/4-planned",
+			"note": "Searched src and lib for review reminders, owner reminders and content expiry: none. Dashboards have a publication status (DashboardTableBuilder.php:435) but nobody is reminded to review them."
+		},
+		{
+			"id": "d-ai-chart",
+			"area": "widgets",
+			"name": "Create a chart on a page by describing it in plain language.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "partial",
+			"nextcloud-dashboard": "no",
+			"homarr": "partial",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: Kelly FAQ mentions no chart creation",
+				"microsoft-viva": "roadmap 560076 (Launched) 'create rich, interactive charts with AI in SharePoint when editing SharePoint pages'; pages, not dashboard cards (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src for chart: none; widgets show item lists only (apps/dashboard/src/components/ApiDashboardWidgetItem.vue:36-38), and there is no page editor to put a chart on",
+				"homarr": "source read at v1.77.2: custom widgets can render charts (packages/widgets/src/custom-api/jsx-whitelist.ts:48-49 BarChart, LineChart), and apps/nextjs/src/app/[locale]/manage/custom-widgets/_copy-ai-prompt-button.tsx copies a prompt for an outside chatbot that returns an importable widget JSON (en.json:871); no built-in AI, admin only",
+				"dashy": "source read at 4.7.0: searched src and services for openai, ollama, llm: none; charts exist only inside fixed widgets (src/components/Charts), not generated from a description"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": null,
+			"featureConfidence": "low",
+			"origin": "roadmap",
+			"originUrl": "https://www.microsoft.com/releasecommunications/api/v1/m365",
+			"note": "Charts are configured by hand over OpenRegister data (row w-charts); the AI dashboard assistant spec exists (openspec/specs/launchpad-ai-dashboard-assistant) but no page reaches it (row a-place-widget is no)."
+		},
+		{
+			"id": "d-work-queue",
+			"area": "widgets",
+			"name": "See your own open cases and work items on the start page and click through to the work queue.",
+			"launchpad": "partial",
+			"workspace-365": "yes",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "no",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/dossiq",
+				"evidence": "src/services/widgetBridge.js:29"
+			},
+			"reachedOn": "Workspace page, Add widget, Nextcloud widget, a case app's own widget, with that app installed",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175605-zaaksysteem live tile shows 'My open cases' and 'My suspended cases' with counts; 'Click on Zaaksysteem at the bottom of the live tile to navigate to Zaaksysteem itself'; TOPdesk tile shows the user's own tickets (175599) (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Assigned tasks card lets users 'create and view tasks from the card or open the Planner app'; Approvals card shows 'the ones sent your way' (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: the bundled widgets are apps/files/lib/Dashboard/FavoriteWidget.php and apps/user_status/lib/Dashboard/UserStatusWidget.php; searched apps/dashboard for task, case, ticket, queue: none (Deck or Tasks widgets come from app store apps)",
+				"homarr": "source read at v1.77.2: no case or ticket integration (packages/integrations/src holds media, network and monitoring services); the custom API widget (en.json:700) calls one admin-set URL with fixed credentials, not the viewer's own items",
+				"dashy": "source read at 4.7.0: no case or ticket widget in src/components/Widgets; src/components/Widgets/CustomApi.vue calls one configured URL with fixed credentials, so it cannot list the viewer's own work items"
+			},
+			"provider": "dossiq",
+			"providerHow": "read-from-code",
+			"feature": "nc-dashboard-widget-proxy",
+			"featureConfidence": "medium",
+			"origin": "tender",
+			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/296963",
+			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; S\u00fadwest-Frysl\u00e2n 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets."
+		},
+		{
+			"id": "d-public-start",
+			"area": "sharing",
+			"name": "Visitors who have not signed in see a public start page instead of the login screen.",
+			"launchpad": "partial",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "no",
+			"homarr": "yes",
+			"dashy": "yes",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "appinfo/routes.php:189"
+			},
+			"reachedOn": "a public share link (/apps/launchpad/s/<token>), not the address signed-out visitors land on",
+			"evidence": {
+				"workspace-365": "not checked: https://support.workspace365.net/en/articles/697783-use-workspace-365-as-relatives-portal even visitors get Entra guest accounts and sign in; no public page described; branding 175374 says 'It is not possible to brand the landing page' (read 2026-09-26)",
+				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview describes access through Teams or the SharePoint home site with Entra identities; no anonymous start page found and no explicit statement of absence (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: the dashboard is a logged-in page (apps/dashboard/lib/Controller/DashboardController.php:50-53) and signing out returns to the login form (core/Controller/LoginController.php:89-92); searched apps/dashboard for PublicPage, anonymous, guest: none",
+				"homarr": "source read at v1.77.2: boards can be public, open to everyone without an account (packages/db/schema/sqlite.ts:264 isPublic, en.json:4438-4440), and anonymous visitors land on the server home board (packages/server-settings/src/index.ts:28, en.json:4560-4563)",
+				"dashy": "source read at 4.7.0: src/utils/config/ConfigSchema.json:606-611 enableGuestAccess gives visitors read-only access without logging in (src/utils/auth/Auth.js:123); pages can be hidden from guests with hideForGuests (:64-68); without auth configured every visitor sees the dashboard"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "dashboard-public-share",
+			"featureConfidence": "medium",
+			"origin": "tender",
+			"originUrl": "https://www.publicprocurement.be/nl/publication-workspaces/204ca8ae-6191-43b9-ac3b-c943f91d1d2d",
+			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'."
+		},
+		{
+			"id": "d-find-expert",
+			"area": "engagement",
+			"name": "Find a colleague by the expertise listed on their profile.",
+			"launchpad": "no",
+			"workspace-365": "yes",
+			"microsoft-viva": "yes",
+			"nextcloud-dashboard": "partial",
+			"homarr": "no",
+			"dashy": "no",
+			"built": {
+				"state": "none",
+				"owner": "ConductionNL/launchpad"
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "https://support.workspace365.net/en/articles/175651-address-book users search colleagues by 'names, job titles, email address, departments and office locations, skills and expertise, interests, and more' (read 2026-09-26)",
+				"microsoft-viva": "https://learn.microsoft.com/en-us/copilot/microsoft-365/people-skills-overview (read via its public source MicrosoftDocs/microsoft-365-docs) GA 'Skills in Traditional People Search (SharePoint people search)', available with Microsoft 365 or Viva plans; SharePoint search is what the SharePoint app in Teams uses (read 2026-09-26)",
+				"nextcloud-dashboard": "source read at v35.0.1: profile role and biography go into the system address book as TITLE and NOTE (apps/dav/lib/CardDAV/Converter.php:123-129), and unified search matches those (apps/dav/lib/Search/ContactsSearchProvider.php:33-43), but only when the app store Contacts app is enabled (:81); there is no dedicated expertise field",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:49-74 users carry no profile or skills fields; searched the schema for skill, expertise, department: none",
+				"dashy": "source read at 4.7.0: Dashy has no user directory or profiles; searched src for expertise, skill, directory: no people search (the search bar at src/components/Settings/SearchBar.vue filters items)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "people-widget",
+			"featureConfidence": "medium",
+			"origin": "tender",
+			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/418890",
+			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them."
 		}
 	]
 }

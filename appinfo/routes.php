@@ -247,6 +247,21 @@ return [
 		 'url' => '/api/dashboards/{uuid}/reactions', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
+		// A person's own arrangement of a dashboard somebody else owns
+		// (dashboards-and-who-may-see-them REQ-DWMS-001, REQ-DWMS-002). The
+		// id requirement is digits only, so these cannot swallow the
+		// uuid-keyed dashboard routes above. DELETE is the reset, and it
+		// removes the whole layer.
+		['name' => 'personalLayerApi#show',
+		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'GET',
+		 'requirements' => ['dashboardId' => '\d+']],
+		['name' => 'personalLayerApi#save',
+		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'PUT',
+		 'requirements' => ['dashboardId' => '\d+']],
+		['name' => 'personalLayerApi#reset',
+		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
+		 'requirements' => ['dashboardId' => '\d+']],
+
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
 		// plain report route so the `/csv` suffix is matched first, and both

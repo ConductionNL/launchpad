@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Tegund",
     "Version": "Útgáfa",
     "How many dashboards there are, and who they belong to.": "Hversu mörg mælaborð eru til og hverjum þau tilheyra.",
-    "Store": "Verslun"
+    "Store": "Verslun",
+    "Integrations" : "Samþættingar",
+    "Connection" : "Tenging",
+    "Status" : "Staða",
+    "Status message" : "Stöðuskilaboð",
+    "Last checked" : "Síðast athugað",
+    "All connections" : "Allar tengingar",
+    "Add integration" : "Bæta við samþættingu",
+    "Open settings" : "Opna stillingar",
+    "Configured" : "Stillt",
+    "Limited" : "Takmarkað",
+    "Not configured" : "Ekki stillt",
+    "Simulated" : "Hermt",
+    "Error" : "Villa"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

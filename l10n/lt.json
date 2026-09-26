@@ -1091,6 +1091,19 @@
         "Kind": "Rūšis",
         "Version": "Versija",
         "How many dashboards there are, and who they belong to.": "Kiek yra skydelių ir kam jie priklauso.",
-        "Store": "Parduotuvė"
+        "Store": "Parduotuvė",
+        "Integrations": "Integracijos",
+        "Connection": "Ryšys",
+        "Status": "Būsena",
+        "Status message": "Būsenos pranešimas",
+        "Last checked": "Paskutinį kartą patikrinta",
+        "All connections": "Visi ryšiai",
+        "Add integration": "Pridėti integraciją",
+        "Open settings": "Atverti nustatymus",
+        "Configured": "Sukonfigūruota",
+        "Limited": "Ribota",
+        "Not configured": "Nesukonfigūruota",
+        "Simulated": "Imituota",
+        "Error": "Klaida"
     }
 }

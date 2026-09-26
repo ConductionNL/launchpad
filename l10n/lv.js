@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Veids",
     "Version": "Versija",
     "How many dashboards there are, and who they belong to.": "Cik ir infopaneļu un kam tie pieder.",
-    "Store": "Veikals"
+    "Store": "Veikals",
+    "Integrations" : "Integrācijas",
+    "Connection" : "Savienojums",
+    "Status" : "Statuss",
+    "Status message" : "Statusa ziņojums",
+    "Last checked" : "Pēdējoreiz pārbaudīts",
+    "All connections" : "Visi savienojumi",
+    "Add integration" : "Pievienot integrāciju",
+    "Open settings" : "Atvērt iestatījumus",
+    "Configured" : "Konfigurēts",
+    "Limited" : "Ierobežots",
+    "Not configured" : "Nav konfigurēts",
+    "Simulated" : "Simulēts",
+    "Error" : "Kļūda"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

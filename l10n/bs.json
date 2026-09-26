@@ -1091,6 +1091,19 @@
         "Kind": "Vrsta",
         "Version": "Verzija",
         "How many dashboards there are, and who they belong to.": "Koliko ima kontrolnih tabli i kome pripadaju.",
-        "Store": "Trgovina"
+        "Store": "Trgovina",
+        "Integrations": "Integracije",
+        "Connection": "Veza",
+        "Status": "Status",
+        "Status message": "Statusna poruka",
+        "Last checked": "Posljednja provjera",
+        "All connections": "Sve veze",
+        "Add integration": "Dodaj integraciju",
+        "Open settings": "Otvori postavke",
+        "Configured": "Konfigurisano",
+        "Limited": "Ograničeno",
+        "Not configured": "Nije konfigurisano",
+        "Simulated": "Simulirano",
+        "Error": "Greška"
     }
 }

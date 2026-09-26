@@ -1091,6 +1091,19 @@
         "Kind": "Вид",
         "Version": "Версия",
         "How many dashboards there are, and who they belong to.": "Сколько есть панелей и кому они принадлежат.",
-        "Store": "Магазин"
+        "Store": "Магазин",
+        "Integrations": "Интеграции",
+        "Connection": "Подключение",
+        "Status": "Статус",
+        "Status message": "Сообщение о статусе",
+        "Last checked": "Последняя проверка",
+        "All connections": "Все подключения",
+        "Add integration": "Добавить интеграцию",
+        "Open settings": "Открыть настройки",
+        "Configured": "Настроено",
+        "Limited": "Ограничено",
+        "Not configured": "Не настроено",
+        "Simulated": "Симулировано",
+        "Error": "Ошибка"
     }
 }

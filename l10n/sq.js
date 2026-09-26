@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Lloji",
     "Version": "Versioni",
     "How many dashboards there are, and who they belong to.": "Sa panele ka dhe kujt i përkasin.",
-    "Store": "Dyqani"
+    "Store": "Dyqani",
+    "Integrations" : "Integrime",
+    "Connection" : "Lidhje",
+    "Status" : "Gjendja",
+    "Status message" : "Mesazh gjendjeje",
+    "Last checked" : "Kontrolluar së fundi",
+    "All connections" : "Të gjitha lidhjet",
+    "Add integration" : "Shto integrim",
+    "Open settings" : "Hap cilësimet",
+    "Configured" : "I konfiguruar",
+    "Limited" : "I kufizuar",
+    "Not configured" : "I pakonfiguruar",
+    "Simulated" : "I simuluar",
+    "Error" : "Gabim"
 },
 "nplurals=2; plural=(n != 1);"
 );

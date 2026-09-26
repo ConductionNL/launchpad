@@ -176,6 +176,19 @@ class DashboardService {
 	 *                              fork name
 	 *                              (REQ-DASH-020).
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param PersonalLayerService $personalLayers Lays a reader's own
+	 *                                             arrangement over a
+	 *                                             dashboard somebody else
+	 *                                             owns (REQ-DWMS-001).
+	 *                                             Required, not nullable:
+	 *                                             a null here is
+	 *                                             indistinguishable from a
+	 *                                             reader who has no layer,
+	 *                                             so broken wiring would
+	 *                                             store layers and show
+	 *                                             none of them, in silence
+	 *                                             and with every test
+	 *                                             green.
 	 * @param DashboardTranslationService|null $translationService Optional
 	 *                                                             translation
 	 *                                                             service
@@ -298,6 +311,7 @@ class DashboardService {
 		private readonly IConfig $config,
 		private readonly IFactory $l10nFactory,
 		private readonly LoggerInterface $logger,
+		private readonly PersonalLayerService $personalLayers,
 		private readonly ?DashboardTranslationService $translationService = null,
 		private readonly ?DashboardLockMapper $lockMapper = null,
 		private readonly ?FooterService $footerService = null,
@@ -410,7 +424,11 @@ class DashboardService {
 			if (isset($levels[$dashboard->getId()]) === true) {
 				return [
 					'dashboard' => $dashboard,
-					'placements' => $placements,
+					'placements' => $this->withPersonalLayer(
+						placements: $placements,
+						dashboard: $dashboard,
+						userId: $userId
+					),
 					'permissionLevel' => $levels[$dashboard->getId()],
 				];
 			}
@@ -418,13 +436,85 @@ class DashboardService {
 
 		return $this->dashResolver->buildResult(
 			dashboard: $dashboard,
-			placements: $placements
+			placements: $this->withPersonalLayer(
+				placements: $placements,
+				dashboard: $dashboard,
+				userId: $userId
+			)
 		);
 	}//end getDashboardForUser()
 
 	/**
+	 * Lay the caller's own arrangement over a dashboard somebody else owns.
+	 *
+	 * Their own dashboard is left alone: the arrangement there IS the
+	 * dashboard, and a layer on top of it would be a second place the same
+	 * thing is stored. A caller with no layer gets the placements back
+	 * unchanged, so this costs one miss until somebody uses the feature.
+	 *
+	 * The layer service is required rather than nullable. It used to be
+	 * nullable, and a null read exactly like a caller with no layer, so a
+	 * wiring failure would have stored layers and applied none of them
+	 * without a single test noticing.
+	 *
+	 * @param array $placements What the owner composed.
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param string $userId The caller.
+	 *
+	 * @return array The placements the caller sees.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	private function withPersonalLayer(
+		array $placements,
+		Dashboard $dashboard,
+		string $userId,
+	): array {
+		if ((string)$dashboard->getUserId() === $userId) {
+			return $placements;
+		}
+
+		return $this->personalLayers->applyTo(
+			placements: $placements,
+			userId: $userId,
+			dashboardId: (int)$dashboard->getId()
+		);
+	}//end withPersonalLayer()
+
+	/**
 	 * Get the effective dashboard for a user.
 	 * Returns user's active dashboard or applicable admin template.
+	 *
+	 * This is `GET /api/dashboard`, the call the grid loads from, so it is
+	 * the read the personal layer has to reach. The resolution chain below
+	 * has eight exits, several of them inside DashboardResolver, so the
+	 * layer goes on here, once, over whatever the chain settled on, rather
+	 * than at eight places where the ninth would be forgotten.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The effective dashboard data or null.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function getEffectiveDashboard(string $userId): ?array {
+		$result = $this->resolveEffectiveDashboard(userId: $userId);
+		if ($result === null || isset($result['placements']) === false) {
+			return $result;
+		}
+
+		$result['placements'] = $this->withPersonalLayer(
+			placements: $result['placements'],
+			dashboard: $result['dashboard'],
+			userId: $userId
+		);
+
+		return $result;
+	}//end getEffectiveDashboard()
+
+	/**
+	 * The resolution chain behind {@see self::getEffectiveDashboard()}.
 	 *
 	 * @param string $userId The user ID.
 	 *
@@ -432,7 +522,7 @@ class DashboardService {
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	public function getEffectiveDashboard(string $userId): ?array {
+	private function resolveEffectiveDashboard(string $userId): ?array {
 		// Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
 		// then the auto-overwriting last-used preference (REQ-DASH-019),
 		// both against the user's full visible set. This honours a
@@ -486,7 +576,7 @@ class DashboardService {
 			return $result;
 		}
 
-		$result = $this->resolveDefaultGroupDashboard(userId: $userId);
+		$result = $this->resolveRoleLayoutOrDefaultGroupDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
@@ -508,7 +598,45 @@ class DashboardService {
 		}
 
 		return $this->tryCreateFromTemplate(userId: $userId);
-	}//end getEffectiveDashboard()
+	}//end resolveEffectiveDashboard()
+
+	/**
+	 * The user's role layout when their groups carry one, else the instance default.
+	 *
+	 * Kept out of getEffectiveDashboard() so that method takes this as one
+	 * step: inline, the extra branches put it over phpmd's NPath threshold.
+	 *
+	 * @param string $userId The user to resolve for.
+	 *
+	 * @return array|null The built dashboard result, or null when neither exists.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function resolveRoleLayoutOrDefaultGroupDashboard(string $userId): ?array {
+		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
+		// REQ-RFP-002 says a new user is seeded from their group's
+		// RoleLayoutDefault rows. Since #361 seeds one `default`
+		// group-shared dashboard on install, the default group step matched
+		// for EVERY new user, so `tryCreateFromTemplate()` at the end of
+		// getEffectiveDashboard() never ran and no role layout was ever
+		// seeded. Measured on a fresh instance: a user in a group with layout
+		// defaults resolved to the shared `default` dashboard and owned
+		// nothing.
+		//
+		// Narrow on purpose: only an instance that configured role layout
+		// defaults for one of this user's groups takes the new path, and
+		// `tryCreateFromTemplate()` still answers null when personal
+		// dashboards are switched off, which falls through to the old
+		// behaviour.
+		if ($this->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
+			$result = $this->tryCreateFromTemplate(userId: $userId);
+			if ($result !== null) {
+				return $result;
+			}
+		}
+
+		return $this->resolveDefaultGroupDashboard(userId: $userId);
+	}//end resolveRoleLayoutOrDefaultGroupDashboard()
 
 	/**
 	 * Resolve an instance-wide dashboard on the reserved `default` group.
@@ -2521,6 +2649,40 @@ class DashboardService {
 	}//end findFirstGroupSharedWhere()
 
 	/**
+	 * A root slug for this user's auto-provisioned dashboard that no sibling holds.
+	 *
+	 * Root slugs share one namespace across every owner, so 'my-dashboard'
+	 * belongs to whoever provisioned first. The owner's id is appended for
+	 * everyone else, and a random segment settles the rest.
+	 *
+	 * @param string $userId The owner.
+	 *
+	 * @return string A slug free at root, or the plain one when nothing holds it.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function uniqueRootSlugFor(string $userId): string {
+		$base = SlugGenerator::slugify(name: 'My Dashboard');
+		$candidates = [$base, ($base . '-' . SlugGenerator::slugify(name: $userId))];
+		$candidates[] = ($base . '-' . bin2hex(random_bytes(4)));
+
+		foreach ($candidates as $candidate) {
+			if ($candidate === '' || $candidate === $base . '-') {
+				continue;
+			}
+
+			try {
+				$this->treeService->validateSlugUnique(parentUuid: null, slug: $candidate);
+				return $candidate;
+			} catch (InvalidArgumentException) {
+				continue;
+			}
+		}
+
+		return ($base . '-' . bin2hex(random_bytes(6)));
+	}//end uniqueRootSlugFor()
+
+	/**
 	 * Try to create a dashboard from a template or empty.
 	 *
 	 * @param string $userId The user ID.
@@ -2543,9 +2705,17 @@ class DashboardService {
 		}
 
 		if ($allowUserDashboards === true) {
+			// 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
+			// `validateSlugUnique()` looks for any root dashboard with this
+			// slug, whoever owns it, and every auto-provisioned dashboard is
+			// named 'My Dashboard'. So the SECOND user ever to reach this
+			// branch got `Slug must be unique among siblings` and the request
+			// answered HTTP 500 with no dashboard at all. Measured on a fresh
+			// instance: the first user provisioned, the next one 500'd.
 			$dashboard = $this->createDashboard(
 				userId: $userId,
-				name: 'My Dashboard'
+				name: 'My Dashboard',
+				slug: $this->uniqueRootSlugFor(userId: $userId)
 			);
 
 			// REQ-RFP-002: when no admin template applies, prefer seeding
@@ -2555,7 +2725,7 @@ class DashboardService {
 			// The dependency is nullable to keep legacy PHPUnit doubles (built
 			// before role-based-content shipped) working — when null we treat
 			// it as "no defaults seeded" so the legacy hardcoded fallback runs.
-			$seeded = false;
+			$seeded = 0;
 			if ($this->roleFeaturePerm !== null) {
 				$seeded = $this->roleFeaturePerm->seedLayoutFromRoleDefaults(
 					userId: $userId,
@@ -2563,11 +2733,18 @@ class DashboardService {
 				);
 			}
 
-			$placements = $this->createDefaultPlacements(
-				dashboardId: $dashboard->getId()
-			);
+			// The comment above says the hardcoded pair is a FALLBACK, and it
+			// was not: it was created on every path, so a role-seeded layout
+			// came out carrying the role defaults AND tile/tile/tile/files.
+			$placements = [];
 			if ($seeded > 0) {
 				$placements = $this->placementMapper->findByDashboardId(
+					dashboardId: $dashboard->getId()
+				);
+			}
+
+			if ($seeded === 0) {
+				$placements = $this->createDefaultPlacements(
 					dashboardId: $dashboard->getId()
 				);
 			}

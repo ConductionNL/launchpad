@@ -1123,7 +1123,20 @@ OC.L10N.register(
     "Kind": "Gener",
     "Version": "Versiun",
     "How many dashboards there are, and who they belong to.": "Quants panels ch'i dat e tgi ch'els appartegnan.",
-    "Store": "Butia"
+    "Store": "Butia",
+    "Integrations" : "Integraziuns",
+    "Connection" : "Connexiun",
+    "Status" : "Status",
+    "Status message" : "Messadi da status",
+    "Last checked" : "Controllà l'ultima giada",
+    "All connections" : "Tut las connexiuns",
+    "Add integration" : "Agiuntar ina integraziun",
+    "Open settings" : "Avrir las configuraziuns",
+    "Configured" : "Configurà",
+    "Limited" : "Limità",
+    "Not configured" : "Betg configurà",
+    "Simulated" : "Simulà",
+    "Error" : "Errur"
 },
 "nplurals=2; plural=(n != 1);"
 );

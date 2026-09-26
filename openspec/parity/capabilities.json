@@ -103,13 +103,13 @@
 			"vendor": "Homarr (open source)",
 			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
-			"evidenceGrade": "docs-only",
-			"unknownReason": "source read at v1.77.2 on 2026-09-26; every row was settled from the code, so no unknown remains in this column",
+			"evidenceGrade": "driven",
+			"unknownReason": "source read at v1.77.2 and driven on 2026-09-26; every row was settled, so no unknown remains in this column",
 			"sourceRead": {
 				"repo": "https://github.com/homarr-labs/homarr",
 				"tag": "v1.77.2",
 				"commit": "18dafb1276d8ff66d1be1b149c74f80dbf94f78d",
-				"note": "source read at v1.77.2, not driven"
+				"note": "source read at v1.77.2 for every row, and the instance driven at the same version (ghcr.io/homarr-labs/homarr:v1.77.2, lab compose in ConductionNL/market-intelligence launchpad/homarr) on 2026-09-26 for the 18 rows whose evidence says 'Driven on the lab'; the rest rest on the source read"
 			},
 			"sources": {
 				"docs": "https://homarr.dev/docs/getting-started/",
@@ -153,6 +153,12 @@
 				"jobPostings": null,
 				"tenders": null,
 				"notes": "{\"apiReference\": \"no hosted REST reference; each instance serves its own OpenAPI document (apps/nextjs/src/app/api/openapi/route.ts) and Swagger page; the docs page given covers the MCP server (apps/docs/docs/management/mcp.mdx)\"} reviews: alternativeto.net lists Homarr (found by web search 2026-09-26; the site answers 403 to scripts). The intelligence database records the licence as MIT; the LICENSE file at v1.77.2 is Apache 2.0."
+			},
+			"lab": {
+				"compose": "market-intelligence launchpad/homarr/docker-compose.homarr.yml",
+				"image": "ghcr.io/homarr-labs/homarr:v1.77.2",
+				"drivenOn": "2026-09-26",
+				"rowsDriven": 18
 			}
 		},
 		{
@@ -516,7 +522,7 @@
 			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 the grid is a centered flex-wrap row with max-width 1800px, so the column count follows the window width; searched apps/dashboard for column, grid settings: no user or admin setting",
-				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:325 layout table with columnCount per board layout; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:30 add layout with columnCount; en.json:4573 'Column count'",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:325 layout table with columnCount per board layout; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:30 add layout with columnCount; en.json:4573 'Column count'. Driven on the lab at v1.77.2 on 2026-09-26: board settings Layout shows 'Responsive layouts' with Name, Column count and Breakpoint per layout.",
 				"dashy": "source read at 4.7.0: src/utils/config/ConfigSchema.json:421-427 appConfig.colCount 1 to 8, applied in src/views/Home.vue:138 and :277-284; editable in the Edit App Config form (src/components/InteractiveEditor/EditAppConfig.vue:21 schema form) or the YAML editor"
 			}
 		},
@@ -538,7 +544,7 @@
 			"reachedOn": "Workspace page at any viewport width",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 flex-wrap panels with max-width 100% (:602) reflow to fewer columns, and :682-686 drops the fixed widget height below 709px; apps/dashboard/src/mixins/isMobile.js mixed in at :173-175",
-				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:332 layout.breakpoint; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:53 breakpoint input; en.json:4456 'Responsive layouts', en.json:4576 layout used on screens larger than breakpoint",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:332 layout.breakpoint; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:53 breakpoint input; en.json:4456 'Responsive layouts', en.json:4576 layout used on screens larger than breakpoint. Driven on the lab at v1.77.2 on 2026-09-26: board settings Layout lets you add a layout per breakpoint ('Layout will be used on all screens larger than this breakpoint').",
 				"dashy": "source read at 4.7.0: src/views/Home.vue:269-274 column count follows breakpoints (1 on phone up to 5 on big screens) when colCount is unset; src/components/PageStrcture/Nav.vue:3-13 nav collapses to a burger menu"
 			},
 			"provider": "launchpad",
@@ -872,7 +878,7 @@
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:79 the page title is always 'Dashboard' and apps/dashboard/src/DashboardApp.vue:7 shows a fixed time-of-day greeting; searched apps/dashboard for title, description, icon settings: none editable",
-				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board has name, pageTitle, metaTitle, logoImageUrl and faviconImageUrl (en.json:4327, en.json:4333) but no description column",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board has name, pageTitle, metaTitle, logoImageUrl and faviconImageUrl (en.json:4327, en.json:4333) but no description column. Driven on the lab at v1.77.2 on 2026-09-26: board settings General shows Page title, Meta title, Logo and Favicon, no description field.",
 				"dashy": "source read at 4.7.0: ConfigSchema.json:151-221 pageInfo title, description, logo, favicon per config file; src/components/InteractiveEditor/EditPageInfo.vue form ('Edit Page Info', en.json:339); per-page pageInfo merged at src/store.js:535-539"
 			}
 		},
@@ -947,7 +953,7 @@
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar, Shared with you",
 			"evidence": {
-				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:122 getAllBoards returns every board the user reaches through user or group permissions; apps/nextjs/src/app/[locale]/manage/boards/page.tsx:109 each card shows its creator, so shared boards sit in the same list as your own (no separate shared-with-me filter)",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:122 getAllBoards returns every board the user reaches through user or group permissions; apps/nextjs/src/app/[locale]/manage/boards/page.tsx:109 each card shows its creator, so shared boards sit in the same list as your own (no separate shared-with-me filter). Driven on the lab at v1.77.2 on 2026-09-26: Manage, Boards lists 'Your boards' as cards with 'Open board'.",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:188-206 the API only reads and writes the caller's own layout; searched apps/dashboard for share: 0 hits",
 				"dashy": "source read at 4.7.0: no ownership or sharing model: pages are admin-listed in the root config (src/utils/config/ConfigHelpers.js:14 pages are root-owned); searched src and services for share: none"
 			},
@@ -1370,7 +1376,7 @@
 			},
 			"reachedOn": "nothing",
 			"evidence": {
-				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/tools/docker/docker-table.tsx:318 'Add to Homarr' turns selected containers into apps (en.json:5451); setup wizard detects containers too (en.json:129 'Docker detected {count} services')",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/tools/docker/docker-table.tsx:318 'Add to Homarr' turns selected containers into apps (en.json:5451); setup wizard detects containers too (en.json:129 'Docker detected {count} services'). Driven on the lab at v1.77.2 on 2026-09-26: Tools, Docker lists containers with an actions column; the lab mounts no Docker socket, so it showed 'No records to display' and adding was not exercised.",
 				"dashy": "source read at 4.7.0: searched services and src for docker.sock, dockerode, labels, autodiscover: none; docker.sock appears only in docs/management.md:105 for Watchtower updates. The April claim of Docker-label discovery is not in this release",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for docker, container, discover: none"
 			},
@@ -2275,7 +2281,7 @@
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:63 a widget only appears if its app is enabled for the user, so limiting an app to groups (apps/appstore/src/actions/actionLimitToGroup.ts:22) limits who can add its widget; there is no dashboard-level rule per widget kind",
-				"homarr": "source read at v1.77.2: group permissions limit which apps and integrations members may put on boards (en.json:400 'Use all apps', en.json:441 'Use all integrations'), which gates integration widgets; there is no allow-list of widget kinds per group (packages/definitions/src/permissions.ts)",
+				"homarr": "source read at v1.77.2: group permissions limit which apps and integrations members may put on boards (en.json:400 'Use all apps', en.json:441 'Use all integrations'), which gates integration widgets; there is no allow-list of widget kinds per group (packages/definitions/src/permissions.ts). Driven on the lab at v1.77.2 on 2026-09-26: group Permissions page lists 'Use all apps' and 'Use all integrations', no per-widget-kind switch.",
 				"dashy": "source read at 4.7.0: src/store.js:224-248 permissions are three booleans (write to disk, save locally, view config); nothing limits widget types per group"
 			}
 		},
@@ -2298,7 +2304,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29081 'Role/persona templates' (captured 2026-04-24): persona templates bundle apps and tiles, assigned via group membership",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the starting layout is one instance-wide app config value 'layout' (default recommendations,spreed,mail,calendar); searched apps/dashboard for group, role: 0 hits for group",
-				"homarr": "source read at v1.77.2: each group gets a home board and a mobile board (packages/db/schema/sqlite.ts:152, en.json:373) that members land on; new boards start empty or as a copy (packages/api/src/router/board.ts:332 duplicateBoard), there is no per-role starting template",
+				"homarr": "source read at v1.77.2: each group gets a home board and a mobile board (packages/db/schema/sqlite.ts:152, en.json:373) that members land on; new boards start empty or as a copy (packages/api/src/router/board.ts:332 duplicateBoard), there is no per-role starting template. Driven on the lab at v1.77.2 on 2026-09-26: group Settings page offers a 'Home board' and a 'Mobile board' per group ('Group settings are prioritized by the order of groups').",
 				"dashy": "source read at 4.7.0: one config serves everyone (src/store.js:490-497); searched src for role layout, template: none"
 			},
 			"provider": "launchpad",
@@ -2353,7 +2359,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28713 'Role-based adaptive workspace' (captured 2026-04-24): rewires itself around role, location, device, browser, OS and network",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/mixins/isMobile.js only toggles layout on width; searched apps/dashboard for network, location rule, device rule: none",
-				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1561 home board chosen per device type (mobile or desktop) from user, group and server settings; layouts switch by screen width (sqlite.ts:332 breakpoint); nothing keyed to network or location",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1561 home board chosen per device type (mobile or desktop) from user, group and server settings; layouts switch by screen width (sqlite.ts:332 breakpoint); nothing keyed to network or location. Driven on the lab at v1.77.2 on 2026-09-26: group Settings page offers a separate 'Mobile board' beside the 'Home board'; nothing about network or location on any settings page.",
 				"dashy": "source read at 4.7.0: ConfigSchema.json:1156-1172 item localUrl is used when reachable from the browser (src/mixins/ItemMixin.js:28-30), so a tile follows the network you are on; hideFromWorkspace and hideFromHomepage (:1279-1292) vary by view; no rules by device"
 			},
 			"provider": "launchpad",
@@ -2408,7 +2414,7 @@
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 no per-group dashboards exist, so no priority; the only priority list is the default app order (apps/theming/src/components/AdminSectionAppMenu.vue:86-88), which is about the start app",
-				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1561 home board resolved from the group with the lowest position; packages/api/src/router/group.ts:251 save group positions; en.json:4846 'Group settings are prioritized by the order of groups in the list'",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1561 home board resolved from the group with the lowest position; packages/api/src/router/group.ts:251 save group positions; en.json:4846 'Group settings are prioritized by the order of groups in the list'. Driven on the lab at v1.77.2 on 2026-09-26: group Settings page says 'Group settings are prioritized by the order of groups in the list. The top settings overwrite the bottom settings.'.",
 				"dashy": "source read at 4.7.0: there is one shared config, not one per group; searched src for priority, precedence: none"
 			}
 		},
@@ -2678,7 +2684,7 @@
 			"evidence": {
 				"dashy": "source read at 4.7.0: src/components/InteractiveEditor/ExportConfigMenu.vue:11-20 download or copy the config ('Download as File', en.json:410); import by pasting into the YAML editor, loading ?config=<url> (src/components/Configuration/RemoteConfigLoader.vue:62-70) or the REST API PUT /config/{filename} (services/endpoints/api/openapi.yml:109)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for export, import: only composer autoload hits; open feature request #57423 asks to add dashboard settings to user_migration",
-				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/backup/export/route.ts:12 and api/backup/import/route.ts:81 move the whole database, boards included, to another server, SQLite driver only (export/route.ts:18; en.json:5171 'Full Database Backup'); no export of a single board (searched for exportBoard)"
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/backup/export/route.ts:12 and api/backup/import/route.ts:81 move the whole database, boards included, to another server, SQLite driver only (export/route.ts:18; en.json:5171 'Full Database Backup'); no export of a single board (searched for exportBoard). Driven on the lab at v1.77.2 on 2026-09-26: Tools, Backup shows 'Full Database Backup' with 'Download Backup' and a restore dropzone that 'Accepts .zip files from a Homarr SQLite backup'; no per-board export."
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2702,7 +2708,7 @@
 			},
 			"reachedOn": "nothing: import accepts only LaunchPad's own export and Confluence pages",
 			"evidence": {
-				"homarr": "source read at v1.77.2: the only importer is for Homarr's own pre-1.0 format (packages/old-import/src/index.ts:4; en.json:4264 'Import from homarr before 1.0.0'); searched apps and packages for heimdall, dashy, organizr, homepage import: none, so the April claim of Heimdall and Dashy import does not hold",
+				"homarr": "source read at v1.77.2: the only importer is for Homarr's own pre-1.0 format (packages/old-import/src/index.ts:4; en.json:4264 'Import from homarr before 1.0.0'); searched apps and packages for heimdall, dashy, organizr, homepage import: none, so the April claim of Heimdall and Dashy import does not hold. Driven on the lab at v1.77.2 on 2026-09-26: the first-run screen offers only 'Start from scratch', 'Import from Homarr before 1.0' and 'Restore from SQLite backup'.",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for import, migrate: none",
 				"dashy": "source read at 4.7.0: searched src, services and docs for homer, heimdall, homarr, import from: none"
 			},
@@ -2836,7 +2842,7 @@
 			},
 			"reachedOn": "Workspace page, dashboard menu, Share",
 			"evidence": {
-				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1342 saveUserBoardPermissions and :1381 saveGroupBoardPermissions with view, modify or full (packages/definitions/src/permissions.ts:9); en.json permission.userSelect 'Add user permission'",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1342 saveUserBoardPermissions and :1381 saveGroupBoardPermissions with view, modify or full (packages/definitions/src/permissions.ts:9); en.json permission.userSelect 'Add user permission'. Driven on the lab at v1.77.2 on 2026-09-26: board settings, Access control shows Users, Groups and Inherited groups tabs with 'Save user permission' and 'Save group permission'.",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for share: 0 hits; the layout is private user config (apps/dashboard/lib/Controller/DashboardApiController.php:205)",
 				"dashy": "source read at 4.7.0: no ownership or per-person sharing: one config per instance (services/endpoints/save-config.js writes conf.yml, admin only via requireAdmin services/app.js:275); searched src and services for share: none"
 			},
@@ -2869,7 +2875,7 @@
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:50-52 the page is NoAdminRequired but not PublicPage; searched apps/dashboard for public link: none",
-				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:265 board isPublic; en.json:4440 'Public boards are accessible by everyone, even without an account'; anonymous visitors get view only (packages/api/src/router/board.ts:81 getPublicBoards)",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:265 board isPublic; en.json:4440 'Public boards are accessible by everyone, even without an account'; anonymous visitors get view only (packages/api/src/router/board.ts:81 getPublicBoards). Driven on the lab at v1.77.2 on 2026-09-26: board settings, Danger zone, 'Make public' asks 'This will make the board accessible to everyone'; after confirming, a fresh signed-out browser opened /boards/dashboard and saw the board.",
 				"dashy": "source read at 4.7.0: without auth the whole instance is open, and with auth enableGuestAccess (ConfigSchema.json:606-611, src/utils/auth/Auth.js:120-123) gives read-only guest viewing, trimmed per page, section or item by hideForGuests (:64, :1033); this is instance-wide guest mode, not a link per dashboard"
 			}
 		},
@@ -3060,7 +3066,7 @@
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: lib/private/User/User.php:315 deleting a user removes all their user config, including the dashboard layout; there is nothing shared to hand over and no transfer (searched apps/dashboard for owner, transfer: none)",
-				"homarr": "source read at v1.77.2: deleting a user keeps their boards (en.json:353 'Will not delete any boards'; packages/db/schema/sqlite.ts:266 creatorId set null on delete) but ownership is not handed to anyone; groups do have 'Transfer ownership' (packages/api/src/router/group.ts:289), boards do not",
+				"homarr": "source read at v1.77.2: deleting a user keeps their boards (en.json:353 'Will not delete any boards'; packages/db/schema/sqlite.ts:266 creatorId set null on delete) but ownership is not handed to anyone; groups do have 'Transfer ownership' (packages/api/src/router/group.ts:289), boards do not. Driven on the lab at v1.77.2 on 2026-09-26: group General page carries 'Transfer ownership' for groups; boards have no such control on their settings page.",
 				"dashy": "source read at 4.7.0: dashboards are not owned by users; searched services for user deletion or transfer: none"
 			}
 		},
@@ -3622,7 +3628,7 @@
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard has no health check of its own (searched apps/dashboard/lib for SetupCheck: none); the platform's admin Overview runs setup checks (apps/settings/lib/Settings/Admin/Overview.php, apps/settings/src/components/SettingsSetupChecks) for the whole server",
-				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/health/live/route.ts and api/health/ready/route.ts:1 give probe endpoints; the admin Tasks page shows each background job as idle, running, error or disabled (en.json management.page.tool.tasks.status, en.json:4965) and a Logs page (en.json:4620); no single health summary page",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/health/live/route.ts and api/health/ready/route.ts:1 give probe endpoints; the admin Tasks page shows each background job as idle, running, error or disabled (en.json management.page.tool.tasks.status, en.json:4965) and a Logs page (en.json:4620); no single health summary page. Driven on the lab at v1.77.2 on 2026-09-26: Tools, Tasks lists background jobs with state (IDLE) and last execution.",
 				"dashy": "source read at 4.7.0: services/app.js:229-235 GET healthz returns status, uptime, version; yarn health-check (services/healthcheck.js); the config menu has a hidden Debug Info tab with error log and environment (src/components/Configuration/ConfigContainer.vue:40, :76); no admin health page"
 			}
 		},
@@ -3944,7 +3950,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28734 'Branding sets' (captured 2026-04-24): logo, colour palette and domain per sub-organisation",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/AdminSectionThemingAdvanced.vue:69-85 admins set primary and background colour, logo and background, and the dashboard panels use theme variables (apps/dashboard/src/DashboardApp.vue:598-608). Government theming (NL Design System) needs the nldesign app, which is not in core/shipped.json",
-				"homarr": "source read at v1.77.2: per board primary and secondary colour, logo, favicon, icon colour and item radius (apps/nextjs/src/app/[locale]/boards/[name]/settings/_appereance.tsx:48; en.json:4395); server default colour scheme (en.json management settings appearance); no design-token or government theme support (searched for nldesign, design tokens)",
+				"homarr": "source read at v1.77.2: per board primary and secondary colour, logo, favicon, icon colour and item radius (apps/nextjs/src/app/[locale]/boards/[name]/settings/_appereance.tsx:48; en.json:4395); server default colour scheme (en.json management settings appearance); no design-token or government theme support (searched for nldesign, design tokens). Driven on the lab at v1.77.2 on 2026-09-26: board settings Appearance shows primary and secondary colour, opacity, icon colour and item radius; no organisation-wide theme page.",
 				"dashy": "source read at 4.7.0: ConfigSchema.json:319-368 twenty-plus built-in themes, day and night themes, customColors (:551) and the Theme Configurator (src/components/Settings/CustomThemeMaker.vue); searched src for nldesign, design tokens: no government theming"
 			},
 			"provider": "nextcloud",
@@ -3967,7 +3973,7 @@
 			},
 			"reachedOn": "nothing",
 			"evidence": {
-				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/_custom-css.tsx:8 injects board.customCss; en.json:4410 'Custom css for this board' plus custom CSS classes per item (packages/validation/src/shared.ts:18)",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/_custom-css.tsx:8 injects board.customCss; en.json:4410 'Custom css for this board' plus custom CSS classes per item (packages/validation/src/shared.ts:18). Driven on the lab at v1.77.2 on 2026-09-26: board settings shows 'Custom css for this board' and custom classes per item.",
 				"dashy": "source read at 4.7.0: ConfigSchema.json:564-568 customCss and externalStyleSheet (:556); edited in the config menu's Custom CSS tab (src/components/Configuration/CustomCss.vue)",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/lib/Controller/ThemingController.php:410 custom CSS comes only from built-in themes (DefaultTheme.php:279-280 returns ''); searched apps/theming/src for custom css: none. The Custom CSS app is not in core/shipped.json"
 			},
@@ -3992,7 +3998,7 @@
 			"reachedOn": "nothing: the dashboard configuration has title, description, icon and sharing only",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/UserSectionBackground.vue:167-180 personal 'Background and color' with a custom image, plain colour or default; the dashboard shows it behind the panels (apps/dashboard/src/DashboardApp.vue:569-575). The greeting is automatic by time of day and birthday (:213-265), not editable",
-				"homarr": "source read at v1.77.2: background image, attachment, repeat and size are set per board (packages/db/schema/sqlite.ts:273; apps/nextjs/src/components/layout/background.tsx:13; en.json:4340), so a personal board can carry its own; the greeting 'Good morning, {username}' is on the management home only (en.json management.title.morning), not on boards",
+				"homarr": "source read at v1.77.2: background image, attachment, repeat and size are set per board (packages/db/schema/sqlite.ts:273; apps/nextjs/src/components/layout/background.tsx:13; en.json:4340), so a personal board can carry its own; the greeting 'Good morning, {username}' is on the management home only (en.json management.title.morning), not on boards. Driven on the lab at v1.77.2 on 2026-09-26: board settings Background shows image URL, attachment, size and repeat, per board.",
 				"dashy": "source read at 4.7.0: appConfig.backgroundImg (ConfigSchema.json:369, applied src/mixins/HomeMixin.js:163-164) can be set per browser through Save Locally; the greeting is a fixed 'Hello {username}!' (en.json:164, AuthButtons.vue:52-55), not configurable"
 			},
 			"provider": "launchpad",

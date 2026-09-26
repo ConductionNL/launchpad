@@ -255,6 +255,10 @@
 				"image": "ghcr.io/homarr-labs/homarr:v1.77.2",
 				"drivenOn": "2026-09-26",
 				"rowsDriven": 18
+			},
+			"readVersion": {
+				"tag": "v1.77.2",
+				"commit": "18dafb1276d8ff66d1be1b149c74f80dbf94f78d"
 			}
 		},
 		{
@@ -321,6 +325,10 @@
 				"image": "lissy93/dashy:4.7.0",
 				"drivenOn": "2026-09-26",
 				"rowsDriven": 10
+			},
+			"readVersion": {
+				"tag": "4.7.0",
+				"commit": "dc9ccdb7cb33cf274fe92db86c3b2d19680bd03d"
 			}
 		}
 	],

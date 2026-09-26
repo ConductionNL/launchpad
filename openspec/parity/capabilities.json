@@ -167,13 +167,13 @@
 			"vendor": "Dashy (open source)",
 			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
-			"evidenceGrade": "docs-only",
-			"unknownReason": "source read at 4.7.0 on 2026-09-26; every row was settled from the code, so no unknown remains in this column",
+			"evidenceGrade": "driven",
+			"unknownReason": "source read at 4.7.0 and driven on 2026-09-26; every row was settled, so no unknown remains in this column",
 			"sourceRead": {
 				"repo": "https://github.com/Lissy93/dashy",
 				"tag": "4.7.0",
 				"commit": "dc9ccdb7cb33cf274fe92db86c3b2d19680bd03d",
-				"note": "source read at 4.7.0 (the latest GitHub release; git also carries patch tags up to 4.7.10), not driven"
+				"note": "source read at 4.7.0 for every row, and the instance driven at the same version (lissy93/dashy:4.7.0 with its default conf.yml, lab compose in ConductionNL/market-intelligence launchpad/dashy) on 2026-09-26 for the 10 rows whose evidence says 'Driven on the lab'; the rest rest on the source read. Authentication and group rules were not driven (they need an OIDC or Keycloak provider)."
 			},
 			"sources": {
 				"docs": "https://dashy.to/docs",
@@ -219,6 +219,12 @@
 				"jobPostings": null,
 				"tenders": null,
 				"notes": "Ideas discussion category exists (34 threads, most old); open feature-request label has only 12 issues. caseStudies is the user showcase, not customer cases. reviews: alternativeto.net lists Dashy (found by web search 2026-09-26; the site answers 403 to scripts)."
+			},
+			"lab": {
+				"compose": "market-intelligence launchpad/dashy/docker-compose.dashy.yml",
+				"image": "lissy93/dashy:4.7.0",
+				"drivenOn": "2026-09-26",
+				"rowsDriven": 10
 			}
 		}
 	],
@@ -436,7 +442,7 @@
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-23 panels are a vuedraggable list dragged by the widget header, saved via saveLayout (:409-412) to POST /api/v3/layout (apps/dashboard/lib/Controller/DashboardApiController.php:202-206); the Customize modal also reorders by drag (:87-96)",
 				"homarr": "source read at v1.77.2: apps/nextjs/src/components/board/sections/gridstack/use-gridstack.ts:258 grid turns non-static (draggable) in edit mode; packages/translation/src/lang/en.json:6547 onboarding tour 'drag to reposition'",
-				"dashy": "source read at 4.7.0: src/views/Home.vue:18,142-151 sections drag by their header in edit mode (SortableJS directive src/directives/DragSort.js:24); src/components/LinkItems/Section.vue:248-265 items and widgets drag within and between sections; order is committed to the config (Home.vue:179-182)"
+				"dashy": "source read at 4.7.0: src/views/Home.vue:18,142-151 sections drag by their header in edit mode (SortableJS directive src/directives/DragSort.js:24); src/components/LinkItems/Section.vue:248-265 items and widgets drag within and between sections; order is committed to the config (Home.vue:179-182). Driven on the lab at 4.7.0 on 2026-09-26: Options, Edit Mode switches the page into 'You are in Edit Mode' with 'Add New Item', 'Add Widget' and 'Add New Section' per section; dragging itself was not exercised."
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -736,7 +742,7 @@
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:458-470 each person ticks widgets on or off and the result is stored only in their own user config (apps/dashboard/lib/Controller/DashboardApiController.php:205). There is no shared dashboard: the only common thing is the admin default list (apps/dashboard/lib/Service/DashboardService.php:34), which a person's own layout replaces",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:395 section_collapse_state per user; packages/api/src/router/section/section-router.ts:14 each user collapses a category for themselves only; no per-user hiding of single widgets (item table sqlite.ts:413 has no per-user state)",
-				"dashy": "source read at 4.7.0: a non-admin can edit and 'Save Locally' (en.json:347-348 'changes will only be saved on this device'); src/store.js:96-130 the local sections replace the shared ones in that browser only, so later admin changes no longer reach that person; blocked when preventLocalSave or disableConfigurationForNonAdmin (store.js:233-247)"
+				"dashy": "source read at 4.7.0: a non-admin can edit and 'Save Locally' (en.json:347-348 'changes will only be saved on this device'); src/store.js:96-130 the local sections replace the shared ones in that browser only, so later admin changes no longer reach that person; blocked when preventLocalSave or disableConfigurationForNonAdmin (store.js:233-247). Driven on the lab at 4.7.0 on 2026-09-26: Edit Mode warns 'until you save, none of your changes will be preserved'; the config menu offers 'Reset Local Settings', which matches the local-copy reading."
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -761,7 +767,7 @@
 			},
 			"reachedOn": "Admin settings, Operations tab, Export and import; and occ launchpad import",
 			"evidence": {
-				"dashy": "source read at 4.7.0: user-data/conf.yml is the whole dashboard (pageInfo, appConfig, sections); src/components/Configuration/JsonEditor.vue built-in YAML editor with schema completion (src/utils/config/schemaComplete.js) and Save to Disk (services/endpoints/save-config.js)",
+				"dashy": "source read at 4.7.0: user-data/conf.yml is the whole dashboard (pageInfo, appConfig, sections); src/components/Configuration/JsonEditor.vue built-in YAML editor with schema completion (src/utils/config/schemaComplete.js) and Save to Disk (services/endpoints/save-config.js). Driven on the lab at 4.7.0 on 2026-09-26: the config menu names its source ('Using config from /conf.yml') and offers 'Edit Config' and 'Update Configuration'.",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the only dashboard description is a comma list of widget ids in the app config key 'layout' (settable with occ config:app:set); searched apps/dashboard for import, export, json, yaml: no file format or loader",
 				"homarr": "source read at v1.77.2: packages/modals-collection/src/boards/import-board-modal.tsx:154 imports a board from a JSON file, but only in the pre-1.0 Homarr format (en.json:4264 'Import from homarr before 1.0.0', en.json:4277 'Select JSON file'); no export or import of a current board as a file (searched apps and packages for exportBoard, boardExport)"
 			},
@@ -1144,7 +1150,7 @@
 			},
 			"reachedOn": "Workspace page, Search widget",
 			"evidence": {
-				"dashy": "source read at 4.7.0: src/components/Settings/SearchBar.vue:90 typing anywhere starts filtering; src/utils/Search.js:15-21 matches title, provider, description, tags and url; src/views/Home.vue:31 hides sections with no match",
+				"dashy": "source read at 4.7.0: src/components/Settings/SearchBar.vue:90 typing anywhere starts filtering; src/utils/Search.js:15-21 matches title, provider, description, tags and url; src/views/Home.vue:31 hides sections with no match. Driven on the lab at 4.7.0 on 2026-09-26: typing 'docs' in the 'Start typing to filter' box narrowed the default page to the Docs tile.",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:5-128 the page template has no filter or search box; searched apps/dashboard/src for filter, search: only URLSearchParams at :538",
 				"homarr": "source read at v1.77.2: packages/widgets/src/app/component.tsx:29 each app tile on the open board registers itself in the search; packages/spotlight/src/modes/home/context-specific-group.tsx:28 filters them by typed text under 'Local results' (en.json:6199); tiles are narrowed in the search dialog, not hidden in place"
 			},
@@ -1173,7 +1179,7 @@
 			"evidence": {
 				"homarr": "source read at v1.77.2: apps/nextjs/src/components/layout/header/search.tsx:6 header search opens the spotlight; search engines Google, Bing, DuckDuckGo and custom ones (en.json:6135, sqlite.ts:476 search_engine with urlTemplate), plus DuckDuckGo bangs",
 				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:76 the header search on the Dashboard page is Nextcloud unified search (core/src/components/UnifiedSearch/UnifiedSearchModal.vue:31 'Apps, files, messages, and more'), which searches the server's own providers, not the web; searched apps/dashboard for web search: none",
-				"dashy": "source read at 4.7.0: src/components/Settings/SearchBar.vue:183-194 Enter sends the query to the configured engine or a bang engine ('Press enter to search the web', en.json:19); ConfigSchema.json:455-525 webSearch settings"
+				"dashy": "source read at 4.7.0: src/components/Settings/SearchBar.vue:183-194 Enter sends the query to the configured engine or a bang engine ('Press enter to search the web', en.json:19); ConfigSchema.json:455-525 webSearch settings. Driven on the lab at 4.7.0 on 2026-09-26: with a filter typed, the box offers 'Press enter to search the web'."
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1541,7 +1547,7 @@
 				"workspace-365": "intelligence-db competitor_features#29066 'RSS tile' (captured 2026-04-24): RSS-feed live tile",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for rss, feed, news: none; the News app is not in core/shipped.json",
 				"homarr": "source read at v1.77.2: packages/widgets/src/rssFeed/ widget 'Monitor and display one or more generic RSS, ATOM or JSON feeds' (en.json:3466)",
-				"dashy": "source read at 4.7.0: src/components/Widgets/WidgetBase.vue:133 rss-feed and :115 news-headlines; RSS parsed and sanitised in src/utils/RssParser.js and src/utils/Sanitizer.js:101-104"
+				"dashy": "source read at 4.7.0: src/components/Widgets/WidgetBase.vue:133 rss-feed and :115 news-headlines; RSS parsed and sanitised in src/utils/RssParser.js and src/utils/Sanitizer.js:101-104. Driven on the lab at 4.7.0 on 2026-09-26: the default page shows a 'Latest Updates' RSS widget with the dashy release notes."
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2682,7 +2688,7 @@
 			},
 			"reachedOn": "Admin settings, Operations tab; and occ launchpad export and import",
 			"evidence": {
-				"dashy": "source read at 4.7.0: src/components/InteractiveEditor/ExportConfigMenu.vue:11-20 download or copy the config ('Download as File', en.json:410); import by pasting into the YAML editor, loading ?config=<url> (src/components/Configuration/RemoteConfigLoader.vue:62-70) or the REST API PUT /config/{filename} (services/endpoints/api/openapi.yml:109)",
+				"dashy": "source read at 4.7.0: src/components/InteractiveEditor/ExportConfigMenu.vue:11-20 download or copy the config ('Download as File', en.json:410); import by pasting into the YAML editor, loading ?config=<url> (src/components/Configuration/RemoteConfigLoader.vue:62-70) or the REST API PUT /config/{filename} (services/endpoints/api/openapi.yml:109). Driven on the lab at 4.7.0 on 2026-09-26: Options, Config opens a menu with 'View / Export Config', 'Export Config' and 'Edit Config'.",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for export, import: only composer autoload hits; open feature request #57423 asks to add dashboard settings to user_migration",
 				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/backup/export/route.ts:12 and api/backup/import/route.ts:81 move the whole database, boards included, to another server, SQLite driver only (export/route.ts:18; en.json:5171 'Full Database Backup'); no export of a single board (searched for exportBoard). Driven on the lab at v1.77.2 on 2026-09-26: Tools, Backup shows 'Full Database Backup' with 'Download Backup' and a restore dropzone that 'Accepts .zip files from a Homarr SQLite backup'; no per-board export."
 			},
@@ -3951,7 +3957,7 @@
 				"workspace-365": "intelligence-db competitor_features#28734 'Branding sets' (captured 2026-04-24): logo, colour palette and domain per sub-organisation",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/AdminSectionThemingAdvanced.vue:69-85 admins set primary and background colour, logo and background, and the dashboard panels use theme variables (apps/dashboard/src/DashboardApp.vue:598-608). Government theming (NL Design System) needs the nldesign app, which is not in core/shipped.json",
 				"homarr": "source read at v1.77.2: per board primary and secondary colour, logo, favicon, icon colour and item radius (apps/nextjs/src/app/[locale]/boards/[name]/settings/_appereance.tsx:48; en.json:4395); server default colour scheme (en.json management settings appearance); no design-token or government theme support (searched for nldesign, design tokens). Driven on the lab at v1.77.2 on 2026-09-26: board settings Appearance shows primary and secondary colour, opacity, icon colour and item radius; no organisation-wide theme page.",
-				"dashy": "source read at 4.7.0: ConfigSchema.json:319-368 twenty-plus built-in themes, day and night themes, customColors (:551) and the Theme Configurator (src/components/Settings/CustomThemeMaker.vue); searched src for nldesign, design tokens: no government theming"
+				"dashy": "source read at 4.7.0: ConfigSchema.json:319-368 twenty-plus built-in themes, day and night themes, customColors (:551) and the Theme Configurator (src/components/Settings/CustomThemeMaker.vue); searched src for nldesign, design tokens: no government theming. Driven on the lab at 4.7.0 on 2026-09-26: the Options bar shows a THEME picker (default 'Colorful'), no organisation-wide or government theme."
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
@@ -3974,7 +3980,7 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/_custom-css.tsx:8 injects board.customCss; en.json:4410 'Custom css for this board' plus custom CSS classes per item (packages/validation/src/shared.ts:18). Driven on the lab at v1.77.2 on 2026-09-26: board settings shows 'Custom css for this board' and custom classes per item.",
-				"dashy": "source read at 4.7.0: ConfigSchema.json:564-568 customCss and externalStyleSheet (:556); edited in the config menu's Custom CSS tab (src/components/Configuration/CustomCss.vue)",
+				"dashy": "source read at 4.7.0: ConfigSchema.json:564-568 customCss and externalStyleSheet (:556); edited in the config menu's Custom CSS tab (src/components/Configuration/CustomCss.vue). Driven on the lab at 4.7.0 on 2026-09-26: the config menu offers 'Edit Custom CSS'.",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/lib/Controller/ThemingController.php:410 custom CSS comes only from built-in themes (DefaultTheme.php:279-280 returns ''); searched apps/theming/src for custom css: none. The Custom CSS app is not in core/shipped.json"
 			},
 			"provider": "launchpad",
@@ -4024,7 +4030,7 @@
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/l10n holds 56 language files including nl.json; strings go through t('dashboard', ...) (apps/dashboard/src/DashboardApp.vue:236-258)",
 				"homarr": "source read at v1.77.2: packages/translation/src/lang/ has 36 locale files including nl.json with the same 3026 keys as en.json; packages/translation/src/languages.ts:28 'nl'; users pick a language in preferences and admins a default (en.json management.page.settings.section.culture)",
-				"dashy": "source read at 4.7.0: 33 locale files in src/assets/locales including nl.json; per-user choice in the Language Switcher (src/components/Settings/LanguageSwitcher.vue, en.json:98 'Change App Language')"
+				"dashy": "source read at 4.7.0: 33 locale files in src/assets/locales including nl.json; per-user choice in the Language Switcher (src/components/Settings/LanguageSwitcher.vue, en.json:98 'Change App Language'). Driven on the lab at 4.7.0 on 2026-09-26: the config menu offers 'Change App Language' and shows the current locale (English)."
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",

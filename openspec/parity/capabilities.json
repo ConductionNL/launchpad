@@ -101,10 +101,59 @@
 			"key": "homarr",
 			"name": "Homarr",
 			"vendor": "Homarr (open source)",
-			"readOn": "2026-04-24",
+			"readOn": "2026-09-26",
 			"columnAddedOn": "2026-09-25",
 			"evidenceGrade": "docs-only",
-			"unknownReason": "not covered by the 13 intelligence-db feature rows for Homarr captured 2026-04-24 (its 66 release-note rows were not used); nobody has driven the product"
+			"unknownReason": "source read at v1.77.2 on 2026-09-26; every row was settled from the code, so no unknown remains in this column",
+			"sourceRead": {
+				"repo": "https://github.com/homarr-labs/homarr",
+				"tag": "v1.77.2",
+				"commit": "18dafb1276d8ff66d1be1b149c74f80dbf94f78d",
+				"note": "source read at v1.77.2, not driven"
+			},
+			"sources": {
+				"docs": "https://homarr.dev/docs/getting-started/",
+				"sourceRepo": {
+					"url": "https://github.com/homarr-labs/homarr",
+					"tag": "v1.77.2",
+					"commit": "18dafb1276d8ff66d1be1b149c74f80dbf94f78d"
+				},
+				"featurePage": "https://homarr.dev/",
+				"featureRequests": "https://github.com/homarr-labs/homarr/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement",
+				"issueTracker": {
+					"url": "https://github.com/homarr-labs/homarr/issues",
+					"featureLabel": "enhancement"
+				},
+				"roadmap": null,
+				"changelog": "https://github.com/homarr-labs/homarr/releases",
+				"apiReference": "https://homarr.dev/docs/management/mcp",
+				"marketplace": null,
+				"community": "https://discord.com/invite/aCsmEV5RgA",
+				"videos": null,
+				"demoInstance": "https://demo.homarr.dev/",
+				"nullReasons": {
+					"roadmap": "no public roadmap found: the repo has no ROADMAP file and the docs sidebar (apps/docs/sidebars.js) has no roadmap page; GitHub projects not checked",
+					"marketplace": "no widget or board marketplace exists at v1.77.2; widgets ship in the repo (packages/widgets/src/index.tsx)",
+					"videos": "not searched beyond the repo; none linked from the docs home",
+					"pricing": "no paid plans: Homarr is free software under the Apache 2.0 licence (LICENSE at v1.77.2); donations only via opencollective.com/homarr",
+					"accessibilityStatement": "no accessibility statement or VPAT found in the docs or the repo",
+					"caseStudies": "no published customer cases; a volunteer homelab project",
+					"partnerDirectory": "no implementation partners; a volunteer project",
+					"trainingCurriculum": "no course or certification exists",
+					"jobPostings": "no paid roles; maintained by volunteers (en.json management.page.about.text)",
+					"tenders": "no tender in the intelligence database names Homarr (queried tenders and requirements on 2026-09-26)"
+				},
+				"pricing": null,
+				"accessibilityStatement": null,
+				"securityDocs": "https://github.com/homarr-labs/homarr/blob/v1.77.2/SECURITY.md",
+				"reviews": "https://alternativeto.net/software/homarr/",
+				"caseStudies": null,
+				"partnerDirectory": null,
+				"trainingCurriculum": null,
+				"jobPostings": null,
+				"tenders": null,
+				"notes": "{\"apiReference\": \"no hosted REST reference; each instance serves its own OpenAPI document (apps/nextjs/src/app/api/openapi/route.ts) and Swagger page; the docs page given covers the MCP server (apps/docs/docs/management/mcp.mdx)\"} reviews: alternativeto.net lists Homarr (found by web search 2026-09-26; the site answers 403 to scripts). The intelligence database records the licence as MIT; the LICENSE file at v1.77.2 is Apache 2.0."
+			}
 		},
 		{
 			"key": "dashy",
@@ -329,7 +378,7 @@
 			"reachedOn": "Workspace page (/apps/launchpad/), after choosing Edit dashboard in the dashboard menu",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-23 panels are a vuedraggable list dragged by the widget header, saved via saveLayout (:409-412) to POST /api/v3/layout (apps/dashboard/lib/Controller/DashboardApiController.php:202-206); the Customize modal also reorders by drag (:87-96)",
-				"homarr": "intelligence-db competitor_features#28620 'Drag-and-drop grid editor' (captured 2026-04-24): place, resize, reorder tiles and widgets on a responsive grid"
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/board/sections/gridstack/use-gridstack.ts:258 grid turns non-static (draggable) in edit mode; packages/translation/src/lang/en.json:6547 onboarding tour 'drag to reposition'"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -354,7 +403,7 @@
 			},
 			"reachedOn": "Workspace page in edit mode, the same grid as build-drag",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28620 'Drag-and-drop grid editor' (captured 2026-04-24): place, resize, reorder",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/board/sections/gridstack/init-gridstack.ts:29 alwaysShowResizeHandle; use-gridstack.ts:34 handleResizeChange persists new width and height",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:601 every panel is a fixed 320px wide card and :677 a fixed 424px content height; searched apps/dashboard/src and lib for resize, width, size: no resize handle or stored size. Open request #39562 asks for a configurable size"
 			},
 			"provider": "launchpad",
@@ -371,7 +420,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -385,7 +434,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-23 and :87-96 reordering is only vuedraggable pointer or touch drag; searched apps/dashboard/src for keydown, keyboard, arrow: none. Widgets can be switched on or off by keyboard via checkboxes (:99-104) but not moved. Open issue #22397 'Accessible way of widget rearrangement'"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-23 and :87-96 reordering is only vuedraggable pointer or touch drag; searched apps/dashboard/src for keydown, keyboard, arrow: none. Widgets can be switched on or off by keyboard via checkboxes (:99-104) but not moved. Open issue #22397 'Accessible way of widget rearrangement'",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/board/items/item-menu.tsx:148 'Move / resize item' menu action opens item-move-modal.tsx:23 with number inputs for x offset, y offset, width, height (en.json:1633); no arrow-key dragging on the grid itself"
 			}
 		},
 		{
@@ -396,7 +446,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -411,7 +461,8 @@
 			"origin": "own-code",
 			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 the grid is a centered flex-wrap row with max-width 1800px, so the column count follows the window width; searched apps/dashboard for column, grid settings: no user or admin setting"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 the grid is a centered flex-wrap row with max-width 1800px, so the column count follows the window width; searched apps/dashboard for column, grid settings: no user or admin setting",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:325 layout table with columnCount per board layout; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:30 add layout with columnCount; en.json:4573 'Column count'"
 			}
 		},
 		{
@@ -432,7 +483,7 @@
 			"reachedOn": "Workspace page at any viewport width",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 flex-wrap panels with max-width 100% (:602) reflow to fewer columns, and :682-686 drops the fixed widget height below 709px; apps/dashboard/src/mixins/isMobile.js mixed in at :173-175",
-				"homarr": "intelligence-db competitor_features#28620 'Drag-and-drop grid editor' (captured 2026-04-24): a responsive grid"
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:332 layout.breakpoint; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:53 breakpoint input; en.json:4456 'Responsive layouts', en.json:4576 layout used on screens larger than breakpoint"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -448,7 +499,7 @@
 			"workspace-365": "partial",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -458,7 +509,8 @@
 			"reachedOn": "Workspace page, Add widget, Container",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29069 'Embed Tile Group' (captured 2026-04-24): groups embedded external content as a tile cluster, not arbitrary widgets",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-54 the layout is one flat ordered list of widget ids (DashboardService.php:33-38 stores a comma list); searched apps/dashboard for group, container, nested: no grouping box"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-54 the layout is one flat ordered list of widget ids (DashboardService.php:33-38 stores a comma list); searched apps/dashboard for group, container, nested: no grouping box",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/_board-add-menu.tsx:79 'New dynamic section' (en.json:1568), a box with its own gridstack (sqlite.ts:359 section_layout with parentSectionId); categories also group items (en.json:1594)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -474,7 +526,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -488,7 +540,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:598-608 all panels share one style (blurred background, fixed radius); widget title and icon come from the providing app (apps/dashboard/lib/Controller/DashboardController.php:58-66); searched apps/dashboard for color, title edit: no per-widget style setting"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:598-608 all panels share one style (blurred background, fixed radius); widget title and icon come from the providing app (apps/dashboard/lib/Controller/DashboardController.php:58-66); searched apps/dashboard for color, title edit: no per-widget style setting",
+				"homarr": "source read at v1.77.2: packages/validation/src/shared.ts:16 item advanced options: title, customCssClasses, borderColor; en.json:1682 'Advanced item options' with title (en.json:1690) and border color (en.json:1696)"
 			}
 		},
 		{
@@ -499,7 +552,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -513,7 +566,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:65-112 the Customize dialog lists every widget available to the user as a checkbox tile to switch on; there is no search or filter box in it (searched the modal markup for NcTextField, search, filter). Admins also get 'Get more widgets from the App Store' (:113)"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:65-112 the Customize dialog lists every widget available to the user as a checkbox tile to switch on; there is no search or filter box in it (searched the modal markup for NcTextField, search, filter). Admins also get 'Get more widgets from the App Store' (:113)",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/board/items/item-select-modal.tsx:169 'Filter items' search box over every widget kind (item-select-modal.tsx:73 query filter); en.json:1652 'Choose item to add'"
 			}
 		},
 		{
@@ -524,7 +578,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -533,7 +587,8 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:51-63 loads every widget any enabled app registers through IRegistrationContext::registerDashboardWidget, and apps/dashboard/src/DashboardApp.vue:35-49 renders API v2 widgets or mounts app-rendered ones. Bundled: apps/files/lib/AppInfo/Application.php:101, apps/user_status/lib/AppInfo/Application.php:79, plus shipped activity and recommendations. Calendar, Talk, Mail, Deck widgets come with those app store apps"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:51-63 loads every widget any enabled app registers through IRegistrationContext::registerDashboardWidget, and apps/dashboard/src/DashboardApp.vue:35-49 renders API v2 widgets or mounts app-rendered ones. Bundled: apps/files/lib/AppInfo/Application.php:101, apps/user_status/lib/AppInfo/Application.php:79, plus shipped activity and recommendations. Calendar, Talk, Mail, Deck widgets come with those app store apps",
+				"homarr": "source read at v1.77.2: packages/definitions/src/integration.ts:273 Nextcloud integration only feeds the calendar and notifications widgets (category calendar, notifications); no generic loader for Nextcloud dashboard widgets (searched packages/widgets/src and packages/integrations/src/nextcloud for 'dashboard' and 'widget')"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -549,7 +604,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -563,7 +618,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:463 a newly ticked widget is appended to the end of the layout list, and the flex-wrap list (:587-596) cannot overlap cards by construction"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:463 a newly ticked widget is appended to the end of the layout list, and the flex-wrap list (:587-596) cannot overlap cards by construction",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/board/items/actions/create-item.ts:65 getFirstEmptyPosition places a new item in the first free cell; add-dynamic-section.ts:41 does the same for sections"
 			}
 		},
 		{
@@ -574,7 +630,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -589,7 +645,8 @@
 			"origin": "own-code",
 			"note": "The lock service and its four routes exist; no page acquires or shows a lock, so a user cannot reach it.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:202-206 the layout is a per-user config value; searched apps/dashboard for share, lock, etag, version: there is no shared dashboard, so no concurrent editing and no lock"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:202-206 the layout is a per-user config value; searched apps/dashboard for share, lock, etag, version: there is no shared dashboard, so no concurrent editing and no lock",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:854 saveBoard diffs the submitted board against the database and writes it with no version check or lock; searched apps and packages for editLock, lockedBy, isLocked, optimistic: none"
 			}
 		},
 		{
@@ -600,7 +657,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -609,7 +666,8 @@
 			},
 			"reachedOn": "nothing: /api/dashboards/{dashboardId}/personal-layer has no caller in src/",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:458-470 each person ticks widgets on or off and the result is stored only in their own user config (apps/dashboard/lib/Controller/DashboardApiController.php:205). There is no shared dashboard: the only common thing is the admin default list (apps/dashboard/lib/Service/DashboardService.php:34), which a person's own layout replaces"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:458-470 each person ticks widgets on or off and the result is stored only in their own user config (apps/dashboard/lib/Controller/DashboardApiController.php:205). There is no shared dashboard: the only common thing is the admin default list (apps/dashboard/lib/Service/DashboardService.php:34), which a person's own layout replaces",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:395 section_collapse_state per user; packages/api/src/router/section/section-router.ts:14 each user collapses a category for themselves only; no per-user hiding of single widgets (item table sqlite.ts:413 has no per-user state)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -625,7 +683,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "yes",
 			"built": {
 				"state": "built",
@@ -635,7 +693,8 @@
 			"reachedOn": "Admin settings, Operations tab, Export and import; and occ launchpad import",
 			"evidence": {
 				"dashy": "intelligence-db competitor_features#28633 'YAML config + visual UI editor' (captured 2026-04-24): edit conf.yml by hand or use the UI editor that writes back to YAML",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the only dashboard description is a comma list of widget ids in the app config key 'layout' (settable with occ config:app:set); searched apps/dashboard for import, export, json, yaml: no file format or loader"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the only dashboard description is a comma list of widget ids in the app config key 'layout' (settable with occ config:app:set); searched apps/dashboard for import, export, json, yaml: no file format or loader",
+				"homarr": "source read at v1.77.2: packages/modals-collection/src/boards/import-board-modal.tsx:154 imports a board from a JSON file, but only in the pre-1.0 Homarr format (en.json:4264 'Import from homarr before 1.0.0', en.json:4277 'Select JSON file'); no export or import of a current board as a file (searched apps and packages for exportBoard, boardExport)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -652,7 +711,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -667,7 +726,8 @@
 			"origin": "own-code",
 			"note": "openspec/features.overlay.json advertises dashboard-versioning as stable (\"You roll a dashboard back to last week in one step\"); no page reaches it.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:205 each save overwrites the single user config value; searched apps/dashboard for history, version, revision, restore: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:205 each save overwrites the single user config value; searched apps/dashboard for history, version, revision, restore: none",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board table and related tables keep only the current state, no history or revision table (searched sqlite.ts for history, revision, snapshot); only a whole-database restore exists (en.json management.page.tool.backup.import)"
 			}
 		},
 		{
@@ -689,7 +749,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28712 'Company dashboard' (captured 2026-04-24): a personal dashboard plus one company dashboard, two fixed boards",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 one route '/' and apps/dashboard/lib/Service/DashboardService.php:33-38 one layout value per user; searched apps/dashboard for a dashboard id or list: each user has exactly one dashboard",
-				"homarr": "intelligence-db competitor_features#28623 'Multi-board support' (captured 2026-04-24): several named boards with distinct layouts",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:122 getAllBoards lists every board the user can access; apps/nextjs/src/app/[locale]/manage/boards/page.tsx:40 boards page; en.json:6554 onboarding 'Switch Boards'",
 				"dashy": "intelligence-db competitor_features#28638 'Multi-page sections' (captured 2026-04-24): services split across pages with sub-navigation, not separate dashboards per person"
 			},
 			"provider": "launchpad",
@@ -706,7 +766,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -720,7 +780,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 there is only one dashboard, so nothing to mark. Related: admins and users can make the Dashboard app itself the start page in apps/theming/src/components/AdminSectionAppMenu.vue:65-68 and UserSectionAppMenu.vue:133-135 (theming app)"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 there is only one dashboard, so nothing to mark. Related: admins and users can make the Dashboard app itself the start page in apps/theming/src/components/AdminSectionAppMenu.vue:65-68 and UserSectionAppMenu.vue:133-135 (theming app)",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:624 setHomeBoard and :640 setMobileHomeBoard; en.json:4676 'Set as your home board'; group and server home boards at sqlite.ts:152 and en.json management.page.settings.section.board.homeBoard"
 			}
 		},
 		{
@@ -731,7 +792,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -745,7 +806,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:79 the page title is always 'Dashboard' and apps/dashboard/src/DashboardApp.vue:7 shows a fixed time-of-day greeting; searched apps/dashboard for title, description, icon settings: none editable"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:79 the page title is always 'Dashboard' and apps/dashboard/src/DashboardApp.vue:7 shows a fixed time-of-day greeting; searched apps/dashboard for title, description, icon settings: none editable",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board has name, pageTitle, metaTitle, logoImageUrl and faviconImageUrl (en.json:4327, en.json:4333) but no description column"
 			}
 		},
 		{
@@ -756,7 +818,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -770,7 +832,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:33-38 one layout per user; searched apps/dashboard for copy, duplicate, clone: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:33-38 one layout per user; searched apps/dashboard for copy, duplicate, clone: none",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:332 duplicateBoard; en.json:4234 'Duplicate board' copies the board with all its content (needs the create boards permission)"
 			}
 		},
 		{
@@ -781,7 +844,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -795,7 +858,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 the only page route is '/'; with one dashboard per user there is no link to a particular dashboard"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 the only page route is '/'; with one dashboard per user there is no link to a particular dashboard",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/[name]/(board)/_definition.tsx:7 each board opens at /boards/<name>; en.json:4494 renaming warns 'Changing the name will break any links to this board'"
 			}
 		},
 		{
@@ -806,7 +870,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "partial",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -815,7 +879,7 @@
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar, Shared with you",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28624 'Per-user boards (v1.0+)' (captured 2026-04-24): boards assigned per user and group; a shared-with-you list is not described",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:122 getAllBoards returns every board the user reaches through user or group permissions; apps/nextjs/src/app/[locale]/manage/boards/page.tsx:109 each card shows its creator, so shared boards sit in the same list as your own (no separate shared-with-me filter)",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardApiController.php:188-206 the API only reads and writes the caller's own layout; searched apps/dashboard for share: 0 hits"
 			},
 			"provider": "launchpad",
@@ -832,7 +896,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -846,7 +910,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 single page, id-app-navigation null (:78) so no side navigation; searched apps/dashboard for parent, child, tree: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 single page, id-app-navigation null (:78) so no side navigation; searched apps/dashboard for parent, child, tree: none",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board table has no parent reference (parentSectionId at sqlite.ts:368 nests sections inside one board, not boards); searched schema and packages/api/src/router/board.ts for parent, children, tree"
 			}
 		},
 		{
@@ -857,7 +922,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -871,7 +936,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 every user always has a dashboard seeded from the default list, so there is no empty state that offers to create one; the firstRun flag (apps/dashboard/lib/Controller/DashboardController.php:72-74) only drives a hint"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 every user always has a dashboard seeded from the default list, so there is no empty state that offers to create one; the firstRun flag (apps/dashboard/lib/Controller/DashboardController.php:72-74) only drives a hint",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/not-found.tsx:24 shows 'Welcome to Homarr' with 'Create your first board' when no board exists (en.json:4537, en.json:4539); onboarding finish step also offers it (en.json:144)"
 			}
 		},
 		{
@@ -882,7 +948,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -896,7 +962,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:236-258 greetings and the widget titles from each app (e.g. apps/files/lib/Dashboard/FavoriteWidget.php:50) are translated with the reader's own language; apps/dashboard/l10n holds 56 languages. Note: there is no author-written dashboard content to translate"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:236-258 greetings and the widget titles from each app (e.g. apps/files/lib/Dashboard/FavoriteWidget.php:50) are translated with the reader's own language; apps/dashboard/l10n holds 56 languages. Note: there is no author-written dashboard content to translate",
+				"homarr": "source read at v1.77.2: packages/translation/src/lang/ holds 36 locale files and each user picks a language (en.json search.mode.command preferences locale); board content (item titles, notebook text) is stored once with no per-language variant (packages/db/schema/sqlite.ts:413 item options)"
 			}
 		},
 		{
@@ -907,7 +974,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -921,7 +988,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:33-38 a dashboard is only a list of widget ids; searched apps/dashboard for owner, department, metadata: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:33-38 a dashboard is only a list of widget ids; searched apps/dashboard for owner, department, metadata: none",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board columns are name, visibility, creator, titles, images, colours, customCss, itemRadius, disableStatus; no free fields or owner department (searched schema for metadata, department, tag)"
 			}
 		},
 		{
@@ -942,7 +1010,7 @@
 			"reachedOn": "Workspace page, dashboard menu, Add custom widget, tile editor",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29068 'App link tile' (captured 2026-04-24): deep-links to any external URL with custom icon and label",
-				"homarr": "intelligence-db competitor_features#28628 'Built-in icon picker' (captured 2026-04-24): integrated icon browser for tiles",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:423 app with name, iconUrl, href; packages/widgets/src/app/index.ts:23 app tile with open-in-new-tab; colour through board icon colour (sqlite.ts:284, en.json:4404) and per item border colour (packages/validation/src/shared.ts:19)",
 				"dashy": "intelligence-db competitor_features#28643 'Custom CSS & icon upload' (captured 2026-04-24): upload custom icons or pick from icon packs",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:17-54 the page shows app widgets and statuses only; searched apps/dashboard for link, url tile, bookmark: no tile that opens an app or web address with its own icon and colour. Links to outside sites need the External sites app, which is not in core/shipped.json"
 			},
@@ -970,7 +1038,7 @@
 			"reachedOn": "Workspace page, tile badge; switched on in the tile editor. Only hosts in healthping_allowed_hosts are pinged, set with occ",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29067 'Maintenance tile' (captured 2026-04-24): an administrator broadcasts maintenance status by hand; no automatic check is described",
-				"homarr": "intelligence-db competitor_features#28631 'Ping & health widgets' (captured 2026-04-24): health indicator per tile with configurable ping",
+				"homarr": "source read at v1.77.2: packages/widgets/src/app/component.tsx:127 renders PingIndicator when pingEnabled; packages/widgets/src/app/index.ts:87 pingEnabled option; en.json:669 separate ping URL; en.json:4418 per board 'Disable app status'",
 				"dashy": "intelligence-db competitor_features#28635 'Status checking' (captured 2026-04-24): HTTP ping per service with response time and status",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for health, ping, status check: none; the 'statuses' row (apps/dashboard/src/DashboardApp.vue:8-15) is for user status and weather, not service health"
 			},
@@ -988,7 +1056,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
 				"state": "built",
@@ -998,7 +1066,8 @@
 			"reachedOn": "Workspace page, Search widget",
 			"evidence": {
 				"dashy": "intelligence-db competitor_features#28637 'Keyboard shortcuts / quick search' (captured 2026-04-24): / opens search, arrow keys navigate",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:5-128 the page template has no filter or search box; searched apps/dashboard/src for filter, search: only URLSearchParams at :538"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:5-128 the page template has no filter or search box; searched apps/dashboard/src for filter, search: only URLSearchParams at :538",
+				"homarr": "source read at v1.77.2: packages/widgets/src/app/component.tsx:29 each app tile on the open board registers itself in the search; packages/spotlight/src/modes/home/context-specific-group.tsx:28 filters them by typed text under 'Local results' (en.json:6199); tiles are narrowed in the search dialog, not hidden in place"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1023,7 +1092,7 @@
 			},
 			"reachedOn": "Workspace page, Search widget, falls back to a configured https search template or Nextcloud unified search",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28629 'Search engine switcher' (captured 2026-04-24): quick search with configurable engines",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/components/layout/header/search.tsx:6 header search opens the spotlight; search engines Google, Bing, DuckDuckGo and custom ones (en.json:6135, sqlite.ts:476 search_engine with urlTemplate), plus DuckDuckGo bangs",
 				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:76 the header search on the Dashboard page is Nextcloud unified search (core/src/components/UnifiedSearch/UnifiedSearchModal.vue:31 'Apps, files, messages, and more'), which searches the server's own providers, not the web; searched apps/dashboard for web search: none"
 			},
 			"provider": "launchpad",
@@ -1040,7 +1109,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1054,7 +1123,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for bookmark, link list: none; the Bookmarks app is not in core/shipped.json"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for bookmark, link list: none; the Bookmarks app is not in core/shipped.json",
+				"homarr": "source read at v1.77.2: packages/widgets/src/bookmarks/ bookmarks widget 'Displays multiple app links' (en.json:1758) with title and list or grid layout; several bookmark widgets or categories (en.json:1594) give the grouping"
 			}
 		},
 		{
@@ -1065,7 +1135,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -1079,7 +1149,8 @@
 			"featureConfidence": "low",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for click, track, count, analytics: none; the page records nothing but the layout (apps/dashboard/lib/Controller/DashboardApiController.php:202-206)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for click, track, count, analytics: none; the page records nothing but the layout (apps/dashboard/lib/Controller/DashboardApiController.php:202-206)",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts has no click or view table; packages/analytics/src/send-server-analytics.ts only sends anonymous instance counts to the Homarr project (searched schema and packages/api/src/router for click, view, usage)"
 			}
 		},
 		{
@@ -1090,7 +1161,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1099,7 +1170,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29060 'Frequently Used Apps tile' (captured 2026-04-24): a most-used-apps tile driven by behavioural data",
-				"nextcloud-dashboard": "source read at v35.0.1: the app menu order is set by hand (apps/theming/src/components/UserSectionAppMenu.vue:133-135, AdminSectionAppMenu.vue:86-90); searched apps/dashboard and apps/theming for usage, frequent, most used: none. The shipped recommendations widget suggests files, not apps"
+				"nextcloud-dashboard": "source read at v35.0.1: the app menu order is set by hand (apps/theming/src/components/UserSectionAppMenu.vue:133-135, AdminSectionAppMenu.vue:86-90); searched apps/dashboard and apps/theming for usage, frequent, most used: none. The shipped recommendations widget suggests files, not apps",
+				"homarr": "source read at v1.77.2: item positions come only from stored layouts (packages/db/schema/sqlite.ts:335 item_layout x and y offsets); no usage counter to reorder by (searched packages/api/src and packages/widgets/src/app for usage, frequent, mostUsed)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1113,7 +1185,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1122,7 +1194,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28730 'Legacy integration (Citrix, Clientless RDP, AVD, VMware, Recast)' (captured 2026-04-24): Citrix, clientless RDP, Azure Virtual Desktop and VMware apps in the same launcher",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for rdp, citrix, vdi, remote desktop: none, and no such app is in core/shipped.json"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for rdp, citrix, vdi, remote desktop: none, and no such app is in core/shipped.json",
+				"homarr": "source read at v1.77.2: packages/widgets/src/app/component.tsx opens app.href as a plain link (any scheme but javascript, packages/validation/src/app.ts:6), so an rdp:// link can start a local client, but nothing signs the user in; searched packages/widgets/src and packages/definitions/src for rdp, vnc, guacamole, citrix: nothing"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1136,7 +1209,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1145,7 +1218,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29062 'Local apps' (captured 2026-04-24): launch locally installed desktop applications",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for protocol handler, launch, local app: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for protocol handler, launch, local app: none",
+				"homarr": "source read at v1.77.2: packages/validation/src/app.ts:3 appHrefSchema accepts any URI scheme except javascript (app.ts:6), added in v1.74.0 'allow custom URI schemes in application links' (PR 6521), so a tile can hand a link such as vscode:// or steam:// to a program registered on the computer; no launcher of its own and no check that the program exists"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1159,7 +1233,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1168,7 +1242,8 @@
 			"reachedOn": "nothing: a tile opens its URL; any sign-on is the target app and identity provider, not a hand-off from the tile",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29064 'Azure SSO App tile' (captured 2026-04-24): deep-links to an Entra-registered app and signs the user in",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for sso, saml, oidc, tile: none; no link tiles exist on the page (apps/dashboard/src/DashboardApp.vue:17-54)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for sso, saml, oidc, tile: none; no link tiles exist on the page (apps/dashboard/src/DashboardApp.vue:17-54)",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:423 app has only name, description, iconUrl, href, pingUrl; OIDC and LDAP in packages/auth sign users into Homarr itself, no sign-in handoff to the target app (searched packages/widgets/src/app for token, sso, oidc)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1182,7 +1257,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1191,7 +1266,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29057 'App store (in-workspace app catalogue)' (captured 2026-04-24): self-service app catalogue with an app-request workflow",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 only admins see 'Get more widgets from the App Store'; searched apps/dashboard for request, catalogue: no way for an employee to browse approved apps or ask for one"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 only admins see 'Get more widgets from the App Store'; searched apps/dashboard for request, catalogue: no way for an employee to browse approved apps or ask for one",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/apps/ central app list; en.json:681 'Select an app to add to this board' picks from it and en.json:400 'Use all apps' permission controls access; no way for a user to request a missing app (searched en.json for request outside media requests)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1213,7 +1289,7 @@
 			},
 			"reachedOn": "nothing",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28621 'Docker container discovery' (captured 2026-04-24): reads the Docker socket and adds discovered containers as tiles",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/tools/docker/docker-table.tsx:318 'Add to Homarr' turns selected containers into apps (en.json:5451); setup wizard detects containers too (en.json:129 'Docker detected {count} services')",
 				"dashy": "intelligence-db competitor_features#28642 'Docker-label autodiscovery' (captured 2026-04-24): experimental config generation from Docker labels",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for docker, container, discover: none"
 			},
@@ -1229,7 +1305,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1243,7 +1319,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:73 the app menu sits in the header of every page including the Dashboard, admins set the default app (apps/theming/src/components/AdminSectionAppMenu.vue:65-90) and each user orders it (UserSectionAppMenu.vue:133-135). It lists installed apps only; custom organisation links need the External sites app, not in core/shipped.json"
+				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:73 the app menu sits in the header of every page including the Dashboard, admins set the default app (apps/theming/src/components/AdminSectionAppMenu.vue:65-90) and each user orders it (UserSectionAppMenu.vue:133-135). It lists installed apps only; custom organisation links need the External sites app, not in core/shipped.json",
+				"homarr": "source read at v1.77.2: en.json:4305 'Sidebars were removed in 1.0'; the board page has only the header with logo, search and board switcher (apps/nextjs/src/components/layout/header.tsx); searched apps/nextjs/src/app/[locale]/boards for navbar, sidebar, menu links: none"
 			}
 		},
 		{
@@ -1254,7 +1331,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1268,7 +1345,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for text, markdown, rich: no text widget, and no bundled app registers one (git ls-tree of apps/*/lib/Dashboard: only files and user_status)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for text, markdown, rich: no text widget, and no bundled app registers one (git ls-tree of apps/*/lib/Dashboard: only files and user_status)",
+				"homarr": "source read at v1.77.2: packages/widgets/src/notebook/notebook.tsx:332 heading controls H1 to H4, :142 tables, :55 task lists via the tiptap editor; en.json:2001 'Notebook' widget"
 			}
 		},
 		{
@@ -1279,7 +1357,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1293,7 +1371,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for image widget, upload: none; the only image on the page is the theming background (apps/dashboard/src/DashboardApp.vue:569-575)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for image widget, upload: none; the only image on the page is the theming background (apps/dashboard/src/DashboardApp.vue:569-575)",
+				"homarr": "source read at v1.77.2: packages/widgets/src/notebook/notebook.tsx:673 EmbedImage inserts an image by URL; uploads go through manage Medias (en.json media.action.upload 'Upload media', sqlite.ts:179 media table) which yields a URL; immich album carousel for photo libraries (en.json:3090)"
 			}
 		},
 		{
@@ -1304,7 +1383,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1314,7 +1393,8 @@
 			"reachedOn": "Workspace page, Add widget, Video",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29071 'YouTube tile' (captured 2026-04-24): embedded YouTube video tile",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for video, player: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for video, player: none",
+				"homarr": "source read at v1.77.2: packages/widgets/src/video/ Video Stream widget (en.json:2756 'Embed a video stream or video from a camera or a website') with autoplay, muted, controls options"
 			},
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
@@ -1330,7 +1410,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1340,7 +1420,8 @@
 			"reachedOn": "Workspace page, Add widget, Embedded page; the allow-list is an app config value",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29072 'Webcontent tile' (captured 2026-04-24): renders any iframe-safe webpage inside a tile",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for iframe, embed: 0 hits; no bundled widget embeds a page"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for iframe, embed: 0 hits; no bundled widget embeds a page",
+				"homarr": "source read at v1.77.2: packages/widgets/src/iframe/index.ts:11 iFrame widget with per-widget permission switches (fullscreen, camera, payment...); en.json:2101; no administrator allow-list of embeddable sites (searched iframe widget and server settings for allow, whitelist, domain)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1367,7 +1448,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29066 'RSS tile' (captured 2026-04-24): RSS-feed live tile",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for rss, feed, news: none; the News app is not in core/shipped.json",
-				"homarr": "intelligence-db competitor_features#28622 'Widget library (30+)' (captured 2026-04-24): widget library includes RSS",
+				"homarr": "source read at v1.77.2: packages/widgets/src/rssFeed/ widget 'Monitor and display one or more generic RSS, ATOM or JSON feeds' (en.json:3466)",
 				"dashy": "intelligence-db competitor_features#28634 '50+ built-in widgets' (captured 2026-04-24): widgets include news and RSS"
 			},
 			"provider": "launchpad",
@@ -1394,7 +1475,7 @@
 			"reachedOn": "Workspace page, Add widget, Weather",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/weather_status/src/weather-status.js:14 registers a weather status on the Dashboard (apps/dashboard/src/DashboardApp.vue:8-15 renders it, :115-124 credits met.no), with 'Detect location' and 'Set custom address' in apps/weather_status/src/App.vue:68-72; weather_status is in core/shipped.json defaultEnabled. It is a status line at the top, not a widget card",
-				"homarr": "intelligence-db competitor_features#28622 'Widget library (30+)' (captured 2026-04-24): widget library includes weather",
+				"homarr": "source read at v1.77.2: packages/widgets/src/weather/index.ts:17 location option; en.json:2277 'Weather' widget 'Displays the current weather information of a set location'",
 				"dashy": "intelligence-db competitor_features#28634 '50+ built-in widgets' (captured 2026-04-24): widgets include weather"
 			},
 			"provider": "launchpad",
@@ -1420,7 +1501,7 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Clock",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28622 'Widget library (30+)' (captured 2026-04-24): widget library includes clock",
+				"homarr": "source read at v1.77.2: packages/widgets/src/clock/index.ts:24 seconds and :28 timezone options; en.json:1916 'Date and time' widget",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:324-326 a 30 second timer only drives the time-of-day greeting (:213-231); searched apps/dashboard for clock, time widget: none. Open request #38726 'current Date and Time widget'"
 			},
 			"provider": "launchpad",
@@ -1437,7 +1518,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "partial",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1448,7 +1529,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29065 'Calendar tile' (captured 2026-04-24): inline tile of the user's Outlook calendar",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the default layout names a 'calendar' widget, but it comes from the Calendar app, which is not in core/shipped.json; nothing bundled at this tag lists upcoming events. With Calendar installed, subscribed outside feeds show there",
-				"homarr": "intelligence-db competitor_features#28622 'Widget library (30+)' (captured 2026-04-24): a calendar widget is listed; outside feeds are not described"
+				"homarr": "source read at v1.77.2: packages/definitions/src/widget-integration-map.ts:18 calendar widget takes every calendar integration, including iCal feeds (packages/definitions/src/integration.ts:312) and Nextcloud (integration.ts:273); en.json:2251 'Calendar'"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1464,7 +1545,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1473,7 +1554,8 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Files",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/files/lib/Dashboard/FavoriteWidget.php:30,50 'Favorite files' widget and the shipped recommendations app's Recommended files widget list files with a 'More favorites' link (:139-142); searched apps/files/lib/Dashboard for folder, upload: no folder browsing or upload on the dashboard"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/files/lib/Dashboard/FavoriteWidget.php:30,50 'Favorite files' widget and the shipped recommendations app's Recommended files widget list files with a 'More favorites' link (:139-142); searched apps/files/lib/Dashboard for folder, upload: no folder browsing or upload on the dashboard",
+				"homarr": "source read at v1.77.2: packages/integrations/src/nextcloud/nextcloud.integration.ts:58 implements calendar and notifications only; no file browser or upload widget in packages/widgets/src/index.tsx:78 registry (paperless-ngx widget lists documents, no folder browsing or upload)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1489,7 +1571,7 @@
 			"workspace-365": "partial",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1499,7 +1581,8 @@
 			"reachedOn": "Workspace page, Add widget, People",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28719 'Address Book / user profiles' (captured 2026-04-24): a directory with contact cards, as its own app rather than a dashboard card",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/user_status/lib/Dashboard/UserStatusWidget.php:35,71 'Recent statuses' widget lists colleagues who recently set a status, with their avatars (:165); searched apps/dashboard and apps/user_status for team, new starters: no chosen team or new-starter list"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/user_status/lib/Dashboard/UserStatusWidget.php:35,71 'Recent statuses' widget lists colleagues who recently set a status, with their avatars (:165); searched apps/dashboard and apps/user_status for team, new starters: no chosen team or new-starter list",
+				"homarr": "source read at v1.77.2: packages/widgets/src/index.tsx:78 widget registry has no people, team or directory widget; searched packages/widgets/src for member, people, team, avatar: only integration status lists"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1515,7 +1598,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1525,7 +1608,8 @@
 			"reachedOn": "Workspace page, People widget",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29058 'Birthday app / Birthday live tile' (captured 2026-04-24): live tile of upcoming colleague birthdays",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:150,215-222 only the signed-in person's own birthday changes the greeting to 'Happy birthday' (:257-258, source apps/dashboard/lib/Service/DashboardService.php:75-94); searched apps/dashboard for colleagues' birthdays: none bundled"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:150,215-222 only the signed-in person's own birthday changes the greeting to 'Happy birthday' (:257-258, source apps/dashboard/lib/Service/DashboardService.php:75-94); searched apps/dashboard for colleagues' birthdays: none bundled",
+				"homarr": "source read at v1.77.2: searched packages/widgets/src, packages/db/schema/sqlite.ts and en.json for birthday: nothing; user table (sqlite.ts:49) holds no birth date"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1541,7 +1625,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1555,7 +1639,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src for heading, divider, separator widget: none; the layout is a flat list of app widgets (apps/dashboard/src/DashboardApp.vue:17-54)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src for heading, divider, separator widget: none; the layout is a flat list of app widgets (apps/dashboard/src/DashboardApp.vue:17-54)",
+				"homarr": "source read at v1.77.2: categories act as named headings over a group of items (en.json:1594 'New category'; apps/nextjs/src/components/board/sections/category-section.tsx) and dynamic sections carry a title (en.json:1568); no standalone label or divider widget in packages/widgets/src/index.tsx:78"
 			}
 		},
 		{
@@ -1566,7 +1651,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1580,7 +1665,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/Model/WidgetButton.php:20 defines a 'new' button type, but apps/dashboard/src/components/ApiDashboardWidget.vue:90-94 says 'TODO: Render new button in the template', so API widgets show no create button; no bundled widget renders one itself"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/Model/WidgetButton.php:20 defines a 'new' button type, but apps/dashboard/src/components/ApiDashboardWidget.vue:90-94 says 'TODO: Render new button in the template', so API widgets show no create button; no bundled widget renders one itself",
+				"homarr": "source read at v1.77.2: custom widget display type 'A button that triggers a request when clicked' (en.json:824) with confirmation text; smart home 'Execute Automation' widget 'Trigger an automation with one click' (en.json:2160); custom widgets are admin-made (packages/api/src/router/custom-widget/custom-widget-router.ts:104)"
 			}
 		},
 		{
@@ -1591,7 +1677,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1601,7 +1687,8 @@
 			"reachedOn": "Workspace page, Add widget, Live tile; only hosts in livetile_allowed_hosts are fetched, set with occ",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28723 'Smart Live Tiles' (captured 2026-04-24): dynamic tiles with real-time data rendered as KPI cards",
-				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IReloadableWidget.php:18 lets an app's own widget reload on an interval (apps/dashboard/src/DashboardApp.vue:305-315), but searched apps/dashboard for url, fetch, endpoint config: no widget that fetches a figure from an address a user enters"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IReloadableWidget.php:18 lets an app's own widget reload on an interval (apps/dashboard/src/DashboardApp.vue:305-315), but searched apps/dashboard for url, fetch, endpoint config: no widget that fetches a figure from an address a user enters",
+				"homarr": "source read at v1.77.2: packages/widgets/src/custom-api/index.ts:12 refreshInterval option; en.json:3951 'Custom API: Display data from any external API'; single value display type with JSONPath (en.json:842); marked beta (apps/nextjs/src/app/[locale]/manage/custom-widgets/_beta-banner.tsx:8)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1617,7 +1704,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1632,7 +1719,8 @@
 			"origin": "own-code",
 			"note": "The widgets read OpenRegister over GraphQL. LaunchPad is OR-free by ADR, so without OpenRegister these widgets have no data source; this reading did not run one against a live register.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and bundled lib/Dashboard classes for chart, graph, table: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and bundled lib/Dashboard classes for chart, graph, table: none",
+				"homarr": "source read at v1.77.2: packages/widgets/src/custom-api/jsx-whitelist.ts:47 custom JSX templates may use AreaChart, BarChart, LineChart, PieChart; table and stat grid display types (en.json:825); data comes from any JSON API an admin configures, there is no own data registry to chart over"
 			}
 		},
 		{
@@ -1643,7 +1731,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1653,7 +1741,8 @@
 			"reachedOn": "Workspace page, Embedded page widget, when the report host is on the allow-list",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28736 'Power BI live tiles' (captured 2026-04-24): Power BI reports as live tiles, respecting row-level security",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for power bi, iframe, embed, report: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for power bi, iframe, embed, report: none",
+				"homarr": "source read at v1.77.2: only the generic iFrame widget (packages/widgets/src/iframe/index.ts:11, en.json:2101) can show a BI report page; no Power BI or other BI connector (searched packages/widgets/src and packages/definitions/src for powerbi, metabase, grafana)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1670,7 +1759,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1685,7 +1774,8 @@
 			"origin": "own-code",
 			"note": "Marked beta in openspec/features.overlay.json; depends on sibling apps holding the data in OpenRegister.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for finance, spend, budget: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for finance, spend, budget: none",
+				"homarr": "source read at v1.77.2: packages/definitions/src/integration.ts lists no finance or case integration (categories are media, downloads, DNS, monitoring, smart home and similar); searched en.json and packages/widgets/src for spend, budget, invoice, finance"
 			}
 		},
 		{
@@ -1696,7 +1786,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1706,7 +1796,8 @@
 			"reachedOn": "Workspace page, Live tile widget pointed at a JSON address",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28724 'Integration Builder' (captured 2026-04-24): low-code API integration builder exposing data as live tiles",
-				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IWidget.php widgets are PHP classes an app must ship; searched apps/dashboard for connector, no-code, datasource: no builder"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IWidget.php widgets are PHP classes an app must ship; searched apps/dashboard for connector, no-code, datasource: no builder",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/custom-widgets/_custom-widget-form.tsx form 'Define an API URL, authentication, and how to display the response data' (en.json:700) with JSONPath mappings and ten display types; admin only (packages/api/src/router/custom-widget/custom-widget-router.ts:104) and marked beta"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1723,7 +1814,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1732,7 +1823,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29095 'Integration: TOPdesk' (captured 2026-04-24): TOPdesk tickets and knowledge articles",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for ticket, topdesk, zammad: none; the app description mentions 'incoming tickets' (apps/dashboard/appinfo/info.xml:13) but only via third-party integration apps from the app store"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for ticket, topdesk, zammad: none; the app description mentions 'incoming tickets' (apps/dashboard/appinfo/info.xml:13) but only via third-party integration apps from the app store",
+				"homarr": "source read at v1.77.2: packages/definitions/src/integration.ts has no service desk integration; searched packages/integrations/src, packages/widgets/src and packages/definitions/src for topdesk, servicenow, jira, zammad, glpi, ticket: nothing (only the generic custom API widget, en.json:3951)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1746,7 +1838,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1755,7 +1847,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29087 'Integration: AFAS' (captured 2026-04-24): AFAS dossiers exposed as live tiles",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for erp, afas, exact, hr: none; no such integration is in core/shipped.json"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for erp, afas, exact, hr: none; no such integration is in core/shipped.json",
+				"homarr": "source read at v1.77.2: packages/definitions/src/integration.ts has no ERP or HR integration; searched packages/integrations/src and packages/widgets/src for afas, exact, odoo, erp, hr: nothing (only the generic custom API widget, en.json:3951)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1769,7 +1862,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1779,7 +1872,8 @@
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, the Mail app's widget, with Nextcloud Mail installed",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29130 'Email integration (Outlook / Exchange)' (captured 2026-04-30): in-workspace mailbox tile",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the default layout reserves a 'mail' widget, but it is provided by the Mail app, which is not in core/shipped.json; nothing bundled at this tag previews a mailbox"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the default layout reserves a 'mail' widget, but it is provided by the Mail app, which is not in core/shipped.json; nothing bundled at this tag previews a mailbox",
+				"homarr": "source read at v1.77.2: packages/integrations/src has no mail integration (searched for imap, gmail, outlook, mailbox, mail); Nextcloud integration at packages/integrations/src/nextcloud/nextcloud.integration.ts:58 covers calendar and notifications only"
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
@@ -1795,7 +1889,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1804,7 +1898,8 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, Deck's task widget, with Deck installed",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:51-63 loads any app's widget, but no bundled app at this tag offers tasks (git ls-tree apps/*/lib/Dashboard: files and user_status only; Deck and Tasks are not in core/shipped.json)"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:51-63 loads any app's widget, but no bundled app at this tag offers tasks (git ls-tree apps/*/lib/Dashboard: files and user_status only; Deck and Tasks are not in core/shipped.json)",
+				"homarr": "source read at v1.77.2: searched packages/integrations/src and packages/widgets/src for task, todo, vikunja, planka, kanban, todoist: no task integration; the notebook widget (packages/widgets/src/notebook/notebook.tsx:55) has local checklists only"
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
@@ -1820,7 +1915,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1829,7 +1924,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29061 'Microsoft 365 apps launcher' (captured 2026-04-24): pre-baked tiles for the whole Microsoft 365 suite",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for office, document, new file: none; the shipped 'office' app is an overview page with its own navigation entry (nextcloud/office stable35 appinfo/info.xml), not dashboard tiles. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1."
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for office, document, new file: none; the shipped 'office' app is an overview page with its own navigation entry (nextcloud/office stable35 appinfo/info.xml), not dashboard tiles. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1.",
+				"homarr": "source read at v1.77.2: packages/definitions/src/integration.ts lists no office suite; no preset tile packs in packages/widgets/src or static-data (searched for office, microsoft, google workspace, onlyoffice, collabora)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1843,7 +1939,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -1852,7 +1948,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29073 'SharePoint live tile' (captured 2026-04-24): SharePoint recent documents, news and pages as a live tile",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for intranet, sharepoint, feed: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for intranet, sharepoint, feed: none",
+				"homarr": "source read at v1.77.2: news from another site only through its RSS, Atom or JSON feed in the RSS feeds widget (en.json:3466) or by embedding its page in the iFrame widget (en.json:2101); no connector for intranet documents (searched packages/integrations/src for sharepoint, confluence, intranet)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -1866,7 +1963,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1881,7 +1978,8 @@
 			"origin": "own-code",
 			"note": "LaunchPad declares its six connections; the list and its status are integriq app_connection objects, so without integriq nothing shows them.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for connection, integration status: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for connection, integration status: none",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/integrations/page.tsx lists every integration with 'Test connection' on save (en.json:1032); apps/nextjs/src/components/board/items/widget-context-menu.tsx:356 shows per widget OK or Error and the last update age; no per-dashboard overview of which connections it uses"
 			}
 		},
 		{
@@ -1904,7 +2002,7 @@
 				"workspace-365": "intelligence-db competitor_features#29083 'Tile targeting by department / location / contract type' (captured 2026-04-24): every tile scoped to a department, function, location or contract type",
 				"microsoft-viva": "intelligence-db competitor_features#28740 'Role-based dashboard cards (Adaptive Cards)' (captured 2026-04-24): dashboard cards targeted to Azure AD groups, roles or audiences",
 				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:63 skips widgets of apps not enabled for the user, so an admin can limit a whole app (and its widget) to groups via apps/appstore/src/actions/actionLimitToGroup.ts:22 'Limit to groups'; lib/public/Dashboard/IConditionalWidget.php:25 lets app code decide. No per-widget group rule on the dashboard itself",
-				"homarr": "intelligence-db competitor_features#28624 'Per-user boards (v1.0+)' (captured 2026-04-24): board visibility per user and group, not per widget",
+				"homarr": "source read at v1.77.2: access is set per board, not per widget: board user and group permissions (packages/db/schema/sqlite.ts:289, :307; en.json:4479 'View board'); item advanced options (packages/validation/src/shared.ts:16) have no audience field, so a widget is seen by everyone who sees its board",
 				"dashy": "intelligence-db competitor_features#28641 'No per-user layouts' (captured 2026-04-24): all users see the same layout"
 			},
 			"provider": "launchpad",
@@ -1921,7 +2019,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1935,7 +2033,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and lib/public/Dashboard for schedule, hour, weekday, time rule: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and lib/public/Dashboard for schedule, hour, weekday, time rule: none",
+				"homarr": "source read at v1.77.2: packages/validation/src/shared.ts:16 item advanced options are title, customCssClasses, borderColor only; searched packages/validation/src and packages/api/src/router/board.ts for schedule, hours, weekday: nothing"
 			}
 		},
 		{
@@ -1946,7 +2045,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1960,7 +2059,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and lib/public/Dashboard for start date, end date, campaign: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and lib/public/Dashboard for start date, end date, campaign: none",
+				"homarr": "source read at v1.77.2: packages/validation/src/shared.ts:16 no start or end date on items; packages/db/schema/sqlite.ts:413 item table has no date columns (searched for validFrom, startDate, endDate)"
 			}
 		},
 		{
@@ -1971,7 +2071,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -1981,7 +2081,8 @@
 			"reachedOn": "Workspace page, Visibility rules, attribute rule",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29083 'Tile targeting by department / location / contract type' (captured 2026-04-24): scoped to department, function, location or contract type",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for department, location, profile field: none; the only profile field read is the user's birthdate (apps/dashboard/lib/Service/DashboardService.php:75-94)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for department, location, profile field: none; the only profile field read is the user's birthdate (apps/dashboard/lib/Service/DashboardService.php:75-94)",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:49 user table has no department or location field and items carry no visibility rules (packages/validation/src/shared.ts:16)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -1997,7 +2098,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2011,7 +2112,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and apps/appstore for preview as user, impersonate: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard and apps/appstore for preview as user, impersonate: none",
+				"homarr": "source read at v1.77.2: there are no per-widget visibility rules to preview (packages/validation/src/shared.ts:16); no view-as-user function (searched apps/nextjs/src and packages/api/src for impersonate, viewAs, preview user)"
 			}
 		},
 		{
@@ -2022,7 +2124,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2036,7 +2138,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for admin settings: the app has no admin settings page (apps/dashboard/lib has only Controller and Service); group limits live per app in the app management list"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for admin settings: the app has no admin settings page (apps/dashboard/lib has only Controller and Service); group limits live per app in the app management list",
+				"homarr": "source read at v1.77.2: no widget visibility rules exist (packages/validation/src/shared.ts:16), so there is no admin overview of them; manage navigation (en.json:5742 navigationStructure.manage) has no such page"
 			}
 		},
 		{
@@ -2047,7 +2150,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2061,7 +2164,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:63 a widget only appears if its app is enabled for the user, so limiting an app to groups (apps/appstore/src/actions/actionLimitToGroup.ts:22) limits who can add its widget; there is no dashboard-level rule per widget kind"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/private/Dashboard/Manager.php:63 a widget only appears if its app is enabled for the user, so limiting an app to groups (apps/appstore/src/actions/actionLimitToGroup.ts:22) limits who can add its widget; there is no dashboard-level rule per widget kind",
+				"homarr": "source read at v1.77.2: group permissions limit which apps and integrations members may put on boards (en.json:400 'Use all apps', en.json:441 'Use all integrations'), which gates integration widgets; there is no allow-list of widget kinds per group (packages/definitions/src/permissions.ts)"
 			}
 		},
 		{
@@ -2072,7 +2176,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2082,7 +2186,8 @@
 			"reachedOn": "Admin settings, Roles and permissions tab, layout defaults",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29081 'Role/persona templates' (captured 2026-04-24): persona templates bundle apps and tiles, assigned via group membership",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the starting layout is one instance-wide app config value 'layout' (default recommendations,spreed,mail,calendar); searched apps/dashboard for group, role: 0 hits for group"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 the starting layout is one instance-wide app config value 'layout' (default recommendations,spreed,mail,calendar); searched apps/dashboard for group, role: 0 hits for group",
+				"homarr": "source read at v1.77.2: each group gets a home board and a mobile board (packages/db/schema/sqlite.ts:152, en.json:373) that members land on; new boards start empty or as a copy (packages/api/src/router/board.ts:332 duplicateBoard), there is no per-role starting template"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2098,7 +2203,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2107,7 +2212,8 @@
 			},
 			"reachedOn": "Admin settings, Roles and permissions, layout default editor",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:458-470 every widget can be unticked by the user; searched apps/dashboard for lock, mandatory, required: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:458-470 every widget can be unticked by the user; searched apps/dashboard for lock, mandatory, required: none",
+				"homarr": "source read at v1.77.2: boards are either shared whole with view permission (packages/definitions/src/permissions.ts:5) or owned; a user's own board cannot carry an admin-pinned widget (items have no locked flag, packages/db/schema/sqlite.ts:413)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2124,7 +2230,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2133,7 +2239,8 @@
 			"reachedOn": "nothing: visibility rules cover groups, times, dates and profile fields only",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28713 'Role-based adaptive workspace' (captured 2026-04-24): rewires itself around role, location, device, browser, OS and network",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/mixins/isMobile.js only toggles layout on width; searched apps/dashboard for network, location rule, device rule: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/mixins/isMobile.js only toggles layout on width; searched apps/dashboard for network, location rule, device rule: none",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1561 home board chosen per device type (mobile or desktop) from user, group and server settings; layouts switch by screen width (sqlite.ts:332 breakpoint); nothing keyed to network or location"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2147,7 +2254,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2156,7 +2263,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28726 'Conditional Access' (captured 2026-04-24): incompatible apps are hidden from the launcher",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for device compatibility, user agent: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for device compatibility, user agent: none",
+				"homarr": "source read at v1.77.2: apps render the same everywhere (packages/widgets/src/app/component.tsx); no device capability check on tiles (searched packages/widgets/src and apps/nextjs/src/components/board for userAgent, isMobile, compatible)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2170,7 +2278,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2184,7 +2292,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 no per-group dashboards exist, so no priority; the only priority list is the default app order (apps/theming/src/components/AdminSectionAppMenu.vue:86-88), which is about the start app"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 no per-group dashboards exist, so no priority; the only priority list is the default app order (apps/theming/src/components/AdminSectionAppMenu.vue:86-88), which is about the start app",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1561 home board resolved from the group with the lowest position; packages/api/src/router/group.ts:251 save group positions; en.json:4846 'Group settings are prioritized by the order of groups in the list'"
 			}
 		},
 		{
@@ -2195,7 +2304,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2209,7 +2318,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for permission, role, capability: none; all dashboard API routes are NoAdminRequired for the caller's own layout (apps/dashboard/lib/Controller/DashboardApiController.php:187-232)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for permission, role, capability: none; all dashboard API routes are NoAdminRequired for the caller's own layout (apps/dashboard/lib/Controller/DashboardApiController.php:187-232)",
+				"homarr": "source read at v1.77.2: packages/definitions/src/permissions.ts:38 group permission grid: create boards, view all, modify all, full access (en.json:416 to en.json:428), plus apps, integrations, media, search engines; per board view, modify, full (permissions.ts:9)"
 			}
 		},
 		{
@@ -2220,7 +2330,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2230,7 +2340,8 @@
 			"reachedOn": "Admin settings, Templates tab",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29081 'Role/persona templates' (captured 2026-04-24): persona templates resolved per logged-in user via group membership",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 an admin can set one instance-wide default widget list with occ config:app:set dashboard layout; it applies to everyone who has not saved their own layout. No admin UI, no per-group templates (searched apps/dashboard for group: 0 hits)"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:34 an admin can set one instance-wide default widget list with occ config:app:set dashboard layout; it applies to everyone who has not saved their own layout. No admin UI, no per-group templates (searched apps/dashboard for group: 0 hits)",
+				"homarr": "source read at v1.77.2: one board can be shared to whole groups with view permission (packages/db/schema/sqlite.ts:307 boardGroupPermission) and set as the group home board (sqlite.ts:152); nothing copies it into per-person dashboards (duplicateBoard at packages/api/src/router/board.ts:332 is a manual one-off copy)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2246,7 +2357,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2255,7 +2366,8 @@
 			},
 			"reachedOn": "Admin settings, Default permission level; per template in the template editor",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for permission, read only, lock: none; each user fully controls their own layout (apps/dashboard/src/DashboardApp.vue:458-470)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for permission, read only, lock: none; each user fully controls their own layout (apps/dashboard/src/DashboardApp.vue:458-470)",
+				"homarr": "source read at v1.77.2: packages/definitions/src/permissions.ts:9 board permissions view, modify, full; en.json:4479 'View board', 'Modify board', 'Full access' per user and per group"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2271,7 +2383,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2285,7 +2397,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:36 the admin default is only used when the user has no own value; searched apps/dashboard for sync, merge, push: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:36 the admin default is only used when the user has no own value; searched apps/dashboard for sync, merge, push: none",
+				"homarr": "source read at v1.77.2: there are no template-derived boards to resync: boards are shared live (sqlite.ts:307) or duplicated once (packages/api/src/router/board.ts:332); searched packages/api/src/router for template, sync, propagate"
 			}
 		},
 		{
@@ -2296,7 +2409,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2306,7 +2419,8 @@
 			"reachedOn": "Admin settings, Group dashboards tab; users see it in the Dashboards sidebar",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28712 'Company dashboard' (captured 2026-04-24): an organisation-wide company dashboard next to each personal one",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for group: 0 hits; one personal dashboard per user only"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for group: 0 hits; one personal dashboard per user only",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:152 group homeBoardId and mobileHomeBoardId; boards shared per group (sqlite.ts:307); users keep their own boards and a personal home board (packages/api/src/router/board.ts:624)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2322,7 +2436,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2336,7 +2450,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for setup, wizard: none; the shipped firstrunwizard app is a product tour, not a setup of dashboards, groups or roles"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for setup, wizard: none; the shipped firstrunwizard app is a product tour, not a setup of dashboards, groups or roles",
+				"homarr": "source read at v1.77.2: packages/definitions/src/onboarding.ts:1 setup steps start, import, user, group, settings, integrations, finish; packages/api/src/router/onboard/onboard-router.ts:146 detects Docker services and :271 builds the dashboard from chosen integrations (en.json init.step.integrations 'We'll set up your dashboard with matching widgets automatically')"
 			}
 		},
 		{
@@ -2347,7 +2462,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2361,7 +2476,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for demo, example, sample: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for demo, example, sample: none",
+				"homarr": "source read at v1.77.2: packages/db/migrations/seed.ts:151 seeds a default board, :152 example custom widgets (packages/db/seed/custom-widgets/dog-facts.json, currency-exchange.json) and :153 places widgets on it; one seeded board only, no library of example dashboards to install"
 			}
 		},
 		{
@@ -2372,7 +2488,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2382,7 +2498,8 @@
 			"reachedOn": "Admin settings, setup wizard, roles step",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28727 'Delegated permissions' (captured 2026-04-24): IT hands parts of the configuration to department admins",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard has no admin settings to delegate; the settings app's delegation (apps/settings/lib/Settings/Admin/Delegation.php:20) only covers admin setting sections, none of which is a dashboard section"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard has no admin settings to delegate; the settings app's delegation (apps/settings/lib/Settings/Admin/Delegation.php:20) only covers admin setting sections, none of which is a dashboard section",
+				"homarr": "source read at v1.77.2: packages/definitions/src/permissions.ts:38 group permissions such as 'Full board access' (en.json:428) and 'Modify all boards' give board administration without the Administrator permission (en.json group.permission.admin)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2399,7 +2516,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2413,7 +2530,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for bulk, batch: none; layouts are per-user config values edited one user at a time (occ config:user:set)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for bulk, batch: none; layouts are per-user config values edited one user at a time (occ config:user:set)",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/boards/page.tsx:40 renders board cards with per-board menus only (en.json:4676 to en.json:4690); no multi-select or bulk mutation in packages/api/src/router/board.ts"
 			}
 		},
 		{
@@ -2424,7 +2542,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "partial",
 			"built": {
 				"state": "built",
@@ -2434,7 +2552,8 @@
 			"reachedOn": "Admin settings, Operations tab; and occ launchpad export and import",
 			"evidence": {
 				"dashy": "intelligence-db competitor_features#28644 'Cloud/server backup' (captured 2026-04-24): encrypted config backup to Dashy cloud, not a file you move between servers",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for export, import: only composer autoload hits; open feature request #57423 asks to add dashboard settings to user_migration"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for export, import: only composer autoload hits; open feature request #57423 asks to add dashboard settings to user_migration",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/backup/export/route.ts:12 and api/backup/import/route.ts:81 move the whole database, boards included, to another server, SQLite driver only (export/route.ts:18; en.json:5171 'Full Database Backup'); no export of a single board (searched for exportBoard)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2450,7 +2569,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "yes",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2458,7 +2577,7 @@
 			},
 			"reachedOn": "nothing: import accepts only LaunchPad's own export and Confluence pages",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28632 'Import from Heimdall/Dashy' (captured 2026-04-24): migration tooling for users coming from Heimdall and Dashy",
+				"homarr": "source read at v1.77.2: the only importer is for Homarr's own pre-1.0 format (packages/old-import/src/index.ts:4; en.json:4264 'Import from homarr before 1.0.0'); searched apps and packages for heimdall, dashy, organizr, homepage import: none, so the April claim of Heimdall and Dashy import does not hold",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for import, migrate: none"
 			},
 			"provider": "launchpad",
@@ -2473,7 +2592,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2487,7 +2606,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for confluence, wiki: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for confluence, wiki: none",
+				"homarr": "source read at v1.77.2: searched packages/integrations/src, packages/widgets/src and packages/definitions/src for confluence, wiki: nothing; packages/definitions/src/integration.ts has no such integration"
 			}
 		},
 		{
@@ -2498,7 +2618,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2513,7 +2633,8 @@
 			"origin": "own-code",
 			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading.",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 the App Store link installs apps that bring widgets, not dashboards; searched apps/dashboard for registry, publish: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 the App Store link installs apps that bring widgets, not dashboards; searched apps/dashboard for registry, publish: none",
+				"homarr": "source read at v1.77.2: boards cannot be exported or installed from a shared source (only the pre-1.0 importer, packages/modals-collection/src/boards/import-board-modal.tsx:154); custom widget definitions can be exported and imported as JSON (apps/nextjs/src/app/[locale]/manage/custom-widgets/_custom-widget-actions.tsx:164) but there is no registry"
 			}
 		},
 		{
@@ -2524,7 +2645,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2538,7 +2659,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for quota, limit: only the API item limit per widget (apps/dashboard/lib/Controller/DashboardApiController.php:104 'not more than 30'), no cap on dashboards or widgets"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for quota, limit: only the API item limit per widget (apps/dashboard/lib/Controller/DashboardApiController.php:104 'not more than 30'), no cap on dashboards or widgets",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:279 createBoard checks only the board-create permission; searched packages/api/src, packages/definitions/src and packages/server-settings/src for quota, maxBoards, limit: no per-user or per-board caps (a section only stops when full, board.ts:1542)"
 			}
 		},
 		{
@@ -2549,7 +2671,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2563,7 +2685,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for disable customize, lock layout: none; the Customize button (apps/dashboard/src/DashboardApp.vue:56-63) is always shown"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for disable customize, lock layout: none; the Customize button (apps/dashboard/src/DashboardApp.vue:56-63) is always shown",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:280 creating a board requires the 'Create boards' group permission (en.json:416); withhold it and people only use boards shared with them"
 			}
 		},
 		{
@@ -2574,7 +2697,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "partial",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2583,7 +2706,7 @@
 			},
 			"reachedOn": "Workspace page, dashboard menu, Share",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28624 'Per-user boards (v1.0+)' (captured 2026-04-24): boards assigned to users and groups with permissions",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1342 saveUserBoardPermissions and :1381 saveGroupBoardPermissions with view, modify or full (packages/definitions/src/permissions.ts:9); en.json permission.userSelect 'Add user permission'",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for share: 0 hits; the layout is private user config (apps/dashboard/lib/Controller/DashboardApiController.php:205)"
 			},
 			"provider": "launchpad",
@@ -2600,7 +2723,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2614,7 +2737,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:50-52 the page is NoAdminRequired but not PublicPage; searched apps/dashboard for public link: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:50-52 the page is NoAdminRequired but not PublicPage; searched apps/dashboard for public link: none",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:265 board isPublic; en.json:4440 'Public boards are accessible by everyone, even without an account'; anonymous visitors get view only (packages/api/src/router/board.ts:81 getPublicBoards)"
 			}
 		},
 		{
@@ -2625,7 +2749,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2639,7 +2763,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: no public dashboard link exists (apps/dashboard/lib/Controller/DashboardController.php:50-52); searched apps/dashboard for password, expire: none"
+				"nextcloud-dashboard": "source read at v35.0.1: no public dashboard link exists (apps/dashboard/lib/Controller/DashboardController.php:50-52); searched apps/dashboard for password, expire: none",
+				"homarr": "source read at v1.77.2: public is a single boolean (packages/db/schema/sqlite.ts:265) with no password or expiry column; searched packages/api/src/router/board.ts and packages/validation/src for password, expires on boards: none"
 			}
 		},
 		{
@@ -2650,7 +2775,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2664,7 +2789,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: no dashboard share or public link to protect (searched apps/dashboard for share, password: 0 hits). The platform throttles public share passwords for files, not dashboards"
+				"nextcloud-dashboard": "source read at v35.0.1: no dashboard share or public link to protect (searched apps/dashboard for share, password: 0 hits). The platform throttles public share passwords for files, not dashboards",
+				"homarr": "source read at v1.77.2: public boards have no password to guess (packages/db/schema/sqlite.ts:265); the only rate limiter found is for MCP OAuth tokens (apps/nextjs/src/app/api/mcp/oauth/token/route.ts:13)"
 			}
 		},
 		{
@@ -2675,7 +2801,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2689,7 +2815,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for notification, share: 0 hits"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for notification, share: 0 hits",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1342 saveUserBoardPermissions writes permissions and sends nothing; packages/notifications is on-screen toast helpers only; searched packages/api/src for notify, sendMail, notification on share: none"
 			}
 		},
 		{
@@ -2700,7 +2827,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -2710,7 +2837,8 @@
 			"reachedOn": "nothing: /kiosk/{token} returns JSON that no page renders, and useKioskPlaylistStore has no caller, so no screen creates a playlist",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28733 'Narrowcasting' (captured 2026-04-24): narrowcasting to TVs in offices, canteens and factory floors, centrally scheduled",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for kiosk, rotate, fullscreen: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for kiosk, rotate, fullscreen: none",
+				"homarr": "source read at v1.77.2: searched apps/nextjs/src, packages/widgets/src and packages/definitions/src for kiosk, rotate, slideshow, cycle: only icon and animation hits; a public board (en.json:4440) can stay on a screen but nothing rotates boards"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -2727,7 +2855,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -2741,7 +2869,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for schedule, publish, go live: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for schedule, publish, go live: none",
+				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:262 board has no publish or unpublish time; visibility changes only by hand (packages/api/src/router/board.ts:578 changeBoardVisibility)"
 			}
 		},
 		{
@@ -2752,7 +2881,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2766,7 +2895,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: no dashboard sharing exists (searched apps/dashboard for share: 0 hits), so no sharing policy"
+				"nextcloud-dashboard": "source read at v35.0.1: no dashboard sharing exists (searched apps/dashboard for share: 0 hits), so no sharing policy",
+				"homarr": "source read at v1.77.2: only holders of 'full' on a board may change who has access (packages/api/src/router/board.ts:1343 throwIfActionForbiddenAsync 'full'), and 'Full board access' is a group permission (en.json:428); there is no rule limiting with whom a board may be shared"
 			}
 		},
 		{
@@ -2777,7 +2907,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2791,7 +2921,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: lib/private/User/User.php:315 deleting a user removes all their user config, including the dashboard layout; there is nothing shared to hand over and no transfer (searched apps/dashboard for owner, transfer: none)"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/private/User/User.php:315 deleting a user removes all their user config, including the dashboard layout; there is nothing shared to hand over and no transfer (searched apps/dashboard for owner, transfer: none)",
+				"homarr": "source read at v1.77.2: deleting a user keeps their boards (en.json:353 'Will not delete any boards'; packages/db/schema/sqlite.ts:266 creatorId set null on delete) but ownership is not handed to anyone; groups do have 'Transfer ownership' (packages/api/src/router/group.ts:289), boards do not"
 			}
 		},
 		{
@@ -2802,7 +2933,7 @@
 			"workspace-365": "partial",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2812,7 +2943,8 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28715 'Announcements' (captured 2026-04-24): announcements reach laptop, tablet, mobile and screens, not chat or mail",
 				"microsoft-viva": "intelligence-db competitor_features#28748 'Viva Amplify omnichannel publishing' (captured 2026-04-24): author once, publish across Teams, Outlook, SharePoint and Viva Engage",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for publish, channel, message: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for publish, channel, message: none",
+				"homarr": "source read at v1.77.2: no authoring or publishing of messages: searched packages/api/src/router and en.json for publish, post, message, announcement outside toasts: nothing; notifications widget only reads from ntfy, Gotify, Nextcloud (en.json:3706)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2826,7 +2958,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -2840,7 +2972,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for acknowledge, read confirmation: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for acknowledge, read confirmation: none",
+				"homarr": "source read at v1.77.2: no announcement model in packages/db/schema/sqlite.ts (tables listed from :39 to :553 contain no announcement, read receipt or acknowledgement); searched en.json for acknowledge, confirm read: none"
 			}
 		},
 		{
@@ -2851,7 +2984,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -2865,7 +2998,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for acknowledge, report, csv: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for acknowledge, report, csv: none",
+				"homarr": "source read at v1.77.2: no acknowledgement data exists (packages/db/schema/sqlite.ts has no receipt table); searched packages/api/src for acknowledge, readBy, export csv of readers: none"
 			}
 		},
 		{
@@ -2876,7 +3010,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "building",
@@ -2890,7 +3024,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for reaction, emoji: none (the emoji in apps/dashboard/src/DashboardApp.vue:257 is the birthday greeting text)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for reaction, emoji: none (the emoji in apps/dashboard/src/DashboardApp.vue:257 is the birthday greeting text)",
+				"homarr": "source read at v1.77.2: searched packages/db/schema/sqlite.ts, packages/api/src and en.json for reaction, emoji, like: nothing on boards"
 			}
 		},
 		{
@@ -2901,7 +3036,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2911,7 +3046,8 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28715 'Announcements' (captured 2026-04-24): targeted news posts with reactions, mentions and follow subscriptions",
 				"microsoft-viva": "intelligence-db competitor_features#28741 'Audience targeting' (captured 2026-04-24): news targeted to Azure AD groups",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for announcement, like, comment: none; the Announcement center app is not in core/shipped.json"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for announcement, like, comment: none; the Announcement center app is not in core/shipped.json",
+				"homarr": "source read at v1.77.2: no news or announcement feature: searched packages/db/schema/sqlite.ts, packages/api/src/router and en.json for announcement, post, comment, like: nothing; news appears only by reading outside RSS feeds (en.json:3466)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2925,7 +3061,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2934,7 +3070,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28716 'Events' (captured 2026-04-24): events with registration pushed to the Outlook calendar",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for event, sign up, rsvp: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for event, sign up, rsvp: none",
+				"homarr": "source read at v1.77.2: calendar widget only reads events from integrations (en.json:2251, packages/integrations/src/nextcloud/nextcloud.integration.ts:66 getCalendarEventsAsync); no event creation or sign-up (searched for rsvp, signup, attendee)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2948,7 +3085,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2957,7 +3094,8 @@
 			"reachedOn": "nothing: Confluence import brings a page in as widget content, not a knowledge base",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28717 'Knowledge base' (captured 2026-04-24): searchable repository for policies and how-tos, targetable by role",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for knowledge, article, wiki: none; Collectives is not in core/shipped.json"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for knowledge, article, wiki: none; Collectives is not in core/shipped.json",
+				"homarr": "source read at v1.77.2: searched en.json and packages/db/schema/sqlite.ts for knowledge, article, wiki: nothing; the notebook widget (en.json:2001) holds one free text per widget, not a searchable article base"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2971,7 +3109,7 @@
 			"workspace-365": "partial",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -2981,7 +3119,8 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28718 'Communities' (captured 2026-04-24): topic communities, available through a beta programme",
 				"microsoft-viva": "intelligence-db competitor_features#28744 'Viva Engage communities' (captured 2026-04-24): Viva Engage communities inside Teams",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for community, forum, question: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for community, forum, question: none",
+				"homarr": "source read at v1.77.2: searched en.json and packages/api/src/router for community, forum, question, topic: only the 'Community Discord' help link (en.json:4633)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -2995,7 +3134,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -3004,7 +3143,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29075 'Daily or weekly briefing email' (captured 2026-04-24): digest email of announcements, events, new apps and approvals",
-				"nextcloud-dashboard": "source read at v35.0.1: the shipped activity app (core/shipped.json, defaultEnabled) sends hourly, daily or weekly activity emails: nextcloud/activity stable35 lib/Settings/Personal.php:99-106 batch time and lib/DigestSender.php:185 'Daily activity summary'. It covers Nextcloud activity, not dashboard content. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1."
+				"nextcloud-dashboard": "source read at v35.0.1: the shipped activity app (core/shipped.json, defaultEnabled) sends hourly, daily or weekly activity emails: nextcloud/activity stable35 lib/Settings/Personal.php:99-106 batch time and lib/DigestSender.php:185 'Daily activity summary'. It covers Nextcloud activity, not dashboard content. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1.",
+				"homarr": "source read at v1.77.2: no mail sending: packages/server-settings/src/index.ts has no SMTP settings and searched packages for smtp, nodemailer, digest: only an error digest string (en.json:4596)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3018,7 +3158,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3028,7 +3168,8 @@
 			"reachedOn": "Nextcloud Activity app, and its widget through Add widget, Nextcloud widget",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28722 'Activity Feed' (captured 2026-04-24): stream of appointments, news, approvals, tickets and notifications",
-				"nextcloud-dashboard": "source read at v35.0.1: the shipped activity app registers a 'Recent activity' dashboard widget (nextcloud/activity stable35 lib/Dashboard/ActivityWidget.php:64), loaded through lib/private/Dashboard/Manager.php:51-63; it shows Nextcloud events only, not approvals or news from outside systems. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1."
+				"nextcloud-dashboard": "source read at v35.0.1: the shipped activity app registers a 'Recent activity' dashboard widget (nextcloud/activity stable35 lib/Dashboard/ActivityWidget.php:64), loaded through lib/private/Dashboard/Manager.php:51-63; it shows Nextcloud events only, not approvals or news from outside systems. This cell cites a separate nextcloud app repo at stable35, not the server clone at v35.0.1.",
+				"homarr": "source read at v1.77.2: the Notifications widget shows notification history from ntfy, Gotify or Nextcloud integrations (en.json:3706; packages/definitions/src/integration.ts:273, :297, :305) in one list; no approvals, news or meetings merged across systems"
 			},
 			"provider": "nextcloud",
 			"providerHow": "research-then-code",
@@ -3045,7 +3186,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3055,7 +3196,8 @@
 			"reachedOn": "Admin settings, Group dashboards or Templates: a text widget with a date rule",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29067 'Maintenance tile' (captured 2026-04-24): built-in tile for planned maintenance and incident status",
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for banner, notice, maintenance: none; no bundled widget carries an admin notice"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for banner, notice, maintenance: none; no bundled widget carries an admin notice",
+				"homarr": "source read at v1.77.2: packages/server-settings/src/index.ts has no banner or notice setting; searched apps/nextjs/src/components/layout, packages/widgets/src and en.json for maintenance, banner, announcement: nothing"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3072,7 +3214,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3086,7 +3228,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:76 unified search is on the Dashboard page, but no provider indexes dashboards or apps (apps/settings/lib/Search/SectionSearch.php:45 searches settings sections); with one dashboard per user the app menu entry (apps/dashboard/appinfo/info.xml navigation) is the way in"
+				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:76 unified search is on the Dashboard page, but no provider indexes dashboards or apps (apps/settings/lib/Search/SectionSearch.php:45 searches settings sections); with one dashboard per user the app menu entry (apps/dashboard/appinfo/info.xml navigation) is the way in",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:205 board search; spotlight group 'Search for apps, integrations or boards' (en.json:5868) with open, set as home board and settings actions (packages/spotlight/src/modes/app-integration-board/boards-search-group.tsx); this is Homarr's own search, not Nextcloud's"
 			}
 		},
 		{
@@ -3097,7 +3240,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3107,7 +3250,8 @@
 			"reachedOn": "Search widget falling back to Nextcloud unified search",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28720 'Global Search (unified)' (captured 2026-04-24): federated search across email, documents, tickets, CRM and connected systems",
-				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:76 unified search in the header of the Dashboard page searches every registered provider (core/src/components/UnifiedSearch/UnifiedSearchModal.vue:31,61 'Apps, files, messages, and more'). Bundled providers cover files, settings and people; mail, tickets and outside systems need non-shipped apps"
+				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.user.php:76 unified search in the header of the Dashboard page searches every registered provider (core/src/components/UnifiedSearch/UnifiedSearchModal.vue:31,61 'Apps, files, messages, and more'). Bundled providers cover files, settings and people; mail, tickets and outside systems need non-shipped apps",
+				"homarr": "source read at v1.77.2: one search box covers apps, boards, integrations, users and groups (en.json:5868, en.json:6265), media requests via Overseerr, Jellyseerr, Seerr (en.json:6081, packages/definitions/src/integration.ts:180 category search) and web engines; no mail, file or ticket search"
 			},
 			"provider": "nextcloud",
 			"providerHow": "research-then-code",
@@ -3124,7 +3268,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "specified",
@@ -3135,7 +3279,8 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28732 'Kelly AI digital guide' (captured 2026-04-24): permission-bound conversational assistant across connected apps",
 				"microsoft-viva": "intelligence-db competitor_features#28749 'Microsoft 365 Copilot in Viva' (captured 2026-04-24): Copilot Q&A across Viva modules",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/settings/src/components/AdminAI.vue:8-9 core only offers task processing plumbing; the Assistant app is not in core/shipped.json and searched apps/dashboard for assistant, ai: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/settings/src/components/AdminAI.vue:8-9 core only offers task processing plumbing; the Assistant app is not in core/shipped.json and searched apps/dashboard for assistant, ai: none",
+				"homarr": "source read at v1.77.2: no built-in assistant or LLM call: searched apps/nextjs/src and packages for openai, llm, chat, assistant: only the MCP server for outside AI clients (apps/nextjs/src/app/api/mcp/[transport]/route.ts:4) and a 'Copy AI prompt' helper for custom widgets"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3151,7 +3296,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "specified",
@@ -3165,7 +3310,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for assistant, ai, suggest: none"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for assistant, ai, suggest: none",
+				"homarr": "source read at v1.77.2: packages/api/src/router/board.ts:1430 addItem is exposed as an MCP tool that 'Automatically places it in the first empty section at the next free grid position', so an outside AI client can place a widget on request; nothing inside Homarr takes a plain-language request"
 			}
 		},
 		{
@@ -3176,7 +3322,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "specified",
@@ -3190,7 +3336,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/openapi.json documents OCS endpoints to list widgets and read or set the layout (apps/dashboard/lib/Controller/DashboardApiController.php:137,188,202), usable by any client with an app password; there is no agent or MCP tool definition in apps/dashboard"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/openapi.json documents OCS endpoints to list widgets and read or set the layout (apps/dashboard/lib/Controller/DashboardApiController.php:137,188,202), usable by any client with an app password; there is no agent or MCP tool definition in apps/dashboard",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/mcp/[transport]/route.ts:4 MCP server built from tRPC procedures marked mcp enabled (76 such markers in packages/api/src/router, e.g. board.ts:127 getAllBoards, board.ts:283 createBoard, board.ts:1430 addItem); API key or OAuth auth (en.json:5082)"
 			}
 		},
 		{
@@ -3201,7 +3348,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -3210,7 +3357,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29180 'IT-controlled AI usage' (captured 2026-04-30): admins enable assistant capabilities by user or group",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/settings/src/components/AdminAI.vue:8-26 admins pick and enable a provider per AI task type and toggle 'Allow AI usage for guest users' (:14); searched AdminAI.vue for group: no per-group control. Provided by the settings app, not the dashboard"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/settings/src/components/AdminAI.vue:8-26 admins pick and enable a provider per AI task type and toggle 'Allow AI usage for guest users' (:14); searched AdminAI.vue for group: no per-group control. Provided by the settings app, not the dashboard",
+				"homarr": "source read at v1.77.2: the only AI surface is the MCP server, which acts with the permissions of the API key or OAuth user (en.json management.page.tool.api.tab.mcp.authentication.permissions); API keys are admin-only (packages/api/src/router/apiKeys.ts:37); no switch per group or per AI feature"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3224,7 +3372,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -3233,7 +3381,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29175 'AI document summarisation' (captured 2026-04-30): the assistant summarises documents and long pages on demand",
-				"nextcloud-dashboard": "source read at v35.0.1: lib/public/TaskProcessing/TaskTypes/TextToTextSummary.php defines a summary task type, but no shipped app offers a UI or provider for it on the dashboard (searched apps/dashboard for summar: none; Assistant is not in core/shipped.json)"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/TaskProcessing/TaskTypes/TextToTextSummary.php defines a summary task type, but no shipped app offers a UI or provider for it on the dashboard (searched apps/dashboard for summar: none; Assistant is not in core/shipped.json)",
+				"homarr": "source read at v1.77.2: no built-in language model: searched apps/nextjs/src and packages for openai, anthropic, llm, summar: nothing"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3247,7 +3396,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3261,7 +3410,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for view count, statistics, analytics: none; one dashboard per user, nothing recorded"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for view count, statistics, analytics: none; one dashboard per user, nothing recorded",
+				"homarr": "source read at v1.77.2: no view or visit records in packages/db/schema/sqlite.ts (searched for view, visit, pageview); packages/analytics/src/send-server-analytics.ts:69 only sends instance counts of boards, groups, apps to the Homarr project"
 			}
 		},
 		{
@@ -3272,7 +3422,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3286,7 +3436,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: no view tracking exists (searched apps/dashboard for track, view: only a CSS view hit), so no opt-out or retention"
+				"nextcloud-dashboard": "source read at v35.0.1: no view tracking exists (searched apps/dashboard for track, view: only a CSS view hit), so no opt-out or retention",
+				"homarr": "source read at v1.77.2: there is no per-person view tracking to opt out of (packages/db/schema/sqlite.ts); the admin can switch off anonymous instance analytics (en.json:4878 'Help us improve Homarr'), which is not per person and holds no view data"
 			}
 		},
 		{
@@ -3297,7 +3448,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3311,7 +3462,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard has no health check of its own (searched apps/dashboard/lib for SetupCheck: none); the platform's admin Overview runs setup checks (apps/settings/lib/Settings/Admin/Overview.php, apps/settings/src/components/SettingsSetupChecks) for the whole server"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard has no health check of its own (searched apps/dashboard/lib for SetupCheck: none); the platform's admin Overview runs setup checks (apps/settings/lib/Settings/Admin/Overview.php, apps/settings/src/components/SettingsSetupChecks) for the whole server",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/health/live/route.ts and api/health/ready/route.ts:1 give probe endpoints; the admin Tasks page shows each background job as idle, running, error or disabled (en.json management.page.tool.tasks.status, en.json:4965) and a Logs page (en.json:4620); no single health summary page"
 			}
 		},
 		{
@@ -3322,7 +3474,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3336,7 +3488,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: core/Controller/OpenMetricsController.php:50 GET /metrics for clients in openmetrics_allowed_clients (:63) exports server figures (lib/private/OpenMetrics/Exporters: ActiveUsers, ActiveSessions, AppEnabled, Maintenance and more); nothing dashboard-specific is exported"
+				"nextcloud-dashboard": "source read at v35.0.1: core/Controller/OpenMetricsController.php:50 GET /metrics for clients in openmetrics_allowed_clients (:63) exports server figures (lib/private/OpenMetrics/Exporters: ActiveUsers, ActiveSessions, AppEnabled, Maintenance and more); nothing dashboard-specific is exported",
+				"homarr": "source read at v1.77.2: searched apps and packages for prometheus and a /metrics route: only Umami and Beszel integration code reading metrics from other tools (packages/integrations/src/umami/umami-integration.ts:136); no exporter"
 			}
 		},
 		{
@@ -3347,7 +3500,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3357,7 +3510,8 @@
 			"reachedOn": "Nextcloud Activity app",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28728 'Audit logging' (captured 2026-04-24): compliance-grade logging of user and admin actions",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/admin_audit/lib/AppInfo/Application.php:82-90 logs admin and user actions (users, groups, apps, files, sharing, auth); searched apps/admin_audit/lib for dashboard, layout: none, so dashboard changes are not logged. admin_audit is shipped but not default enabled"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/admin_audit/lib/AppInfo/Application.php:82-90 logs admin and user actions (users, groups, apps, files, sharing, auth); searched apps/admin_audit/lib for dashboard, layout: none, so dashboard changes are not logged. admin_audit is shipped but not default enabled",
+				"homarr": "source read at v1.77.2: no audit table in packages/db/schema/sqlite.ts (searched for audit, history, changelog); the Logs page streams server log lines (packages/api/src/router/log.ts:15 subscribe, en.json:4620), not a record of who changed what"
 			},
 			"provider": "nextcloud",
 			"providerHow": "research-then-code",
@@ -3374,7 +3528,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3388,7 +3542,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for activity, IManager publish: none; layout saves (apps/dashboard/lib/Controller/DashboardApiController.php:202-206) emit no activity"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for activity, IManager publish: none; layout saves (apps/dashboard/lib/Controller/DashboardApiController.php:202-206) emit no activity",
+				"homarr": "source read at v1.77.2: Homarr is a standalone app with no Nextcloud activity hook; board saves (packages/api/src/router/board.ts:854) emit no activity events (searched packages/api/src for activity, publishEvent)"
 			}
 		},
 		{
@@ -3399,7 +3554,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3413,7 +3568,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: lib/private/User/User.php:315 deleting a user removes all their user config, which is where the dashboard layout and statuses live (apps/dashboard/lib/Controller/DashboardApiController.php:205); no group data is stored by the dashboard"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/private/User/User.php:315 deleting a user removes all their user config, which is where the dashboard layout and statuses live (apps/dashboard/lib/Controller/DashboardApiController.php:205); no group data is stored by the dashboard",
+				"homarr": "source read at v1.77.2: foreign keys cascade on delete: board user permissions (packages/db/schema/sqlite.ts:297), accounts (:81), group memberships (:137) and collapse states (:395) go with the user; boards and groups keep existing with creator or owner set null (sqlite.ts:266, :149)"
 			}
 		},
 		{
@@ -3424,7 +3580,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3438,7 +3594,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: no dashboard occ commands (searched core/Command and apps/dashboard for dashboard commands: none); the layout can only be read or set with generic occ config:user:get/set and config:app:set on the 'layout' key (apps/dashboard/lib/Service/DashboardService.php:34-36)"
+				"nextcloud-dashboard": "source read at v35.0.1: no dashboard occ commands (searched core/Command and apps/dashboard for dashboard commands: none); the layout can only be read or set with generic occ config:user:get/set and config:app:set on the 'layout' key (apps/dashboard/lib/Service/DashboardService.php:34-36)",
+				"homarr": "source read at v1.77.2: packages/cli/src/index.ts:9 commands are users, integrations, reset-password, fix-usernames, recreate-admin; no board commands (searched packages/cli/src for board)"
 			}
 		},
 		{
@@ -3449,7 +3606,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3463,7 +3620,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.public.php:96-100 and layout.guest.php:61-69 show the theming footer (name, slogan, legal notice and privacy links) only on public and login pages; core/templates/layout.user.php, which the Dashboard uses, has no footer"
+				"nextcloud-dashboard": "source read at v35.0.1: core/templates/layout.public.php:96-100 and layout.guest.php:61-69 show the theming footer (name, slogan, legal notice and privacy links) only on public and login pages; core/templates/layout.user.php, which the Dashboard uses, has no footer",
+				"homarr": "source read at v1.77.2: board layout has header only (apps/nextjs/src/components/layout/header.tsx); searched apps/nextjs/src/components/layout and en.json for footer, contact: nothing configurable"
 			}
 		},
 		{
@@ -3474,7 +3632,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3488,7 +3646,8 @@
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for allowlist, domain, csp: the only policy is geolocation for self (apps/dashboard/lib/Controller/DashboardController.php:82-85); widgets are server-side app code, and weather data is fetched by the server (apps/dashboard/src/DashboardApp.vue:118)"
+				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for allowlist, domain, csp: the only policy is geolocation for self (apps/dashboard/lib/Controller/DashboardController.php:82-85); widgets are server-side app code, and weather data is fetched by the server (apps/dashboard/src/DashboardApp.vue:118)",
+				"homarr": "source read at v1.77.2: iFrame widget takes any URL (packages/widgets/src/iframe/index.ts) and custom widgets fetch any URL an admin enters (en.json:700); searched packages/server-settings/src/index.ts and packages/widgets/src for allowlist, whitelist, allowedDomains: none (jsx-whitelist.ts limits JSX components, not hosts)"
 			}
 		},
 		{
@@ -3499,7 +3658,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3513,7 +3672,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: the dashboard has no icon upload (searched apps/dashboard for upload: none). Theming uploads keep SVGs as they are (apps/theming/lib/ImageManager.php:313-314) and serve them under a restrictive Content-Security-Policy (apps/theming/lib/Controller/ThemingController.php:372-374), which blocks scripts but does not clean the file"
+				"nextcloud-dashboard": "source read at v35.0.1: the dashboard has no icon upload (searched apps/dashboard for upload: none). Theming uploads keep SVGs as they are (apps/theming/lib/ImageManager.php:313-314) and serve them under a restrictive Content-Security-Policy (apps/theming/lib/Controller/ThemingController.php:372-374), which blocks scripts but does not clean the file",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/api/user-medias/[id]/route.ts:26 uploaded SVGs are passed through DOMPurify with the svg profile before they are served (route.ts:28); SVG is an allowed upload type (packages/validation/src/media.ts:6)"
 			}
 		},
 		{
@@ -3536,7 +3696,7 @@
 				"workspace-365": "intelligence-db competitor_features#28725 'Single Sign-On' (captured 2026-04-24): one login across Entra ID, Google, Okta and any OIDC or SAML provider",
 				"microsoft-viva": "intelligence-db competitor_features#28753 'Single sign-on with Entra ID' (captured 2026-04-24): Entra ID with conditional access and MFA",
 				"nextcloud-dashboard": "source read at v35.0.1: the Dashboard is a normal logged-in page (apps/dashboard/lib/Controller/DashboardController.php:50-53) behind the platform login; user_ldap and the twofactor apps are in core/shipped.json, and SAML or OIDC come from app store apps (user_saml, user_oidc) not shipped",
-				"homarr": "intelligence-db competitor_features#28625 'OIDC / OAuth SSO' (captured 2026-04-24): OIDC alongside local accounts and LDAP",
+				"homarr": "source read at v1.77.2: packages/auth/providers/oidc/oidc-provider.ts OIDC sign-in configured by AUTH_OIDC_ISSUER and client settings (packages/auth/env.ts:38); LDAP through packages/auth/providers/credentials/ldap-client.ts; set by environment variables, not in the UI",
 				"dashy": "intelligence-db competitor_features#28640 'Keycloak / OIDC support' (captured 2026-04-24): optional Keycloak integration"
 			},
 			"provider": "nextcloud",
@@ -3551,7 +3711,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "partial",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "specified",
@@ -3562,7 +3722,8 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28731 'Mobile app (iOS/Android)' (captured 2026-04-24): native iOS and Android app with the full workspace",
 				"microsoft-viva": "intelligence-db competitor_features#28750 'Mobile app via Teams' (captured 2026-04-24): dashboard delivered through the Teams mobile app",
-				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IAPIWidget.php:19 and apps/dashboard/openapi.json expose widgets and items over OCS for clients (apps/dashboard/lib/Controller/DashboardApiController.php:113-138); the phone apps themselves are not in this source, so native use is not verified here"
+				"nextcloud-dashboard": "source read at v35.0.1: lib/public/Dashboard/IAPIWidget.php:19 and apps/dashboard/openapi.json expose widgets and items over OCS for clients (apps/dashboard/lib/Controller/DashboardApiController.php:113-138); the phone apps themselves are not in this source, so native use is not verified here",
+				"homarr": "source read at v1.77.2: the repo ships a web app with a PWA manifest (apps/nextjs/src/app/manifest.ts:9 display standalone) and no native phone app (apps/ holds docs, nextjs, tasks, websocket only)"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3588,7 +3749,7 @@
 			"reachedOn": "installed as a Nextcloud app on your own instance",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/appinfo/info.xml:16 licence agpl, shipped in core/shipped.json and default enabled; runs on any self-hosted Nextcloud 35",
-				"homarr": "intelligence-db competitors#1125 product line self-hosted-dashboard, licence MIT (captured 2026-04-24)",
+				"homarr": "source read at v1.77.2: Dockerfile and deployments/prebuilt-debian at the repo root; SQLite, MySQL or PostgreSQL drivers (packages/db/schema/sqlite.ts, mysql.ts, postgresql.ts); licence file LICENSE",
 				"dashy": "intelligence-db competitors#1126 product line self-hosted-dashboard, licence MIT (captured 2026-04-24)"
 			},
 			"provider": "nextcloud",
@@ -3603,7 +3764,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
-			"homarr": "yes",
+			"homarr": "partial",
 			"dashy": "yes",
 			"built": {
 				"state": "built",
@@ -3614,7 +3775,7 @@
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#28734 'Branding sets' (captured 2026-04-24): logo, colour palette and domain per sub-organisation",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/AdminSectionThemingAdvanced.vue:69-85 admins set primary and background colour, logo and background, and the dashboard panels use theme variables (apps/dashboard/src/DashboardApp.vue:598-608). Government theming (NL Design System) needs the nldesign app, which is not in core/shipped.json",
-				"homarr": "intelligence-db competitor_features#28630 'Themes and custom CSS' (captured 2026-04-24): theme builder with primary and secondary colours",
+				"homarr": "source read at v1.77.2: per board primary and secondary colour, logo, favicon, icon colour and item radius (apps/nextjs/src/app/[locale]/boards/[name]/settings/_appereance.tsx:48; en.json:4395); server default colour scheme (en.json management settings appearance); no design-token or government theme support (searched for nldesign, design tokens)",
 				"dashy": "intelligence-db competitor_features#28636 '20+ theme collection' (captured 2026-04-24): twenty-plus themes"
 			},
 			"provider": "nextcloud",
@@ -3637,7 +3798,7 @@
 			},
 			"reachedOn": "nothing",
 			"evidence": {
-				"homarr": "intelligence-db competitor_features#28630 'Themes and custom CSS' (captured 2026-04-24): custom CSS injection",
+				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/boards/(content)/_custom-css.tsx:8 injects board.customCss; en.json:4410 'Custom css for this board' plus custom CSS classes per item (packages/validation/src/shared.ts:18)",
 				"dashy": "intelligence-db competitor_features#28636 '20+ theme collection' (captured 2026-04-24): full custom CSS editor",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/lib/Controller/ThemingController.php:410 custom CSS comes only from built-in themes (DefaultTheme.php:279-280 returns ''); searched apps/theming/src for custom css: none. The Custom CSS app is not in core/shipped.json"
 			},
@@ -3653,7 +3814,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "partial",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -3661,7 +3822,8 @@
 			},
 			"reachedOn": "nothing: the dashboard configuration has title, description, icon and sharing only",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/UserSectionBackground.vue:167-180 personal 'Background and color' with a custom image, plain colour or default; the dashboard shows it behind the panels (apps/dashboard/src/DashboardApp.vue:569-575). The greeting is automatic by time of day and birthday (:213-265), not editable"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/UserSectionBackground.vue:167-180 personal 'Background and color' with a custom image, plain colour or default; the dashboard shows it behind the panels (apps/dashboard/src/DashboardApp.vue:569-575). The greeting is automatic by time of day and birthday (:213-265), not editable",
+				"homarr": "source read at v1.77.2: background image, attachment, repeat and size are set per board (packages/db/schema/sqlite.ts:273; apps/nextjs/src/components/layout/background.tsx:13; en.json:4340), so a personal board can carry its own; the greeting 'Good morning, {username}' is on the management home only (en.json management.title.morning), not on boards"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
@@ -3675,7 +3837,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "yes",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3684,7 +3846,8 @@
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/l10n holds 56 language files including nl.json; strings go through t('dashboard', ...) (apps/dashboard/src/DashboardApp.vue:236-258)"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/l10n holds 56 language files including nl.json; strings go through t('dashboard', ...) (apps/dashboard/src/DashboardApp.vue:236-258)",
+				"homarr": "source read at v1.77.2: packages/translation/src/lang/ has 36 locale files including nl.json with the same 3026 keys as en.json; packages/translation/src/languages.ts:28 'nl'; users pick a language in preferences and admins a default (en.json management.page.settings.section.culture)"
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
@@ -3700,7 +3863,7 @@
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "yes",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "built",
@@ -3714,7 +3877,8 @@
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
-				"nextcloud-dashboard": "source read at v35.0.1: core/shipped.json lists dashboard in shippedApps and defaultEnabled; apps/dashboard/appinfo/info.xml:25 depends only on Nextcloud 35"
+				"nextcloud-dashboard": "source read at v35.0.1: core/shipped.json lists dashboard in shippedApps and defaultEnabled; apps/dashboard/appinfo/info.xml:25 depends only on Nextcloud 35",
+				"homarr": "source read at v1.77.2: Homarr is its own Next.js server (apps/nextjs, Dockerfile), not a Nextcloud app; nothing in the repo installs into Nextcloud (searched for appinfo, info.xml: none); it needs no other product but also cannot run inside Nextcloud"
 			}
 		},
 		{
@@ -3725,7 +3889,7 @@
 			"workspace-365": "yes",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
-			"homarr": "unknown",
+			"homarr": "no",
 			"dashy": "unknown",
 			"built": {
 				"state": "none",
@@ -3734,7 +3898,8 @@
 			"reachedOn": "nothing",
 			"evidence": {
 				"workspace-365": "intelligence-db competitor_features#29084 'Partner multi-tenant platform' (captured 2026-04-24): multi-tenant hosting with branding sets and delegated admin",
-				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/AdminSectionTheming.vue:20 theming is 'visible for all users', one theme per instance; searched apps/theming and apps/dashboard for tenant, organisation, per group: none"
+				"nextcloud-dashboard": "source read at v35.0.1: apps/theming/src/components/AdminSectionTheming.vue:20 theming is 'visible for all users', one theme per instance; searched apps/theming and apps/dashboard for tenant, organisation, per group: none",
+				"homarr": "source read at v1.77.2: one global serverSetting table and one user and group space per instance (packages/db/schema/sqlite.ts:464, :49, :146); searched schema and packages/api/src for tenant, organization: none; branding is per board, not per client organisation"
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",

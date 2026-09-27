@@ -2104,7 +2104,7 @@
 			"homarr": "yes",
 			"dashy": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Service/LiveTileService.php:22",
 				"owner": "ConductionNL/launchpad"
 			},
@@ -2121,7 +2121,7 @@
 			"feature": "live-data-tile-widget",
 			"featureConfidence": "low",
 			"origin": "competitor",
-			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes."
+			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes. Corrected 2026-09-27 (openspec pass): a connector mode exists; it calls Integriq's DashboardDatasourceService::resolve(), which applies the source's stored authentication (lib/Service/LiveTileService.php:380). What is missing is mapping more than one field and choosing how to show it. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass)."
 		},
 		{
 			"id": "int-itsm",
@@ -2244,7 +2244,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -2257,23 +2257,25 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/integrations-office-tiles (openspec pass)."
 		},
 		{
 			"id": "int-intranet-content",
 			"area": "integrations",
 			"name": "Show another intranet's news and documents in a tile.",
-			"launchpad": "no",
+			"launchpad": "partial",
 			"workspace-365": "yes",
 			"microsoft-viva": "yes",
 			"nextcloud-dashboard": "no",
 			"homarr": "partial",
 			"dashy": "partial",
 			"built": {
-				"state": "none",
-				"owner": "ConductionNL/launchpad"
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "lib/Service/NewsWidgetService.php:133; lib/Service/IframeService.php:9"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Workspace page, Add widget, News (the other intranet's RSS or Atom feed) or Embed (its page, when the host is allowed)",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175556-workspace-api-example-sharepoint-newsfeed-in-announcements SharePoint newsfeed into announcements; https://support.workspace365.net/en/articles/175590-rss-feed SharePoint feeds (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for intranet, sharepoint, feed: none",
@@ -2283,7 +2285,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Corrected 2026-09-27 (openspec pass): the news widget reads RSS and Atom feeds from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames an allowed page (lib/Service/IframeService.php:9), the same half Homarr and Dashy are rated partial for; the other intranet's documents are missing. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass)."
 		},
 		{
 			"id": "int-connections-status",
@@ -3557,7 +3560,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -3570,7 +3573,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-communities (openspec pass)."
 		},
 		{
 			"id": "e-digest",
@@ -3583,7 +3587,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -3596,7 +3600,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-activity-digest (openspec pass)."
 		},
 		{
 			"id": "e-activity-stream",
@@ -4299,7 +4304,7 @@
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -4312,7 +4317,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass)."
 		},
 		{
 			"id": "p-background",
@@ -4681,7 +4687,7 @@
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "appinfo/routes.php:18"
 			},
@@ -4699,7 +4705,7 @@
 			"featureConfidence": "low",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.50.0",
-			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0."
+			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0. Specified 2026-09-27 in openspec/changes/governance-rest-api-reference (openspec pass)."
 		},
 		{
 			"id": "d-proxy",
@@ -4864,7 +4870,7 @@
 			"homarr": "partial",
 			"dashy": "yes",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Migration/DashboardTableBuilder.php:173"
 			},
@@ -4882,7 +4888,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.0.0",
-			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255)."
+			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255). Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass)."
 		},
 		{
 			"id": "d-open-inside",
@@ -5077,7 +5083,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Service/PeopleWidgetService.php:91"
 			},
@@ -5095,7 +5101,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/766599-release-notes-workspace-365-v4-46",
-			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre."
+			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass)."
 		},
 		{
 			"id": "d-news-preview",
@@ -5259,7 +5265,7 @@
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "appinfo/routes.php:189"
 			},
@@ -5277,7 +5283,7 @@
 			"featureConfidence": "medium",
 			"origin": "tender",
 			"originUrl": "https://www.publicprocurement.be/nl/publication-workspaces/204ca8ae-6191-43b9-ac3b-c943f91d1d2d",
-			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'."
+			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass)."
 		},
 		{
 			"id": "d-find-expert",
@@ -5290,7 +5296,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -5307,7 +5313,7 @@
 			"featureConfidence": "medium",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/418890",
-			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them."
+			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass)."
 		}
 	]
 }

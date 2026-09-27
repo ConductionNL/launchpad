@@ -64,6 +64,14 @@
 		"decidedOn": "2026-09-27"
 	},
 	{
+		"row": "int-builder",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Partial, built: the missing half (several fields per tile and a choice of display) has Workspace 365 and Homarr rated yes. The archived 2026-07-23-live-data-tile-widget built one value per tile, including an integriq connector mode that applies the source's stored authentication (lib/Service/LiveTileService.php:380); mapping more than one field and choosing a display are missing. Clustered with int-intranet-content, whose documents half is a list from another system.",
+		"change": "integrations-live-tile-lists",
+		"decidedOn": "2026-09-27"
+	},
+	{
 		"row": "int-itsm",
 		"matrix": "launchpad",
 		"decision": "defer",
@@ -77,6 +85,22 @@
 		"decision": "defer",
 		"reason": "Single competitor yes (Workspace 365), no demand, outside the core area.",
 		"change": null,
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "int-office-tiles",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Workspace 365 and Microsoft Viva rated yes.",
+		"change": "integrations-office-tiles",
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "int-intranet-content",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Matrix corrected to partial, built: the archived news-widget and dashboard-rss-feeds changes shipped RSS and Atom reading from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames another page, the same half Homarr and Dashy are rated partial for. The missing half (the other intranet's documents) has Workspace 365 and Microsoft Viva rated yes; clustered with int-builder because the documents arrive as a list through the same live tile service.",
+		"change": "integrations-live-tile-lists",
 		"decidedOn": "2026-09-27"
 	},
 	{
@@ -149,6 +173,22 @@
 		"decision": "defer",
 		"reason": "Single competitor yes (Workspace 365), no demand, outside the core area.",
 		"change": null,
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "e-communities",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Workspace 365 and Microsoft Viva rated yes.",
+		"change": "engagement-communities",
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "e-digest",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Workspace 365 and the Nextcloud dashboard (through the activity app) rated yes.",
+		"change": "engagement-activity-digest",
 		"decidedOn": "2026-09-27"
 	},
 	{
@@ -240,6 +280,14 @@
 		"decidedOn": "2026-09-27"
 	},
 	{
+		"row": "p-custom-css",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Homarr and Dashy rated yes.",
+		"change": "platform-dashboard-theme-and-css",
+		"decidedOn": "2026-09-27"
+	},
+	{
 		"row": "p-background",
 		"matrix": "launchpad",
 		"decision": "defer",
@@ -280,6 +328,14 @@
 		"decidedOn": "2026-09-27"
 	},
 	{
+		"row": "d-rest-api",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Partial, built: the missing half (a published API reference) has a changelog row (Homarr v1.50.0) and three competitors rated yes.",
+		"change": "governance-rest-api-reference",
+		"decidedOn": "2026-09-27"
+	},
+	{
 		"row": "d-single-logout",
 		"matrix": "launchpad",
 		"decision": "decided-no",
@@ -301,6 +357,14 @@
 		"decision": "build",
 		"reason": "In the core area launcher (the first 30 rows are building, dashboards and launcher); a changelog row (Dashy 4.4.0) and Dashy rated yes.",
 		"change": "launcher-tile-internal-address",
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "d-theme-per-dashboard",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Partial, built: the missing half (a theme per dashboard) has a changelog row (Dashy 4.0.0) and Microsoft Viva and Dashy rated yes.",
+		"change": "platform-dashboard-theme-and-css",
 		"decidedOn": "2026-09-27"
 	},
 	{
@@ -344,6 +408,14 @@
 		"decidedOn": "2026-09-27"
 	},
 	{
+		"row": "d-profile-fields",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Partial, built: the missing half (custom fields such as office location) has a changelog row (Workspace 365 v4.46) and Workspace 365 and the Nextcloud dashboard rated yes.",
+		"change": "widgets-people-expertise-and-fields",
+		"decidedOn": "2026-09-27"
+	},
+	{
 		"row": "d-news-preview",
 		"matrix": "launchpad",
 		"decision": "build",
@@ -381,6 +453,22 @@
 		"decision": "existing",
 		"reason": "Owed to ConductionNL/dossiq; the dossiq lane specified it in its change widgets-my-open-cases-on-the-start-page, so the row is set specified here on the coordinator's word.",
 		"change": "widgets-my-open-cases-on-the-start-page",
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "d-public-start",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Partial, built: the missing half (the public page at the address signed-out visitors land on) has tender demand (VVSG Blink 2025 on publicprocurement.be) and Homarr and Dashy rated yes. The open public-dashboard-publication change covers publication links, not the landing address, so it is no match.",
+		"change": "sharing-public-start-page",
+		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "d-find-expert",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Tender demand: Gemeente Noordwijk 2026 on tenderned.nl/418890 asks for complete profile tags so colleagues can be found; Workspace 365 and Microsoft Viva are rated yes.",
+		"change": "widgets-people-expertise-and-fields",
 		"decidedOn": "2026-09-27"
 	}
 ]

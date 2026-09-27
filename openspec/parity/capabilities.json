@@ -1417,7 +1417,7 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -1430,7 +1430,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass)."
 		},
 		{
 			"id": "tile-legacy-apps",
@@ -1443,7 +1444,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -1456,7 +1457,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
 		},
 		{
 			"id": "tile-local-apps",
@@ -1469,7 +1471,7 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -1482,7 +1484,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
 		},
 		{
 			"id": "tile-sso-app",
@@ -1495,7 +1498,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing: a tile opens its URL; any sign-on is the target app and identity provider, not a hand-off from the tile",
@@ -1508,7 +1511,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
 		},
 		{
 			"id": "tile-catalogue",
@@ -1521,7 +1525,7 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -1534,7 +1538,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-app-catalogue (openspec pass)."
 		},
 		{
 			"id": "tile-discover-containers",
@@ -1547,7 +1552,7 @@
 			"homarr": "yes",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -1560,7 +1565,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-discover-server-services (openspec pass)."
 		},
 		{
 			"id": "tile-org-nav",
@@ -2290,7 +2296,7 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "building",
 				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23",
 				"owner": "ConductionNL/integriq"
 			},
@@ -2300,7 +2306,7 @@
 			"feature": "runtime-or-consumption",
 			"featureConfidence": "medium",
 			"origin": "own-code",
-			"note": "LaunchPad declares its six connections; the list and its status are integriq app_connection objects, so without integriq nothing shows them.",
+			"note": "LaunchPad declares its six connections; the list and its status are integriq app_connection objects, so without integriq nothing shows them. Set building 2026-09-27 (openspec pass, coordinator): the integriq lane covers it in ConductionNL/integriq openspec/changes/connection-registry.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for connection, integration status: none",
 				"homarr": "source read at v1.77.2: apps/nextjs/src/app/[locale]/manage/integrations/page.tsx lists every integration with 'Test connection' on save (en.json:1032); apps/nextjs/src/components/board/items/widget-context-menu.tsx:356 shows per widget OK or Error and the last update age; no per-dashboard overview of which connections it uses",
@@ -3472,7 +3478,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing: a text widget can carry a message, with no likes, comments or follow",
@@ -3485,7 +3491,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
 		},
 		{
 			"id": "e-events",
@@ -3602,7 +3609,7 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "decided-no",
 				"evidence": "lib/Activity/ActivityPublisher.php:82",
 				"owner": "nextcloud/server"
 			},
@@ -3619,7 +3626,7 @@
 			"feature": "activity-feed-integration",
 			"featureConfidence": "low",
 			"origin": "competitor",
-			"note": "LaunchPad writes its own events to the Nextcloud activity stream; gathering approvals and news from outside systems is not there."
+			"note": "LaunchPad writes its own events to the Nextcloud activity stream; gathering approvals and news from outside systems is not there. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: the personal activity stream is the Nextcloud activity app; LaunchPad already writes its events into it. Platform-provided, outside the fleet."
 		},
 		{
 			"id": "e-maintenance",
@@ -3632,7 +3639,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/components/Widgets/VisibilityRuleRow.vue:111; lib/widget-types.json:37",
 				"owner": "ConductionNL/launchpad"
 			},
@@ -3649,7 +3656,7 @@
 			"feature": "conditional-visibility",
 			"featureConfidence": "low",
 			"origin": "competitor",
-			"note": "Possible by hand with a date-limited text widget; there is no notice type."
+			"note": "Possible by hand with a date-limited text widget; there is no notice type. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
 		},
 		{
 			"id": "a-find-dashboard",
@@ -3691,7 +3698,7 @@
 			"homarr": "partial",
 			"dashy": "partial",
 			"built": {
-				"state": "built",
+				"state": "decided-no",
 				"evidence": "src/components/Widgets/Renderers/SearchWidgetForm.vue:65",
 				"owner": "nextcloud/server"
 			},
@@ -3708,7 +3715,7 @@
 			"feature": "nc-unified-search-integration",
 			"featureConfidence": "low",
 			"origin": "competitor",
-			"note": "Nextcloud unified search covers installed Nextcloud apps; outside systems appear only if an app provides a search provider."
+			"note": "Nextcloud unified search covers installed Nextcloud apps; outside systems appear only if an app provides a search provider. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: unified search across mail, files and connected systems is Nextcloud server's unified search; outside systems join it through their own search providers. Platform-provided, outside the fleet."
 		},
 		{
 			"id": "a-assistant",
@@ -3751,7 +3758,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "specified",
-				"evidence": "openspec/features.overlay.json:231",
+				"evidence": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md:226",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing: the overlay lists it as soon",
@@ -3766,7 +3773,8 @@
 				"dashy": "source read at 4.7.0: searched src for assistant or natural language widget placement: none",
 				"workspace-365": "not checked: Kelly FAQ for placing tiles",
 				"microsoft-viva": "not checked: dashboard pages for AI card placement; roadmap 558441 'add webparts' by prompt is for SharePoint pages and In development"
-			}
+			},
+			"note": "Specified in openspec/changes/mcp-tool-surface (named 2026-09-27, openspec pass): the scenario \"Add the calendar widget to my dashboard\" resolves a plain request to launchpad.addWidget through hermiq. The features overlay entry (openspec/features.overlay.json:231) had pointed at the assistant widget spec, which places nothing."
 		},
 		{
 			"id": "a-agent-tools",
@@ -3976,7 +3984,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "decided-no",
 				"evidence": "lib/Service/BulkOperationService.php:949",
 				"owner": "nextcloud/server"
 			},
@@ -3993,7 +4001,7 @@
 			"feature": "activity-feed-integration",
 			"featureConfidence": "low",
 			"origin": "competitor",
-			"note": "Bulk operations, template resyncs and acknowledgements write activity events; that is an activity stream, not a compliance audit log."
+			"note": "Bulk operations, template resyncs and acknowledgements write activity events; that is an activity stream, not a compliance audit log. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: the change log for review is Nextcloud's admin_audit app. Platform-provided, outside the fleet."
 		},
 		{
 			"id": "g-activity",
@@ -4207,7 +4215,7 @@
 			"homarr": "no",
 			"dashy": "partial",
 			"built": {
-				"state": "specified",
+				"state": "decided-no",
 				"evidence": "openspec/features.overlay.json:204",
 				"owner": "ConductionNL/launchpad"
 			},
@@ -4223,7 +4231,8 @@
 			"providerHow": "research-then-code",
 			"feature": "launchpad-mobile-remote-access",
 			"featureConfidence": "high",
-			"origin": "competitor"
+			"origin": "competitor",
+			"note": "Decided no on 2026-09-27 (openspec pass): Recorded non-goal: openspec/specs/launchpad-mobile-remote-access/spec.md:239 puts a native mobile app out of scope; the capability targets the mobile browser, and Nextcloud's own iOS and Android apps are the native surface."
 		},
 		{
 			"id": "p-own-servers",
@@ -4517,7 +4526,7 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/components/TileWidget.vue:41"
 			},
@@ -4535,7 +4544,7 @@
 			"featureConfidence": "medium",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/51332",
-			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778."
+			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778. Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass)."
 		},
 		{
 			"id": "d-auto-refresh",
@@ -4734,7 +4743,7 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "none",
+				"state": "decided-no",
 				"owner": "nextcloud/server"
 			},
 			"reachedOn": "not checked",
@@ -4751,7 +4760,7 @@
 			"featureConfidence": "low",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/homarr-labs/homarr/issues/5154",
-			"note": "not checked: single logout is the Nextcloud login app's job (user_oidc or user_saml), which was not read in this pass; LaunchPad has no logout code of its own (searched src and lib for logout and end_session)."
+			"note": "not checked: single logout is the Nextcloud login app's job (user_oidc or user_saml), which was not read in this pass; LaunchPad has no logout code of its own (searched src and lib for logout and end_session). Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: single logout is done by the Nextcloud login apps (user_oidc, user_saml), not by LaunchPad. Platform-provided, outside the fleet."
 		},
 		{
 			"id": "d-import-bookmarks",
@@ -4764,7 +4773,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -4781,7 +4790,7 @@
 			"featureConfidence": "medium",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/homarr-labs/homarr/issues/1014",
-			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export)."
+			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export). Specified 2026-09-27 in openspec/changes/launcher-bookmark-import (openspec pass)."
 		},
 		{
 			"id": "d-notes",
@@ -4825,7 +4834,7 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -4842,7 +4851,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.4.0",
-			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on."
+			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on. Specified 2026-09-27 in openspec/changes/launcher-tile-internal-address (openspec pass)."
 		},
 		{
 			"id": "d-theme-per-dashboard",
@@ -4886,7 +4895,7 @@
 			"homarr": "partial",
 			"dashy": "yes",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"evidence": "src/components/Widgets/Renderers/IframeWidget.vue:38"
 			},
@@ -4904,7 +4913,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41)."
+			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41). Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass)."
 		},
 		{
 			"id": "d-search-prefix",
@@ -4917,7 +4926,7 @@
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -4934,7 +4943,7 @@
 			"featureConfidence": "low",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none."
+			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none. Specified 2026-09-27 in openspec/changes/search-ai-prefix-shortcuts (openspec pass)."
 		},
 		{
 			"id": "d-dark-mode",
@@ -4978,7 +4987,7 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -4995,7 +5004,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.6.0",
-			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120)."
+			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120). Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass)."
 		},
 		{
 			"id": "d-ai-write",
@@ -5099,7 +5108,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "none",
+				"state": "specified",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
@@ -5116,7 +5125,7 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched",
-			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing."
+			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
 		},
 		{
 			"id": "d-recurring-events",
@@ -5219,7 +5228,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/dossiq",
 				"evidence": "src/services/widgetBridge.js:29"
 			},
@@ -5237,7 +5246,7 @@
 			"featureConfidence": "medium",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/296963",
-			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; S\u00fadwest-Frysl\u00e2n 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets."
+			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; S\u00fadwest-Frysl\u00e2n 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page."
 		},
 		{
 			"id": "d-public-start",

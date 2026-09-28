@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use Exception;
 use InvalidArgumentException;
+use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
@@ -59,6 +60,7 @@ class DashboardShareService {
 	 * @param IGroupManager $groupManager The group manager.
 	 * @param INotificationManager $notificationManager The notification manager.
 	 * @param IDBConnection $db The DB connection.
+	 * @param DashboardActivityEmitter|null $activity Sends dashboard_shared to the recipients (#713).
 	 */
 	public function __construct(
 		private readonly DashboardShareMapper $shareMapper,
@@ -66,6 +68,7 @@ class DashboardShareService {
 		private readonly IGroupManager $groupManager,
 		private readonly INotificationManager $notificationManager,
 		private readonly IDBConnection $db,
+		private readonly ?DashboardActivityEmitter $activity = null,
 	) {
 	}//end __construct()
 
@@ -130,7 +133,7 @@ class DashboardShareService {
 			$this->notifyShared(
 				share: $result['share'],
 				sharerUserId: $callerId,
-				dashboardName: (string)$dashboard->getName()
+				dashboard: $dashboard
 			);
 		}
 
@@ -237,12 +240,11 @@ class DashboardShareService {
 		}//end try
 
 		// Publish notifications after the transaction commits.
-		$dashboardName = (string)$dashboard->getName();
 		foreach ($notifyQueue as $share) {
 			$this->notifyShared(
 				share: $share,
 				sharerUserId: $userId,
-				dashboardName: $dashboardName
+				dashboard: $dashboard
 			);
 		}
 
@@ -468,18 +470,28 @@ class DashboardShareService {
 	 *
 	 * @param DashboardShare $share The share row.
 	 * @param string $sharerUserId The user who created the share.
-	 * @param string $dashboardName The dashboard name.
+	 * @param Dashboard $dashboard The shared dashboard.
 	 *
 	 * @return void
 	 */
 	private function notifyShared(
 		DashboardShare $share,
 		string $sharerUserId,
-		string $dashboardName,
+		Dashboard $dashboard,
 	): void {
+		$dashboardName = (string)$dashboard->getName();
 		$recipients = $this->resolveRecipients(
 			share: $share,
 			excludeUserId: $sharerUserId
+		);
+
+		// The activity stream and digest get the same audience as the
+		// notification (engagement-activity-digest D2, issue #713).
+		$this->activity?->shared(
+			dashboard: $dashboard,
+			share: $share,
+			actor: $sharerUserId,
+			recipients: $recipients
 		);
 
 		foreach ($recipients as $recipientId) {

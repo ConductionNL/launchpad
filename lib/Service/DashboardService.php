@@ -26,6 +26,7 @@ use DateTime;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -296,6 +297,9 @@ class DashboardService {
 	 *                                               cannot produce
 	 *                                               duplicate slugs
 	 *                                               (REQ-DASH-020).
+	 * @param DashboardActivityEmitter|null $activity Sends dashboard_published
+	 *                                                and dashboard_updated to
+	 *                                                the audience (#713).
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,
@@ -321,6 +325,7 @@ class DashboardService {
 		private readonly ?QuotaService $quotaService = null,
 		private readonly ?IURLGenerator $urlGenerator = null,
 		private readonly ?ILockingProvider $lockingProvider = null,
+		private readonly ?DashboardActivityEmitter $activity = null,
 	) {
 	}//end __construct()
 
@@ -844,7 +849,11 @@ class DashboardService {
 			data: $data
 		);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		// Shared dashboards announce a save, at most once a day (#713).
+		$this->activity?->updated(dashboard: $saved, actor: $userId);
+
+		return $saved;
 	}//end updateDashboard()
 
 	/**
@@ -1269,7 +1278,11 @@ class DashboardService {
 			data: $patch
 		);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		// The group hears about a save, at most once a day (#713).
+		$this->activity?->updated(dashboard: $saved, actor: $actorUserId);
+
+		return $saved;
 	}//end updateGroupShared()
 
 	/**
@@ -1997,7 +2010,12 @@ class DashboardService {
 		$dashboard->setPublishAt(null);
 		$dashboard->setUpdatedAt($now);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		// Only the transition into published is announced; the idempotent
+		// early return above sends nothing (#713).
+		$this->activity?->published(dashboard: $saved, actor: $userId);
+
+		return $saved;
 	}//end publishDashboard()
 
 	/**
@@ -2118,7 +2136,10 @@ class DashboardService {
 
 			$dashboard->setPublishAt(null);
 			$dashboard->setUpdatedAt($now);
-			$this->dashboardMapper->update(entity: $dashboard);
+			$saved = $this->dashboardMapper->update(entity: $dashboard);
+			// A scheduled dashboard is announced once, when its row flips
+			// to published here; the owner is the actor (#713).
+			$this->activity?->published(dashboard: $saved, actor: (string) $saved->getUserId());
 		}
 
 		return count($dueRows);

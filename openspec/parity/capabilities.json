@@ -3615,7 +3615,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "decided-no",
-				"evidence": "lib/Activity/ActivityPublisher.php:82",
+				"evidence": "lib/Activity/ActivityPublisher.php:82; Corrections round 8 (2026-09-28), launchpad#713: LaunchPad itself sends only 2 of its 14 declared event types into that stream; lib/Service/BulkOperationService.php:949, lib/Service/TemplateResyncService.php:867 and lib/Service/AcknowledgementService.php:532 are the only publish() callers at e74f421.",
 				"owner": "nextcloud/server"
 			},
 			"reachedOn": "Nextcloud Activity app, and its widget through Add widget, Nextcloud widget",
@@ -3631,7 +3631,7 @@
 			"feature": "activity-feed-integration",
 			"featureConfidence": "low",
 			"origin": "competitor",
-			"note": "LaunchPad writes its own events to the Nextcloud activity stream; gathering approvals and news from outside systems is not there. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: the personal activity stream is the Nextcloud activity app; LaunchPad already writes its events into it. Platform-provided, outside the fleet."
+			"note": "LaunchPad writes its own events to the Nextcloud activity stream; gathering approvals and news from outside systems is not there. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: the personal activity stream is the Nextcloud activity app; LaunchPad already writes its events into it. Platform-provided, outside the fleet. Corrections round 8 (2026-09-28): LaunchPad writes only 2 of its 14 declared events into the activity stream, not all of them as the note above says, launchpad#713; rating kept because the row rates one personal stream of approvals, news and meetings from several systems, which the Nextcloud activity app provides and which this gap does not change."
 		},
 		{
 			"id": "e-maintenance",
@@ -4012,7 +4012,7 @@
 			"id": "g-activity",
 			"area": "governance",
 			"name": "Dashboard changes appear in the Nextcloud activity stream.",
-			"launchpad": "yes",
+			"launchpad": "partial",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
@@ -4020,7 +4020,7 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "lib/Activity/ActivityPublisher.php:82; lib/Service/TemplateResyncService.php:867",
+				"evidence": "lib/Activity/ActivityPublisher.php:82; lib/Service/TemplateResyncService.php:867; Corrections round 8 (2026-09-28), launchpad#713: only 2 of the 14 event types declared at lib/Activity/Extension.php:80-93 are ever sent, dashboard_updated for bulk operations and template re-sync and dashboard_acknowledged; lib/Service/BulkOperationService.php:949, lib/Service/TemplateResyncService.php:867 and lib/Service/AcknowledgementService.php:532 are the only callers of ActivityPublisher::publish() at e74f421, so creating, deleting, publishing, sharing, commenting on or restoring a dashboard leaves no entry.",
 				"owner": "nextcloud/server"
 			},
 			"reachedOn": "Nextcloud Activity app",
@@ -4035,7 +4035,8 @@
 				"dashy": "source read at 4.7.0: not a Nextcloud app, no activity integration; searched services for activity: none",
 				"workspace-365": "not checked: W365 activity feed for space changes",
 				"microsoft-viva": "not checked: dashboard pages for change activity"
-			}
+			},
+			"note": "Own rating yes to partial (corrections round 8, 2026-09-28): only 2 of the 14 declared dashboard event types are ever published, so ordinary edits, shares and publishes never reach the activity stream, launchpad#713."
 		},
 		{
 			"id": "g-cleanup",

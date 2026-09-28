@@ -25,6 +25,7 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Exception\FileAlreadyExistsException;
 use OCA\LaunchPad\Exception\FileTypeNotAllowedException;
 use OCA\LaunchPad\Exception\InvalidDirectoryException;
 use OCA\LaunchPad\Exception\InvalidFilenameException;
@@ -241,6 +242,56 @@ class FileServiceTest extends TestCase {
 
 		$this->assertSame(99, $result['fileId']);
 	}//end testExistingFileIsOverwritten()
+
+	/**
+	 * Issue #712: a caller that asks not to overwrite gets a typed 409 and
+	 * the existing file keeps its content.
+	 */
+	public function testExistingFileIsKeptWhenOverwriteIsFalse(): void {
+		$existing = $this->createMock(File::class);
+		$existing->expects($this->never())->method('putContent');
+
+		$this->userFolder->method('nodeExists')->with('report.docx')->willReturn(true);
+		$this->userFolder->method('get')->with('report.docx')->willReturn($existing);
+		$this->userFolder->expects($this->never())->method('newFile');
+
+		try {
+			$this->service->createFile(
+				userId: 'alice',
+				filename: 'report.docx',
+				dir: '/',
+				content: '',
+				overwrite: false
+			);
+			$this->fail('Expected FileAlreadyExistsException');
+		} catch (FileAlreadyExistsException $e) {
+			$this->assertSame(409, $e->getHttpStatus());
+			$this->assertSame('file_exists', $e->getErrorCode());
+		}
+	}//end testExistingFileIsKeptWhenOverwriteIsFalse()
+
+	/**
+	 * Issue #712: overwrite false still creates a file that does not exist yet.
+	 */
+	public function testNewFileIsCreatedWhenOverwriteIsFalse(): void {
+		$file = $this->createMock(File::class);
+		$file->method('getId')->willReturn(7);
+
+		$this->userFolder->method('nodeExists')->with('fresh.docx')->willReturn(false);
+		$this->userFolder->expects($this->once())->method('newFile')
+			->with('fresh.docx', '')
+			->willReturn($file);
+
+		$result = $this->service->createFile(
+			userId: 'alice',
+			filename: 'fresh.docx',
+			dir: '/',
+			content: '',
+			overwrite: false
+		);
+
+		$this->assertSame(7, $result['fileId']);
+	}//end testNewFileIsCreatedWhenOverwriteIsFalse()
 
 	/**
 	 * REQ-LBN-004 task 6.4: raw exception messages are NEVER leaked.

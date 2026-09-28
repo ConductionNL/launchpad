@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Sınırlı",
     "Not configured" : "Yapılandırılmadı",
     "Simulated" : "Benzetildi",
-    "Error" : "Hata"
+    "Error" : "Hata",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
+    "Replace" : "Değiştir"
 },
 "nplurals=2; plural=(n != 1);"
 );

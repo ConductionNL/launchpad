@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Limité",
     "Not configured" : "Non configuré",
     "Simulated" : "Simulé",
-    "Error" : "Erreur"
+    "Error" : "Erreur",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Un fichier nommé {name} existe déjà. Choisissez Remplacer pour l'écraser avec un fichier vide, ou changez le nom.",
+    "Replace" : "Remplacer"
 },
 "nplurals=2; plural=(n > 1);"
 );

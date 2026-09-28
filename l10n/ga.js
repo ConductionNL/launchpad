@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Teoranta",
     "Not configured" : "Gan chumrú",
     "Simulated" : "Insamhlaithe",
-    "Error" : "Earráid"
+    "Error" : "Earráid",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tá comhad darb ainm {name} ann cheana. Roghnaigh Ionadaigh chun comhad folamh a scríobh air, nó athraigh an t-ainm.",
+    "Replace" : "Ionadaigh"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

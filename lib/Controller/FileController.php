@@ -75,6 +75,7 @@ class FileController extends Controller {
 	 * @param string|null $filename Leaf filename.
 	 * @param string|null $dir Target subdirectory (default `/`).
 	 * @param string|null $content Bytes to write (default empty).
+	 * @param bool $overwrite False answers 409 `file_exists` instead of replacing an existing file (#712).
 	 *
 	 * @return JSONResponse Either `{status, fileId, url}` on HTTP 200
 	 *                      or `{status, error, message}` on failure.
@@ -88,6 +89,7 @@ class FileController extends Controller {
 		?string $filename = null,
 		?string $dir = '/',
 		?string $content = '',
+		bool $overwrite = true,
 	): JSONResponse {
 		try {
 			$userId = $this->resolveUserId();
@@ -96,7 +98,8 @@ class FileController extends Controller {
 				userId: $userId,
 				filename: ($filename ?? ''),
 				dir: ($dir ?? '/'),
-				content: ($content ?? '')
+				content: ($content ?? ''),
+				overwrite: $overwrite
 			);
 
 			return new JSONResponse(

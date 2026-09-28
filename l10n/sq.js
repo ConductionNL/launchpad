@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "I kufizuar",
     "Not configured" : "I pakonfiguruar",
     "Simulated" : "I simuluar",
-    "Error" : "Gabim"
+    "Error" : "Gabim",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
+    "Replace" : "Zëvendëso"
 },
 "nplurals=2; plural=(n != 1);"
 );

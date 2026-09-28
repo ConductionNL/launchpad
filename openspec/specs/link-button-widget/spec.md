@@ -92,7 +92,7 @@ When `actionType === 'createFile'`, click MUST open an inline secondary modal co
 - Editable filename input prefilled with `document_<unix-timestamp>`
 - Cancel and Create buttons (Create disabled when filename empty)
 
-On Create, the system MUST POST `/api/files/create` with body `{filename: <name>.<ext>, dir: '/', content: ''}`. On HTTP 200, the response's `url` MUST be opened in a new tab via `window.open(url, '_blank')`. On error, a translated toast MUST display `t('Failed to create document')`. The modal MUST close on Cancel or after a successful create.
+On Create, the system MUST POST `/api/files/create` with body `{filename: <name>.<ext>, dir: '/', content: '', overwrite: false}`. When the server answers HTTP 409 `file_exists`, the modal MUST show a warning naming the existing file and relabel Create as Replace; only a click on Replace for that same name MUST send `overwrite: true`, and changing the name MUST return to a normal Create. On HTTP 200, the response's `url` MUST be opened in a new tab via `window.open(url, '_blank')`. On error, a translated toast MUST display `t('Failed to create document')`. The modal MUST close on Cancel or after a successful create.
 @e2e exclude createFile flow tests server-side file-creation endpoint — Newman scope; UI trigger covered by REQ-LBN-001
 
 #### Scenario: Document modal opens with prefilled name
@@ -106,9 +106,17 @@ On Create, the system MUST POST `/api/files/create` with body `{filename: <name>
 
 - GIVEN the modal is open and the user types `Q4-report` and clicks Create
 - WHEN the form submits
-- THEN the system MUST POST `/api/files/create` with body `{filename: 'Q4-report.docx', dir: '/', content: ''}`
+- THEN the system MUST POST `/api/files/create` with body `{filename: 'Q4-report.docx', dir: '/', content: '', overwrite: false}`
 - AND on 200 with response `{url: 'https://nc/index.php/apps/files/?openfile=42'}` it MUST `window.open(url, '_blank')`
 - AND the modal MUST close
+
+#### Scenario: An existing file is not replaced without a warning
+
+- GIVEN `/Report.docx` exists and the user types `Report` in the docx modal
+- WHEN the user clicks Create
+- THEN the server MUST answer 409 `file_exists` and leave `/Report.docx` unchanged
+- AND the modal MUST warn that `Report.docx` already exists and show Replace instead of Create
+- AND only a click on Replace MUST send `overwrite: true`
 
 #### Scenario: Empty filename disables Create
 
@@ -118,13 +126,13 @@ On Create, the system MUST POST `/api/files/create` with body `{filename: <name>
 
 ### Requirement: REQ-LBN-004 Server-side file-creation endpoint
 
-The system MUST expose `POST /api/files/create` accepting `{filename: string, dir: string = '/', content: string = ''}`. The endpoint MUST:
+The system MUST expose `POST /api/files/create` accepting `{filename: string, dir: string = '/', content: string = '', overwrite: bool = true}`. The endpoint MUST:
 
 1. Validate filename: non-empty, ≤255 chars, no `..`, no `/`, no `\`, no null byte, must match `^[a-zA-Z0-9_\-. ]+$`. Otherwise return HTTP 400 `{error: 'Invalid filename'}`.
 2. Validate dir: no `..`, no null byte. Otherwise return HTTP 400.
 3. Validate extension: must be in the admin-configured allow-list (default: `txt, md, docx, xlsx, csv, odt`). Otherwise return HTTP 400 `{error: 'File type not allowed'}`.
 4. Resolve user folder via `IRootFolder::getUserFolder($userId)` and create the subdirectory if missing.
-5. If a file with the same name already exists at the target path, OVERWRITE its content.
+5. If a file with the same name already exists at the target path, OVERWRITE its content, unless `overwrite` is `false`: then return HTTP 409 `{error: 'file_exists'}` and leave the file unchanged.
 6. Return `{status: 'success', fileId: int, url: string}` where `url` opens the Files app at `openfile={fileId}` via `URLGenerator::linkToRouteAbsolute('files.view.index', ['openfile' => fileId])`.
 
 Internal exceptions MUST be wrapped; raw exception messages MUST NOT be returned to the caller.

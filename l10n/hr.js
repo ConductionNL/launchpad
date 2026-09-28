@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Ograničeno",
     "Not configured" : "Nije konfigurirano",
     "Simulated" : "Simulirano",
-    "Error" : "Pogreška"
+    "Error" : "Pogreška",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Datoteka s nazivom {name} već postoji. Odaberite Zamijeni da biste je prebrisali praznom datotekom ili promijenite naziv.",
+    "Replace" : "Zamijeni"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

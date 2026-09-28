@@ -1104,6 +1104,8 @@
         "Limited": "Обмежено",
         "Not configured": "Не налаштовано",
         "Simulated": "Змодельовано",
-        "Error": "Помилка"
+        "Error": "Помилка",
+        "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
+        "Replace": "Замінити"
     }
 }

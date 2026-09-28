@@ -1105,6 +1105,8 @@
         "Limited": "Omejeno",
         "Not configured": "Ni nastavljeno",
         "Simulated": "Simulirano",
-        "Error": "Napaka"
+        "Error": "Napaka",
+        "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
+        "Replace": "Zamenjaj"
     }
 }

@@ -1104,6 +1104,8 @@
         "Limited": "Ierobežots",
         "Not configured": "Nav konfigurēts",
         "Simulated": "Simulēts",
-        "Error": "Kļūda"
+        "Error": "Kļūda",
+        "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
+        "Replace": "Aizstāt"
     }
 }

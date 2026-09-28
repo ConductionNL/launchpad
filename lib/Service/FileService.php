@@ -31,6 +31,7 @@ namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Exception\FileAlreadyExistsException;
 use OCA\LaunchPad\Exception\FileTypeNotAllowedException;
 use OCA\LaunchPad\Exception\InvalidDirectoryException;
 use OCA\LaunchPad\Exception\InvalidFilenameException;
@@ -141,6 +142,7 @@ class FileService {
 		string $filename,
 		string $dir = '/',
 		string $content = '',
+		bool $overwrite = true,
 	): array {
 		$this->assertValidFilename(filename: $filename);
 		$this->assertValidDirectory(dir: $dir);
@@ -162,7 +164,8 @@ class FileService {
 		$file = $this->writeFile(
 			folder: $targetFolder,
 			filename: $filename,
-			content: $content
+			content: $content,
+			overwrite: $overwrite
 		);
 
 		$url = $this->urlGenerator->linkToRouteAbsolute(
@@ -405,14 +408,20 @@ class FileService {
 	 * @param Folder $folder Target folder.
 	 * @param string $filename Leaf filename.
 	 * @param string $content Bytes to write.
+	 * @param bool $overwrite False refuses an existing file with a 409 so the UI can warn first (#712).
 	 *
 	 * @return File The persisted file node.
 	 *
 	 * @throws StorageFailureException When the write fails.
+	 * @throws FileAlreadyExistsException When the file exists and $overwrite is false.
 	 */
-	private function writeFile(Folder $folder, string $filename, string $content): File {
+	private function writeFile(Folder $folder, string $filename, string $content, bool $overwrite=true): File {
 		try {
 			if ($folder->nodeExists(path: $filename) === true) {
+				if ($overwrite === false) {
+					throw new FileAlreadyExistsException();
+				}
+
 				$existing = $folder->get(path: $filename);
 				if ($existing instanceof File) {
 					$existing->putContent(data: $content);
@@ -430,7 +439,7 @@ class FileService {
 			// instanceof check is required (PHPStan would mark it as
 			// an always-true comparison).
 			return $folder->newFile(path: $filename, content: $content);
-		} catch (StorageFailureException $e) {
+		} catch (StorageFailureException | FileAlreadyExistsException $e) {
 			throw $e;
 		} catch (Throwable $e) {
 			throw new StorageFailureException(

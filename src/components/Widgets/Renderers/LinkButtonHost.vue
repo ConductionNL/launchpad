@@ -52,6 +52,18 @@
 				<p class="link-button-host__modal-extension">
 					.{{ pendingExtension }}
 				</p>
+				<p
+					v-if="existingFileWarning"
+					class="link-button-host__modal-warning"
+					role="alert">
+					{{
+						t(
+							'launchpad',
+							'A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.',
+							{ name: existingFileWarning },
+						)
+					}}
+				</p>
 				<div class="link-button-host__modal-actions">
 					<button
 						type="button"
@@ -65,11 +77,7 @@
 						class="link-button-host__modal-create"
 						:disabled="!canCreate || isExecuting"
 						@click="onCreateConfirm">
-						{{
-							isExecuting
-								? t('launchpad', 'Creating…')
-								: t('launchpad', 'Create')
-						}}
+						{{ createButtonLabel }}
 					</button>
 				</div>
 			</div>
@@ -122,6 +130,9 @@ export default {
 			pendingExtension: '',
 			isExecuting: false,
 			modalTitleId: `link-button-host-modal-${modalIdCounter}`,
+			// Full filename the server reported as existing; while it
+			// matches the draft, Create becomes Replace (issue #712).
+			existingFileWarning: '',
 		}
 	},
 
@@ -129,6 +140,32 @@ export default {
 		/** Whether the Create button is enabled. */
 		canCreate() {
 			return this.filenameDraft.trim() !== ''
+		},
+
+		/** The filename that Create would write, extension included. */
+		pendingFilename() {
+			const name = this.filenameDraft.trim()
+			return this.pendingExtension === ''
+				? name
+				: `${name}.${this.pendingExtension}`
+		},
+
+		/** Whether the user has seen the warning for exactly this name. */
+		confirmsOverwrite() {
+			return (
+				this.existingFileWarning !== ''
+				&& this.existingFileWarning === this.pendingFilename
+			)
+		},
+
+		/** Create, Replace after the exists warning, or the busy label. */
+		createButtonLabel() {
+			if (this.isExecuting) {
+				return t('launchpad', 'Creating…')
+			}
+			return this.confirmsOverwrite
+				? t('launchpad', 'Replace')
+				: t('launchpad', 'Create')
 		},
 	},
 
@@ -158,7 +195,10 @@ export default {
 				.trim()
 				.replace(/^\./, '')
 				.toLowerCase()
-			this.filenameDraft = ''
+			// REQ-LBN-003: prefill `document_<timestamp>` so an empty
+			// submit never lands on a name the user did not choose.
+			this.filenameDraft = `document_${Date.now()}`
+			this.existingFileWarning = ''
 			this.modalOpen = true
 			this.$nextTick(() => {
 				if (this.$refs.filenameInput) {
@@ -178,6 +218,11 @@ export default {
 		/**
 		 * Create the document via launchpad's endpoint and open it.
 		 *
+		 * The first attempt sends `overwrite: false`. When the server answers
+		 * 409 `file_exists`, the modal warns and Create becomes Replace; only
+		 * that second, explicit click sends `overwrite: true` (issue #712,
+		 * REQ-LBN-004 "UI must warn the user when overwriting").
+		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-004-server-side-file-creation-endpoint
 		 */
@@ -185,9 +230,8 @@ export default {
 			if (!this.canCreate || this.isExecuting) {
 				return
 			}
-			const ext = this.pendingExtension
-			const safeName = this.filenameDraft.trim()
-			const filename = ext === '' ? safeName : `${safeName}.${ext}`
+			const filename = this.pendingFilename
+			const overwrite = this.confirmsOverwrite
 
 			this.isExecuting = true
 			try {
@@ -200,7 +244,7 @@ export default {
 				try {
 					const response = await axios.post(
 						generateUrl('/apps/launchpad/api/files/create'),
-						{ filename, dir: '/', content: '' },
+						{ filename, dir: '/', content: '', overwrite },
 					)
 					const data = response?.data
 					if (
@@ -213,7 +257,14 @@ export default {
 					} else {
 						showError(t('launchpad', 'Failed to create document'))
 					}
-				} catch {
+				} catch (error) {
+					if (
+						error?.response?.status === 409
+						&& error.response.data?.error === 'file_exists'
+					) {
+						this.existingFileWarning = filename
+						return
+					}
 					showError(t('launchpad', 'Failed to create document'))
 				}
 			} finally {
@@ -248,6 +299,11 @@ export default {
 	min-width: 320px;
 	max-width: 90vw;
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.link-button-host__modal-warning {
+	margin: 0 0 12px 0;
+	color: var(--color-error-text, var(--color-error));
 }
 
 .link-button-host__modal-title {

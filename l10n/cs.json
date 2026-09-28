@@ -1104,6 +1104,8 @@
         "Limited": "Omezeno",
         "Not configured": "Nenastaveno",
         "Simulated": "Simulováno",
-        "Error": "Chyba"
+        "Error": "Chyba",
+        "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
+        "Replace": "Nahradit"
     }
 }

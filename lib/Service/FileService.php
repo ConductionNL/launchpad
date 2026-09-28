@@ -48,8 +48,26 @@ use Throwable;
  * `createFile` action.
  *
  * @spec openspec/specs/resource-uploads/spec.md
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One typed exception per
+ * refusal (filename, directory, extension, existing file, storage) keeps
+ * each HTTP status stable; the coupling is the exception set, not logic.
  */
 class FileService {
+	/**
+	 * Replace an existing file of the same name (REQ-LBN-004 point 5).
+	 *
+	 * @var string
+	 */
+	public const ON_EXISTING_REPLACE = 'replace';
+
+	/**
+	 * Refuse an existing file of the same name with a 409 (#712).
+	 *
+	 * @var string
+	 */
+	public const ON_EXISTING_REFUSE = 'refuse';
+
 	/**
 	 * Strict filename pattern (REQ-LBN-004 task 1.2).
 	 *
@@ -123,6 +141,9 @@ class FileService {
 	 * @param string $dir Target subdirectory inside the user's
 	 *                    folder (default `/`).
 	 * @param string $content Bytes to write (default empty).
+	 * @param string $onExisting ON_EXISTING_REPLACE (default) or
+	 *                           ON_EXISTING_REFUSE, which answers 409
+	 *                           instead of replacing a file (#712).
 	 *
 	 * @return array{status: string, fileId: int, url: string}
 	 *
@@ -134,6 +155,8 @@ class FileService {
 	 *                                     in the allow-list.
 	 * @throws StorageFailureException When the underlying
 	 *                                 filesystem rejects the write.
+	 * @throws FileAlreadyExistsException When the file exists and
+	 *                                    $onExisting is ON_EXISTING_REFUSE.
 	 *
 	 * @spec openspec/specs/resource-uploads/spec.md
 	 */
@@ -142,7 +165,7 @@ class FileService {
 		string $filename,
 		string $dir = '/',
 		string $content = '',
-		bool $overwrite = true,
+		string $onExisting = self::ON_EXISTING_REPLACE,
 	): array {
 		$this->assertValidFilename(filename: $filename);
 		$this->assertValidDirectory(dir: $dir);
@@ -165,7 +188,7 @@ class FileService {
 			folder: $targetFolder,
 			filename: $filename,
 			content: $content,
-			overwrite: $overwrite
+			onExisting: $onExisting
 		);
 
 		$url = $this->urlGenerator->linkToRouteAbsolute(
@@ -408,17 +431,17 @@ class FileService {
 	 * @param Folder $folder Target folder.
 	 * @param string $filename Leaf filename.
 	 * @param string $content Bytes to write.
-	 * @param bool $overwrite False refuses an existing file with a 409 so the UI can warn first (#712).
+	 * @param string $onExisting ON_EXISTING_REFUSE answers 409 so the UI can warn first (#712).
 	 *
 	 * @return File The persisted file node.
 	 *
 	 * @throws StorageFailureException When the write fails.
-	 * @throws FileAlreadyExistsException When the file exists and $overwrite is false.
+	 * @throws FileAlreadyExistsException When the file exists and $onExisting is ON_EXISTING_REFUSE.
 	 */
-	private function writeFile(Folder $folder, string $filename, string $content, bool $overwrite=true): File {
+	private function writeFile(Folder $folder, string $filename, string $content, string $onExisting): File {
 		try {
 			if ($folder->nodeExists(path: $filename) === true) {
-				if ($overwrite === false) {
+				if ($onExisting === self::ON_EXISTING_REFUSE) {
 					throw new FileAlreadyExistsException();
 				}
 

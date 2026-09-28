@@ -75,7 +75,6 @@ class FileController extends Controller {
 	 * @param string|null $filename Leaf filename.
 	 * @param string|null $dir Target subdirectory (default `/`).
 	 * @param string|null $content Bytes to write (default empty).
-	 * @param bool $overwrite False answers 409 `file_exists` instead of replacing an existing file (#712).
 	 *
 	 * @return JSONResponse Either `{status, fileId, url}` on HTTP 200
 	 *                      or `{status, error, message}` on failure.
@@ -89,7 +88,6 @@ class FileController extends Controller {
 		?string $filename = null,
 		?string $dir = '/',
 		?string $content = '',
-		bool $overwrite = true,
 	): JSONResponse {
 		try {
 			$userId = $this->resolveUserId();
@@ -99,7 +97,7 @@ class FileController extends Controller {
 				filename: ($filename ?? ''),
 				dir: ($dir ?? '/'),
 				content: ($content ?? ''),
-				overwrite: $overwrite
+				onExisting: $this->onExisting()
 			);
 
 			return new JSONResponse(
@@ -139,6 +137,26 @@ class FileController extends Controller {
 			return $this->errorResponse(exception: $fallback);
 		}//end try
 	}//end createFile()
+
+	/**
+	 * How to treat an existing file of the same name, from the request.
+	 *
+	 * An explicit `overwrite: false` (JSON false, "false" or "0") refuses
+	 * with 409 `file_exists` so the UI can warn first (#712). Absent or
+	 * anything else keeps the documented replace (REQ-LBN-004 point 5).
+	 *
+	 * @return string One of the FileService::ON_EXISTING_* constants.
+	 *
+	 * @spec openspec/specs/link-button-widget/spec.md
+	 */
+	private function onExisting(): string {
+		$overwrite = $this->request->getParam('overwrite', null);
+		if ($overwrite === false || $overwrite === 'false' || $overwrite === '0' || $overwrite === 0) {
+			return FileService::ON_EXISTING_REFUSE;
+		}
+
+		return FileService::ON_EXISTING_REPLACE;
+	}//end onExisting()
 
 	/**
 	 * Resolve the logged-in user's ID.

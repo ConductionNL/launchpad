@@ -142,7 +142,11 @@ export default {
 			return this.filenameDraft.trim() !== ''
 		},
 
-		/** The filename that Create would write, extension included. */
+		/**
+		 * The filename that Create would write, extension included.
+		 *
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-003-createfile-flow
+		 */
 		pendingFilename() {
 			const name = this.filenameDraft.trim()
 			return this.pendingExtension === ''
@@ -150,7 +154,11 @@ export default {
 				: `${name}.${this.pendingExtension}`
 		},
 
-		/** Whether the user has seen the warning for exactly this name. */
+		/**
+		 * Whether the user has seen the warning for exactly this name.
+		 *
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-003-createfile-flow
+		 */
 		confirmsOverwrite() {
 			return (
 				this.existingFileWarning !== ''
@@ -158,7 +166,11 @@ export default {
 			)
 		},
 
-		/** Create, Replace after the exists warning, or the busy label. */
+		/**
+		 * Create, Replace after the exists warning, or the busy label.
+		 *
+		 * @spec openspec/specs/link-button-widget/spec.md#requirement-req-lbn-003-createfile-flow
+		 */
 		createButtonLabel() {
 			if (this.isExecuting) {
 				return t('launchpad', 'Creating…')

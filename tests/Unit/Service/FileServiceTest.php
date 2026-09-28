@@ -261,7 +261,7 @@ class FileServiceTest extends TestCase {
 				filename: 'report.docx',
 				dir: '/',
 				content: '',
-				overwrite: false
+				onExisting: FileService::ON_EXISTING_REFUSE
 			);
 			$this->fail('Expected FileAlreadyExistsException');
 		} catch (FileAlreadyExistsException $e) {
@@ -287,7 +287,7 @@ class FileServiceTest extends TestCase {
 			filename: 'fresh.docx',
 			dir: '/',
 			content: '',
-			overwrite: false
+			onExisting: FileService::ON_EXISTING_REFUSE
 		);
 
 		$this->assertSame(7, $result['fileId']);

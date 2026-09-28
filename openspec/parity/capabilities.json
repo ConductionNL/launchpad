@@ -3018,7 +3018,7 @@
 			"homarr": "no",
 			"dashy": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "lib/Controller/StoreController.php:134; src/manifest.json:164",
 				"owner": "ConductionNL/openregister"
 			},
@@ -3028,7 +3028,7 @@
 			"feature": "dashboard-export-import",
 			"featureConfidence": "medium",
 			"origin": "own-code",
-			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading.",
+			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading. Specified in ConductionNL/openregister openspec/changes/store-over-federated-config (openregister lane, OpenSpec pass 2026-09-27).",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 the App Store link installs apps that bring widgets, not dashboards; searched apps/dashboard for registry, publish: none",
 				"homarr": "source read at v1.77.2: boards cannot be exported or installed from a shared source (only the pre-1.0 importer, packages/modals-collection/src/boards/import-board-modal.tsx:154); custom widget definitions can be exported and imported as JSON (apps/nextjs/src/app/[locale]/manage/custom-widgets/_custom-widget-actions.tsx:164) but there is no registry",
@@ -4809,7 +4809,7 @@
 			"homarr": "yes",
 			"dashy": "no",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"owner": "ConductionNL/nextcloud-vue",
 				"evidence": "lib/widget-types.json:37"
 			},
@@ -4827,7 +4827,7 @@
 			"featureConfidence": "medium",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/Lissy93/dashy/issues/636",
-			"note": "A text widget on your own dashboard can hold notes (widget-types.json:37, rendered by nextcloud-vue), but it is edited in dashboard edit mode, not a quick notepad you type into in place."
+			"note": "A text widget on your own dashboard can hold notes (widget-types.json:37, rendered by nextcloud-vue), but it is edited in dashboard edit mode, not a quick notepad you type into in place. Specified in ConductionNL/nextcloud-vue openspec/changes/dashboard-notepad-widget (nextcloud-vue lane, OpenSpec pass 2026-09-27)."
 		},
 		{
 			"id": "d-internal-url",

@@ -58,6 +58,12 @@ class DebounceHelper {
 	public const TTL_SECONDS = 900;
 
 	/**
+	 * Window for `dashboard_updated` on a shared dashboard: one day
+	 * (engagement-activity-digest D2, issue #713).
+	 */
+	public const DAILY_TTL_SECONDS = 86400;
+
+	/**
 	 * In-memory fallback store used when APCu is not available.
 	 *
 	 * Keyed by the same APCu key string; the value is the unix
@@ -158,6 +164,23 @@ class DebounceHelper {
 	}//end allowGlobalFanout()
 
 	/**
+	 * Check whether a `dashboard_updated` announcement for a shared or
+	 * group dashboard may go out now: at most once per dashboard per day.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return bool True when the announcement is allowed.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
+	 */
+	public function allowDailyUpdate(string $dashboardUuid): bool {
+		return $this->claim(
+			key: sprintf('launchpad_act_daily_update_%s', $dashboardUuid),
+			ttl: self::DAILY_TTL_SECONDS
+		);
+	}//end allowDailyUpdate()
+
+	/**
 	 * Claim the key for the configured TTL.
 	 *
 	 * Three-tier fallback:
@@ -171,17 +194,18 @@ class DebounceHelper {
 	 *     or under a test clock (deterministic unit-test path).
 	 *
 	 * @param string $key The full cache key.
+	 * @param int $ttl The window in seconds.
 	 *
 	 * @return bool True when the caller successfully claimed the window.
 	 */
-	private function claim(string $key): bool {
+	private function claim(string $key, int $ttl=self::TTL_SECONDS): bool {
 		$now = ($this->clock)();
 
 		if ($this->apcuUsable() === true) {
 			// `apcu_add` returns false when the key already exists,
 			// which is exactly the semantics we want for a debounce
 			// claim. The TTL is enforced by APCu itself.
-			return (bool)apcu_add($key, $now, self::TTL_SECONDS);
+			return (bool)apcu_add($key, $now, $ttl);
 		}
 
 		// APCu is unusable. When a real clock is in effect and a
@@ -194,7 +218,7 @@ class DebounceHelper {
 				return false;
 			}
 
-			$this->cache->set($key, $now, self::TTL_SECONDS);
+			$this->cache->set($key, $now, $ttl);
 			return true;
 		}
 
@@ -210,7 +234,7 @@ class DebounceHelper {
 			return false;
 		}
 
-		$this->memory[$key] = ($now + self::TTL_SECONDS);
+		$this->memory[$key] = ($now + $ttl);
 		return true;
 	}//end claim()
 

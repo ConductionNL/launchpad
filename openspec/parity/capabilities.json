@@ -3733,11 +3733,12 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "none",
 				"evidence": "openspec/specs/launchpad-ai-dashboard-assistant/spec.md:5",
 				"owner": "ConductionNL/launchpad"
 			},
 			"reachedOn": "nothing",
+			"note": "corrections round 9 (2026-09-28): no change carries this row at 9d5535a, so built.state is none. The evidence cites a main spec, openspec/specs/launchpad-ai-dashboard-assistant (REQ-ADA-001 to 007, a chat widget answering plain-language questions), not a change. The change that wrote it, openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics, was spec-only and its tasks.md says the ai-dashboard-assistant widget chain remains spec-only; no ai-assistant widget exists in src/ or lib/. The open change launchpad-ai-dashboard-assistant carries AI summary widgets for cases and consultations, not questions and answers.",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/500975-faq-ai-in-workspace-365-kelly 'Kelly only sees sources the user can access'; https://support.workspace365.net/en/articles/836094-release-notes-workspace-365-v4-48 Kelly out of beta (read 2026-09-26)",
 				"microsoft-viva": "not checked: the April reading (intelligence-db competitor_features#28749, captured 2026-04-24) records no source URL (its spec_path is empty and the competitor has no analysis_path), and the vendor documentation read on 2026-09-26 did not confirm it, so the earlier yes is withdrawn until a public page is found",
@@ -3794,9 +3795,11 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/mcp-tool-surface/proposal.md:7",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/mcp-tool-surface"
 			},
 			"reachedOn": "nothing",
+			"note": "corrections round 9 (2026-09-28): built.change names openspec/changes/mcp-tool-surface, open on development at 9d5535a with 0 of 28 tasks checked, whose proposal specifies a LaunchpadToolProvider with 14 read and 35 write MCP tools over dashboards, widgets, tiles and sharing; lib/Mcp does not exist yet, so the rating stays no; source: the corrections-9 list of specified rows that named no change.",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "mcp-tool-surface",

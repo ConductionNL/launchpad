@@ -1104,6 +1104,8 @@
         "Limited": "Ограничено",
         "Not configured": "Није подешено",
         "Simulated": "Симулирано",
-        "Error": "Грешка"
+        "Error": "Грешка",
+        "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Датотека са именом {name} већ постоји. Изаберите Замени да бисте је преписали празном датотеком или промените име.",
+        "Replace": "Замени"
     }
 }

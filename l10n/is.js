@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Takmarkað",
     "Not configured" : "Ekki stillt",
     "Simulated" : "Hermt",
-    "Error" : "Villa"
+    "Error" : "Villa",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Skrá með heitinu {name} er þegar til. Veldu Skipta út til að skrifa yfir hana með tómri skrá, eða breyttu heitinu.",
+    "Replace" : "Skipta út"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

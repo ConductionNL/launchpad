@@ -1104,6 +1104,8 @@
         "Limited": "Ribota",
         "Not configured": "Nesukonfigūruota",
         "Simulated": "Imituota",
-        "Error": "Klaida"
+        "Error": "Klaida",
+        "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
+        "Replace": "Pakeisti"
     }
 }

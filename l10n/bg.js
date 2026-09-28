@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Ограничено",
     "Not configured" : "Не е конфигурирано",
     "Simulated" : "Симулирано",
-    "Error" : "Грешка"
+    "Error" : "Грешка",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл с име {name} вече съществува. Изберете „Замяна“, за да го презапишете с празен файл, или сменете името.",
+    "Replace" : "Замяна"
 },
 "nplurals=2; plural=(n != 1);"
 );

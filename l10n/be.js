@@ -1127,6 +1127,8 @@ OC.L10N.register(
     "Limited" : "Абмежавана",
     "Not configured" : "Не наладжана",
     "Simulated" : "Сімулявана",
-    "Error" : "Памылка"
+    "Error" : "Памылка",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвай {name} ужо існуе. Выберыце «Замяніць», каб перазапісаць яго пустым файлам, або змяніце назву.",
+    "Replace" : "Замяніць"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

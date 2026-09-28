@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Limitat",
     "Not configured" : "Mhux ikkonfigurat",
     "Simulated" : "Simulat",
-    "Error" : "Żball"
+    "Error" : "Żball",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
+    "Replace" : "Issostitwixxi"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Limitat",
     "Not configured" : "No configurat",
     "Simulated" : "Simulat",
-    "Error" : "Error"
+    "Error" : "Error",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
+    "Replace" : "Substitueix"
 },
 "nplurals=2; plural=(n != 1);"
 );

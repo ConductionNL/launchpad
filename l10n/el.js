@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Περιορισμένο",
     "Not configured" : "Μη ρυθμισμένο",
     "Simulated" : "Προσομοιωμένο",
-    "Error" : "Σφάλμα"
+    "Error" : "Σφάλμα",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
+    "Replace" : "Αντικατάσταση"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Ierobežots",
     "Not configured" : "Nav konfigurēts",
     "Simulated" : "Simulēts",
-    "Error" : "Kļūda"
+    "Error" : "Kļūda",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
+    "Replace" : "Aizstāt"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

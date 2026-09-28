@@ -1136,7 +1136,9 @@ OC.L10N.register(
     "Limited" : "Rajoitettu",
     "Not configured" : "Ei määritetty",
     "Simulated" : "Simuloitu",
-    "Error" : "Virhe"
+    "Error" : "Virhe",
+    "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tiedosto nimeltä {name} on jo olemassa. Valitse Korvaa korvataksesi sen tyhjällä tiedostolla tai vaihda nimi.",
+    "Replace" : "Korvaa"
 },
 "nplurals=2; plural=(n != 1);"
 );

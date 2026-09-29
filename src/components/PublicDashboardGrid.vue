@@ -106,7 +106,10 @@ export default {
 	},
 
 	computed: {
-		/** @return {Array<object>} Visible placements in reading order, normalised for display. */
+		/**
+		 * @return {Array<object>} Visible placements in reading order, normalised for display.
+		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 */
 		items() {
 			const list = [...this.placements].filter(
 				(p) => p.isVisible !== 0 && p.isVisible !== false,

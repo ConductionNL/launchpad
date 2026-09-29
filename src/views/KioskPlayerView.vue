@@ -59,6 +59,7 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
 	data() {
 		return {
 			entries: [],
@@ -72,16 +73,21 @@ export default {
 	},
 
 	computed: {
-		/** @return {object|null} The entry on screen now. */
+		/**
+		 * @return {object|null} The entry on screen now.
+		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 */
 		current() {
 			return this.entries[this.index] ?? null
 		},
 	},
 
+	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
 	async mounted() {
 		await this.load()
 	},
 
+	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
 	beforeUnmount() {
 		clearTimeout(this.dwellTimer)
 		clearTimeout(this.refreshTimer)

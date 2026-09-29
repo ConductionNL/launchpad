@@ -145,7 +145,7 @@ import { logger } from '../../utils/logger.js'
  * people (a count, never who), a per-dashboard view, and the CSV export.
  * When tile tracking is off it says so and shows no numbers.
  *
- * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+ * @spec openspec/specs/dashboard-view-analytics/spec.md
  */
 export default {
 	name: 'TileClickReport',
@@ -158,7 +158,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md */
+	/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 	data() {
 		return {
 			loading: false,
@@ -174,14 +174,14 @@ export default {
 		/**
 		 * Reload when the period changes.
 		 *
-		 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		period() {
 			this.load()
 		},
 	},
 
-	/** @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md */
+	/** @spec openspec/specs/dashboard-view-analytics/spec.md */
 	created() {
 		this.load()
 	},
@@ -193,7 +193,7 @@ export default {
 		 * Read whether tracking is on, then the top tiles.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		async load() {
 			this.loading = true
@@ -221,7 +221,7 @@ export default {
 		 *
 		 * @param {object} row Top-tiles row.
 		 * @return {string} Dashboard name, or a placeholder when removed.
-		 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		dashboardLabel(row) {
 			return row.dashboardName || t('launchpad', 'Removed dashboard')
@@ -232,7 +232,7 @@ export default {
 		 *
 		 * @param {object} row The row whose dashboard to open.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		async openBreakdown(row) {
 			try {
@@ -254,7 +254,7 @@ export default {
 		 * Download the tile CSV from the existing export endpoint.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+		 * @spec openspec/specs/dashboard-view-analytics/spec.md
 		 */
 		async exportCsv() {
 			this.exporting = true

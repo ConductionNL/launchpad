@@ -630,3 +630,32 @@ The system MUST expose an admin-only CSV export of tile analytics, MUST reuse th
 - AND rows within the last 90 days MUST be preserved
 - AND the purge MUST be idempotent (re-running deletes nothing already deleted and raises no error)
 
+### Requirement: An administrator sees the most clicked tiles (REQ-TILEUI-001)
+
+@e2e exclude reading a count needs clicks recorded on a live instance; the report is asserted in src/components/admin/__tests__/TileClickReport.spec.js and the names in tests/Unit/Service/TileAnalyticsServiceTest.php
+
+The analytics page in administration MUST show the most clicked tiles for the selected period with dashboard name, tile title, click count and distinct people, and MUST offer the CSV export.
+
+#### Scenario: Top tiles for thirty days
+
+- **GIVEN** Pieter and Sanne clicked the "Zaaksysteem" tile on "Team" 12 times in the last month
+- **WHEN** Ruben, an administrator, opens Administration, Analytics, Tiles for 30 days
+- **THEN** a row reads "Team, Zaaksysteem, 12 clicks, 2 people"
+
+#### Scenario: Export
+
+- **GIVEN** the same view
+- **WHEN** Ruben clicks "Export CSV"
+- **THEN** the file from the existing export endpoint downloads
+
+### Requirement: Tile numbers are not shown when tracking is off (REQ-TILEUI-002)
+
+@e2e exclude reading a count needs clicks recorded on a live instance; the report is asserted in src/components/admin/__tests__/TileClickReport.spec.js and the names in tests/Unit/Service/TileAnalyticsServiceTest.php
+
+When tile tracking is inactive, the tiles section MUST state that clicks are not recorded and MUST NOT show a table or an export button.
+
+#### Scenario: Tracking off
+
+- **GIVEN** the administrator switched tile tracking off
+- **WHEN** Ruben opens the Tiles section
+- **THEN** a message says clicks are not being recorded and no table is rendered

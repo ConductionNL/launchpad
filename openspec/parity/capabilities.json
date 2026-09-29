@@ -1394,10 +1394,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "src/components/TileWidget.vue:94; src/services/api.js:305",
+				"state": "built",
+				"evidence": "src/components/admin/TileClickReport.vue; lib/Service/TileAnalyticsService.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-click-report"
+				"change": "openspec/changes/archive/2026-09-29-launcher-tile-click-report"
 			},
 			"reachedOn": "clicks are recorded from the Workspace page; nothing shows them: getAnalyticsTopTiles and the tile CSV export have no caller in src/",
 			"provider": "launchpad",

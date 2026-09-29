@@ -259,7 +259,7 @@ class TileAnalyticsService {
 	 *
 	 * @return array<int, array<string, mixed>> The rows with names.
 	 *
-	 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	private function withNames(array $rows): array {
 		$titles = [];
@@ -294,7 +294,7 @@ class TileAnalyticsService {
 	 *
 	 * @return string|null The title.
 	 *
-	 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	private function tileTitle(string $placementId): ?string {
 		if (ctype_digit($placementId) === false) {
@@ -323,7 +323,7 @@ class TileAnalyticsService {
 	 *
 	 * @return string|null The name.
 	 *
-	 * @spec openspec/changes/launcher-tile-click-report/specs/dashboard-view-analytics/spec.md
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	private function dashboardName(string $uuid): ?string {
 		try {

@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulirano",
     "Error" : "Greška",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Datoteka s imenom {name} već postoji. Odaberite Zamijeni da je prepišete praznom datotekom ili promijenite ime.",
-    "Replace" : "Zamijeni"
+    "Replace" : "Zamijeni",
+    "Tiles" : "Pločice",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Klikovi na pločice se ne bilježe. Uključite praćenje pločica da vidite koje ljudi koriste.",
+    "Most clicked tiles" : "Najklikanije pločice",
+    "Clicks" : "Klikovi",
+    "Show the tiles of {name}" : "Prikaži pločice za {name}",
+    "Removed dashboard" : "Uklonjena kontrolna ploča",
+    "Removed tile" : "Uklonjena pločica",
+    "No tile clicks recorded for this period." : "Nema zabilježenih klikova na pločice za ovaj period.",
+    "Tiles on {name}" : "Pločice na {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} klikova, {people} osoba",
+    "Export tile clicks (CSV)" : "Izvezi klikove na pločice (CSV)",
+    "The tile clicks could not be loaded." : "Klikovi na pločice se nisu mogli učitati.",
+    "The tile clicks could not be exported." : "Klikovi na pločice se nisu mogli izvesti."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

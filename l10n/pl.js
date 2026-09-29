@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Symulowane",
     "Error" : "Błąd",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Plik o nazwie {name} już istnieje. Wybierz Zastąp, aby nadpisać go pustym plikiem, lub zmień nazwę.",
-    "Replace" : "Zastąp"
+    "Replace" : "Zastąp",
+    "Tiles" : "Kafelki",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Kliknięcia kafelków nie są rejestrowane. Włącz śledzenie kafelków, aby zobaczyć, których ludzie używają.",
+    "Most clicked tiles" : "Najczęściej klikane kafelki",
+    "Clicks" : "Kliknięcia",
+    "Show the tiles of {name}" : "Pokaż kafelki pulpitu {name}",
+    "Removed dashboard" : "Usunięty pulpit",
+    "Removed tile" : "Usunięty kafelek",
+    "No tile clicks recorded for this period." : "Brak zarejestrowanych kliknięć kafelków w tym okresie.",
+    "Tiles on {name}" : "Kafelki na {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} kliknięć od {people} osób",
+    "Export tile clicks (CSV)" : "Eksportuj kliknięcia kafelków (CSV)",
+    "The tile clicks could not be loaded." : "Nie udało się wczytać kliknięć kafelków.",
+    "The tile clicks could not be exported." : "Nie udało się wyeksportować kliknięć kafelków."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

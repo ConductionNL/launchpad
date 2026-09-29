@@ -1105,6 +1105,19 @@
         "Simulated": "Симулирано",
         "Error": "Грешка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Датотека со име {name} веќе постои. Изберете Замени за да ја пребришете со празна датотека или сменете го името.",
-        "Replace": "Замени"
+        "Replace": "Замени",
+        "Tiles": "Плочки",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Кликовите на плочките не се бележат. Вклучете следење на плочките за да видите кои се користат.",
+        "Most clicked tiles": "Најкликани плочки",
+        "Clicks": "Кликови",
+        "Show the tiles of {name}": "Прикажи ги плочките на {name}",
+        "Removed dashboard": "Отстранета контролна табла",
+        "Removed tile": "Отстранета плочка",
+        "No tile clicks recorded for this period.": "Нема забележани кликови на плочки за овој период.",
+        "Tiles on {name}": "Плочки на {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} кликови од {people} лица",
+        "Export tile clicks (CSV)": "Извези кликови на плочки (CSV)",
+        "The tile clicks could not be loaded.": "Кликовите на плочките не можеа да се вчитаат.",
+        "The tile clicks could not be exported.": "Кликовите на плочките не можеа да се извезат."
     }
 }

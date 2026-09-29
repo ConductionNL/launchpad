@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulé",
     "Error" : "Erreur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Un fichier nommé {name} existe déjà. Choisissez Remplacer pour l'écraser avec un fichier vide, ou changez le nom.",
-    "Replace" : "Remplacer"
+    "Replace" : "Remplacer",
+    "Tiles" : "Tuiles",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Les clics sur les tuiles ne sont pas enregistrés. Activez le suivi des tuiles pour voir lesquelles sont utilisées.",
+    "Most clicked tiles" : "Tuiles les plus cliquées",
+    "Clicks" : "Clics",
+    "Show the tiles of {name}" : "Afficher les tuiles de {name}",
+    "Removed dashboard" : "Tableau de bord supprimé",
+    "Removed tile" : "Tuile supprimée",
+    "No tile clicks recorded for this period." : "Aucun clic sur une tuile enregistré pour cette période.",
+    "Tiles on {name}" : "Tuiles de {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile} : {clicks} clics par {people} personnes",
+    "Export tile clicks (CSV)" : "Exporter les clics sur les tuiles (CSV)",
+    "The tile clicks could not be loaded." : "Les clics sur les tuiles n'ont pas pu être chargés.",
+    "The tile clicks could not be exported." : "Les clics sur les tuiles n'ont pas pu être exportés."
 },
 "nplurals=2; plural=(n > 1);"
 );

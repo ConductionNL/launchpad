@@ -1129,7 +1129,20 @@ OC.L10N.register(
     "Simulated" : "Simuléiert",
     "Error" : "Feeler",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "E Fichier mam Numm {name} gëtt et schonn. Wielt Ersetzen, fir en mat engem eidele Fichier ze iwwerschreiwen, oder ännert den Numm.",
-    "Replace" : "Ersetzen"
+    "Replace" : "Ersetzen",
+    "Tiles" : "Kachelen",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Klicks op Kachelen ginn net opgeholl. Schalt d'Kachel-Erfaassung un, fir ze gesinn, wéi eng Kachele benotzt ginn.",
+    "Most clicked tiles" : "Am meeschte geklickte Kachelen",
+    "Clicks" : "Klicks",
+    "Show the tiles of {name}" : "Kachele vun {name} weisen",
+    "Removed dashboard" : "Ewechgehollt Dashboard",
+    "Removed tile" : "Ewechgeholl Kachel",
+    "No tile clicks recorded for this period." : "Keng Kachelklicks fir dës Period opgeholl.",
+    "Tiles on {name}" : "Kachelen op {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} Klicks vun {people} Leit",
+    "Export tile clicks (CSV)" : "Kachelklicks exportéieren (CSV)",
+    "The tile clicks could not be loaded." : "D'Kachelklicks konnten net gelueden ginn.",
+    "The tile clicks could not be exported." : "D'Kachelklicks konnten net exportéiert ginn."
 },
 "nplurals=2; plural=(n != 1);"
 );

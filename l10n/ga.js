@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Insamhlaithe",
     "Error" : "Earráid",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tá comhad darb ainm {name} ann cheana. Roghnaigh Ionadaigh chun comhad folamh a scríobh air, nó athraigh an t-ainm.",
-    "Replace" : "Ionadaigh"
+    "Replace" : "Ionadaigh",
+    "Tiles" : "Tíleanna",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Níl cliceanna ar thíleanna á dtaifeadadh. Cas rianú tíleanna air le feiceáil cé na tíleanna a úsáideann daoine.",
+    "Most clicked tiles" : "Na tíleanna is mó cliceáilte",
+    "Clicks" : "Cliceanna",
+    "Show the tiles of {name}" : "Taispeáin tíleanna {name}",
+    "Removed dashboard" : "Deais bainte",
+    "Removed tile" : "Tíl bainte",
+    "No tile clicks recorded for this period." : "Níor taifeadadh aon chliceanna tíl don tréimhse seo.",
+    "Tiles on {name}" : "Tíleanna ar {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} cliceanna ó {people} duine",
+    "Export tile clicks (CSV)" : "Easpórtáil cliceanna tíl (CSV)",
+    "The tile clicks could not be loaded." : "Níorbh fhéidir na cliceanna tíl a lódáil.",
+    "The tile clicks could not be exported." : "Níorbh fhéidir na cliceanna tíl a easpórtáil."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

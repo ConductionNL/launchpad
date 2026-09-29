@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Imituota",
     "Error" : "Klaida",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
-    "Replace" : "Pakeisti"
+    "Replace" : "Pakeisti",
+    "Tiles" : "Plytelės",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Plytelių paspaudimai neregistruojami. Įjunkite plytelių stebėjimą, kad matytumėte, kurias naudoja žmonės.",
+    "Most clicked tiles" : "Dažniausiai spaudžiamos plytelės",
+    "Clicks" : "Paspaudimai",
+    "Show the tiles of {name}" : "Rodyti {name} plyteles",
+    "Removed dashboard" : "Pašalinta suvestinė",
+    "Removed tile" : "Pašalinta plytelė",
+    "No tile clicks recorded for this period." : "Šiuo laikotarpiu plytelių paspaudimų neužregistruota.",
+    "Tiles on {name}" : "{name} plytelės",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} paspaudimų, {people} žmonės",
+    "Export tile clicks (CSV)" : "Eksportuoti plytelių paspaudimus (CSV)",
+    "The tile clicks could not be loaded." : "Nepavyko įkelti plytelių paspaudimų.",
+    "The tile clicks could not be exported." : "Nepavyko eksportuoti plytelių paspaudimų."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

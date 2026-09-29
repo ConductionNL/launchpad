@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Змодельовано",
     "Error" : "Помилка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
-    "Replace" : "Замінити"
+    "Replace" : "Замінити",
+    "Tiles" : "Плитки",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Натискання на плитки не записуються. Увімкніть відстеження плиток, щоб бачити, якими користуються.",
+    "Most clicked tiles" : "Найпопулярніші плитки",
+    "Clicks" : "Натискання",
+    "Show the tiles of {name}" : "Показати плитки {name}",
+    "Removed dashboard" : "Видалена панель",
+    "Removed tile" : "Видалена плитка",
+    "No tile clicks recorded for this period." : "За цей період натискань на плитки не записано.",
+    "Tiles on {name}" : "Плитки на {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: натискань {clicks}, людей {people}",
+    "Export tile clicks (CSV)" : "Експортувати натискання плиток (CSV)",
+    "The tile clicks could not be loaded." : "Не вдалося завантажити натискання плиток.",
+    "The tile clicks could not be exported." : "Не вдалося експортувати натискання плиток."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

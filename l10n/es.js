@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulado",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ya existe un archivo llamado {name}. Elija Reemplazar para sobrescribirlo con un archivo vacío o cambie el nombre.",
-    "Replace" : "Reemplazar"
+    "Replace" : "Reemplazar",
+    "Tiles" : "Mosaicos",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "No se registran los clics en mosaicos. Activa el seguimiento de mosaicos para ver cuáles usa la gente.",
+    "Most clicked tiles" : "Mosaicos más pulsados",
+    "Clicks" : "Clics",
+    "Show the tiles of {name}" : "Mostrar los mosaicos de {name}",
+    "Removed dashboard" : "Panel eliminado",
+    "Removed tile" : "Mosaico eliminado",
+    "No tile clicks recorded for this period." : "No hay clics en mosaicos registrados en este periodo.",
+    "Tiles on {name}" : "Mosaicos de {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} clics de {people} personas",
+    "Export tile clicks (CSV)" : "Exportar clics en mosaicos (CSV)",
+    "The tile clicks could not be loaded." : "No se pudieron cargar los clics en mosaicos.",
+    "The tile clicks could not be exported." : "No se pudieron exportar los clics en mosaicos."
 },
 "nplurals=2; plural=(n != 1);"
 );

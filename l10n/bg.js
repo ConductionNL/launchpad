@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл с име {name} вече съществува. Изберете „Замяна“, за да го презапишете с празен файл, или сменете името.",
-    "Replace" : "Замяна"
+    "Replace" : "Замяна",
+    "Tiles" : "Плочки",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Кликванията върху плочки не се записват. Включете проследяването, за да видите кои плочки се използват.",
+    "Most clicked tiles" : "Най-кликвани плочки",
+    "Clicks" : "Кликвания",
+    "Show the tiles of {name}" : "Показване на плочките на {name}",
+    "Removed dashboard" : "Премахнато табло",
+    "Removed tile" : "Премахната плочка",
+    "No tile clicks recorded for this period." : "Няма записани кликвания върху плочки за този период.",
+    "Tiles on {name}" : "Плочки в {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} кликвания от {people} души",
+    "Export tile clicks (CSV)" : "Експорт на кликванията (CSV)",
+    "The tile clicks could not be loaded." : "Кликванията не можаха да се заредят.",
+    "The tile clicks could not be exported." : "Кликванията не можаха да се експортират."
 },
 "nplurals=2; plural=(n != 1);"
 );

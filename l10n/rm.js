@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulà",
     "Error" : "Errur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "I dat gia ina datoteca cun il num {name}. Tscherni Remplazzar per la surscriver cun ina datoteca vida, u mida il num.",
-    "Replace" : "Remplazzar"
+    "Replace" : "Remplazzar",
+    "Tiles" : "Plattinas",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Ils clics sin plattinas na vegnan betg registrads. Activai la registraziun per vesair tge plattinas che vegnan duvradas.",
+    "Most clicked tiles" : "Plattinas las pli cliccadas",
+    "Clicks" : "Clics",
+    "Show the tiles of {name}" : "Mussar las plattinas da {name}",
+    "Removed dashboard" : "Dashboard allontanà",
+    "Removed tile" : "Plattina allontanada",
+    "No tile clicks recorded for this period." : "Nagins clics sin plattinas registrads per quest perioda.",
+    "Tiles on {name}" : "Plattinas sin {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} clics da {people} persunas",
+    "Export tile clicks (CSV)" : "Exportar ils clics sin plattinas (CSV)",
+    "The tile clicks could not be loaded." : "Ils clics sin plattinas n'han betg pudì vegnir chargiads.",
+    "The tile clicks could not be exported." : "Ils clics sin plattinas n'han betg pudì vegnir exportads."
 },
 "nplurals=2; plural=(n != 1);"
 );

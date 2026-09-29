@@ -1105,6 +1105,19 @@
         "Simulated": "Simuloitu",
         "Error": "Virhe",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Tiedosto nimeltä {name} on jo olemassa. Valitse Korvaa korvataksesi sen tyhjällä tiedostolla tai vaihda nimi.",
-        "Replace": "Korvaa"
+        "Replace": "Korvaa",
+        "Tiles": "Ruudut",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Ruutujen napsautuksia ei tallenneta. Ota ruutujen seuranta käyttöön nähdäksesi, mitä ruutuja käytetään.",
+        "Most clicked tiles": "Napsautetuimmat ruudut",
+        "Clicks": "Napsautukset",
+        "Show the tiles of {name}": "Näytä kohteen {name} ruudut",
+        "Removed dashboard": "Poistettu koontinäyttö",
+        "Removed tile": "Poistettu ruutu",
+        "No tile clicks recorded for this period.": "Tältä ajalta ei ole tallennettu ruutujen napsautuksia.",
+        "Tiles on {name}": "Ruudut kohteessa {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} napsautusta, {people} henkilöä",
+        "Export tile clicks (CSV)": "Vie ruutujen napsautukset (CSV)",
+        "The tile clicks could not be loaded.": "Ruutujen napsautuksia ei voitu ladata.",
+        "The tile clicks could not be exported.": "Ruutujen napsautuksia ei voitu viedä."
     }
 }

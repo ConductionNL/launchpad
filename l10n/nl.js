@@ -1188,7 +1188,20 @@ OC.L10N.register(
     "Simulated" : "Gesimuleerd",
     "Error" : "Fout",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Er bestaat al een bestand met de naam {name}. Kies Vervangen om het te overschrijven met een leeg bestand, of wijzig de naam.",
-    "Replace" : "Vervangen"
+    "Replace" : "Vervangen",
+    "Tiles" : "Tegels",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Klikken op tegels worden niet bijgehouden. Zet het bijhouden van tegels aan om te zien welke tegels mensen gebruiken.",
+    "Most clicked tiles" : "Meest aangeklikte tegels",
+    "Clicks" : "Klikken",
+    "Show the tiles of {name}" : "Toon de tegels van {name}",
+    "Removed dashboard" : "Verwijderd dashboard",
+    "Removed tile" : "Verwijderde tegel",
+    "No tile clicks recorded for this period." : "Geen klikken op tegels in deze periode.",
+    "Tiles on {name}" : "Tegels op {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} klikken door {people} mensen",
+    "Export tile clicks (CSV)" : "Tegelklikken exporteren (CSV)",
+    "The tile clicks could not be loaded." : "De tegelklikken konden niet worden geladen.",
+    "The tile clicks could not be exported." : "De tegelklikken konden niet worden geëxporteerd."
 },
 "nplurals=2; plural=(n != 1);"
 );

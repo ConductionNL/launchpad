@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Προσομοιωμένο",
     "Error" : "Σφάλμα",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
-    "Replace" : "Αντικατάσταση"
+    "Replace" : "Αντικατάσταση",
+    "Tiles" : "Πλακίδια",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Τα κλικ στα πλακίδια δεν καταγράφονται. Ενεργοποιήστε την παρακολούθηση για να δείτε ποια χρησιμοποιούνται.",
+    "Most clicked tiles" : "Πλακίδια με τα περισσότερα κλικ",
+    "Clicks" : "Κλικ",
+    "Show the tiles of {name}" : "Εμφάνιση πλακιδίων του {name}",
+    "Removed dashboard" : "Αφαιρεμένος πίνακας",
+    "Removed tile" : "Αφαιρεμένο πλακίδιο",
+    "No tile clicks recorded for this period." : "Δεν καταγράφηκαν κλικ σε πλακίδια για αυτή την περίοδο.",
+    "Tiles on {name}" : "Πλακίδια στο {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} κλικ από {people} άτομα",
+    "Export tile clicks (CSV)" : "Εξαγωγή κλικ πλακιδίων (CSV)",
+    "The tile clicks could not be loaded." : "Δεν ήταν δυνατή η φόρτωση των κλικ.",
+    "The tile clicks could not be exported." : "Δεν ήταν δυνατή η εξαγωγή των κλικ."
 },
 "nplurals=2; plural=(n != 1);"
 );

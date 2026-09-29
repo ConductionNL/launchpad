@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simuleeritud",
     "Error" : "Viga",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fail nimega {name} on juba olemas. Valige Asenda, et see tühja failiga üle kirjutada, või muutke nime.",
-    "Replace" : "Asenda"
+    "Replace" : "Asenda",
+    "Tiles" : "Paanid",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Paanide klõpse ei salvestata. Lülita paanide jälgimine sisse, et näha, milliseid paane kasutatakse.",
+    "Most clicked tiles" : "Enim klõpsatud paanid",
+    "Clicks" : "Klõpsud",
+    "Show the tiles of {name}" : "Näita paane: {name}",
+    "Removed dashboard" : "Eemaldatud töölaud",
+    "Removed tile" : "Eemaldatud paan",
+    "No tile clicks recorded for this period." : "Selles perioodis paanide klõpse ei salvestatud.",
+    "Tiles on {name}" : "Paanid: {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} klõpsu, {people} inimest",
+    "Export tile clicks (CSV)" : "Ekspordi paanide klõpsud (CSV)",
+    "The tile clicks could not be loaded." : "Paanide klõpse ei õnnestunud laadida.",
+    "The tile clicks could not be exported." : "Paanide klõpse ei õnnestunud eksportida."
 },
 "nplurals=2; plural=(n != 1);"
 );

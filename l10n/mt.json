@@ -1107,6 +1107,19 @@
         "Simulated": "Simulat",
         "Error": "Żball",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-        "Replace": "Issostitwixxi"
+        "Replace": "Issostitwixxi",
+        "Tiles": "Madum",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Il-klikks fuq il-madum mhumiex qed jiġu rreġistrati. Ixgħel it-traċċar biex tara liema madum jintuża.",
+        "Most clicked tiles": "Il-madum l-aktar ikklikkjat",
+        "Clicks": "Klikks",
+        "Show the tiles of {name}": "Uri l-madum ta' {name}",
+        "Removed dashboard": "Dashboard imneħħi",
+        "Removed tile": "Madum imneħħi",
+        "No tile clicks recorded for this period.": "Ma ġie rreġistrat l-ebda klikk fuq madum għal dan il-perjodu.",
+        "Tiles on {name}": "Madum fuq {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} klikks minn {people} persuni",
+        "Export tile clicks (CSV)": "Esporta l-klikks tal-madum (CSV)",
+        "The tile clicks could not be loaded.": "Il-klikks tal-madum ma setgħux jitgħabbew.",
+        "The tile clicks could not be exported.": "Il-klikks tal-madum ma setgħux jiġu esportati."
     }
 }

@@ -1105,6 +1105,19 @@
         "Simulated": "I simuluar",
         "Error": "Gabim",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-        "Replace": "Zëvendëso"
+        "Replace": "Zëvendëso",
+        "Tiles": "Pllakat",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Klikimet në pllaka nuk po regjistrohen. Aktivizoni ndjekjen e pllakave për të parë cilat përdoren.",
+        "Most clicked tiles": "Pllakat më të klikuara",
+        "Clicks": "Klikime",
+        "Show the tiles of {name}": "Shfaq pllakat e {name}",
+        "Removed dashboard": "Panel i hequr",
+        "Removed tile": "Pllakë e hequr",
+        "No tile clicks recorded for this period.": "Nuk ka klikime pllakash të regjistruara për këtë periudhë.",
+        "Tiles on {name}": "Pllakat në {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} klikime nga {people} persona",
+        "Export tile clicks (CSV)": "Eksporto klikimet e pllakave (CSV)",
+        "The tile clicks could not be loaded.": "Klikimet e pllakave nuk mund të ngarkoheshin.",
+        "The tile clicks could not be exported.": "Klikimet e pllakave nuk mund të eksportoheshin."
     }
 }

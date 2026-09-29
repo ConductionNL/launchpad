@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulerad",
     "Error" : "Fel",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Det finns redan en fil med namnet {name}. Välj Ersätt för att skriva över den med en tom fil, eller ändra namnet.",
-    "Replace" : "Ersätt"
+    "Replace" : "Ersätt",
+    "Tiles" : "Rutor",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Klick på rutor registreras inte. Slå på spårning av rutor för att se vilka rutor folk använder.",
+    "Most clicked tiles" : "Mest klickade rutor",
+    "Clicks" : "Klick",
+    "Show the tiles of {name}" : "Visa rutorna på {name}",
+    "Removed dashboard" : "Borttagen instrumentpanel",
+    "Removed tile" : "Borttagen ruta",
+    "No tile clicks recorded for this period." : "Inga klick på rutor registrerade för den här perioden.",
+    "Tiles on {name}" : "Rutor på {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} klick av {people} personer",
+    "Export tile clicks (CSV)" : "Exportera klick på rutor (CSV)",
+    "The tile clicks could not be loaded." : "Klicken på rutor kunde inte läsas in.",
+    "The tile clicks could not be exported." : "Klicken på rutor kunde inte exporteras."
 },
 "nplurals=2; plural=(n != 1);"
 );

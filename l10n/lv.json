@@ -1106,6 +1106,19 @@
         "Simulated": "Simulēts",
         "Error": "Kļūda",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
-        "Replace": "Aizstāt"
+        "Replace": "Aizstāt",
+        "Tiles": "Flīzes",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Klikšķi uz flīzēm netiek reģistrēti. Ieslēdziet flīžu uzskaiti, lai redzētu, kuras tiek izmantotas.",
+        "Most clicked tiles": "Visvairāk klikšķinātās flīzes",
+        "Clicks": "Klikšķi",
+        "Show the tiles of {name}": "Rādīt {name} flīzes",
+        "Removed dashboard": "Noņemts informācijas panelis",
+        "Removed tile": "Noņemta flīze",
+        "No tile clicks recorded for this period.": "Šajā periodā klikšķi uz flīzēm nav reģistrēti.",
+        "Tiles on {name}": "Flīzes: {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} klikšķi no {people} cilvēkiem",
+        "Export tile clicks (CSV)": "Eksportēt flīžu klikšķus (CSV)",
+        "The tile clicks could not be loaded.": "Flīžu klikšķus neizdevās ielādēt.",
+        "The tile clicks could not be exported.": "Flīžu klikšķus neizdevās eksportēt."
     }
 }

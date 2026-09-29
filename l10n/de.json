@@ -1105,6 +1105,19 @@
         "Simulated": "Simuliert",
         "Error": "Fehler",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Eine Datei mit dem Namen {name} existiert bereits. Wählen Sie Ersetzen, um sie mit einer leeren Datei zu überschreiben, oder ändern Sie den Namen.",
-        "Replace": "Ersetzen"
+        "Replace": "Ersetzen",
+        "Tiles": "Kacheln",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Klicks auf Kacheln werden nicht erfasst. Schalten Sie die Kachel-Erfassung ein, um zu sehen, welche Kacheln genutzt werden.",
+        "Most clicked tiles": "Am häufigsten angeklickte Kacheln",
+        "Clicks": "Klicks",
+        "Show the tiles of {name}": "Kacheln von {name} anzeigen",
+        "Removed dashboard": "Entferntes Dashboard",
+        "Removed tile": "Entfernte Kachel",
+        "No tile clicks recorded for this period.": "Keine Kachelklicks in diesem Zeitraum erfasst.",
+        "Tiles on {name}": "Kacheln auf {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} Klicks von {people} Personen",
+        "Export tile clicks (CSV)": "Kachelklicks exportieren (CSV)",
+        "The tile clicks could not be loaded.": "Die Kachelklicks konnten nicht geladen werden.",
+        "The tile clicks could not be exported.": "Die Kachelklicks konnten nicht exportiert werden."
     }
 }

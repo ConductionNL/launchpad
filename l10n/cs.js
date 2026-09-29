@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulováno",
     "Error" : "Chyba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
-    "Replace" : "Nahradit"
+    "Replace" : "Nahradit",
+    "Tiles" : "Dlaždice",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Kliknutí na dlaždice se nezaznamenávají. Zapněte sledování dlaždic, abyste viděli, které se používají.",
+    "Most clicked tiles" : "Nejklikanější dlaždice",
+    "Clicks" : "Kliknutí",
+    "Show the tiles of {name}" : "Zobrazit dlaždice panelu {name}",
+    "Removed dashboard" : "Odstraněný panel",
+    "Removed tile" : "Odstraněná dlaždice",
+    "No tile clicks recorded for this period." : "Za toto období nejsou zaznamenána žádná kliknutí.",
+    "Tiles on {name}" : "Dlaždice na panelu {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} kliknutí od {people} lidí",
+    "Export tile clicks (CSV)" : "Exportovat kliknutí na dlaždice (CSV)",
+    "The tile clicks could not be loaded." : "Kliknutí na dlaždice se nepodařilo načíst.",
+    "The tile clicks could not be exported." : "Kliknutí na dlaždice se nepodařilo exportovat."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

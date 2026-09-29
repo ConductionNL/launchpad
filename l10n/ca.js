@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
-    "Replace" : "Substitueix"
+    "Replace" : "Substitueix",
+    "Tiles" : "Mosaics",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "No es registren els clics als mosaics. Activeu el seguiment per veure quins fa servir la gent.",
+    "Most clicked tiles" : "Mosaics més clicats",
+    "Clicks" : "Clics",
+    "Show the tiles of {name}" : "Mostra els mosaics de {name}",
+    "Removed dashboard" : "Tauler eliminat",
+    "Removed tile" : "Mosaic eliminat",
+    "No tile clicks recorded for this period." : "No s'ha registrat cap clic als mosaics en aquest període.",
+    "Tiles on {name}" : "Mosaics de {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} clics de {people} persones",
+    "Export tile clicks (CSV)" : "Exporta els clics als mosaics (CSV)",
+    "The tile clicks could not be loaded." : "No s'han pogut carregar els clics als mosaics.",
+    "The tile clicks could not be exported." : "No s'han pogut exportar els clics als mosaics."
 },
 "nplurals=2; plural=(n != 1);"
 );

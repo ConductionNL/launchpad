@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simuleret",
     "Error" : "Fejl",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Der findes allerede en fil med navnet {name}. Vælg Erstat for at overskrive den med en tom fil, eller skift navnet.",
-    "Replace" : "Erstat"
+    "Replace" : "Erstat",
+    "Tiles" : "Felter",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Klik på felter registreres ikke. Slå sporing af felter til for at se, hvilke felter folk bruger.",
+    "Most clicked tiles" : "Mest klikkede felter",
+    "Clicks" : "Klik",
+    "Show the tiles of {name}" : "Vis felterne på {name}",
+    "Removed dashboard" : "Fjernet dashboard",
+    "Removed tile" : "Fjernet felt",
+    "No tile clicks recorded for this period." : "Ingen klik på felter registreret i denne periode.",
+    "Tiles on {name}" : "Felter på {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} klik fra {people} personer",
+    "Export tile clicks (CSV)" : "Eksportér klik på felter (CSV)",
+    "The tile clicks could not be loaded." : "Klik på felter kunne ikke indlæses.",
+    "The tile clicks could not be exported." : "Klik på felter kunne ikke eksporteres."
 },
 "nplurals=2; plural=(n != 1);"
 );

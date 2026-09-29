@@ -1105,6 +1105,19 @@
         "Simulated": "Hermt",
         "Error": "Villa",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Skrá með heitinu {name} er þegar til. Veldu Skipta út til að skrifa yfir hana með tómri skrá, eða breyttu heitinu.",
-        "Replace": "Skipta út"
+        "Replace": "Skipta út",
+        "Tiles": "Reitir",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "Smellir á reiti eru ekki skráðir. Kveiktu á rakningu reita til að sjá hvaða reiti fólk notar.",
+        "Most clicked tiles": "Mest smelltu reitirnir",
+        "Clicks": "Smellir",
+        "Show the tiles of {name}": "Sýna reiti á {name}",
+        "Removed dashboard": "Fjarlægt stjórnborð",
+        "Removed tile": "Fjarlægður reitur",
+        "No tile clicks recorded for this period.": "Engir smellir á reiti skráðir á þessu tímabili.",
+        "Tiles on {name}": "Reitir á {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} smellir frá {people} manns",
+        "Export tile clicks (CSV)": "Flytja út smelli á reiti (CSV)",
+        "The tile clicks could not be loaded.": "Ekki tókst að hlaða smellum á reiti.",
+        "The tile clicks could not be exported.": "Ekki tókst að flytja út smelli á reiti."
     }
 }

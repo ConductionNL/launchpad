@@ -1129,6 +1129,19 @@ OC.L10N.register(
     "Simulated" : "Сімулявана",
     "Error" : "Памылка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвай {name} ужо існуе. Выберыце «Замяніць», каб перазапісаць яго пустым файлам, або змяніце назву.",
-    "Replace" : "Замяніць"
+    "Replace" : "Замяніць",
+    "Tiles" : "Пліткі",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Націсканні на пліткі не запісваюцца. Уключыце адсочванне плітак, каб бачыць, якімі карыстаюцца.",
+    "Most clicked tiles" : "Самыя націсканыя пліткі",
+    "Clicks" : "Націсканні",
+    "Show the tiles of {name}" : "Паказаць пліткі {name}",
+    "Removed dashboard" : "Выдаленая панэль",
+    "Removed tile" : "Выдаленая плітка",
+    "No tile clicks recorded for this period." : "За гэты перыяд націсканняў на пліткі не запісана.",
+    "Tiles on {name}" : "Пліткі на {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: націсканняў {clicks}, людзей {people}",
+    "Export tile clicks (CSV)" : "Экспартаваць націсканні плітак (CSV)",
+    "The tile clicks could not be loaded." : "Не ўдалося загрузіць націсканні плітак.",
+    "The tile clicks could not be exported." : "Не ўдалося экспартаваць націсканні плітак."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

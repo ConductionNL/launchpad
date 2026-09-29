@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Benzetildi",
     "Error" : "Hata",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
-    "Replace" : "Değiştir"
+    "Replace" : "Değiştir",
+    "Tiles" : "Kutucuklar",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Kutucuk tıklamaları kaydedilmiyor. Hangi kutucukların kullanıldığını görmek için izlemeyi açın.",
+    "Most clicked tiles" : "En çok tıklanan kutucuklar",
+    "Clicks" : "Tıklamalar",
+    "Show the tiles of {name}" : "{name} kutucuklarını göster",
+    "Removed dashboard" : "Kaldırılmış pano",
+    "Removed tile" : "Kaldırılmış kutucuk",
+    "No tile clicks recorded for this period." : "Bu dönem için kutucuk tıklaması kaydedilmedi.",
+    "Tiles on {name}" : "{name} üzerindeki kutucuklar",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {people} kişiden {clicks} tıklama",
+    "Export tile clicks (CSV)" : "Kutucuk tıklamalarını dışa aktar (CSV)",
+    "The tile clicks could not be loaded." : "Kutucuk tıklamaları yüklenemedi.",
+    "The tile clicks could not be exported." : "Kutucuk tıklamaları dışa aktarılamadı."
 },
 "nplurals=2; plural=(n != 1);"
 );

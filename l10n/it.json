@@ -1105,6 +1105,19 @@
         "Simulated": "Simulato",
         "Error": "Errore",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Esiste già un file chiamato {name}. Scegli Sostituisci per sovrascriverlo con un file vuoto, oppure cambia il nome.",
-        "Replace": "Sostituisci"
+        "Replace": "Sostituisci",
+        "Tiles": "Riquadri",
+        "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use.": "I clic sui riquadri non vengono registrati. Attiva il monitoraggio dei riquadri per vedere quali vengono usati.",
+        "Most clicked tiles": "Riquadri più cliccati",
+        "Clicks": "Clic",
+        "Show the tiles of {name}": "Mostra i riquadri di {name}",
+        "Removed dashboard": "Dashboard rimossa",
+        "Removed tile": "Riquadro rimosso",
+        "No tile clicks recorded for this period.": "Nessun clic sui riquadri registrato in questo periodo.",
+        "Tiles on {name}": "Riquadri di {name}",
+        "{tile}: {clicks} clicks by {people} people": "{tile}: {clicks} clic da {people} persone",
+        "Export tile clicks (CSV)": "Esporta i clic sui riquadri (CSV)",
+        "The tile clicks could not be loaded.": "Non è stato possibile caricare i clic sui riquadri.",
+        "The tile clicks could not be exported.": "Non è stato possibile esportare i clic sui riquadri."
     }
 }

@@ -1138,7 +1138,20 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Eroare",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-    "Replace" : "Înlocuiește"
+    "Replace" : "Înlocuiește",
+    "Tiles" : "Plăci",
+    "Tile clicks are not being recorded. Switch tile tracking on to see which tiles people use." : "Clicurile pe plăci nu sunt înregistrate. Activați urmărirea plăcilor pentru a vedea care sunt folosite.",
+    "Most clicked tiles" : "Cele mai accesate plăci",
+    "Clicks" : "Clicuri",
+    "Show the tiles of {name}" : "Afișează plăcile din {name}",
+    "Removed dashboard" : "Tablou de bord eliminat",
+    "Removed tile" : "Placă eliminată",
+    "No tile clicks recorded for this period." : "Nu există clicuri pe plăci înregistrate în această perioadă.",
+    "Tiles on {name}" : "Plăci în {name}",
+    "{tile}: {clicks} clicks by {people} people" : "{tile}: {clicks} clicuri de la {people} persoane",
+    "Export tile clicks (CSV)" : "Exportați clicurile pe plăci (CSV)",
+    "The tile clicks could not be loaded." : "Clicurile pe plăci nu au putut fi încărcate.",
+    "The tile clicks could not be exported." : "Clicurile pe plăci nu au putut fi exportate."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

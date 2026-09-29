@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Simuloitu",
     "Error" : "Virhe",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tiedosto nimeltä {name} on jo olemassa. Valitse Korvaa korvataksesi sen tyhjällä tiedostolla tai vaihda nimi.",
-    "Replace" : "Korvaa"
+    "Replace" : "Korvaa",
+    "Take over" : "Ota hallintaan",
+    "Take over editing?" : "Otetaanko muokkaus hallintaan?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} ei voi enää tallentaa muutoksia tähän koontinäyttöön. Ota hallintaan vain, kun tiedät hänen lopettaneen.",
+    "A colleague" : "Työtoveri",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} muokkaa tätä koontinäyttöä. Voit muokata sitä, kun hän on valmis.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Joku muu muokkaa nyt tätä koontinäyttöä, joten olet taas katselutilassa.",
+    "You cannot edit this dashboard." : "Et voi muokata tätä koontinäyttöä.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Koontinäyttöä ei voitu avata muokattavaksi. Yritä hetken kuluttua uudelleen.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa."
 },
 "nplurals=2; plural=(n != 1);"
 );

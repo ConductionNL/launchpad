@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Simulirano",
     "Error" : "Napaka",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
-    "Replace" : "Zamenjaj"
+    "Replace" : "Zamenjaj",
+    "Take over" : "Prevzemi",
+    "Take over editing?" : "Prevzamem urejanje?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} ne bo več mogel shranjevati sprememb na tej nadzorni plošči. Prevzemite le, če veste, da je oseba končala.",
+    "A colleague" : "Sodelavec",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} ureja to nadzorno ploščo. Urejate jo lahko, ko oseba konča.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "To nadzorno ploščo zdaj ureja nekdo drug, zato ste spet v načinu ogleda.",
+    "You cannot edit this dashboard." : "Te nadzorne plošče ne morete urejati.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Nadzorne plošče ni bilo mogoče odpreti za urejanje. Poskusite znova čez trenutek.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Če oseba preneha, se nadzorna plošča sprosti v {minutes} minutah."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

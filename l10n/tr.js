@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Benzetildi",
     "Error" : "Hata",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
-    "Replace" : "Değiştir"
+    "Replace" : "Değiştir",
+    "Take over" : "Devral",
+    "Take over editing?" : "Düzenleme devralınsın mı?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} artık bu panoda değişiklik kaydedemez. Yalnızca kişinin işini bitirdiğini biliyorsanız devralın.",
+    "A colleague" : "Bir iş arkadaşı",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} bu panoyu düzenliyor. İşini bitirdiğinde siz düzenleyebilirsiniz.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Bu panoyu şimdi başka biri düzenliyor, bu yüzden görüntüleme moduna döndünüz.",
+    "You cannot edit this dashboard." : "Bu panoyu düzenleyemezsiniz.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Pano düzenleme için açılamadı. Birazdan yeniden deneyin.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır."
 },
 "nplurals=2; plural=(n != 1);"
 );

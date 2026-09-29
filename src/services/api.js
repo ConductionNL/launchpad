@@ -218,7 +218,9 @@ export const api = {
 	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
 	 */
 	acquireLock(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
 	},
 
 	/**
@@ -229,7 +231,9 @@ export const api = {
 	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
 	 */
 	heartbeatLock(uuid) {
-		return axios.put(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
+		return axios.put(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
 	},
 
 	/**
@@ -240,7 +244,9 @@ export const api = {
 	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
 	 */
 	releaseLock(uuid) {
-		return axios.delete(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`)
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
 	},
 
 	/**
@@ -267,7 +273,9 @@ export const api = {
 	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
 	 */
 	forceReleaseLock(uuid) {
-		return axios.post(`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock/force-release`)
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock/force-release`,
+		)
 	},
 
 	/**

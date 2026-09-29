@@ -1106,6 +1106,15 @@
         "Simulated": "Simulováno",
         "Error": "Chyba",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
-        "Replace": "Nahradit"
+        "Replace": "Nahradit",
+        "Take over": "Převzít",
+        "Take over editing?": "Převzít úpravy?",
+        "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.": "{name} už nebude moci ukládat změny na tomto panelu. Převezměte jen tehdy, když víte, že daná osoba skončila.",
+        "A colleague": "Kolega",
+        "{name} is editing this dashboard. You can edit it once they are done.": "{name} upravuje tento panel. Upravit ho můžete, až skončí.",
+        "Someone else is editing this dashboard now, so you are back in view mode.": "Tento panel teď upravuje někdo jiný, takže jste zpět v režimu zobrazení.",
+        "You cannot edit this dashboard.": "Tento panel nemůžete upravovat.",
+        "The dashboard could not be opened for editing. Try again in a moment.": "Panel se nepodařilo otevřít k úpravám. Zkuste to za chvíli znovu.",
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Pokud přestane, panel se uvolní do {minutes} minut."
     }
 }

@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "I simuluar",
     "Error" : "Gabim",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-    "Replace" : "Zëvendëso"
+    "Replace" : "Zëvendëso",
+    "Take over" : "Merr përsipër",
+    "Take over editing?" : "Të merret përsipër redaktimi?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} nuk do të mund të ruajë më ndryshime në këtë panel. Merreni përsipër vetëm kur e dini se ka mbaruar.",
+    "A colleague" : "Një koleg",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} po e redakton këtë panel. Mund ta redaktoni sapo të mbarojë.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Dikush tjetër po e redakton tani këtë panel, ndaj jeni kthyer në mënyrën e shikimit.",
+    "You cannot edit this dashboard." : "Nuk mund ta redaktoni këtë panel.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Paneli nuk mund të hapej për redaktim. Provoni sërish pas pak.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Nëse ndalon, paneli lirohet brenda {minutes} minutash."
 },
 "nplurals=2; plural=(n != 1);"
 );

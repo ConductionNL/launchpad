@@ -8,8 +8,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { HEARTBEAT_MS, useDashboardLock } from '../useDashboardLock.js'
 import { api } from '../../services/api.js'
+import { HEARTBEAT_MS, useDashboardLock } from '../useDashboardLock.js'
 
 vi.mock('@nextcloud/router', () => ({
 	generateUrl: (path) => `/index.php${path}`,
@@ -38,7 +38,14 @@ const heldLock = {
 	expiresIn: 900,
 	lockTimeoutSec: 900,
 }
-const conflict = (status, data) => Object.assign(new Error('http'), { response: { status, data } })
+function withoutUserId(lock) {
+	const copy = { ...lock }
+	delete copy.userId
+	return copy
+}
+function conflict(status, data) {
+	return Object.assign(new Error('http'), { response: { status, data } })
+}
 
 beforeEach(() => {
 	vi.useFakeTimers()
@@ -60,17 +67,26 @@ describe('useDashboardLock', () => {
 	})
 
 	it('REQ-LOCKUI-001: a 409 blocks and names the holder', async () => {
-		const { userId, ...conflictLock } = heldLock
-		api.acquireLock.mockRejectedValue(conflict(409, { error: 'Lock held by another user', code: 'lock_conflict', lock: conflictLock }))
+		const conflictLock = withoutUserId(heldLock)
+		api.acquireLock.mockRejectedValue(
+			conflict(409, {
+				error: 'Lock held by another user',
+				code: 'lock_conflict',
+				lock: conflictLock,
+			}),
+		)
 		const lock = useDashboardLock()
 		expect(await lock.acquire('dash-uuid')).toBe(false)
 		expect(lock.state.status).toBe('blocked')
 		expect(lock.state.holderName).toBe('Sanne')
 		expect(lock.state.since).toBe('2026-09-29 09:00:00')
+		expect(lock.state.expiresIn).toBe(900)
 	})
 
 	it('REQ-LOCKUI-001: a 403 or a network failure never grants editing', async () => {
-		api.acquireLock.mockRejectedValue(conflict(403, { error: 'Forbidden', code: 'lock_forbidden' }))
+		api.acquireLock.mockRejectedValue(
+			conflict(403, { error: 'Forbidden', code: 'lock_forbidden' }),
+		)
 		const lock = useDashboardLock()
 		expect(await lock.acquire('dash-uuid')).toBe(false)
 		expect(lock.state.status).toBe('forbidden')
@@ -95,7 +111,9 @@ describe('useDashboardLock', () => {
 
 	it('REQ-LOCKUI-002: a 404 on refresh loses the lock and tells the page', async () => {
 		api.acquireLock.mockResolvedValue({ data: heldLock })
-		api.heartbeatLock.mockRejectedValue(conflict(404, { error: 'Lock not found', code: 'lock_not_found' }))
+		api.heartbeatLock.mockRejectedValue(
+			conflict(404, { error: 'Lock not found', code: 'lock_not_found' }),
+		)
 		const onLost = vi.fn()
 		const lock = useDashboardLock({ onLost })
 		await lock.acquire('dash-uuid')
@@ -138,12 +156,16 @@ describe('useDashboardLock', () => {
 	})
 
 	it('REQ-LOCKUI-003: take over force-releases and then acquires', async () => {
-		const { userId, ...conflictLock } = heldLock
-		api.acquireLock.mockRejectedValueOnce(conflict(409, { code: 'lock_conflict', lock: conflictLock }))
+		const conflictLock = withoutUserId(heldLock)
+		api.acquireLock.mockRejectedValueOnce(
+			conflict(409, { code: 'lock_conflict', lock: conflictLock }),
+		)
 		api.forceReleaseLock.mockResolvedValue({ data: { released: true } })
 		const lock = useDashboardLock()
 		await lock.acquire('dash-uuid')
-		api.acquireLock.mockResolvedValue({ data: { ...heldLock, userId: 'admin', displayName: 'Admin' } })
+		api.acquireLock.mockResolvedValue({
+			data: { ...heldLock, userId: 'admin', displayName: 'Admin' },
+		})
 		expect(await lock.takeOver()).toBe(true)
 		expect(api.forceReleaseLock).toHaveBeenCalledWith('dash-uuid')
 		expect(lock.state.status).toBe('held')

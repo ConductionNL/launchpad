@@ -18,7 +18,7 @@ export const HEARTBEAT_MS = 5 * 60 * 1000
  * `state.status` is one of:
  * - `none`: no lock asked for, or released;
  * - `held`: this person holds the lock and may edit;
- * - `blocked`: a colleague holds it (`holderName`, `since`);
+ * - `blocked`: a colleague holds it (`holderName`, `since`, `expiresIn`);
  * - `forbidden`: the server refused (403), so the page stays read-only;
  * - `unavailable`: the request failed, so the page stays read-only;
  * - `lost`: a refresh answered 404, someone else has the lock now.
@@ -27,7 +27,7 @@ export const HEARTBEAT_MS = 5 * 60 * 1000
  * without a granted lock.
  *
  * @param {object} [options] Options.
- * @param {Function} [options.onLost] Called once when a held lock is lost.
+ * @param {() => void} [options.onLost] Called once when a held lock is lost.
  * @return {object} `{state, acquire, release, takeOver, stop}`.
  * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
  */
@@ -37,6 +37,7 @@ export function useDashboardLock({ onLost } = {}) {
 		uuid: null,
 		holderName: '',
 		since: null,
+		expiresIn: null,
 	})
 	let timer = null
 
@@ -96,6 +97,7 @@ export function useDashboardLock({ onLost } = {}) {
 		state.uuid = uuid
 		state.holderName = ''
 		state.since = null
+		state.expiresIn = null
 		try {
 			const { data } = await api.acquireLock(uuid)
 			state.status = 'held'
@@ -109,6 +111,7 @@ export function useDashboardLock({ onLost } = {}) {
 				state.status = 'blocked'
 				state.holderName = response.data?.lock?.displayName ?? ''
 				state.since = response.data?.lock?.acquiredAt ?? null
+				state.expiresIn = response.data?.lock?.expiresIn ?? null
 			} else if (response?.status === 403) {
 				state.status = 'forbidden'
 			} else {
@@ -156,7 +159,8 @@ export function useDashboardLock({ onLost } = {}) {
 		try {
 			await api.forceReleaseLock(uuid)
 		} catch (error) {
-			state.status = error?.response?.status === 403 ? 'forbidden' : 'unavailable'
+			state.status =
+				error?.response?.status === 403 ? 'forbidden' : 'unavailable'
 			return false
 		}
 		return acquire(uuid)

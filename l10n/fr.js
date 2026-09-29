@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Simulé",
     "Error" : "Erreur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Un fichier nommé {name} existe déjà. Choisissez Remplacer pour l'écraser avec un fichier vide, ou changez le nom.",
-    "Replace" : "Remplacer"
+    "Replace" : "Remplacer",
+    "Take over" : "Prendre la main",
+    "Take over editing?" : "Prendre la main sur la modification ?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} ne pourra plus enregistrer de modifications sur ce tableau de bord. Ne prenez la main que si vous savez que cette personne a terminé.",
+    "A colleague" : "Un collègue",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} modifie ce tableau de bord. Vous pourrez le modifier dès que cette personne aura terminé.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Quelqu'un d'autre modifie maintenant ce tableau de bord, vous êtes donc revenu en mode lecture.",
+    "You cannot edit this dashboard." : "Vous ne pouvez pas modifier ce tableau de bord.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Le tableau de bord n'a pas pu être ouvert en modification. Réessayez dans un instant.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Si cette personne s'arrête, le tableau de bord se libère dans les {minutes} minutes."
 },
 "nplurals=2; plural=(n > 1);"
 );

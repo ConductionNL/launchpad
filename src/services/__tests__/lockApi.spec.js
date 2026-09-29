@@ -38,6 +38,9 @@ describe('lock api', () => {
 
 	it('releases on page hide with a keepalive request', () => {
 		api.releaseLockOnPageHide('dash-uuid')
-		expect(axios.delete).toHaveBeenCalledWith(url, { adapter: 'fetch', fetchOptions: { keepalive: true } })
+		expect(axios.delete).toHaveBeenCalledWith(url, {
+			adapter: 'fetch',
+			fetchOptions: { keepalive: true },
+		})
 	})
 })

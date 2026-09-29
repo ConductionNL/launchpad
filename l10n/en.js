@@ -1116,7 +1116,16 @@ OC.L10N.register(
     "Simulated" : "Simulated",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.",
-    "Replace" : "Replace"
+    "Replace" : "Replace",
+    "Take over" : "Take over",
+    "Take over editing?" : "Take over editing?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.",
+    "A colleague" : "A colleague",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} is editing this dashboard. You can edit it once they are done.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Someone else is editing this dashboard now, so you are back in view mode.",
+    "You cannot edit this dashboard." : "You cannot edit this dashboard.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "The dashboard could not be opened for editing. Try again in a moment.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "If they stop, the dashboard frees up within {minutes} minutes."
 },
 "nplurals=2; plural=(n != 1);"
 );

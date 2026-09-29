@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Imituota",
     "Error" : "Klaida",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
-    "Replace" : "Pakeisti"
+    "Replace" : "Pakeisti",
+    "Take over" : "Perimti",
+    "Take over editing?" : "Perimti redagavimą?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} nebegalės išsaugoti šios suvestinės pakeitimų. Perimkite tik tada, kai žinote, kad asmuo baigė.",
+    "A colleague" : "Kolega",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} redaguoja šią suvestinę. Galėsite ją redaguoti, kai asmuo baigs.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Šią suvestinę dabar redaguoja kažkas kitas, todėl grįžote į peržiūros režimą.",
+    "You cannot edit this dashboard." : "Negalite redaguoti šios suvestinės.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Nepavyko atidaryti suvestinės redagavimui. Bandykite dar kartą po akimirkos.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

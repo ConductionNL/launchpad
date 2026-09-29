@@ -84,6 +84,8 @@
 		</div>
 
 		<div class="dashboard-switcher-sidebar__body">
+			<!-- dashboard-language-and-details-tabs REQ-MDUI-003 -->
+			<DetailFilter :fields="filterFields" @change="$emit('filter', $event)" />
 			<!-- 1. Primary group dashboards -->
 			<section
 				v-if="primaryGroupDashboards.length > 0"
@@ -391,12 +393,14 @@ import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
+import DetailFilter from './DetailFilter.vue'
 import SidebarFooter from './SidebarFooter.vue'
 
 export default {
 	name: 'DashboardSwitcherSidebar',
 
 	components: {
+		DetailFilter,
 		Close,
 		Plus,
 		Star,
@@ -407,6 +411,12 @@ export default {
 	},
 
 	props: {
+		/** Detail field definitions for "Filter by detail". */
+		filterFields: {
+			type: Array,
+			default: () => [],
+		},
+
 		/**
 		 * Controlled by the parent. Vue 3 removed the component-level
 		 * `model: { prop, event }` option that used to rebind a bare
@@ -539,6 +549,8 @@ export default {
 
 	emits: [
 		'switch',
+		// `{<key>: <value>}` or null: filter the list by a detail field.
+		'filter',
 		'createDashboard',
 		'deleteDashboard',
 		'update:open',

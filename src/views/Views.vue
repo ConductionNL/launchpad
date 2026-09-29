@@ -40,7 +40,9 @@
 				:dashboardQuotaReached="dashboardQuotaReached"
 				:dashboardQuotaTooltip="dashboardQuotaTooltip"
 				:isEditMode="isEditMode"
+				:filterFields="detailFields"
 				@update:open="sidebarOpen = $event"
+				@filter="onDetailFilter"
 				@switch="onSidebarSwitch"
 				@createDashboard="onSidebarCreateDashboard"
 				@deleteDashboard="onSidebarDeleteDashboard"
@@ -180,6 +182,7 @@
 		<div
 			class="launchpad-container"
 			:class="{ 'launchpad-edit-mode': isEditMode }">
+			<DashboardLanguageHeading :dashboard="activeDashboard" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -386,6 +389,7 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
@@ -434,6 +438,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		DashboardLanguageHeading,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -595,6 +600,11 @@ export default {
 			// report modal state.
 			ackReportOpen: false,
 			ackReportKey: '',
+			// dashboard-language-and-details-tabs: detail field definitions
+			// for "Filter by detail", and the uuids the filter keeps (null
+			// when no filter is set).
+			detailFields: [],
+			detailFilterUuids: null,
 		}
 	},
 
@@ -760,11 +770,11 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		sidebarGroupDashboards() {
-			return [
+			return this.applyDetailFilter([
 				...this.groupSharedDashboards,
 				...this.defaultGroupDashboards,
 				...this.sharedWithMeDashboards,
-			]
+			])
 		},
 
 		/**
@@ -809,7 +819,7 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		sidebarUserDashboards() {
-			return this.userDashboards
+			return this.applyDetailFilter(this.userDashboards)
 		},
 
 		/**
@@ -935,6 +945,8 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	mounted() {
+		// dashboard-language-and-details-tabs: fields for "Filter by detail".
+		this.loadDetailFields()
 		// Attach the document-level click listener (REQ-WDG-016 outside-
 		// click closes popover). Detached in beforeDestroy so we never
 		// leak a listener across mounts.
@@ -1106,6 +1118,58 @@ export default {
 		 * later key wins, so the store action could never run. The local one
 		 * (which delegates to `removeWidget`) is what `@delete` invokes.
 		 */
+
+		/**
+		 * Keep only the dashboards the detail filter kept.
+		 *
+		 * @param {Array<object>} list Dashboards of one section.
+		 * @return {Array<object>} The filtered list, or the list itself.
+		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 */
+		applyDetailFilter(list) {
+			if (this.detailFilterUuids === null) {
+				return list
+			}
+			return list.filter((d) => this.detailFilterUuids.includes(d.uuid))
+		},
+
+		/**
+		 * Read the detail fields once, for the switcher's filter.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 */
+		async loadDetailFields() {
+			try {
+				const { data } = await api.getMetadataFieldDefinitions()
+				this.detailFields = Array.isArray(data?.fields) ? data.fields : []
+			} catch {
+				this.detailFields = []
+			}
+		},
+
+		/**
+		 * Filter the switcher: ask the visible list with the filter and
+		 * keep the uuids it returns; null clears the filter.
+		 *
+		 * @param {object|null} filter `{<key>: <value>}` or null.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 */
+		async onDetailFilter(filter) {
+			if (!filter) {
+				this.detailFilterUuids = null
+				return
+			}
+			try {
+				const { data } = await api.getVisibleDashboards(filter)
+				const rows = Array.isArray(data) ? data : (data?.items ?? [])
+				this.detailFilterUuids = rows.map((d) => d.uuid)
+			} catch (error) {
+				logger.error('Failed to filter dashboards:', error)
+				this.detailFilterUuids = null
+			}
+		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		toggleEditMode() {

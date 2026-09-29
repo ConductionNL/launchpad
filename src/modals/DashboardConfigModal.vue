@@ -126,6 +126,24 @@
 			</div>
 			<!-- /default panel -->
 
+			<div
+				v-if="!isCreate && currentTab === 'languages' && dashboard?.uuid"
+				id="config-panel-languages"
+				role="tabpanel"
+				data-test="config-panel-languages"
+				class="dashboard-config__panel">
+				<LanguagesTab :dashboardUuid="dashboard.uuid" />
+			</div>
+
+			<div
+				v-if="!isCreate && currentTab === 'details' && dashboard?.uuid"
+				id="config-panel-details"
+				role="tabpanel"
+				data-test="config-panel-details"
+				class="dashboard-config__panel">
+				<DetailsTab :dashboardUuid="dashboard.uuid" />
+			</div>
+
 			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
 			     per-share permission rows are reachable ONLY from this tab. -->
 			<div
@@ -378,11 +396,15 @@ import Close from 'vue-material-design-icons/Close.vue'
 import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
+import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import Lock from 'vue-material-design-icons/Lock.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import StarOutline from 'vue-material-design-icons/StarOutline.vue'
+import Translate from 'vue-material-design-icons/Translate.vue'
 import Tune from 'vue-material-design-icons/Tune.vue'
+import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
+import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
 import { api } from '../services/api.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
@@ -399,6 +421,8 @@ export default {
 	name: 'DashboardConfigModal',
 
 	components: {
+		DetailsTab,
+		LanguagesTab,
 		NcModal,
 		NcButton,
 		NcTextField,
@@ -564,6 +588,23 @@ export default {
 				label: t('launchpad', 'Default'),
 				icon: StarOutline,
 			})
+			// dashboard-language-and-details-tabs: language versions and
+			// detail fields, for the owner (a dashboard needs a uuid first,
+			// so the strip is hidden while creating).
+			if (this.canManageShares && this.dashboard?.uuid) {
+				list.push(
+					{
+						id: 'languages',
+						label: t('launchpad', 'Languages'),
+						icon: Translate,
+					},
+					{
+						id: 'details',
+						label: t('launchpad', 'Details'),
+						icon: FormatListBulleted,
+					},
+				)
+			}
 			return list
 		},
 

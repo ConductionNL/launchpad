@@ -244,6 +244,9 @@
 				<template #group-dashboards>
 					<GroupDashboardsTab />
 				</template>
+				<template #detail-fields>
+					<MetadataFieldsSettings />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -280,6 +283,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
+import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
@@ -307,6 +311,7 @@ export default {
 		OperationsTab,
 		RolesPermissionsTab,
 		VersioningAuditTab,
+		MetadataFieldsSettings,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -394,6 +399,10 @@ export default {
 				{
 					slug: 'group-dashboards',
 					label: this.t('launchpad', 'Group dashboards'),
+				},
+				{
+					slug: 'detail-fields',
+					label: this.t('launchpad', 'Detail fields'),
 				},
 			]
 		},

@@ -426,6 +426,9 @@ export const useDashboardStore = defineStore('dashboard', {
 						// owner when an older backend omits them.
 						isOwner: activeResponse.data.isOwner ?? true,
 						sharedBy: activeResponse.data.sharedBy ?? null,
+						// dashboard-language-and-details-tabs: more than one
+						// language version, so the page reads the resolved one.
+						hasVariants: activeResponse.data.hasVariants === true,
 					}
 					this.widgetPlacements = activeResponse.data.placements || []
 					this.permissionLevel =
@@ -469,6 +472,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					...response.data.dashboard,
 					isOwner: response.data.isOwner,
 					sharedBy: response.data.sharedBy,
+					hasVariants: response.data.hasVariants === true,
 				}
 				this.widgetPlacements = response.data.placements || []
 				this.permissionLevel = response.data.permissionLevel || 'full'

@@ -1138,6 +1138,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Неко други сада уређује ову контролну таблу, па сте поново у режиму приказа.",
     "You cannot edit this dashboard." : "Не можете да уређујете ову контролну таблу.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Контролна табла није могла да се отвори за уређивање. Покушајте поново за тренутак.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ако та особа престане, контролна табла се ослобађа за највише {minutes} минута."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ако та особа престане, контролна табла се ослобађа за највише {minutes} минута.",
+    "Publish" : "Објави",
+    "Unpublish" : "Повуци објаву",
+    "Schedule…" : "Закажи…",
+    "Goes live on" : "Објављује се",
+    "Comes down on (optional)" : "Уклања се (опционо)",
+    "Schedule" : "Закажи",
+    "Goes live on {date}." : "Објављује се {date}.",
+    "Comes down on {date}." : "Уклања се {date}.",
+    "The dashboard has to go live before it comes down." : "Контролна табла мора бити објављена пре уклањања.",
+    "Choose a time in the future." : "Изаберите време у будућности.",
+    "The dashboard could not be scheduled." : "Контролна табла није могла да се закаже."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

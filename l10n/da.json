@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "En anden redigerer nu dette dashboard, så du er tilbage i visningstilstand.",
         "You cannot edit this dashboard.": "Du kan ikke redigere dette dashboard.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Dashboardet kunne ikke åbnes til redigering. Prøv igen om lidt.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Hvis vedkommende stopper, bliver dashboardet ledigt inden for {minutes} minutter."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Hvis vedkommende stopper, bliver dashboardet ledigt inden for {minutes} minutter.",
+        "Publish": "Udgiv",
+        "Unpublish": "Tilbagetræk udgivelse",
+        "Schedule…": "Planlæg…",
+        "Goes live on": "Går live",
+        "Comes down on (optional)": "Tages ned (valgfri)",
+        "Schedule": "Planlæg",
+        "Goes live on {date}.": "Går live {date}.",
+        "Comes down on {date}.": "Tages ned {date}.",
+        "The dashboard has to go live before it comes down.": "Dashboardet skal gå live, før det tages ned.",
+        "Choose a time in the future.": "Vælg et tidspunkt i fremtiden.",
+        "The dashboard could not be scheduled.": "Dashboardet kunne ikke planlægges."
     }
 }

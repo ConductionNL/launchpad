@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Xi ħadd ieħor qed jeditja dan id-dashboard issa, għalhekk inti lura fil-modalità tal-wiri.",
     "You cannot edit this dashboard." : "Ma tistax teditja dan id-dashboard.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Id-dashboard ma setax jinfetaħ għall-editjar. Erġa' pprova ftit wara.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti.",
+    "Publish" : "Ippubblika",
+    "Unpublish" : "Neħħi l-pubblikazzjoni",
+    "Schedule…" : "Skeda…",
+    "Goes live on" : "Jidħol online fi",
+    "Comes down on (optional)" : "Jitneħħa fi (mhux obbligatorju)",
+    "Schedule" : "Skeda",
+    "Goes live on {date}." : "Jidħol online fi {date}.",
+    "Comes down on {date}." : "Jitneħħa fi {date}.",
+    "The dashboard has to go live before it comes down." : "Id-dashboard irid jidħol online qabel ma jitneħħa.",
+    "Choose a time in the future." : "Agħżel ħin fil-futur.",
+    "The dashboard could not be scheduled." : "Id-dashboard ma setax jiġi skedat."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "To nadzorno ploščo zdaj ureja nekdo drug, zato ste spet v načinu ogleda.",
     "You cannot edit this dashboard." : "Te nadzorne plošče ne morete urejati.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nadzorne plošče ni bilo mogoče odpreti za urejanje. Poskusite znova čez trenutek.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Če oseba preneha, se nadzorna plošča sprosti v {minutes} minutah."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Če oseba preneha, se nadzorna plošča sprosti v {minutes} minutah.",
+    "Publish" : "Objavi",
+    "Unpublish" : "Prekliči objavo",
+    "Schedule…" : "Načrtuj…",
+    "Goes live on" : "Objavi se",
+    "Comes down on (optional)" : "Umakne se (neobvezno)",
+    "Schedule" : "Načrtuj",
+    "Goes live on {date}." : "Objavi se {date}.",
+    "Comes down on {date}." : "Umakne se {date}.",
+    "The dashboard has to go live before it comes down." : "Nadzorna plošča mora biti objavljena, preden se umakne.",
+    "Choose a time in the future." : "Izberite čas v prihodnosti.",
+    "The dashboard could not be scheduled." : "Nadzorne plošče ni bilo mogoče načrtovati."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

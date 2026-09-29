@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Qualcun altro sta ora modificando questa dashboard, quindi sei tornato in modalità visualizzazione.",
     "You cannot edit this dashboard." : "Non puoi modificare questa dashboard.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Non è stato possibile aprire la dashboard per la modifica. Riprova tra poco.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Se smette, la dashboard si libera entro {minutes} minuti."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Se smette, la dashboard si libera entro {minutes} minuti.",
+    "Publish" : "Pubblica",
+    "Unpublish" : "Ritira la pubblicazione",
+    "Schedule…" : "Programma…",
+    "Goes live on" : "Va online il",
+    "Comes down on (optional)" : "Va offline il (facoltativo)",
+    "Schedule" : "Programma",
+    "Goes live on {date}." : "Va online il {date}.",
+    "Comes down on {date}." : "Va offline il {date}.",
+    "The dashboard has to go live before it comes down." : "La dashboard deve andare online prima di andare offline.",
+    "Choose a time in the future." : "Scegli un momento nel futuro.",
+    "The dashboard could not be scheduled." : "Non è stato possibile programmare la dashboard."
 },
 "nplurals=2; plural=(n != 1);"
 );

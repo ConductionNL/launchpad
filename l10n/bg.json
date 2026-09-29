@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Някой друг редактира това табло сега, затова сте отново в режим на преглед.",
         "You cannot edit this dashboard.": "Не можете да редактирате това табло.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Таблото не можа да се отвори за редактиране. Опитайте отново след малко.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Ако спре, таблото се освобождава до {minutes} минути."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Ако спре, таблото се освобождава до {minutes} минути.",
+        "Publish": "Публикуване",
+        "Unpublish": "Спиране на публикуването",
+        "Schedule…": "Насрочване…",
+        "Goes live on": "Публикува се на",
+        "Comes down on (optional)": "Сваля се на (по избор)",
+        "Schedule": "Насрочване",
+        "Goes live on {date}.": "Публикува се на {date}.",
+        "Comes down on {date}.": "Сваля се на {date}.",
+        "The dashboard has to go live before it comes down.": "Таблото трябва да се публикува, преди да бъде свалено.",
+        "Choose a time in the future.": "Изберете време в бъдещето.",
+        "The dashboard could not be scheduled.": "Таблото не можа да бъде насрочено."
     }
 }

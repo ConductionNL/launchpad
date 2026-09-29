@@ -1125,7 +1125,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Someone else is editing this dashboard now, so you are back in view mode.",
     "You cannot edit this dashboard." : "You cannot edit this dashboard.",
     "The dashboard could not be opened for editing. Try again in a moment." : "The dashboard could not be opened for editing. Try again in a moment.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "If they stop, the dashboard frees up within {minutes} minutes."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "If they stop, the dashboard frees up within {minutes} minutes.",
+    "Publish" : "Publish",
+    "Unpublish" : "Unpublish",
+    "Schedule…" : "Schedule…",
+    "Goes live on" : "Goes live on",
+    "Comes down on (optional)" : "Comes down on (optional)",
+    "Schedule" : "Schedule",
+    "Goes live on {date}." : "Goes live on {date}.",
+    "Comes down on {date}." : "Comes down on {date}.",
+    "The dashboard has to go live before it comes down." : "The dashboard has to go live before it comes down.",
+    "Choose a time in the future." : "Choose a time in the future.",
+    "The dashboard could not be scheduled." : "The dashboard could not be scheduled."
 },
 "nplurals=2; plural=(n != 1);"
 );

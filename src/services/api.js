@@ -310,15 +310,22 @@ export const api = {
 	 * Schedule a dashboard for automatic publication (REQ-DASH-034).
 	 *
 	 * @param {string} uuid UUID of the dashboard to schedule.
-	 * @param {string} publishAt Future ISO-8601 timestamp; the backend
-	 *   rejects past dates with a localised 400 error message.
+	 * @param {string|null} publishAt Future ISO-8601 timestamp, or null
+	 *   with only a take-down time; the backend rejects past dates.
+	 * @param {string|null} [unpublishAt] Future take-down time, or null.
 	 * @return {Promise} Axios response for the schedule call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	scheduleDashboard(uuid, publishAt) {
+	scheduleDashboard(uuid, publishAt, unpublishAt = null) {
+		// sharing-dashboard-schedule-screen: a take-down time, alone or with
+		// the go-live time (REQ-SCHEDUI-002).
+		const body = { publishAt }
+		if (unpublishAt) {
+			body.unpublishAt = unpublishAt
+		}
 		return axios.post(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/schedule`,
-			{ publishAt },
+			body,
 		)
 	},
 

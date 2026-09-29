@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Keegi teine muudab nüüd seda töölauda, seega oled tagasi vaaterežiimis.",
     "You cannot edit this dashboard." : "Sa ei saa seda töölauda muuta.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Töölauda ei õnnestunud muutmiseks avada. Proovi hetke pärast uuesti.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Kui ta lõpetab, vabaneb töölaud {minutes} minuti jooksul."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Kui ta lõpetab, vabaneb töölaud {minutes} minuti jooksul.",
+    "Publish" : "Avalda",
+    "Unpublish" : "Tühista avaldamine",
+    "Schedule…" : "Ajasta…",
+    "Goes live on" : "Avaldatakse",
+    "Comes down on (optional)" : "Eemaldatakse (valikuline)",
+    "Schedule" : "Ajasta",
+    "Goes live on {date}." : "Avaldatakse {date}.",
+    "Comes down on {date}." : "Eemaldatakse {date}.",
+    "The dashboard has to go live before it comes down." : "Töölaud peab avaldatama enne, kui see eemaldatakse.",
+    "Choose a time in the future." : "Vali tulevane aeg.",
+    "The dashboard could not be scheduled." : "Töölauda ei õnnestunud ajastada."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Šią suvestinę dabar redaguoja kažkas kitas, todėl grįžote į peržiūros režimą.",
     "You cannot edit this dashboard." : "Negalite redaguoti šios suvestinės.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nepavyko atidaryti suvestinės redagavimui. Bandykite dar kartą po akimirkos.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min.",
+    "Publish" : "Paskelbti",
+    "Unpublish" : "Atšaukti paskelbimą",
+    "Schedule…" : "Suplanuoti…",
+    "Goes live on" : "Paskelbiama",
+    "Comes down on (optional)" : "Pašalinama (nebūtina)",
+    "Schedule" : "Suplanuoti",
+    "Goes live on {date}." : "Paskelbiama {date}.",
+    "Comes down on {date}." : "Pašalinama {date}.",
+    "The dashboard has to go live before it comes down." : "Suvestinė turi būti paskelbta prieš ją pašalinant.",
+    "Choose a time in the future." : "Pasirinkite ateities laiką.",
+    "The dashboard could not be scheduled." : "Nepavyko suplanuoti suvestinės."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

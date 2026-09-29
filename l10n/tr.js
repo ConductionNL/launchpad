@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Bu panoyu şimdi başka biri düzenliyor, bu yüzden görüntüleme moduna döndünüz.",
     "You cannot edit this dashboard." : "Bu panoyu düzenleyemezsiniz.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Pano düzenleme için açılamadı. Birazdan yeniden deneyin.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır.",
+    "Publish" : "Yayımla",
+    "Unpublish" : "Yayından kaldır",
+    "Schedule…" : "Zamanla…",
+    "Goes live on" : "Yayına giriş",
+    "Comes down on (optional)" : "Yayından kalkış (isteğe bağlı)",
+    "Schedule" : "Zamanla",
+    "Goes live on {date}." : "Yayına giriş: {date}.",
+    "Comes down on {date}." : "Yayından kalkış: {date}.",
+    "The dashboard has to go live before it comes down." : "Pano yayından kalkmadan önce yayına girmelidir.",
+    "Choose a time in the future." : "Gelecekte bir zaman seçin.",
+    "The dashboard could not be scheduled." : "Pano zamanlanamadı."
 },
 "nplurals=2; plural=(n != 1);"
 );

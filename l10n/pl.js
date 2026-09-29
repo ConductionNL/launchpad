@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Ktoś inny edytuje teraz ten pulpit, więc wracasz do trybu podglądu.",
     "You cannot edit this dashboard." : "Nie możesz edytować tego pulpitu.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nie udało się otworzyć pulpitu do edycji. Spróbuj ponownie za chwilę.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jeśli ta osoba przestanie, pulpit zwolni się w ciągu {minutes} minut."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jeśli ta osoba przestanie, pulpit zwolni się w ciągu {minutes} minut.",
+    "Publish" : "Opublikuj",
+    "Unpublish" : "Cofnij publikację",
+    "Schedule…" : "Zaplanuj…",
+    "Goes live on" : "Publikacja",
+    "Comes down on (optional)" : "Wycofanie (opcjonalnie)",
+    "Schedule" : "Zaplanuj",
+    "Goes live on {date}." : "Publikacja: {date}.",
+    "Comes down on {date}." : "Wycofanie: {date}.",
+    "The dashboard has to go live before it comes down." : "Pulpit musi zostać opublikowany przed wycofaniem.",
+    "Choose a time in the future." : "Wybierz czas w przyszłości.",
+    "The dashboard could not be scheduled." : "Nie udało się zaplanować pulpitu."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

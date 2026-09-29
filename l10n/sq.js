@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Dikush tjetër po e redakton tani këtë panel, ndaj jeni kthyer në mënyrën e shikimit.",
     "You cannot edit this dashboard." : "Nuk mund ta redaktoni këtë panel.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Paneli nuk mund të hapej për redaktim. Provoni sërish pas pak.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Nëse ndalon, paneli lirohet brenda {minutes} minutash."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Nëse ndalon, paneli lirohet brenda {minutes} minutash.",
+    "Publish" : "Publiko",
+    "Unpublish" : "Tërhiq publikimin",
+    "Schedule…" : "Planifiko…",
+    "Goes live on" : "Publikohet më",
+    "Comes down on (optional)" : "Hiqet më (opsionale)",
+    "Schedule" : "Planifiko",
+    "Goes live on {date}." : "Publikohet më {date}.",
+    "Comes down on {date}." : "Hiqet më {date}.",
+    "The dashboard has to go live before it comes down." : "Paneli duhet të publikohet para se të hiqet.",
+    "Choose a time in the future." : "Zgjidhni një kohë në të ardhmen.",
+    "The dashboard could not be scheduled." : "Paneli nuk mund të planifikohej."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Elo beaarbecht een aneren dëst Dashboard, dofir sidd Dir erëm am Usiichtsmodus.",
         "You cannot edit this dashboard.": "Dir kënnt dëst Dashboard net beaarbechten.",
         "The dashboard could not be opened for editing. Try again in a moment.": "D'Dashboard konnt net fir ze beaarbechten opgemaach ginn. Probéiert et gläich nach eng Kéier.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Wann déi Persoun ophält, gëtt d'Dashboard bannent {minutes} Minutte fräi."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Wann déi Persoun ophält, gëtt d'Dashboard bannent {minutes} Minutte fräi.",
+        "Publish": "Publizéieren",
+        "Unpublish": "Publikatioun zeréckzéien",
+        "Schedule…": "Plangen…",
+        "Goes live on": "Geet online den",
+        "Comes down on (optional)": "Geet offline den (fakultativ)",
+        "Schedule": "Plangen",
+        "Goes live on {date}.": "Geet den {date} online.",
+        "Comes down on {date}.": "Geet den {date} offline.",
+        "The dashboard has to go live before it comes down.": "D'Dashboard muss online goen, ier et offline geet.",
+        "Choose a time in the future.": "Wielt eng Zäit an der Zukunft.",
+        "The dashboard could not be scheduled.": "D'Dashboard konnt net geplangt ginn."
     }
 }

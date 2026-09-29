@@ -1115,6 +1115,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Altcineva editează acum acest tablou de bord, așa că ați revenit în modul de vizualizare.",
         "You cannot edit this dashboard.": "Nu puteți edita acest tablou de bord.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Tabloul de bord nu a putut fi deschis pentru editare. Încercați din nou peste câteva momente.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Dacă persoana se oprește, tabloul de bord se eliberează în cel mult {minutes} minute."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Dacă persoana se oprește, tabloul de bord se eliberează în cel mult {minutes} minute.",
+        "Publish": "Publică",
+        "Unpublish": "Anulează publicarea",
+        "Schedule…": "Programează…",
+        "Goes live on": "Devine public la",
+        "Comes down on (optional)": "Este retras la (opțional)",
+        "Schedule": "Programează",
+        "Goes live on {date}.": "Devine public la {date}.",
+        "Comes down on {date}.": "Este retras la {date}.",
+        "The dashboard has to go live before it comes down.": "Tabloul de bord trebuie să devină public înainte de a fi retras.",
+        "Choose a time in the future.": "Alegeți o oră în viitor.",
+        "The dashboard could not be scheduled.": "Tabloul de bord nu a putut fi programat."
     }
 }

@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Någon annan redigerar nu den här instrumentpanelen, så du är tillbaka i visningsläget.",
     "You cannot edit this dashboard." : "Du kan inte redigera den här instrumentpanelen.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Instrumentpanelen kunde inte öppnas för redigering. Försök igen om en stund.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Om personen slutar blir instrumentpanelen ledig inom {minutes} minuter."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Om personen slutar blir instrumentpanelen ledig inom {minutes} minuter.",
+    "Publish" : "Publicera",
+    "Unpublish" : "Avpublicera",
+    "Schedule…" : "Schemalägg…",
+    "Goes live on" : "Publiceras",
+    "Comes down on (optional)" : "Tas ned (valfritt)",
+    "Schedule" : "Schemalägg",
+    "Goes live on {date}." : "Publiceras {date}.",
+    "Comes down on {date}." : "Tas ned {date}.",
+    "The dashboard has to go live before it comes down." : "Instrumentpanelen måste publiceras innan den tas ned.",
+    "Choose a time in the future." : "Välj en tid i framtiden.",
+    "The dashboard could not be scheduled." : "Instrumentpanelen kunde inte schemaläggas."
 },
 "nplurals=2; plural=(n != 1);"
 );

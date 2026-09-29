@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Noen andre redigerer nå dette dashbordet, så du er tilbake i visningsmodus.",
     "You cannot edit this dashboard." : "Du kan ikke redigere dette dashbordet.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Dashbordet kunne ikke åpnes for redigering. Prøv igjen om litt.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Hvis vedkommende slutter, blir dashbordet ledig innen {minutes} minutter."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Hvis vedkommende slutter, blir dashbordet ledig innen {minutes} minutter.",
+    "Publish" : "Publiser",
+    "Unpublish" : "Avpubliser",
+    "Schedule…" : "Planlegg…",
+    "Goes live on" : "Publiseres",
+    "Comes down on (optional)" : "Tas ned (valgfritt)",
+    "Schedule" : "Planlegg",
+    "Goes live on {date}." : "Publiseres {date}.",
+    "Comes down on {date}." : "Tas ned {date}.",
+    "The dashboard has to go live before it comes down." : "Dashbordet må publiseres før det tas ned.",
+    "Choose a time in the future." : "Velg et tidspunkt i fremtiden.",
+    "The dashboard could not be scheduled." : "Dashbordet kunne ikke planlegges."
 },
 "nplurals=2; plural=(n != 1);"
 );

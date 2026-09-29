@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Ara una altra persona està editant aquest tauler, així que torneu a estar en mode de visualització.",
         "You cannot edit this dashboard.": "No podeu editar aquest tauler.",
         "The dashboard could not be opened for editing. Try again in a moment.": "No s'ha pogut obrir el tauler per editar-lo. Torneu-ho a provar d'aquí a un moment.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Si ho deixa, el tauler queda lliure en un màxim de {minutes} minuts."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Si ho deixa, el tauler queda lliure en un màxim de {minutes} minuts.",
+        "Publish": "Publica",
+        "Unpublish": "Retira la publicació",
+        "Schedule…": "Programa…",
+        "Goes live on": "Es publica el",
+        "Comes down on (optional)": "Es retira el (opcional)",
+        "Schedule": "Programa",
+        "Goes live on {date}.": "Es publica el {date}.",
+        "Comes down on {date}.": "Es retira el {date}.",
+        "The dashboard has to go live before it comes down.": "El tauler s'ha de publicar abans de retirar-se.",
+        "Choose a time in the future.": "Trieu una hora en el futur.",
+        "The dashboard could not be scheduled.": "No s'ha pogut programar el tauler."
     }
 }

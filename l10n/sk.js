@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Tento panel teraz upravuje niekto iný, takže ste späť v režime zobrazenia.",
     "You cannot edit this dashboard." : "Tento panel nemôžete upravovať.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Panel sa nepodarilo otvoriť na úpravy. Skúste to o chvíľu znova.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ak prestane, panel sa uvoľní do {minutes} minút."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ak prestane, panel sa uvoľní do {minutes} minút.",
+    "Publish" : "Zverejniť",
+    "Unpublish" : "Zrušiť zverejnenie",
+    "Schedule…" : "Naplánovať…",
+    "Goes live on" : "Zverejní sa",
+    "Comes down on (optional)" : "Stiahne sa (nepovinné)",
+    "Schedule" : "Naplánovať",
+    "Goes live on {date}." : "Zverejní sa {date}.",
+    "Comes down on {date}." : "Stiahne sa {date}.",
+    "The dashboard has to go live before it comes down." : "Panel musí byť zverejnený skôr, ako sa stiahne.",
+    "Choose a time in the future." : "Zvoľte čas v budúcnosti.",
+    "The dashboard could not be scheduled." : "Panel sa nepodarilo naplánovať."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

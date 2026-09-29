@@ -1115,6 +1115,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Tento panel teď upravuje někdo jiný, takže jste zpět v režimu zobrazení.",
         "You cannot edit this dashboard.": "Tento panel nemůžete upravovat.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Panel se nepodařilo otevřít k úpravám. Zkuste to za chvíli znovu.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Pokud přestane, panel se uvolní do {minutes} minut."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Pokud přestane, panel se uvolní do {minutes} minut.",
+        "Publish": "Zveřejnit",
+        "Unpublish": "Zrušit zveřejnění",
+        "Schedule…": "Naplánovat…",
+        "Goes live on": "Zveřejní se",
+        "Comes down on (optional)": "Stáhne se (nepovinné)",
+        "Schedule": "Naplánovat",
+        "Goes live on {date}.": "Zveřejní se {date}.",
+        "Comes down on {date}.": "Stáhne se {date}.",
+        "The dashboard has to go live before it comes down.": "Panel musí být zveřejněn dříve, než se stáhne.",
+        "Choose a time in the future.": "Zvolte čas v budoucnosti.",
+        "The dashboard could not be scheduled.": "Panel se nepodařilo naplánovat."
     }
 }

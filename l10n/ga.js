@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Tá duine eile ag cur an deais seo in eagar anois, mar sin tá tú ar ais sa mhodh amhairc.",
     "You cannot edit this dashboard." : "Ní féidir leat an deais seo a chur in eagar.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Níorbh fhéidir an deais a oscailt le haghaidh eagarthóireachta. Bain triail eile as i gceann nóiméid.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Má stopann siad, beidh an deais saor laistigh de {minutes} nóiméad."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Má stopann siad, beidh an deais saor laistigh de {minutes} nóiméad.",
+    "Publish" : "Foilsigh",
+    "Unpublish" : "Dífhoilsigh",
+    "Schedule…" : "Sceidealaigh…",
+    "Goes live on" : "Beo ar",
+    "Comes down on (optional)" : "Bainte anuas ar (roghnach)",
+    "Schedule" : "Sceidealaigh",
+    "Goes live on {date}." : "Beo ar {date}.",
+    "Comes down on {date}." : "Bainte anuas ar {date}.",
+    "The dashboard has to go live before it comes down." : "Caithfidh an deais dul beo sula mbaintear anuas é.",
+    "Choose a time in the future." : "Roghnaigh am sa todhchaí.",
+    "The dashboard could not be scheduled." : "Níorbh fhéidir an deais a sceidealú."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

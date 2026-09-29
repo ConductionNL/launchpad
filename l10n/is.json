@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Einhver annar er núna að breyta þessu stjórnborði, svo þú ert aftur í skoðunarham.",
         "You cannot edit this dashboard.": "Þú getur ekki breytt þessu stjórnborði.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Ekki tókst að opna stjórnborðið til breytinga. Reyndu aftur eftir smástund.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Ef viðkomandi hættir losnar stjórnborðið innan {minutes} mínútna."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Ef viðkomandi hættir losnar stjórnborðið innan {minutes} mínútna.",
+        "Publish": "Birta",
+        "Unpublish": "Hætta birtingu",
+        "Schedule…": "Tímasetja…",
+        "Goes live on": "Birtist",
+        "Comes down on (optional)": "Tekið niður (valfrjálst)",
+        "Schedule": "Tímasetja",
+        "Goes live on {date}.": "Birtist {date}.",
+        "Comes down on {date}.": "Tekið niður {date}.",
+        "The dashboard has to go live before it comes down.": "Stjórnborðið verður að birtast áður en það er tekið niður.",
+        "Choose a time in the future.": "Veldu tíma í framtíðinni.",
+        "The dashboard could not be scheduled.": "Ekki tókst að tímasetja stjórnborðið."
     }
 }

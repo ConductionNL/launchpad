@@ -1197,7 +1197,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Iemand anders bewerkt dit dashboard nu, dus je bent terug in de weergavemodus.",
     "You cannot edit this dashboard." : "Je kunt dit dashboard niet bewerken.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Het dashboard kon niet worden geopend om te bewerken. Probeer het zo opnieuw.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Als diegene stopt, komt het dashboard binnen {minutes} minuten vrij."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Als diegene stopt, komt het dashboard binnen {minutes} minuten vrij.",
+    "Publish" : "Publiceren",
+    "Unpublish" : "Publicatie intrekken",
+    "Schedule…" : "Inplannen…",
+    "Goes live on" : "Gaat live op",
+    "Comes down on (optional)" : "Gaat offline op (optioneel)",
+    "Schedule" : "Inplannen",
+    "Goes live on {date}." : "Gaat live op {date}.",
+    "Comes down on {date}." : "Gaat offline op {date}.",
+    "The dashboard has to go live before it comes down." : "Het dashboard moet live gaan voordat het offline gaat.",
+    "Choose a time in the future." : "Kies een tijd in de toekomst.",
+    "The dashboard could not be scheduled." : "Het dashboard kon niet worden ingepland."
 },
 "nplurals=2; plural=(n != 1);"
 );

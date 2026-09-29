@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Κάποιος άλλος επεξεργάζεται τώρα αυτόν τον πίνακα, οπότε επιστρέψατε στην προβολή.",
     "You cannot edit this dashboard." : "Δεν μπορείτε να επεξεργαστείτε αυτόν τον πίνακα.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Δεν ήταν δυνατό να ανοίξει ο πίνακας για επεξεργασία. Δοκιμάστε ξανά σε λίγο.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Αν σταματήσει, ο πίνακας απελευθερώνεται μέσα σε {minutes} λεπτά."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Αν σταματήσει, ο πίνακας απελευθερώνεται μέσα σε {minutes} λεπτά.",
+    "Publish" : "Δημοσίευση",
+    "Unpublish" : "Κατάργηση δημοσίευσης",
+    "Schedule…" : "Προγραμματισμός…",
+    "Goes live on" : "Δημοσιεύεται στις",
+    "Comes down on (optional)" : "Αποσύρεται στις (προαιρετικό)",
+    "Schedule" : "Προγραμματισμός",
+    "Goes live on {date}." : "Δημοσιεύεται στις {date}.",
+    "Comes down on {date}." : "Αποσύρεται στις {date}.",
+    "The dashboard has to go live before it comes down." : "Ο πίνακας πρέπει να δημοσιευτεί πριν αποσυρθεί.",
+    "Choose a time in the future." : "Επιλέξτε μια μελλοντική ώρα.",
+    "The dashboard could not be scheduled." : "Δεν ήταν δυνατός ο προγραμματισμός του πίνακα."
 },
 "nplurals=2; plural=(n != 1);"
 );

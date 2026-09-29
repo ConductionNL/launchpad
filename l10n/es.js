@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Otra persona está editando ahora este panel, así que vuelves al modo de vista.",
     "You cannot edit this dashboard." : "No puedes editar este panel.",
     "The dashboard could not be opened for editing. Try again in a moment." : "No se pudo abrir el panel para editarlo. Inténtalo de nuevo en un momento.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Si deja de editar, el panel queda libre en un plazo de {minutes} minutos."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Si deja de editar, el panel queda libre en un plazo de {minutes} minutos.",
+    "Publish" : "Publicar",
+    "Unpublish" : "Retirar la publicación",
+    "Schedule…" : "Programar…",
+    "Goes live on" : "Se publica el",
+    "Comes down on (optional)" : "Se retira el (opcional)",
+    "Schedule" : "Programar",
+    "Goes live on {date}." : "Se publica el {date}.",
+    "Comes down on {date}." : "Se retira el {date}.",
+    "The dashboard has to go live before it comes down." : "El panel tiene que publicarse antes de retirarse.",
+    "Choose a time in the future." : "Elige una hora en el futuro.",
+    "The dashboard could not be scheduled." : "No se pudo programar el panel."
 },
 "nplurals=2; plural=(n != 1);"
 );

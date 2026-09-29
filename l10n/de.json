@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Jemand anderes bearbeitet dieses Dashboard jetzt, daher sind Sie wieder in der Ansicht.",
         "You cannot edit this dashboard.": "Sie können dieses Dashboard nicht bearbeiten.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Das Dashboard konnte nicht zur Bearbeitung geöffnet werden. Versuchen Sie es gleich noch einmal.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Wenn die Person aufhört, wird das Dashboard innerhalb von {minutes} Minuten frei."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Wenn die Person aufhört, wird das Dashboard innerhalb von {minutes} Minuten frei.",
+        "Publish": "Veröffentlichen",
+        "Unpublish": "Veröffentlichung zurückziehen",
+        "Schedule…": "Planen…",
+        "Goes live on": "Geht online am",
+        "Comes down on (optional)": "Geht offline am (optional)",
+        "Schedule": "Planen",
+        "Goes live on {date}.": "Geht am {date} online.",
+        "Comes down on {date}.": "Geht am {date} offline.",
+        "The dashboard has to go live before it comes down.": "Das Dashboard muss online gehen, bevor es offline geht.",
+        "Choose a time in the future.": "Wählen Sie einen Zeitpunkt in der Zukunft.",
+        "The dashboard could not be scheduled.": "Das Dashboard konnte nicht geplant werden."
     }
 }

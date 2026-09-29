@@ -90,6 +90,37 @@
 					: t('launchpad', 'Set as default')
 			}}
 		</NcActionButton>
+		<template v-if="canManagePublication">
+			<NcActionButton
+				v-if="dashboard.publicationStatus !== 'published'"
+				:closeAfterClick="true"
+				data-testid="cog-publish"
+				@click="$emit('publish')">
+				<template #icon>
+					<Publish :size="20" />
+				</template>
+				{{ t('launchpad', 'Publish') }}
+			</NcActionButton>
+			<NcActionButton
+				v-else
+				:closeAfterClick="true"
+				data-testid="cog-unpublish"
+				@click="$emit('unpublish')">
+				<template #icon>
+					<PublishOff :size="20" />
+				</template>
+				{{ t('launchpad', 'Unpublish') }}
+			</NcActionButton>
+			<NcActionButton
+				:closeAfterClick="true"
+				data-testid="cog-schedule"
+				@click="$emit('schedule')">
+				<template #icon>
+					<CalendarClock :size="20" />
+				</template>
+				{{ t('launchpad', 'Schedule…') }}
+			</NcActionButton>
+		</template>
 		<NcActionButton
 			v-if="canShare"
 			:closeAfterClick="true"
@@ -116,9 +147,12 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
+import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Publish from 'vue-material-design-icons/Publish.vue'
+import PublishOff from 'vue-material-design-icons/PublishOff.vue'
 import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Star from 'vue-material-design-icons/Star.vue'
@@ -141,6 +175,9 @@ export default {
 		Star,
 		StarCheck,
 		ShareVariant,
+		CalendarClock,
+		Publish,
+		PublishOff,
 	},
 
 	props: {
@@ -203,6 +240,16 @@ export default {
 		},
 
 		/*
+		 * sharing-dashboard-schedule-screen REQ-SCHEDUI-001: the host allows
+		 * Publish / Unpublish / Schedule… (owner or administrator). Off by
+		 * default, so sidebar rows do not show them.
+		 */
+		canManagePublication: {
+			type: Boolean,
+			default: false,
+		},
+
+		/*
 		 * NcActions toggle button style. Defaults to the subtle
 		 * `tertiary-no-background` used at the edge of each sidebar row;
 		 * the top-right active cog passes `secondary` so it matches the
@@ -230,6 +277,9 @@ export default {
 		'delete',
 		'setDefault',
 		'share',
+		'publish',
+		'unpublish',
+		'schedule',
 	],
 
 	computed: {

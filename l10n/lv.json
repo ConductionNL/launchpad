@@ -1115,6 +1115,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Tagad šo informācijas paneli rediģē kāds cits, tāpēc esat atpakaļ skatīšanas režīmā.",
         "You cannot edit this dashboard.": "Jūs nevarat rediģēt šo informācijas paneli.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Informācijas paneli neizdevās atvērt rediģēšanai. Mēģiniet vēlreiz pēc brīža.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Ja persona beigs, informācijas panelis atbrīvosies {minutes} minūšu laikā."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Ja persona beigs, informācijas panelis atbrīvosies {minutes} minūšu laikā.",
+        "Publish": "Publicēt",
+        "Unpublish": "Atsaukt publicēšanu",
+        "Schedule…": "Ieplānot…",
+        "Goes live on": "Tiek publicēts",
+        "Comes down on (optional)": "Tiek noņemts (neobligāti)",
+        "Schedule": "Ieplānot",
+        "Goes live on {date}.": "Tiek publicēts {date}.",
+        "Comes down on {date}.": "Tiek noņemts {date}.",
+        "The dashboard has to go live before it comes down.": "Informācijas panelim jātiek publicētam pirms noņemšanas.",
+        "Choose a time in the future.": "Izvēlieties laiku nākotnē.",
+        "The dashboard could not be scheduled.": "Informācijas paneli neizdevās ieplānot."
     }
 }

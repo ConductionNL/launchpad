@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Most valaki más szerkeszti ezt az irányítópultot, ezért visszakerült megtekintő módba.",
     "You cannot edit this dashboard." : "Ezt az irányítópultot nem szerkesztheti.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Az irányítópultot nem sikerült szerkesztésre megnyitni. Próbálja újra egy kis idő múlva.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ha abbahagyja, az irányítópult {minutes} percen belül felszabadul."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ha abbahagyja, az irányítópult {minutes} percen belül felszabadul.",
+    "Publish" : "Közzététel",
+    "Unpublish" : "Közzététel visszavonása",
+    "Schedule…" : "Ütemezés…",
+    "Goes live on" : "Élesedik",
+    "Comes down on (optional)" : "Levétel (nem kötelező)",
+    "Schedule" : "Ütemezés",
+    "Goes live on {date}." : "Élesedik: {date}.",
+    "Comes down on {date}." : "Levétel: {date}.",
+    "The dashboard has to go live before it comes down." : "Az irányítópultnak előbb élesednie kell, mint hogy levegyék.",
+    "Choose a time in the future." : "Válasszon jövőbeli időpontot.",
+    "The dashboard could not be scheduled." : "Az irányítópultot nem sikerült ütemezni."
 },
 "nplurals=2; plural=(n != 1);"
 );

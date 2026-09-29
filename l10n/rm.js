@@ -1147,7 +1147,18 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Insatgi auter elavura ussa quest dashboard, perquai essas Vus puspè en il modus da vista.",
     "You cannot edit this dashboard." : "Vus na pudais betg elavurar quest dashboard.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Il dashboard n'ha betg pudì vegnir avert per l'elavurar. Empruvai anc ina giada en in mument.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Sche la persuna chala, daventa il dashboard liber entaifer {minutes} minutas."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Sche la persuna chala, daventa il dashboard liber entaifer {minutes} minutas.",
+    "Publish" : "Publitgar",
+    "Unpublish" : "Retrair la publicaziun",
+    "Schedule…" : "Planisar…",
+    "Goes live on" : "Vegn publitgà ils",
+    "Comes down on (optional)" : "Vegn allontanà ils (facultativ)",
+    "Schedule" : "Planisar",
+    "Goes live on {date}." : "Vegn publitgà ils {date}.",
+    "Comes down on {date}." : "Vegn allontanà ils {date}.",
+    "The dashboard has to go live before it comes down." : "Il dashboard sto vegnir publitgà avant ch'el vegn allontanà.",
+    "Choose a time in the future." : "Tschernai in temp en il futur.",
+    "The dashboard could not be scheduled." : "Il dashboard n'ha betg pudì vegnir planisà."
 },
 "nplurals=2; plural=(n != 1);"
 );

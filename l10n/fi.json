@@ -1114,6 +1114,17 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Joku muu muokkaa nyt tätä koontinäyttöä, joten olet taas katselutilassa.",
         "You cannot edit this dashboard.": "Et voi muokata tätä koontinäyttöä.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Koontinäyttöä ei voitu avata muokattavaksi. Yritä hetken kuluttua uudelleen.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa.",
+        "Publish": "Julkaise",
+        "Unpublish": "Peru julkaisu",
+        "Schedule…": "Ajasta…",
+        "Goes live on": "Julkaistaan",
+        "Comes down on (optional)": "Poistetaan (valinnainen)",
+        "Schedule": "Ajasta",
+        "Goes live on {date}.": "Julkaistaan {date}.",
+        "Comes down on {date}.": "Poistetaan {date}.",
+        "The dashboard has to go live before it comes down.": "Koontinäytön täytyy julkaista ennen kuin se poistetaan.",
+        "Choose a time in the future.": "Valitse aika tulevaisuudesta.",
+        "The dashboard could not be scheduled.": "Koontinäyttöä ei voitu ajastaa."
     }
 }

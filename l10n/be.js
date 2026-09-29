@@ -1138,6 +1138,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Гэтую панэль цяпер рэдагуе нехта іншы, таму вы зноў у рэжыме прагляду.",
     "You cannot edit this dashboard." : "Вы не можаце рэдагаваць гэтую панэль.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Не ўдалося адкрыць панэль для рэдагавання. Паспрабуйце яшчэ раз праз хвіліну.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Калі чалавек спыніцца, панэль вызваліцца на працягу {minutes} хв."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Калі чалавек спыніцца, панэль вызваліцца на працягу {minutes} хв.",
+    "Publish" : "Апублікаваць",
+    "Unpublish" : "Адмяніць публікацыю",
+    "Schedule…" : "Запланаваць…",
+    "Goes live on" : "Публікуецца",
+    "Comes down on (optional)" : "Здымаецца (неабавязкова)",
+    "Schedule" : "Запланаваць",
+    "Goes live on {date}." : "Публікуецца {date}.",
+    "Comes down on {date}." : "Здымаецца {date}.",
+    "The dashboard has to go live before it comes down." : "Панэль павінна быць апублікавана раней, чым знята.",
+    "Choose a time in the future." : "Выберыце час у будучыні.",
+    "The dashboard could not be scheduled." : "Не ўдалося запланаваць панэль."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

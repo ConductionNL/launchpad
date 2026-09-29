@@ -218,10 +218,10 @@ The widget edit form MUST offer "Ask readers to confirm they have read this". Sa
 
 @e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php
 
-A widget that asks for confirmation MUST offer "Who has confirmed" to people who may edit the dashboard, showing the confirmed count, the names still pending and a CSV download from the existing report.
+When a widget on the dashboard asks for confirmation, people who may edit the dashboard MUST find "Read receipts" at the top of the dashboard, showing the confirmed count, the names still pending and a CSV download from the existing report.
 
 #### Scenario: Read the report
 
 - **GIVEN** 3 of 5 team members confirmed "New expense rules"
-- **WHEN** Sanne opens "Who has confirmed"
+- **WHEN** Sanne opens "Read receipts"
 - **THEN** she sees 3 confirmed and the 2 pending names, and can download the CSV

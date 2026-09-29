@@ -1115,6 +1115,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Altcineva editează acum acest tablou de bord, așa că ați revenit în modul de vizualizare.",
         "You cannot edit this dashboard.": "Nu puteți edita acest tablou de bord.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Tabloul de bord nu a putut fi deschis pentru editare. Încercați din nou peste câteva momente.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Dacă persoana se oprește, tabloul de bord se eliberează în cel mult {minutes} minute."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Dacă persoana se oprește, tabloul de bord se eliberează în cel mult {minutes} minute.",
+        "Version history…": "Istoricul versiunilor…",
+        "This dashboard is stored in a way that does not keep versions.": "Acest tablou de bord este stocat într-un mod care nu păstrează versiuni.",
+        "Note for this version (optional)": "Notă pentru această versiune (opțional)",
+        "Save this version now": "Salvați această versiune acum",
+        "No versions saved yet.": "Nu există încă versiuni salvate.",
+        "Saved on": "Salvată la",
+        "By": "De",
+        "Note": "Notă",
+        "Actions": "Acțiuni",
+        "Restore": "Restaurați",
+        "Saved automatically before a restore": "Salvată automat înainte de o restaurare",
+        "The version history could not be loaded.": "Istoricul versiunilor nu a putut fi încărcat.",
+        "The version could not be saved.": "Versiunea nu a putut fi salvată.",
+        "The version could not be restored.": "Versiunea nu a putut fi restaurată.",
+        "Restore this version?": "Restaurați această versiune?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Tabloul de bord revine la starea din {date}. Starea actuală este salvată mai întâi ca versiune, astfel încât puteți anula acest lucru."
     }
 }

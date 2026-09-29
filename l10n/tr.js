@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Bu panoyu şimdi başka biri düzenliyor, bu yüzden görüntüleme moduna döndünüz.",
     "You cannot edit this dashboard." : "Bu panoyu düzenleyemezsiniz.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Pano düzenleme için açılamadı. Birazdan yeniden deneyin.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır.",
+    "Version history…" : "Sürüm geçmişi…",
+    "This dashboard is stored in a way that does not keep versions." : "Bu pano, sürüm saklamayan bir biçimde depolanıyor.",
+    "Note for this version (optional)" : "Bu sürüm için not (isteğe bağlı)",
+    "Save this version now" : "Bu sürümü şimdi kaydet",
+    "No versions saved yet." : "Henüz kaydedilmiş sürüm yok.",
+    "Saved on" : "Kaydedilme tarihi",
+    "By" : "Kaydeden",
+    "Note" : "Not",
+    "Actions" : "İşlemler",
+    "Restore" : "Geri yükle",
+    "Saved automatically before a restore" : "Geri yüklemeden önce otomatik kaydedildi",
+    "The version history could not be loaded." : "Sürüm geçmişi yüklenemedi.",
+    "The version could not be saved." : "Sürüm kaydedilemedi.",
+    "The version could not be restored." : "Sürüm geri yüklenemedi.",
+    "Restore this version?" : "Bu sürüm geri yüklensin mi?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Pano {date} tarihindeki haline döner. Şimdiki hali önce bir sürüm olarak kaydedilir, böylece bunu geri alabilirsiniz."
 },
 "nplurals=2; plural=(n != 1);"
 );

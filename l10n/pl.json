@@ -1115,6 +1115,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Ktoś inny edytuje teraz ten pulpit, więc wracasz do trybu podglądu.",
         "You cannot edit this dashboard.": "Nie możesz edytować tego pulpitu.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Nie udało się otworzyć pulpitu do edycji. Spróbuj ponownie za chwilę.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Jeśli ta osoba przestanie, pulpit zwolni się w ciągu {minutes} minut."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Jeśli ta osoba przestanie, pulpit zwolni się w ciągu {minutes} minut.",
+        "Version history…": "Historia wersji…",
+        "This dashboard is stored in a way that does not keep versions.": "Ten pulpit jest przechowywany w sposób, który nie zachowuje wersji.",
+        "Note for this version (optional)": "Notatka do tej wersji (opcjonalnie)",
+        "Save this version now": "Zapisz tę wersję teraz",
+        "No versions saved yet.": "Nie zapisano jeszcze żadnych wersji.",
+        "Saved on": "Zapisano",
+        "By": "Autor",
+        "Note": "Notatka",
+        "Actions": "Działania",
+        "Restore": "Przywróć",
+        "Saved automatically before a restore": "Zapisano automatycznie przed przywróceniem",
+        "The version history could not be loaded.": "Nie udało się wczytać historii wersji.",
+        "The version could not be saved.": "Nie udało się zapisać wersji.",
+        "The version could not be restored.": "Nie udało się przywrócić wersji.",
+        "Restore this version?": "Przywrócić tę wersję?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Pulpit wraca do stanu z {date}. Obecny stan zostanie najpierw zapisany jako wersja, więc można to cofnąć."
     }
 }

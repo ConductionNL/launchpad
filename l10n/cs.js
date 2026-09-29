@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Tento panel teď upravuje někdo jiný, takže jste zpět v režimu zobrazení.",
     "You cannot edit this dashboard." : "Tento panel nemůžete upravovat.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Panel se nepodařilo otevřít k úpravám. Zkuste to za chvíli znovu.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Pokud přestane, panel se uvolní do {minutes} minut."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Pokud přestane, panel se uvolní do {minutes} minut.",
+    "Version history…" : "Historie verzí…",
+    "This dashboard is stored in a way that does not keep versions." : "Tento panel je uložen způsobem, který neuchovává verze.",
+    "Note for this version (optional)" : "Poznámka k této verzi (nepovinné)",
+    "Save this version now" : "Uložit tuto verzi nyní",
+    "No versions saved yet." : "Zatím nejsou uloženy žádné verze.",
+    "Saved on" : "Uloženo",
+    "By" : "Autor",
+    "Note" : "Poznámka",
+    "Actions" : "Akce",
+    "Restore" : "Obnovit",
+    "Saved automatically before a restore" : "Uloženo automaticky před obnovením",
+    "The version history could not be loaded." : "Historii verzí se nepodařilo načíst.",
+    "The version could not be saved." : "Verzi se nepodařilo uložit.",
+    "The version could not be restored." : "Verzi se nepodařilo obnovit.",
+    "Restore this version?" : "Obnovit tuto verzi?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Panel se vrátí do stavu z {date}. Současný stav se nejdřív uloží jako verze, takže to můžete vrátit zpět."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

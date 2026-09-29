@@ -1114,6 +1114,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Elo beaarbecht een aneren dëst Dashboard, dofir sidd Dir erëm am Usiichtsmodus.",
         "You cannot edit this dashboard.": "Dir kënnt dëst Dashboard net beaarbechten.",
         "The dashboard could not be opened for editing. Try again in a moment.": "D'Dashboard konnt net fir ze beaarbechten opgemaach ginn. Probéiert et gläich nach eng Kéier.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Wann déi Persoun ophält, gëtt d'Dashboard bannent {minutes} Minutte fräi."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Wann déi Persoun ophält, gëtt d'Dashboard bannent {minutes} Minutte fräi.",
+        "Version history…": "Versiounsverlaf…",
+        "This dashboard is stored in a way that does not keep versions.": "Dëst Dashboard gëtt esou gespäichert, datt keng Versiounen bleiwen.",
+        "Note for this version (optional)": "Notiz fir dës Versioun (fakultativ)",
+        "Save this version now": "Dës Versioun elo späicheren",
+        "No versions saved yet.": "Nach keng Versioune gespäichert.",
+        "Saved on": "Gespäichert den",
+        "By": "Vun",
+        "Note": "Notiz",
+        "Actions": "Aktiounen",
+        "Restore": "Restauréieren",
+        "Saved automatically before a restore": "Automatesch virun enger Restauratioun gespäichert",
+        "The version history could not be loaded.": "De Versiounsverlaf konnt net gelueden ginn.",
+        "The version could not be saved.": "D'Versioun konnt net gespäichert ginn.",
+        "The version could not be restored.": "D'Versioun konnt net restauréiert ginn.",
+        "Restore this version?": "Dës Versioun restauréieren?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "D'Dashboard geet zréck op de Stand vum {date}. De Stand vun elo gëtt fir d'éischt als Versioun gespäichert, sou datt Dir dat réckgängeg maache kënnt."
     }
 }

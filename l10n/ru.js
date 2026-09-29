@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Эту панель сейчас редактирует кто-то другой, поэтому вы снова в режиме просмотра.",
     "You cannot edit this dashboard." : "Вы не можете редактировать эту панель.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Не удалось открыть панель для редактирования. Попробуйте ещё раз через минуту.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Если человек остановится, панель освободится в течение {minutes} мин."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Если человек остановится, панель освободится в течение {minutes} мин.",
+    "Version history…" : "История версий…",
+    "This dashboard is stored in a way that does not keep versions." : "Эта панель хранится так, что версии не сохраняются.",
+    "Note for this version (optional)" : "Примечание к этой версии (необязательно)",
+    "Save this version now" : "Сохранить эту версию сейчас",
+    "No versions saved yet." : "Сохранённых версий пока нет.",
+    "Saved on" : "Сохранено",
+    "By" : "Автор",
+    "Note" : "Примечание",
+    "Actions" : "Действия",
+    "Restore" : "Восстановить",
+    "Saved automatically before a restore" : "Сохранено автоматически перед восстановлением",
+    "The version history could not be loaded." : "Не удалось загрузить историю версий.",
+    "The version could not be saved." : "Не удалось сохранить версию.",
+    "The version could not be restored." : "Не удалось восстановить версию.",
+    "Restore this version?" : "Восстановить эту версию?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Панель вернётся к состоянию на {date}. Текущее состояние сначала сохранится как версия, поэтому это можно отменить."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

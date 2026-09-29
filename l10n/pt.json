@@ -1114,6 +1114,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Outra pessoa está agora a editar este painel, por isso voltou ao modo de visualização.",
         "You cannot edit this dashboard.": "Não pode editar este painel.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Não foi possível abrir o painel para edição. Tente novamente daqui a pouco.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Se essa pessoa parar, o painel fica livre dentro de {minutes} minutos."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Se essa pessoa parar, o painel fica livre dentro de {minutes} minutos.",
+        "Version history…": "Histórico de versões…",
+        "This dashboard is stored in a way that does not keep versions.": "Este painel é guardado de uma forma que não mantém versões.",
+        "Note for this version (optional)": "Nota para esta versão (opcional)",
+        "Save this version now": "Guardar esta versão agora",
+        "No versions saved yet.": "Ainda não há versões guardadas.",
+        "Saved on": "Guardada em",
+        "By": "Por",
+        "Note": "Nota",
+        "Actions": "Ações",
+        "Restore": "Restaurar",
+        "Saved automatically before a restore": "Guardada automaticamente antes de um restauro",
+        "The version history could not be loaded.": "Não foi possível carregar o histórico de versões.",
+        "The version could not be saved.": "Não foi possível guardar a versão.",
+        "The version could not be restored.": "Não foi possível restaurar a versão.",
+        "Restore this version?": "Restaurar esta versão?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "O painel volta a como estava em {date}. O aspeto atual é guardado primeiro como versão, por isso pode anular isto."
     }
 }

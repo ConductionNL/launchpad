@@ -1114,6 +1114,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Noen andre redigerer nå dette dashbordet, så du er tilbake i visningsmodus.",
         "You cannot edit this dashboard.": "Du kan ikke redigere dette dashbordet.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Dashbordet kunne ikke åpnes for redigering. Prøv igjen om litt.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Hvis vedkommende slutter, blir dashbordet ledig innen {minutes} minutter."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Hvis vedkommende slutter, blir dashbordet ledig innen {minutes} minutter.",
+        "Version history…": "Versjonshistorikk…",
+        "This dashboard is stored in a way that does not keep versions.": "Dette dashbordet lagres på en måte som ikke tar vare på versjoner.",
+        "Note for this version (optional)": "Notat til denne versjonen (valgfritt)",
+        "Save this version now": "Lagre denne versjonen nå",
+        "No versions saved yet.": "Ingen versjoner lagret ennå.",
+        "Saved on": "Lagret",
+        "By": "Av",
+        "Note": "Notat",
+        "Actions": "Handlinger",
+        "Restore": "Gjenopprett",
+        "Saved automatically before a restore": "Lagret automatisk før en gjenoppretting",
+        "The version history could not be loaded.": "Versjonshistorikken kunne ikke lastes inn.",
+        "The version could not be saved.": "Versjonen kunne ikke lagres.",
+        "The version could not be restored.": "Versjonen kunne ikke gjenopprettes.",
+        "Restore this version?": "Gjenopprette denne versjonen?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Dashbordet går tilbake til slik det var {date}. Slik det ser ut nå, lagres først som en versjon, så du kan angre dette."
     }
 }

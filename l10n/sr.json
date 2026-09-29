@@ -1115,6 +1115,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Неко други сада уређује ову контролну таблу, па сте поново у режиму приказа.",
         "You cannot edit this dashboard.": "Не можете да уређујете ову контролну таблу.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Контролна табла није могла да се отвори за уређивање. Покушајте поново за тренутак.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Ако та особа престане, контролна табла се ослобађа за највише {minutes} минута."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Ако та особа престане, контролна табла се ослобађа за највише {minutes} минута.",
+        "Version history…": "Историја верзија…",
+        "This dashboard is stored in a way that does not keep versions.": "Ова контролна табла чува се на начин који не задржава верзије.",
+        "Note for this version (optional)": "Белешка уз ову верзију (опционо)",
+        "Save this version now": "Сачувај ову верзију сада",
+        "No versions saved yet.": "Још нема сачуваних верзија.",
+        "Saved on": "Сачувано",
+        "By": "Аутор",
+        "Note": "Белешка",
+        "Actions": "Радње",
+        "Restore": "Врати",
+        "Saved automatically before a restore": "Аутоматски сачувано пре враћања",
+        "The version history could not be loaded.": "Историја верзија није могла да се учита.",
+        "The version could not be saved.": "Верзија није могла да се сачува.",
+        "The version could not be restored.": "Верзија није могла да се врати.",
+        "Restore this version?": "Вратити ову верзију?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Контролна табла се враћа на стање од {date}. Тренутно стање се прво чува као верзија, па ово можете опозвати."
     }
 }

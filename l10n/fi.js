@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Joku muu muokkaa nyt tätä koontinäyttöä, joten olet taas katselutilassa.",
     "You cannot edit this dashboard." : "Et voi muokata tätä koontinäyttöä.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Koontinäyttöä ei voitu avata muokattavaksi. Yritä hetken kuluttua uudelleen.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa.",
+    "Version history…" : "Versiohistoria…",
+    "This dashboard is stored in a way that does not keep versions." : "Tämä koontinäyttö on tallennettu tavalla, joka ei säilytä versioita.",
+    "Note for this version (optional)" : "Tämän version huomautus (valinnainen)",
+    "Save this version now" : "Tallenna tämä versio nyt",
+    "No versions saved yet." : "Versioita ei ole vielä tallennettu.",
+    "Saved on" : "Tallennettu",
+    "By" : "Tekijä",
+    "Note" : "Huomautus",
+    "Actions" : "Toiminnot",
+    "Restore" : "Palauta",
+    "Saved automatically before a restore" : "Tallennettu automaattisesti ennen palautusta",
+    "The version history could not be loaded." : "Versiohistoriaa ei voitu ladata.",
+    "The version could not be saved." : "Versiota ei voitu tallentaa.",
+    "The version could not be restored." : "Versiota ei voitu palauttaa.",
+    "Restore this version?" : "Palautetaanko tämä versio?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Koontinäyttö palaa tilaan, jossa se oli {date}. Nykyinen tila tallennetaan ensin versiona, joten voit perua tämän."
 },
 "nplurals=2; plural=(n != 1);"
 );

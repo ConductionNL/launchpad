@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Insatgi auter elavura ussa quest dashboard, perquai essas Vus puspè en il modus da vista.",
     "You cannot edit this dashboard." : "Vus na pudais betg elavurar quest dashboard.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Il dashboard n'ha betg pudì vegnir avert per l'elavurar. Empruvai anc ina giada en in mument.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Sche la persuna chala, daventa il dashboard liber entaifer {minutes} minutas."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Sche la persuna chala, daventa il dashboard liber entaifer {minutes} minutas.",
+    "Version history…" : "Istorgia da las versiuns…",
+    "This dashboard is stored in a way that does not keep versions." : "Quest dashboard vegn memorisà en ina moda che na tegna betg versiuns.",
+    "Note for this version (optional)" : "Notizia per questa versiun (facultativ)",
+    "Save this version now" : "Memorisar questa versiun ussa",
+    "No versions saved yet." : "Anc naginas versiuns memorisadas.",
+    "Saved on" : "Memorisà ils",
+    "By" : "Da",
+    "Note" : "Notizia",
+    "Actions" : "Acziuns",
+    "Restore" : "Restaurar",
+    "Saved automatically before a restore" : "Memorisà automaticamain avant ina restauraziun",
+    "The version history could not be loaded." : "L'istorgia da las versiuns n'ha betg pudì vegnir chargiada.",
+    "The version could not be saved." : "La versiun n'ha betg pudì vegnir memorisada.",
+    "The version could not be restored." : "La versiun n'ha betg pudì vegnir restaurada.",
+    "Restore this version?" : "Restaurar questa versiun?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Il dashboard turna al stadi dals {date}. Il stadi actual vegn l'emprim memorisà sco versiun, uschia che Vus pudais revocar quai."
 },
 "nplurals=2; plural=(n != 1);"
 );

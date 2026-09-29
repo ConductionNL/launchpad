@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Netko drugi sada uređuje ovu nadzornu ploču pa ste ponovno u načinu prikaza.",
     "You cannot edit this dashboard." : "Ne možete uređivati ovu nadzornu ploču.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nadzorna ploča nije se mogla otvoriti za uređivanje. Pokušajte ponovno za trenutak.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ako ta osoba prestane, nadzorna ploča postaje slobodna za najviše {minutes} minuta."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ako ta osoba prestane, nadzorna ploča postaje slobodna za najviše {minutes} minuta.",
+    "Version history…" : "Povijest verzija…",
+    "This dashboard is stored in a way that does not keep versions." : "Ova nadzorna ploča pohranjena je na način koji ne čuva verzije.",
+    "Note for this version (optional)" : "Bilješka uz ovu verziju (neobavezno)",
+    "Save this version now" : "Spremi ovu verziju sada",
+    "No versions saved yet." : "Još nema spremljenih verzija.",
+    "Saved on" : "Spremljeno",
+    "By" : "Autor",
+    "Note" : "Bilješka",
+    "Actions" : "Radnje",
+    "Restore" : "Vrati",
+    "Saved automatically before a restore" : "Automatski spremljeno prije vraćanja",
+    "The version history could not be loaded." : "Povijest verzija nije se mogla učitati.",
+    "The version could not be saved." : "Verzija se nije mogla spremiti.",
+    "The version could not be restored." : "Verzija se nije mogla vratiti.",
+    "Restore this version?" : "Vratiti ovu verziju?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Nadzorna ploča vraća se na stanje od {date}. Trenutačno stanje najprije se sprema kao verzija, pa ovo možete poništiti."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Otra persona está editando ahora este panel, así que vuelves al modo de vista.",
     "You cannot edit this dashboard." : "No puedes editar este panel.",
     "The dashboard could not be opened for editing. Try again in a moment." : "No se pudo abrir el panel para editarlo. Inténtalo de nuevo en un momento.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Si deja de editar, el panel queda libre en un plazo de {minutes} minutos."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Si deja de editar, el panel queda libre en un plazo de {minutes} minutos.",
+    "Version history…" : "Historial de versiones…",
+    "This dashboard is stored in a way that does not keep versions." : "Este panel se guarda de una forma que no conserva versiones.",
+    "Note for this version (optional)" : "Nota para esta versión (opcional)",
+    "Save this version now" : "Guardar esta versión ahora",
+    "No versions saved yet." : "Todavía no hay versiones guardadas.",
+    "Saved on" : "Guardada el",
+    "By" : "Por",
+    "Note" : "Nota",
+    "Actions" : "Acciones",
+    "Restore" : "Restaurar",
+    "Saved automatically before a restore" : "Guardada automáticamente antes de una restauración",
+    "The version history could not be loaded." : "No se pudo cargar el historial de versiones.",
+    "The version could not be saved." : "No se pudo guardar la versión.",
+    "The version could not be restored." : "No se pudo restaurar la versión.",
+    "Restore this version?" : "¿Restaurar esta versión?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "El panel vuelve a como estaba el {date}. Su estado actual se guarda antes como versión, así que puedes deshacerlo."
 },
 "nplurals=2; plural=(n != 1);"
 );

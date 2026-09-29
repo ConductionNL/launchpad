@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Šią suvestinę dabar redaguoja kažkas kitas, todėl grįžote į peržiūros režimą.",
     "You cannot edit this dashboard." : "Negalite redaguoti šios suvestinės.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nepavyko atidaryti suvestinės redagavimui. Bandykite dar kartą po akimirkos.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min.",
+    "Version history…" : "Versijų istorija…",
+    "This dashboard is stored in a way that does not keep versions." : "Ši suvestinė saugoma taip, kad versijos neišsaugomos.",
+    "Note for this version (optional)" : "Šios versijos pastaba (nebūtina)",
+    "Save this version now" : "Išsaugoti šią versiją dabar",
+    "No versions saved yet." : "Dar neišsaugota jokių versijų.",
+    "Saved on" : "Išsaugota",
+    "By" : "Autorius",
+    "Note" : "Pastaba",
+    "Actions" : "Veiksmai",
+    "Restore" : "Atkurti",
+    "Saved automatically before a restore" : "Išsaugota automatiškai prieš atkūrimą",
+    "The version history could not be loaded." : "Nepavyko įkelti versijų istorijos.",
+    "The version could not be saved." : "Nepavyko išsaugoti versijos.",
+    "The version could not be restored." : "Nepavyko atkurti versijos.",
+    "Restore this version?" : "Atkurti šią versiją?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Suvestinė grįžta į būseną, buvusią {date}. Dabartinė būsena pirmiausia išsaugoma kaip versija, todėl tai galima atšaukti."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

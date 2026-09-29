@@ -1147,7 +1147,23 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Einhver annar er núna að breyta þessu stjórnborði, svo þú ert aftur í skoðunarham.",
     "You cannot edit this dashboard." : "Þú getur ekki breytt þessu stjórnborði.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Ekki tókst að opna stjórnborðið til breytinga. Reyndu aftur eftir smástund.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ef viðkomandi hættir losnar stjórnborðið innan {minutes} mínútna."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ef viðkomandi hættir losnar stjórnborðið innan {minutes} mínútna.",
+    "Version history…" : "Útgáfusaga…",
+    "This dashboard is stored in a way that does not keep versions." : "Þetta stjórnborð er vistað á þann hátt að útgáfur eru ekki geymdar.",
+    "Note for this version (optional)" : "Athugasemd við þessa útgáfu (valfrjálst)",
+    "Save this version now" : "Vista þessa útgáfu núna",
+    "No versions saved yet." : "Engar útgáfur vistaðar enn.",
+    "Saved on" : "Vistað",
+    "By" : "Eftir",
+    "Note" : "Athugasemd",
+    "Actions" : "Aðgerðir",
+    "Restore" : "Endurheimta",
+    "Saved automatically before a restore" : "Vistað sjálfkrafa fyrir endurheimt",
+    "The version history could not be loaded." : "Ekki tókst að hlaða útgáfusögunni.",
+    "The version could not be saved." : "Ekki tókst að vista útgáfuna.",
+    "The version could not be restored." : "Ekki tókst að endurheimta útgáfuna.",
+    "Restore this version?" : "Endurheimta þessa útgáfu?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Stjórnborðið fer aftur í það horf sem það var {date}. Núverandi útlit er fyrst vistað sem útgáfa svo þú getir afturkallað þetta."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

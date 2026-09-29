@@ -1116,6 +1116,22 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Xi ħadd ieħor qed jeditja dan id-dashboard issa, għalhekk inti lura fil-modalità tal-wiri.",
         "You cannot edit this dashboard.": "Ma tistax teditja dan id-dashboard.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Id-dashboard ma setax jinfetaħ għall-editjar. Erġa' pprova ftit wara.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti.",
+        "Version history…": "Storja tal-verżjonijiet…",
+        "This dashboard is stored in a way that does not keep versions.": "Dan id-dashboard huwa maħżun b'mod li ma jżommx verżjonijiet.",
+        "Note for this version (optional)": "Nota għal din il-verżjoni (mhux obbligatorja)",
+        "Save this version now": "Issejvja din il-verżjoni issa",
+        "No versions saved yet.": "L-ebda verżjoni ma ġiet issejvjata s'issa.",
+        "Saved on": "Issejvjata fi",
+        "By": "Minn",
+        "Note": "Nota",
+        "Actions": "Azzjonijiet",
+        "Restore": "Irrestawra",
+        "Saved automatically before a restore": "Issejvjata awtomatikament qabel restawr",
+        "The version history could not be loaded.": "Ma setgħetx titgħabba l-istorja tal-verżjonijiet.",
+        "The version could not be saved.": "Il-verżjoni ma setgħetx tiġi ssejvjata.",
+        "The version could not be restored.": "Il-verżjoni ma setgħetx tiġi rrestawrata.",
+        "Restore this version?": "Tirrestawra din il-verżjoni?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Id-dashboard imur lura għal kif kien fi {date}. Kif jidher issa jiġi ssejvjat bħala verżjoni l-ewwel, biex tkun tista' tneħħi dan."
     }
 }

@@ -139,6 +139,14 @@ class DashboardService {
 	public const ERR_SCHEDULE_PAST_DATE = 'publishAt must be a future timestamp';
 
 	/**
+	 * Validation error when the take-down time is not after the go-live
+	 * time (sharing-dashboard-schedule-screen REQ-SCHEDUI-002).
+	 *
+	 * @var string
+	 */
+	public const ERR_UNPUBLISH_BEFORE_PUBLISH = 'unpublishAt must be after publishAt';
+
+	/**
 	 * Constructor
 	 *
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
@@ -1613,6 +1621,14 @@ class DashboardService {
 				}
 			}
 
+			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
+			// dashboard whose take-down time has passed reads as a draft, so
+			// only its owner and administrators keep seeing it.
+			if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
+				$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+				$status = Dashboard::STATUS_DRAFT;
+			}
+
 			if ($status === Dashboard::STATUS_PUBLISHED) {
 				$filtered[] = $entry;
 				continue;
@@ -2070,9 +2086,10 @@ class DashboardService {
 	 * HTTP 400 with an i18n-translatable copy. Owner-or-admin gated.
 	 *
 	 * @param string $uuid The dashboard UUID to schedule.
-	 * @param string $publishAt The ISO-8601 timestamp at which the
+	 * @param string|null $publishAt The ISO-8601 timestamp at which the
 	 *                          dashboard should automatically publish.
 	 * @param string $userId The acting user ID.
+	 * @param string|null $unpublishAt Optional take-down time (REQ-SCHEDUI-002); null or empty leaves none.
 	 *
 	 * @return Dashboard The updated dashboard entity.
 	 *
@@ -2086,8 +2103,9 @@ class DashboardService {
 	 */
 	public function schedule(
 		string $uuid,
-		string $publishAt,
+		?string $publishAt,
 		string $userId,
+		?string $unpublishAt = null,
 	): Dashboard {
 		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		$this->assertOwnerOrAdmin(
@@ -2095,10 +2113,33 @@ class DashboardService {
 			actorUserId: $userId
 		);
 
-		$parsed = $this->parseFuturePublishAt(publishAt: $publishAt);
+		$hasPublishAt = ($publishAt !== null && trim($publishAt) !== '');
+		$hasUnpublishAt = ($unpublishAt !== null && trim($unpublishAt) !== '');
+		if ($hasPublishAt === false && $hasUnpublishAt === false) {
+			throw new InvalidArgumentException(message: self::ERR_SCHEDULE_PAST_DATE);
+		}
 
-		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
-		$dashboard->setPublishAt($parsed);
+		$parsedPublish = null;
+		if ($hasPublishAt === true) {
+			$parsedPublish = $this->parseFuturePublishAt(publishAt: (string)$publishAt);
+		}
+
+		$parsedUnpublish = null;
+		if ($hasUnpublishAt === true) {
+			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
+			// time is also in the future, and after the go-live time.
+			$parsedUnpublish = $this->parseFuturePublishAt(publishAt: (string)$unpublishAt);
+			if ($parsedPublish !== null && $parsedUnpublish <= $parsedPublish) {
+				throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
+			}
+		}
+
+		if ($parsedPublish !== null) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+			$dashboard->setPublishAt($parsedPublish);
+		}
+
+		$dashboard->setUnpublishAt($parsedUnpublish);
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -3373,6 +3414,29 @@ class DashboardService {
 			message: self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
 		);
 	}//end assertOwnerOrAdmin()
+
+	/**
+	 * Whether a dashboard's take-down time has passed.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param DateTime $now The moment of the read.
+	 *
+	 * @return bool True when `unpublishAt` is set and not in the future.
+	 *
+	 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+	 */
+	private function isTakenDown(Dashboard $dashboard, DateTime $now): bool {
+		$unpublishAt = $dashboard->getUnpublishAt();
+		if ($unpublishAt === null || $unpublishAt === '') {
+			return false;
+		}
+
+		try {
+			return new DateTime($unpublishAt) <= $now;
+		} catch (Exception) {
+			return false;
+		}
+	}//end isTakenDown()
 
 	/**
 	 * Parse and validate a `publishAt` argument for the schedule action.

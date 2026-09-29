@@ -31,6 +31,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\PersonalLayerMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCP\AppFramework\Controller;
@@ -58,6 +59,7 @@ class PersonalLayerApiController extends Controller {
 	 * @param PersonalLayerMapper $mapper Reads the layer for the GET.
 	 * @param DashboardService $dashboards Decides whether the caller may see it.
 	 * @param string|null $userId The acting user ID.
+	 * @param WidgetPlacementMapper|null $placements Reads the hidden widgets so the list can name them.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -65,6 +67,7 @@ class PersonalLayerApiController extends Controller {
 		private readonly PersonalLayerMapper $mapper,
 		private readonly DashboardService $dashboards,
 		private readonly ?string $userId,
+		private readonly ?WidgetPlacementMapper $placements = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -100,12 +103,49 @@ class PersonalLayerApiController extends Controller {
 					'hidden' => [],
 					'updatedAt' => null,
 					'hasLayer' => false,
+					'hiddenPlacements' => [],
 				]
 			);
 		}
 
-		return new JSONResponse($layer->jsonSerialize() + ['hasLayer' => true]);
+		return new JSONResponse(
+			$layer->jsonSerialize() + [
+				'hasLayer' => true,
+				'hiddenPlacements' => $this->hiddenPlacements(
+					dashboardId: $dashboardId,
+					hidden: $layer->hiddenArray()
+				),
+			]
+		);
 	}//end show()
+
+	/**
+	 * The placements this person hid, so the "Hidden (n)" list can name
+	 * them. Read straight from the dashboard, because the dashboard read
+	 * has already taken them out. Only ids in the caller's own layer are
+	 * returned, on a dashboard the caller may see (checked by the caller).
+	 *
+	 * @param int $dashboardId The dashboard.
+	 * @param array<int> $hidden The hidden placement ids of the layer.
+	 *
+	 * @return array<int, array<string, mixed>> Serialised hidden placements.
+	 *
+	 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+	 */
+	private function hiddenPlacements(int $dashboardId, array $hidden): array {
+		if ($this->placements === null || $hidden === []) {
+			return [];
+		}
+
+		$out = [];
+		foreach ($this->placements->findByDashboardId(dashboardId: $dashboardId) as $placement) {
+			if (in_array((int)$placement->getId(), $hidden, true) === true) {
+				$out[] = $placement->jsonSerialize();
+			}
+		}
+
+		return $out;
+	}//end hiddenPlacements()
 
 	/**
 	 * PUT the caller's arrangement.

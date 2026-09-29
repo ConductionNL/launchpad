@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Żball",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-    "Replace" : "Issostitwixxi"
+    "Replace" : "Issostitwixxi",
+    "Widget options" : "Għażliet tal-widget",
+    "Hide for me" : "Aħbi għalija",
+    "Hidden ({count})" : "Moħbija ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widgets li ħbejt f'dan id-dashboard. Oħrajn għadhom jarawhom.",
+    "Show again" : "Erġa' uri",
+    "Reset my view" : "Irrisettja l-ħarsa tiegħi",
+    "Reset your view?" : "Tirrisettja l-ħarsa tiegħek?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Kull widget li ħbejt jerġa' lura, u d-dashboard jidher kif waqqfu s-sid tiegħu.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} huwa obbligatorju f'dan id-dashboard u ma jistax jinħeba.",
+    "The widget could not be hidden." : "Il-widget ma setax jinħeba.",
+    "The widget could not be shown again." : "Il-widget ma setax jerġa' jintwera.",
+    "Your view could not be reset." : "Il-ħarsa tiegħek ma setgħetx tiġi rrisettjata."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

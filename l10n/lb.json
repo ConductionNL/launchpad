@@ -1105,6 +1105,18 @@
         "Simulated": "Simuléiert",
         "Error": "Feeler",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "E Fichier mam Numm {name} gëtt et schonn. Wielt Ersetzen, fir en mat engem eidele Fichier ze iwwerschreiwen, oder ännert den Numm.",
-        "Replace": "Ersetzen"
+        "Replace": "Ersetzen",
+        "Widget options": "Widget-Optiounen",
+        "Hide for me": "Fir mech verstoppen",
+        "Hidden ({count})": "Verstoppt ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgets, déi Dir op dësem Dashboard verstoppt hutt. Anerer gesinn se nach ëmmer.",
+        "Show again": "Nees weisen",
+        "Reset my view": "Meng Usiicht zrécksetzen",
+        "Reset your view?": "Är Usiicht zrécksetzen?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "All Widget, deen Dir verstoppt hutt, kënnt zréck, an d'Dashboard gesäit aus, wéi säi Besëtzer et ageriicht huet.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} ass op dësem Dashboard obligatoresch a kann net verstoppt ginn.",
+        "The widget could not be hidden.": "De Widget konnt net verstoppt ginn.",
+        "The widget could not be shown again.": "De Widget konnt net nees gewise ginn.",
+        "Your view could not be reset.": "Är Usiicht konnt net zréckgesat ginn."
     }
 }

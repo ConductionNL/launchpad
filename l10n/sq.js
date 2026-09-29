@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "I simuluar",
     "Error" : "Gabim",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-    "Replace" : "Zëvendëso"
+    "Replace" : "Zëvendëso",
+    "Widget options" : "Opsionet e widget-it",
+    "Hide for me" : "Fshihe për mua",
+    "Hidden ({count})" : "Të fshehura ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widget-et që fshehët në këtë panel. Të tjerët ende i shohin.",
+    "Show again" : "Shfaqe sërish",
+    "Reset my view" : "Rivendos pamjen time",
+    "Reset your view?" : "Të rivendoset pamja juaj?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Çdo widget që fshehët kthehet dhe paneli duket siç e konfiguroi pronari.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} është i detyrueshëm në këtë panel dhe nuk mund të fshihet.",
+    "The widget could not be hidden." : "Widget-i nuk mund të fshihej.",
+    "The widget could not be shown again." : "Widget-i nuk mund të shfaqej sërish.",
+    "Your view could not be reset." : "Pamja juaj nuk mund të rivendosej."
 },
 "nplurals=2; plural=(n != 1);"
 );

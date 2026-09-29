@@ -1165,6 +1165,18 @@
         "Simulated": "Gesimuleerd",
         "Error": "Fout",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Er bestaat al een bestand met de naam {name}. Kies Vervangen om het te overschrijven met een leeg bestand, of wijzig de naam.",
-        "Replace": "Vervangen"
+        "Replace": "Vervangen",
+        "Widget options": "Widgetopties",
+        "Hide for me": "Voor mij verbergen",
+        "Hidden ({count})": "Verborgen ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgets die je op dit dashboard hebt verborgen. Anderen zien ze nog wel.",
+        "Show again": "Weer tonen",
+        "Reset my view": "Mijn weergave herstellen",
+        "Reset your view?": "Je weergave herstellen?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Elke widget die je hebt verborgen komt terug, en het dashboard ziet eruit zoals de eigenaar het heeft ingericht.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} is verplicht op dit dashboard en kan niet worden verborgen.",
+        "The widget could not be hidden.": "De widget kon niet worden verborgen.",
+        "The widget could not be shown again.": "De widget kon niet opnieuw worden getoond.",
+        "Your view could not be reset.": "Je weergave kon niet worden hersteld."
     }
 }

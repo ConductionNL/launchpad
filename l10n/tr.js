@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Benzetildi",
     "Error" : "Hata",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
-    "Replace" : "Değiştir"
+    "Replace" : "Değiştir",
+    "Widget options" : "Pencere öğesi seçenekleri",
+    "Hide for me" : "Benim için gizle",
+    "Hidden ({count})" : "Gizli ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Bu panoda gizlediğiniz pencere öğeleri. Başkaları onları görmeye devam eder.",
+    "Show again" : "Yeniden göster",
+    "Reset my view" : "Görünümümü sıfırla",
+    "Reset your view?" : "Görünümünüz sıfırlansın mı?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Gizlediğiniz tüm pencere öğeleri geri gelir ve pano, sahibinin ayarladığı gibi görünür.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} bu panoda zorunludur ve gizlenemez.",
+    "The widget could not be hidden." : "Pencere öğesi gizlenemedi.",
+    "The widget could not be shown again." : "Pencere öğesi yeniden gösterilemedi.",
+    "Your view could not be reset." : "Görünümünüz sıfırlanamadı."
 },
 "nplurals=2; plural=(n != 1);"
 );

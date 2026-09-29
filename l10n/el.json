@@ -1105,6 +1105,18 @@
         "Simulated": "Προσομοιωμένο",
         "Error": "Σφάλμα",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
-        "Replace": "Αντικατάσταση"
+        "Replace": "Αντικατάσταση",
+        "Widget options": "Επιλογές γραφικού στοιχείου",
+        "Hide for me": "Απόκρυψη για μένα",
+        "Hidden ({count})": "Κρυφά ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Γραφικά στοιχεία που κρύψατε σε αυτόν τον πίνακα. Οι άλλοι εξακολουθούν να τα βλέπουν.",
+        "Show again": "Εμφάνιση ξανά",
+        "Reset my view": "Επαναφορά της προβολής μου",
+        "Reset your view?": "Επαναφορά της προβολής σας;",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Όλα τα γραφικά στοιχεία που κρύψατε επιστρέφουν και ο πίνακας εμφανίζεται όπως τον ρύθμισε ο κάτοχός του.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "Το {name} είναι υποχρεωτικό σε αυτόν τον πίνακα και δεν μπορεί να κρυφτεί.",
+        "The widget could not be hidden.": "Δεν ήταν δυνατή η απόκρυψη του γραφικού στοιχείου.",
+        "The widget could not be shown again.": "Δεν ήταν δυνατή η επανεμφάνιση του γραφικού στοιχείου.",
+        "Your view could not be reset.": "Δεν ήταν δυνατή η επαναφορά της προβολής σας."
     }
 }

@@ -1105,6 +1105,18 @@
         "Simulated": "Simuloitu",
         "Error": "Virhe",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Tiedosto nimeltä {name} on jo olemassa. Valitse Korvaa korvataksesi sen tyhjällä tiedostolla tai vaihda nimi.",
-        "Replace": "Korvaa"
+        "Replace": "Korvaa",
+        "Widget options": "Pienoisohjelman valinnat",
+        "Hide for me": "Piilota minulta",
+        "Hidden ({count})": "Piilotetut ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Pienoisohjelmat, jotka piilotit tästä koontinäytöstä. Muut näkevät ne yhä.",
+        "Show again": "Näytä uudelleen",
+        "Reset my view": "Palauta näkymäni",
+        "Reset your view?": "Palautetaanko näkymäsi?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Kaikki piilottamasi pienoisohjelmat palaavat, ja koontinäyttö näyttää siltä kuin omistaja sen määritti.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} on pakollinen tässä koontinäytössä, eikä sitä voi piilottaa.",
+        "The widget could not be hidden.": "Pienoisohjelmaa ei voitu piilottaa.",
+        "The widget could not be shown again.": "Pienoisohjelmaa ei voitu näyttää uudelleen.",
+        "Your view could not be reset.": "Näkymääsi ei voitu palauttaa."
     }
 }

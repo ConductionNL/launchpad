@@ -1105,6 +1105,18 @@
         "Simulated": "Simuliert",
         "Error": "Fehler",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Eine Datei mit dem Namen {name} existiert bereits. Wählen Sie Ersetzen, um sie mit einer leeren Datei zu überschreiben, oder ändern Sie den Namen.",
-        "Replace": "Ersetzen"
+        "Replace": "Ersetzen",
+        "Widget options": "Widget-Optionen",
+        "Hide for me": "Für mich ausblenden",
+        "Hidden ({count})": "Ausgeblendet ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgets, die Sie auf diesem Dashboard ausgeblendet haben. Andere sehen sie weiterhin.",
+        "Show again": "Wieder anzeigen",
+        "Reset my view": "Meine Ansicht zurücksetzen",
+        "Reset your view?": "Ihre Ansicht zurücksetzen?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Alle ausgeblendeten Widgets kommen zurück, und das Dashboard sieht so aus, wie der Eigentümer es eingerichtet hat.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} ist auf diesem Dashboard verpflichtend und kann nicht ausgeblendet werden.",
+        "The widget could not be hidden.": "Das Widget konnte nicht ausgeblendet werden.",
+        "The widget could not be shown again.": "Das Widget konnte nicht wieder angezeigt werden.",
+        "Your view could not be reset.": "Ihre Ansicht konnte nicht zurückgesetzt werden."
     }
 }

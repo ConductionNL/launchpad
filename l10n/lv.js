@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Simulēts",
     "Error" : "Kļūda",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
-    "Replace" : "Aizstāt"
+    "Replace" : "Aizstāt",
+    "Widget options" : "Logrīka opcijas",
+    "Hide for me" : "Paslēpt man",
+    "Hidden ({count})" : "Paslēpti ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Logrīki, ko paslēpāt šajā informācijas panelī. Citi tos joprojām redz.",
+    "Show again" : "Rādīt atkal",
+    "Reset my view" : "Atiestatīt manu skatu",
+    "Reset your view?" : "Atiestatīt jūsu skatu?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Visi paslēptie logrīki atgriežas, un informācijas panelis izskatās tā, kā to iestatīja īpašnieks.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} šajā informācijas panelī ir obligāts, un to nevar paslēpt.",
+    "The widget could not be hidden." : "Logrīku neizdevās paslēpt.",
+    "The widget could not be shown again." : "Logrīku neizdevās parādīt atkal.",
+    "Your view could not be reset." : "Jūsu skatu neizdevās atiestatīt."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -1105,6 +1105,18 @@
         "Simulated": "Simulado",
         "Error": "Erro",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Já existe um ficheiro chamado {name}. Escolha Substituir para o substituir por um ficheiro vazio, ou altere o nome.",
-        "Replace": "Substituir"
+        "Replace": "Substituir",
+        "Widget options": "Opções do widget",
+        "Hide for me": "Ocultar para mim",
+        "Hidden ({count})": "Ocultos ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgets que ocultou neste painel. Os outros continuam a vê-los.",
+        "Show again": "Mostrar novamente",
+        "Reset my view": "Repor a minha vista",
+        "Reset your view?": "Repor a sua vista?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Todos os widgets que ocultou voltam, e o painel fica como o proprietário o configurou.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} é obrigatório neste painel e não pode ser ocultado.",
+        "The widget could not be hidden.": "Não foi possível ocultar o widget.",
+        "The widget could not be shown again.": "Não foi possível voltar a mostrar o widget.",
+        "Your view could not be reset.": "Não foi possível repor a sua vista."
     }
 }

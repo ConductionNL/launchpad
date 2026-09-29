@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Symulowane",
     "Error" : "Błąd",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Plik o nazwie {name} już istnieje. Wybierz Zastąp, aby nadpisać go pustym plikiem, lub zmień nazwę.",
-    "Replace" : "Zastąp"
+    "Replace" : "Zastąp",
+    "Widget options" : "Opcje widżetu",
+    "Hide for me" : "Ukryj dla mnie",
+    "Hidden ({count})" : "Ukryte ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widżety ukryte przez ciebie na tym pulpicie. Inni nadal je widzą.",
+    "Show again" : "Pokaż ponownie",
+    "Reset my view" : "Przywróć mój widok",
+    "Reset your view?" : "Przywrócić twój widok?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Wszystkie ukryte widżety wrócą, a pulpit będzie wyglądał tak, jak ustawił go właściciel.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} jest obowiązkowy na tym pulpicie i nie można go ukryć.",
+    "The widget could not be hidden." : "Nie udało się ukryć widżetu.",
+    "The widget could not be shown again." : "Nie udało się ponownie pokazać widżetu.",
+    "Your view could not be reset." : "Nie udało się przywrócić twojego widoku."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

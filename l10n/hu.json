@@ -1105,6 +1105,18 @@
         "Simulated": "Szimulált",
         "Error": "Hiba",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Már létezik {name} nevű fájl. Válassza a Csere lehetőséget, hogy üres fájllal felülírja, vagy módosítsa a nevet.",
-        "Replace": "Csere"
+        "Replace": "Csere",
+        "Widget options": "Modul beállításai",
+        "Hide for me": "Elrejtés számomra",
+        "Hidden ({count})": "Elrejtett ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Az ezen az irányítópulton elrejtett modulok. Mások továbbra is látják őket.",
+        "Show again": "Megjelenítés újra",
+        "Reset my view": "Nézetem visszaállítása",
+        "Reset your view?": "Visszaállítja a nézetét?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Minden elrejtett modul visszakerül, és az irányítópult úgy néz ki, ahogy a tulajdonosa beállította.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} kötelező ezen az irányítópulton, nem rejthető el.",
+        "The widget could not be hidden.": "A modult nem sikerült elrejteni.",
+        "The widget could not be shown again.": "A modult nem sikerült újra megjeleníteni.",
+        "Your view could not be reset.": "A nézetét nem sikerült visszaállítani."
     }
 }

@@ -1105,6 +1105,18 @@
         "Simulated": "Simulat",
         "Error": "Error",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
-        "Replace": "Substitueix"
+        "Replace": "Substitueix",
+        "Widget options": "Opcions del giny",
+        "Hide for me": "Amaga per a mi",
+        "Hidden ({count})": "Amagats ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Ginys que heu amagat en aquest tauler. Els altres encara els veuen.",
+        "Show again": "Torna a mostrar",
+        "Reset my view": "Restableix la meva vista",
+        "Reset your view?": "Voleu restablir la vostra vista?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Tots els ginys que heu amagat tornen, i el tauler es veu tal com el va configurar el propietari.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} és obligatori en aquest tauler i no es pot amagar.",
+        "The widget could not be hidden.": "No s'ha pogut amagar el giny.",
+        "The widget could not be shown again.": "No s'ha pogut tornar a mostrar el giny.",
+        "Your view could not be reset.": "No s'ha pogut restablir la vostra vista."
     }
 }

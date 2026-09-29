@@ -1105,6 +1105,18 @@
         "Simulated": "Hermt",
         "Error": "Villa",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Skrá með heitinu {name} er þegar til. Veldu Skipta út til að skrifa yfir hana með tómri skrá, eða breyttu heitinu.",
-        "Replace": "Skipta út"
+        "Replace": "Skipta út",
+        "Widget options": "Valkostir græju",
+        "Hide for me": "Fela fyrir mig",
+        "Hidden ({count})": "Falið ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Græjur sem þú faldir á þessu stjórnborði. Aðrir sjá þær enn.",
+        "Show again": "Sýna aftur",
+        "Reset my view": "Endurstilla mína sýn",
+        "Reset your view?": "Endurstilla þína sýn?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Allar græjur sem þú faldir koma aftur og stjórnborðið lítur út eins og eigandinn setti það upp.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} er skylda á þessu stjórnborði og ekki hægt að fela það.",
+        "The widget could not be hidden.": "Ekki tókst að fela græjuna.",
+        "The widget could not be shown again.": "Ekki tókst að sýna græjuna aftur.",
+        "Your view could not be reset.": "Ekki tókst að endurstilla sýnina þína."
     }
 }

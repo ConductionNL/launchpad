@@ -1105,6 +1105,18 @@
         "Simulated": "Simulerad",
         "Error": "Fel",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Det finns redan en fil med namnet {name}. Välj Ersätt för att skriva över den med en tom fil, eller ändra namnet.",
-        "Replace": "Ersätt"
+        "Replace": "Ersätt",
+        "Widget options": "Widgetalternativ",
+        "Hide for me": "Dölj för mig",
+        "Hidden ({count})": "Dolda ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgetar du har dolt på den här instrumentpanelen. Andra ser dem fortfarande.",
+        "Show again": "Visa igen",
+        "Reset my view": "Återställ min vy",
+        "Reset your view?": "Återställa din vy?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Alla widgetar du dolt kommer tillbaka, och instrumentpanelen ser ut som ägaren ställde in den.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} är obligatorisk på den här instrumentpanelen och kan inte döljas.",
+        "The widget could not be hidden.": "Widgeten kunde inte döljas.",
+        "The widget could not be shown again.": "Widgeten kunde inte visas igen.",
+        "Your view could not be reset.": "Din vy kunde inte återställas."
     }
 }

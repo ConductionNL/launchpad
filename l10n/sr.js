@@ -1129,6 +1129,18 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Датотека са именом {name} већ постоји. Изаберите Замени да бисте је преписали празном датотеком или промените име.",
-    "Replace" : "Замени"
+    "Replace" : "Замени",
+    "Widget options" : "Опције виџета",
+    "Hide for me" : "Сакриј за мене",
+    "Hidden ({count})" : "Сакривено ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Виџети које сте сакрили на овој контролној табли. Други их и даље виде.",
+    "Show again" : "Поново прикажи",
+    "Reset my view" : "Врати мој приказ",
+    "Reset your view?" : "Вратити ваш приказ?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Сви виџети које сте сакрили се враћају, а контролна табла изгледа како ју је подесио власник.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} је обавезан на овој контролној табли и не може се сакрити.",
+    "The widget could not be hidden." : "Виџет није могао да се сакрије.",
+    "The widget could not be shown again." : "Виџет није могао поново да се прикаже.",
+    "Your view could not be reset." : "Ваш приказ није могао да се врати."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

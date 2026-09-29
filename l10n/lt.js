@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Imituota",
     "Error" : "Klaida",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
-    "Replace" : "Pakeisti"
+    "Replace" : "Pakeisti",
+    "Widget options" : "Valdiklio parinktys",
+    "Hide for me" : "Slėpti man",
+    "Hidden ({count})" : "Paslėpti ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Valdikliai, kuriuos paslėpėte šioje suvestinėje. Kiti juos vis dar mato.",
+    "Show again" : "Rodyti vėl",
+    "Reset my view" : "Atkurti mano rodinį",
+    "Reset your view?" : "Atkurti jūsų rodinį?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Visi paslėpti valdikliai grįžta, o suvestinė atrodo taip, kaip ją nustatė savininkas.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} šioje suvestinėje yra privalomas ir negali būti paslėptas.",
+    "The widget could not be hidden." : "Nepavyko paslėpti valdiklio.",
+    "The widget could not be shown again." : "Nepavyko vėl parodyti valdiklio.",
+    "Your view could not be reset." : "Nepavyko atkurti jūsų rodinio."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

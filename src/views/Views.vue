@@ -145,6 +145,14 @@
 				<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
 			     report opener. Only shown to an editor when the active
 			     dashboard carries at least one acknowledgement requirement. -->
+				<!-- dashboards-personal-hide-ui REQ-PERSUI-002: what this
+				     person hid, with Show again and Reset my view. -->
+				<HiddenWidgetsControl
+					v-if="canHideForMe"
+					:hiddenPlacements="personalLayer.hiddenPlacements"
+					:availableWidgets="availableWidgets"
+					@showAgain="onShowAgain"
+					@reset="onResetPersonalView" />
 				<NcButton
 					v-if="canShareActiveDashboard"
 					variant="tertiary"
@@ -231,10 +239,12 @@
 							:outstandingAcknowledgement="
 								isPlacementOutstanding(item)
 							"
+							:canHideForMe="canHideForMe"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
-							@acknowledged="onWidgetAcknowledged" />
+							@acknowledged="onWidgetAcknowledged"
+							@hideForMe="onHideForMe" />
 					</div>
 				</template>
 			</CnDashboardGrid>
@@ -374,6 +384,7 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
+import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
@@ -388,6 +399,7 @@ import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
@@ -402,10 +414,12 @@ import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 // Stores
 import { useDashboardStore } from '../stores/dashboard.js'
+import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { logger } from '../utils/logger.js'
+import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
@@ -434,6 +448,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		HiddenWidgetsControl,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -539,7 +554,10 @@ export default {
 			computed(() => useWidgetStore().availableWidgets),
 		)
 
-		return { canEditRef, grid }
+		// dashboards-personal-hide-ui: this person's own layer.
+		const personalLayer = usePersonalLayerStore()
+
+		return { canEditRef, grid, personalLayer }
 	},
 
 	data() {
@@ -686,6 +704,17 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		canEdit() {
 			return this.permissionLevel !== 'view_only'
+		},
+
+		/**
+		 * Whether "Hide for me" and "Hidden (n)" are offered: a dashboard
+		 * this person does not own (REQ-PERSUI-001).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 */
+		canHideForMe() {
+			return !!this.activeDashboard && this.activeDashboard.isOwner !== true
 		},
 
 		/**
@@ -836,6 +865,22 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Read this person's layer whenever another shared dashboard
+		 * becomes active, so "Hidden (n)" is right from the start.
+		 *
+		 * @param {number|string|null} id Active dashboard id.
+		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 */
+		'activeDashboard.id': {
+			immediate: true,
+			handler(id) {
+				if (id !== undefined && id !== null && this.canHideForMe) {
+					this.personalLayer.load(id).catch(() => {})
+				}
+			},
+		},
+
 		/**
 		 * Mirror the combined edit-mode / permission gate into the
 		 * Vue.observable proxy the grid manager composable owns. The
@@ -1106,6 +1151,76 @@ export default {
 		 * later key wins, so the store action could never run. The local one
 		 * (which delegates to `removeWidget`) is what `@delete` invokes.
 		 */
+
+		/**
+		 * "Hide for me" on a widget: save the layer, then read the dashboard
+		 * again so the server applies it (REQ-PERSUI-001).
+		 *
+		 * @param {object} placement The widget's placement.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 */
+		async onHideForMe(placement) {
+			const id = this.activeDashboard?.id
+			if (id === undefined || id === null) {
+				return
+			}
+			try {
+				await this.personalLayer.hide(id, placement.id)
+			} catch (error) {
+				showError(
+					error?.compulsory
+						? t(
+								'launchpad',
+								'{name} is compulsory on this dashboard and cannot be hidden.',
+								{
+									name: resolveWidgetTitle(
+										placement,
+										this.availableWidgets,
+									),
+								},
+							)
+						: t('launchpad', 'The widget could not be hidden.'),
+				)
+				return
+			}
+			await this.switchDashboard(id)
+		},
+
+		/**
+		 * "Show again" in the hidden list (REQ-PERSUI-002).
+		 *
+		 * @param {number} placementId The placement to bring back.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 */
+		async onShowAgain(placementId) {
+			const id = this.activeDashboard?.id
+			try {
+				await this.personalLayer.showAgain(id, placementId)
+			} catch {
+				showError(t('launchpad', 'The widget could not be shown again.'))
+				return
+			}
+			await this.switchDashboard(id)
+		},
+
+		/**
+		 * "Reset my view", confirmed (REQ-PERSUI-002).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 */
+		async onResetPersonalView() {
+			const id = this.activeDashboard?.id
+			try {
+				await this.personalLayer.reset(id)
+			} catch {
+				showError(t('launchpad', 'Your view could not be reset.'))
+				return
+			}
+			await this.switchDashboard(id)
+		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		toggleEditMode() {

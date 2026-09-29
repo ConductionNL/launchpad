@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Insamhlaithe",
     "Error" : "Earráid",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tá comhad darb ainm {name} ann cheana. Roghnaigh Ionadaigh chun comhad folamh a scríobh air, nó athraigh an t-ainm.",
-    "Replace" : "Ionadaigh"
+    "Replace" : "Ionadaigh",
+    "Widget options" : "Roghanna giuirléide",
+    "Hide for me" : "Folaigh domsa",
+    "Hidden ({count})" : "I bhfolach ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Giuirléidí a d'fholaigh tú ar an deais seo. Feiceann daoine eile fós iad.",
+    "Show again" : "Taispeáin arís",
+    "Reset my view" : "Athshocraigh m'amharc",
+    "Reset your view?" : "Athshocraigh d'amharc?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Tagann gach giuirléid a d'fholaigh tú ar ais, agus tá cuma ar an deais mar a shocraigh a úinéir é.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "Tá {name} éigeantach ar an deais seo agus ní féidir é a fholú.",
+    "The widget could not be hidden." : "Níorbh fhéidir an ghiuirléid a fholú.",
+    "The widget could not be shown again." : "Níorbh fhéidir an ghiuirléid a thaispeáint arís.",
+    "Your view could not be reset." : "Níorbh fhéidir d'amharc a athshocrú."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

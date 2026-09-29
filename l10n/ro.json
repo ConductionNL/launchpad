@@ -1106,6 +1106,18 @@
         "Simulated": "Simulat",
         "Error": "Eroare",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-        "Replace": "Înlocuiește"
+        "Replace": "Înlocuiește",
+        "Widget options": "Opțiuni widget",
+        "Hide for me": "Ascunde pentru mine",
+        "Hidden ({count})": "Ascunse ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgeturi pe care le-ați ascuns pe acest tablou de bord. Ceilalți încă le văd.",
+        "Show again": "Afișează din nou",
+        "Reset my view": "Resetează vizualizarea mea",
+        "Reset your view?": "Resetați vizualizarea?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Toate widgeturile ascunse revin, iar tabloul de bord arată așa cum l-a configurat proprietarul.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} este obligatoriu pe acest tablou de bord și nu poate fi ascuns.",
+        "The widget could not be hidden.": "Widgetul nu a putut fi ascuns.",
+        "The widget could not be shown again.": "Widgetul nu a putut fi afișat din nou.",
+        "Your view could not be reset.": "Vizualizarea nu a putut fi resetată."
     }
 }

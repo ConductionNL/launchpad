@@ -1116,7 +1116,19 @@ OC.L10N.register(
     "Simulated" : "Simulated",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.",
-    "Replace" : "Replace"
+    "Replace" : "Replace",
+    "Widget options" : "Widget options",
+    "Hide for me" : "Hide for me",
+    "Hidden ({count})" : "Hidden ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widgets you hid on this dashboard. Others still see them.",
+    "Show again" : "Show again",
+    "Reset my view" : "Reset my view",
+    "Reset your view?" : "Reset your view?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Every widget you hid comes back, and the dashboard looks the way its owner set it up.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} is compulsory on this dashboard and cannot be hidden.",
+    "The widget could not be hidden." : "The widget could not be hidden.",
+    "The widget could not be shown again." : "The widget could not be shown again.",
+    "Your view could not be reset." : "Your view could not be reset."
 },
 "nplurals=2; plural=(n != 1);"
 );

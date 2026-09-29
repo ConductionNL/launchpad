@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Simuleret",
     "Error" : "Fejl",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Der findes allerede en fil med navnet {name}. Vælg Erstat for at overskrive den med en tom fil, eller skift navnet.",
-    "Replace" : "Erstat"
+    "Replace" : "Erstat",
+    "Widget options" : "Widgetindstillinger",
+    "Hide for me" : "Skjul for mig",
+    "Hidden ({count})" : "Skjult ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widgets, du har skjult på dette dashboard. Andre ser dem stadig.",
+    "Show again" : "Vis igen",
+    "Reset my view" : "Nulstil min visning",
+    "Reset your view?" : "Nulstil din visning?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Alle widgets, du har skjult, kommer tilbage, og dashboardet ser ud, som ejeren har sat det op.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} er obligatorisk på dette dashboard og kan ikke skjules.",
+    "The widget could not be hidden." : "Widgetten kunne ikke skjules.",
+    "The widget could not be shown again." : "Widgetten kunne ikke vises igen.",
+    "Your view could not be reset." : "Din visning kunne ikke nulstilles."
 },
 "nplurals=2; plural=(n != 1);"
 );

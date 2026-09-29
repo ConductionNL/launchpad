@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Simulované",
     "Error" : "Chyba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Súbor s názvom {name} už existuje. Zvoľte Nahradiť a prepíšte ho prázdnym súborom, alebo zmeňte názov.",
-    "Replace" : "Nahradiť"
+    "Replace" : "Nahradiť",
+    "Widget options" : "Možnosti widgetu",
+    "Hide for me" : "Skryť pre mňa",
+    "Hidden ({count})" : "Skryté ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widgety, ktoré ste na tomto paneli skryli. Ostatní ich stále vidia.",
+    "Show again" : "Znova zobraziť",
+    "Reset my view" : "Obnoviť môj pohľad",
+    "Reset your view?" : "Obnoviť váš pohľad?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Všetky skryté widgety sa vrátia a panel bude vyzerať tak, ako ho nastavil vlastník.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} je na tomto paneli povinný a nedá sa skryť.",
+    "The widget could not be hidden." : "Widget sa nepodarilo skryť.",
+    "The widget could not be shown again." : "Widget sa nepodarilo znova zobraziť.",
+    "Your view could not be reset." : "Váš pohľad sa nepodarilo obnoviť."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

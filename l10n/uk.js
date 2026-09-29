@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Змодельовано",
     "Error" : "Помилка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
-    "Replace" : "Замінити"
+    "Replace" : "Замінити",
+    "Widget options" : "Параметри віджета",
+    "Hide for me" : "Приховати для мене",
+    "Hidden ({count})" : "Приховані ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Віджети, які ви приховали на цій панелі. Інші досі їх бачать.",
+    "Show again" : "Показати знову",
+    "Reset my view" : "Скинути мій вигляд",
+    "Reset your view?" : "Скинути ваш вигляд?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Усі приховані віджети повернуться, а панель виглядатиме так, як її налаштував власник.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} обов'язковий на цій панелі, його не можна приховати.",
+    "The widget could not be hidden." : "Не вдалося приховати віджет.",
+    "The widget could not be shown again." : "Не вдалося знову показати віджет.",
+    "Your view could not be reset." : "Не вдалося скинути ваш вигляд."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

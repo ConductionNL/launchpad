@@ -1106,6 +1106,18 @@
         "Simulated": "Simulováno",
         "Error": "Chyba",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
-        "Replace": "Nahradit"
+        "Replace": "Nahradit",
+        "Widget options": "Možnosti widgetu",
+        "Hide for me": "Skrýt pro mě",
+        "Hidden ({count})": "Skryté ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Widgety, které jste na tomto panelu skryli. Ostatní je stále vidí.",
+        "Show again": "Znovu zobrazit",
+        "Reset my view": "Obnovit můj pohled",
+        "Reset your view?": "Obnovit váš pohled?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Všechny skryté widgety se vrátí a panel bude vypadat tak, jak ho nastavil vlastník.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} je na tomto panelu povinný a nelze ho skrýt.",
+        "The widget could not be hidden.": "Widget se nepodařilo skrýt.",
+        "The widget could not be shown again.": "Widget se nepodařilo znovu zobrazit.",
+        "Your view could not be reset.": "Váš pohled se nepodařilo obnovit."
     }
 }

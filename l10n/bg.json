@@ -1105,6 +1105,18 @@
         "Simulated": "Симулирано",
         "Error": "Грешка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Файл с име {name} вече съществува. Изберете „Замяна“, за да го презапишете с празен файл, или сменете името.",
-        "Replace": "Замяна"
+        "Replace": "Замяна",
+        "Widget options": "Опции на приспособлението",
+        "Hide for me": "Скриване за мен",
+        "Hidden ({count})": "Скрити ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Приспособления, които скрихте на това табло. Другите все още ги виждат.",
+        "Show again": "Показване отново",
+        "Reset my view": "Нулиране на моя изглед",
+        "Reset your view?": "Нулиране на вашия изглед?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Всички скрити приспособления се връщат, а таблото изглежда така, както го е настроил собственикът.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} е задължително на това табло и не може да се скрие.",
+        "The widget could not be hidden.": "Приспособлението не можа да се скрие.",
+        "The widget could not be shown again.": "Приспособлението не можа да се покаже отново.",
+        "Your view could not be reset.": "Изгледът ви не можа да се нулира."
     }
 }

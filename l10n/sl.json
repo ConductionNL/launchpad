@@ -1107,6 +1107,18 @@
         "Simulated": "Simulirano",
         "Error": "Napaka",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
-        "Replace": "Zamenjaj"
+        "Replace": "Zamenjaj",
+        "Widget options": "Možnosti gradnika",
+        "Hide for me": "Skrij zame",
+        "Hidden ({count})": "Skrito ({count})",
+        "Widgets you hid on this dashboard. Others still see them.": "Gradniki, ki ste jih skrili na tej nadzorni plošči. Drugi jih še vedno vidijo.",
+        "Show again": "Znova prikaži",
+        "Reset my view": "Ponastavi moj pogled",
+        "Reset your view?": "Ponastavim vaš pogled?",
+        "Every widget you hid comes back, and the dashboard looks the way its owner set it up.": "Vsi skriti gradniki se vrnejo, nadzorna plošča pa je videti tako, kot jo je nastavil lastnik.",
+        "{name} is compulsory on this dashboard and cannot be hidden.": "{name} je na tej nadzorni plošči obvezen in ga ni mogoče skriti.",
+        "The widget could not be hidden.": "Gradnika ni bilo mogoče skriti.",
+        "The widget could not be shown again.": "Gradnika ni bilo mogoče znova prikazati.",
+        "Your view could not be reset.": "Vašega pogleda ni bilo mogoče ponastaviti."
     }
 }

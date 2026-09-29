@@ -1138,7 +1138,19 @@ OC.L10N.register(
     "Simulated" : "Simulà",
     "Error" : "Errur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "I dat gia ina datoteca cun il num {name}. Tscherni Remplazzar per la surscriver cun ina datoteca vida, u mida il num.",
-    "Replace" : "Remplazzar"
+    "Replace" : "Remplazzar",
+    "Widget options" : "Opziuns dal widget",
+    "Hide for me" : "Zuppentar per mai",
+    "Hidden ({count})" : "Zuppentads ({count})",
+    "Widgets you hid on this dashboard. Others still see them." : "Widgets che Vus avais zuppentà sin quest dashboard. Auters als vesan anc adina.",
+    "Show again" : "Mussar puspè",
+    "Reset my view" : "Reinizialisar mia vista",
+    "Reset your view?" : "Reinizialisar Vossa vista?",
+    "Every widget you hid comes back, and the dashboard looks the way its owner set it up." : "Mintga widget che Vus avais zuppentà returna, ed il dashboard para sco ch'il proprietari l'ha endrizzà.",
+    "{name} is compulsory on this dashboard and cannot be hidden." : "{name} è obligatoric sin quest dashboard e na po betg vegnir zuppentà.",
+    "The widget could not be hidden." : "Il widget n'ha betg pudì vegnir zuppentà.",
+    "The widget could not be shown again." : "Il widget n'ha betg pudì vegnir mussà puspè.",
+    "Your view could not be reset." : "Vossa vista n'ha betg pudì vegnir reinizialisada."
 },
 "nplurals=2; plural=(n != 1);"
 );

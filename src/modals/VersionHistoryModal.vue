@@ -149,6 +149,7 @@ export default {
 
 	emits: ['close', 'restored'],
 
+	/** @spec openspec/specs/dashboard-versioning/spec.md */
 	data() {
 		return {
 			versions: [],
@@ -162,7 +163,10 @@ export default {
 	},
 
 	computed: {
-		/** @return {Array<object>} Versions, newest first. */
+		/**
+		 * @return {Array<object>} Versions, newest first.
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
 		sortedVersions() {
 			return [...this.versions].sort(
 				(a, b) => b.versionNumber - a.versionNumber,
@@ -173,6 +177,12 @@ export default {
 	watch: {
 		open: {
 			immediate: true,
+			/**
+			 * Read the list each time the dialog opens.
+			 *
+			 * @param {boolean} isOpen New open state.
+			 * @spec openspec/specs/dashboard-versioning/spec.md
+			 */
 			handler(isOpen) {
 				if (isOpen && this.dashboardUuid) {
 					this.load()

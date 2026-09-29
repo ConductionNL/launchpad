@@ -658,7 +658,7 @@ export default {
 		'setDefault',
 	],
 
-	/** @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md */
+	/** @spec openspec/specs/dashboards/spec.md */
 	data() {
 		return {
 			// Parent uuids the person expanded (REQ-TREEUI-001).
@@ -774,7 +774,7 @@ export default {
 		 *
 		 * @param {Array<object>} list Dashboards of one section.
 		 * @return {Array<{dashboard: object, depth: number, hasChildren: boolean}>} Rows to render.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		treeRows(list) {
 			const byUuid = new Map()
@@ -827,7 +827,7 @@ export default {
 		 *
 		 * @param {Map<string, object>} byUuid Section dashboards by uuid.
 		 * @return {Set<string>} Ancestor uuids.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		activeChain(byUuid) {
 			const chain = new Set()
@@ -846,7 +846,7 @@ export default {
 		/**
 		 * @param {object} dashboard A parent row.
 		 * @return {boolean} Whether its children show.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		isExpanded(dashboard) {
 			return this.expanded[dashboard.uuid] === true
@@ -856,7 +856,7 @@ export default {
 		 * Expand or collapse a parent row.
 		 *
 		 * @param {object} dashboard A parent row.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		toggleExpanded(dashboard) {
 			this.expanded = {
@@ -870,7 +870,7 @@ export default {
 		 *
 		 * @param {number} depth Nesting depth.
 		 * @return {object|null} Inline style.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		depthStyle(depth) {
 			return depth > 0 ? { paddingInlineStart: `${depth * 20}px` } : null

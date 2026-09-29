@@ -567,7 +567,7 @@ export default {
 		 * Parent choices: "No parent" first, then the other dashboards.
 		 *
 		 * @return {Array<{uuid: string, name: string}>}
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		parentChoices() {
 			const self = this.dashboard?.uuid

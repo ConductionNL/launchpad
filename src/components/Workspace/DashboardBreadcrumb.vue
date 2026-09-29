@@ -49,7 +49,7 @@ import { logger } from '../../utils/logger.js'
  * the server's breadcrumbs (the dashboard read). An ancestor the viewer may
  * not open shows as "…", never by name. Hidden for a top-level dashboard.
  *
- * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 export default {
 	name: 'DashboardBreadcrumb',
@@ -64,7 +64,7 @@ export default {
 
 	emits: ['navigate'],
 
-	/** @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md */
+	/** @spec openspec/specs/dashboards/spec.md */
 	data() {
 		return { crumbs: [] }
 	},
@@ -76,7 +76,7 @@ export default {
 			 * Read the crumbs whenever another child dashboard opens.
 			 *
 			 * @param {object|null} dashboard The active dashboard.
-			 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+			 * @spec openspec/specs/dashboards/spec.md
 			 */
 			handler(dashboard) {
 				this.load(dashboard)
@@ -92,7 +92,7 @@ export default {
 		 *
 		 * @param {object|null} dashboard The active dashboard.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async load(dashboard) {
 			if (

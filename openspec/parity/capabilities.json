@@ -1130,10 +1130,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardTreeService.php:105",
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue; src/views/Views.vue:191; lib/Controller/DashboardApiController.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboard-tree-navigation"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-tree-navigation"
 			},
 			"reachedOn": "nothing: the store action loadDashboardTree has no caller outside src/stores/",
 			"provider": "launchpad",

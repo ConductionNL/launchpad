@@ -1754,7 +1754,7 @@ export default {
 		 *
 		 * @param {Error} error The failed request.
 		 * @return {string} A translated message.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		treeSaveMessage(error) {
 			const message = error?.response?.data?.message ?? ''
@@ -2127,7 +2127,7 @@ export default {
 		 * The delete dialog closed without confirming.
 		 *
 		 * @param {boolean} isOpen New open state.
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		onDeleteDialog(isOpen) {
 			if (!isOpen) {
@@ -2142,7 +2142,7 @@ export default {
 		 * many go with it, and the next confirmation deletes them all.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async confirmDeleteDashboard() {
 			const target = this.deleteTarget
@@ -2174,7 +2174,7 @@ export default {
 		 *
 		 * @param {string} uuid The ancestor's uuid.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onBreadcrumbNavigate(uuid) {
 			const target = this.dashboards.find((d) => d.uuid === uuid)

@@ -48,7 +48,7 @@ import { t } from '@nextcloud/l10n'
  * it says how many go with it (ADR-004 modal isolation; replaces a
  * `window.confirm`).
  *
- * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 export default {
 	name: 'DeleteDashboardDialog',

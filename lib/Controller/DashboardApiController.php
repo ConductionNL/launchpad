@@ -389,7 +389,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return array<int, array<string, mixed>> The crumbs.
 	 *
-	 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function visibleBreadcrumbs(Dashboard $dashboard, string $userId): array {
 		$parent = $dashboard->getParentUuid();

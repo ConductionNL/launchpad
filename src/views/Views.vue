@@ -170,6 +170,13 @@
 			</div>
 		</Teleport>
 
+		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
+		<ForceReleaseLockDialog
+			:open="forceReleaseDialogOpen"
+			:holderName="editLock.state.holderName"
+			@update:open="forceReleaseDialogOpen = $event"
+			@confirm="onTakeOverConfirmed" />
+
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
 			:open="ackReportOpen"
@@ -180,6 +187,12 @@
 		<div
 			class="launchpad-container"
 			:class="{ 'launchpad-edit-mode': isEditMode }">
+			<EditLockBanner
+				:status="editLock.state.status"
+				:holderName="editLock.state.holderName"
+				:expiresIn="editLock.state.expiresIn"
+				:isAdmin="isAdmin === true"
+				@takeOver="forceReleaseDialogOpen = true" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -388,7 +401,9 @@ import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
@@ -396,6 +411,7 @@ import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
+import { useDashboardLock } from '../composables/useDashboardLock.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
@@ -434,6 +450,8 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		EditLockBanner,
+		ForceReleaseLockDialog,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -447,6 +465,13 @@ export default {
 		primaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
+		},
+
+		// Server-computed admin flag (PageController initial state); only
+		// decides whether "Take over" is offered. The server checks again.
+		isAdmin: {
+			from: 'isAdmin',
+			default: false,
 		},
 
 		// Canonical slug-chain path the server resolved for the active
@@ -595,6 +620,13 @@ export default {
 			// report modal state.
 			ackReportOpen: false,
 			ackReportKey: '',
+			// dashboard-edit-lock-ui: the editing lock of the active
+			// dashboard (REQ-LOCKUI-001..003) and the take-over dialog.
+			editLock: useDashboardLock({
+				onLost: () => this.onEditLockLost(),
+			}),
+
+			forceReleaseDialogOpen: false,
 		}
 	},
 
@@ -958,6 +990,8 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		// Leaving the page while editing gives the lock back.
+		this.editLock.release()
 	},
 
 	methods: {
@@ -1107,15 +1141,96 @@ export default {
 		 * (which delegates to `removeWidget`) is what `@delete` invokes.
 		 */
 
-		/** @spec openspec/specs/dashboards/spec.md */
-		toggleEditMode() {
-			this.isEditMode = !this.isEditMode
+		/**
+		 * Enter or leave edit mode. Entering asks for the dashboard's
+		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async toggleEditMode() {
 			if (!this.isEditMode) {
-				this.closeWidgetModal()
-				this.closeStyleEditor()
-				// Leaving edit mode also dismisses any open right-click
-				// popover so view mode never carries an edit-only surface.
-				this.grid.closeContextMenu()
+				await this.enterEditMode()
+				return
+			}
+			this.leaveEditMode()
+			await this.editLock.release()
+		},
+
+		/**
+		 * Enter edit mode only when the lock is granted. A colleague's lock
+		 * (409), a refusal (403) or a failed request all leave the page
+		 * read-only and the banner says why.
+		 *
+		 * @return {Promise<boolean>} Whether the page is in edit mode now.
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async enterEditMode() {
+			if (this.isEditMode) {
+				return true
+			}
+			const uuid = this.activeDashboard?.uuid ?? this.activeDashboard?.id
+			if (!uuid) {
+				return false
+			}
+			const granted = await this.editLock.acquire(String(uuid))
+			if (granted) {
+				this.isEditMode = true
+			}
+			return granted
+		},
+
+		/**
+		 * Drop edit mode and every edit-only surface. The lock itself is
+		 * released by the caller.
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		leaveEditMode() {
+			this.isEditMode = false
+			this.closeWidgetModal()
+			this.closeStyleEditor()
+			// Leaving edit mode also dismisses any open right-click
+			// popover so view mode never carries an edit-only surface.
+			this.grid.closeContextMenu()
+		},
+
+		/**
+		 * Before another dashboard becomes active: leave edit mode, give the
+		 * lock back and clear a banner that was about the previous one.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async dropEditLock() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+			await this.editLock.release()
+		},
+
+		/**
+		 * A refresh answered 404: someone else holds the lock now. Back to
+		 * view mode; the banner says what happened (REQ-LOCKUI-002).
+		 *
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		onEditLockLost() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+		},
+
+		/**
+		 * Administrator confirmed the take-over: force-release, then edit.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async onTakeOverConfirmed() {
+			this.forceReleaseDialogOpen = false
+			if (await this.editLock.takeOver()) {
+				this.isEditMode = true
 			}
 		},
 
@@ -1308,9 +1423,9 @@ export default {
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
-		openWidgetModal() {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openWidgetModal() {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.isWidgetModalOpen = true
 		},
@@ -1328,9 +1443,9 @@ export default {
 		 * @param {string|null} type registry key, or null for picker flow
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		openCustomWidgetModal(type = null) {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openCustomWidgetModal(type = null) {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.customWidgetPreselectedType = type
 			this.customWidgetEditing = null
@@ -1576,9 +1691,9 @@ export default {
 		 *   editor for a brand-new tile.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		openTileEditor(tile = null) {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openTileEditor(tile = null) {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.editingTile = tile
 			this.isTileEditorOpen = true
@@ -1759,6 +1874,7 @@ export default {
 			// signature is kept explicit so per-source behaviour can land
 			// without re-touching this view (and so the load-bearing
 			// REQ-SWITCH-002 contract is visible at the call site).
+			await this.dropEditLock()
 			await this.switchDashboard(id)
 		},
 
@@ -1888,6 +2004,7 @@ export default {
 				const res = await api.getDashboardByPath(suffix)
 				const dashboard = res?.data?.dashboard
 				if (dashboard?.id !== undefined && dashboard?.id !== null) {
+					await this.dropEditLock()
 					await this.switchDashboard(dashboard.id)
 				}
 			} catch (e) {

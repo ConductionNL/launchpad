@@ -34,7 +34,7 @@ import { t } from '@nextcloud/l10n'
  * person edit, because a colleague holds the lock, the lock was lost, or
  * the server refused. Administrators get "Take over" on a colleague's lock.
  *
- * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+ * @spec openspec/specs/dashboard-locking/spec.md
  */
 export default {
 	name: 'EditLockBanner',

@@ -215,7 +215,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response resolving to the held lock.
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	acquireLock(uuid) {
 		return axios.post(
@@ -228,7 +228,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response resolving to the refreshed lock.
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	heartbeatLock(uuid) {
 		return axios.put(
@@ -241,7 +241,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response (204).
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	releaseLock(uuid) {
 		return axios.delete(
@@ -256,7 +256,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response (204), usually never read.
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	releaseLockOnPageHide(uuid) {
 		return axios.delete(
@@ -270,7 +270,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response resolving to `{status: 'ok'}`.
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	forceReleaseLock(uuid) {
 		return axios.post(

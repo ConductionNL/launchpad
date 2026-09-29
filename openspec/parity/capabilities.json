@@ -834,10 +834,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardLockService.php:116",
+				"state": "built",
+				"evidence": "src/views/Views.vue:190; src/composables/useDashboardLock.js",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboard-edit-lock-ui"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-edit-lock-ui"
 			},
 			"reachedOn": "nothing: /api/dashboards/{uuid}/lock has no caller anywhere in src/",
 			"provider": "launchpad",

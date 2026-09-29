@@ -1146,7 +1146,7 @@ export default {
 		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+		 * @spec openspec/specs/dashboard-locking/spec.md
 		 */
 		async toggleEditMode() {
 			if (!this.isEditMode) {
@@ -1163,7 +1163,7 @@ export default {
 		 * read-only and the banner says why.
 		 *
 		 * @return {Promise<boolean>} Whether the page is in edit mode now.
-		 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+		 * @spec openspec/specs/dashboard-locking/spec.md
 		 */
 		async enterEditMode() {
 			if (this.isEditMode) {
@@ -1200,7 +1200,7 @@ export default {
 		 * lock back and clear a banner that was about the previous one.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+		 * @spec openspec/specs/dashboard-locking/spec.md
 		 */
 		async dropEditLock() {
 			if (this.isEditMode) {
@@ -1213,7 +1213,7 @@ export default {
 		 * A refresh answered 404: someone else holds the lock now. Back to
 		 * view mode; the banner says what happened (REQ-LOCKUI-002).
 		 *
-		 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+		 * @spec openspec/specs/dashboard-locking/spec.md
 		 */
 		onEditLockLost() {
 			if (this.isEditMode) {
@@ -1225,7 +1225,7 @@ export default {
 		 * Administrator confirmed the take-over: force-release, then edit.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+		 * @spec openspec/specs/dashboard-locking/spec.md
 		 */
 		async onTakeOverConfirmed() {
 			this.forceReleaseDialogOpen = false

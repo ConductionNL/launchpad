@@ -41,7 +41,7 @@ import { t } from '@nextcloud/l10n'
  * ForceReleaseLockDialog: the confirmation before an administrator
  * force-releases a colleague's editing lock (ADR-004 modal isolation).
  *
- * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+ * @spec openspec/specs/dashboard-locking/spec.md
  */
 export default {
 	name: 'ForceReleaseLockDialog',

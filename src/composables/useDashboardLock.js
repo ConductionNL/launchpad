@@ -29,7 +29,7 @@ export const HEARTBEAT_MS = 5 * 60 * 1000
  * @param {object} [options] Options.
  * @param {() => void} [options.onLost] Called once when a held lock is lost.
  * @return {object} `{state, acquire, release, takeOver, stop}`.
- * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+ * @spec openspec/specs/dashboard-locking/spec.md
  */
 export function useDashboardLock({ onLost } = {}) {
 	const state = reactive({
@@ -50,7 +50,7 @@ export function useDashboardLock({ onLost } = {}) {
 	/**
 	 * Stop refreshing and stop listening for the page closing.
 	 *
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	function stop() {
 		if (timer !== null) {
@@ -63,7 +63,7 @@ export function useDashboardLock({ onLost } = {}) {
 	/**
 	 * Refresh the held lock; a 404 or 403 means it is gone.
 	 *
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	async function beat() {
 		if (state.status !== 'held') {
@@ -90,7 +90,7 @@ export function useDashboardLock({ onLost } = {}) {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise<boolean>} Whether the lock is held now.
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	async function acquire(uuid) {
 		stop()
@@ -125,7 +125,7 @@ export function useDashboardLock({ onLost } = {}) {
 	 * Give the lock back. Safe to call when nothing is held.
 	 *
 	 * @return {Promise<void>}
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	async function release() {
 		const wasHeld = state.status === 'held'
@@ -149,7 +149,7 @@ export function useDashboardLock({ onLost } = {}) {
 	 * acquire it.
 	 *
 	 * @return {Promise<boolean>} Whether the lock is held now.
-	 * @spec openspec/changes/dashboard-edit-lock-ui/specs/dashboard-locking/spec.md
+	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	async function takeOver() {
 		const uuid = state.uuid

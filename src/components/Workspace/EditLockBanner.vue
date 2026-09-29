@@ -71,7 +71,10 @@ export default {
 	emits: ['takeOver'],
 
 	computed: {
-		/** @return {string} The banner text, empty when nothing is to be said. */
+		/**
+		 * @return {string} The banner text, empty when nothing is to be said.
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
 		message() {
 			switch (this.status) {
 				case 'blocked':
@@ -97,7 +100,10 @@ export default {
 			}
 		},
 
-		/** @return {string} When the colleague's lock ends, if known. */
+		/**
+		 * @return {string} When the colleague's lock ends, if known.
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
 		freesUp() {
 			if (
 				this.status !== 'blocked'

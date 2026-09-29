@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Eroare",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-    "Replace" : "Înlocuiește"
+    "Replace" : "Înlocuiește",
+    "Take over" : "Preia",
+    "Take over editing?" : "Preluați editarea?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} nu va mai putea salva modificări în acest tablou de bord. Preluați doar dacă știți că persoana a terminat.",
+    "A colleague" : "Un coleg",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} editează acest tablou de bord. Îl puteți edita după ce termină.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Altcineva editează acum acest tablou de bord, așa că ați revenit în modul de vizualizare.",
+    "You cannot edit this dashboard." : "Nu puteți edita acest tablou de bord.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Tabloul de bord nu a putut fi deschis pentru editare. Încercați din nou peste câteva momente.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Dacă persoana se oprește, tabloul de bord se eliberează în cel mult {minutes} minute."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

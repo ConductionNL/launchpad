@@ -1106,6 +1106,15 @@
         "Simulated": "Симулировано",
         "Error": "Ошибка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Файл с именем {name} уже существует. Выберите «Заменить», чтобы перезаписать его пустым файлом, или измените имя.",
-        "Replace": "Заменить"
+        "Replace": "Заменить",
+        "Take over": "Перехватить",
+        "Take over editing?": "Перехватить редактирование?",
+        "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.": "{name} больше не сможет сохранять изменения на этой панели. Перехватывайте, только если знаете, что человек закончил.",
+        "A colleague": "Коллега",
+        "{name} is editing this dashboard. You can edit it once they are done.": "{name} редактирует эту панель. Вы сможете редактировать её, когда человек закончит.",
+        "Someone else is editing this dashboard now, so you are back in view mode.": "Эту панель сейчас редактирует кто-то другой, поэтому вы снова в режиме просмотра.",
+        "You cannot edit this dashboard.": "Вы не можете редактировать эту панель.",
+        "The dashboard could not be opened for editing. Try again in a moment.": "Не удалось открыть панель для редактирования. Попробуйте ещё раз через минуту.",
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Если человек остановится, панель освободится в течение {minutes} мин."
     }
 }

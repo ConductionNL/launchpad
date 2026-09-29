@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Προσομοιωμένο",
     "Error" : "Σφάλμα",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
-    "Replace" : "Αντικατάσταση"
+    "Replace" : "Αντικατάσταση",
+    "Take over" : "Ανάληψη",
+    "Take over editing?" : "Ανάληψη της επεξεργασίας;",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "Ο/Η {name} δεν θα μπορεί πλέον να αποθηκεύει αλλαγές σε αυτόν τον πίνακα. Αναλάβετε μόνο αν γνωρίζετε ότι έχει σταματήσει.",
+    "A colleague" : "Ένας συνάδελφος",
+    "{name} is editing this dashboard. You can edit it once they are done." : "Ο/Η {name} επεξεργάζεται αυτόν τον πίνακα. Μπορείτε να τον επεξεργαστείτε μόλις τελειώσει.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Κάποιος άλλος επεξεργάζεται τώρα αυτόν τον πίνακα, οπότε επιστρέψατε στην προβολή.",
+    "You cannot edit this dashboard." : "Δεν μπορείτε να επεξεργαστείτε αυτόν τον πίνακα.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Δεν ήταν δυνατό να ανοίξει ο πίνακας για επεξεργασία. Δοκιμάστε ξανά σε λίγο.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Αν σταματήσει, ο πίνακας απελευθερώνεται μέσα σε {minutes} λεπτά."
 },
 "nplurals=2; plural=(n != 1);"
 );

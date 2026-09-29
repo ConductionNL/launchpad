@@ -1105,6 +1105,15 @@
         "Simulated": "Simulado",
         "Error": "Error",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Ya existe un archivo llamado {name}. Elija Reemplazar para sobrescribirlo con un archivo vacío o cambie el nombre.",
-        "Replace": "Reemplazar"
+        "Replace": "Reemplazar",
+        "Take over": "Tomar el control",
+        "Take over editing?": "¿Tomar el control de la edición?",
+        "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.": "{name} ya no podrá guardar cambios en este panel. Toma el control solo si sabes que ha terminado.",
+        "A colleague": "Un compañero",
+        "{name} is editing this dashboard. You can edit it once they are done.": "{name} está editando este panel. Podrás editarlo cuando termine.",
+        "Someone else is editing this dashboard now, so you are back in view mode.": "Otra persona está editando ahora este panel, así que vuelves al modo de vista.",
+        "You cannot edit this dashboard.": "No puedes editar este panel.",
+        "The dashboard could not be opened for editing. Try again in a moment.": "No se pudo abrir el panel para editarlo. Inténtalo de nuevo en un momento.",
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Si deja de editar, el panel queda libre en un plazo de {minutes} minutos."
     }
 }

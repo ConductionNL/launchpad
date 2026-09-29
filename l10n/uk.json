@@ -1106,6 +1106,15 @@
         "Simulated": "Змодельовано",
         "Error": "Помилка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
-        "Replace": "Замінити"
+        "Replace": "Замінити",
+        "Take over": "Перехопити",
+        "Take over editing?": "Перехопити редагування?",
+        "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.": "{name} більше не зможе зберігати зміни на цій панелі. Перехоплюйте, лише якщо знаєте, що людина закінчила.",
+        "A colleague": "Колега",
+        "{name} is editing this dashboard. You can edit it once they are done.": "{name} редагує цю панель. Ви зможете редагувати її, коли людина закінчить.",
+        "Someone else is editing this dashboard now, so you are back in view mode.": "Цю панель зараз редагує хтось інший, тому ви знову в режимі перегляду.",
+        "You cannot edit this dashboard.": "Ви не можете редагувати цю панель.",
+        "The dashboard could not be opened for editing. Try again in a moment.": "Не вдалося відкрити панель для редагування. Спробуйте ще раз за мить.",
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Якщо людина зупиниться, панель звільниться протягом {minutes} хв."
     }
 }

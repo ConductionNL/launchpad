@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Insamhlaithe",
     "Error" : "Earráid",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tá comhad darb ainm {name} ann cheana. Roghnaigh Ionadaigh chun comhad folamh a scríobh air, nó athraigh an t-ainm.",
-    "Replace" : "Ionadaigh"
+    "Replace" : "Ionadaigh",
+    "Take over" : "Glac seilbh",
+    "Take over editing?" : "Glac seilbh ar an eagarthóireacht?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "Ní bheidh {name} in ann athruithe ar an deais seo a shábháil a thuilleadh. Glac seilbh ach amháin má tá a fhios agat go bhfuil siad críochnaithe.",
+    "A colleague" : "Comhghleacaí",
+    "{name} is editing this dashboard. You can edit it once they are done." : "Tá {name} ag cur an deais seo in eagar. Is féidir leat é a chur in eagar nuair a bheidh siad críochnaithe.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Tá duine eile ag cur an deais seo in eagar anois, mar sin tá tú ar ais sa mhodh amhairc.",
+    "You cannot edit this dashboard." : "Ní féidir leat an deais seo a chur in eagar.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Níorbh fhéidir an deais a oscailt le haghaidh eagarthóireachta. Bain triail eile as i gceann nóiméid.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Má stopann siad, beidh an deais saor laistigh de {minutes} nóiméad."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

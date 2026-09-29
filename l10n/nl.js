@@ -1188,7 +1188,16 @@ OC.L10N.register(
     "Simulated" : "Gesimuleerd",
     "Error" : "Fout",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Er bestaat al een bestand met de naam {name}. Kies Vervangen om het te overschrijven met een leeg bestand, of wijzig de naam.",
-    "Replace" : "Vervangen"
+    "Replace" : "Vervangen",
+    "Take over" : "Overnemen",
+    "Take over editing?" : "Bewerken overnemen?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} kan dan geen wijzigingen aan dit dashboard meer opslaan. Neem alleen over als je weet dat diegene gestopt is.",
+    "A colleague" : "Een collega",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} bewerkt dit dashboard. Je kunt het bewerken zodra diegene klaar is.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Iemand anders bewerkt dit dashboard nu, dus je bent terug in de weergavemodus.",
+    "You cannot edit this dashboard." : "Je kunt dit dashboard niet bewerken.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Het dashboard kon niet worden geopend om te bewerken. Probeer het zo opnieuw.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Als diegene stopt, komt het dashboard binnen {minutes} minuten vrij."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1138,7 +1138,16 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Żball",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-    "Replace" : "Issostitwixxi"
+    "Replace" : "Issostitwixxi",
+    "Take over" : "Ieħu f'idejk",
+    "Take over editing?" : "Tieħu f'idejk l-editjar?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} ma jkunx jista' jsalva aktar bidliet f'dan id-dashboard. Ħudu f'idejk biss jekk taf li waqaf.",
+    "A colleague" : "Kollega",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} qed jeditja dan id-dashboard. Tista' teditjah hekk kif ilesti.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Xi ħadd ieħor qed jeditja dan id-dashboard issa, għalhekk inti lura fil-modalità tal-wiri.",
+    "You cannot edit this dashboard." : "Ma tistax teditja dan id-dashboard.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Id-dashboard ma setax jinfetaħ għall-editjar. Erġa' pprova ftit wara.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

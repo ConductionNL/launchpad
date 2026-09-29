@@ -1129,6 +1129,15 @@ OC.L10N.register(
     "Simulated" : "Сімулявана",
     "Error" : "Памылка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвай {name} ужо існуе. Выберыце «Замяніць», каб перазапісаць яго пустым файлам, або змяніце назву.",
-    "Replace" : "Замяніць"
+    "Replace" : "Замяніць",
+    "Take over" : "Перахапіць",
+    "Take over editing?" : "Перахапіць рэдагаванне?",
+    "{name} can no longer save changes to this dashboard. Take over only when you know they have stopped." : "{name} больш не зможа захоўваць змены на гэтай панэлі. Перахоплівайце, толькі калі ведаеце, што чалавек скончыў.",
+    "A colleague" : "Калега",
+    "{name} is editing this dashboard. You can edit it once they are done." : "{name} рэдагуе гэтую панэль. Вы зможаце рэдагаваць яе, калі чалавек скончыць.",
+    "Someone else is editing this dashboard now, so you are back in view mode." : "Гэтую панэль цяпер рэдагуе нехта іншы, таму вы зноў у рэжыме прагляду.",
+    "You cannot edit this dashboard." : "Вы не можаце рэдагаваць гэтую панэль.",
+    "The dashboard could not be opened for editing. Try again in a moment." : "Не ўдалося адкрыць панэль для рэдагавання. Паспрабуйце яшчэ раз праз хвіліну.",
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Калі чалавек спыніцца, панэль вызваліцца на працягу {minutes} хв."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

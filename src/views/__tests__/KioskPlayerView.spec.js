@@ -39,12 +39,12 @@ const payload = {
 		},
 	],
 }
-function httpError (status) {
-  return Object.assign(new Error('http'), { response: { status } })
+function httpError(status) {
+	return Object.assign(new Error('http'), { response: { status } })
 }
 
-function mountPlayer () {
-  return mount(KioskPlayerView, {
+function mountPlayer() {
+	return mount(KioskPlayerView, {
 		props: { token: 'tok' },
 		global: {
 			stubs: { PublicDashboardGrid: { template: '<div class="grid" />' } },

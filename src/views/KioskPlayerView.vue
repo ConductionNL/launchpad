@@ -97,7 +97,7 @@ export default {
 		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
 		 */
 		async load() {
-			let next = this.refreshSeconds * 1000
+			let next
 			try {
 				const { data } = await axios.get(
 					generateUrl(

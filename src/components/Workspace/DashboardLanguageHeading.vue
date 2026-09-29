@@ -37,7 +37,7 @@ import { logger } from '../../utils/logger.js'
  * because no version matches. A dashboard with one language renders
  * nothing and asks nothing, so it looks as before.
  *
- * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+ * @spec openspec/specs/dashboard-language-content/spec.md
  */
 export default {
 	name: 'DashboardLanguageHeading',
@@ -50,7 +50,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md */
+	/** @spec openspec/specs/dashboard-language-content/spec.md */
 	data() {
 		return { translation: null, isFallback: false }
 	},
@@ -62,7 +62,7 @@ export default {
 			 * Resolve the language whenever another dashboard opens.
 			 *
 			 * @param {object|null} dashboard The active dashboard.
-			 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+			 * @spec openspec/specs/dashboard-language-content/spec.md
 			 */
 			handler(dashboard) {
 				this.load(dashboard)
@@ -78,7 +78,7 @@ export default {
 		 *
 		 * @param {object|null} dashboard The active dashboard.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		async load(dashboard) {
 			if (!dashboard?.uuid || dashboard.hasVariants !== true) {

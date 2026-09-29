@@ -113,7 +113,7 @@ import { api } from '../../services/api.js'
  * existing admin endpoints. The service's refusal, for example a select
  * field without options, is shown as it answers.
  *
- * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+ * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
 export default {
 	name: 'MetadataFieldsSettings',
@@ -124,7 +124,7 @@ export default {
 		NcTextField,
 	},
 
-	/** @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md */
+	/** @spec openspec/specs/dashboard-metadata-fields/spec.md */
 	data() {
 		return {
 			fields: [],
@@ -136,7 +136,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<{id: string, name: string}>} The field types.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		typeOptions() {
 			return [
@@ -151,7 +151,7 @@ export default {
 
 		/**
 		 * @return {boolean} Whether the chosen type takes options.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		needsOptions() {
 			return (
@@ -161,7 +161,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md */
+	/** @spec openspec/specs/dashboard-metadata-fields/spec.md */
 	created() {
 		this.form.type = this.typeOptions[0]
 		this.load()
@@ -173,7 +173,7 @@ export default {
 		/**
 		 * @param {string} type Field type.
 		 * @return {string} Its name.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		typeLabel(type) {
 			return (
@@ -192,7 +192,7 @@ export default {
 		 * Read the fields.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async load() {
 			try {
@@ -207,7 +207,7 @@ export default {
 		 * Create the field; show the service's refusal when it answers 400.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async add() {
 			this.error = ''
@@ -243,7 +243,7 @@ export default {
 		 *
 		 * @param {object} field The field.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async remove(field) {
 			try {

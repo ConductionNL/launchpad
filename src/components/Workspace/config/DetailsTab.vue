@@ -86,7 +86,7 @@ import { api } from '../../../services/api.js'
  * select as strings, number, date as YYYY-MM-DD, multi-select as a list,
  * boolean as true or false.
  *
- * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+ * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
 export default {
 	name: 'DetailsTab',
@@ -105,7 +105,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md */
+	/** @spec openspec/specs/dashboard-metadata-fields/spec.md */
 	data() {
 		return { fields: [], values: {}, loading: false, error: '', saved: false }
 	},
@@ -116,7 +116,7 @@ export default {
 			/**
 			 * Load fields and values for the dashboard being edited.
 			 *
-			 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+			 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 			 */
 			handler() {
 				this.load()
@@ -131,7 +131,7 @@ export default {
 		 * Read the field definitions and this dashboard's values.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async load() {
 			this.loading = true
@@ -166,7 +166,7 @@ export default {
 		 * @param {object} field Field definition.
 		 * @param {*} value Stored value (a string on the server).
 		 * @return {*} Control value.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		fromStored(field, value) {
 			if (value === undefined || value === null || value === '') {
@@ -190,7 +190,7 @@ export default {
 		/**
 		 * @param {string} key Field key.
 		 * @param {*} value New control value.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		set(key, value) {
 			this.values = { ...this.values, [key]: value }
@@ -201,7 +201,7 @@ export default {
 		 * Save every value; the server validates each against its field.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async save() {
 			this.error = ''

@@ -881,7 +881,7 @@ export const api = {
 	 *
 	 * @param {string} uuid Dashboard UUID.
 	 * @return {Promise} Axios response resolving to `{translations: [...]}`.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	listTranslations(uuid) {
 		return axios.get(
@@ -895,7 +895,7 @@ export const api = {
 	 * @param {string} uuid Dashboard UUID.
 	 * @param {object} body `{languageCode, name?, description?, copyFrom?}`.
 	 * @return {Promise} Axios response (201) with the new variant.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	createTranslation(uuid, body) {
 		return axios.post(
@@ -911,7 +911,7 @@ export const api = {
 	 * @param {string} lang Language code.
 	 * @param {object} body `{name?, description?}`.
 	 * @return {Promise} Axios response with the variant.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	updateTranslation(uuid, lang, body) {
 		return axios.put(
@@ -926,7 +926,7 @@ export const api = {
 	 * @param {string} uuid Dashboard UUID.
 	 * @param {string} lang Language code.
 	 * @return {Promise} Axios response.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	deleteTranslation(uuid, lang) {
 		return axios.delete(
@@ -940,7 +940,7 @@ export const api = {
 	 * @param {string} uuid Dashboard UUID.
 	 * @param {string} lang Language code.
 	 * @return {Promise} Axios response.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	setPrimaryTranslation(uuid, lang) {
 		return axios.post(
@@ -953,7 +953,7 @@ export const api = {
 	 *
 	 * @param {string} uuid Dashboard UUID.
 	 * @return {Promise} Axios response `{dashboard, translation, currentLanguage, isFallback, availableLanguages}`.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	getResolvedDashboard(uuid) {
 		return axios.get(
@@ -965,7 +965,7 @@ export const api = {
 	 * Detail field definitions, readable by any logged-in user.
 	 *
 	 * @return {Promise} Axios response `{fields: [...]}`.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	getMetadataFieldDefinitions() {
 		return axios.get(`${baseUrl}/api/metadata-fields`)
@@ -976,7 +976,7 @@ export const api = {
 	 *
 	 * @param {object} field `{key, label, type, options?, required?, sortOrder?}`.
 	 * @return {Promise} Axios response (201) with the field.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	createMetadataField(field) {
 		return axios.post(`${baseUrl}/api/admin/metadata-fields`, field)
@@ -988,7 +988,7 @@ export const api = {
 	 * @param {number} id Field id.
 	 * @param {object} field Changed attributes.
 	 * @return {Promise} Axios response with the field.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	updateMetadataField(id, field) {
 		return axios.put(
@@ -1002,7 +1002,7 @@ export const api = {
 	 *
 	 * @param {number} id Field id.
 	 * @return {Promise} Axios response.
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	deleteMetadataField(id) {
 		return axios.delete(

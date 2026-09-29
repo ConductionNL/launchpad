@@ -34,7 +34,7 @@ import { t } from '@nextcloud/l10n'
  * when a select or multi-select detail field exists. Emits `change` with
  * `{<key>: <value>}`, or null when cleared (REQ-MDUI-003).
  *
- * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+ * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
 export default {
 	name: 'DetailFilter',
@@ -53,7 +53,7 @@ export default {
 
 	emits: ['change'],
 
-	/** @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md */
+	/** @spec openspec/specs/dashboard-metadata-fields/spec.md */
 	data() {
 		return { field: null, value: null }
 	},
@@ -61,7 +61,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<object>} Fields a list can be filtered by.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		filterable() {
 			return this.fields.filter(
@@ -79,7 +79,7 @@ export default {
 		/**
 		 * A new field was chosen: start without a value.
 		 *
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		onField() {
 			this.value = null
@@ -89,7 +89,7 @@ export default {
 		/**
 		 * Tell the host the filter to apply.
 		 *
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		emitFilter() {
 			if (this.field && this.value) {

@@ -137,7 +137,7 @@ class DashboardMetadataController extends Controller {
 	 *
 	 * @return JSONResponse `{fields: [...]}`, or 401 without a login.
 	 *
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	#[NoAdminRequired]
 	public function fields(): JSONResponse {

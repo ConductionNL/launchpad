@@ -148,7 +148,7 @@ export const LANGUAGE_CODES = [
  * non-primary one; makes another one primary. All through the existing
  * translation endpoints (DashboardTranslationApiController).
  *
- * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+ * @spec openspec/specs/dashboard-language-content/spec.md
  */
 export default {
 	name: 'LanguagesTab',
@@ -166,7 +166,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md */
+	/** @spec openspec/specs/dashboard-language-content/spec.md */
 	data() {
 		return {
 			variants: [],
@@ -180,7 +180,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<{code: string, name: string}>} Languages not yet used.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		languageOptions() {
 			const used = new Set(this.variants.map((v) => v.languageCode))
@@ -192,7 +192,7 @@ export default {
 
 		/**
 		 * @return {Array<{code: string, name: string}>} "Blank" plus each existing version.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		copyOptions() {
 			return [
@@ -213,7 +213,7 @@ export default {
 			/**
 			 * Load the versions of the dashboard being edited.
 			 *
-			 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+			 * @spec openspec/specs/dashboard-language-content/spec.md
 			 */
 			handler() {
 				this.load()
@@ -227,7 +227,7 @@ export default {
 		/**
 		 * @param {string} code Language code.
 		 * @return {string} The language's name in the viewer's language.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		languageName(code) {
 			try {
@@ -244,7 +244,7 @@ export default {
 		/**
 		 * @param {object} variant A version.
 		 * @return {boolean} Whether it is the primary one.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		isPrimary(variant) {
 			return Number(variant.isPrimary) === 1 || variant.isPrimary === true
@@ -254,7 +254,7 @@ export default {
 		 * Read the versions.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		async load() {
 			this.error = ''
@@ -284,7 +284,7 @@ export default {
 		 * @param {string} code Language code.
 		 * @param {string} key `name` or `description`.
 		 * @param {string} value New text.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		setDraft(code, key, value) {
 			this.drafts = {
@@ -298,7 +298,7 @@ export default {
 		 *
 		 * @param {Error} e The failed request.
 		 * @return {string} A translated message.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		refusal(e) {
 			switch (e?.response?.data?.error) {
@@ -323,7 +323,7 @@ export default {
 		 * Add the chosen language, blank or copied.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		async add() {
 			if (!this.newLanguage) {
@@ -347,7 +347,7 @@ export default {
 		 *
 		 * @param {object} variant The version.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		async save(variant) {
 			try {
@@ -367,7 +367,7 @@ export default {
 		 *
 		 * @param {object} variant The version.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		async makePrimary(variant) {
 			try {
@@ -386,7 +386,7 @@ export default {
 		 *
 		 * @param {object} variant The version.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+		 * @spec openspec/specs/dashboard-language-content/spec.md
 		 */
 		async remove(variant) {
 			try {

@@ -394,7 +394,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return bool True with two or more variants.
 	 *
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	private function hasVariants(string $uuid): bool {
 		if ($this->translationService === null || $uuid === '') {
@@ -413,7 +413,7 @@ class DashboardApiController extends Controller {
 	 *
 	 * @return array<int, array{dashboard: \OCA\LaunchPad\Db\Dashboard, source: string}> The matching entries.
 	 *
-	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
 	private function filterByMetadata(array $items): array {
 		$filters = $this->request->getParam('metadata');

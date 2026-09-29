@@ -1189,10 +1189,10 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardTranslationService.php:93",
+				"state": "built",
+				"evidence": "src/modals/DashboardConfigModal.vue; src/components/Workspace/config/LanguagesTab.vue; src/components/Workspace/config/DetailsTab.vue; lib/Controller/DashboardApiController.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboard-language-and-details-tabs"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-language-and-details-tabs"
 			},
 			"reachedOn": "nothing: /api/dashboards/{uuid}/translations and /resolved have no caller in src/",
 			"provider": "launchpad",
@@ -1219,10 +1219,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/MetadataService.php:71",
+				"state": "built",
+				"evidence": "src/modals/DashboardConfigModal.vue; src/components/Workspace/config/LanguagesTab.vue; src/components/Workspace/config/DetailsTab.vue; lib/Controller/DashboardApiController.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboard-language-and-details-tabs"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-language-and-details-tabs"
 			},
 			"reachedOn": "nothing: the store actions fetchMetadataFields and updateDashboardMetadata have no component caller",
 			"provider": "launchpad",

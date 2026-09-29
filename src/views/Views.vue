@@ -1124,7 +1124,7 @@ export default {
 		 *
 		 * @param {Array<object>} list Dashboards of one section.
 		 * @return {Array<object>} The filtered list, or the list itself.
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		applyDetailFilter(list) {
 			if (this.detailFilterUuids === null) {
@@ -1137,7 +1137,7 @@ export default {
 		 * Read the detail fields once, for the switcher's filter.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async loadDetailFields() {
 			try {
@@ -1154,7 +1154,7 @@ export default {
 		 *
 		 * @param {object|null} filter `{<key>: <value>}` or null.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+		 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 		 */
 		async onDetailFilter(filter) {
 			if (!filter) {

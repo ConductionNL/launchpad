@@ -29,3 +29,10 @@ The dashboards list endpoint reads `metadata.<key>` query parameters and passes 
 
 Metadata field definitions are administrator data stored by the service, not app configuration shipped in a manifest.
 
+
+## Corrections at build (29 Sep 2026)
+
+- Task 1: the dashboard payload did not say whether variants exist. `GET /api/dashboard/{id}` and `GET /api/dashboard` now return `hasVariants`.
+- D3: field definitions were readable by administrators only, so an owner could not render the Details tab. `GET /api/metadata-fields` (read-only, any logged-in user) returns the definitions; writing them stays administrator-only. The field editor is a Beheer tab "Detail fields". The service also knows a `boolean` type, which the editor and the tab support.
+- D4: the filter is passed as `metadata[<key>]=<value>` (PHP turns dots in query names into underscores, so `metadata.<key>` would not arrive) to `/api/dashboards/visible`. The switcher keeps the store's list and only hides what the filter drops.
+- D2: a dashboard with one language shows no heading; with more, the page shows the resolved name and description above the grid, because the workspace page showed neither before.

@@ -711,7 +711,7 @@ export default {
 		 * this person does not own (REQ-PERSUI-001).
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		canHideForMe() {
 			return !!this.activeDashboard && this.activeDashboard.isOwner !== true
@@ -870,7 +870,7 @@ export default {
 		 * becomes active, so "Hidden (n)" is right from the start.
 		 *
 		 * @param {number|string|null} id Active dashboard id.
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		'activeDashboard.id': {
 			immediate: true,
@@ -1158,7 +1158,7 @@ export default {
 		 *
 		 * @param {object} placement The widget's placement.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onHideForMe(placement) {
 			const id = this.activeDashboard?.id
@@ -1192,7 +1192,7 @@ export default {
 		 *
 		 * @param {number} placementId The placement to bring back.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onShowAgain(placementId) {
 			const id = this.activeDashboard?.id
@@ -1209,7 +1209,7 @@ export default {
 		 * "Reset my view", confirmed (REQ-PERSUI-002).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onResetPersonalView() {
 			const id = this.activeDashboard?.id

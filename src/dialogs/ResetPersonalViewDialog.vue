@@ -40,7 +40,7 @@ import { t } from '@nextcloud/l10n'
  * ResetPersonalViewDialog: the confirmation before a person's whole
  * personal layer is deleted (ADR-004 modal isolation).
  *
- * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 export default {
 	name: 'ResetPersonalViewDialog',

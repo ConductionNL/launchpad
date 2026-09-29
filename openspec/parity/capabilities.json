@@ -865,10 +865,10 @@
 			"homarr": "partial",
 			"dashy": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/PersonalLayerService.php:15",
+				"state": "built",
+				"evidence": "src/views/Views.vue:150; src/components/WidgetWrapper.vue; src/stores/personalLayer.js",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboards-personal-hide-ui"
+				"change": "openspec/changes/archive/2026-09-29-dashboards-personal-hide-ui"
 			},
 			"reachedOn": "nothing: /api/dashboards/{dashboardId}/personal-layer has no caller in src/",
 			"evidence": {

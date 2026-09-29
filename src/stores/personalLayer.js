@@ -22,7 +22,7 @@ function layerUrl(dashboardId) {
  * they adjusted. The server applies it when the dashboard is read, so after
  * a change the page re-reads the dashboard rather than filtering itself.
  *
- * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 export const usePersonalLayerStore = defineStore('personalLayer', {
 	state: () => ({
@@ -38,7 +38,7 @@ export const usePersonalLayerStore = defineStore('personalLayer', {
 		 *
 		 * @param {number} dashboardId Dashboard id.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async load(dashboardId) {
 			const { data } = await axios.get(layerUrl(dashboardId))
@@ -60,7 +60,7 @@ export const usePersonalLayerStore = defineStore('personalLayer', {
 		 * @param {number} dashboardId Dashboard id.
 		 * @param {Array<number>} hidden The whole hidden set.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async saveHidden(dashboardId, hidden) {
 			try {
@@ -90,7 +90,7 @@ export const usePersonalLayerStore = defineStore('personalLayer', {
 		 * @param {number} dashboardId Dashboard id.
 		 * @param {number} placementId Placement to hide.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async hide(dashboardId, placementId) {
 			const id = Number(placementId)
@@ -106,7 +106,7 @@ export const usePersonalLayerStore = defineStore('personalLayer', {
 		 * @param {number} dashboardId Dashboard id.
 		 * @param {number} placementId Placement to show again.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async showAgain(dashboardId, placementId) {
 			await this.saveHidden(
@@ -120,7 +120,7 @@ export const usePersonalLayerStore = defineStore('personalLayer', {
 		 *
 		 * @param {number} dashboardId Dashboard id.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async reset(dashboardId) {
 			await axios.delete(layerUrl(dashboardId))

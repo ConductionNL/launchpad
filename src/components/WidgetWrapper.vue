@@ -161,7 +161,7 @@ export default {
 		 * and not a compulsory widget.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		showHideForMe() {
 			return (

@@ -64,7 +64,7 @@ import { resolveWidgetTitle } from '../../utils/widgetTitle.js'
  * widgets this person hid, each with "Show again", and "Reset my view"
  * behind a confirmation. Absent when nothing is hidden.
  *
- * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 export default {
 	name: 'HiddenWidgetsControl',
@@ -91,7 +91,7 @@ export default {
 
 	emits: ['showAgain', 'reset'],
 
-	/** @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md */
+	/** @spec openspec/specs/dashboards/spec.md */
 	data() {
 		return { resetOpen: false }
 	},
@@ -104,7 +104,7 @@ export default {
 		 *
 		 * @param {object} placement Hidden placement.
 		 * @return {string} Its title, or its widget id when it has none.
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		titleOf(placement) {
 			return (
@@ -117,7 +117,7 @@ export default {
 		/**
 		 * The reset was confirmed.
 		 *
-		 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		confirmReset() {
 			this.resetOpen = false

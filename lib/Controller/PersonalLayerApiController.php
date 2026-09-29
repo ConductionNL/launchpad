@@ -130,7 +130,7 @@ class PersonalLayerApiController extends Controller {
 	 *
 	 * @return array<int, array<string, mixed>> Serialised hidden placements.
 	 *
-	 * @spec openspec/changes/dashboards-personal-hide-ui/specs/dashboards/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function hiddenPlacements(int $dashboardId, array $hidden): array {
 		if ($this->placements === null || $hidden === []) {

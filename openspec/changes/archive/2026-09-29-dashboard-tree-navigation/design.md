@@ -29,3 +29,10 @@ The numeric and uuid URLs keep working. A path URL is resolved with the existing
 
 Parent and slug are dashboard fields edited in forms. No manifest change.
 
+
+## Corrections at build (29 Sep 2026)
+
+- D2: `DELETE /api/dashboard/{id}` refuses a dashboard with children (409 `dashboard_has_children` with `childCount`) unless `cascade=true`. The delete dialog shows the count after that answer and the next confirmation sends `cascade`.
+- D3: `computeBreadcrumbs()` does not filter by visibility. `GET /api/dashboard/{id}` now returns `breadcrumbs`, and the controller blanks any ancestor outside the reader's visible set (`hidden: true`, no uuid or name). `GET /api/dashboards/by-path` still returns unfiltered crumbs; that is inherited and not changed here.
+- Task 2: the parent and web address name are edited in the dashboard settings (`DashboardConfigModal`), which every owner uses, not in the administrator's group-dashboard create and rename dialogs.
+- D4: path URLs already resolve (PageController `deepLinkPath`, `Views.vue` popstate through `by-path`); nothing added.

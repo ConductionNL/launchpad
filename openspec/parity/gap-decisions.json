@@ -470,5 +470,269 @@
 		"reason": "Tender demand: Gemeente Noordwijk 2026 on tenderned.nl/418890 asks for complete profile tags so colleagues can be found; Workspace 365 and Microsoft Viva are rated yes.",
 		"change": "widgets-people-expertise-and-fields",
 		"decidedOn": "2026-09-27"
+	},
+	{
+		"row": "build-edit-lock",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area building; the lock service and routes are finished and no page reaches them, so the missing half is the screen.",
+		"change": "dashboard-edit-lock-ui",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "build-personal-hide",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area building; Workspace 365 and Microsoft Viva rated yes; the personal layer service exists and no page calls it.",
+		"change": "dashboards-personal-hide-ui",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "build-rollback",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area building; the feature page advertises rollback as stable and no page reaches the versioning service. Microsoft Viva rated partial.",
+		"change": "dashboard-version-history-ui",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "dash-tree",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area dashboards; the tree service and endpoint exist and no screen shows a tree or sets a parent.",
+		"change": "dashboard-tree-navigation",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "dash-languages",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area dashboards; Microsoft Viva and Nextcloud Dashboard rated yes; the translation service exists with no screen. Clustered with dash-metadata on the dashboard settings dialog.",
+		"change": "dashboard-language-and-details-tabs",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "dash-metadata",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area dashboards; the metadata service exists with no component caller and its filter method has no caller at all. Clustered with dash-languages.",
+		"change": "dashboard-language-and-details-tabs",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "tile-clicks",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Core area launcher; clicks are recorded and exported by endpoints that no screen calls; Microsoft Viva rated yes.",
+		"change": "launcher-tile-click-report",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "int-itsm",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (integrations). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "int-erp",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (integrations). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "t-device",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (targeting). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "t-hide-incompatible",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (targeting). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "r-migrate-from",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (rollout). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "s-kiosk",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Exception to the rule, flagged for Ruben: outside the core area with one partial competitor, but the feature page advertises kiosk mode as stable and no page renders /kiosk/{token} or creates a playlist. A promise without a screen is a defect.",
+		"change": "sharing-kiosk-screens",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "s-schedule",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "s-omnichannel",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Microsoft Viva Connections rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "e-ack-ask",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "e-react",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "e-events",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "e-kb",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "a-assistant",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "a-place-widget",
+		"matrix": "launchpad",
+		"decision": "existing",
+		"reason": "Existing open change mcp-tool-surface carries the row.",
+		"change": "mcp-tool-surface",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "a-agent-tools",
+		"matrix": "launchpad",
+		"decision": "existing",
+		"reason": "Existing open change mcp-tool-surface carries the row.",
+		"change": "mcp-tool-surface",
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "a-ai-control",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "a-summarise",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "p-background",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Nextcloud Dashboard (built-in) rated yes; no tender, feature request or roadmap row. Outside the core area (platform). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "p-multitenant",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (platform). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-teams",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); a feature request row but the rule needs demand plus one competitor yes. Outside the core area (widgets). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-account-move",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes (Homarr, Dashy partial); a feature request row but the rule needs demand plus one competitor yes. Outside the core area (rollout). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-ai-write",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-room-free",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (widgets). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-recurring-events",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes (Nextcloud Dashboard (built-in), Homarr, Dashy partial); a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (engagement). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-content-review",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes; a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (governance). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "d-ai-chart",
+		"matrix": "launchpad",
+		"decision": "decided-no",
+		"reason": "No competitor rated yes (Microsoft Viva Connections, Homarr partial); a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (widgets). Reversible: reopen the row if demand appears.",
+		"change": null,
+		"decidedOn": "2026-09-28"
 	}
 ]

@@ -769,7 +769,7 @@ export default {
 		 * administrator (REQ-SCHEDUI-001); the server checks again.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		canManagePublication() {
 			const dash = this.activeDashboard
@@ -780,7 +780,7 @@ export default {
 		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
 		 *
 		 * @return {string} The note, or empty.
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		publicationNote() {
 			const dash = this.activeDashboard
@@ -1215,7 +1215,7 @@ export default {
 		 *
 		 * @param {string} value Timestamp from the server.
 		 * @return {string} Formatted date and time.
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		formatStamp(value) {
 			const parsed = new Date(String(value).replace(' ', 'T'))
@@ -1231,7 +1231,7 @@ export default {
 		 * Publish the active dashboard.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onPublishActive() {
 			await useDashboardStore().publishDashboard(this.activeDashboard.uuid)
@@ -1241,7 +1241,7 @@ export default {
 		 * Unpublish the active dashboard.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onUnpublishActive() {
 			await useDashboardStore().unpublishDashboard(this.activeDashboard.uuid)
@@ -1252,7 +1252,7 @@ export default {
 		 *
 		 * @param {{publishAt: (string|null), unpublishAt: (string|null)}} times The chosen times.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onScheduleActive({ publishAt, unpublishAt }) {
 			this.scheduleError = ''

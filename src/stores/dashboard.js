@@ -563,7 +563,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @param {string|null} publishAt Go-live time, or null.
 		 * @param {string|null} [unpublishAt] Take-down time, or null.
 		 * @return {Promise<object|null>} The updated dashboard.
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async scheduleDashboard(uuid, publishAt, unpublishAt = null) {
 			const response = await api.scheduleDashboard(

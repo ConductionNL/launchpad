@@ -3303,10 +3303,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardService.php:2069",
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardRowActions.vue; src/dialogs/ScheduleDashboardDialog.vue; lib/Service/DashboardService.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/sharing-dashboard-schedule-screen"
+				"change": "openspec/changes/archive/2026-09-29-sharing-dashboard-schedule-screen"
 			},
 			"reachedOn": "nothing: the store actions publishDashboard and scheduleDashboard have no component caller",
 			"provider": "launchpad",

@@ -3423,7 +3423,7 @@ class DashboardService {
 	 *
 	 * @return bool True when `unpublishAt` is set and not in the future.
 	 *
-	 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function isTakenDown(Dashboard $dashboard, DateTime $now): bool {
 		$unpublishAt = $dashboard->getUnpublishAt();

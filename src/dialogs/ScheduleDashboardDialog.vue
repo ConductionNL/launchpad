@@ -56,7 +56,7 @@ import { t } from '@nextcloud/l10n'
  * `publishAt` and `unpublishAt`; the host shows the server's refusal
  * through the `error` prop.
  *
- * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 export default {
 	name: 'ScheduleDashboardDialog',
@@ -81,7 +81,7 @@ export default {
 
 	emits: ['update:open', 'save'],
 
-	/** @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md */
+	/** @spec openspec/specs/dashboards/spec.md */
 	data() {
 		return { goLive: '', takeDown: '' }
 	},
@@ -94,7 +94,7 @@ export default {
 		 *
 		 * @param {string} local Value like `2026-10-01T09:00`.
 		 * @return {string|null} ISO string, or null when empty.
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		toIso(local) {
 			if (!local) {
@@ -107,7 +107,7 @@ export default {
 		/**
 		 * Emit the chosen times.
 		 *
-		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		save() {
 			this.$emit('save', {

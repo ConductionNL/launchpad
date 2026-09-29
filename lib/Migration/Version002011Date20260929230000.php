@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 
 declare(strict_types=1);
@@ -32,7 +32,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Add the take-down time to dashboards.
  *
- * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+ * @spec openspec/specs/dashboards/spec.md
  */
 class Version002011Date20260929230000 extends SimpleMigrationStep {
 	/**
@@ -44,7 +44,7 @@ class Version002011Date20260929230000 extends SimpleMigrationStep {
 	 *
 	 * @return ISchemaWrapper|null The modified schema, or null when unchanged.
 	 *
-	 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function changeSchema(
 		IOutput $output,

@@ -1106,6 +1106,9 @@
         "Simulated": "Imituota",
         "Error": "Klaida",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
-        "Replace": "Pakeisti"
+        "Replace": "Pakeisti",
+        "{emoji}: {count} reactions": "{emoji}: {count} reakcijos",
+        "React with {emoji}": "Reaguoti {emoji}",
+        "{names} and {count} more": "{names} ir dar {count}"
     }
 }

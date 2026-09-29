@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Benzetildi",
     "Error" : "Hata",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
-    "Replace" : "Değiştir"
+    "Replace" : "Değiştir",
+    "{emoji}: {count} reactions" : "{emoji}: {count} tepki",
+    "React with {emoji}" : "{emoji} ile tepki ver",
+    "{names} and {count} more" : "{names} ve {count} kişi daha"
 },
 "nplurals=2; plural=(n != 1);"
 );

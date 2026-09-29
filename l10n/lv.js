@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simulēts",
     "Error" : "Kļūda",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
-    "Replace" : "Aizstāt"
+    "Replace" : "Aizstāt",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reakcijas",
+    "React with {emoji}" : "Reaģēt ar {emoji}",
+    "{names} and {count} more" : "{names} un vēl {count}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

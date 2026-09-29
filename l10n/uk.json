@@ -1106,6 +1106,9 @@
         "Simulated": "Змодельовано",
         "Error": "Помилка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
-        "Replace": "Замінити"
+        "Replace": "Замінити",
+        "{emoji}: {count} reactions": "{emoji}: реакцій {count}",
+        "React with {emoji}": "Відреагувати {emoji}",
+        "{names} and {count} more": "{names} та ще {count}"
     }
 }

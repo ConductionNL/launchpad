@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Eroare",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-    "Replace" : "Înlocuiește"
+    "Replace" : "Înlocuiește",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reacții",
+    "React with {emoji}" : "Reacționează cu {emoji}",
+    "{names} and {count} more" : "{names} și încă {count}"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -1106,6 +1106,9 @@
         "Simulated": "Симулирано",
         "Error": "Грешка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Датотека са именом {name} већ постоји. Изаберите Замени да бисте је преписали празном датотеком или промените име.",
-        "Replace": "Замени"
+        "Replace": "Замени",
+        "{emoji}: {count} reactions": "{emoji}: {count} реакција",
+        "React with {emoji}": "Реагуј са {emoji}",
+        "{names} and {count} more": "{names} и још {count}"
     }
 }

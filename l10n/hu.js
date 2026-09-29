@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Szimulált",
     "Error" : "Hiba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Már létezik {name} nevű fájl. Válassza a Csere lehetőséget, hogy üres fájllal felülírja, vagy módosítsa a nevet.",
-    "Replace" : "Csere"
+    "Replace" : "Csere",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reakció",
+    "React with {emoji}" : "Reagálás ezzel: {emoji}",
+    "{names} and {count} more" : "{names} és még {count}"
 },
 "nplurals=2; plural=(n != 1);"
 );

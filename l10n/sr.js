@@ -1129,6 +1129,9 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Датотека са именом {name} већ постоји. Изаберите Замени да бисте је преписали празном датотеком или промените име.",
-    "Replace" : "Замени"
+    "Replace" : "Замени",
+    "{emoji}: {count} reactions" : "{emoji}: {count} реакција",
+    "React with {emoji}" : "Реагуј са {emoji}",
+    "{names} and {count} more" : "{names} и још {count}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

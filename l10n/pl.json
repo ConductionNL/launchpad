@@ -1106,6 +1106,9 @@
         "Simulated": "Symulowane",
         "Error": "Błąd",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Plik o nazwie {name} już istnieje. Wybierz Zastąp, aby nadpisać go pustym plikiem, lub zmień nazwę.",
-        "Replace": "Zastąp"
+        "Replace": "Zastąp",
+        "{emoji}: {count} reactions": "{emoji}: reakcje: {count}",
+        "React with {emoji}": "Zareaguj {emoji}",
+        "{names} and {count} more": "{names} i jeszcze {count}"
     }
 }

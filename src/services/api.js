@@ -1155,6 +1155,20 @@ export const api = {
 	 * @return {Promise} Axios response for the delete call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
+	/**
+	 * Who reacted with one emoji, first page (REQ-RXN-004).
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} emoji The emoji.
+	 * @return {Promise} Axios response with `{reactors, total, ...}`.
+	 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+	 */
+	getDashboardReactors(uuid, emoji) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}/users`,
+		)
+	},
+
 	removeDashboardReaction(uuid, emoji) {
 		return axios.delete(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}`,

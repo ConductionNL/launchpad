@@ -1107,6 +1107,9 @@
         "Simulated": "Simulat",
         "Error": "Żball",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-        "Replace": "Issostitwixxi"
+        "Replace": "Issostitwixxi",
+        "{emoji}: {count} reactions": "{emoji}: {count} reazzjonijiet",
+        "React with {emoji}": "Irreaġixxi b'{emoji}",
+        "{names} and {count} more": "{names} u {count} oħra"
     }
 }

@@ -1107,6 +1107,9 @@
         "Simulated": "Simulirano",
         "Error": "Napaka",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
-        "Replace": "Zamenjaj"
+        "Replace": "Zamenjaj",
+        "{emoji}: {count} reactions": "{emoji}: {count} odzivov",
+        "React with {emoji}": "Odzovi se z {emoji}",
+        "{names} and {count} more": "{names} in še {count}"
     }
 }

@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simulà",
     "Error" : "Errur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "I dat gia ina datoteca cun il num {name}. Tscherni Remplazzar per la surscriver cun ina datoteca vida, u mida il num.",
-    "Replace" : "Remplazzar"
+    "Replace" : "Remplazzar",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reacziuns",
+    "React with {emoji}" : "Reagir cun {emoji}",
+    "{names} and {count} more" : "{names} ed anc {count}"
 },
 "nplurals=2; plural=(n != 1);"
 );

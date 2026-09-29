@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
-    "Replace" : "Substitueix"
+    "Replace" : "Substitueix",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reaccions",
+    "React with {emoji}" : "Reacciona amb {emoji}",
+    "{names} and {count} more" : "{names} i {count} més"
 },
 "nplurals=2; plural=(n != 1);"
 );

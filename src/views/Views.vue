@@ -180,6 +180,10 @@
 		<div
 			class="launchpad-container"
 			:class="{ 'launchpad-edit-mode': isEditMode }">
+			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
+			<DashboardReactions
+				v-if="activeDashboard?.uuid && !isEditMode"
+				:dashboardUuid="activeDashboard.uuid" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -386,6 +390,7 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
@@ -434,6 +439,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		DashboardReactions,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state

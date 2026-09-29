@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simuleeritud",
     "Error" : "Viga",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fail nimega {name} on juba olemas. Valige Asenda, et see tühja failiga üle kirjutada, või muutke nime.",
-    "Replace" : "Asenda"
+    "Replace" : "Asenda",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reaktsiooni",
+    "React with {emoji}" : "Reageeri: {emoji}",
+    "{names} and {count} more" : "{names} ja veel {count}"
 },
 "nplurals=2; plural=(n != 1);"
 );

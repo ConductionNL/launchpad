@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "I simuluar",
     "Error" : "Gabim",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-    "Replace" : "Zëvendëso"
+    "Replace" : "Zëvendëso",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reagime",
+    "React with {emoji}" : "Reago me {emoji}",
+    "{names} and {count} more" : "{names} dhe {count} të tjerë"
 },
 "nplurals=2; plural=(n != 1);"
 );

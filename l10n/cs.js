@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simulováno",
     "Error" : "Chyba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
-    "Replace" : "Nahradit"
+    "Replace" : "Nahradit",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reakcí",
+    "React with {emoji}" : "Reagovat pomocí {emoji}",
+    "{names} and {count} more" : "{names} a další ({count})"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

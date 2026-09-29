@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Hermt",
     "Error" : "Villa",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Skrá með heitinu {name} er þegar til. Veldu Skipta út til að skrifa yfir hana með tómri skrá, eða breyttu heitinu.",
-    "Replace" : "Skipta út"
+    "Replace" : "Skipta út",
+    "{emoji}: {count} reactions" : "{emoji}: {count} viðbrögð",
+    "React with {emoji}" : "Bregðast við með {emoji}",
+    "{names} and {count} more" : "{names} og {count} til viðbótar"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

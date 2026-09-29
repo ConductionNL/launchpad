@@ -1138,7 +1138,10 @@ OC.L10N.register(
     "Simulated" : "Simulado",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ya existe un archivo llamado {name}. Elija Reemplazar para sobrescribirlo con un archivo vacío o cambie el nombre.",
-    "Replace" : "Reemplazar"
+    "Replace" : "Reemplazar",
+    "{emoji}: {count} reactions" : "{emoji}: {count} reacciones",
+    "React with {emoji}" : "Reaccionar con {emoji}",
+    "{names} and {count} more" : "{names} y {count} más"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -3303,9 +3303,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "decided-no",
+				"state": "building",
 				"evidence": "lib/Service/DashboardService.php:2069",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/sharing-dashboard-schedule-screen"
 			},
 			"reachedOn": "nothing: the store actions publishDashboard and scheduleDashboard have no component caller",
 			"provider": "launchpad",
@@ -3418,9 +3419,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "decided-no",
+				"state": "building",
 				"evidence": "src/components/WidgetWrapper.vue:155; lib/Service/PlacementUpdater.php:139",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/engagement-acknowledgement-toggle"
 			},
 			"reachedOn": "the prompt renders on the Workspace page, but no form sets requiresAcknowledgement; only PUT /api/widgets/{placementId} does",
 			"provider": "launchpad",
@@ -3477,9 +3479,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "decided-no",
+				"state": "building",
 				"evidence": "lib/Service/ReactionService.php:91",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/engagement-dashboard-reactions-bar"
 			},
 			"reachedOn": "nothing: the store actions addReaction and fetchReactionsSummary have no component caller",
 			"provider": "launchpad",
@@ -3765,9 +3768,9 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "decided-no",
-				"evidence": "openspec/specs/launchpad-ai-dashboard-assistant/spec.md:5",
-				"owner": "ConductionNL/launchpad"
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/search-ai-dashboard-assistant"
 			},
 			"reachedOn": "nothing",
 			"note": "corrections round 9 (2026-09-28): no change carries this row at 9d5535a, so built.state is none. The evidence cites a main spec, openspec/specs/launchpad-ai-dashboard-assistant (REQ-ADA-001 to 007, a chat widget answering plain-language questions), not a change. The change that wrote it, openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics, was spec-only and its tasks.md says the ai-dashboard-assistant widget chain remains spec-only; no ai-assistant widget exists in src/ or lib/. The open change launchpad-ai-dashboard-assistant carries AI summary widgets for cases and consultations, not questions and answers. Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears.",

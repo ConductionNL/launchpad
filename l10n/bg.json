@@ -1105,6 +1105,20 @@
         "Simulated": "Симулирано",
         "Error": "Грешка",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Файл с име {name} вече съществува. Изберете „Замяна“, за да го презапишете с празен файл, или сменете името.",
-        "Replace": "Замяна"
+        "Replace": "Замяна",
+        "Collapse {name}": "Свиване на {name}",
+        "Expand {name}": "Разгъване на {name}",
+        "Dashboard location": "Местоположение на таблото",
+        "A dashboard you cannot open": "Табло, което не можете да отворите",
+        "Delete {name}? This cannot be undone.": "Изтриване на {name}? Това не може да бъде отменено.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Табла под {name}: {count}. Те се изтриват заедно с него.",
+        "Parent dashboard": "Родителско табло",
+        "Web address name": "Име в уеб адреса",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Малки букви, цифри и тирета. Използва се в адреса на табло под друго табло.",
+        "No parent": "Без родител",
+        "That dashboard sits under this one, so it cannot be its parent.": "Това табло е под текущото, затова не може да е негов родител.",
+        "Another dashboard under the same parent already uses this web address name.": "Друго табло под същия родител вече използва това име.",
+        "The chosen parent dashboard no longer exists.": "Избраното родителско табло вече не съществува.",
+        "The dashboard could not be saved.": "Таблото не можа да се запази."
     }
 }

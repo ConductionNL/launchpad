@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "I simuluar",
     "Error" : "Gabim",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-    "Replace" : "Zëvendëso"
+    "Replace" : "Zëvendëso",
+    "Collapse {name}" : "Palos {name}",
+    "Expand {name}" : "Zgjero {name}",
+    "Dashboard location" : "Vendndodhja e panelit",
+    "A dashboard you cannot open" : "Një panel që nuk mund ta hapni",
+    "Delete {name}? This cannot be undone." : "Të fshihet {name}? Kjo nuk mund të zhbëhet.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Panele nën {name}: {count}. Fshihen bashkë me të.",
+    "Parent dashboard" : "Paneli prind",
+    "Web address name" : "Emri në adresën web",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Shkronja të vogla, shifra dhe viza. Përdoret në adresën e një paneli nën një tjetër.",
+    "No parent" : "Pa prind",
+    "That dashboard sits under this one, so it cannot be its parent." : "Ai panel ndodhet nën këtë, ndaj nuk mund të jetë prindi i tij.",
+    "Another dashboard under the same parent already uses this web address name." : "Një panel tjetër nën të njëjtin prind e përdor tashmë këtë emër.",
+    "The chosen parent dashboard no longer exists." : "Paneli prind i zgjedhur nuk ekziston më.",
+    "The dashboard could not be saved." : "Paneli nuk mund të ruhej."
 },
 "nplurals=2; plural=(n != 1);"
 );

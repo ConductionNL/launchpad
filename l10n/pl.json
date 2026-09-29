@@ -1106,6 +1106,20 @@
         "Simulated": "Symulowane",
         "Error": "Błąd",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Plik o nazwie {name} już istnieje. Wybierz Zastąp, aby nadpisać go pustym plikiem, lub zmień nazwę.",
-        "Replace": "Zastąp"
+        "Replace": "Zastąp",
+        "Collapse {name}": "Zwiń {name}",
+        "Expand {name}": "Rozwiń {name}",
+        "Dashboard location": "Położenie pulpitu",
+        "A dashboard you cannot open": "Pulpit, którego nie możesz otworzyć",
+        "Delete {name}? This cannot be undone.": "Usunąć {name}? Tego nie można cofnąć.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Pulpity pod {name}: {count}. Zostaną usunięte razem z nim.",
+        "Parent dashboard": "Pulpit nadrzędny",
+        "Web address name": "Nazwa w adresie internetowym",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Małe litery, cyfry i myślniki. Używane w adresie pulpitu umieszczonego pod innym.",
+        "No parent": "Brak nadrzędnego",
+        "That dashboard sits under this one, so it cannot be its parent.": "Ten pulpit znajduje się pod tym, więc nie może być nadrzędny.",
+        "Another dashboard under the same parent already uses this web address name.": "Inny pulpit pod tym samym nadrzędnym już używa tej nazwy.",
+        "The chosen parent dashboard no longer exists.": "Wybrany pulpit nadrzędny już nie istnieje.",
+        "The dashboard could not be saved.": "Nie udało się zapisać pulpitu."
     }
 }

@@ -1105,6 +1105,20 @@
         "Simulated": "Simulert",
         "Error": "Feil",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Det finnes allerede en fil med navnet {name}. Velg Erstatt for å overskrive den med en tom fil, eller endre navnet.",
-        "Replace": "Erstatt"
+        "Replace": "Erstatt",
+        "Collapse {name}": "Skjul undernivå for {name}",
+        "Expand {name}": "Vis undernivå for {name}",
+        "Dashboard location": "Dashbordets plassering",
+        "A dashboard you cannot open": "Et dashbord du ikke kan åpne",
+        "Delete {name}? This cannot be undone.": "Slette {name}? Dette kan ikke angres.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Dashbord under {name}: {count}. De slettes sammen med det.",
+        "Parent dashboard": "Overordnet dashbord",
+        "Web address name": "Navn i nettadressen",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Små bokstaver, sifre og bindestreker. Brukes i adressen til et dashbord under et annet.",
+        "No parent": "Ingen overordnet",
+        "That dashboard sits under this one, so it cannot be its parent.": "Det dashbordet ligger under dette, så det kan ikke være overordnet.",
+        "Another dashboard under the same parent already uses this web address name.": "Et annet dashbord under det samme overordnede bruker allerede dette navnet.",
+        "The chosen parent dashboard no longer exists.": "Det valgte overordnede dashbordet finnes ikke lenger.",
+        "The dashboard could not be saved.": "Dashbordet kunne ikke lagres."
     }
 }

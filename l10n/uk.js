@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Змодельовано",
     "Error" : "Помилка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
-    "Replace" : "Замінити"
+    "Replace" : "Замінити",
+    "Collapse {name}" : "Згорнути {name}",
+    "Expand {name}" : "Розгорнути {name}",
+    "Dashboard location" : "Розташування панелі",
+    "A dashboard you cannot open" : "Панель, яку ви не можете відкрити",
+    "Delete {name}? This cannot be undone." : "Видалити {name}? Це не можна скасувати.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Панелей під {name}: {count}. Їх буде видалено разом із нею.",
+    "Parent dashboard" : "Батьківська панель",
+    "Web address name" : "Назва у вебадресі",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Малі літери, цифри та дефіси. Використовується в адресі панелі, що розміщена під іншою.",
+    "No parent" : "Без батьківської",
+    "That dashboard sits under this one, so it cannot be its parent." : "Та панель розміщена під цією, тож не може бути її батьківською.",
+    "Another dashboard under the same parent already uses this web address name." : "Інша панель під тією самою батьківською вже використовує цю назву.",
+    "The chosen parent dashboard no longer exists." : "Вибраної батьківської панелі більше не існує.",
+    "The dashboard could not be saved." : "Не вдалося зберегти панель."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

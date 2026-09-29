@@ -1106,6 +1106,20 @@
         "Simulated": "Simulat",
         "Error": "Eroare",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-        "Replace": "Înlocuiește"
+        "Replace": "Înlocuiește",
+        "Collapse {name}": "Restrânge {name}",
+        "Expand {name}": "Extinde {name}",
+        "Dashboard location": "Locația tabloului de bord",
+        "A dashboard you cannot open": "Un tablou de bord pe care nu îl puteți deschide",
+        "Delete {name}? This cannot be undone.": "Ștergeți {name}? Acțiunea nu poate fi anulată.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Tablouri de bord sub {name}: {count}. Sunt șterse împreună cu el.",
+        "Parent dashboard": "Tablou de bord părinte",
+        "Web address name": "Nume în adresa web",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Litere mici, cifre și cratime. Folosit în adresa unui tablou de bord aflat sub altul.",
+        "No parent": "Fără părinte",
+        "That dashboard sits under this one, so it cannot be its parent.": "Acel tablou de bord se află sub acesta, deci nu îi poate fi părinte.",
+        "Another dashboard under the same parent already uses this web address name.": "Un alt tablou de bord sub același părinte folosește deja acest nume.",
+        "The chosen parent dashboard no longer exists.": "Tabloul de bord părinte ales nu mai există.",
+        "The dashboard could not be saved.": "Tabloul de bord nu a putut fi salvat."
     }
 }

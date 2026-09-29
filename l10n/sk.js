@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulované",
     "Error" : "Chyba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Súbor s názvom {name} už existuje. Zvoľte Nahradiť a prepíšte ho prázdnym súborom, alebo zmeňte názov.",
-    "Replace" : "Nahradiť"
+    "Replace" : "Nahradiť",
+    "Collapse {name}" : "Zbaliť {name}",
+    "Expand {name}" : "Rozbaliť {name}",
+    "Dashboard location" : "Umiestnenie panela",
+    "A dashboard you cannot open" : "Panel, ktorý nemôžete otvoriť",
+    "Delete {name}? This cannot be undone." : "Odstrániť {name}? Túto akciu nemožno vrátiť.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Panely pod {name}: {count}. Odstránia sa spolu s ním.",
+    "Parent dashboard" : "Nadradený panel",
+    "Web address name" : "Názov vo webovej adrese",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Malé písmená, číslice a pomlčky. Používa sa v adrese panela pod iným panelom.",
+    "No parent" : "Bez nadradeného",
+    "That dashboard sits under this one, so it cannot be its parent." : "Ten panel je pod týmto, takže nemôže byť nadradený.",
+    "Another dashboard under the same parent already uses this web address name." : "Iný panel pod rovnakým nadradeným už tento názov používa.",
+    "The chosen parent dashboard no longer exists." : "Zvolený nadradený panel už neexistuje.",
+    "The dashboard could not be saved." : "Panel sa nepodarilo uložiť."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

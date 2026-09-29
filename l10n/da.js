@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simuleret",
     "Error" : "Fejl",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Der findes allerede en fil med navnet {name}. Vælg Erstat for at overskrive den med en tom fil, eller skift navnet.",
-    "Replace" : "Erstat"
+    "Replace" : "Erstat",
+    "Collapse {name}" : "Fold {name} sammen",
+    "Expand {name}" : "Fold {name} ud",
+    "Dashboard location" : "Dashboardets placering",
+    "A dashboard you cannot open" : "Et dashboard, du ikke kan åbne",
+    "Delete {name}? This cannot be undone." : "Slet {name}? Det kan ikke fortrydes.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Dashboards under {name}: {count}. De slettes sammen med det.",
+    "Parent dashboard" : "Overordnet dashboard",
+    "Web address name" : "Navn i webadressen",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Små bogstaver, tal og bindestreger. Bruges i adressen på et dashboard under et andet.",
+    "No parent" : "Intet overordnet",
+    "That dashboard sits under this one, so it cannot be its parent." : "Det dashboard ligger under dette, så det kan ikke være overordnet.",
+    "Another dashboard under the same parent already uses this web address name." : "Et andet dashboard under det samme overordnede bruger allerede dette navn.",
+    "The chosen parent dashboard no longer exists." : "Det valgte overordnede dashboard findes ikke længere.",
+    "The dashboard could not be saved." : "Dashboardet kunne ikke gemmes."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulado",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ya existe un archivo llamado {name}. Elija Reemplazar para sobrescribirlo con un archivo vacío o cambie el nombre.",
-    "Replace" : "Reemplazar"
+    "Replace" : "Reemplazar",
+    "Collapse {name}" : "Contraer {name}",
+    "Expand {name}" : "Expandir {name}",
+    "Dashboard location" : "Ubicación del panel",
+    "A dashboard you cannot open" : "Un panel que no puedes abrir",
+    "Delete {name}? This cannot be undone." : "¿Eliminar {name}? No se puede deshacer.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Paneles bajo {name}: {count}. Se eliminan con él.",
+    "Parent dashboard" : "Panel principal",
+    "Web address name" : "Nombre en la dirección web",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Letras minúsculas, dígitos y guiones. Se usa en la dirección de un panel que está bajo otro.",
+    "No parent" : "Sin panel principal",
+    "That dashboard sits under this one, so it cannot be its parent." : "Ese panel está bajo este, así que no puede ser su panel principal.",
+    "Another dashboard under the same parent already uses this web address name." : "Otro panel bajo el mismo principal ya usa este nombre.",
+    "The chosen parent dashboard no longer exists." : "El panel principal elegido ya no existe.",
+    "The dashboard could not be saved." : "No se pudo guardar el panel."
 },
 "nplurals=2; plural=(n != 1);"
 );

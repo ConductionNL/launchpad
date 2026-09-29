@@ -1105,6 +1105,20 @@
         "Simulated": "Hermt",
         "Error": "Villa",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Skrá með heitinu {name} er þegar til. Veldu Skipta út til að skrifa yfir hana með tómri skrá, eða breyttu heitinu.",
-        "Replace": "Skipta út"
+        "Replace": "Skipta út",
+        "Collapse {name}": "Fella saman {name}",
+        "Expand {name}": "Fella út {name}",
+        "Dashboard location": "Staðsetning stjórnborðs",
+        "A dashboard you cannot open": "Stjórnborð sem þú getur ekki opnað",
+        "Delete {name}? This cannot be undone.": "Eyða {name}? Ekki er hægt að afturkalla þetta.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Stjórnborð undir {name}: {count}. Þeim er eytt með því.",
+        "Parent dashboard": "Yfirstjórnborð",
+        "Web address name": "Nafn í vefslóð",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Lágstafir, tölustafir og bandstrik. Notað í vefslóð stjórnborðs sem er undir öðru.",
+        "No parent": "Ekkert yfirstjórnborð",
+        "That dashboard sits under this one, so it cannot be its parent.": "Það stjórnborð er undir þessu, svo það getur ekki verið yfirstjórnborð þess.",
+        "Another dashboard under the same parent already uses this web address name.": "Annað stjórnborð undir sama yfirstjórnborði notar nú þegar þetta nafn.",
+        "The chosen parent dashboard no longer exists.": "Valið yfirstjórnborð er ekki lengur til.",
+        "The dashboard could not be saved.": "Ekki tókst að vista stjórnborðið."
     }
 }

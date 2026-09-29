@@ -132,10 +132,17 @@ export const api = {
 	 * Delete a dashboard and its placements.
 	 *
 	 * @param {number|string} id Numeric id of the dashboard to delete.
+	 * @param cascade
 	 * @return {Promise} Axios response for the delete call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	deleteDashboard(id) {
+	deleteDashboard(id, cascade = false) {
+		if (cascade) {
+			// REQ-DASH-030: also delete the dashboards under it.
+			return axios.delete(`${baseUrl}/api/dashboard/${id}`, {
+				params: { cascade: true },
+			})
+		}
 		return axios.delete(`${baseUrl}/api/dashboard/${id}`)
 	},
 

@@ -1105,6 +1105,20 @@
         "Simulated": "Simulado",
         "Error": "Erro",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Já existe um ficheiro chamado {name}. Escolha Substituir para o substituir por um ficheiro vazio, ou altere o nome.",
-        "Replace": "Substituir"
+        "Replace": "Substituir",
+        "Collapse {name}": "Recolher {name}",
+        "Expand {name}": "Expandir {name}",
+        "Dashboard location": "Localização do painel",
+        "A dashboard you cannot open": "Um painel que não pode abrir",
+        "Delete {name}? This cannot be undone.": "Eliminar {name}? Isto não pode ser anulado.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Painéis sob {name}: {count}. São eliminados com ele.",
+        "Parent dashboard": "Painel principal",
+        "Web address name": "Nome no endereço web",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Letras minúsculas, algarismos e hífenes. Usado no endereço de um painel que está sob outro.",
+        "No parent": "Sem painel principal",
+        "That dashboard sits under this one, so it cannot be its parent.": "Esse painel está sob este, por isso não pode ser o seu principal.",
+        "Another dashboard under the same parent already uses this web address name.": "Outro painel sob o mesmo principal já usa este nome.",
+        "The chosen parent dashboard no longer exists.": "O painel principal escolhido já não existe.",
+        "The dashboard could not be saved.": "Não foi possível guardar o painel."
     }
 }

@@ -1081,6 +1081,20 @@
         "Simulated": "Simulated",
         "Error": "Error",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.",
-        "Replace": "Replace"
+        "Replace": "Replace",
+        "Collapse {name}": "Collapse {name}",
+        "Expand {name}": "Expand {name}",
+        "Dashboard location": "Dashboard location",
+        "A dashboard you cannot open": "A dashboard you cannot open",
+        "Delete {name}? This cannot be undone.": "Delete {name}? This cannot be undone.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Dashboards under {name}: {count}. They are deleted with it.",
+        "Parent dashboard": "Parent dashboard",
+        "Web address name": "Web address name",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.",
+        "No parent": "No parent",
+        "That dashboard sits under this one, so it cannot be its parent.": "That dashboard sits under this one, so it cannot be its parent.",
+        "Another dashboard under the same parent already uses this web address name.": "Another dashboard under the same parent already uses this web address name.",
+        "The chosen parent dashboard no longer exists.": "The chosen parent dashboard no longer exists.",
+        "The dashboard could not be saved.": "The dashboard could not be saved."
     }
 }

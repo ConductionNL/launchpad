@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulēts",
     "Error" : "Kļūda",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
-    "Replace" : "Aizstāt"
+    "Replace" : "Aizstāt",
+    "Collapse {name}" : "Sakļaut {name}",
+    "Expand {name}" : "Izvērst {name}",
+    "Dashboard location" : "Informācijas paneļa atrašanās vieta",
+    "A dashboard you cannot open" : "Informācijas panelis, ko nevarat atvērt",
+    "Delete {name}? This cannot be undone." : "Dzēst {name}? To nevar atsaukt.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Informācijas paneļi zem {name}: {count}. Tie tiek dzēsti kopā ar to.",
+    "Parent dashboard" : "Vecākais informācijas panelis",
+    "Web address name" : "Nosaukums tīmekļa adresē",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Mazie burti, cipari un domuzīmes. Tiek izmantots tāda informācijas paneļa adresē, kas atrodas zem cita.",
+    "No parent" : "Bez vecākā",
+    "That dashboard sits under this one, so it cannot be its parent." : "Šis informācijas panelis atrodas zem šī, tāpēc nevar būt tā vecākais.",
+    "Another dashboard under the same parent already uses this web address name." : "Cits informācijas panelis zem tā paša vecākā jau izmanto šo nosaukumu.",
+    "The chosen parent dashboard no longer exists." : "Izvēlētais vecākais informācijas panelis vairs nepastāv.",
+    "The dashboard could not be saved." : "Informācijas paneli neizdevās saglabāt."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

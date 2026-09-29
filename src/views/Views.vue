@@ -170,6 +170,14 @@
 			</div>
 		</Teleport>
 
+		<!-- Delete confirmation, with the number of dashboards under it. -->
+		<DeleteDashboardDialog
+			:open="deleteTarget !== null"
+			:name="deleteTarget?.name ?? ''"
+			:childCount="deleteChildCount"
+			@update:open="onDeleteDialog"
+			@confirm="confirmDeleteDashboard" />
+
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
 			:open="ackReportOpen"
@@ -180,6 +188,9 @@
 		<div
 			class="launchpad-container"
 			:class="{ 'launchpad-edit-mode': isEditMode }">
+			<DashboardBreadcrumb
+				:dashboard="activeDashboard"
+				@navigate="onBreadcrumbNavigate" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -298,6 +309,8 @@
 			:canDelete="dashboards.length > 1"
 			:defaultUuid="defaultDashboardUuid"
 			:initialTab="configModalInitialTab"
+			:parentOptions="dashboards"
+			:saveError="configSaveError"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
@@ -386,9 +399,11 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
@@ -434,6 +449,8 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		DashboardBreadcrumb,
+		DeleteDashboardDialog,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -595,6 +612,12 @@ export default {
 			// report modal state.
 			ackReportOpen: false,
 			ackReportKey: '',
+			// dashboard-tree-navigation: the delete confirmation and, once
+			// the server has answered 409, how many dashboards go with it.
+			deleteTarget: null,
+			deleteChildCount: 0,
+			// Why the dashboard configuration could not be saved.
+			configSaveError: '',
 		}
 	},
 
@@ -1495,6 +1518,7 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeConfigModal() {
 			this.isConfigModalOpen = false
+			this.configSaveError = ''
 		},
 
 		/**
@@ -1687,20 +1711,72 @@ export default {
 		 * @param {string} config.name Display name.
 		 * @param {string} config.description Short description.
 		 * @param {string} config.icon Icon key or URL.
+		 * @param {string} [config.parentUuid] Parent uuid, '' for none (edit only).
+		 * @param {string} [config.slug] Web address name (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		async saveDashboardConfig({ id, name, description, icon }) {
+		async saveDashboardConfig({
+			id,
+			name,
+			description,
+			icon,
+			parentUuid,
+			slug,
+		}) {
+			this.configSaveError = ''
 			try {
 				if (id === null || id === undefined) {
 					await this.createDashboard({ name, description, icon })
 				} else {
-					await api.updateDashboard(id, { name, description, icon })
+					const data = { name, description, icon }
+					// dashboard-tree-navigation: '' clears the parent; an
+					// empty web address name leaves the stored one alone.
+					if (parentUuid !== undefined) {
+						data.parentUuid = parentUuid
+					}
+					if (slug) {
+						data.slug = slug
+					}
+					await api.updateDashboard(id, data)
 					await this.loadDashboards()
 				}
 				this.closeConfigModal()
 			} catch (error) {
 				logger.error('Failed to save dashboard:', error)
+				this.configSaveError = this.treeSaveMessage(error)
 			}
+		},
+
+		/**
+		 * Say why a save was refused, for the tree fields in particular.
+		 * The service's messages are English constants
+		 * (DashboardTreeService::ERR_*), so they are mapped, not shown.
+		 *
+		 * @param {Error} error The failed request.
+		 * @return {string} A translated message.
+		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 */
+		treeSaveMessage(error) {
+			const message = error?.response?.data?.message ?? ''
+			if (message === 'Setting this parent would create a cycle') {
+				return t(
+					'launchpad',
+					'That dashboard sits under this one, so it cannot be its parent.',
+				)
+			}
+			if (message === 'Slug must be unique among siblings') {
+				return t(
+					'launchpad',
+					'Another dashboard under the same parent already uses this web address name.',
+				)
+			}
+			if (message === 'Parent dashboard not found') {
+				return t(
+					'launchpad',
+					'The chosen parent dashboard no longer exists.',
+				)
+			}
+			return t('launchpad', 'The dashboard could not be saved.')
 		},
 
 		/**
@@ -1710,24 +1786,8 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async deleteCurrentDashboard(dashboard) {
-			if (
-				!confirm(
-					this.t(
-						'launchpad',
-						'Are you sure you want to delete this dashboard?',
-					),
-				)
-			) {
-				return
-			}
-
-			try {
-				await api.deleteDashboard(dashboard.id)
-				await this.loadDashboards()
-				this.closeConfigModal()
-			} catch (error) {
-				logger.error('Failed to delete dashboard:', error)
-			}
+			this.deleteChildCount = 0
+			this.deleteTarget = dashboard
 		},
 
 		/**
@@ -2056,21 +2116,70 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onSidebarDeleteDashboard(id) {
-			if (
-				!confirm(
-					this.t(
-						'launchpad',
-						'Are you sure you want to delete this dashboard?',
-					),
-				)
-			) {
+			this.deleteChildCount = 0
+			this.deleteTarget = this.dashboards.find((d) => d.id === id) ?? {
+				id,
+				name: '',
+			}
+		},
+
+		/**
+		 * The delete dialog closed without confirming.
+		 *
+		 * @param {boolean} isOpen New open state.
+		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 */
+		onDeleteDialog(isOpen) {
+			if (!isOpen) {
+				this.deleteTarget = null
+				this.deleteChildCount = 0
+			}
+		},
+
+		/**
+		 * Delete the confirmed dashboard. When it has dashboards under it
+		 * the server answers 409 with `childCount`; the dialog then says how
+		 * many go with it, and the next confirmation deletes them all.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 */
+		async confirmDeleteDashboard() {
+			const target = this.deleteTarget
+			if (!target) {
 				return
 			}
 			try {
-				await api.deleteDashboard(id)
-				await this.loadDashboards()
+				await api.deleteDashboard(target.id, this.deleteChildCount > 0)
 			} catch (error) {
+				const data = error?.response?.data
+				if (
+					error?.response?.status === 409
+					&& data?.error === 'dashboard_has_children'
+				) {
+					this.deleteChildCount = Number(data.childCount) || 1
+					return
+				}
 				logger.error('Failed to delete dashboard:', error)
+				return
+			}
+			this.deleteTarget = null
+			this.deleteChildCount = 0
+			await this.loadDashboards()
+			this.closeConfigModal()
+		},
+
+		/**
+		 * A breadcrumb was chosen: open that dashboard.
+		 *
+		 * @param {string} uuid The ancestor's uuid.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+		 */
+		async onBreadcrumbNavigate(uuid) {
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.onSidebarSwitch(target.id, target.source)
 			}
 		},
 	},

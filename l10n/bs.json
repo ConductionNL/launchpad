@@ -1106,6 +1106,20 @@
         "Simulated": "Simulirano",
         "Error": "Greška",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka s imenom {name} već postoji. Odaberite Zamijeni da je prepišete praznom datotekom ili promijenite ime.",
-        "Replace": "Zamijeni"
+        "Replace": "Zamijeni",
+        "Collapse {name}": "Skupi {name}",
+        "Expand {name}": "Proširi {name}",
+        "Dashboard location": "Lokacija kontrolne ploče",
+        "A dashboard you cannot open": "Kontrolna ploča koju ne možete otvoriti",
+        "Delete {name}? This cannot be undone.": "Izbrisati {name}? Ovo se ne može poništiti.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Kontrolne ploče ispod {name}: {count}. Brišu se zajedno s njom.",
+        "Parent dashboard": "Nadređena kontrolna ploča",
+        "Web address name": "Naziv u web adresi",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Mala slova, cifre i crtice. Koristi se u adresi kontrolne ploče ispod druge.",
+        "No parent": "Bez nadređene",
+        "That dashboard sits under this one, so it cannot be its parent.": "Ta kontrolna ploča je ispod ove, pa ne može biti nadređena.",
+        "Another dashboard under the same parent already uses this web address name.": "Druga kontrolna ploča ispod iste nadređene već koristi ovaj naziv.",
+        "The chosen parent dashboard no longer exists.": "Odabrana nadređena kontrolna ploča više ne postoji.",
+        "The dashboard could not be saved.": "Kontrolna ploča se nije mogla spremiti."
     }
 }

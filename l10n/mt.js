@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Żball",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-    "Replace" : "Issostitwixxi"
+    "Replace" : "Issostitwixxi",
+    "Collapse {name}" : "Ikkollassa {name}",
+    "Expand {name}" : "Espandi {name}",
+    "Dashboard location" : "Post tad-dashboard",
+    "A dashboard you cannot open" : "Dashboard li ma tistax tiftaħ",
+    "Delete {name}? This cannot be undone." : "Tħassar {name}? Dan ma jistax jitneħħa.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Dashboards taħt {name}: {count}. Jitħassru miegħu.",
+    "Parent dashboard" : "Dashboard ġenitur",
+    "Web address name" : "Isem fl-indirizz web",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Ittri żgħar, ċifri u strixxi. Jintuża fl-indirizz ta' dashboard taħt ieħor.",
+    "No parent" : "L-ebda ġenitur",
+    "That dashboard sits under this one, so it cannot be its parent." : "Dak id-dashboard qiegħed taħt dan, għalhekk ma jistax ikun il-ġenitur tiegħu.",
+    "Another dashboard under the same parent already uses this web address name." : "Dashboard ieħor taħt l-istess ġenitur diġà juża dan l-isem.",
+    "The chosen parent dashboard no longer exists." : "Id-dashboard ġenitur magħżul m'għadux jeżisti.",
+    "The dashboard could not be saved." : "Id-dashboard ma setax jiġi ssejvjat."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

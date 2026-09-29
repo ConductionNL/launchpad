@@ -1106,6 +1106,20 @@
         "Simulated": "Simulováno",
         "Error": "Chyba",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
-        "Replace": "Nahradit"
+        "Replace": "Nahradit",
+        "Collapse {name}": "Sbalit {name}",
+        "Expand {name}": "Rozbalit {name}",
+        "Dashboard location": "Umístění panelu",
+        "A dashboard you cannot open": "Panel, který nemůžete otevřít",
+        "Delete {name}? This cannot be undone.": "Smazat {name}? Tuto akci nelze vrátit.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Panely pod {name}: {count}. Smažou se spolu s ním.",
+        "Parent dashboard": "Nadřazený panel",
+        "Web address name": "Název ve webové adrese",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Malá písmena, číslice a pomlčky. Používá se v adrese panelu pod jiným panelem.",
+        "No parent": "Bez nadřazeného",
+        "That dashboard sits under this one, so it cannot be its parent.": "Ten panel je pod tímto, takže nemůže být nadřazený.",
+        "Another dashboard under the same parent already uses this web address name.": "Jiný panel pod stejným nadřazeným už tento název používá.",
+        "The chosen parent dashboard no longer exists.": "Zvolený nadřazený panel už neexistuje.",
+        "The dashboard could not be saved.": "Panel se nepodařilo uložit."
     }
 }

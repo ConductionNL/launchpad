@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Szimulált",
     "Error" : "Hiba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Már létezik {name} nevű fájl. Válassza a Csere lehetőséget, hogy üres fájllal felülírja, vagy módosítsa a nevet.",
-    "Replace" : "Csere"
+    "Replace" : "Csere",
+    "Collapse {name}" : "{name} összecsukása",
+    "Expand {name}" : "{name} kibontása",
+    "Dashboard location" : "Irányítópult helye",
+    "A dashboard you cannot open" : "Egy irányítópult, amelyet nem nyithat meg",
+    "Delete {name}? This cannot be undone." : "Törli: {name}? Ez nem vonható vissza.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Irányítópultok ez alatt: {name}: {count}. Vele együtt törlődnek.",
+    "Parent dashboard" : "Szülő irányítópult",
+    "Web address name" : "Név a webcímben",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Kisbetűk, számjegyek és kötőjelek. Egy másik alatti irányítópult címében használjuk.",
+    "No parent" : "Nincs szülő",
+    "That dashboard sits under this one, so it cannot be its parent." : "Az az irányítópult ez alatt van, ezért nem lehet a szülője.",
+    "Another dashboard under the same parent already uses this web address name." : "Ugyanazon szülő alatt egy másik irányítópult már használja ezt a nevet.",
+    "The chosen parent dashboard no longer exists." : "A választott szülő irányítópult már nem létezik.",
+    "The dashboard could not be saved." : "Az irányítópultot nem sikerült menteni."
 },
 "nplurals=2; plural=(n != 1);"
 );

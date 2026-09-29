@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Benzetildi",
     "Error" : "Hata",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
-    "Replace" : "Değiştir"
+    "Replace" : "Değiştir",
+    "Collapse {name}" : "{name} daralt",
+    "Expand {name}" : "{name} genişlet",
+    "Dashboard location" : "Panonun konumu",
+    "A dashboard you cannot open" : "Açamadığınız bir pano",
+    "Delete {name}? This cannot be undone." : "{name} silinsin mi? Bu geri alınamaz.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "{name} altındaki panolar: {count}. Onunla birlikte silinirler.",
+    "Parent dashboard" : "Üst pano",
+    "Web address name" : "Web adresindeki ad",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Küçük harfler, rakamlar ve tireler. Başka bir panonun altındaki panonun adresinde kullanılır.",
+    "No parent" : "Üst pano yok",
+    "That dashboard sits under this one, so it cannot be its parent." : "O pano bunun altında, bu yüzden üst panosu olamaz.",
+    "Another dashboard under the same parent already uses this web address name." : "Aynı üst panonun altındaki başka bir pano bu adı zaten kullanıyor.",
+    "The chosen parent dashboard no longer exists." : "Seçilen üst pano artık yok.",
+    "The dashboard could not be saved." : "Pano kaydedilemedi."
 },
 "nplurals=2; plural=(n != 1);"
 );

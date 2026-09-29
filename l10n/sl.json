@@ -1107,6 +1107,20 @@
         "Simulated": "Simulirano",
         "Error": "Napaka",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
-        "Replace": "Zamenjaj"
+        "Replace": "Zamenjaj",
+        "Collapse {name}": "Strni {name}",
+        "Expand {name}": "Razširi {name}",
+        "Dashboard location": "Lokacija nadzorne plošče",
+        "A dashboard you cannot open": "Nadzorna plošča, ki je ne morete odpreti",
+        "Delete {name}? This cannot be undone.": "Izbrišem {name}? Tega ni mogoče razveljaviti.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Nadzorne plošče pod {name}: {count}. Izbrišejo se skupaj z njo.",
+        "Parent dashboard": "Nadrejena nadzorna plošča",
+        "Web address name": "Ime v spletnem naslovu",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Male črke, števke in vezaji. Uporablja se v naslovu nadzorne plošče pod drugo.",
+        "No parent": "Brez nadrejene",
+        "That dashboard sits under this one, so it cannot be its parent.": "Ta nadzorna plošča je pod to, zato ne more biti njena nadrejena.",
+        "Another dashboard under the same parent already uses this web address name.": "Druga nadzorna plošča pod isto nadrejeno že uporablja to ime.",
+        "The chosen parent dashboard no longer exists.": "Izbrana nadrejena nadzorna plošča ne obstaja več.",
+        "The dashboard could not be saved.": "Nadzorne plošče ni bilo mogoče shraniti."
     }
 }

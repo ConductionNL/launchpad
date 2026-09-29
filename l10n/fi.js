@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simuloitu",
     "Error" : "Virhe",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tiedosto nimeltä {name} on jo olemassa. Valitse Korvaa korvataksesi sen tyhjällä tiedostolla tai vaihda nimi.",
-    "Replace" : "Korvaa"
+    "Replace" : "Korvaa",
+    "Collapse {name}" : "Kutista {name}",
+    "Expand {name}" : "Laajenna {name}",
+    "Dashboard location" : "Koontinäytön sijainti",
+    "A dashboard you cannot open" : "Koontinäyttö, jota et voi avata",
+    "Delete {name}? This cannot be undone." : "Poistetaanko {name}? Tätä ei voi perua.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Koontinäyttöjä kohteen {name} alla: {count}. Ne poistetaan sen mukana.",
+    "Parent dashboard" : "Yläkoontinäyttö",
+    "Web address name" : "Nimi verkko-osoitteessa",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Pieniä kirjaimia, numeroita ja yhdysmerkkejä. Käytetään toisen alla olevan koontinäytön osoitteessa.",
+    "No parent" : "Ei yläkoontinäyttöä",
+    "That dashboard sits under this one, so it cannot be its parent." : "Se koontinäyttö on tämän alla, joten se ei voi olla sen yläkoontinäyttö.",
+    "Another dashboard under the same parent already uses this web address name." : "Toinen saman yläkoontinäytön alla oleva koontinäyttö käyttää jo tätä nimeä.",
+    "The chosen parent dashboard no longer exists." : "Valittua yläkoontinäyttöä ei enää ole.",
+    "The dashboard could not be saved." : "Koontinäyttöä ei voitu tallentaa."
 },
 "nplurals=2; plural=(n != 1);"
 );

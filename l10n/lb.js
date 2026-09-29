@@ -1129,7 +1129,21 @@ OC.L10N.register(
     "Simulated" : "Simuléiert",
     "Error" : "Feeler",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "E Fichier mam Numm {name} gëtt et schonn. Wielt Ersetzen, fir en mat engem eidele Fichier ze iwwerschreiwen, oder ännert den Numm.",
-    "Replace" : "Ersetzen"
+    "Replace" : "Ersetzen",
+    "Collapse {name}" : "{name} zouklappen",
+    "Expand {name}" : "{name} opklappen",
+    "Dashboard location" : "Plaz vum Dashboard",
+    "A dashboard you cannot open" : "En Dashboard, dat Dir net opmaache kënnt",
+    "Delete {name}? This cannot be undone." : "{name} läschen? Dat kann net réckgängeg gemaach ginn.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Dashboarden ënner {name}: {count}. Si ginn mat geläscht.",
+    "Parent dashboard" : "Iwwergeuerdent Dashboard",
+    "Web address name" : "Numm an der Webadress",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Kleng Buschtawen, Zifferen a Bindestrécher. Gëtt an der Adress vun engem Dashboard ënner engem aneren benotzt.",
+    "No parent" : "Keen iwwergeuerdent",
+    "That dashboard sits under this one, so it cannot be its parent." : "Dat Dashboard läit ënner dësem, dofir kann et net iwwergeuerdent sinn.",
+    "Another dashboard under the same parent already uses this web address name." : "En anert Dashboard ënner deemselwechten iwwergeuerdenten benotzt dësen Numm schonn.",
+    "The chosen parent dashboard no longer exists." : "Dat gewielt iwwergeuerdent Dashboard gëtt et net méi.",
+    "The dashboard could not be saved." : "D'Dashboard konnt net gespäichert ginn."
 },
 "nplurals=2; plural=(n != 1);"
 );

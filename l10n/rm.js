@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulà",
     "Error" : "Errur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "I dat gia ina datoteca cun il num {name}. Tscherni Remplazzar per la surscriver cun ina datoteca vida, u mida il num.",
-    "Replace" : "Remplazzar"
+    "Replace" : "Remplazzar",
+    "Collapse {name}" : "Reducir {name}",
+    "Expand {name}" : "Extender {name}",
+    "Dashboard location" : "Lieu dal dashboard",
+    "A dashboard you cannot open" : "In dashboard che Vus na pudais betg avrir",
+    "Delete {name}? This cannot be undone." : "Stizzar {name}? Quai na po betg vegnir revocà.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Dashboards sut {name}: {count}. Els vegnan stizzads ensemen cun el.",
+    "Parent dashboard" : "Dashboard superiur",
+    "Web address name" : "Num en l'adressa web",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Bustabs pitschens, cifras e lingiettas. Vegn duvrà en l'adressa d'in dashboard sut in auter.",
+    "No parent" : "Nagin superiur",
+    "That dashboard sits under this one, so it cannot be its parent." : "Quel dashboard è sut quest, perquai na po el betg esser ses superiur.",
+    "Another dashboard under the same parent already uses this web address name." : "In auter dashboard sut il medem superiur dovra gia quest num.",
+    "The chosen parent dashboard no longer exists." : "Il dashboard superiur tschernì n'exista betg pli.",
+    "The dashboard could not be saved." : "Il dashboard n'ha betg pudì vegnir memorisà."
 },
 "nplurals=2; plural=(n != 1);"
 );

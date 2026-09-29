@@ -1105,6 +1105,20 @@
         "Simulated": "Simuleeritud",
         "Error": "Viga",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Fail nimega {name} on juba olemas. Valige Asenda, et see tühja failiga üle kirjutada, või muutke nime.",
-        "Replace": "Asenda"
+        "Replace": "Asenda",
+        "Collapse {name}": "Ahenda {name}",
+        "Expand {name}": "Laienda {name}",
+        "Dashboard location": "Töölaua asukoht",
+        "A dashboard you cannot open": "Töölaud, mida sa ei saa avada",
+        "Delete {name}? This cannot be undone.": "Kustutada {name}? Seda ei saa tagasi võtta.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Töölauad {name} all: {count}. Need kustutatakse koos sellega.",
+        "Parent dashboard": "Ülemtöölaud",
+        "Web address name": "Nimi veebiaadressis",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Väiketähed, numbrid ja sidekriipsud. Kasutatakse teise all oleva töölaua aadressis.",
+        "No parent": "Ülemtöölauda pole",
+        "That dashboard sits under this one, so it cannot be its parent.": "See töölaud asub selle all, seega ei saa see olla ülemtöölaud.",
+        "Another dashboard under the same parent already uses this web address name.": "Teine sama ülemtöölaua all olev töölaud kasutab seda nime juba.",
+        "The chosen parent dashboard no longer exists.": "Valitud ülemtöölauda enam ei ole.",
+        "The dashboard could not be saved.": "Töölauda ei õnnestunud salvestada."
     }
 }

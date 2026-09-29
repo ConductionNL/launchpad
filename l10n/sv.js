@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulerad",
     "Error" : "Fel",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Det finns redan en fil med namnet {name}. Välj Ersätt för att skriva över den med en tom fil, eller ändra namnet.",
-    "Replace" : "Ersätt"
+    "Replace" : "Ersätt",
+    "Collapse {name}" : "Fäll ihop {name}",
+    "Expand {name}" : "Fäll ut {name}",
+    "Dashboard location" : "Instrumentpanelens plats",
+    "A dashboard you cannot open" : "En instrumentpanel du inte kan öppna",
+    "Delete {name}? This cannot be undone." : "Ta bort {name}? Det går inte att ångra.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Instrumentpaneler under {name}: {count}. De tas bort tillsammans med den.",
+    "Parent dashboard" : "Överordnad instrumentpanel",
+    "Web address name" : "Namn i webbadressen",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Gemener, siffror och bindestreck. Används i adressen till en instrumentpanel under en annan.",
+    "No parent" : "Ingen överordnad",
+    "That dashboard sits under this one, so it cannot be its parent." : "Den instrumentpanelen ligger under den här, så den kan inte vara överordnad.",
+    "Another dashboard under the same parent already uses this web address name." : "En annan instrumentpanel under samma överordnade använder redan det här namnet.",
+    "The chosen parent dashboard no longer exists." : "Den valda överordnade instrumentpanelen finns inte längre.",
+    "The dashboard could not be saved." : "Instrumentpanelen kunde inte sparas."
 },
 "nplurals=2; plural=(n != 1);"
 );

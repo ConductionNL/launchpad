@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
-    "Replace" : "Substitueix"
+    "Replace" : "Substitueix",
+    "Collapse {name}" : "Replega {name}",
+    "Expand {name}" : "Desplega {name}",
+    "Dashboard location" : "Ubicació del tauler",
+    "A dashboard you cannot open" : "Un tauler que no podeu obrir",
+    "Delete {name}? This cannot be undone." : "Voleu suprimir {name}? No es pot desfer.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Taulers sota {name}: {count}. S'eliminen amb ell.",
+    "Parent dashboard" : "Tauler pare",
+    "Web address name" : "Nom a l'adreça web",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Lletres minúscules, xifres i guions. S'utilitza a l'adreça d'un tauler que és sota un altre.",
+    "No parent" : "Sense pare",
+    "That dashboard sits under this one, so it cannot be its parent." : "Aquell tauler és sota aquest, així que no en pot ser el pare.",
+    "Another dashboard under the same parent already uses this web address name." : "Un altre tauler sota el mateix pare ja fa servir aquest nom.",
+    "The chosen parent dashboard no longer exists." : "El tauler pare triat ja no existeix.",
+    "The dashboard could not be saved." : "No s'ha pogut desar el tauler."
 },
 "nplurals=2; plural=(n != 1);"
 );

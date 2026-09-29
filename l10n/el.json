@@ -1105,6 +1105,20 @@
         "Simulated": "Προσομοιωμένο",
         "Error": "Σφάλμα",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
-        "Replace": "Αντικατάσταση"
+        "Replace": "Αντικατάσταση",
+        "Collapse {name}": "Σύμπτυξη {name}",
+        "Expand {name}": "Ανάπτυξη {name}",
+        "Dashboard location": "Θέση του πίνακα",
+        "A dashboard you cannot open": "Ένας πίνακας που δεν μπορείτε να ανοίξετε",
+        "Delete {name}? This cannot be undone.": "Διαγραφή {name}; Δεν μπορεί να αναιρεθεί.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Πίνακες κάτω από το {name}: {count}. Διαγράφονται μαζί του.",
+        "Parent dashboard": "Γονικός πίνακας",
+        "Web address name": "Όνομα στη διεύθυνση web",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Πεζά γράμματα, ψηφία και παύλες. Χρησιμοποιείται στη διεύθυνση ενός πίνακα κάτω από άλλον.",
+        "No parent": "Χωρίς γονικό",
+        "That dashboard sits under this one, so it cannot be its parent.": "Αυτός ο πίνακας βρίσκεται κάτω από αυτόν, οπότε δεν μπορεί να είναι γονικός του.",
+        "Another dashboard under the same parent already uses this web address name.": "Άλλος πίνακας κάτω από τον ίδιο γονικό χρησιμοποιεί ήδη αυτό το όνομα.",
+        "The chosen parent dashboard no longer exists.": "Ο επιλεγμένος γονικός πίνακας δεν υπάρχει πλέον.",
+        "The dashboard could not be saved.": "Δεν ήταν δυνατή η αποθήκευση του πίνακα."
     }
 }

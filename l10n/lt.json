@@ -1106,6 +1106,20 @@
         "Simulated": "Imituota",
         "Error": "Klaida",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
-        "Replace": "Pakeisti"
+        "Replace": "Pakeisti",
+        "Collapse {name}": "Suskleisti {name}",
+        "Expand {name}": "Išskleisti {name}",
+        "Dashboard location": "Suvestinės vieta",
+        "A dashboard you cannot open": "Suvestinė, kurios negalite atidaryti",
+        "Delete {name}? This cannot be undone.": "Ištrinti {name}? To negalima atšaukti.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Suvestinės po {name}: {count}. Jos ištrinamos kartu.",
+        "Parent dashboard": "Tėvinė suvestinė",
+        "Web address name": "Pavadinimas žiniatinklio adrese",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Mažosios raidės, skaitmenys ir brūkšneliai. Naudojama suvestinės, esančios po kita, adrese.",
+        "No parent": "Be tėvinės",
+        "That dashboard sits under this one, so it cannot be its parent.": "Ta suvestinė yra po šia, todėl negali būti jos tėvinė.",
+        "Another dashboard under the same parent already uses this web address name.": "Kita suvestinė po ta pačia tėvine jau naudoja šį pavadinimą.",
+        "The chosen parent dashboard no longer exists.": "Pasirinktos tėvinės suvestinės nebėra.",
+        "The dashboard could not be saved.": "Nepavyko išsaugoti suvestinės."
     }
 }

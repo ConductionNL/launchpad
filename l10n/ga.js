@@ -1138,7 +1138,21 @@ OC.L10N.register(
     "Simulated" : "Insamhlaithe",
     "Error" : "Earráid",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tá comhad darb ainm {name} ann cheana. Roghnaigh Ionadaigh chun comhad folamh a scríobh air, nó athraigh an t-ainm.",
-    "Replace" : "Ionadaigh"
+    "Replace" : "Ionadaigh",
+    "Collapse {name}" : "Laghdaigh {name}",
+    "Expand {name}" : "Leathnaigh {name}",
+    "Dashboard location" : "Suíomh an deais",
+    "A dashboard you cannot open" : "Deais nach féidir leat a oscailt",
+    "Delete {name}? This cannot be undone." : "Scrios {name}? Ní féidir é seo a chealú.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Deaiseanna faoi {name}: {count}. Scriostar iad in éineacht leis.",
+    "Parent dashboard" : "Máthairdeais",
+    "Web address name" : "Ainm sa seoladh gréasáin",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Litreacha cás íochtair, digití agus fleiscíní. Úsáidtear é i seoladh deais atá faoi cheann eile.",
+    "No parent" : "Gan mháthair",
+    "That dashboard sits under this one, so it cannot be its parent." : "Tá an deais sin faoin gceann seo, mar sin ní féidir leis a bheith ina mháthair.",
+    "Another dashboard under the same parent already uses this web address name." : "Tá an t-ainm seo in úsáid cheana ag deais eile faoin máthair chéanna.",
+    "The chosen parent dashboard no longer exists." : "Níl an máthairdeais a roghnaíodh ann a thuilleadh.",
+    "The dashboard could not be saved." : "Níorbh fhéidir an deais a shábháil."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

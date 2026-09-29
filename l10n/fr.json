@@ -1105,6 +1105,20 @@
         "Simulated": "Simulé",
         "Error": "Erreur",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Un fichier nommé {name} existe déjà. Choisissez Remplacer pour l'écraser avec un fichier vide, ou changez le nom.",
-        "Replace": "Remplacer"
+        "Replace": "Remplacer",
+        "Collapse {name}": "Replier {name}",
+        "Expand {name}": "Déplier {name}",
+        "Dashboard location": "Emplacement du tableau de bord",
+        "A dashboard you cannot open": "Un tableau de bord que vous ne pouvez pas ouvrir",
+        "Delete {name}? This cannot be undone.": "Supprimer {name} ? Cette action est irréversible.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Tableaux de bord sous {name} : {count}. Ils sont supprimés avec lui.",
+        "Parent dashboard": "Tableau de bord parent",
+        "Web address name": "Nom dans l'adresse web",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Lettres minuscules, chiffres et tirets. Utilisé dans l'adresse d'un tableau de bord placé sous un autre.",
+        "No parent": "Aucun parent",
+        "That dashboard sits under this one, so it cannot be its parent.": "Ce tableau de bord se trouve sous celui-ci, il ne peut donc pas en être le parent.",
+        "Another dashboard under the same parent already uses this web address name.": "Un autre tableau de bord sous le même parent utilise déjà ce nom.",
+        "The chosen parent dashboard no longer exists.": "Le tableau de bord parent choisi n'existe plus.",
+        "The dashboard could not be saved.": "Le tableau de bord n'a pas pu être enregistré."
     }
 }

@@ -1165,6 +1165,20 @@
         "Simulated": "Gesimuleerd",
         "Error": "Fout",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Er bestaat al een bestand met de naam {name}. Kies Vervangen om het te overschrijven met een leeg bestand, of wijzig de naam.",
-        "Replace": "Vervangen"
+        "Replace": "Vervangen",
+        "Collapse {name}": "{name} inklappen",
+        "Expand {name}": "{name} uitklappen",
+        "Dashboard location": "Locatie van het dashboard",
+        "A dashboard you cannot open": "Een dashboard dat je niet kunt openen",
+        "Delete {name}? This cannot be undone.": "{name} verwijderen? Dit kan niet ongedaan worden gemaakt.",
+        "Dashboards under {name}: {count}. They are deleted with it.": "Dashboards onder {name}: {count}. Die worden mee verwijderd.",
+        "Parent dashboard": "Bovenliggend dashboard",
+        "Web address name": "Naam in het webadres",
+        "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.": "Kleine letters, cijfers en streepjes. Wordt gebruikt in het adres van een dashboard onder een ander dashboard.",
+        "No parent": "Geen bovenliggend dashboard",
+        "That dashboard sits under this one, so it cannot be its parent.": "Dat dashboard staat onder dit dashboard, dus het kan niet het bovenliggende zijn.",
+        "Another dashboard under the same parent already uses this web address name.": "Een ander dashboard onder hetzelfde bovenliggende dashboard gebruikt deze naam al.",
+        "The chosen parent dashboard no longer exists.": "Het gekozen bovenliggende dashboard bestaat niet meer.",
+        "The dashboard could not be saved.": "Het dashboard kon niet worden opgeslagen."
     }
 }

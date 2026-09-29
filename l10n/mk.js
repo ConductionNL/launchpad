@@ -1129,7 +1129,21 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Датотека со име {name} веќе постои. Изберете Замени за да ја пребришете со празна датотека или сменете го името.",
-    "Replace" : "Замени"
+    "Replace" : "Замени",
+    "Collapse {name}" : "Собери {name}",
+    "Expand {name}" : "Прошири {name}",
+    "Dashboard location" : "Локација на контролната табла",
+    "A dashboard you cannot open" : "Контролна табла што не можете да ја отворите",
+    "Delete {name}? This cannot be undone." : "Да се избрише {name}? Ова не може да се поништи.",
+    "Dashboards under {name}: {count}. They are deleted with it." : "Контролни табли под {name}: {count}. Се бришат заедно со неа.",
+    "Parent dashboard" : "Надредена контролна табла",
+    "Web address name" : "Име во веб-адресата",
+    "Lowercase letters, digits and dashes. Used in the address of a dashboard under another one." : "Мали букви, цифри и цртички. Се користи во адресата на контролна табла под друга.",
+    "No parent" : "Без надредена",
+    "That dashboard sits under this one, so it cannot be its parent." : "Таа контролна табла е под оваа, па не може да ѝ биде надредена.",
+    "Another dashboard under the same parent already uses this web address name." : "Друга контролна табла под истата надредена веќе го користи ова име.",
+    "The chosen parent dashboard no longer exists." : "Избраната надредена контролна табла повеќе не постои.",
+    "The dashboard could not be saved." : "Контролната табла не можеше да се зачува."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

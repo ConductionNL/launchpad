@@ -129,4 +129,13 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 
 		$this->assertCount(1, $this->controller()->visible()->getData());
 	}
+
+	public function testTheActiveDashboardReadSaysSoToo(): void {
+		$this->dashboardService->method('getEffectiveDashboard')->willReturn(
+			['dashboard' => $this->dashboard('intra', 'Intranet'), 'placements' => [], 'permissionLevel' => 'view_only']
+		);
+		$this->translations->method('listVariants')->willReturn([new DashboardTranslation(), new DashboardTranslation()]);
+
+		$this->assertTrue($this->controller()->getActive()->getData()['hasVariants']);
+	}
 }

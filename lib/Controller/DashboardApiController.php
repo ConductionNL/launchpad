@@ -314,6 +314,7 @@ class DashboardApiController extends Controller {
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
+				'hasVariants' => $this->hasVariants(uuid: (string)$activeDashboard->getUuid()),
 			]
 		);
 	}//end getActive()

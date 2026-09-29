@@ -216,7 +216,7 @@ export const api = {
 	 *
 	 * @param {string} uuid UUID of the dashboard.
 	 * @return {Promise} Axios response.
-	 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
 	listVersions(uuid) {
 		return axios.get(
@@ -230,7 +230,7 @@ export const api = {
 	 * @param {string} uuid UUID of the dashboard.
 	 * @param {string|null} note Optional note shown in the history.
 	 * @return {Promise} Axios response resolving to `{version}` (201).
-	 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
 	createVersion(uuid, note) {
 		return axios.post(
@@ -246,7 +246,7 @@ export const api = {
 	 * @param {string} uuid UUID of the dashboard.
 	 * @param {number} versionNumber Version to restore.
 	 * @return {Promise} Axios response resolving to `{version, snapshot}`.
-	 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
 	restoreVersion(uuid, versionNumber) {
 		return axios.post(

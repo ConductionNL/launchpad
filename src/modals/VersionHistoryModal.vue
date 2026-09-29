@@ -122,7 +122,7 @@ import { api } from '../services/api.js'
  * list is read again, so the `pre-restore` version that makes the restore
  * reversible shows at the top, and `restored` tells the page to reload.
  *
- * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+ * @spec openspec/specs/dashboard-versioning/spec.md
  */
 export default {
 	name: 'VersionHistoryModal',
@@ -188,7 +188,7 @@ export default {
 		 * Read the version list.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		async load() {
 			this.loading = true
@@ -211,7 +211,7 @@ export default {
 		 * Save the dashboard as it is now, with the typed note.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		async saveVersion() {
 			this.saving = true
@@ -234,7 +234,7 @@ export default {
 		 * Open the confirmation for one version.
 		 *
 		 * @param {object} version The version row.
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		askRestore(version) {
 			this.restoreTarget = version
@@ -244,7 +244,7 @@ export default {
 		 * The confirmation closed without confirming.
 		 *
 		 * @param {boolean} isOpen New open state.
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		onRestoreDialog(isOpen) {
 			if (!isOpen) {
@@ -256,7 +256,7 @@ export default {
 		 * Restore the chosen version, read the list again and tell the page.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		async confirmRestore() {
 			const target = this.restoreTarget
@@ -279,7 +279,7 @@ export default {
 		 *
 		 * @param {string} value Timestamp from the server.
 		 * @return {string} Formatted date and time, or the raw value.
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		formatDate(value) {
 			if (!value) {
@@ -300,7 +300,7 @@ export default {
 		 *
 		 * @param {string|null} note Stored note.
 		 * @return {string} Text for the note column.
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		noteLabel(note) {
 			if (note === 'pre-restore') {

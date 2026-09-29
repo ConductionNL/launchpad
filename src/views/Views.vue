@@ -731,7 +731,7 @@ export default {
 		 * versions (REQ-VERSUI-001). The server checks ownership again.
 		 *
 		 * @return {boolean}
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		canViewVersionHistory() {
 			const dash = this.activeDashboard
@@ -1154,7 +1154,7 @@ export default {
 		 * works. A refusal (not owner, not admin) reads as not offered.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		async checkVersionSupport() {
 			const dash = this.activeDashboard
@@ -1180,7 +1180,7 @@ export default {
 		 * rather than patching local state from the snapshot.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 * @spec openspec/specs/dashboard-versioning/spec.md
 		 */
 		async onVersionRestored() {
 			const id = this.activeDashboard?.id

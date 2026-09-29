@@ -41,7 +41,7 @@ import { t } from '@nextcloud/l10n'
  * RestoreVersionDialog: the confirmation before a dashboard version is
  * restored (ADR-004 modal isolation).
  *
- * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+ * @spec openspec/specs/dashboard-versioning/spec.md
  */
 export default {
 	name: 'RestoreVersionDialog',

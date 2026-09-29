@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Szimulált",
     "Error" : "Hiba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Már létezik {name} nevű fájl. Válassza a Csere lehetőséget, hogy üres fájllal felülírja, vagy módosítsa a nevet.",
-    "Replace" : "Csere"
+    "Replace" : "Csere",
+    "Read confirmation…" : "Olvasási visszaigazolás…",
+    "Read confirmation" : "Olvasási visszaigazolás",
+    "Ask readers to confirm they have read this" : "Kérje meg az olvasókat, hogy igazolják, elolvasták",
+    "What readers confirm" : "Mit igazolnak az olvasók",
+    "I have read this" : "Elolvastam",
+    "Confirm before (optional)" : "Igazolás határideje (nem kötelező)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Az irányítópult tetején lévő olvasási nyugták mutatják, ki igazolta."
 },
 "nplurals=2; plural=(n != 1);"
 );

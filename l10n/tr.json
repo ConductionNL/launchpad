@@ -1105,6 +1105,13 @@
         "Simulated": "Benzetildi",
         "Error": "Hata",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "{name} adlı bir dosya zaten var. Boş bir dosyayla üzerine yazmak için Değiştir'i seçin veya adı değiştirin.",
-        "Replace": "Değiştir"
+        "Replace": "Değiştir",
+        "Read confirmation…": "Okundu onayı…",
+        "Read confirmation": "Okundu onayı",
+        "Ask readers to confirm they have read this": "Okuyuculardan bunu okuduklarını onaylamalarını iste",
+        "What readers confirm": "Okuyucuların onayladığı",
+        "I have read this": "Bunu okudum",
+        "Confirm before (optional)": "Şu tarihten önce onayla (isteğe bağlı)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Panonun üstündeki okundu bilgileri kimin onayladığını gösterir."
     }
 }

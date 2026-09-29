@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulà",
     "Error" : "Errur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "I dat gia ina datoteca cun il num {name}. Tscherni Remplazzar per la surscriver cun ina datoteca vida, u mida il num.",
-    "Replace" : "Remplazzar"
+    "Replace" : "Remplazzar",
+    "Read confirmation…" : "Confermaziun da lectura…",
+    "Read confirmation" : "Confermaziun da lectura",
+    "Ask readers to confirm they have read this" : "Dumandar las lecturas ed ils lecturs da confermar ch'els han legì quai",
+    "What readers confirm" : "Tge che las lecturas ed ils lecturs conferman",
+    "I have read this" : "Jau hai legì quai",
+    "Confirm before (optional)" : "Confermar avant (facultativ)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Las quittanzas da lectura sisum il dashboard mussan tgi ch'ha confermà."
 },
 "nplurals=2; plural=(n != 1);"
 );

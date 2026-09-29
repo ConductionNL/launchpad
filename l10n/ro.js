@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Eroare",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-    "Replace" : "Înlocuiește"
+    "Replace" : "Înlocuiește",
+    "Read confirmation…" : "Confirmare de citire…",
+    "Read confirmation" : "Confirmare de citire",
+    "Ask readers to confirm they have read this" : "Cereți cititorilor să confirme că au citit",
+    "What readers confirm" : "Ce confirmă cititorii",
+    "I have read this" : "Am citit",
+    "Confirm before (optional)" : "Confirmați înainte de (opțional)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Confirmările de citire din partea de sus arată cine a confirmat."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

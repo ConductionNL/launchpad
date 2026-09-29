@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Żball",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-    "Replace" : "Issostitwixxi"
+    "Replace" : "Issostitwixxi",
+    "Read confirmation…" : "Konferma tal-qari…",
+    "Read confirmation" : "Konferma tal-qari",
+    "Ask readers to confirm they have read this" : "Itlob lill-qarrejja jikkonfermaw li qraw dan",
+    "What readers confirm" : "Dak li jikkonfermaw il-qarrejja",
+    "I have read this" : "Qrajt dan",
+    "Confirm before (optional)" : "Ikkonferma qabel (mhux obbligatorju)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Ir-rċevuti tal-qari fuq nett tad-dashboard juru min ikkonferma."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

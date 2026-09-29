@@ -1129,6 +1129,13 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Датотека са именом {name} већ постоји. Изаберите Замени да бисте је преписали празном датотеком или промените име.",
-    "Replace" : "Замени"
+    "Replace" : "Замени",
+    "Read confirmation…" : "Потврда читања…",
+    "Read confirmation" : "Потврда читања",
+    "Ask readers to confirm they have read this" : "Затражи од читалаца да потврде да су ово прочитали",
+    "What readers confirm" : "Шта читаоци потврђују",
+    "I have read this" : "Прочитао сам ово",
+    "Confirm before (optional)" : "Потврдити до (опционо)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Потврде читања на врху контролне табле показују ко је потврдио."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

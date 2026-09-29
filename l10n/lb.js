@@ -1129,7 +1129,14 @@ OC.L10N.register(
     "Simulated" : "Simuléiert",
     "Error" : "Feeler",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "E Fichier mam Numm {name} gëtt et schonn. Wielt Ersetzen, fir en mat engem eidele Fichier ze iwwerschreiwen, oder ännert den Numm.",
-    "Replace" : "Ersetzen"
+    "Replace" : "Ersetzen",
+    "Read confirmation…" : "Liesbestätegung…",
+    "Read confirmation" : "Liesbestätegung",
+    "Ask readers to confirm they have read this" : "Lieser froen, ze bestätegen, datt si dat gelies hunn",
+    "What readers confirm" : "Wat Lieser bestätegen",
+    "I have read this" : "Ech hunn dat gelies",
+    "Confirm before (optional)" : "Bestätege bis (fakultativ)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Liesquittungen uewen um Dashboard weisen, wie bestätegt huet."
 },
 "nplurals=2; plural=(n != 1);"
 );

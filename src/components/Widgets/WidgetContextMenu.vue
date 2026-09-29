@@ -36,6 +36,14 @@
 		</button>
 		<button
 			type="button"
+			class="widget-context-menu__item"
+			role="menuitem"
+			data-testid="ctx-read-confirmation"
+			@click="onReadConfirmation">
+			{{ t('launchpad', 'Read confirmation…') }}
+		</button>
+		<button
+			type="button"
 			class="widget-context-menu__item widget-context-menu__item--danger"
 			role="menuitem"
 			data-testid="ctx-remove"
@@ -97,7 +105,14 @@ export default {
 		},
 	},
 
-	emits: ['edit', 'move', 'remove', 'visibilityRules', 'close'],
+	emits: [
+		'edit',
+		'move',
+		'remove',
+		'visibilityRules',
+		'readConfirmation',
+		'close',
+	],
 
 	computed: {
 		/**
@@ -136,6 +151,12 @@ export default {
 		/** @spec openspec/specs/conditional-visibility/spec.md */
 		onVisibilityRules() {
 			this.$emit('visibilityRules')
+			this.$emit('close')
+		},
+
+		/** @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md */
+		onReadConfirmation() {
+			this.$emit('readConfirmation')
 			this.$emit('close')
 		},
 

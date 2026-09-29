@@ -1105,6 +1105,13 @@
         "Simulated": "Simulé",
         "Error": "Erreur",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Un fichier nommé {name} existe déjà. Choisissez Remplacer pour l'écraser avec un fichier vide, ou changez le nom.",
-        "Replace": "Remplacer"
+        "Replace": "Remplacer",
+        "Read confirmation…": "Confirmation de lecture…",
+        "Read confirmation": "Confirmation de lecture",
+        "Ask readers to confirm they have read this": "Demander aux lecteurs de confirmer qu'ils ont lu ceci",
+        "What readers confirm": "Ce que les lecteurs confirment",
+        "I have read this": "J'ai lu ceci",
+        "Confirm before (optional)": "Confirmer avant le (facultatif)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Les accusés de lecture en haut du tableau de bord montrent qui a confirmé."
     }
 }

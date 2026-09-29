@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Insamhlaithe",
     "Error" : "Earráid",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tá comhad darb ainm {name} ann cheana. Roghnaigh Ionadaigh chun comhad folamh a scríobh air, nó athraigh an t-ainm.",
-    "Replace" : "Ionadaigh"
+    "Replace" : "Ionadaigh",
+    "Read confirmation…" : "Deimhniú léite…",
+    "Read confirmation" : "Deimhniú léite",
+    "Ask readers to confirm they have read this" : "Iarr ar léitheoirí a dheimhniú gur léigh siad é seo",
+    "What readers confirm" : "Cad a dheimhníonn léitheoirí",
+    "I have read this" : "Léigh mé é seo",
+    "Confirm before (optional)" : "Deimhnigh roimh (roghnach)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Taispeánann admhálacha léite ag barr an deais cé a dheimhnigh."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

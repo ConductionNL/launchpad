@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulēts",
     "Error" : "Kļūda",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Fails ar nosaukumu {name} jau pastāv. Izvēlieties Aizstāt, lai to pārrakstītu ar tukšu failu, vai mainiet nosaukumu.",
-    "Replace" : "Aizstāt"
+    "Replace" : "Aizstāt",
+    "Read confirmation…" : "Izlasīšanas apstiprinājums…",
+    "Read confirmation" : "Izlasīšanas apstiprinājums",
+    "Ask readers to confirm they have read this" : "Lūgt lasītājiem apstiprināt, ka viņi to ir izlasījuši",
+    "What readers confirm" : "Ko lasītāji apstiprina",
+    "I have read this" : "Esmu to izlasījis",
+    "Confirm before (optional)" : "Apstiprināt līdz (neobligāti)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Izlasīšanas apliecinājumi paneļa augšā rāda, kurš ir apstiprinājis."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

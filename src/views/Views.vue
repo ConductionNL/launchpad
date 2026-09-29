@@ -336,7 +336,21 @@
 			@move="grid.triggerMove()"
 			@remove="grid.triggerRemove()"
 			@visibilityRules="grid.triggerVisibilityRules()"
+			@readConfirmation="openReadConfirmation()"
 			@close="grid.closeContextMenu()" />
+
+		<!-- engagement-acknowledgement-toggle REQ-ACK-007: ask readers to
+		     confirm they have read a widget. -->
+		<ReadConfirmationDialog
+			v-if="readConfirmationPlacement"
+			:open="true"
+			:placement="readConfirmationPlacement"
+			@update:open="
+				(v) => {
+					if (!v) readConfirmationPlacement = null
+				}
+			"
+			@save="saveReadConfirmation" />
 
 		<!-- Keyboard-operable move/resize panel (WCAG 2.1 SC 2.1.1). The
 		     pointer-only GridStack drag has no keyboard equivalent, so the
@@ -389,6 +403,7 @@ import WidgetWrapper from '../components/WidgetWrapper.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
@@ -434,6 +449,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		ReadConfirmationDialog,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -595,6 +611,9 @@ export default {
 			// report modal state.
 			ackReportOpen: false,
 			ackReportKey: '',
+			// engagement-acknowledgement-toggle: the placement whose read
+			// confirmation is being set up.
+			readConfirmationPlacement: null,
 		}
 	},
 
@@ -1106,6 +1125,39 @@ export default {
 		 * later key wins, so the store action could never run. The local one
 		 * (which delegates to `removeWidget`) is what `@delete` invokes.
 		 */
+
+		/**
+		 * The widget menu's "Read confirmation…": open the dialog for the
+		 * widget the menu was opened on.
+		 *
+		 * @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md
+		 */
+		openReadConfirmation() {
+			// The menu emits `close` right after this event, so the selected
+			// widget is read first.
+			const widget = this.grid.state.selectedWidget
+			if (widget) {
+				this.readConfirmationPlacement = widget
+			}
+		},
+
+		/**
+		 * Save the read confirmation on the placement; the prompt then
+		 * shows for readers who have not confirmed (REQ-ACK-002).
+		 *
+		 * @param {object} payload `{requiresAcknowledgement, acknowledgementPrompt, acknowledgementDeadline}`.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md
+		 */
+		async saveReadConfirmation(payload) {
+			const placement = this.readConfirmationPlacement
+			this.readConfirmationPlacement = null
+			if (!placement) {
+				return
+			}
+			await this.updateWidgetPlacement(placement.id, payload)
+			this.onWidgetAcknowledged()
+		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		toggleEditMode() {

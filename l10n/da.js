@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simuleret",
     "Error" : "Fejl",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Der findes allerede en fil med navnet {name}. Vælg Erstat for at overskrive den med en tom fil, eller skift navnet.",
-    "Replace" : "Erstat"
+    "Replace" : "Erstat",
+    "Read confirmation…" : "Læsebekræftelse…",
+    "Read confirmation" : "Læsebekræftelse",
+    "Ask readers to confirm they have read this" : "Bed læserne bekræfte, at de har læst dette",
+    "What readers confirm" : "Hvad læserne bekræfter",
+    "I have read this" : "Jeg har læst dette",
+    "Confirm before (optional)" : "Bekræft før (valgfri)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Læsekvitteringer øverst på dashboardet viser, hvem der har bekræftet."
 },
 "nplurals=2; plural=(n != 1);"
 );

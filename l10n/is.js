@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Hermt",
     "Error" : "Villa",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Skrá með heitinu {name} er þegar til. Veldu Skipta út til að skrifa yfir hana með tómri skrá, eða breyttu heitinu.",
-    "Replace" : "Skipta út"
+    "Replace" : "Skipta út",
+    "Read confirmation…" : "Lesstaðfesting…",
+    "Read confirmation" : "Lesstaðfesting",
+    "Ask readers to confirm they have read this" : "Biðja lesendur að staðfesta að þeir hafi lesið þetta",
+    "What readers confirm" : "Það sem lesendur staðfesta",
+    "I have read this" : "Ég hef lesið þetta",
+    "Confirm before (optional)" : "Staðfesta fyrir (valfrjálst)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Leskvittanir efst á stjórnborðinu sýna hver hefur staðfest."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

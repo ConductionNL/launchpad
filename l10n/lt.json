@@ -1106,6 +1106,13 @@
         "Simulated": "Imituota",
         "Error": "Klaida",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Failas pavadinimu {name} jau yra. Pasirinkite Pakeisti, kad perrašytumėte jį tuščiu failu, arba pakeiskite pavadinimą.",
-        "Replace": "Pakeisti"
+        "Replace": "Pakeisti",
+        "Read confirmation…": "Perskaitymo patvirtinimas…",
+        "Read confirmation": "Perskaitymo patvirtinimas",
+        "Ask readers to confirm they have read this": "Paprašyti skaitytojų patvirtinti, kad perskaitė",
+        "What readers confirm": "Ką patvirtina skaitytojai",
+        "I have read this": "Perskaičiau",
+        "Confirm before (optional)": "Patvirtinti iki (nebūtina)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Perskaitymo kvitai suvestinės viršuje rodo, kas patvirtino."
     }
 }

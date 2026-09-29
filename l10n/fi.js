@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simuloitu",
     "Error" : "Virhe",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Tiedosto nimeltä {name} on jo olemassa. Valitse Korvaa korvataksesi sen tyhjällä tiedostolla tai vaihda nimi.",
-    "Replace" : "Korvaa"
+    "Replace" : "Korvaa",
+    "Read confirmation…" : "Lukuvahvistus…",
+    "Read confirmation" : "Lukuvahvistus",
+    "Ask readers to confirm they have read this" : "Pyydä lukijoita vahvistamaan, että he ovat lukeneet tämän",
+    "What readers confirm" : "Mitä lukijat vahvistavat",
+    "I have read this" : "Olen lukenut tämän",
+    "Confirm before (optional)" : "Vahvista ennen (valinnainen)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Koontinäytön yläosan lukukuittaukset näyttävät, kuka on vahvistanut."
 },
 "nplurals=2; plural=(n != 1);"
 );

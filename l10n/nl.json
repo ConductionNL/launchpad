@@ -1165,6 +1165,13 @@
         "Simulated": "Gesimuleerd",
         "Error": "Fout",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Er bestaat al een bestand met de naam {name}. Kies Vervangen om het te overschrijven met een leeg bestand, of wijzig de naam.",
-        "Replace": "Vervangen"
+        "Replace": "Vervangen",
+        "Read confirmation…": "Leesbevestiging…",
+        "Read confirmation": "Leesbevestiging",
+        "Ask readers to confirm they have read this": "Lezers vragen te bevestigen dat ze dit hebben gelezen",
+        "What readers confirm": "Wat lezers bevestigen",
+        "I have read this": "Ik heb dit gelezen",
+        "Confirm before (optional)": "Bevestigen vóór (optioneel)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Leesbevestigingen bovenaan het dashboard tonen wie heeft bevestigd."
     }
 }

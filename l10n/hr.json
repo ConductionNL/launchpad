@@ -1106,6 +1106,13 @@
         "Simulated": "Simulirano",
         "Error": "Pogreška",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka s nazivom {name} već postoji. Odaberite Zamijeni da biste je prebrisali praznom datotekom ili promijenite naziv.",
-        "Replace": "Zamijeni"
+        "Replace": "Zamijeni",
+        "Read confirmation…": "Potvrda čitanja…",
+        "Read confirmation": "Potvrda čitanja",
+        "Ask readers to confirm they have read this": "Zatraži od čitatelja da potvrde da su ovo pročitali",
+        "What readers confirm": "Što čitatelji potvrđuju",
+        "I have read this": "Pročitao sam ovo",
+        "Confirm before (optional)": "Potvrditi do (neobavezno)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Potvrde čitanja na vrhu nadzorne ploče pokazuju tko je potvrdio."
     }
 }

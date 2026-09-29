@@ -1105,6 +1105,13 @@
         "Simulated": "Προσομοιωμένο",
         "Error": "Σφάλμα",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
-        "Replace": "Αντικατάσταση"
+        "Replace": "Αντικατάσταση",
+        "Read confirmation…": "Επιβεβαίωση ανάγνωσης…",
+        "Read confirmation": "Επιβεβαίωση ανάγνωσης",
+        "Ask readers to confirm they have read this": "Ζητήστε από τους αναγνώστες να επιβεβαιώσουν ότι το διάβασαν",
+        "What readers confirm": "Τι επιβεβαιώνουν οι αναγνώστες",
+        "I have read this": "Το διάβασα",
+        "Confirm before (optional)": "Επιβεβαίωση έως (προαιρετικό)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Οι αποδείξεις ανάγνωσης στο πάνω μέρος του πίνακα δείχνουν ποιος επιβεβαίωσε."
     }
 }

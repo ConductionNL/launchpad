@@ -1129,6 +1129,13 @@ OC.L10N.register(
     "Simulated" : "Сімулявана",
     "Error" : "Памылка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвай {name} ужо існуе. Выберыце «Замяніць», каб перазапісаць яго пустым файлам, або змяніце назву.",
-    "Replace" : "Замяніць"
+    "Replace" : "Замяніць",
+    "Read confirmation…" : "Пацвярджэнне прачытання…",
+    "Read confirmation" : "Пацвярджэнне прачытання",
+    "Ask readers to confirm they have read this" : "Папрасіць чытачоў пацвердзіць, што яны гэта прачыталі",
+    "What readers confirm" : "Што пацвярджаюць чытачы",
+    "I have read this" : "Я гэта прачытаў",
+    "Confirm before (optional)" : "Пацвердзіць да (неабавязкова)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Квітанцыі аб прачытанні ўверсе панэлі паказваюць, хто пацвердзіў."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulované",
     "Error" : "Chyba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Súbor s názvom {name} už existuje. Zvoľte Nahradiť a prepíšte ho prázdnym súborom, alebo zmeňte názov.",
-    "Replace" : "Nahradiť"
+    "Replace" : "Nahradiť",
+    "Read confirmation…" : "Potvrdenie prečítania…",
+    "Read confirmation" : "Potvrdenie prečítania",
+    "Ask readers to confirm they have read this" : "Požiadať čitateľov, aby potvrdili, že si to prečítali",
+    "What readers confirm" : "Čo čitatelia potvrdzujú",
+    "I have read this" : "Prečítal som si to",
+    "Confirm before (optional)" : "Potvrdiť do (nepovinné)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Potvrdenia o prečítaní v hornej časti panela ukazujú, kto potvrdil."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

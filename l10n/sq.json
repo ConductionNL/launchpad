@@ -1105,6 +1105,13 @@
         "Simulated": "I simuluar",
         "Error": "Gabim",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-        "Replace": "Zëvendëso"
+        "Replace": "Zëvendëso",
+        "Read confirmation…": "Konfirmim leximi…",
+        "Read confirmation": "Konfirmim leximi",
+        "Ask readers to confirm they have read this": "Kërkoju lexuesve të konfirmojnë se e kanë lexuar",
+        "What readers confirm": "Çfarë konfirmojnë lexuesit",
+        "I have read this": "E kam lexuar këtë",
+        "Confirm before (optional)": "Konfirmo para (opsionale)",
+        "Read receipts at the top of the dashboard show who has confirmed.": "Dëftesat e leximit në krye të panelit tregojnë kush ka konfirmuar."
     }
 }

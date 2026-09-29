@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
-    "Replace" : "Substitueix"
+    "Replace" : "Substitueix",
+    "Read confirmation…" : "Confirmació de lectura…",
+    "Read confirmation" : "Confirmació de lectura",
+    "Ask readers to confirm they have read this" : "Demana als lectors que confirmin que ho han llegit",
+    "What readers confirm" : "Què confirmen els lectors",
+    "I have read this" : "Ho he llegit",
+    "Confirm before (optional)" : "Confirmeu abans del (opcional)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Els justificants de lectura a dalt del tauler mostren qui ha confirmat."
 },
 "nplurals=2; plural=(n != 1);"
 );

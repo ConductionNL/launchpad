@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulirano",
     "Error" : "Napaka",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
-    "Replace" : "Zamenjaj"
+    "Replace" : "Zamenjaj",
+    "Read confirmation…" : "Potrditev branja…",
+    "Read confirmation" : "Potrditev branja",
+    "Ask readers to confirm they have read this" : "Prosi bralce, naj potrdijo, da so to prebrali",
+    "What readers confirm" : "Kaj bralci potrdijo",
+    "I have read this" : "To sem prebral",
+    "Confirm before (optional)" : "Potrdi do (neobvezno)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Potrdila o branju na vrhu nadzorne plošče kažejo, kdo je potrdil."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

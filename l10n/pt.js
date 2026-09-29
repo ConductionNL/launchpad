@@ -1138,7 +1138,14 @@ OC.L10N.register(
     "Simulated" : "Simulado",
     "Error" : "Erro",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Já existe um ficheiro chamado {name}. Escolha Substituir para o substituir por um ficheiro vazio, ou altere o nome.",
-    "Replace" : "Substituir"
+    "Replace" : "Substituir",
+    "Read confirmation…" : "Confirmação de leitura…",
+    "Read confirmation" : "Confirmação de leitura",
+    "Ask readers to confirm they have read this" : "Pedir aos leitores que confirmem que leram isto",
+    "What readers confirm" : "O que os leitores confirmam",
+    "I have read this" : "Li isto",
+    "Confirm before (optional)" : "Confirmar até (opcional)",
+    "Read receipts at the top of the dashboard show who has confirmed." : "Os recibos de leitura no topo do painel mostram quem confirmou."
 },
 "nplurals=2; plural=(n != 1);"
 );

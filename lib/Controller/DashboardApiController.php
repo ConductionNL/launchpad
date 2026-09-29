@@ -31,8 +31,10 @@ use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -124,6 +126,8 @@ class DashboardApiController extends Controller {
 	 *                                        service used to gate
 	 *                                        dashboard creation
 	 *                                        (dashboard-quota-limits).
+	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one language.
+	 * @param MetadataService|null $metadataService Filters the visible list by detail fields.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -137,6 +141,8 @@ class DashboardApiController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly ?string $userId,
 		private readonly ?QuotaService $quotaService = null,
+		private readonly ?DashboardTranslationService $translationService = null,
+		private readonly ?MetadataService $metadataService = null,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -216,8 +222,10 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::unauthorized();
 		}
 
-		$items = $this->dashboardService->getVisibleToUser(
-			userId: $this->userId
+		$items = $this->filterByMetadata(
+			items: $this->dashboardService->getVisibleToUser(
+				userId: $this->userId
+			)
 		);
 
 		$serialized = [];
@@ -372,9 +380,58 @@ class DashboardApiController extends Controller {
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
+				'hasVariants' => $this->hasVariants(uuid: (string)$dashboard->getUuid()),
 			]
 		);
 	}//end show()
+
+	/**
+	 * Whether a dashboard has more than one language version, so the page
+	 * asks for the resolved variant only when it can differ.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return bool True with two or more variants.
+	 *
+	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-language-content/spec.md
+	 */
+	private function hasVariants(string $uuid): bool {
+		if ($this->translationService === null || $uuid === '') {
+			return false;
+		}
+
+		return count($this->translationService->listVariants(dashboardUuid: $uuid)) > 1;
+	}//end hasVariants()
+
+	/**
+	 * Keep only the visible entries whose dashboards match the
+	 * `metadata[<key>]` filters of the request (REQ-MDFL-007), through
+	 * MetadataService::filterDashboards().
+	 *
+	 * @param array<int, array{dashboard: \OCA\LaunchPad\Db\Dashboard, source: string}> $items Visible entries.
+	 *
+	 * @return array<int, array{dashboard: \OCA\LaunchPad\Db\Dashboard, source: string}> The matching entries.
+	 *
+	 * @spec openspec/changes/dashboard-language-and-details-tabs/specs/dashboard-metadata-fields/spec.md
+	 */
+	private function filterByMetadata(array $items): array {
+		$filters = $this->request->getParam('metadata');
+		if ($this->metadataService === null || is_array($filters) === false || $filters === []) {
+			return $items;
+		}
+
+		$kept = $this->metadataService->filterDashboards(
+			dashboards: array_map(static fn (array $entry) => $entry['dashboard'], $items),
+			metadataFilters: $filters
+		);
+
+		return array_values(
+			array_filter(
+				$items,
+				static fn (array $entry): bool => in_array($entry['dashboard'], $kept, true)
+			)
+		);
+	}//end filterByMetadata()
 
 	/**
 	 * Create a new dashboard.

@@ -1105,6 +1105,22 @@
         "Simulated": "Simuléiert",
         "Error": "Feeler",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "E Fichier mam Numm {name} gëtt et schonn. Wielt Ersetzen, fir en mat engem eidele Fichier ze iwwerschreiwen, oder ännert den Numm.",
-        "Replace": "Ersetzen"
+        "Replace": "Ersetzen",
+        "Version history…": "Versiounsverlaf…",
+        "This dashboard is stored in a way that does not keep versions.": "Dëst Dashboard gëtt esou gespäichert, datt keng Versiounen bleiwen.",
+        "Note for this version (optional)": "Notiz fir dës Versioun (fakultativ)",
+        "Save this version now": "Dës Versioun elo späicheren",
+        "No versions saved yet.": "Nach keng Versioune gespäichert.",
+        "Saved on": "Gespäichert den",
+        "By": "Vun",
+        "Note": "Notiz",
+        "Actions": "Aktiounen",
+        "Restore": "Restauréieren",
+        "Saved automatically before a restore": "Automatesch virun enger Restauratioun gespäichert",
+        "The version history could not be loaded.": "De Versiounsverlaf konnt net gelueden ginn.",
+        "The version could not be saved.": "D'Versioun konnt net gespäichert ginn.",
+        "The version could not be restored.": "D'Versioun konnt net restauréiert ginn.",
+        "Restore this version?": "Dës Versioun restauréieren?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "D'Dashboard geet zréck op de Stand vum {date}. De Stand vun elo gëtt fir d'éischt als Versioun gespäichert, sou datt Dir dat réckgängeg maache kënnt."
     }
 }

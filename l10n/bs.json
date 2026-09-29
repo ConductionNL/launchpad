@@ -1106,6 +1106,22 @@
         "Simulated": "Simulirano",
         "Error": "Greška",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Datoteka s imenom {name} već postoji. Odaberite Zamijeni da je prepišete praznom datotekom ili promijenite ime.",
-        "Replace": "Zamijeni"
+        "Replace": "Zamijeni",
+        "Version history…": "Historija verzija…",
+        "This dashboard is stored in a way that does not keep versions.": "Ova kontrolna ploča pohranjena je na način koji ne čuva verzije.",
+        "Note for this version (optional)": "Bilješka uz ovu verziju (neobavezno)",
+        "Save this version now": "Spremi ovu verziju sada",
+        "No versions saved yet.": "Još nema spremljenih verzija.",
+        "Saved on": "Spremljeno",
+        "By": "Autor",
+        "Note": "Bilješka",
+        "Actions": "Radnje",
+        "Restore": "Vrati",
+        "Saved automatically before a restore": "Automatski spremljeno prije vraćanja",
+        "The version history could not be loaded.": "Historija verzija nije se mogla učitati.",
+        "The version could not be saved.": "Verzija se nije mogla spremiti.",
+        "The version could not be restored.": "Verzija se nije mogla vratiti.",
+        "Restore this version?": "Vratiti ovu verziju?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Kontrolna ploča se vraća na stanje od {date}. Trenutno stanje se prvo sprema kao verzija, pa ovo možete poništiti."
     }
 }

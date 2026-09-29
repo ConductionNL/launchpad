@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simuleret",
     "Error" : "Fejl",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Der findes allerede en fil med navnet {name}. Vælg Erstat for at overskrive den med en tom fil, eller skift navnet.",
-    "Replace" : "Erstat"
+    "Replace" : "Erstat",
+    "Version history…" : "Versionshistorik…",
+    "This dashboard is stored in a way that does not keep versions." : "Dette dashboard gemmes på en måde, der ikke bevarer versioner.",
+    "Note for this version (optional)" : "Note til denne version (valgfri)",
+    "Save this version now" : "Gem denne version nu",
+    "No versions saved yet." : "Ingen versioner gemt endnu.",
+    "Saved on" : "Gemt",
+    "By" : "Af",
+    "Note" : "Note",
+    "Actions" : "Handlinger",
+    "Restore" : "Gendan",
+    "Saved automatically before a restore" : "Gemt automatisk før en gendannelse",
+    "The version history could not be loaded." : "Versionshistorikken kunne ikke indlæses.",
+    "The version could not be saved." : "Versionen kunne ikke gemmes.",
+    "The version could not be restored." : "Versionen kunne ikke gendannes.",
+    "Restore this version?" : "Gendan denne version?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Dashboardet går tilbage til, som det var {date}. Det nuværende udseende gemmes først som en version, så du kan fortryde."
 },
 "nplurals=2; plural=(n != 1);"
 );

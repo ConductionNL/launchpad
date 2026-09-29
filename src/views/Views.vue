@@ -93,6 +93,7 @@
 					:source="activeDashboardSource"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
+					:canViewHistory="canViewVersionHistory"
 					:defaultUuid="defaultDashboardUuid"
 					:isEditMode="isEditMode"
 					:activeDashboardId="activeDashboard.id"
@@ -112,6 +113,8 @@
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
+					@versionHistory="versionHistoryOpen = true"
+					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<NcButton
 					variant="secondary"
@@ -169,6 +172,13 @@
 				</NcButton>
 			</div>
 		</Teleport>
+
+		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
+		<VersionHistoryModal
+			:open="versionHistoryOpen"
+			:dashboardUuid="activeDashboard?.uuid ?? ''"
+			@close="versionHistoryOpen = false"
+			@restored="onVersionRestored" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -392,6 +402,7 @@ import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
+import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
@@ -434,6 +445,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		VersionHistoryModal,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -447,6 +459,13 @@ export default {
 		primaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
+		},
+
+		// Server-computed admin flag (PageController initial state). Only
+		// decides which menu entries are offered; the server checks again.
+		isAdmin: {
+			from: 'isAdmin',
+			default: false,
 		},
 
 		// Canonical slug-chain path the server resolved for the active
@@ -595,6 +614,11 @@ export default {
 			// report modal state.
 			ackReportOpen: false,
 			ackReportKey: '',
+			// dashboard-version-history-ui: the history modal, and per
+			// dashboard uuid whether versioning is supported (read when the
+			// dashboard menu opens; absent means not known yet).
+			versionHistoryOpen: false,
+			versionSupport: {},
 		}
 	},
 
@@ -699,6 +723,23 @@ export default {
 		canShareActiveDashboard() {
 			const dash = this.activeDashboard
 			return !!dash && dash.isOwner !== false && (dash.id ?? null) !== null
+		},
+
+		/**
+		 * Whether the dashboard menu offers "Version history…": the owner or
+		 * an administrator, and the server said this dashboard keeps
+		 * versions (REQ-VERSUI-001). The server checks ownership again.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 */
+		canViewVersionHistory() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid) {
+				return false
+			}
+			const mayManage = dash.isOwner === true || this.isAdmin === true
+			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -1106,6 +1147,47 @@ export default {
 		 * later key wins, so the store action could never run. The local one
 		 * (which delegates to `removeWidget`) is what `@delete` invokes.
 		 */
+
+		/**
+		 * The dashboard menu opened: find out once per dashboard whether it
+		 * keeps versions, so "Version history…" is offered only where it
+		 * works. A refusal (not owner, not admin) reads as not offered.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 */
+		async checkVersionSupport() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid || dash.uuid in this.versionSupport) {
+				return
+			}
+			if (dash.isOwner !== true && this.isAdmin !== true) {
+				return
+			}
+			try {
+				const { data } = await api.listVersions(dash.uuid)
+				this.versionSupport = {
+					...this.versionSupport,
+					[dash.uuid]: data?.modeSupported !== false,
+				}
+			} catch {
+				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
+			}
+		},
+
+		/**
+		 * A version was restored: read the dashboard again from the server
+		 * rather than patching local state from the snapshot.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/dashboard-version-history-ui/specs/dashboard-versioning/spec.md
+		 */
+		async onVersionRestored() {
+			const id = this.activeDashboard?.id
+			if (id !== undefined && id !== null) {
+				await this.switchDashboard(id)
+			}
+		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		toggleEditMode() {

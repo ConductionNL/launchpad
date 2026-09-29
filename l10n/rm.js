@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulà",
     "Error" : "Errur",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "I dat gia ina datoteca cun il num {name}. Tscherni Remplazzar per la surscriver cun ina datoteca vida, u mida il num.",
-    "Replace" : "Remplazzar"
+    "Replace" : "Remplazzar",
+    "Version history…" : "Istorgia da las versiuns…",
+    "This dashboard is stored in a way that does not keep versions." : "Quest dashboard vegn memorisà en ina moda che na tegna betg versiuns.",
+    "Note for this version (optional)" : "Notizia per questa versiun (facultativ)",
+    "Save this version now" : "Memorisar questa versiun ussa",
+    "No versions saved yet." : "Anc naginas versiuns memorisadas.",
+    "Saved on" : "Memorisà ils",
+    "By" : "Da",
+    "Note" : "Notizia",
+    "Actions" : "Acziuns",
+    "Restore" : "Restaurar",
+    "Saved automatically before a restore" : "Memorisà automaticamain avant ina restauraziun",
+    "The version history could not be loaded." : "L'istorgia da las versiuns n'ha betg pudì vegnir chargiada.",
+    "The version could not be saved." : "La versiun n'ha betg pudì vegnir memorisada.",
+    "The version could not be restored." : "La versiun n'ha betg pudì vegnir restaurada.",
+    "Restore this version?" : "Restaurar questa versiun?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Il dashboard turna al stadi dals {date}. Il stadi actual vegn l'emprim memorisà sco versiun, uschia che Vus pudais revocar quai."
 },
 "nplurals=2; plural=(n != 1);"
 );

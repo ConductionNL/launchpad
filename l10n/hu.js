@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Szimulált",
     "Error" : "Hiba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Már létezik {name} nevű fájl. Válassza a Csere lehetőséget, hogy üres fájllal felülírja, vagy módosítsa a nevet.",
-    "Replace" : "Csere"
+    "Replace" : "Csere",
+    "Version history…" : "Verzióelőzmények…",
+    "This dashboard is stored in a way that does not keep versions." : "Ez az irányítópult olyan módon van tárolva, amely nem őriz meg verziókat.",
+    "Note for this version (optional)" : "Megjegyzés ehhez a verzióhoz (nem kötelező)",
+    "Save this version now" : "Verzió mentése most",
+    "No versions saved yet." : "Még nincs mentett verzió.",
+    "Saved on" : "Mentve",
+    "By" : "Készítette",
+    "Note" : "Megjegyzés",
+    "Actions" : "Műveletek",
+    "Restore" : "Visszaállítás",
+    "Saved automatically before a restore" : "Automatikusan mentve visszaállítás előtt",
+    "The version history could not be loaded." : "A verzióelőzményeket nem sikerült betölteni.",
+    "The version could not be saved." : "A verziót nem sikerült menteni.",
+    "The version could not be restored." : "A verziót nem sikerült visszaállítani.",
+    "Restore this version?" : "Visszaállítja ezt a verziót?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Az irányítópult visszaáll a(z) {date} állapotra. A jelenlegi állapot előbb verzióként mentésre kerül, így ez visszavonható."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Symulowane",
     "Error" : "Błąd",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Plik o nazwie {name} już istnieje. Wybierz Zastąp, aby nadpisać go pustym plikiem, lub zmień nazwę.",
-    "Replace" : "Zastąp"
+    "Replace" : "Zastąp",
+    "Version history…" : "Historia wersji…",
+    "This dashboard is stored in a way that does not keep versions." : "Ten pulpit jest przechowywany w sposób, który nie zachowuje wersji.",
+    "Note for this version (optional)" : "Notatka do tej wersji (opcjonalnie)",
+    "Save this version now" : "Zapisz tę wersję teraz",
+    "No versions saved yet." : "Nie zapisano jeszcze żadnych wersji.",
+    "Saved on" : "Zapisano",
+    "By" : "Autor",
+    "Note" : "Notatka",
+    "Actions" : "Działania",
+    "Restore" : "Przywróć",
+    "Saved automatically before a restore" : "Zapisano automatycznie przed przywróceniem",
+    "The version history could not be loaded." : "Nie udało się wczytać historii wersji.",
+    "The version could not be saved." : "Nie udało się zapisać wersji.",
+    "The version could not be restored." : "Nie udało się przywrócić wersji.",
+    "Restore this version?" : "Przywrócić tę wersję?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Pulpit wraca do stanu z {date}. Obecny stan zostanie najpierw zapisany jako wersja, więc można to cofnąć."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

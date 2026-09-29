@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulirano",
     "Error" : "Napaka",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Datoteka z imenom {name} že obstaja. Izberite Zamenjaj, da jo prepišete s prazno datoteko, ali spremenite ime.",
-    "Replace" : "Zamenjaj"
+    "Replace" : "Zamenjaj",
+    "Version history…" : "Zgodovina različic…",
+    "This dashboard is stored in a way that does not keep versions." : "Ta nadzorna plošča je shranjena na način, ki ne hrani različic.",
+    "Note for this version (optional)" : "Opomba k tej različici (neobvezno)",
+    "Save this version now" : "Shrani to različico zdaj",
+    "No versions saved yet." : "Shranjenih različic še ni.",
+    "Saved on" : "Shranjeno",
+    "By" : "Avtor",
+    "Note" : "Opomba",
+    "Actions" : "Dejanja",
+    "Restore" : "Obnovi",
+    "Saved automatically before a restore" : "Samodejno shranjeno pred obnovitvijo",
+    "The version history could not be loaded." : "Zgodovine različic ni bilo mogoče naložiti.",
+    "The version could not be saved." : "Različice ni bilo mogoče shraniti.",
+    "The version could not be restored." : "Različice ni bilo mogoče obnoviti.",
+    "Restore this version?" : "Obnovim to različico?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Nadzorna plošča se vrne v stanje z dne {date}. Trenutno stanje se najprej shrani kot različica, zato lahko to razveljavite."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Żball",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Diġà jeżisti fajl bl-isem {name}. Agħżel Issostitwixxi biex tiktbu mill-ġdid b'fajl vojt, jew ibdel l-isem.",
-    "Replace" : "Issostitwixxi"
+    "Replace" : "Issostitwixxi",
+    "Version history…" : "Storja tal-verżjonijiet…",
+    "This dashboard is stored in a way that does not keep versions." : "Dan id-dashboard huwa maħżun b'mod li ma jżommx verżjonijiet.",
+    "Note for this version (optional)" : "Nota għal din il-verżjoni (mhux obbligatorja)",
+    "Save this version now" : "Issejvja din il-verżjoni issa",
+    "No versions saved yet." : "L-ebda verżjoni ma ġiet issejvjata s'issa.",
+    "Saved on" : "Issejvjata fi",
+    "By" : "Minn",
+    "Note" : "Nota",
+    "Actions" : "Azzjonijiet",
+    "Restore" : "Irrestawra",
+    "Saved automatically before a restore" : "Issejvjata awtomatikament qabel restawr",
+    "The version history could not be loaded." : "Ma setgħetx titgħabba l-istorja tal-verżjonijiet.",
+    "The version could not be saved." : "Il-verżjoni ma setgħetx tiġi ssejvjata.",
+    "The version could not be restored." : "Il-verżjoni ma setgħetx tiġi rrestawrata.",
+    "Restore this version?" : "Tirrestawra din il-verżjoni?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Id-dashboard imur lura għal kif kien fi {date}. Kif jidher issa jiġi ssejvjat bħala verżjoni l-ewwel, biex tkun tista' tneħħi dan."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

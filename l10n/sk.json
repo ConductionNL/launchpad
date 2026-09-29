@@ -1106,6 +1106,22 @@
         "Simulated": "Simulované",
         "Error": "Chyba",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Súbor s názvom {name} už existuje. Zvoľte Nahradiť a prepíšte ho prázdnym súborom, alebo zmeňte názov.",
-        "Replace": "Nahradiť"
+        "Replace": "Nahradiť",
+        "Version history…": "História verzií…",
+        "This dashboard is stored in a way that does not keep versions.": "Tento panel je uložený spôsobom, ktorý neuchováva verzie.",
+        "Note for this version (optional)": "Poznámka k tejto verzii (nepovinné)",
+        "Save this version now": "Uložiť túto verziu teraz",
+        "No versions saved yet.": "Zatiaľ nie sú uložené žiadne verzie.",
+        "Saved on": "Uložené",
+        "By": "Autor",
+        "Note": "Poznámka",
+        "Actions": "Akcie",
+        "Restore": "Obnoviť",
+        "Saved automatically before a restore": "Uložené automaticky pred obnovením",
+        "The version history could not be loaded.": "Históriu verzií sa nepodarilo načítať.",
+        "The version could not be saved.": "Verziu sa nepodarilo uložiť.",
+        "The version could not be restored.": "Verziu sa nepodarilo obnoviť.",
+        "Restore this version?": "Obnoviť túto verziu?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Panel sa vráti do stavu z {date}. Súčasný stav sa najprv uloží ako verzia, takže to môžete vrátiť späť."
     }
 }

@@ -1105,6 +1105,22 @@
         "Simulated": "Simulé",
         "Error": "Erreur",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Un fichier nommé {name} existe déjà. Choisissez Remplacer pour l'écraser avec un fichier vide, ou changez le nom.",
-        "Replace": "Remplacer"
+        "Replace": "Remplacer",
+        "Version history…": "Historique des versions…",
+        "This dashboard is stored in a way that does not keep versions.": "Ce tableau de bord est stocké d'une manière qui ne conserve pas de versions.",
+        "Note for this version (optional)": "Note pour cette version (facultatif)",
+        "Save this version now": "Enregistrer cette version maintenant",
+        "No versions saved yet.": "Aucune version enregistrée pour l'instant.",
+        "Saved on": "Enregistrée le",
+        "By": "Par",
+        "Note": "Note",
+        "Actions": "Actions",
+        "Restore": "Restaurer",
+        "Saved automatically before a restore": "Enregistrée automatiquement avant une restauration",
+        "The version history could not be loaded.": "L'historique des versions n'a pas pu être chargé.",
+        "The version could not be saved.": "La version n'a pas pu être enregistrée.",
+        "The version could not be restored.": "La version n'a pas pu être restaurée.",
+        "Restore this version?": "Restaurer cette version ?",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Le tableau de bord revient à son état du {date}. Son état actuel est d'abord enregistré comme version, vous pouvez donc annuler cette action."
     }
 }

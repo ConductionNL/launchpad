@@ -1129,6 +1129,22 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Датотека са именом {name} већ постоји. Изаберите Замени да бисте је преписали празном датотеком или промените име.",
-    "Replace" : "Замени"
+    "Replace" : "Замени",
+    "Version history…" : "Историја верзија…",
+    "This dashboard is stored in a way that does not keep versions." : "Ова контролна табла чува се на начин који не задржава верзије.",
+    "Note for this version (optional)" : "Белешка уз ову верзију (опционо)",
+    "Save this version now" : "Сачувај ову верзију сада",
+    "No versions saved yet." : "Још нема сачуваних верзија.",
+    "Saved on" : "Сачувано",
+    "By" : "Аутор",
+    "Note" : "Белешка",
+    "Actions" : "Радње",
+    "Restore" : "Врати",
+    "Saved automatically before a restore" : "Аутоматски сачувано пре враћања",
+    "The version history could not be loaded." : "Историја верзија није могла да се учита.",
+    "The version could not be saved." : "Верзија није могла да се сачува.",
+    "The version could not be restored." : "Верзија није могла да се врати.",
+    "Restore this version?" : "Вратити ову верзију?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Контролна табла се враћа на стање од {date}. Тренутно стање се прво чува као верзија, па ово можете опозвати."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

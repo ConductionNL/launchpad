@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "I simuluar",
     "Error" : "Gabim",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Një skedar me emrin {name} ekziston tashmë. Zgjidhni Zëvendëso për ta mbishkruar me një skedar bosh, ose ndryshoni emrin.",
-    "Replace" : "Zëvendëso"
+    "Replace" : "Zëvendëso",
+    "Version history…" : "Historiku i versioneve…",
+    "This dashboard is stored in a way that does not keep versions." : "Ky panel ruhet në një mënyrë që nuk mban versione.",
+    "Note for this version (optional)" : "Shënim për këtë version (opsional)",
+    "Save this version now" : "Ruaje këtë version tani",
+    "No versions saved yet." : "Ende nuk ka versione të ruajtura.",
+    "Saved on" : "Ruajtur më",
+    "By" : "Nga",
+    "Note" : "Shënim",
+    "Actions" : "Veprime",
+    "Restore" : "Rikthe",
+    "Saved automatically before a restore" : "Ruajtur automatikisht para një rikthimi",
+    "The version history could not be loaded." : "Historiku i versioneve nuk mund të ngarkohej.",
+    "The version could not be saved." : "Versioni nuk mund të ruhej.",
+    "The version could not be restored." : "Versioni nuk mund të rikthehej.",
+    "Restore this version?" : "Të rikthehet ky version?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Paneli kthehet siç ishte më {date}. Pamja aktuale ruhet fillimisht si version, që ta zhbëni këtë nëse duhet."
 },
 "nplurals=2; plural=(n != 1);"
 );

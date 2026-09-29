@@ -1188,7 +1188,23 @@ OC.L10N.register(
     "Simulated" : "Gesimuleerd",
     "Error" : "Fout",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Er bestaat al een bestand met de naam {name}. Kies Vervangen om het te overschrijven met een leeg bestand, of wijzig de naam.",
-    "Replace" : "Vervangen"
+    "Replace" : "Vervangen",
+    "Version history…" : "Versiegeschiedenis…",
+    "This dashboard is stored in a way that does not keep versions." : "Dit dashboard wordt opgeslagen op een manier die geen versies bewaart.",
+    "Note for this version (optional)" : "Notitie bij deze versie (optioneel)",
+    "Save this version now" : "Deze versie nu opslaan",
+    "No versions saved yet." : "Nog geen versies opgeslagen.",
+    "Saved on" : "Opgeslagen op",
+    "By" : "Door",
+    "Note" : "Notitie",
+    "Actions" : "Acties",
+    "Restore" : "Herstellen",
+    "Saved automatically before a restore" : "Automatisch opgeslagen vóór een herstel",
+    "The version history could not be loaded." : "De versiegeschiedenis kon niet worden geladen.",
+    "The version could not be saved." : "De versie kon niet worden opgeslagen.",
+    "The version could not be restored." : "De versie kon niet worden hersteld.",
+    "Restore this version?" : "Deze versie herstellen?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Het dashboard gaat terug naar hoe het was op {date}. Hoe het er nu uitziet, wordt eerst als versie opgeslagen, zodat je dit ongedaan kunt maken."
 },
 "nplurals=2; plural=(n != 1);"
 );

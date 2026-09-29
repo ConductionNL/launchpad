@@ -1116,7 +1116,24 @@ OC.L10N.register(
     "Simulated" : "Simulated",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.",
-    "Replace" : "Replace"
+    "Replace" : "Replace",
+    "Version history…" : "Version history…",
+    "This dashboard is stored in a way that does not keep versions." : "This dashboard is stored in a way that does not keep versions.",
+    "Note for this version (optional)" : "Note for this version (optional)",
+    "Save this version now" : "Save this version now",
+    "No versions saved yet." : "No versions saved yet.",
+    "Version" : "Version",
+    "Saved on" : "Saved on",
+    "By" : "By",
+    "Note" : "Note",
+    "Actions" : "Actions",
+    "Restore" : "Restore",
+    "Saved automatically before a restore" : "Saved automatically before a restore",
+    "The version history could not be loaded." : "The version history could not be loaded.",
+    "The version could not be saved." : "The version could not be saved.",
+    "The version could not be restored." : "The version could not be restored.",
+    "Restore this version?" : "Restore this version?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this."
 },
 "nplurals=2; plural=(n != 1);"
 );

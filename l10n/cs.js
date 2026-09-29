@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulováno",
     "Error" : "Chyba",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Soubor s názvem {name} již existuje. Zvolte Nahradit a přepište jej prázdným souborem, nebo změňte název.",
-    "Replace" : "Nahradit"
+    "Replace" : "Nahradit",
+    "Version history…" : "Historie verzí…",
+    "This dashboard is stored in a way that does not keep versions." : "Tento panel je uložen způsobem, který neuchovává verze.",
+    "Note for this version (optional)" : "Poznámka k této verzi (nepovinné)",
+    "Save this version now" : "Uložit tuto verzi nyní",
+    "No versions saved yet." : "Zatím nejsou uloženy žádné verze.",
+    "Saved on" : "Uloženo",
+    "By" : "Autor",
+    "Note" : "Poznámka",
+    "Actions" : "Akce",
+    "Restore" : "Obnovit",
+    "Saved automatically before a restore" : "Uloženo automaticky před obnovením",
+    "The version history could not be loaded." : "Historii verzí se nepodařilo načíst.",
+    "The version could not be saved." : "Verzi se nepodařilo uložit.",
+    "The version could not be restored." : "Verzi se nepodařilo obnovit.",
+    "Restore this version?" : "Obnovit tuto verzi?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Panel se vrátí do stavu z {date}. Současný stav se nejdřív uloží jako verze, takže to můžete vrátit zpět."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

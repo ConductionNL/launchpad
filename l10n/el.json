@@ -1105,6 +1105,22 @@
         "Simulated": "Προσομοιωμένο",
         "Error": "Σφάλμα",
         "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name.": "Υπάρχει ήδη αρχείο με το όνομα {name}. Επιλέξτε Αντικατάσταση για να το αντικαταστήσετε με κενό αρχείο ή αλλάξτε το όνομα.",
-        "Replace": "Αντικατάσταση"
+        "Replace": "Αντικατάσταση",
+        "Version history…": "Ιστορικό εκδόσεων…",
+        "This dashboard is stored in a way that does not keep versions.": "Αυτός ο πίνακας αποθηκεύεται με τρόπο που δεν κρατά εκδόσεις.",
+        "Note for this version (optional)": "Σημείωση για αυτή την έκδοση (προαιρετικό)",
+        "Save this version now": "Αποθήκευση αυτής της έκδοσης τώρα",
+        "No versions saved yet.": "Δεν έχουν αποθηκευτεί ακόμη εκδόσεις.",
+        "Saved on": "Αποθηκεύτηκε",
+        "By": "Από",
+        "Note": "Σημείωση",
+        "Actions": "Ενέργειες",
+        "Restore": "Επαναφορά",
+        "Saved automatically before a restore": "Αποθηκεύτηκε αυτόματα πριν από επαναφορά",
+        "The version history could not be loaded.": "Δεν ήταν δυνατή η φόρτωση του ιστορικού εκδόσεων.",
+        "The version could not be saved.": "Δεν ήταν δυνατή η αποθήκευση της έκδοσης.",
+        "The version could not be restored.": "Δεν ήταν δυνατή η επαναφορά της έκδοσης.",
+        "Restore this version?": "Επαναφορά αυτής της έκδοσης;",
+        "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.": "Ο πίνακας επιστρέφει στην κατάσταση της {date}. Η τρέχουσα κατάσταση αποθηκεύεται πρώτα ως έκδοση, ώστε να μπορείτε να το αναιρέσετε."
     }
 }

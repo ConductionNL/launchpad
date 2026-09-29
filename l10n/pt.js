@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulado",
     "Error" : "Erro",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Já existe um ficheiro chamado {name}. Escolha Substituir para o substituir por um ficheiro vazio, ou altere o nome.",
-    "Replace" : "Substituir"
+    "Replace" : "Substituir",
+    "Version history…" : "Histórico de versões…",
+    "This dashboard is stored in a way that does not keep versions." : "Este painel é guardado de uma forma que não mantém versões.",
+    "Note for this version (optional)" : "Nota para esta versão (opcional)",
+    "Save this version now" : "Guardar esta versão agora",
+    "No versions saved yet." : "Ainda não há versões guardadas.",
+    "Saved on" : "Guardada em",
+    "By" : "Por",
+    "Note" : "Nota",
+    "Actions" : "Ações",
+    "Restore" : "Restaurar",
+    "Saved automatically before a restore" : "Guardada automaticamente antes de um restauro",
+    "The version history could not be loaded." : "Não foi possível carregar o histórico de versões.",
+    "The version could not be saved." : "Não foi possível guardar a versão.",
+    "The version could not be restored." : "Não foi possível restaurar a versão.",
+    "Restore this version?" : "Restaurar esta versão?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "O painel volta a como estava em {date}. O aspeto atual é guardado primeiro como versão, por isso pode anular isto."
 },
 "nplurals=2; plural=(n != 1);"
 );

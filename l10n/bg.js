@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Симулирано",
     "Error" : "Грешка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл с име {name} вече съществува. Изберете „Замяна“, за да го презапишете с празен файл, или сменете името.",
-    "Replace" : "Замяна"
+    "Replace" : "Замяна",
+    "Version history…" : "История на версиите…",
+    "This dashboard is stored in a way that does not keep versions." : "Това табло се съхранява по начин, който не пази версии.",
+    "Note for this version (optional)" : "Бележка към тази версия (по избор)",
+    "Save this version now" : "Запазване на тази версия сега",
+    "No versions saved yet." : "Все още няма запазени версии.",
+    "Saved on" : "Запазена на",
+    "By" : "От",
+    "Note" : "Бележка",
+    "Actions" : "Действия",
+    "Restore" : "Възстановяване",
+    "Saved automatically before a restore" : "Запазена автоматично преди възстановяване",
+    "The version history could not be loaded." : "Историята на версиите не можа да се зареди.",
+    "The version could not be saved." : "Версията не можа да се запази.",
+    "The version could not be restored." : "Версията не можа да се възстанови.",
+    "Restore this version?" : "Възстановяване на тази версия?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Таблото се връща към състоянието си от {date}. Текущото му състояние първо се запазва като версия, така че можете да отмените това."
 },
 "nplurals=2; plural=(n != 1);"
 );

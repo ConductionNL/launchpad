@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Змодельовано",
     "Error" : "Помилка",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Файл з назвою {name} уже існує. Виберіть «Замінити», щоб перезаписати його порожнім файлом, або змініть назву.",
-    "Replace" : "Замінити"
+    "Replace" : "Замінити",
+    "Version history…" : "Історія версій…",
+    "This dashboard is stored in a way that does not keep versions." : "Ця панель зберігається так, що версії не зберігаються.",
+    "Note for this version (optional)" : "Примітка до цієї версії (необов'язково)",
+    "Save this version now" : "Зберегти цю версію зараз",
+    "No versions saved yet." : "Ще немає збережених версій.",
+    "Saved on" : "Збережено",
+    "By" : "Автор",
+    "Note" : "Примітка",
+    "Actions" : "Дії",
+    "Restore" : "Відновити",
+    "Saved automatically before a restore" : "Збережено автоматично перед відновленням",
+    "The version history could not be loaded." : "Не вдалося завантажити історію версій.",
+    "The version could not be saved." : "Не вдалося зберегти версію.",
+    "The version could not be restored." : "Не вдалося відновити версію.",
+    "Restore this version?" : "Відновити цю версію?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Панель повернеться до стану на {date}. Поточний стан спершу збережеться як версія, тож це можна скасувати."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

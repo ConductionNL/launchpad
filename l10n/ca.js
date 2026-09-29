@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Error",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Ja existeix un fitxer anomenat {name}. Trieu Substitueix per sobreescriure'l amb un fitxer buit, o canvieu el nom.",
-    "Replace" : "Substitueix"
+    "Replace" : "Substitueix",
+    "Version history…" : "Historial de versions…",
+    "This dashboard is stored in a way that does not keep versions." : "Aquest tauler es desa d'una manera que no conserva versions.",
+    "Note for this version (optional)" : "Nota per a aquesta versió (opcional)",
+    "Save this version now" : "Desa aquesta versió ara",
+    "No versions saved yet." : "Encara no hi ha cap versió desada.",
+    "Saved on" : "Desada el",
+    "By" : "Per",
+    "Note" : "Nota",
+    "Actions" : "Accions",
+    "Restore" : "Restaura",
+    "Saved automatically before a restore" : "Desada automàticament abans d'una restauració",
+    "The version history could not be loaded." : "No s'ha pogut carregar l'historial de versions.",
+    "The version could not be saved." : "No s'ha pogut desar la versió.",
+    "The version could not be restored." : "No s'ha pogut restaurar la versió.",
+    "Restore this version?" : "Voleu restaurar aquesta versió?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "El tauler torna a com era el {date}. L'estat actual es desa primer com a versió, així que ho podeu desfer."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1138,7 +1138,23 @@ OC.L10N.register(
     "Simulated" : "Simulat",
     "Error" : "Eroare",
     "A file named {name} already exists. Choose Replace to overwrite it with an empty file, or change the name." : "Există deja un fișier numit {name}. Alegeți Înlocuiește pentru a-l suprascrie cu un fișier gol sau schimbați numele.",
-    "Replace" : "Înlocuiește"
+    "Replace" : "Înlocuiește",
+    "Version history…" : "Istoricul versiunilor…",
+    "This dashboard is stored in a way that does not keep versions." : "Acest tablou de bord este stocat într-un mod care nu păstrează versiuni.",
+    "Note for this version (optional)" : "Notă pentru această versiune (opțional)",
+    "Save this version now" : "Salvați această versiune acum",
+    "No versions saved yet." : "Nu există încă versiuni salvate.",
+    "Saved on" : "Salvată la",
+    "By" : "De",
+    "Note" : "Notă",
+    "Actions" : "Acțiuni",
+    "Restore" : "Restaurați",
+    "Saved automatically before a restore" : "Salvată automat înainte de o restaurare",
+    "The version history could not be loaded." : "Istoricul versiunilor nu a putut fi încărcat.",
+    "The version could not be saved." : "Versiunea nu a putut fi salvată.",
+    "The version could not be restored." : "Versiunea nu a putut fi restaurată.",
+    "Restore this version?" : "Restaurați această versiune?",
+    "The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this." : "Tabloul de bord revine la starea din {date}. Starea actuală este salvată mai întâi ca versiune, astfel încât puteți anula acest lucru."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

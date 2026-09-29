@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
@@ -372,9 +373,47 @@ class DashboardApiController extends Controller {
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
+				'breadcrumbs' => $this->visibleBreadcrumbs(dashboard: $dashboard, userId: $this->userId),
 			]
 		);
 	}//end show()
+
+	/**
+	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the
+	 * viewer may not see keeps its place but loses its uuid, name and slug,
+	 * so the trail never leaks a hidden dashboard's name. A top-level
+	 * dashboard has none.
+	 *
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param string $userId The reader.
+	 *
+	 * @return array<int, array<string, mixed>> The crumbs.
+	 *
+	 * @spec openspec/changes/dashboard-tree-navigation/specs/dashboards/spec.md
+	 */
+	private function visibleBreadcrumbs(Dashboard $dashboard, string $userId): array {
+		$parent = $dashboard->getParentUuid();
+		if ($parent === null || $parent === '') {
+			return [];
+		}
+
+		$visible = [];
+		foreach ($this->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
+			$visible[(string)$entry['dashboard']->getUuid()] = true;
+		}
+
+		$crumbs = [];
+		foreach ($this->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
+			if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
+				$crumbs[] = $crumb + ['hidden' => false];
+				continue;
+			}
+
+			$crumbs[] = ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+		}
+
+		return $crumbs;
+	}//end visibleBreadcrumbs()
 
 	/**
 	 * Create a new dashboard.

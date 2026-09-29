@@ -1116,6 +1116,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Xi ħadd ieħor qed jeditja dan id-dashboard issa, għalhekk inti lura fil-modalità tal-wiri.",
         "You cannot edit this dashboard.": "Ma tistax teditja dan id-dashboard.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Id-dashboard ma setax jinfetaħ għall-editjar. Erġa' pprova ftit wara.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Jekk jieqaf, id-dashboard jinħeles fi żmien {minutes} minuti.",
+        "The assistant needs the Hermiq app, which is not available here.": "L-assistent jeħtieġ l-app Hermiq, li mhijiex disponibbli hawn.",
+        "Thinking…": "Qed jaħseb…",
+        "Your question": "Il-mistoqsija tiegħek",
+        "Ask about this dashboard": "Staqsi dwar dan id-dashboard",
+        "Ask": "Staqsi",
+        "Summarise this dashboard": "Agħti sommarju ta' dan id-dashboard",
+        "Summarise this dashboard for me.": "Agħtini sommarju ta' dan id-dashboard.",
+        "Hermiq agent (optional)": "Aġent ta' Hermiq (mhux obbligatorju)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Ħallih vojt biex tuża l-aġent default ta' Hermiq. It-tweġibiet jistgħu jużaw dak kollu li l-aġent jista' jaqra għal min qed jistaqsi.",
+        "Assistant": "Assistent"
     }
 }

@@ -1114,6 +1114,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Някой друг редактира това табло сега, затова сте отново в режим на преглед.",
         "You cannot edit this dashboard.": "Не можете да редактирате това табло.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Таблото не можа да се отвори за редактиране. Опитайте отново след малко.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Ако спре, таблото се освобождава до {minutes} минути."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Ако спре, таблото се освобождава до {minutes} минути.",
+        "The assistant needs the Hermiq app, which is not available here.": "Асистентът се нуждае от приложението Hermiq, което не е налично тук.",
+        "Thinking…": "Мисли…",
+        "Your question": "Вашият въпрос",
+        "Ask about this dashboard": "Задайте въпрос за това табло",
+        "Ask": "Питане",
+        "Summarise this dashboard": "Обобщаване на това табло",
+        "Summarise this dashboard for me.": "Обобщи ми това табло.",
+        "Hermiq agent (optional)": "Агент на Hermiq (по избор)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Оставете празно за агента по подразбиране на Hermiq. Отговорите могат да ползват всичко, което агентът може да чете за питащия.",
+        "Assistant": "Асистент"
     }
 }

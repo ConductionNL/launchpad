@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Joku muu muokkaa nyt tätä koontinäyttöä, joten olet taas katselutilassa.",
     "You cannot edit this dashboard." : "Et voi muokata tätä koontinäyttöä.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Koontinäyttöä ei voitu avata muokattavaksi. Yritä hetken kuluttua uudelleen.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jos hän lopettaa, koontinäyttö vapautuu {minutes} minuutin kuluessa.",
+    "The assistant needs the Hermiq app, which is not available here." : "Avustaja tarvitsee Hermiq-sovelluksen, joka ei ole täällä käytettävissä.",
+    "Thinking…" : "Mietitään…",
+    "Your question" : "Kysymyksesi",
+    "Ask about this dashboard" : "Kysy tästä koontinäytöstä",
+    "Ask" : "Kysy",
+    "Summarise this dashboard" : "Tee yhteenveto tästä koontinäytöstä",
+    "Summarise this dashboard for me." : "Tee minulle yhteenveto tästä koontinäytöstä.",
+    "Hermiq agent (optional)" : "Hermiq-agentti (valinnainen)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Jätä tyhjäksi käyttääksesi Hermiqin oletusagenttia. Vastaukset voivat käyttää kaikkea, mitä agentti saa lukea kysyjän puolesta.",
+    "Assistant" : "Avustaja"
 },
 "nplurals=2; plural=(n != 1);"
 );

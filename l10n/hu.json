@@ -1114,6 +1114,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Most valaki más szerkeszti ezt az irányítópultot, ezért visszakerült megtekintő módba.",
         "You cannot edit this dashboard.": "Ezt az irányítópultot nem szerkesztheti.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Az irányítópultot nem sikerült szerkesztésre megnyitni. Próbálja újra egy kis idő múlva.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Ha abbahagyja, az irányítópult {minutes} percen belül felszabadul."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Ha abbahagyja, az irányítópult {minutes} percen belül felszabadul.",
+        "The assistant needs the Hermiq app, which is not available here.": "Az asszisztenshez a Hermiq alkalmazás kell, amely itt nem érhető el.",
+        "Thinking…": "Gondolkodik…",
+        "Your question": "Az Ön kérdése",
+        "Ask about this dashboard": "Kérdezzen erről az irányítópultról",
+        "Ask": "Kérdés",
+        "Summarise this dashboard": "Irányítópult összefoglalása",
+        "Summarise this dashboard for me.": "Foglald össze nekem ezt az irányítópultot.",
+        "Hermiq agent (optional)": "Hermiq-ügynök (nem kötelező)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Hagyja üresen a Hermiq alapértelmezett ügynökéhez. A válaszok mindent felhasználhatnak, amit az ügynök a kérdező nevében olvashat.",
+        "Assistant": "Asszisztens"
     }
 }

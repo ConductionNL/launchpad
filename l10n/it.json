@@ -1114,6 +1114,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Qualcun altro sta ora modificando questa dashboard, quindi sei tornato in modalità visualizzazione.",
         "You cannot edit this dashboard.": "Non puoi modificare questa dashboard.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Non è stato possibile aprire la dashboard per la modifica. Riprova tra poco.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Se smette, la dashboard si libera entro {minutes} minuti."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Se smette, la dashboard si libera entro {minutes} minuti.",
+        "The assistant needs the Hermiq app, which is not available here.": "L'assistente ha bisogno dell'app Hermiq, che qui non è disponibile.",
+        "Thinking…": "Sto pensando…",
+        "Your question": "La tua domanda",
+        "Ask about this dashboard": "Chiedi qualcosa su questa dashboard",
+        "Ask": "Chiedi",
+        "Summarise this dashboard": "Riassumi questa dashboard",
+        "Summarise this dashboard for me.": "Riassumimi questa dashboard.",
+        "Hermiq agent (optional)": "Agente Hermiq (facoltativo)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Lascia vuoto per usare l'agente predefinito di Hermiq. Le risposte possono usare tutto ciò che quell'agente può leggere per chi chiede.",
+        "Assistant": "Assistente"
     }
 }

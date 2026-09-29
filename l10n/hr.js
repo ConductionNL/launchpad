@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Netko drugi sada uređuje ovu nadzornu ploču pa ste ponovno u načinu prikaza.",
     "You cannot edit this dashboard." : "Ne možete uređivati ovu nadzornu ploču.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nadzorna ploča nije se mogla otvoriti za uređivanje. Pokušajte ponovno za trenutak.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ako ta osoba prestane, nadzorna ploča postaje slobodna za najviše {minutes} minuta."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ako ta osoba prestane, nadzorna ploča postaje slobodna za najviše {minutes} minuta.",
+    "The assistant needs the Hermiq app, which is not available here." : "Asistentu je potrebna aplikacija Hermiq, koja ovdje nije dostupna.",
+    "Thinking…" : "Razmišljam…",
+    "Your question" : "Vaše pitanje",
+    "Ask about this dashboard" : "Pitajte o ovoj nadzornoj ploči",
+    "Ask" : "Pitaj",
+    "Summarise this dashboard" : "Sažmi ovu nadzornu ploču",
+    "Summarise this dashboard for me." : "Sažmi mi ovu nadzornu ploču.",
+    "Hermiq agent (optional)" : "Hermiq agent (neobavezno)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Ostavite prazno za zadanog agenta Hermiqa. Odgovori mogu koristiti sve što taj agent smije čitati za osobu koja pita.",
+    "Assistant" : "Asistent"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1114,6 +1114,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "En anden redigerer nu dette dashboard, så du er tilbage i visningstilstand.",
         "You cannot edit this dashboard.": "Du kan ikke redigere dette dashboard.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Dashboardet kunne ikke åbnes til redigering. Prøv igen om lidt.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Hvis vedkommende stopper, bliver dashboardet ledigt inden for {minutes} minutter."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Hvis vedkommende stopper, bliver dashboardet ledigt inden for {minutes} minutter.",
+        "The assistant needs the Hermiq app, which is not available here.": "Assistenten kræver appen Hermiq, som ikke er tilgængelig her.",
+        "Thinking…": "Tænker…",
+        "Your question": "Dit spørgsmål",
+        "Ask about this dashboard": "Spørg om dette dashboard",
+        "Ask": "Spørg",
+        "Summarise this dashboard": "Opsummér dette dashboard",
+        "Summarise this dashboard for me.": "Opsummér dette dashboard for mig.",
+        "Hermiq agent (optional)": "Hermiq-agent (valgfri)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Lad feltet stå tomt for Hermiqs standardagent. Svarene kan bruge alt, hvad agenten må læse for den, der spørger.",
+        "Assistant": "Assistent"
     }
 }

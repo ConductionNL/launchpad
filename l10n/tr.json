@@ -1114,6 +1114,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Bu panoyu şimdi başka biri düzenliyor, bu yüzden görüntüleme moduna döndünüz.",
         "You cannot edit this dashboard.": "Bu panoyu düzenleyemezsiniz.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Pano düzenleme için açılamadı. Birazdan yeniden deneyin.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Kişi bırakırsa pano {minutes} dakika içinde serbest kalır.",
+        "The assistant needs the Hermiq app, which is not available here.": "Asistanın burada bulunmayan Hermiq uygulamasına ihtiyacı var.",
+        "Thinking…": "Düşünüyor…",
+        "Your question": "Sorunuz",
+        "Ask about this dashboard": "Bu pano hakkında sorun",
+        "Ask": "Sor",
+        "Summarise this dashboard": "Bu panoyu özetle",
+        "Summarise this dashboard for me.": "Bu panoyu benim için özetle.",
+        "Hermiq agent (optional)": "Hermiq aracısı (isteğe bağlı)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Hermiq'in varsayılan aracısı için boş bırakın. Yanıtlar, aracının soran kişi adına okuyabildiği her şeyi kullanabilir.",
+        "Assistant": "Asistan"
     }
 }

@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Noen andre redigerer nå dette dashbordet, så du er tilbake i visningsmodus.",
     "You cannot edit this dashboard." : "Du kan ikke redigere dette dashbordet.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Dashbordet kunne ikke åpnes for redigering. Prøv igjen om litt.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Hvis vedkommende slutter, blir dashbordet ledig innen {minutes} minutter."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Hvis vedkommende slutter, blir dashbordet ledig innen {minutes} minutter.",
+    "The assistant needs the Hermiq app, which is not available here." : "Assistenten trenger appen Hermiq, som ikke er tilgjengelig her.",
+    "Thinking…" : "Tenker…",
+    "Your question" : "Spørsmålet ditt",
+    "Ask about this dashboard" : "Spør om dette dashbordet",
+    "Ask" : "Spør",
+    "Summarise this dashboard" : "Oppsummer dette dashbordet",
+    "Summarise this dashboard for me." : "Oppsummer dette dashbordet for meg.",
+    "Hermiq agent (optional)" : "Hermiq-agent (valgfritt)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "La stå tomt for Hermiqs standardagent. Svarene kan bruke alt agenten får lese for den som spør.",
+    "Assistant" : "Assistent"
 },
 "nplurals=2; plural=(n != 1);"
 );

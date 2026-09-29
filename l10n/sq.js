@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Dikush tjetër po e redakton tani këtë panel, ndaj jeni kthyer në mënyrën e shikimit.",
     "You cannot edit this dashboard." : "Nuk mund ta redaktoni këtë panel.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Paneli nuk mund të hapej për redaktim. Provoni sërish pas pak.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Nëse ndalon, paneli lirohet brenda {minutes} minutash."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Nëse ndalon, paneli lirohet brenda {minutes} minutash.",
+    "The assistant needs the Hermiq app, which is not available here." : "Asistenti ka nevojë për aplikacionin Hermiq, që nuk është i disponueshëm këtu.",
+    "Thinking…" : "Po mendon…",
+    "Your question" : "Pyetja juaj",
+    "Ask about this dashboard" : "Pyetni për këtë panel",
+    "Ask" : "Pyet",
+    "Summarise this dashboard" : "Përmblidhe këtë panel",
+    "Summarise this dashboard for me." : "Ma përmblidh këtë panel.",
+    "Hermiq agent (optional)" : "Agjenti i Hermiq (opsional)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Lëreni bosh për agjentin standard të Hermiq. Përgjigjet mund të përdorin gjithçka që agjenti mund të lexojë për personin që pyet.",
+    "Assistant" : "Asistenti"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Tagad šo informācijas paneli rediģē kāds cits, tāpēc esat atpakaļ skatīšanas režīmā.",
     "You cannot edit this dashboard." : "Jūs nevarat rediģēt šo informācijas paneli.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Informācijas paneli neizdevās atvērt rediģēšanai. Mēģiniet vēlreiz pēc brīža.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ja persona beigs, informācijas panelis atbrīvosies {minutes} minūšu laikā."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ja persona beigs, informācijas panelis atbrīvosies {minutes} minūšu laikā.",
+    "The assistant needs the Hermiq app, which is not available here." : "Asistentam vajadzīga lietotne Hermiq, kas šeit nav pieejama.",
+    "Thinking…" : "Domā…",
+    "Your question" : "Jūsu jautājums",
+    "Ask about this dashboard" : "Jautājiet par šo informācijas paneli",
+    "Ask" : "Jautāt",
+    "Summarise this dashboard" : "Apkopot šo informācijas paneli",
+    "Summarise this dashboard for me." : "Apkopo man šo informācijas paneli.",
+    "Hermiq agent (optional)" : "Hermiq aģents (neobligāti)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Atstājiet tukšu, lai izmantotu Hermiq noklusējuma aģentu. Atbildēs var izmantot visu, ko aģents drīkst lasīt jautātāja vārdā.",
+    "Assistant" : "Asistents"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

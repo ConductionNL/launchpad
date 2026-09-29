@@ -1116,6 +1116,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "To nadzorno ploščo zdaj ureja nekdo drug, zato ste spet v načinu ogleda.",
         "You cannot edit this dashboard.": "Te nadzorne plošče ne morete urejati.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Nadzorne plošče ni bilo mogoče odpreti za urejanje. Poskusite znova čez trenutek.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Če oseba preneha, se nadzorna plošča sprosti v {minutes} minutah."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Če oseba preneha, se nadzorna plošča sprosti v {minutes} minutah.",
+        "The assistant needs the Hermiq app, which is not available here.": "Pomočnik potrebuje aplikacijo Hermiq, ki tu ni na voljo.",
+        "Thinking…": "Razmišljam…",
+        "Your question": "Vaše vprašanje",
+        "Ask about this dashboard": "Vprašajte o tej nadzorni plošči",
+        "Ask": "Vprašaj",
+        "Summarise this dashboard": "Povzemi to nadzorno ploščo",
+        "Summarise this dashboard for me.": "Povzemi mi to nadzorno ploščo.",
+        "Hermiq agent (optional)": "Agent Hermiq (neobvezno)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Pustite prazno za privzetega agenta Hermiq. Odgovori lahko uporabijo vse, kar agent sme brati za osebo, ki sprašuje.",
+        "Assistant": "Pomočnik"
     }
 }

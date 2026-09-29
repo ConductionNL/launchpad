@@ -1114,6 +1114,16 @@
         "Someone else is editing this dashboard now, so you are back in view mode.": "Insatgi auter elavura ussa quest dashboard, perquai essas Vus puspè en il modus da vista.",
         "You cannot edit this dashboard.": "Vus na pudais betg elavurar quest dashboard.",
         "The dashboard could not be opened for editing. Try again in a moment.": "Il dashboard n'ha betg pudì vegnir avert per l'elavurar. Empruvai anc ina giada en in mument.",
-        "If they stop, the dashboard frees up within {minutes} minutes.": "Sche la persuna chala, daventa il dashboard liber entaifer {minutes} minutas."
+        "If they stop, the dashboard frees up within {minutes} minutes.": "Sche la persuna chala, daventa il dashboard liber entaifer {minutes} minutas.",
+        "The assistant needs the Hermiq app, which is not available here.": "L'assistent dovra l'app Hermiq, che n'è betg disponibla qua.",
+        "Thinking…": "Ponderescha…",
+        "Your question": "Vossa dumonda",
+        "Ask about this dashboard": "Dumandai davart quest dashboard",
+        "Ask": "Dumandar",
+        "Summarise this dashboard": "Resumar quest dashboard",
+        "Summarise this dashboard for me.": "Resuma per mai quest dashboard.",
+        "Hermiq agent (optional)": "Agent da Hermiq (facultativ)",
+        "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.": "Laschai vid per l'agent da standard da Hermiq. Las respostas pon duvrar tut quai che l'agent dastga leger per la persuna che dumonda.",
+        "Assistant": "Assistent"
     }
 }

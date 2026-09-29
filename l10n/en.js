@@ -1125,7 +1125,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Someone else is editing this dashboard now, so you are back in view mode.",
     "You cannot edit this dashboard." : "You cannot edit this dashboard.",
     "The dashboard could not be opened for editing. Try again in a moment." : "The dashboard could not be opened for editing. Try again in a moment.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "If they stop, the dashboard frees up within {minutes} minutes."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "If they stop, the dashboard frees up within {minutes} minutes.",
+    "The assistant needs the Hermiq app, which is not available here." : "The assistant needs the Hermiq app, which is not available here.",
+    "Thinking…" : "Thinking…",
+    "Your question" : "Your question",
+    "Ask about this dashboard" : "Ask about this dashboard",
+    "Ask" : "Ask",
+    "Summarise this dashboard" : "Summarise this dashboard",
+    "Summarise this dashboard for me." : "Summarise this dashboard for me.",
+    "Hermiq agent (optional)" : "Hermiq agent (optional)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking.",
+    "Assistant" : "Assistant"
 },
 "nplurals=2; plural=(n != 1);"
 );

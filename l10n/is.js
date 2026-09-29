@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Einhver annar er núna að breyta þessu stjórnborði, svo þú ert aftur í skoðunarham.",
     "You cannot edit this dashboard." : "Þú getur ekki breytt þessu stjórnborði.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Ekki tókst að opna stjórnborðið til breytinga. Reyndu aftur eftir smástund.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ef viðkomandi hættir losnar stjórnborðið innan {minutes} mínútna."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ef viðkomandi hættir losnar stjórnborðið innan {minutes} mínútna.",
+    "The assistant needs the Hermiq app, which is not available here." : "Aðstoðin þarf forritið Hermiq, sem er ekki tiltækt hér.",
+    "Thinking…" : "Hugsar…",
+    "Your question" : "Spurningin þín",
+    "Ask about this dashboard" : "Spyrðu um þetta stjórnborð",
+    "Ask" : "Spyrja",
+    "Summarise this dashboard" : "Taka saman þetta stjórnborð",
+    "Summarise this dashboard for me." : "Taktu saman þetta stjórnborð fyrir mig.",
+    "Hermiq agent (optional)" : "Hermiq-umboðsmaður (valfrjálst)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Hafðu tómt til að nota sjálfgefinn umboðsmann Hermiq. Svörin geta notað allt sem umboðsmaðurinn má lesa fyrir þann sem spyr.",
+    "Assistant" : "Aðstoð"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

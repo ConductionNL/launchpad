@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Keegi teine muudab nüüd seda töölauda, seega oled tagasi vaaterežiimis.",
     "You cannot edit this dashboard." : "Sa ei saa seda töölauda muuta.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Töölauda ei õnnestunud muutmiseks avada. Proovi hetke pärast uuesti.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Kui ta lõpetab, vabaneb töölaud {minutes} minuti jooksul."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Kui ta lõpetab, vabaneb töölaud {minutes} minuti jooksul.",
+    "The assistant needs the Hermiq app, which is not available here." : "Assistent vajab rakendust Hermiq, mis pole siin saadaval.",
+    "Thinking…" : "Mõtleb…",
+    "Your question" : "Sinu küsimus",
+    "Ask about this dashboard" : "Küsi selle töölaua kohta",
+    "Ask" : "Küsi",
+    "Summarise this dashboard" : "Tee selle töölaua kokkuvõte",
+    "Summarise this dashboard for me." : "Tee mulle selle töölaua kokkuvõte.",
+    "Hermiq agent (optional)" : "Hermiqi agent (valikuline)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Jäta tühjaks, et kasutada Hermiqi vaikeagenti. Vastused võivad kasutada kõike, mida see agent küsija jaoks lugeda tohib.",
+    "Assistant" : "Assistent"
 },
 "nplurals=2; plural=(n != 1);"
 );

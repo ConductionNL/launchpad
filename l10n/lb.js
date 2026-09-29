@@ -1138,7 +1138,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Elo beaarbecht een aneren dëst Dashboard, dofir sidd Dir erëm am Usiichtsmodus.",
     "You cannot edit this dashboard." : "Dir kënnt dëst Dashboard net beaarbechten.",
     "The dashboard could not be opened for editing. Try again in a moment." : "D'Dashboard konnt net fir ze beaarbechten opgemaach ginn. Probéiert et gläich nach eng Kéier.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Wann déi Persoun ophält, gëtt d'Dashboard bannent {minutes} Minutte fräi."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Wann déi Persoun ophält, gëtt d'Dashboard bannent {minutes} Minutte fräi.",
+    "The assistant needs the Hermiq app, which is not available here." : "Den Assistent brauch d'App Hermiq, déi hei net disponibel ass.",
+    "Thinking…" : "Iwwerleet…",
+    "Your question" : "Är Fro",
+    "Ask about this dashboard" : "Frot iwwer dëst Dashboard",
+    "Ask" : "Froen",
+    "Summarise this dashboard" : "Dëst Dashboard zesummefaassen",
+    "Summarise this dashboard for me." : "Faass mir dëst Dashboard zesummen.",
+    "Hermiq agent (optional)" : "Hermiq-Agent (fakultativ)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Eidel loossen fir den Standard-Agent vun Hermiq. D'Äntwerte kënnen alles benotzen, wat den Agent fir déi Persoun, déi freet, liese kann.",
+    "Assistant" : "Assistent"
 },
 "nplurals=2; plural=(n != 1);"
 );

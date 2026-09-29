@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Κάποιος άλλος επεξεργάζεται τώρα αυτόν τον πίνακα, οπότε επιστρέψατε στην προβολή.",
     "You cannot edit this dashboard." : "Δεν μπορείτε να επεξεργαστείτε αυτόν τον πίνακα.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Δεν ήταν δυνατό να ανοίξει ο πίνακας για επεξεργασία. Δοκιμάστε ξανά σε λίγο.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Αν σταματήσει, ο πίνακας απελευθερώνεται μέσα σε {minutes} λεπτά."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Αν σταματήσει, ο πίνακας απελευθερώνεται μέσα σε {minutes} λεπτά.",
+    "The assistant needs the Hermiq app, which is not available here." : "Ο βοηθός χρειάζεται την εφαρμογή Hermiq, που δεν είναι διαθέσιμη εδώ.",
+    "Thinking…" : "Σκέφτεται…",
+    "Your question" : "Η ερώτησή σας",
+    "Ask about this dashboard" : "Ρωτήστε για αυτόν τον πίνακα",
+    "Ask" : "Ερώτηση",
+    "Summarise this dashboard" : "Σύνοψη αυτού του πίνακα",
+    "Summarise this dashboard for me." : "Κάνε μου μια σύνοψη αυτού του πίνακα.",
+    "Hermiq agent (optional)" : "Πράκτορας Hermiq (προαιρετικό)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Αφήστε κενό για τον προεπιλεγμένο πράκτορα του Hermiq. Οι απαντήσεις μπορούν να χρησιμοποιούν ό,τι μπορεί να διαβάσει ο πράκτορας για αυτόν που ρωτά.",
+    "Assistant" : "Βοηθός"
 },
 "nplurals=2; plural=(n != 1);"
 );

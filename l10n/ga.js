@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Tá duine eile ag cur an deais seo in eagar anois, mar sin tá tú ar ais sa mhodh amhairc.",
     "You cannot edit this dashboard." : "Ní féidir leat an deais seo a chur in eagar.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Níorbh fhéidir an deais a oscailt le haghaidh eagarthóireachta. Bain triail eile as i gceann nóiméid.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Má stopann siad, beidh an deais saor laistigh de {minutes} nóiméad."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Má stopann siad, beidh an deais saor laistigh de {minutes} nóiméad.",
+    "The assistant needs the Hermiq app, which is not available here." : "Teastaíonn an aip Hermiq ón gcúntóir, agus níl sí ar fáil anseo.",
+    "Thinking…" : "Ag smaoineamh…",
+    "Your question" : "Do cheist",
+    "Ask about this dashboard" : "Cuir ceist faoin deais seo",
+    "Ask" : "Fiafraigh",
+    "Summarise this dashboard" : "Achoimrigh an deais seo",
+    "Summarise this dashboard for me." : "Achoimrigh an deais seo dom.",
+    "Hermiq agent (optional)" : "Gníomhaire Hermiq (roghnach)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Fág folamh chun gníomhaire réamhshocraithe Hermiq a úsáid. Is féidir leis na freagraí gach rud is féidir leis an ngníomhaire a léamh don duine a chuireann an cheist a úsáid.",
+    "Assistant" : "Cúntóir"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

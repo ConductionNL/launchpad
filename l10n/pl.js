@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Ktoś inny edytuje teraz ten pulpit, więc wracasz do trybu podglądu.",
     "You cannot edit this dashboard." : "Nie możesz edytować tego pulpitu.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nie udało się otworzyć pulpitu do edycji. Spróbuj ponownie za chwilę.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jeśli ta osoba przestanie, pulpit zwolni się w ciągu {minutes} minut."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jeśli ta osoba przestanie, pulpit zwolni się w ciągu {minutes} minut.",
+    "The assistant needs the Hermiq app, which is not available here." : "Asystent wymaga aplikacji Hermiq, która nie jest tu dostępna.",
+    "Thinking…" : "Myślę…",
+    "Your question" : "Twoje pytanie",
+    "Ask about this dashboard" : "Zapytaj o ten pulpit",
+    "Ask" : "Zapytaj",
+    "Summarise this dashboard" : "Podsumuj ten pulpit",
+    "Summarise this dashboard for me." : "Podsumuj mi ten pulpit.",
+    "Hermiq agent (optional)" : "Agent Hermiq (opcjonalnie)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Zostaw puste, aby użyć domyślnego agenta Hermiq. Odpowiedzi mogą korzystać ze wszystkiego, co agent może czytać w imieniu pytającego.",
+    "Assistant" : "Asystent"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

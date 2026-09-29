@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Tento panel teraz upravuje niekto iný, takže ste späť v režime zobrazenia.",
     "You cannot edit this dashboard." : "Tento panel nemôžete upravovať.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Panel sa nepodarilo otvoriť na úpravy. Skúste to o chvíľu znova.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Ak prestane, panel sa uvoľní do {minutes} minút."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Ak prestane, panel sa uvoľní do {minutes} minút.",
+    "The assistant needs the Hermiq app, which is not available here." : "Asistent potrebuje aplikáciu Hermiq, ktorá tu nie je k dispozícii.",
+    "Thinking…" : "Premýšľam…",
+    "Your question" : "Vaša otázka",
+    "Ask about this dashboard" : "Opýtajte sa na tento panel",
+    "Ask" : "Opýtať sa",
+    "Summarise this dashboard" : "Zhrnúť tento panel",
+    "Summarise this dashboard for me." : "Zhrň mi tento panel.",
+    "Hermiq agent (optional)" : "Agent Hermiq (nepovinné)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Nechajte prázdne pre predvoleného agenta Hermiq. Odpovede môžu použiť všetko, čo agent smie čítať za pýtajúceho sa.",
+    "Assistant" : "Asistent"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

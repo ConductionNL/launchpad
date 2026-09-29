@@ -1147,7 +1147,17 @@ OC.L10N.register(
     "Someone else is editing this dashboard now, so you are back in view mode." : "Šią suvestinę dabar redaguoja kažkas kitas, todėl grįžote į peržiūros režimą.",
     "You cannot edit this dashboard." : "Negalite redaguoti šios suvestinės.",
     "The dashboard could not be opened for editing. Try again in a moment." : "Nepavyko atidaryti suvestinės redagavimui. Bandykite dar kartą po akimirkos.",
-    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min."
+    "If they stop, the dashboard frees up within {minutes} minutes." : "Jei asmuo sustos, suvestinė atsilaisvins per {minutes} min.",
+    "The assistant needs the Hermiq app, which is not available here." : "Asistentui reikia programėlės Hermiq, kuri čia nepasiekiama.",
+    "Thinking…" : "Galvoja…",
+    "Your question" : "Jūsų klausimas",
+    "Ask about this dashboard" : "Klauskite apie šią suvestinę",
+    "Ask" : "Klausti",
+    "Summarise this dashboard" : "Apibendrinti šią suvestinę",
+    "Summarise this dashboard for me." : "Apibendrink man šią suvestinę.",
+    "Hermiq agent (optional)" : "Hermiq agentas (nebūtina)",
+    "Leave empty to use Hermiq's default agent. The answers can use everything that agent may read for the person asking." : "Palikite tuščią, kad būtų naudojamas numatytasis Hermiq agentas. Atsakymai gali naudoti viską, ką agentas gali skaityti klausiančiajam.",
+    "Assistant" : "Asistentas"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

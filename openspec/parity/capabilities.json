@@ -3479,10 +3479,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/ReactionService.php:91",
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardReactions.vue; src/views/Views.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-dashboard-reactions-bar"
+				"change": "openspec/changes/archive/2026-09-29-engagement-dashboard-reactions-bar"
 			},
 			"reachedOn": "nothing: the store actions addReaction and fetchReactionsSummary have no component caller",
 			"provider": "launchpad",

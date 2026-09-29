@@ -58,7 +58,7 @@ import { useDashboardStore } from '../../stores/dashboard.js'
  * reactions are off globally or for the dashboard (the summary says
  * `enabled: false`).
  *
- * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+ * @spec openspec/specs/dashboard-reactions/spec.md
  */
 export default {
 	name: 'DashboardReactions',
@@ -70,7 +70,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md */
+	/** @spec openspec/specs/dashboard-reactions/spec.md */
 	data() {
 		return { reactorNames: {} }
 	},
@@ -80,7 +80,7 @@ export default {
 
 		/**
 		 * @return {object|null} This dashboard's summary `{counts, mine, enabled, allowed}`.
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		summary() {
 			return this.reactionsSummary?.[this.dashboardUuid] ?? null
@@ -88,7 +88,7 @@ export default {
 
 		/**
 		 * @return {Array<string>} Emoji with at least one reaction.
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		shown() {
 			return Object.keys(this.summary?.counts ?? {}).filter(
@@ -98,7 +98,7 @@ export default {
 
 		/**
 		 * @return {Array<string>} Allowed emoji nobody used yet.
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		unused() {
 			const allowed = Array.isArray(this.summary?.allowed)
@@ -115,7 +115,7 @@ export default {
 			 * Read the summary of the dashboard that opened.
 			 *
 			 * @param {string} uuid Dashboard UUID.
-			 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+			 * @spec openspec/specs/dashboard-reactions/spec.md
 			 */
 			handler(uuid) {
 				this.reactorNames = {}
@@ -138,7 +138,7 @@ export default {
 		/**
 		 * @param {string} emoji An emoji.
 		 * @return {number} Its count.
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		countOf(emoji) {
 			return Number(this.summary?.counts?.[emoji] ?? 0)
@@ -147,7 +147,7 @@ export default {
 		/**
 		 * @param {string} emoji An emoji.
 		 * @return {boolean} Whether the viewer reacted with it.
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		isMine(emoji) {
 			return (
@@ -161,7 +161,7 @@ export default {
 		 *
 		 * @param {string} emoji An emoji.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		async toggle(emoji) {
 			if (this.isMine(emoji)) {
@@ -177,7 +177,7 @@ export default {
 		 *
 		 * @param {string} emoji An emoji.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+		 * @spec openspec/specs/dashboard-reactions/spec.md
 		 */
 		async loadReactors(emoji) {
 			if (this.reactorNames[emoji]) {

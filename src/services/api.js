@@ -1161,7 +1161,7 @@ export const api = {
 	 * @param {string} uuid Dashboard UUID.
 	 * @param {string} emoji The emoji.
 	 * @return {Promise} Axios response with `{reactors, total, ...}`.
-	 * @spec openspec/changes/engagement-dashboard-reactions-bar/specs/dashboard-reactions/spec.md
+	 * @spec openspec/specs/dashboard-reactions/spec.md
 	 */
 	getDashboardReactors(uuid, emoji) {
 		return axios.get(

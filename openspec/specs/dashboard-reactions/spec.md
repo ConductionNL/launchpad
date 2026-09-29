@@ -291,6 +291,24 @@ When a dashboard is deleted, ALL reactions on that dashboard MUST be removed.
 - THEN the 3 reactions on `dash-A` MUST be deleted
 - AND the 5 reactions on `dash-B` MUST remain unchanged
 
+### Requirement: REQ-RXN-010 A viewer can react from the dashboard
+
+@e2e exclude reacting needs a live dashboard with reactions on; asserted in src/components/Workspace/__tests__/DashboardReactions.spec.js and tests/Unit/Service/ReactionServiceTest.php
+
+In view mode a reactions bar MUST show under the dashboard title with each emoji and its count, mark the viewer's own reactions, and toggle the viewer's reaction on click. It MUST offer only the allowed emoji, and MUST be absent when reactions are disabled globally or for the dashboard.
+
+#### Scenario: Add and remove
+
+- **GIVEN** Pieter views the dashboard "Team" with reactions on
+- **WHEN** he clicks the thumbs up, then clicks it again
+- **THEN** the count rises by one and is marked as his, then returns to what it was
+
+#### Scenario: Reactions off
+
+- **GIVEN** the dashboard "Board" has reactions switched off
+- **WHEN** Pieter opens it
+- **THEN** no reactions bar is shown
+
 ## Non-Functional Requirements
 
 - **Performance**: `GET /api/dashboards/{uuid}/reactions` MUST return within 200ms. `GET /api/dashboards/{uuid}/reactions/{emoji}/users` with 100-item result MUST return within 300ms (pagination used if > 100).

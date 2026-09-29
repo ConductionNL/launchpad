@@ -734,5 +734,45 @@
 		"reason": "No competitor rated yes (Microsoft Viva Connections, Homarr partial); a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (widgets). Reversible: reopen the row if demand appears.",
 		"change": null,
 		"decidedOn": "2026-09-28"
+	},
+	{
+		"row": "s-schedule",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Ruben decided 2026-09-29 (DECISIONS row 14): build, reversing decided-no. The backend exists and only the screen is missing.",
+		"change": "sharing-dashboard-schedule-screen",
+		"decidedOn": "2026-09-29"
+	},
+	{
+		"row": "e-ack-ask",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Ruben decided 2026-09-29 (DECISIONS row 14): build, reversing decided-no. The backend exists and only the screen is missing.",
+		"change": "engagement-acknowledgement-toggle",
+		"decidedOn": "2026-09-29"
+	},
+	{
+		"row": "e-react",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Ruben decided 2026-09-29 (DECISIONS row 14): build, reversing decided-no. The backend exists and only the screen is missing.",
+		"change": "engagement-dashboard-reactions-bar",
+		"decidedOn": "2026-09-29"
+	},
+	{
+		"row": "a-assistant",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Ruben decided 2026-09-29 (DECISIONS row 16): build, reversing decided-no. The main spec exists; the model comes through hermiq.",
+		"change": "search-ai-dashboard-assistant",
+		"decidedOn": "2026-09-29"
+	},
+	{
+		"row": "s-kiosk",
+		"matrix": "launchpad",
+		"decision": "build",
+		"reason": "Ruben decided 2026-09-29 (DECISIONS row 13): build. Kiosk mode is advertised as stable and no page renders it.",
+		"change": "sharing-kiosk-screens",
+		"decidedOn": "2026-09-29"
 	}
 ]

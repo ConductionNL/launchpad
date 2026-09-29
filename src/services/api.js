@@ -210,6 +210,75 @@ export const api = {
 	},
 
 	/**
+	 * Acquire the editing lock on a dashboard (REQ-LOCK-001). A 409 carries
+	 * `{error, code: 'lock_conflict', lock: {displayName, acquiredAt, ...}}`.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response resolving to the held lock.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	acquireLock(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
+	},
+
+	/**
+	 * Refresh the editing lock (REQ-LOCK-002). 404 means the lock is gone.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response resolving to the refreshed lock.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	heartbeatLock(uuid) {
+		return axios.put(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
+	},
+
+	/**
+	 * Release the editing lock (REQ-LOCK-003).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response (204).
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	releaseLock(uuid) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
+	},
+
+	/**
+	 * Release the editing lock while the page is closing. A DELETE cannot
+	 * use `sendBeacon`, so the request goes through axios' fetch adapter
+	 * with `keepalive`, which keeps the request token interceptor.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response (204), usually never read.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	releaseLockOnPageHide(uuid) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+			{ adapter: 'fetch', fetchOptions: { keepalive: true } },
+		)
+	},
+
+	/**
+	 * Force-release another person's lock; administrators only (REQ-LOCK-005).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response resolving to `{status: 'ok'}`.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	forceReleaseLock(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock/force-release`,
+		)
+	},
+
+	/**
 	 * List a dashboard's saved versions (REQ-VERS-004). Resolves to
 	 * `{versions, modeSupported}`; `modeSupported` is false when the
 	 * dashboard's storage cannot keep versions (REQ-VERS-009).

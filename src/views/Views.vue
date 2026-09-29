@@ -1130,7 +1130,7 @@ export default {
 		 * The widget menu's "Read confirmation…": open the dialog for the
 		 * widget the menu was opened on.
 		 *
-		 * @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md
+		 * @spec openspec/specs/dashboard-acknowledgements/spec.md
 		 */
 		openReadConfirmation() {
 			// The menu emits `close` right after this event, so the selected
@@ -1147,7 +1147,7 @@ export default {
 		 *
 		 * @param {object} payload `{requiresAcknowledgement, acknowledgementPrompt, acknowledgementDeadline}`.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md
+		 * @spec openspec/specs/dashboard-acknowledgements/spec.md
 		 */
 		async saveReadConfirmation(payload) {
 			const placement = this.readConfirmationPlacement

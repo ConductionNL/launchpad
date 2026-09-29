@@ -64,7 +64,7 @@ import { t } from '@nextcloud/l10n'
  * Emits `save` with `{requiresAcknowledgement, acknowledgementPrompt,
  * acknowledgementDeadline}`, the fields PlacementUpdater applies.
  *
- * @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md
+ * @spec openspec/specs/dashboard-acknowledgements/spec.md
  */
 export default {
 	name: 'ReadConfirmationDialog',
@@ -91,7 +91,7 @@ export default {
 
 	emits: ['update:open', 'save'],
 
-	/** @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md */
+	/** @spec openspec/specs/dashboard-acknowledgements/spec.md */
 	data() {
 		return {
 			ask: Number(this.placement?.requiresAcknowledgement) === 1,
@@ -106,7 +106,7 @@ export default {
 		/**
 		 * Emit the placement update.
 		 *
-		 * @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md
+		 * @spec openspec/specs/dashboard-acknowledgements/spec.md
 		 */
 		save() {
 			this.$emit('save', {

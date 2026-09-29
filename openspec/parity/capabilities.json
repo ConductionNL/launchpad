@@ -3419,10 +3419,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "src/components/WidgetWrapper.vue:155; lib/Service/PlacementUpdater.php:139",
+				"state": "built",
+				"evidence": "src/components/Widgets/WidgetContextMenu.vue; src/dialogs/ReadConfirmationDialog.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-acknowledgement-toggle"
+				"change": "openspec/changes/archive/2026-09-29-engagement-acknowledgement-toggle"
 			},
 			"reachedOn": "the prompt renders on the Workspace page, but no form sets requiresAcknowledgement; only PUT /api/widgets/{placementId} does",
 			"provider": "launchpad",

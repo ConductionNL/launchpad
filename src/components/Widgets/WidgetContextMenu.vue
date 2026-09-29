@@ -154,7 +154,7 @@ export default {
 			this.$emit('close')
 		},
 
-		/** @spec openspec/changes/engagement-acknowledgement-toggle/specs/dashboard-acknowledgements/spec.md */
+		/** @spec openspec/specs/dashboard-acknowledgements/spec.md */
 		onReadConfirmation() {
 			this.$emit('readConfirmation')
 			this.$emit('close')

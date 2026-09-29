@@ -27,12 +27,12 @@ vi.mock('@nextcloud/l10n', () => ({
 }))
 
 const allowed = ['👍', '❤️', '🎉', '😂', '🤔', '😢']
-function summary (counts, mine, enabled = true) {
-  return {
-	data: enabled
-		? { counts, mine, enabled, allowed }
-		: { counts: {}, mine: [], enabled: false },
-}
+function summary(counts, mine, enabled = true) {
+	return {
+		data: enabled
+			? { counts, mine, enabled, allowed }
+			: { counts: {}, mine: [], enabled: false },
+	}
 }
 const url = '/index.php/apps/launchpad/api/dashboards/team/reactions'
 

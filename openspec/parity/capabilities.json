@@ -925,10 +925,10 @@
 			"homarr": "no",
 			"dashy": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardVersionService.php:433",
+				"state": "built",
+				"evidence": "src/views/Views.vue:177; src/modals/VersionHistoryModal.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboard-version-history-ui"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-version-history-ui"
 			},
 			"reachedOn": "nothing: /api/dashboards/{uuid}/versions and its restore route have no caller in src/",
 			"provider": "launchpad",

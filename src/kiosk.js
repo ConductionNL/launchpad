@@ -6,7 +6,7 @@
  * KioskPlayerView with the token from the URL. No login is required; the
  * player reads the playlist as JSON from the same route.
  *
- * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'

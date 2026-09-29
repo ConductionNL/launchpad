@@ -93,7 +93,7 @@ import { translate as t } from '@nextcloud/l10n'
  * visible to signed-in users. Shared by the public share page and the
  * kiosk player.
  *
- * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 export default {
 	name: 'PublicDashboardGrid',
@@ -108,7 +108,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<object>} Visible placements in reading order, normalised for display.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		items() {
 			const list = [...this.placements].filter(

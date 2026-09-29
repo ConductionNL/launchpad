@@ -43,7 +43,7 @@ const RETRY_MS = 30 * 1000
  * the link is revoked (404), and keeps the last good playlist when the
  * network fails, retrying every 30 seconds. No login and no controls.
  *
- * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 export default {
 	name: 'KioskPlayerView',
@@ -59,7 +59,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	data() {
 		return {
 			entries: [],
@@ -75,19 +75,19 @@ export default {
 	computed: {
 		/**
 		 * @return {object|null} The entry on screen now.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		current() {
 			return this.entries[this.index] ?? null
 		},
 	},
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	async mounted() {
 		await this.load()
 	},
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	beforeUnmount() {
 		clearTimeout(this.dwellTimer)
 		clearTimeout(this.refreshTimer)
@@ -100,7 +100,7 @@ export default {
 		 * Read the playlist and schedule the next read.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		async load() {
 			let next
@@ -134,7 +134,7 @@ export default {
 		 * the same number of entries came back, and restarts otherwise.
 		 *
 		 * @param {object} data `{playlist, entries}` from the kiosk route.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		apply(data) {
 			const entries = Array.isArray(data?.entries) ? data.entries : []
@@ -156,7 +156,7 @@ export default {
 		/**
 		 * Show the current entry for its dwell time, then move on.
 		 *
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		scheduleNext() {
 			clearTimeout(this.dwellTimer)
@@ -174,7 +174,7 @@ export default {
 		/**
 		 * Stop rotating.
 		 *
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		stop() {
 			clearTimeout(this.dwellTimer)

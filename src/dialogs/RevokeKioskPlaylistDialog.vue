@@ -41,7 +41,7 @@ import { t } from '@nextcloud/l10n'
  * RevokeKioskPlaylistDialog: the confirmation before a kiosk link is
  * revoked (ADR-004 modal isolation).
  *
- * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 export default {
 	name: 'RevokeKioskPlaylistDialog',

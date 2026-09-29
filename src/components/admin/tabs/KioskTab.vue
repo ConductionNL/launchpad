@@ -120,7 +120,7 @@ import { useKioskPlaylistStore } from '../../../stores/kioskPlaylists.js'
  * and creates, edits and revokes them through the existing playlist
  * endpoints (KioskController, owner-or-admin per dashboard).
  *
- * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 export default {
 	name: 'KioskTab',
@@ -131,12 +131,12 @@ export default {
 		RevokeKioskPlaylistDialog,
 	},
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	setup() {
 		return { store: useKioskPlaylistStore() }
 	},
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	data() {
 		return {
 			dashboards: [],
@@ -147,7 +147,7 @@ export default {
 		}
 	},
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	async mounted() {
 		try {
 			await this.store.fetchPlaylists()
@@ -166,7 +166,7 @@ export default {
 		 *
 		 * @param {object} playlist Playlist row.
 		 * @return {string} Absolute kiosk URL.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		linkFor(playlist) {
 			return (
@@ -182,7 +182,7 @@ export default {
 		 *
 		 * @param {object} playlist Playlist row.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		async copyLink(playlist) {
 			try {
@@ -200,7 +200,7 @@ export default {
 		 * Open the form for a new or an existing playlist.
 		 *
 		 * @param {object|null} playlist Playlist to edit, or null.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		openForm(playlist) {
 			this.editing = playlist
@@ -212,7 +212,7 @@ export default {
 		 *
 		 * @param {object} body `{name, entries, refreshSeconds}`.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		async savePlaylist(body) {
 			this.error = ''
@@ -238,7 +238,7 @@ export default {
 		 * Revoke the confirmed playlist.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		async revoke() {
 			const target = this.revokeTarget

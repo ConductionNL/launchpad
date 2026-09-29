@@ -268,7 +268,7 @@ class KioskController extends Controller {
 	 * @return Response HTTP 200 render payload or player page, 404 if invalid, 429 when throttled.
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-4
-	 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -312,7 +312,7 @@ class KioskController extends Controller {
 	 *
 	 * @return bool True when the Accept header prefers HTML over JSON.
 	 *
-	 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 */
 	private function wantsHtml(): bool {
 		$accept = strtolower($this->request->getHeader('Accept'));
@@ -330,7 +330,7 @@ class KioskController extends Controller {
 	 *
 	 * @return TemplateResponse The player page.
 	 *
-	 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 */
 	private function renderPlayer(string $token): TemplateResponse {
 		$response = new TemplateResponse(

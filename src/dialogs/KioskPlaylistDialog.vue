@@ -110,7 +110,7 @@ let nextKey = 0
  * Emits `save` with `{name, entries: [{dashboardUuid, dwellSeconds}],
  * refreshSeconds}`, the body the playlist endpoints take.
  *
- * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+ * @spec openspec/specs/dashboard-kiosk-mode/spec.md
  */
 export default {
 	name: 'KioskPlaylistDialog',
@@ -143,7 +143,7 @@ export default {
 
 	emits: ['update:open', 'save'],
 
-	/** @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md */
+	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */
 	data() {
 		return {
 			DWELL_MIN,
@@ -159,7 +159,7 @@ export default {
 	computed: {
 		/**
 		 * @return {Array<object>} Dashboards offered in the picker.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		dashboardOptions() {
 			return this.dashboards.filter((d) => d?.uuid)
@@ -167,7 +167,7 @@ export default {
 
 		/**
 		 * @return {string} Why the form cannot be saved, or empty.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		problem() {
 			if (this.name.trim() === '') {
@@ -215,7 +215,7 @@ export default {
 			 * Reset the form each time it opens.
 			 *
 			 * @param {boolean} isOpen New open state.
-			 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+			 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 			 */
 			handler(isOpen) {
 				if (isOpen) {
@@ -231,7 +231,7 @@ export default {
 		/**
 		 * Fill the form from the playlist being edited, or empty it.
 		 *
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		reset() {
 			this.name = this.playlist?.name ?? ''
@@ -254,7 +254,7 @@ export default {
 		/**
 		 * Add an empty row.
 		 *
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		addEntry() {
 			this.entries.push({ key: nextKey++, dashboard: null, dwellSeconds: 30 })
@@ -264,7 +264,7 @@ export default {
 		 * Remove one row.
 		 *
 		 * @param {number} index Row index.
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		removeEntry(index) {
 			this.entries.splice(index, 1)
@@ -273,7 +273,7 @@ export default {
 		/**
 		 * Emit the playlist body when the form is valid.
 		 *
-		 * @spec openspec/changes/sharing-kiosk-screens/specs/dashboard-kiosk-mode/spec.md
+		 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 		 */
 		save() {
 			if (this.problem !== '') {

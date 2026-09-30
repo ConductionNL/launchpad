@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Zkratky vyhledávání se nepodařilo načíst.",
     "The search shortcuts could not be saved." : "Zkratky vyhledávání se nepodařilo uložit.",
     "Search {name} for {query}" : "Hledat {query} v {name}",
-    "Type what to search for in {name}" : "Napište, co hledat v {name}"
+    "Type what to search for in {name}" : "Napište, co hledat v {name}",
+    "Import bookmarks" : "Importovat záložky",
+    "Import bookmarks…" : "Importovat záložky…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Vyberte soubor záložek, který exportuje váš prohlížeč. Každá vybraná složka se stane skupinou dlaždic v dolní části této nástěnky.",
+    "Bookmarks file" : "Soubor záložek",
+    "What to import" : "Co importovat",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Tento soubor neobsahuje žádné záložky.",
+    "Tiles added: {count}" : "Přidané dlaždice: {count}",
+    "Import" : "Importovat",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tento soubor je větší než 5 MB. Exportujte složky po jedné.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tento soubor má více než 2 000 záložek. Exportujte složky po jedné.",
+    "This file could not be read as a bookmarks file." : "Tento soubor nelze přečíst jako soubor záložek.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Zbývající místo na této nástěnce: {count}. Vyberte méně složek.",
+    "The import failed; nothing was added." : "Import se nezdařil; nic nebylo přidáno.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Přeskočena {count} záložka: dlaždicí může být jen webová adresa", "Přeskočeny {count} záložky: dlaždicí může být jen webová adresa", "Přeskočeno {count} záložek: dlaždicí může být jen webová adresa"]
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

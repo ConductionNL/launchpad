@@ -1335,6 +1335,21 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Пречице за претрагу нису могле да се учитају.",
     "The search shortcuts could not be saved." : "Пречице за претрагу нису могле да се сачувају.",
     "Search {name} for {query}" : "Претражи {name} за {query}",
-    "Type what to search for in {name}" : "Унесите шта тражите у {name}"
+    "Type what to search for in {name}" : "Унесите шта тражите у {name}",
+    "Import bookmarks" : "Увези обележиваче",
+    "Import bookmarks…" : "Увези обележиваче…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Изаберите датотеку обележивача коју извози ваш прегледач. Свака изабрана фасцикла постаје група плочица на дну ове контролне табле.",
+    "Bookmarks file" : "Датотека обележивача",
+    "What to import" : "Шта увести",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Ова датотека нема обележиваче.",
+    "Tiles added: {count}" : "Додато плочица: {count}",
+    "Import" : "Увези",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ова датотека је већа од 5 MB. Извозите једну по једну фасциклу.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ова датотека има више од 2.000 обележивача. Извозите једну по једну фасциклу.",
+    "This file could not be read as a bookmarks file." : "Ова датотека не може да се прочита као датотека обележивача.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Преостало места на овој контролној табли: {count}. Изаберите мање фасцикли.",
+    "The import failed; nothing was added." : "Увоз није успео; ништа није додато.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Прескочен {count} обележивач: само веб адресе могу постати плочице", "Прескочена {count} обележивача: само веб адресе могу постати плочице", "Прескочено {count} обележивача: само веб адресе могу постати плочице"]
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

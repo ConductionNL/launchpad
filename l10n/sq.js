@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Shkurtoret e kërkimit nuk u ngarkuan.",
     "The search shortcuts could not be saved." : "Shkurtoret e kërkimit nuk u ruajtën.",
     "Search {name} for {query}" : "Kërko në {name} për {query}",
-    "Type what to search for in {name}" : "Shkruaj çfarë të kërkosh në {name}"
+    "Type what to search for in {name}" : "Shkruaj çfarë të kërkosh në {name}",
+    "Import bookmarks" : "Importo faqerojtës",
+    "Import bookmarks…" : "Importo faqerojtës…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Zgjidh skedarin e faqerojtësve që eksporton shfletuesi yt. Çdo dosje që zgjedh bëhet një grup pllakash në fund të këtij paneli.",
+    "Bookmarks file" : "Skedar faqerojtësish",
+    "What to import" : "Çfarë të importohet",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Ky skedar nuk ka faqerojtës.",
+    "Tiles added: {count}" : "Pllaka të shtuara: {count}",
+    "Import" : "Importo",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ky skedar është më i madh se 5 MB. Eksporto një dosje në një kohë.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ky skedar ka më shumë se 2.000 faqerojtës. Eksporto një dosje në një kohë.",
+    "This file could not be read as a bookmarks file." : "Ky skedar nuk u lexua dot si skedar faqerojtësish.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Hapësirë e mbetur në këtë panel: {count}. Zgjidh më pak dosje.",
+    "The import failed; nothing was added." : "Importimi dështoi; nuk u shtua asgjë.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["U anashkalua {count} faqerojtës: vetëm adresat web mund të bëhen pllaka", "U anashkaluan {count} faqerojtës: vetëm adresat web mund të bëhen pllaka"]
 },
 "nplurals=2; plural=(n != 1);"
 );

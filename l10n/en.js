@@ -1324,7 +1324,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "The search shortcuts could not be loaded.",
     "The search shortcuts could not be saved." : "The search shortcuts could not be saved.",
     "Search {name} for {query}" : "Search {name} for {query}",
-    "Type what to search for in {name}" : "Type what to search for in {name}"
+    "Type what to search for in {name}" : "Type what to search for in {name}",
+    "Import bookmarks" : "Import bookmarks",
+    "Import bookmarks…" : "Import bookmarks…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard.",
+    "Bookmarks file" : "Bookmarks file",
+    "What to import" : "What to import",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "This file holds no bookmarks.",
+    "Tiles added: {count}" : "Tiles added: {count}",
+    "Import" : "Import",
+    "This file is larger than 5 MB. Export one folder at a time." : "This file is larger than 5 MB. Export one folder at a time.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "This file has more than 2,000 bookmarks. Export one folder at a time.",
+    "This file could not be read as a bookmarks file." : "This file could not be read as a bookmarks file.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Room left on this dashboard: {count}. Pick fewer folders.",
+    "The import failed; nothing was added." : "The import failed; nothing was added.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bookmark skipped: only web addresses can become tiles", "{count} bookmarks skipped: only web addresses can become tiles"]
 },
 "nplurals=2; plural=(n != 1);"
 );

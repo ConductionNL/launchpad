@@ -1335,7 +1335,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Кратенките за пребарување не можеа да се вчитаат.",
     "The search shortcuts could not be saved." : "Кратенките за пребарување не можеа да се зачуваат.",
     "Search {name} for {query}" : "Пребарај во {name} за {query}",
-    "Type what to search for in {name}" : "Внесете што да се бара во {name}"
+    "Type what to search for in {name}" : "Внесете што да се бара во {name}",
+    "Import bookmarks" : "Увези обележувачи",
+    "Import bookmarks…" : "Увези обележувачи…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Изберете ја датотеката со обележувачи што ја извезува вашиот прелистувач. Секоја избрана папка станува група плочки на дното на оваа контролна табла.",
+    "Bookmarks file" : "Датотека со обележувачи",
+    "What to import" : "Што да се увезе",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Оваа датотека нема обележувачи.",
+    "Tiles added: {count}" : "Додадени плочки: {count}",
+    "Import" : "Увези",
+    "This file is larger than 5 MB. Export one folder at a time." : "Оваа датотека е поголема од 5 MB. Извезувајте по една папка.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Оваа датотека има повеќе од 2.000 обележувачи. Извезувајте по една папка.",
+    "This file could not be read as a bookmarks file." : "Оваа датотека не може да се прочита како датотека со обележувачи.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Преостанато место на оваа табла: {count}. Изберете помалку папки.",
+    "The import failed; nothing was added." : "Увезувањето не успеа; ништо не е додадено.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Прескокнат {count} обележувач: само веб-адреси можат да станат плочки", "Прескокнати {count} обележувачи: само веб-адреси можат да станат плочки"]
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

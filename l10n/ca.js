@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "No s'han pogut carregar les dreceres de cerca.",
     "The search shortcuts could not be saved." : "No s'han pogut desar les dreceres de cerca.",
     "Search {name} for {query}" : "Cerca {query} a {name}",
-    "Type what to search for in {name}" : "Escriviu què voleu cercar a {name}"
+    "Type what to search for in {name}" : "Escriviu què voleu cercar a {name}",
+    "Import bookmarks" : "Importa adreces d'interès",
+    "Import bookmarks…" : "Importa adreces d'interès…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Trieu el fitxer d'adreces d'interès que exporta el navegador. Cada carpeta que trieu es converteix en un grup de rajoles a la part inferior d'aquest tauler.",
+    "Bookmarks file" : "Fitxer d'adreces d'interès",
+    "What to import" : "Què cal importar",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Aquest fitxer no conté adreces d'interès.",
+    "Tiles added: {count}" : "Rajoles afegides: {count}",
+    "Import" : "Importa",
+    "This file is larger than 5 MB. Export one folder at a time." : "Aquest fitxer ocupa més de 5 MB. Exporteu les carpetes d'una en una.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Aquest fitxer té més de 2.000 adreces d'interès. Exporteu les carpetes d'una en una.",
+    "This file could not be read as a bookmarks file." : "Aquest fitxer no s'ha pogut llegir com a fitxer d'adreces d'interès.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Espai que queda en aquest tauler: {count}. Trieu menys carpetes.",
+    "The import failed; nothing was added." : "La importació ha fallat; no s'ha afegit res.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["S'ha omès {count} adreça d'interès: només les adreces web poden ser rajoles", "S'han omès {count} adreces d'interès: només les adreces web poden ser rajoles"]
 },
 "nplurals=2; plural=(n != 1);"
 );

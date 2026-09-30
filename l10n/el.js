@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Δεν ήταν δυνατή η φόρτωση των συντομεύσεων αναζήτησης.",
     "The search shortcuts could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των συντομεύσεων αναζήτησης.",
     "Search {name} for {query}" : "Αναζήτηση στο {name} για {query}",
-    "Type what to search for in {name}" : "Πληκτρολογήστε τι να αναζητηθεί στο {name}"
+    "Type what to search for in {name}" : "Πληκτρολογήστε τι να αναζητηθεί στο {name}",
+    "Import bookmarks" : "Εισαγωγή σελιδοδεικτών",
+    "Import bookmarks…" : "Εισαγωγή σελιδοδεικτών…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Επιλέξτε το αρχείο σελιδοδεικτών που εξάγει το πρόγραμμα περιήγησής σας. Κάθε φάκελος που επιλέγετε γίνεται ομάδα πλακιδίων στο κάτω μέρος αυτού του πίνακα.",
+    "Bookmarks file" : "Αρχείο σελιδοδεικτών",
+    "What to import" : "Τι θα εισαχθεί",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Αυτό το αρχείο δεν περιέχει σελιδοδείκτες.",
+    "Tiles added: {count}" : "Πλακίδια που προστέθηκαν: {count}",
+    "Import" : "Εισαγωγή",
+    "This file is larger than 5 MB. Export one folder at a time." : "Αυτό το αρχείο είναι μεγαλύτερο από 5 MB. Εξάγετε έναν φάκελο τη φορά.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Αυτό το αρχείο έχει περισσότερους από 2.000 σελιδοδείκτες. Εξάγετε έναν φάκελο τη φορά.",
+    "This file could not be read as a bookmarks file." : "Αυτό το αρχείο δεν ήταν δυνατό να διαβαστεί ως αρχείο σελιδοδεικτών.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Διαθέσιμος χώρος σε αυτόν τον πίνακα: {count}. Επιλέξτε λιγότερους φακέλους.",
+    "The import failed; nothing was added." : "Η εισαγωγή απέτυχε· δεν προστέθηκε τίποτα.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Παραλείφθηκε {count} σελιδοδείκτης: μόνο διευθύνσεις ιστού γίνονται πλακίδια", "Παραλείφθηκαν {count} σελιδοδείκτες: μόνο διευθύνσεις ιστού γίνονται πλακίδια"]
 },
 "nplurals=2; plural=(n != 1);"
 );

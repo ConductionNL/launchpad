@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Die Suchkürzel konnten nicht geladen werden.",
     "The search shortcuts could not be saved." : "Die Suchkürzel konnten nicht gespeichert werden.",
     "Search {name} for {query}" : "In {name} nach {query} suchen",
-    "Type what to search for in {name}" : "Gib ein, wonach in {name} gesucht werden soll"
+    "Type what to search for in {name}" : "Gib ein, wonach in {name} gesucht werden soll",
+    "Import bookmarks" : "Lesezeichen importieren",
+    "Import bookmarks…" : "Lesezeichen importieren…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Wähle die Lesezeichendatei, die dein Browser exportiert. Jeder gewählte Ordner wird zu einer Kachelgruppe unten auf diesem Dashboard.",
+    "Bookmarks file" : "Lesezeichendatei",
+    "What to import" : "Was importiert werden soll",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Diese Datei enthält keine Lesezeichen.",
+    "Tiles added: {count}" : "Hinzugefügte Kacheln: {count}",
+    "Import" : "Importieren",
+    "This file is larger than 5 MB. Export one folder at a time." : "Diese Datei ist größer als 5 MB. Exportiere jeweils einen Ordner.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Diese Datei hat mehr als 2.000 Lesezeichen. Exportiere jeweils einen Ordner.",
+    "This file could not be read as a bookmarks file." : "Diese Datei konnte nicht als Lesezeichendatei gelesen werden.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Platz auf diesem Dashboard: noch {count}. Wähle weniger Ordner.",
+    "The import failed; nothing was added." : "Der Import ist fehlgeschlagen; nichts wurde hinzugefügt.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} Lesezeichen übersprungen: nur Webadressen können Kacheln werden", "{count} Lesezeichen übersprungen: nur Webadressen können Kacheln werden"]
 },
 "nplurals=2; plural=(n != 1);"
 );

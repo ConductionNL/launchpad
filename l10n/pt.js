@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Não foi possível carregar os atalhos de pesquisa.",
     "The search shortcuts could not be saved." : "Não foi possível guardar os atalhos de pesquisa.",
     "Search {name} for {query}" : "Pesquisar {query} em {name}",
-    "Type what to search for in {name}" : "Escreva o que pesquisar em {name}"
+    "Type what to search for in {name}" : "Escreva o que pesquisar em {name}",
+    "Import bookmarks" : "Importar marcadores",
+    "Import bookmarks…" : "Importar marcadores…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Escolha o ficheiro de marcadores que o seu navegador exporta. Cada pasta que escolher torna-se um grupo de mosaicos no fundo deste painel.",
+    "Bookmarks file" : "Ficheiro de marcadores",
+    "What to import" : "O que importar",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Este ficheiro não contém marcadores.",
+    "Tiles added: {count}" : "Mosaicos adicionados: {count}",
+    "Import" : "Importar",
+    "This file is larger than 5 MB. Export one folder at a time." : "Este ficheiro tem mais de 5 MB. Exporte uma pasta de cada vez.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Este ficheiro tem mais de 2000 marcadores. Exporte uma pasta de cada vez.",
+    "This file could not be read as a bookmarks file." : "Não foi possível ler este ficheiro como ficheiro de marcadores.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Espaço restante neste painel: {count}. Escolha menos pastas.",
+    "The import failed; nothing was added." : "A importação falhou; nada foi adicionado.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} marcador ignorado: só endereços web podem ser mosaicos", "{count} marcadores ignorados: só endereços web podem ser mosaicos"]
 },
 "nplurals=2; plural=(n != 1);"
 );

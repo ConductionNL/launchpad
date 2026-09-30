@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Преките пътища за търсене не можаха да се заредят.",
     "The search shortcuts could not be saved." : "Преките пътища за търсене не можаха да се запазят.",
     "Search {name} for {query}" : "Търсене в {name} за {query}",
-    "Type what to search for in {name}" : "Въведете какво да търсите в {name}"
+    "Type what to search for in {name}" : "Въведете какво да търсите в {name}",
+    "Import bookmarks" : "Импортиране на отметки",
+    "Import bookmarks…" : "Импортиране на отметки…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Изберете файла с отметки, който браузърът ви експортира. Всяка избрана папка става група плочки в долната част на това табло.",
+    "Bookmarks file" : "Файл с отметки",
+    "What to import" : "Какво да се импортира",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Този файл не съдържа отметки.",
+    "Tiles added: {count}" : "Добавени плочки: {count}",
+    "Import" : "Импортиране",
+    "This file is larger than 5 MB. Export one folder at a time." : "Този файл е по-голям от 5 MB. Експортирайте по една папка.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Този файл има повече от 2000 отметки. Експортирайте по една папка.",
+    "This file could not be read as a bookmarks file." : "Този файл не може да се прочете като файл с отметки.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Оставащо място на това табло: {count}. Изберете по-малко папки.",
+    "The import failed; nothing was added." : "Импортирането не успя; нищо не е добавено.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} отметка е пропусната: само уеб адреси могат да станат плочки", "{count} отметки са пропуснати: само уеб адреси могат да станат плочки"]
 },
 "nplurals=2; plural=(n != 1);"
 );

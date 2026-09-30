@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Nie udało się wczytać skrótów wyszukiwania.",
     "The search shortcuts could not be saved." : "Nie udało się zapisać skrótów wyszukiwania.",
     "Search {name} for {query}" : "Szukaj w {name}: {query}",
-    "Type what to search for in {name}" : "Wpisz, czego szukać w {name}"
+    "Type what to search for in {name}" : "Wpisz, czego szukać w {name}",
+    "Import bookmarks" : "Importuj zakładki",
+    "Import bookmarks…" : "Importuj zakładki…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Wybierz plik zakładek eksportowany przez przeglądarkę. Każdy wybrany folder stanie się grupą kafelków na dole tego pulpitu.",
+    "Bookmarks file" : "Plik zakładek",
+    "What to import" : "Co zaimportować",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Ten plik nie zawiera zakładek.",
+    "Tiles added: {count}" : "Dodane kafelki: {count}",
+    "Import" : "Importuj",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ten plik jest większy niż 5 MB. Eksportuj po jednym folderze.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ten plik ma ponad 2000 zakładek. Eksportuj po jednym folderze.",
+    "This file could not be read as a bookmarks file." : "Nie udało się odczytać tego pliku jako pliku zakładek.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Wolne miejsce na tym pulpicie: {count}. Wybierz mniej folderów.",
+    "The import failed; nothing was added." : "Import nie powiódł się; nic nie dodano.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Pominięto {count} zakładkę: kafelkiem może zostać tylko adres internetowy", "Pominięto {count} zakładki: kafelkiem może zostać tylko adres internetowy", "Pominięto {count} zakładek: kafelkiem może zostać tylko adres internetowy"]
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

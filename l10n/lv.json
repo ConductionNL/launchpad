@@ -1312,6 +1312,25 @@
         "The search shortcuts could not be loaded.": "Neizdevās ielādēt meklēšanas saīsnes.",
         "The search shortcuts could not be saved.": "Neizdevās saglabāt meklēšanas saīsnes.",
         "Search {name} for {query}": "Meklēt {name}: {query}",
-        "Type what to search for in {name}": "Ierakstiet, ko meklēt {name}"
+        "Type what to search for in {name}": "Ierakstiet, ko meklēt {name}",
+        "Import bookmarks": "Importēt grāmatzīmes",
+        "Import bookmarks…": "Importēt grāmatzīmes…",
+        "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard.": "Izvēlieties grāmatzīmju failu, ko eksportē jūsu pārlūks. Katra izvēlētā mape kļūst par flīžu grupu šī paneļa apakšā.",
+        "Bookmarks file": "Grāmatzīmju fails",
+        "What to import": "Ko importēt",
+        "{name} ({count})": "{name} ({count})",
+        "This file holds no bookmarks.": "Šajā failā nav grāmatzīmju.",
+        "Tiles added: {count}": "Pievienotas flīzes: {count}",
+        "Import": "Importēt",
+        "This file is larger than 5 MB. Export one folder at a time.": "Šis fails ir lielāks par 5 MB. Eksportējiet pa vienai mapei.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Šajā failā ir vairāk nekā 2000 grāmatzīmju. Eksportējiet pa vienai mapei.",
+        "This file could not be read as a bookmarks file.": "Šo failu neizdevās nolasīt kā grāmatzīmju failu.",
+        "Room left on this dashboard: {count}. Pick fewer folders.": "Brīvā vieta šajā panelī: {count}. Izvēlieties mazāk mapju.",
+        "The import failed; nothing was added.": "Importēšana neizdevās; nekas netika pievienots.",
+        "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
+            "Izlaista {count} grāmatzīme: par flīzi var kļūt tikai tīmekļa adrese",
+            "Izlaista {count} grāmatzīme: par flīzi var kļūt tikai tīmekļa adrese",
+            "Izlaistas {count} grāmatzīmes: par flīzi var kļūt tikai tīmekļa adrese"
+        ]
     }
 }

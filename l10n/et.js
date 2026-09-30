@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Otsingu otseteid ei õnnestunud laadida.",
     "The search shortcuts could not be saved." : "Otsingu otseteid ei õnnestunud salvestada.",
     "Search {name} for {query}" : "Otsi {name} kaudu: {query}",
-    "Type what to search for in {name}" : "Sisesta, mida {name} kaudu otsida"
+    "Type what to search for in {name}" : "Sisesta, mida {name} kaudu otsida",
+    "Import bookmarks" : "Impordi järjehoidjad",
+    "Import bookmarks…" : "Impordi järjehoidjad…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Vali järjehoidjate fail, mille su brauser ekspordib. Iga valitud kaust muutub selle töölaua allosas paanide grupiks.",
+    "Bookmarks file" : "Järjehoidjate fail",
+    "What to import" : "Mida importida",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Selles failis pole järjehoidjaid.",
+    "Tiles added: {count}" : "Lisatud paane: {count}",
+    "Import" : "Impordi",
+    "This file is larger than 5 MB. Export one folder at a time." : "See fail on suurem kui 5 MB. Ekspordi üks kaust korraga.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Selles failis on üle 2000 järjehoidja. Ekspordi üks kaust korraga.",
+    "This file could not be read as a bookmarks file." : "Seda faili ei õnnestunud lugeda järjehoidjate failina.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Selle töölaua vaba ruum: {count}. Vali vähem kaustu.",
+    "The import failed; nothing was added." : "Import ebaõnnestus; midagi ei lisatud.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} järjehoidja jäeti vahele: paaniks saab olla ainult veebiaadress", "{count} järjehoidjat jäeti vahele: paaniks saab olla ainult veebiaadress"]
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -125,6 +125,8 @@ class ActionAuthBaselineTest extends TestCase {
 		// The `admin.` prefix is the controller's, not a privilege level:
 		// getMyRole() only ever answers for the caller.
 		'admin.get-my-role',
+		// REQ-BMI-001: importing bookmarks is like adding tiles.
+		'widget.import-bookmarks',
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',

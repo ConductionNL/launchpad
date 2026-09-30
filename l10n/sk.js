@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Skratky vyhľadávania sa nepodarilo načítať.",
     "The search shortcuts could not be saved." : "Skratky vyhľadávania sa nepodarilo uložiť.",
     "Search {name} for {query}" : "Hľadať v {name}: {query}",
-    "Type what to search for in {name}" : "Napíšte, čo hľadať v {name}"
+    "Type what to search for in {name}" : "Napíšte, čo hľadať v {name}",
+    "Import bookmarks" : "Importovať záložky",
+    "Import bookmarks…" : "Importovať záložky…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Vyberte súbor záložiek, ktorý exportuje váš prehliadač. Každý vybraný priečinok sa stane skupinou dlaždíc v dolnej časti tohto panela.",
+    "Bookmarks file" : "Súbor záložiek",
+    "What to import" : "Čo importovať",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Tento súbor neobsahuje žiadne záložky.",
+    "Tiles added: {count}" : "Pridané dlaždice: {count}",
+    "Import" : "Importovať",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tento súbor je väčší ako 5 MB. Exportujte priečinky po jednom.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tento súbor má viac ako 2 000 záložiek. Exportujte priečinky po jednom.",
+    "This file could not be read as a bookmarks file." : "Tento súbor sa nepodarilo prečítať ako súbor záložiek.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Zostávajúce miesto na tomto paneli: {count}. Vyberte menej priečinkov.",
+    "The import failed; nothing was added." : "Import zlyhal; nič nebolo pridané.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Preskočená {count} záložka: dlaždicou môže byť len webová adresa", "Preskočené {count} záložky: dlaždicou môže byť len webová adresa", "Preskočených {count} záložiek: dlaždicou môže byť len webová adresa"]
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

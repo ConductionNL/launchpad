@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "I n'è betg reussì da chargiar las scursanidas da tschertga.",
     "The search shortcuts could not be saved." : "I n'è betg reussì da memorisar las scursanidas da tschertga.",
     "Search {name} for {query}" : "Tschertgar en {name} suenter {query}",
-    "Type what to search for in {name}" : "Endatescha tge tschertgar en {name}"
+    "Type what to search for in {name}" : "Endatescha tge tschertgar en {name}",
+    "Import bookmarks" : "Importar segnapaginas",
+    "Import bookmarks…" : "Importar segnapaginas…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Tscherna la datoteca da segnapaginas che tes navigatur exporta. Mintga ordinatur che ti tschernas daventa ina gruppa da quadrels sut sin quest dashboard.",
+    "Bookmarks file" : "Datoteca da segnapaginas",
+    "What to import" : "Tge importar",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Questa datoteca na cuntegna nagins segnapaginas.",
+    "Tiles added: {count}" : "Quadrels agiuntads: {count}",
+    "Import" : "Importar",
+    "This file is larger than 5 MB. Export one folder at a time." : "Questa datoteca è pli gronda che 5 MB. Exportescha in ordinatur a la giada.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Questa datoteca ha dapli che 2000 segnapaginas. Exportescha in ordinatur a la giada.",
+    "This file could not be read as a bookmarks file." : "Questa datoteca na po betg vegnir legida sco datoteca da segnapaginas.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Plaz restanta sin quest dashboard: {count}. Tscherna main ordinaturs.",
+    "The import failed; nothing was added." : "L'import n'è betg reussì; nagut n'è vegnì agiuntà.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} segnapaginas sursiglì: mo adressas web pon daventar quadrels", "{count} segnapaginas sursiglids: mo adressas web pon daventar quadrels"]
 },
 "nplurals=2; plural=(n != 1);"
 );

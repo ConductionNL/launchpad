@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Ekki tókst að hlaða inn leitarflýtileiðum.",
     "The search shortcuts could not be saved." : "Ekki tókst að vista leitarflýtileiðirnar.",
     "Search {name} for {query}" : "Leita í {name} að {query}",
-    "Type what to search for in {name}" : "Sláðu inn hvað á að leita að í {name}"
+    "Type what to search for in {name}" : "Sláðu inn hvað á að leita að í {name}",
+    "Import bookmarks" : "Flytja inn bókamerki",
+    "Import bookmarks…" : "Flytja inn bókamerki…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Veldu bókamerkjaskrána sem vafrinn þinn flytur út. Hver mappa sem þú velur verður hópur reita neðst á þessu stjórnborði.",
+    "Bookmarks file" : "Bókamerkjaskrá",
+    "What to import" : "Hvað á að flytja inn",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Þessi skrá inniheldur engin bókamerki.",
+    "Tiles added: {count}" : "Reitum bætt við: {count}",
+    "Import" : "Flytja inn",
+    "This file is larger than 5 MB. Export one folder at a time." : "Þessi skrá er stærri en 5 MB. Flyttu út eina möppu í einu.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Í þessari skrá eru fleiri en 2.000 bókamerki. Flyttu út eina möppu í einu.",
+    "This file could not be read as a bookmarks file." : "Ekki tókst að lesa þessa skrá sem bókamerkjaskrá.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Pláss eftir á þessu stjórnborði: {count}. Veldu færri möppur.",
+    "The import failed; nothing was added." : "Innflutningur mistókst; engu var bætt við.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bókamerki sleppt: aðeins vefslóðir geta orðið reitir", "{count} bókamerkjum sleppt: aðeins vefslóðir geta orðið reitir"]
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

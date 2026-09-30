@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Sökgenvägarna kunde inte läsas in.",
     "The search shortcuts could not be saved." : "Sökgenvägarna kunde inte sparas.",
     "Search {name} for {query}" : "Sök i {name} efter {query}",
-    "Type what to search for in {name}" : "Skriv vad du vill söka efter i {name}"
+    "Type what to search for in {name}" : "Skriv vad du vill söka efter i {name}",
+    "Import bookmarks" : "Importera bokmärken",
+    "Import bookmarks…" : "Importera bokmärken…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Välj bokmärkesfilen som din webbläsare exporterar. Varje mapp du väljer blir en grupp paneler längst ner på den här instrumentpanelen.",
+    "Bookmarks file" : "Bokmärkesfil",
+    "What to import" : "Vad som ska importeras",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Den här filen innehåller inga bokmärken.",
+    "Tiles added: {count}" : "Paneler tillagda: {count}",
+    "Import" : "Importera",
+    "This file is larger than 5 MB. Export one folder at a time." : "Filen är större än 5 MB. Exportera en mapp i taget.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Filen har fler än 2 000 bokmärken. Exportera en mapp i taget.",
+    "This file could not be read as a bookmarks file." : "Filen kunde inte läsas som en bokmärkesfil.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Plats kvar på den här instrumentpanelen: {count}. Välj färre mappar.",
+    "The import failed; nothing was added." : "Importen misslyckades; inget lades till.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bokmärke hoppades över: bara webbadresser kan bli paneler", "{count} bokmärken hoppades över: bara webbadresser kan bli paneler"]
 },
 "nplurals=2; plural=(n != 1);"
 );

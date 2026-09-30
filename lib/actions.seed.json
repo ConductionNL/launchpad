@@ -81,6 +81,7 @@
     "widget.get-items": ["admin", "@all"],
     "widget.add-widget": ["admin", "@all"],
     "widget.add-tile": ["admin", "@all"],
+    "widget.import-bookmarks": ["admin", "@all"],
     "widget.update-placement": ["admin", "@all"],
     "widget.remove-placement": ["admin", "@all"],
     "widget.news-items": ["admin", "@all"],

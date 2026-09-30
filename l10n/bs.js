@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Prečaci za pretragu nisu mogli biti učitani.",
     "The search shortcuts could not be saved." : "Prečaci za pretragu nisu mogli biti spremljeni.",
     "Search {name} for {query}" : "Pretraži {name} za {query}",
-    "Type what to search for in {name}" : "Upišite što tražite u {name}"
+    "Type what to search for in {name}" : "Upišite što tražite u {name}",
+    "Import bookmarks" : "Uvezi oznake",
+    "Import bookmarks…" : "Uvezi oznake…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Odaberite datoteku oznaka koju izvozi vaš preglednik. Svaka odabrana mapa postaje grupa pločica na dnu ove nadzorne ploče.",
+    "Bookmarks file" : "Datoteka oznaka",
+    "What to import" : "Šta uvesti",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Ova datoteka nema oznaka.",
+    "Tiles added: {count}" : "Dodano pločica: {count}",
+    "Import" : "Uvezi",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ova datoteka je veća od 5 MB. Izvezite jednu po jednu mapu.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ova datoteka ima više od 2.000 oznaka. Izvezite jednu po jednu mapu.",
+    "This file could not be read as a bookmarks file." : "Ova datoteka se ne može pročitati kao datoteka oznaka.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Preostalo mjesta na ovoj ploči: {count}. Odaberite manje mapa.",
+    "The import failed; nothing was added." : "Uvoz nije uspio; ništa nije dodano.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Preskočena {count} oznaka: samo web adrese mogu postati pločice", "Preskočene {count} oznake: samo web adrese mogu postati pločice", "Preskočeno {count} oznaka: samo web adrese mogu postati pločice"]
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

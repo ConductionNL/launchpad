@@ -1311,6 +1311,24 @@
         "The search shortcuts could not be loaded.": "Les raccourcis de recherche n'ont pas pu être chargés.",
         "The search shortcuts could not be saved.": "Les raccourcis de recherche n'ont pas pu être enregistrés.",
         "Search {name} for {query}": "Rechercher {query} dans {name}",
-        "Type what to search for in {name}": "Saisissez ce que vous cherchez dans {name}"
+        "Type what to search for in {name}": "Saisissez ce que vous cherchez dans {name}",
+        "Import bookmarks": "Importer des marque-pages",
+        "Import bookmarks…": "Importer des marque-pages…",
+        "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard.": "Choisissez le fichier de marque-pages exporté par votre navigateur. Chaque dossier choisi devient un groupe de tuiles en bas de ce tableau de bord.",
+        "Bookmarks file": "Fichier de marque-pages",
+        "What to import": "Quoi importer",
+        "{name} ({count})": "{name} ({count})",
+        "This file holds no bookmarks.": "Ce fichier ne contient aucun marque-page.",
+        "Tiles added: {count}": "Tuiles ajoutées : {count}",
+        "Import": "Importer",
+        "This file is larger than 5 MB. Export one folder at a time.": "Ce fichier dépasse 5 Mo. Exportez un dossier à la fois.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Ce fichier contient plus de 2 000 marque-pages. Exportez un dossier à la fois.",
+        "This file could not be read as a bookmarks file.": "Ce fichier n'a pas pu être lu comme fichier de marque-pages.",
+        "Room left on this dashboard: {count}. Pick fewer folders.": "Place restante sur ce tableau de bord : {count}. Choisissez moins de dossiers.",
+        "The import failed; nothing was added.": "L'import a échoué ; rien n'a été ajouté.",
+        "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
+            "{count} marque-page ignoré : seules les adresses web peuvent devenir des tuiles",
+            "{count} marque-pages ignorés : seules les adresses web peuvent devenir des tuiles"
+        ]
     }
 }

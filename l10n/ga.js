@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Níorbh fhéidir na haicearraí cuardaigh a lódáil.",
     "The search shortcuts could not be saved." : "Níorbh fhéidir na haicearraí cuardaigh a shábháil.",
     "Search {name} for {query}" : "Cuardaigh {name} le haghaidh {query}",
-    "Type what to search for in {name}" : "Clóscríobh cad atá le cuardach in {name}"
+    "Type what to search for in {name}" : "Clóscríobh cad atá le cuardach in {name}",
+    "Import bookmarks" : "Iompórtáil leabharmharcanna",
+    "Import bookmarks…" : "Iompórtáil leabharmharcanna…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Roghnaigh an comhad leabharmharcanna a easpórtálann do bhrabhsálaí. Déantar grúpa tíleanna ag bun an deais seo de gach fillteán a roghnaíonn tú.",
+    "Bookmarks file" : "Comhad leabharmharcanna",
+    "What to import" : "Cad atá le hiompórtáil",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Níl aon leabharmharcanna sa chomhad seo.",
+    "Tiles added: {count}" : "Tíleanna curtha leis: {count}",
+    "Import" : "Iompórtáil",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tá an comhad seo níos mó ná 5 MB. Easpórtáil fillteán amháin ag an am.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tá níos mó ná 2,000 leabharmharc sa chomhad seo. Easpórtáil fillteán amháin ag an am.",
+    "This file could not be read as a bookmarks file." : "Níorbh fhéidir an comhad seo a léamh mar chomhad leabharmharcanna.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Spás fágtha ar an deais seo: {count}. Roghnaigh níos lú fillteán.",
+    "The import failed; nothing was added." : "Theip ar an iompórtáil; níor cuireadh aon rud leis.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna"]
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

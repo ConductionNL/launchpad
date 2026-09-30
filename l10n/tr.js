@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Arama kısayolları yüklenemedi.",
     "The search shortcuts could not be saved." : "Arama kısayolları kaydedilemedi.",
     "Search {name} for {query}" : "{name} içinde {query} ara",
-    "Type what to search for in {name}" : "{name} içinde ne aranacağını yaz"
+    "Type what to search for in {name}" : "{name} içinde ne aranacağını yaz",
+    "Import bookmarks" : "Yer imlerini içe aktar",
+    "Import bookmarks…" : "Yer imlerini içe aktar…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Tarayıcının dışa aktardığı yer imi dosyasını seç. Seçtiğin her klasör bu panonun altında bir kutucuk grubu olur.",
+    "Bookmarks file" : "Yer imi dosyası",
+    "What to import" : "Neler içe aktarılsın",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "Bu dosyada yer imi yok.",
+    "Tiles added: {count}" : "Eklenen kutucuklar: {count}",
+    "Import" : "İçe aktar",
+    "This file is larger than 5 MB. Export one folder at a time." : "Bu dosya 5 MB'tan büyük. Her seferinde bir klasör dışa aktar.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Bu dosyada 2.000'den fazla yer imi var. Her seferinde bir klasör dışa aktar.",
+    "This file could not be read as a bookmarks file." : "Bu dosya bir yer imi dosyası olarak okunamadı.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Bu panoda kalan yer: {count}. Daha az klasör seç.",
+    "The import failed; nothing was added." : "İçe aktarma başarısız oldu; hiçbir şey eklenmedi.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} yer imi atlandı: yalnızca web adresleri kutucuk olabilir", "{count} yer imi atlandı: yalnızca web adresleri kutucuk olabilir"]
 },
 "nplurals=2; plural=(n != 1);"
 );

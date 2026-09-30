@@ -1344,7 +1344,22 @@ OC.L10N.register(
     "The search shortcuts could not be loaded." : "Не удалось загрузить ярлыки поиска.",
     "The search shortcuts could not be saved." : "Не удалось сохранить ярлыки поиска.",
     "Search {name} for {query}" : "Искать в {name}: {query}",
-    "Type what to search for in {name}" : "Введите, что искать в {name}"
+    "Type what to search for in {name}" : "Введите, что искать в {name}",
+    "Import bookmarks" : "Импортировать закладки",
+    "Import bookmarks…" : "Импортировать закладки…",
+    "Choose the bookmarks file your browser exports. Each folder you pick becomes a group of tiles at the bottom of this dashboard." : "Выберите файл закладок, который экспортирует ваш браузер. Каждая выбранная папка станет группой плиток внизу этой панели.",
+    "Bookmarks file" : "Файл закладок",
+    "What to import" : "Что импортировать",
+    "{name} ({count})" : "{name} ({count})",
+    "This file holds no bookmarks." : "В этом файле нет закладок.",
+    "Tiles added: {count}" : "Добавлено плиток: {count}",
+    "Import" : "Импортировать",
+    "This file is larger than 5 MB. Export one folder at a time." : "Этот файл больше 5 МБ. Экспортируйте по одной папке.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "В этом файле больше 2000 закладок. Экспортируйте по одной папке.",
+    "This file could not be read as a bookmarks file." : "Этот файл не удалось прочитать как файл закладок.",
+    "Room left on this dashboard: {count}. Pick fewer folders." : "Осталось места на этой панели: {count}. Выберите меньше папок.",
+    "The import failed; nothing was added." : "Импорт не удался; ничего не добавлено.",
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Пропущена {count} закладка: плиткой может стать только веб-адрес", "Пропущено {count} закладки: плиткой может стать только веб-адрес", "Пропущено {count} закладок: плиткой может стать только веб-адрес"]
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -234,7 +234,7 @@ class DemoDataService {
 			force: true
 		);
 
-		// widgets-people-expertise-and-fields: the demo profile fields
+		// Widgets-people-expertise-and-fields: the demo profile fields
 		// (office, cost centre, expertise tags), only when none are defined.
 		$this->profileFields->seedDemoDefinitions();
 

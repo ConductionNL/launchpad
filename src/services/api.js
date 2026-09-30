@@ -279,6 +279,51 @@ export const api = {
 	},
 
 	/**
+	 * List a dashboard's saved versions (REQ-VERS-004). Resolves to
+	 * `{versions, modeSupported}`; `modeSupported` is false when the
+	 * dashboard's storage cannot keep versions (REQ-VERS-009).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	listVersions(uuid) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/versions`,
+		)
+	},
+
+	/**
+	 * Save the dashboard as it is now, with an optional note (REQ-VERS-002).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {string|null} note Optional note shown in the history.
+	 * @return {Promise} Axios response resolving to `{version}` (201).
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	createVersion(uuid, note) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/versions`,
+			{ note },
+		)
+	},
+
+	/**
+	 * Restore a saved version. The server saves the current state as a
+	 * `pre-restore` version first (REQ-VERS-006).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {number} versionNumber Version to restore.
+	 * @return {Promise} Axios response resolving to `{version, snapshot}`.
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	restoreVersion(uuid, versionNumber) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/versions/${encodeURIComponent(versionNumber)}/restore`,
+		)
+	},
+
+	/**
 	 * Publish a dashboard (REQ-DASH-032). Owner-or-admin only on the
 	 * backend; a 403 envelope surfaces here when the caller lacks permission.
 	 *

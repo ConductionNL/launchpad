@@ -37,7 +37,8 @@
 		placement="bottom-end"
 		:type="buttonType"
 		class="dashboard-row-actions"
-		@click.stop>
+		@click.stop
+		@open="$emit('menuOpen')">
 		<template #icon>
 			<Cog :size="iconSize" />
 		</template>
@@ -122,6 +123,16 @@
 			</NcActionButton>
 		</template>
 		<NcActionButton
+			v-if="canViewHistory"
+			:closeAfterClick="true"
+			data-testid="cog-version-history"
+			@click="$emit('versionHistory')">
+			<template #icon>
+				<History :size="20" />
+			</template>
+			{{ t('launchpad', 'Version history…') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="canShare"
 			:closeAfterClick="true"
 			data-testid="cog-share"
@@ -150,6 +161,7 @@ import { NcActionButton, NcActions } from '@nextcloud/vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
+import History from 'vue-material-design-icons/History.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Publish from 'vue-material-design-icons/Publish.vue'
 import PublishOff from 'vue-material-design-icons/PublishOff.vue'
@@ -178,6 +190,7 @@ export default {
 		CalendarClock,
 		Publish,
 		PublishOff,
+		History,
 	},
 
 	props: {
@@ -250,6 +263,17 @@ export default {
 		},
 
 		/*
+		 * When true the menu renders "Version history…" (REQ-VERSUI-001).
+		 * The host decides: owner or administrator, and versioning
+		 * supported for this dashboard. Off by default, so sidebar rows
+		 * do not show it.
+		 */
+		canViewHistory: {
+			type: Boolean,
+			default: false,
+		},
+
+		/*
 		 * NcActions toggle button style. Defaults to the subtle
 		 * `tertiary-no-background` used at the edge of each sidebar row;
 		 * the top-right active cog passes `secondary` so it matches the
@@ -280,6 +304,8 @@ export default {
 		'publish',
 		'unpublish',
 		'schedule',
+		'versionHistory',
+		'menuOpen',
 	],
 
 	computed: {

@@ -94,6 +94,7 @@
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
 					:canManagePublication="canManagePublication"
+					:canViewHistory="canViewVersionHistory"
 					:defaultUuid="defaultDashboardUuid"
 					:isEditMode="isEditMode"
 					:activeDashboardId="activeDashboard.id"
@@ -116,6 +117,8 @@
 					@publish="onPublishActive"
 					@unpublish="onUnpublishActive"
 					@schedule="scheduleDialogOpen = true"
+					@versionHistory="versionHistoryOpen = true"
+					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<NcButton
 					variant="secondary"
@@ -195,6 +198,12 @@
 				}
 			"
 			@save="onScheduleActive" />
+		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
+		<VersionHistoryModal
+			:open="versionHistoryOpen"
+			:dashboardUuid="activeDashboard?.uuid ?? ''"
+			@close="versionHistoryOpen = false"
+			@restored="onVersionRestored" />
 
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
@@ -434,6 +443,7 @@ import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
+import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
@@ -480,6 +490,7 @@ export default {
 		ScheduleDashboardDialog,
 		EditLockBanner,
 		ForceReleaseLockDialog,
+		VersionHistoryModal,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -658,6 +669,11 @@ export default {
 			// sharing-dashboard-schedule-screen: the schedule dialog.
 			scheduleDialogOpen: false,
 			scheduleError: '',
+			// dashboard-version-history-ui: the history modal, and per
+			// dashboard uuid whether versioning is supported (read when the
+			// dashboard menu opens; absent means not known yet).
+			versionHistoryOpen: false,
+			versionSupport: {},
 		}
 	},
 
@@ -800,6 +816,23 @@ export default {
 				)
 			}
 			return parts.join(' ')
+		},
+
+		/**
+		 * Whether the dashboard menu offers "Version history…": the owner or
+		 * an administrator, and the server said this dashboard keeps
+		 * versions (REQ-VERSUI-001). The server checks ownership again.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		canViewVersionHistory() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid) {
+				return false
+			}
+			const mayManage = dash.isOwner === true || this.isAdmin === true
+			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -1281,6 +1314,47 @@ export default {
 						'The dashboard could not be scheduled.',
 					)
 				}
+			}
+		},
+
+		/**
+		 * The dashboard menu opened: find out once per dashboard whether it
+		 * keeps versions, so "Version history…" is offered only where it
+		 * works. A refusal (not owner, not admin) reads as not offered.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		async checkVersionSupport() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid || dash.uuid in this.versionSupport) {
+				return
+			}
+			if (dash.isOwner !== true && this.isAdmin !== true) {
+				return
+			}
+			try {
+				const { data } = await api.listVersions(dash.uuid)
+				this.versionSupport = {
+					...this.versionSupport,
+					[dash.uuid]: data?.modeSupported !== false,
+				}
+			} catch {
+				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
+			}
+		},
+
+		/**
+		 * A version was restored: read the dashboard again from the server
+		 * rather than patching local state from the snapshot.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		async onVersionRestored() {
+			const id = this.activeDashboard?.id
+			if (id !== undefined && id !== null) {
+				await this.switchDashboard(id)
 			}
 		},
 

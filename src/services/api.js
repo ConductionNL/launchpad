@@ -15,7 +15,14 @@ export const api = {
 	},
 
 	// REQ-DASH-013 — deduplicated union of personal + group + default dashboards.
-	getVisibleDashboards() {
+	getVisibleDashboards(metadata = null) {
+		// dashboard-language-and-details-tabs: `metadata[<key>]=<value>`
+		// filters the list server-side (REQ-MDUI-003).
+		if (metadata && Object.keys(metadata).length > 0) {
+			return axios.get(`${baseUrl}/api/dashboards/visible`, {
+				params: { metadata },
+			})
+		}
 		return axios.get(`${baseUrl}/api/dashboards/visible`)
 	},
 
@@ -132,10 +139,17 @@ export const api = {
 	 * Delete a dashboard and its placements.
 	 *
 	 * @param {number|string} id Numeric id of the dashboard to delete.
+	 * @param cascade
 	 * @return {Promise} Axios response for the delete call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	deleteDashboard(id) {
+	deleteDashboard(id, cascade = false) {
+		if (cascade) {
+			// REQ-DASH-030: also delete the dashboards under it.
+			return axios.delete(`${baseUrl}/api/dashboard/${id}`, {
+				params: { cascade: true },
+			})
+		}
 		return axios.delete(`${baseUrl}/api/dashboard/${id}`)
 	},
 
@@ -210,6 +224,120 @@ export const api = {
 	},
 
 	/**
+	 * Acquire the editing lock on a dashboard (REQ-LOCK-001). A 409 carries
+	 * `{error, code: 'lock_conflict', lock: {displayName, acquiredAt, ...}}`.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response resolving to the held lock.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	acquireLock(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
+	},
+
+	/**
+	 * Refresh the editing lock (REQ-LOCK-002). 404 means the lock is gone.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response resolving to the refreshed lock.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	heartbeatLock(uuid) {
+		return axios.put(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
+	},
+
+	/**
+	 * Release the editing lock (REQ-LOCK-003).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response (204).
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	releaseLock(uuid) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+		)
+	},
+
+	/**
+	 * Release the editing lock while the page is closing. A DELETE cannot
+	 * use `sendBeacon`, so the request goes through axios' fetch adapter
+	 * with `keepalive`, which keeps the request token interceptor.
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response (204), usually never read.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	releaseLockOnPageHide(uuid) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock`,
+			{ adapter: 'fetch', fetchOptions: { keepalive: true } },
+		)
+	},
+
+	/**
+	 * Force-release another person's lock; administrators only (REQ-LOCK-005).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response resolving to `{status: 'ok'}`.
+	 * @spec openspec/specs/dashboard-locking/spec.md
+	 */
+	forceReleaseLock(uuid) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/lock/force-release`,
+		)
+	},
+
+	/**
+	 * List a dashboard's saved versions (REQ-VERS-004). Resolves to
+	 * `{versions, modeSupported}`; `modeSupported` is false when the
+	 * dashboard's storage cannot keep versions (REQ-VERS-009).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	listVersions(uuid) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/versions`,
+		)
+	},
+
+	/**
+	 * Save the dashboard as it is now, with an optional note (REQ-VERS-002).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {string|null} note Optional note shown in the history.
+	 * @return {Promise} Axios response resolving to `{version}` (201).
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	createVersion(uuid, note) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/versions`,
+			{ note },
+		)
+	},
+
+	/**
+	 * Restore a saved version. The server saves the current state as a
+	 * `pre-restore` version first (REQ-VERS-006).
+	 *
+	 * @param {string} uuid UUID of the dashboard.
+	 * @param {number} versionNumber Version to restore.
+	 * @return {Promise} Axios response resolving to `{version, snapshot}`.
+	 * @spec openspec/specs/dashboard-versioning/spec.md
+	 */
+	restoreVersion(uuid, versionNumber) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/versions/${encodeURIComponent(versionNumber)}/restore`,
+		)
+	},
+
+	/**
 	 * Publish a dashboard (REQ-DASH-032). Owner-or-admin only on the
 	 * backend; a 403 envelope surfaces here when the caller lacks permission.
 	 *
@@ -241,15 +369,22 @@ export const api = {
 	 * Schedule a dashboard for automatic publication (REQ-DASH-034).
 	 *
 	 * @param {string} uuid UUID of the dashboard to schedule.
-	 * @param {string} publishAt Future ISO-8601 timestamp; the backend
-	 *   rejects past dates with a localised 400 error message.
+	 * @param {string|null} publishAt Future ISO-8601 timestamp, or null
+	 *   with only a take-down time; the backend rejects past dates.
+	 * @param {string|null} [unpublishAt] Future take-down time, or null.
 	 * @return {Promise} Axios response for the schedule call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	scheduleDashboard(uuid, publishAt) {
+	scheduleDashboard(uuid, publishAt, unpublishAt = null) {
+		// sharing-dashboard-schedule-screen: a take-down time, alone or with
+		// the go-live time (REQ-SCHEDUI-002).
+		const body = { publishAt }
+		if (unpublishAt) {
+			body.unpublishAt = unpublishAt
+		}
 		return axios.post(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/schedule`,
-			{ publishAt },
+			body,
 		)
 	},
 
@@ -867,6 +1002,140 @@ export const api = {
 			params,
 			headers: { 'Content-Type': 'multipart/form-data' },
 		})
+	},
+
+	/**
+	 * Language versions of a dashboard, for its owner (REQ-DASH-038).
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @return {Promise} Axios response resolving to `{translations: [...]}`.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	listTranslations(uuid) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`,
+		)
+	},
+
+	/**
+	 * Add a language version, blank or copied from another language.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {object} body `{languageCode, name?, description?, copyFrom?}`.
+	 * @return {Promise} Axios response (201) with the new variant.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	createTranslation(uuid, body) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`,
+			body,
+		)
+	},
+
+	/**
+	 * Change a language version's name or description.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} lang Language code.
+	 * @param {object} body `{name?, description?}`.
+	 * @return {Promise} Axios response with the variant.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	updateTranslation(uuid, lang, body) {
+		return axios.put(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`,
+			body,
+		)
+	},
+
+	/**
+	 * Delete a language version that is not the primary or the only one.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} lang Language code.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	deleteTranslation(uuid, lang) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`,
+		)
+	},
+
+	/**
+	 * Make a language version the primary one.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} lang Language code.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	setPrimaryTranslation(uuid, lang) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}/set-primary`,
+		)
+	},
+
+	/**
+	 * The dashboard in the reader's language (REQ-DASH-039).
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @return {Promise} Axios response `{dashboard, translation, currentLanguage, isFallback, availableLanguages}`.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	getResolvedDashboard(uuid) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/resolved`,
+		)
+	},
+
+	/**
+	 * Detail field definitions, readable by any logged-in user.
+	 *
+	 * @return {Promise} Axios response `{fields: [...]}`.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	getMetadataFieldDefinitions() {
+		return axios.get(`${baseUrl}/api/metadata-fields`)
+	},
+
+	/**
+	 * Create a detail field (administrators).
+	 *
+	 * @param {object} field `{key, label, type, options?, required?, sortOrder?}`.
+	 * @return {Promise} Axios response (201) with the field.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	createMetadataField(field) {
+		return axios.post(`${baseUrl}/api/admin/metadata-fields`, field)
+	},
+
+	/**
+	 * Change a detail field (administrators).
+	 *
+	 * @param {number} id Field id.
+	 * @param {object} field Changed attributes.
+	 * @return {Promise} Axios response with the field.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	updateMetadataField(id, field) {
+		return axios.put(
+			`${baseUrl}/api/admin/metadata-fields/${encodeURIComponent(id)}`,
+			field,
+		)
+	},
+
+	/**
+	 * Delete a detail field (administrators).
+	 *
+	 * @param {number} id Field id.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	deleteMetadataField(id) {
+		return axios.delete(
+			`${baseUrl}/api/admin/metadata-fields/${encodeURIComponent(id)}`,
+		)
 	},
 
 	// Dashboard metadata-fields admin CRUD (REQ-MDFL-001..003).

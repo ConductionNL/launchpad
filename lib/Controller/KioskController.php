@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use Exception;
+use Throwable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskService;
@@ -40,7 +41,10 @@ use OCP\AppFramework\Http\Attribute\BruteForceProtection;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\Response;
+use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
@@ -49,6 +53,12 @@ use Psr\Log\LoggerInterface;
  * Controller for kiosk-playlist CRUD and anonymous render endpoints.
  *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-4
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One controller serves the
+ *                                                  playlist API and the
+ *                                                  player page, so it needs
+ *                                                  both JSON and template
+ *                                                  responses.
  */
 class KioskController extends Controller {
 	/**
@@ -257,17 +267,25 @@ class KioskController extends Controller {
 	 * return HTTP 404 with an identical shape (no existence leak). Shares the
 	 * `launchpad_share_access` brute-force bucket with public-share renders.
 	 *
+	 * A browser (an Accept header asking for HTML and not for JSON) gets
+	 * the player page instead, which then fetches this same URL as JSON.
+	 *
 	 * @param string $token The playlist token from the URL.
 	 *
-	 * @return DataResponse HTTP 200 render payload, 404 if invalid, 429 when throttled.
+	 * @return Response HTTP 200 render payload or player page, 404 if invalid, 429 when throttled.
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-4
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 60, period: 60)]
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
-	public function render(string $token): DataResponse {
+	public function render(string $token): Response {
+		if ($this->wantsHtml() === true) {
+			return $this->renderPlayer(token: $token);
+		}
+
 		try {
 			$result = $this->kioskService->renderPlaylist(token: $token);
 
@@ -294,6 +312,57 @@ class KioskController extends Controller {
 			);
 		}//end try
 	}//end render()
+
+	/**
+	 * Whether the caller is a browser asking for the page rather than the
+	 * player asking for data.
+	 *
+	 * @return bool True when the Accept header prefers HTML over JSON.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	private function wantsHtml(): bool {
+		$accept = strtolower($this->request->getHeader('Accept'));
+		return str_contains($accept, 'text/html') === true
+			&& str_contains($accept, 'application/json') === false;
+	}//end wantsHtml()
+
+	/**
+	 * The full-screen kiosk player page. It carries no playlist data: the
+	 * page reads the token from its own URL and fetches the JSON. An
+	 * unknown or revoked token still gets the page (it shows the message)
+	 * but with status 404 and a brute-force attempt, as the JSON does.
+	 *
+	 * @param string $token The playlist token from the URL.
+	 *
+	 * @return TemplateResponse The player page.
+	 *
+	 * @spec openspec/specs/dashboard-kiosk-mode/spec.md
+	 */
+	private function renderPlayer(string $token): TemplateResponse {
+		$response = new TemplateResponse(
+			appName: Application::APP_ID,
+			templateName: 'kiosk',
+			params: [],
+			renderAs: TemplateResponse::RENDER_AS_BASE
+		);
+
+		$csp = new ContentSecurityPolicy();
+		$csp->addAllowedImageDomain(domain: 'data:');
+		$csp->addAllowedImageDomain(domain: 'https://*.tile.openstreetmap.org');
+		$response->setContentSecurityPolicy(csp: $csp);
+
+		try {
+			$this->kioskService->renderPlaylist(token: $token);
+		} catch (PlaylistNotFoundException) {
+			$response->setStatus(Http::STATUS_NOT_FOUND);
+			$response->throttle(['action' => PublicShareService::ACTION_SHARE_ACCESS]);
+		} catch (Throwable $e) {
+			$this->logError(message: $e->getMessage());
+		}
+
+		return $response;
+	}//end renderPlayer()
 
 	/**
 	 * Log a non-sensitive error message.

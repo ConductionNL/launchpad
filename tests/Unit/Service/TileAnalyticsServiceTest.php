@@ -370,4 +370,59 @@ class TileAnalyticsServiceTest extends TestCase {
 
 		$this->service->recordClick(placementId: 1, userId: 'alice');
 	}
+
+	/**
+	 * The report names each tile and its dashboard, and keeps the count of
+	 * a tile that was since removed (launcher-tile-click-report REQ-TILEUI-001).
+	 */
+	public function testTopTilesCarryTileTitleAndDashboardName(): void {
+		$this->tileClickMapper->method('findTopTilesInRange')->willReturn(
+			[
+				['placementUuid' => '7', 'dashboardUuid' => 'team', 'clickCount' => 12, 'uniqueActorCount' => 2],
+				['placementUuid' => '8', 'dashboardUuid' => 'gone', 'clickCount' => 3, 'uniqueActorCount' => 1],
+			]
+		);
+		$tile = new WidgetPlacement();
+		$tile->setTileTitle('Zaaksysteem');
+		$this->placementMapper->method('find')->willReturnCallback(
+			static function (int $id) use ($tile) {
+				if ($id === 7) {
+					return $tile;
+				}
+				throw new DoesNotExistException('removed');
+			}
+		);
+		$dashboard = new Dashboard();
+		$dashboard->setName('Team');
+		$this->dashboardMapper->method('findByUuid')->willReturnCallback(
+			static function (string $uuid) use ($dashboard) {
+				if ($uuid === 'team') {
+					return $dashboard;
+				}
+				throw new DoesNotExistException('removed');
+			}
+		);
+
+		$rows = $this->service->getTopTiles(period: '30d', limit: 10);
+
+		$this->assertSame('Zaaksysteem', $rows[0]['tileTitle']);
+		$this->assertSame('Team', $rows[0]['dashboardName']);
+		$this->assertSame(12, $rows[0]['clickCount']);
+		$this->assertNull($rows[1]['tileTitle']);
+		$this->assertNull($rows[1]['dashboardName']);
+		$this->assertSame(3, $rows[1]['clickCount']);
+	}
+
+	public function testBreakdownRowsCarryTileTitle(): void {
+		$this->tileClickMapper->method('findByDashboardInRange')->willReturn(
+			[['placementUuid' => '7', 'clickCount' => 5, 'uniqueActorCount' => 2]]
+		);
+		$tile = new WidgetPlacement();
+		$tile->setCustomTitle('Mail');
+		$this->placementMapper->method('find')->willReturn($tile);
+
+		$rows = $this->service->getDashboardBreakdown(dashboardUuid: 'team', period: '30d');
+
+		$this->assertSame('Mail', $rows[0]['tileTitle']);
+	}
 }

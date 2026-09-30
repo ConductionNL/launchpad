@@ -95,6 +95,8 @@
 					:source="activeDashboardSource"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
+					:canManagePublication="canManagePublication"
+					:canViewHistory="canViewVersionHistory"
 					:defaultUuid="defaultDashboardUuid"
 					:isEditMode="isEditMode"
 					:activeDashboardId="activeDashboard.id"
@@ -114,6 +116,11 @@
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
+					@publish="onPublishActive"
+					@unpublish="onUnpublishActive"
+					@schedule="scheduleDialogOpen = true"
+					@versionHistory="versionHistoryOpen = true"
+					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<NcButton
 					variant="secondary"
@@ -147,6 +154,14 @@
 				<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
 			     report opener. Only shown to an editor when the active
 			     dashboard carries at least one acknowledgement requirement. -->
+				<!-- dashboards-personal-hide-ui REQ-PERSUI-002: what this
+				     person hid, with Show again and Reset my view. -->
+				<HiddenWidgetsControl
+					v-if="canHideForMe"
+					:hiddenPlacements="personalLayer.hiddenPlacements"
+					:availableWidgets="availableWidgets"
+					@showAgain="onShowAgain"
+					@reset="onResetPersonalView" />
 				<NcButton
 					v-if="canShareActiveDashboard"
 					variant="tertiary"
@@ -172,6 +187,42 @@
 			</div>
 		</Teleport>
 
+		<!-- Delete confirmation, with the number of dashboards under it. -->
+		<DeleteDashboardDialog
+			:open="deleteTarget !== null"
+			:name="deleteTarget?.name ?? ''"
+			:childCount="deleteChildCount"
+			@update:open="onDeleteDialog"
+			@confirm="confirmDeleteDashboard" />
+
+		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
+		<ForceReleaseLockDialog
+			:open="forceReleaseDialogOpen"
+			:holderName="editLock.state.holderName"
+			@update:open="forceReleaseDialogOpen = $event"
+			@confirm="onTakeOverConfirmed" />
+
+		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
+		<ScheduleDashboardDialog
+			v-if="scheduleDialogOpen"
+			:open="true"
+			:error="scheduleError"
+			@update:open="
+				(v) => {
+					if (!v) {
+						scheduleDialogOpen = false
+						scheduleError = ''
+					}
+				}
+			"
+			@save="onScheduleActive" />
+		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
+		<VersionHistoryModal
+			:open="versionHistoryOpen"
+			:dashboardUuid="activeDashboard?.uuid ?? ''"
+			@close="versionHistoryOpen = false"
+			@restored="onVersionRestored" />
+
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
 			:open="ackReportOpen"
@@ -183,6 +234,22 @@
 			class="launchpad-container"
 			:class="{ 'launchpad-edit-mode': isEditMode }">
 			<DashboardLanguageHeading :dashboard="activeDashboard" />
+			<DashboardBreadcrumb
+				:dashboard="activeDashboard"
+				@navigate="onBreadcrumbNavigate" />
+			<p
+				v-if="canManagePublication && publicationNote"
+				class="launchpad-publication-note"
+				role="status"
+				data-testid="publication-note">
+				{{ publicationNote }}
+			</p>
+			<EditLockBanner
+				:status="editLock.state.status"
+				:holderName="editLock.state.holderName"
+				:expiresIn="editLock.state.expiresIn"
+				:isAdmin="isAdmin === true"
+				@takeOver="forceReleaseDialogOpen = true" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -234,10 +301,12 @@
 							:outstandingAcknowledgement="
 								isPlacementOutstanding(item)
 							"
+							:canHideForMe="canHideForMe"
 							@remove="removeWidget(item.id)"
 							@style="openStyleEditor(item)"
 							@edit="handleContextMenuEdit(item)"
-							@acknowledged="onWidgetAcknowledged" />
+							@acknowledged="onWidgetAcknowledged"
+							@hideForMe="onHideForMe" />
 					</div>
 				</template>
 			</CnDashboardGrid>
@@ -301,6 +370,8 @@
 			:canDelete="dashboards.length > 1"
 			:defaultUuid="defaultDashboardUuid"
 			:initialTab="configModalInitialTab"
+			:parentOptions="dashboards"
+			:saveError="configSaveError"
 			@close="closeConfigModal"
 			@save="saveDashboardConfig"
 			@delete="deleteCurrentDashboard"
@@ -377,6 +448,7 @@ import {
 	NcEmptyContent,
 	NcLoadingIcon,
 } from '@conduction/nextcloud-vue'
+import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
@@ -389,27 +461,37 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
+import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
+import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
+import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
+import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
+import { useDashboardLock } from '../composables/useDashboardLock.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 // Stores
 import { useDashboardStore } from '../stores/dashboard.js'
+import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { logger } from '../utils/logger.js'
+import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
 	// Multi-word per vue/multi-word-component-names. This is the `name` option
@@ -439,6 +521,13 @@ export default {
 		DashboardRowActions,
 		SidebarBackdrop,
 		DashboardLanguageHeading,
+		DashboardBreadcrumb,
+		DeleteDashboardDialog,
+		ScheduleDashboardDialog,
+		EditLockBanner,
+		ForceReleaseLockDialog,
+		VersionHistoryModal,
+		HiddenWidgetsControl,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -452,6 +541,13 @@ export default {
 		primaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
+		},
+
+		// Server-computed admin flag (PageController initial state); only
+		// decides whether "Take over" is offered. The server checks again.
+		isAdmin: {
+			from: 'isAdmin',
+			default: false,
 		},
 
 		// Canonical slug-chain path the server resolved for the active
@@ -544,7 +640,10 @@ export default {
 			computed(() => useWidgetStore().availableWidgets),
 		)
 
-		return { canEditRef, grid }
+		// dashboards-personal-hide-ui: this person's own layer.
+		const personalLayer = usePersonalLayerStore()
+
+		return { canEditRef, grid, personalLayer }
 	},
 
 	data() {
@@ -605,6 +704,27 @@ export default {
 			// when no filter is set).
 			detailFields: [],
 			detailFilterUuids: null,
+			// dashboard-tree-navigation: the delete confirmation and, once
+			// the server has answered 409, how many dashboards go with it.
+			deleteTarget: null,
+			deleteChildCount: 0,
+			// Why the dashboard configuration could not be saved.
+			configSaveError: '',
+			// dashboard-edit-lock-ui: the editing lock of the active
+			// dashboard (REQ-LOCKUI-001..003) and the take-over dialog.
+			editLock: useDashboardLock({
+				onLost: () => this.onEditLockLost(),
+			}),
+
+			forceReleaseDialogOpen: false,
+			// sharing-dashboard-schedule-screen: the schedule dialog.
+			scheduleDialogOpen: false,
+			scheduleError: '',
+			// dashboard-version-history-ui: the history modal, and per
+			// dashboard uuid whether versioning is supported (read when the
+			// dashboard menu opens; absent means not known yet).
+			versionHistoryOpen: false,
+			versionSupport: {},
 		}
 	},
 
@@ -699,6 +819,17 @@ export default {
 		},
 
 		/**
+		 * Whether "Hide for me" and "Hidden (n)" are offered: a dashboard
+		 * this person does not own (REQ-PERSUI-001).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		canHideForMe() {
+			return !!this.activeDashboard && this.activeDashboard.isOwner !== true
+		},
+
+		/**
 		 * Whether the top-bar share action should be shown (dashboard-sharing
 		 * spec). Requires an active dashboard the user owns (only owners can
 		 * manage shares — mirrors `DashboardConfigModal.canManageShares`).
@@ -709,6 +840,61 @@ export default {
 		canShareActiveDashboard() {
 			const dash = this.activeDashboard
 			return !!dash && dash.isOwner !== false && (dash.id ?? null) !== null
+		},
+
+		/**
+		 * Publish, unpublish and schedule are for the owner or an
+		 * administrator (REQ-SCHEDUI-001); the server checks again.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		canManagePublication() {
+			const dash = this.activeDashboard
+			return !!dash?.uuid && (dash.isOwner === true || this.isAdmin === true)
+		},
+
+		/**
+		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
+		 *
+		 * @return {string} The note, or empty.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		publicationNote() {
+			const dash = this.activeDashboard
+			const parts = []
+			if (dash?.publicationStatus === 'scheduled' && dash.publishAt) {
+				parts.push(
+					t('launchpad', 'Goes live on {date}.', {
+						date: this.formatStamp(dash.publishAt),
+					}),
+				)
+			}
+			if (dash?.unpublishAt) {
+				parts.push(
+					t('launchpad', 'Comes down on {date}.', {
+						date: this.formatStamp(dash.unpublishAt),
+					}),
+				)
+			}
+			return parts.join(' ')
+		},
+
+		/**
+		 * Whether the dashboard menu offers "Version history…": the owner or
+		 * an administrator, and the server said this dashboard keeps
+		 * versions (REQ-VERSUI-001). The server checks ownership again.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		canViewVersionHistory() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid) {
+				return false
+			}
+			const mayManage = dash.isOwner === true || this.isAdmin === true
+			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -847,6 +1033,22 @@ export default {
 
 	watch: {
 		/**
+		 * Read this person's layer whenever another shared dashboard
+		 * becomes active, so "Hidden (n)" is right from the start.
+		 *
+		 * @param {number|string|null} id Active dashboard id.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		'activeDashboard.id': {
+			immediate: true,
+			handler(id) {
+				if (id !== undefined && id !== null && this.canHideForMe) {
+					this.personalLayer.load(id).catch(() => {})
+				}
+			},
+		},
+
+		/**
 		 * Mirror the combined edit-mode / permission gate into the
 		 * Vue.observable proxy the grid manager composable owns. The
 		 * proxy is the only thing the composable reads, so this watcher
@@ -970,6 +1172,8 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		// Leaving the page while editing gives the lock back.
+		this.editLock.release()
 	},
 
 	methods: {
@@ -1171,15 +1375,281 @@ export default {
 			}
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
-		toggleEditMode() {
-			this.isEditMode = !this.isEditMode
+		/**
+		 * "Hide for me" on a widget: save the layer, then read the dashboard
+		 * again so the server applies it (REQ-PERSUI-001).
+		 *
+		 * @param {object} placement The widget's placement.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onHideForMe(placement) {
+			const id = this.activeDashboard?.id
+			if (id === undefined || id === null) {
+				return
+			}
+			try {
+				await this.personalLayer.hide(id, placement.id)
+			} catch (error) {
+				showError(
+					error?.compulsory
+						? t(
+								'launchpad',
+								'{name} is compulsory on this dashboard and cannot be hidden.',
+								{
+									name: resolveWidgetTitle(
+										placement,
+										this.availableWidgets,
+									),
+								},
+							)
+						: t('launchpad', 'The widget could not be hidden.'),
+				)
+				return
+			}
+			await this.switchDashboard(id)
+		},
+
+		/**
+		 * "Show again" in the hidden list (REQ-PERSUI-002).
+		 *
+		 * @param {number} placementId The placement to bring back.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onShowAgain(placementId) {
+			const id = this.activeDashboard?.id
+			try {
+				await this.personalLayer.showAgain(id, placementId)
+			} catch {
+				showError(t('launchpad', 'The widget could not be shown again.'))
+				return
+			}
+			await this.switchDashboard(id)
+		},
+
+		/**
+		 * "Reset my view", confirmed (REQ-PERSUI-002).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onResetPersonalView() {
+			const id = this.activeDashboard?.id
+			try {
+				await this.personalLayer.reset(id)
+			} catch {
+				showError(t('launchpad', 'Your view could not be reset.'))
+				return
+			}
+			await this.switchDashboard(id)
+		},
+
+		/**
+		 * Show a stored timestamp in the viewer's locale.
+		 *
+		 * @param {string} value Timestamp from the server.
+		 * @return {string} Formatted date and time.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		formatStamp(value) {
+			const parsed = new Date(String(value).replace(' ', 'T'))
+			return Number.isNaN(parsed.getTime())
+				? String(value)
+				: parsed.toLocaleString(undefined, {
+						dateStyle: 'medium',
+						timeStyle: 'short',
+					})
+		},
+
+		/**
+		 * Publish the active dashboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onPublishActive() {
+			await useDashboardStore().publishDashboard(this.activeDashboard.uuid)
+		},
+
+		/**
+		 * Unpublish the active dashboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onUnpublishActive() {
+			await useDashboardStore().unpublishDashboard(this.activeDashboard.uuid)
+		},
+
+		/**
+		 * Schedule the active dashboard; a refusal stays in the dialog.
+		 *
+		 * @param {{publishAt: (string|null), unpublishAt: (string|null)}} times The chosen times.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onScheduleActive({ publishAt, unpublishAt }) {
+			this.scheduleError = ''
+			try {
+				await useDashboardStore().scheduleDashboard(
+					this.activeDashboard.uuid,
+					publishAt,
+					unpublishAt,
+				)
+				this.scheduleDialogOpen = false
+			} catch (error) {
+				const message = error?.response?.data?.message ?? ''
+				if (message === 'unpublishAt must be after publishAt') {
+					this.scheduleError = t(
+						'launchpad',
+						'The dashboard has to go live before it comes down.',
+					)
+				} else if (message === 'publishAt must be a future timestamp') {
+					this.scheduleError = t(
+						'launchpad',
+						'Choose a time in the future.',
+					)
+				} else {
+					this.scheduleError = t(
+						'launchpad',
+						'The dashboard could not be scheduled.',
+					)
+				}
+			}
+		},
+
+		/**
+		 * The dashboard menu opened: find out once per dashboard whether it
+		 * keeps versions, so "Version history…" is offered only where it
+		 * works. A refusal (not owner, not admin) reads as not offered.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		async checkVersionSupport() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid || dash.uuid in this.versionSupport) {
+				return
+			}
+			if (dash.isOwner !== true && this.isAdmin !== true) {
+				return
+			}
+			try {
+				const { data } = await api.listVersions(dash.uuid)
+				this.versionSupport = {
+					...this.versionSupport,
+					[dash.uuid]: data?.modeSupported !== false,
+				}
+			} catch {
+				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
+			}
+		},
+
+		/**
+		 * A version was restored: read the dashboard again from the server
+		 * rather than patching local state from the snapshot.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		async onVersionRestored() {
+			const id = this.activeDashboard?.id
+			if (id !== undefined && id !== null) {
+				await this.switchDashboard(id)
+			}
+		},
+
+		/**
+		 * Enter or leave edit mode. Entering asks for the dashboard's
+		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async toggleEditMode() {
 			if (!this.isEditMode) {
-				this.closeWidgetModal()
-				this.closeStyleEditor()
-				// Leaving edit mode also dismisses any open right-click
-				// popover so view mode never carries an edit-only surface.
-				this.grid.closeContextMenu()
+				await this.enterEditMode()
+				return
+			}
+			this.leaveEditMode()
+			await this.editLock.release()
+		},
+
+		/**
+		 * Enter edit mode only when the lock is granted. A colleague's lock
+		 * (409), a refusal (403) or a failed request all leave the page
+		 * read-only and the banner says why.
+		 *
+		 * @return {Promise<boolean>} Whether the page is in edit mode now.
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async enterEditMode() {
+			if (this.isEditMode) {
+				return true
+			}
+			const uuid = this.activeDashboard?.uuid ?? this.activeDashboard?.id
+			if (!uuid) {
+				return false
+			}
+			const granted = await this.editLock.acquire(String(uuid))
+			if (granted) {
+				this.isEditMode = true
+			}
+			return granted
+		},
+
+		/**
+		 * Drop edit mode and every edit-only surface. The lock itself is
+		 * released by the caller.
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		leaveEditMode() {
+			this.isEditMode = false
+			this.closeWidgetModal()
+			this.closeStyleEditor()
+			// Leaving edit mode also dismisses any open right-click
+			// popover so view mode never carries an edit-only surface.
+			this.grid.closeContextMenu()
+		},
+
+		/**
+		 * Before another dashboard becomes active: leave edit mode, give the
+		 * lock back and clear a banner that was about the previous one.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async dropEditLock() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+			await this.editLock.release()
+		},
+
+		/**
+		 * A refresh answered 404: someone else holds the lock now. Back to
+		 * view mode; the banner says what happened (REQ-LOCKUI-002).
+		 *
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		onEditLockLost() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+		},
+
+		/**
+		 * Administrator confirmed the take-over: force-release, then edit.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async onTakeOverConfirmed() {
+			this.forceReleaseDialogOpen = false
+			if (await this.editLock.takeOver()) {
+				this.isEditMode = true
 			}
 		},
 
@@ -1372,9 +1842,9 @@ export default {
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
-		openWidgetModal() {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openWidgetModal() {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.isWidgetModalOpen = true
 		},
@@ -1392,9 +1862,9 @@ export default {
 		 * @param {string|null} type registry key, or null for picker flow
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		openCustomWidgetModal(type = null) {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openCustomWidgetModal(type = null) {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.customWidgetPreselectedType = type
 			this.customWidgetEditing = null
@@ -1559,6 +2029,7 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		closeConfigModal() {
 			this.isConfigModalOpen = false
+			this.configSaveError = ''
 		},
 
 		/**
@@ -1640,9 +2111,9 @@ export default {
 		 *   editor for a brand-new tile.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		openTileEditor(tile = null) {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openTileEditor(tile = null) {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.editingTile = tile
 			this.isTileEditorOpen = true
@@ -1751,20 +2222,72 @@ export default {
 		 * @param {string} config.name Display name.
 		 * @param {string} config.description Short description.
 		 * @param {string} config.icon Icon key or URL.
+		 * @param {string} [config.parentUuid] Parent uuid, '' for none (edit only).
+		 * @param {string} [config.slug] Web address name (edit only).
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		async saveDashboardConfig({ id, name, description, icon }) {
+		async saveDashboardConfig({
+			id,
+			name,
+			description,
+			icon,
+			parentUuid,
+			slug,
+		}) {
+			this.configSaveError = ''
 			try {
 				if (id === null || id === undefined) {
 					await this.createDashboard({ name, description, icon })
 				} else {
-					await api.updateDashboard(id, { name, description, icon })
+					const data = { name, description, icon }
+					// dashboard-tree-navigation: '' clears the parent; an
+					// empty web address name leaves the stored one alone.
+					if (parentUuid !== undefined) {
+						data.parentUuid = parentUuid
+					}
+					if (slug) {
+						data.slug = slug
+					}
+					await api.updateDashboard(id, data)
 					await this.loadDashboards()
 				}
 				this.closeConfigModal()
 			} catch (error) {
 				logger.error('Failed to save dashboard:', error)
+				this.configSaveError = this.treeSaveMessage(error)
 			}
+		},
+
+		/**
+		 * Say why a save was refused, for the tree fields in particular.
+		 * The service's messages are English constants
+		 * (DashboardTreeService::ERR_*), so they are mapped, not shown.
+		 *
+		 * @param {Error} error The failed request.
+		 * @return {string} A translated message.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		treeSaveMessage(error) {
+			const message = error?.response?.data?.message ?? ''
+			if (message === 'Setting this parent would create a cycle') {
+				return t(
+					'launchpad',
+					'That dashboard sits under this one, so it cannot be its parent.',
+				)
+			}
+			if (message === 'Slug must be unique among siblings') {
+				return t(
+					'launchpad',
+					'Another dashboard under the same parent already uses this web address name.',
+				)
+			}
+			if (message === 'Parent dashboard not found') {
+				return t(
+					'launchpad',
+					'The chosen parent dashboard no longer exists.',
+				)
+			}
+			return t('launchpad', 'The dashboard could not be saved.')
 		},
 
 		/**
@@ -1774,24 +2297,8 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async deleteCurrentDashboard(dashboard) {
-			if (
-				!confirm(
-					this.t(
-						'launchpad',
-						'Are you sure you want to delete this dashboard?',
-					),
-				)
-			) {
-				return
-			}
-
-			try {
-				await api.deleteDashboard(dashboard.id)
-				await this.loadDashboards()
-				this.closeConfigModal()
-			} catch (error) {
-				logger.error('Failed to delete dashboard:', error)
-			}
+			this.deleteChildCount = 0
+			this.deleteTarget = dashboard
 		},
 
 		/**
@@ -1823,6 +2330,7 @@ export default {
 			// signature is kept explicit so per-source behaviour can land
 			// without re-touching this view (and so the load-bearing
 			// REQ-SWITCH-002 contract is visible at the call site).
+			await this.dropEditLock()
 			await this.switchDashboard(id)
 		},
 
@@ -1952,6 +2460,7 @@ export default {
 				const res = await api.getDashboardByPath(suffix)
 				const dashboard = res?.data?.dashboard
 				if (dashboard?.id !== undefined && dashboard?.id !== null) {
+					await this.dropEditLock()
 					await this.switchDashboard(dashboard.id)
 				}
 			} catch (e) {
@@ -2120,21 +2629,70 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async onSidebarDeleteDashboard(id) {
-			if (
-				!confirm(
-					this.t(
-						'launchpad',
-						'Are you sure you want to delete this dashboard?',
-					),
-				)
-			) {
+			this.deleteChildCount = 0
+			this.deleteTarget = this.dashboards.find((d) => d.id === id) ?? {
+				id,
+				name: '',
+			}
+		},
+
+		/**
+		 * The delete dialog closed without confirming.
+		 *
+		 * @param {boolean} isOpen New open state.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		onDeleteDialog(isOpen) {
+			if (!isOpen) {
+				this.deleteTarget = null
+				this.deleteChildCount = 0
+			}
+		},
+
+		/**
+		 * Delete the confirmed dashboard. When it has dashboards under it
+		 * the server answers 409 with `childCount`; the dialog then says how
+		 * many go with it, and the next confirmation deletes them all.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async confirmDeleteDashboard() {
+			const target = this.deleteTarget
+			if (!target) {
 				return
 			}
 			try {
-				await api.deleteDashboard(id)
-				await this.loadDashboards()
+				await api.deleteDashboard(target.id, this.deleteChildCount > 0)
 			} catch (error) {
+				const data = error?.response?.data
+				if (
+					error?.response?.status === 409
+					&& data?.error === 'dashboard_has_children'
+				) {
+					this.deleteChildCount = Number(data.childCount) || 1
+					return
+				}
 				logger.error('Failed to delete dashboard:', error)
+				return
+			}
+			this.deleteTarget = null
+			this.deleteChildCount = 0
+			await this.loadDashboards()
+			this.closeConfigModal()
+		},
+
+		/**
+		 * A breadcrumb was chosen: open that dashboard.
+		 *
+		 * @param {string} uuid The ancestor's uuid.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onBreadcrumbNavigate(uuid) {
+			const target = this.dashboards.find((d) => d.uuid === uuid)
+			if (target) {
+				await this.onSidebarSwitch(target.id, target.source)
 			}
 		},
 	},
@@ -2276,5 +2834,9 @@ export default {
 	min-height: calc(
 		100vh - var(--header-height, 50px) - var(--body-container-margin, 8px)
 	);
+}
+.launchpad-publication-note {
+	margin: 0 8px 8px;
+	color: var(--color-text-maxcontrast);
 }
 </style>

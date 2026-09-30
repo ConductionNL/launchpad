@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
@@ -382,6 +383,7 @@ class DashboardApiController extends Controller {
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
 				'hasVariants' => $this->hasVariants(uuid: (string)$dashboard->getUuid()),
+				'breadcrumbs' => $this->visibleBreadcrumbs(dashboard: $dashboard, userId: $this->userId),
 			]
 		);
 	}//end show()
@@ -433,6 +435,43 @@ class DashboardApiController extends Controller {
 			)
 		);
 	}//end filterByMetadata()
+
+	/**
+	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the
+	 * viewer may not see keeps its place but loses its uuid, name and slug,
+	 * so the trail never leaks a hidden dashboard's name. A top-level
+	 * dashboard has none.
+	 *
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param string $userId The reader.
+	 *
+	 * @return array<int, array<string, mixed>> The crumbs.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function visibleBreadcrumbs(Dashboard $dashboard, string $userId): array {
+		$parent = $dashboard->getParentUuid();
+		if ($parent === null || $parent === '') {
+			return [];
+		}
+
+		$visible = [];
+		foreach ($this->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
+			$visible[(string)$entry['dashboard']->getUuid()] = true;
+		}
+
+		$crumbs = [];
+		foreach ($this->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
+			if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
+				$crumbs[] = $crumb + ['hidden' => false];
+				continue;
+			}
+
+			$crumbs[] = ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+		}
+
+		return $crumbs;
+	}//end visibleBreadcrumbs()
 
 	/**
 	 * Create a new dashboard.
@@ -1562,6 +1601,7 @@ class DashboardApiController extends Controller {
 	 * @param string $uuid The dashboard UUID from the URL.
 	 * @param string|null $publishAt The future ISO-8601 timestamp from
 	 *                               the request body.
+	 * @param string|null $unpublishAt Optional take-down time (REQ-SCHEDUI-002).
 	 *
 	 * @return JSONResponse The updated dashboard payload.
 	 *
@@ -1571,6 +1611,7 @@ class DashboardApiController extends Controller {
 	public function schedule(
 		string $uuid,
 		?string $publishAt = null,
+		?string $unpublishAt = null,
 	): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
@@ -1583,7 +1624,8 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::unauthorized();
 		}
 
-		if ($publishAt === null || $publishAt === '') {
+		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
+		if (($publishAt === null || $publishAt === '') && ($unpublishAt === null || $unpublishAt === '')) {
 			return new JSONResponse(
 				data: [
 					'status' => 'error',
@@ -1598,7 +1640,8 @@ class DashboardApiController extends Controller {
 			$dashboard = $this->dashboardService->schedule(
 				uuid: $uuid,
 				publishAt: $publishAt,
-				userId: $this->userId
+				userId: $this->userId,
+				unpublishAt: $unpublishAt
 			);
 
 			return ResponseHelper::success(

@@ -235,6 +235,9 @@
 						:groups="injectedAllGroups"
 						:configuredGroups="configuredGroups" />
 				</template>
+				<template #kiosk>
+					<KioskTab />
+				</template>
 				<template #org-navigation>
 					<OrgNavigationTab :groups="injectedAllGroups" />
 				</template>
@@ -286,6 +289,7 @@ import BeheerTabs from './BeheerTabs.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
+import KioskTab from './tabs/KioskTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
@@ -312,6 +316,7 @@ export default {
 		RolesPermissionsTab,
 		VersioningAuditTab,
 		MetadataFieldsSettings,
+		KioskTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -391,6 +396,7 @@ export default {
 					label: this.t('launchpad', 'Versioning & Audit'),
 				},
 				{ slug: 'sharing', label: this.t('launchpad', 'Sharing') },
+				{ slug: 'kiosk', label: this.t('launchpad', 'Kiosk') },
 				{
 					slug: 'org-navigation',
 					label: this.t('launchpad', 'Org navigation'),

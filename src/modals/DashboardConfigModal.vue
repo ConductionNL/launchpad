@@ -81,6 +81,41 @@
 			     `custom-icon-upload-pattern`). The same v-model holds whichever
 			     it emits: an SVG path string or a /apps/launchpad/resource/...
 			     URL (REQ-ICON-003 + REQ-ICON-008..009). -->
+				<!-- dashboard-tree-navigation REQ-TREEUI-003: where this
+				     dashboard sits and its web address name. Edit only. -->
+				<template v-if="!isCreate">
+					<div class="dashboard-config__field">
+						<NcSelect
+							v-model="form.parent"
+							:inputLabel="t('launchpad', 'Parent dashboard')"
+							:options="parentChoices"
+							label="name"
+							trackBy="uuid"
+							:clearable="false"
+							data-testid="dashboard-parent-select" />
+					</div>
+					<div class="dashboard-config__field">
+						<NcTextField
+							:modelValue="form.slug"
+							:label="t('launchpad', 'Web address name')"
+							:helperText="
+								t(
+									'launchpad',
+									'Lowercase letters, digits and dashes. Used in the address of a dashboard under another one.',
+								)
+							"
+							data-testid="dashboard-slug-input"
+							@update:modelValue="form.slug = $event" />
+					</div>
+				</template>
+				<p
+					v-if="saveError"
+					class="dashboard-config__error"
+					role="alert"
+					data-testid="dashboard-config-error">
+					{{ saveError }}
+				</p>
+
 				<div class="dashboard-config__field">
 					<CnIconBrowser
 						inline
@@ -478,6 +513,21 @@ export default {
 		},
 
 		/**
+		 * Dashboards that may be chosen as parent (dashboard-tree-navigation).
+		 * The server refuses a cycle; the host leaves the dashboard itself out.
+		 */
+		parentOptions: {
+			type: Array,
+			default: () => [],
+		},
+
+		/** Why the last save was refused, shown in the General tab. */
+		saveError: {
+			type: String,
+			default: '',
+		},
+
+		/**
 		 * Tab to land on when the modal opens (dashboard-sharing spec). The
 		 * top-bar share action passes `'sharing'` so the share button lands
 		 * directly on the Sharing tab.
@@ -507,6 +557,10 @@ export default {
 				 * touching the toggle never re-pins).
 				 */
 				isDefault: false,
+				// dashboard-tree-navigation: `{uuid, name}` of the parent
+				// (uuid '' for none) and the web address name.
+				parent: null,
+				slug: '',
 			},
 
 			saving: false,
@@ -533,6 +587,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Parent choices: "No parent" first, then the other dashboards.
+		 *
+		 * @return {Array<{uuid: string, name: string}>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		parentChoices() {
+			const self = this.dashboard?.uuid
+			return [
+				{ uuid: '', name: t('launchpad', 'No parent') },
+				...this.parentOptions
+					.filter((d) => d?.uuid && d.uuid !== self)
+					.map((d) => ({ uuid: d.uuid, name: d.name })),
+			]
+		},
+
 		isCreate() {
 			return this.mode === 'create'
 		},
@@ -713,6 +783,11 @@ export default {
 				} else if (this.dashboard) {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
+					this.form.slug = this.dashboard.slug || ''
+					this.form.parent =
+						this.parentChoices.find(
+							(p) => p.uuid === (this.dashboard.parentUuid || ''),
+						) || this.parentChoices[0]
 					// Persisted icon may be NULL/empty, a registry key, a custom
 					// URL, or an SVG path string (CnIconBrowser). Any non-empty
 					// value is kept verbatim and rendered by CnDashboardIcon;
@@ -1025,6 +1100,12 @@ export default {
 					name: this.form.name.trim(),
 					description: this.form.description.trim(),
 					icon: this.form.icon || null,
+					...(this.isCreate
+						? {}
+						: {
+								parentUuid: this.form.parent?.uuid ?? '',
+								slug: this.form.slug.trim(),
+							}),
 				})
 
 				// Wave3.8 — propagate the default-pin toggle when its
@@ -1358,5 +1439,8 @@ export default {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
+}
+.dashboard-config__error {
+	color: var(--color-error-text);
 }
 </style>

@@ -559,16 +559,24 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @return {Promise<object|null>} The updated dashboard or null.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		async scheduleDashboard(uuid, publishAt) {
-			try {
-				const response = await api.scheduleDashboard(uuid, publishAt)
-				this.applyPublicationPatch(response.data?.dashboard)
-				return response.data?.dashboard ?? null
-			} catch (error) {
-				logger.error('Failed to schedule dashboard:', error)
-				showError(t('launchpad', 'Schedule dashboard'))
-				return null
-			}
+		/**
+		 * Schedule go-live and/or take-down (sharing-dashboard-schedule-screen).
+		 * Rethrows so the dialog can show the server's refusal.
+		 *
+		 * @param {string} uuid Dashboard UUID.
+		 * @param {string|null} publishAt Go-live time, or null.
+		 * @param {string|null} [unpublishAt] Take-down time, or null.
+		 * @return {Promise<object|null>} The updated dashboard.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async scheduleDashboard(uuid, publishAt, unpublishAt = null) {
+			const response = await api.scheduleDashboard(
+				uuid,
+				publishAt,
+				unpublishAt,
+			)
+			this.applyPublicationPatch(response.data?.dashboard)
+			return response.data?.dashboard ?? null
 		},
 
 		/**
@@ -591,6 +599,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					publicationStatus: dashboard.publicationStatus,
 					publishAt: dashboard.publishAt,
 					publishedAt: dashboard.publishedAt,
+					unpublishAt: dashboard.unpublishAt ?? null,
 				}
 			}
 			if (this.activeDashboard?.uuid === dashboard.uuid) {
@@ -599,6 +608,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					publicationStatus: dashboard.publicationStatus,
 					publishAt: dashboard.publishAt,
 					publishedAt: dashboard.publishedAt,
+					unpublishAt: dashboard.unpublishAt ?? null,
 				}
 			}
 		},

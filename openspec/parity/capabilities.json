@@ -1424,11 +1424,12 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue (displayChildren); src/utils/sortContainerTiles.js; src/components/Widgets/Renderers/ContainerWidgetForm.vue; src/composables/useTileClickTracking.js (readLocalTileUse)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting"
+				"change": "openspec/changes/archive/2026-09-30-launcher-tile-sorting"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "A container widget: Edit > Sort tiles (by hand, alphabetically, most used, last used, at random); the order applies when the dashboard is viewed",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175612-faq-workspace-365-v4 'Frequently used apps' moved to the navigation menu (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: the app menu order is set by hand (apps/theming/src/components/UserSectionAppMenu.vue:133-135, AdminSectionAppMenu.vue:86-90); searched apps/dashboard and apps/theming for usage, frequent, most used: none. The shipped recommendations widget suggests files, not apps",
@@ -5045,11 +5046,12 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue (displayChildren); src/utils/sortContainerTiles.js; src/components/Widgets/Renderers/ContainerWidgetForm.vue; src/composables/useTileClickTracking.js (readLocalTileUse)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting"
+				"change": "openspec/changes/archive/2026-09-30-launcher-tile-sorting"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "A container widget: Edit > Sort tiles (by hand, alphabetically, most used, last used, at random); the order applies when the dashboard is viewed",
 			"evidence": {
 				"workspace-365": "not checked: user guide 175363 and FAQ for admins 175608 describe drag and drop reordering and automatic gap filling, no sort by name, last use or random (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards card order is set by the author and users drag cards; sort options exist only inside Folder (date, A-Z) and Stream playlist cards, not for cards (read 2026-09-26)",

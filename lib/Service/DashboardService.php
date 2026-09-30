@@ -2005,6 +2005,18 @@ class DashboardService {
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
+		// REQ-SCHEDUI-002: publishing now overrides a take-down time that
+		// already passed. The stored status can still read `published`
+		// (the take-down is computed at read time), so this runs before the
+		// idempotent return; otherwise the dashboard stays down.
+		if ($this->isTakenDown(dashboard: $dashboard, now: new DateTime()) === true) {
+			$dashboard->setUnpublishAt(null);
+			if ($dashboard->getPublicationStatus() === Dashboard::STATUS_PUBLISHED) {
+				$dashboard->setUpdatedAt($now);
+				return $this->dashboardMapper->update(entity: $dashboard);
+			}
+		}
+
 		// Idempotent: already published — no-op other than touching
 		// updatedAt is intentionally skipped so audit timestamps stay
 		// accurate. Caller still receives the current state.
@@ -2068,6 +2080,8 @@ class DashboardService {
 		// cleared because the scheduled hint no longer applies once we
 		// are explicitly back in draft state.
 		$dashboard->setPublishAt(null);
+		// REQ-SCHEDUI-002: a take-down time means nothing for a draft.
+		$dashboard->setUnpublishAt(null);
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);

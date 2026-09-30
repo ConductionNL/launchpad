@@ -1312,7 +1312,18 @@ OC.L10N.register(
     "Profile fields saved." : "Полињата на профилот се зачувани.",
     "Save profile fields" : "Зачувај полиња на профилот",
     "The profile fields could not be loaded." : "Полињата на профилот не можеа да се вчитаат.",
-    "The profile fields could not be saved." : "Полињата на профилот не можеа да се зачуваат."
+    "The profile fields could not be saved." : "Полињата на профилот не можеа да се зачуваат.",
+    "Forget my usage" : "Заборави ја мојата употреба",
+    "Sorted alphabetically" : "Подредено по азбучен ред",
+    "Sorted by most used" : "Подредено по најкористени",
+    "Sorted by last used" : "Подредено по последно користени",
+    "Sorted at random" : "Подредено по случаен избор",
+    "Sort tiles" : "Подредување на плочките",
+    "By hand" : "Рачно",
+    "Alphabetically" : "Азбучно",
+    "Most used" : "Најкористени",
+    "Last used" : "Последно користени",
+    "At random" : "По случаен избор"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

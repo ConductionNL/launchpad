@@ -1288,6 +1288,17 @@
         "Profile fields saved.": "Champs du profil enregistrés.",
         "Save profile fields": "Enregistrer les champs du profil",
         "The profile fields could not be loaded.": "Les champs du profil n'ont pas pu être chargés.",
-        "The profile fields could not be saved.": "Les champs du profil n'ont pas pu être enregistrés."
+        "The profile fields could not be saved.": "Les champs du profil n'ont pas pu être enregistrés.",
+        "Forget my usage": "Oublier mon utilisation",
+        "Sorted alphabetically": "Trié par ordre alphabétique",
+        "Sorted by most used": "Trié par les plus utilisés",
+        "Sorted by last used": "Trié par dernière utilisation",
+        "Sorted at random": "Trié au hasard",
+        "Sort tiles": "Trier les tuiles",
+        "By hand": "À la main",
+        "Alphabetically": "Par ordre alphabétique",
+        "Most used": "Les plus utilisés",
+        "Last used": "Dernière utilisation",
+        "At random": "Au hasard"
     }
 }

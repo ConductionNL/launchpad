@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profila lauki saglabāti.",
     "Save profile fields" : "Saglabāt profila laukus",
     "The profile fields could not be loaded." : "Neizdevās ielādēt profila laukus.",
-    "The profile fields could not be saved." : "Neizdevās saglabāt profila laukus."
+    "The profile fields could not be saved." : "Neizdevās saglabāt profila laukus.",
+    "Forget my usage" : "Aizmirst manu lietojumu",
+    "Sorted alphabetically" : "Kārtots alfabētiski",
+    "Sorted by most used" : "Kārtots pēc visbiežāk lietotajiem",
+    "Sorted by last used" : "Kārtots pēc pēdējās lietošanas",
+    "Sorted at random" : "Kārtots nejauši",
+    "Sort tiles" : "Flīžu kārtošana",
+    "By hand" : "Manuāli",
+    "Alphabetically" : "Alfabētiski",
+    "Most used" : "Visbiežāk lietotie",
+    "Last used" : "Pēdējie lietotie",
+    "At random" : "Nejauši"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Polja profila su spremljena.",
     "Save profile fields" : "Spremi polja profila",
     "The profile fields could not be loaded." : "Polja profila nije bilo moguće učitati.",
-    "The profile fields could not be saved." : "Polja profila nije bilo moguće spremiti."
+    "The profile fields could not be saved." : "Polja profila nije bilo moguće spremiti.",
+    "Forget my usage" : "Zaboravi moje korištenje",
+    "Sorted alphabetically" : "Poredano abecedno",
+    "Sorted by most used" : "Poredano po najčešće korištenim",
+    "Sorted by last used" : "Poredano po posljednje korištenim",
+    "Sorted at random" : "Poredano nasumično",
+    "Sort tiles" : "Poredaj pločice",
+    "By hand" : "Ručno",
+    "Alphabetically" : "Abecedno",
+    "Most used" : "Najčešće korišteno",
+    "Last used" : "Posljednje korišteno",
+    "At random" : "Nasumično"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

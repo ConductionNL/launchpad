@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Prófílreitir vistaðir.",
     "Save profile fields" : "Vista prófílreiti",
     "The profile fields could not be loaded." : "Ekki tókst að hlaða inn prófílreitunum.",
-    "The profile fields could not be saved." : "Ekki tókst að vista prófílreitina."
+    "The profile fields could not be saved." : "Ekki tókst að vista prófílreitina.",
+    "Forget my usage" : "Gleyma notkun minni",
+    "Sorted alphabetically" : "Raðað í stafrófsröð",
+    "Sorted by most used" : "Raðað eftir mest notuðu",
+    "Sorted by last used" : "Raðað eftir síðast notuðu",
+    "Sorted at random" : "Raðað af handahófi",
+    "Sort tiles" : "Raða reitum",
+    "By hand" : "Handvirkt",
+    "Alphabetically" : "Í stafrófsröð",
+    "Most used" : "Mest notað",
+    "Last used" : "Síðast notað",
+    "At random" : "Af handahófi"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

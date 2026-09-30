@@ -1266,6 +1266,17 @@
         "Profile fields saved.": "Profile fields saved.",
         "Save profile fields": "Save profile fields",
         "The profile fields could not be loaded.": "The profile fields could not be loaded.",
-        "The profile fields could not be saved.": "The profile fields could not be saved."
+        "The profile fields could not be saved.": "The profile fields could not be saved.",
+        "Forget my usage": "Forget my usage",
+        "Sorted alphabetically": "Sorted alphabetically",
+        "Sorted by most used": "Sorted by most used",
+        "Sorted by last used": "Sorted by last used",
+        "Sorted at random": "Sorted at random",
+        "Sort tiles": "Sort tiles",
+        "By hand": "By hand",
+        "Alphabetically": "Alphabetically",
+        "Most used": "Most used",
+        "Last used": "Last used",
+        "At random": "At random"
     }
 }

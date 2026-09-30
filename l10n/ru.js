@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Поля профиля сохранены.",
     "Save profile fields" : "Сохранить поля профиля",
     "The profile fields could not be loaded." : "Не удалось загрузить поля профиля.",
-    "The profile fields could not be saved." : "Не удалось сохранить поля профиля."
+    "The profile fields could not be saved." : "Не удалось сохранить поля профиля.",
+    "Forget my usage" : "Забыть моё использование",
+    "Sorted alphabetically" : "Отсортировано по алфавиту",
+    "Sorted by most used" : "Отсортировано по частоте использования",
+    "Sorted by last used" : "Отсортировано по последнему использованию",
+    "Sorted at random" : "Отсортировано случайно",
+    "Sort tiles" : "Сортировка плиток",
+    "By hand" : "Вручную",
+    "Alphabetically" : "По алфавиту",
+    "Most used" : "Самые используемые",
+    "Last used" : "Последние использованные",
+    "At random" : "Случайно"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profil alanları kaydedildi.",
     "Save profile fields" : "Profil alanlarını kaydet",
     "The profile fields could not be loaded." : "Profil alanları yüklenemedi.",
-    "The profile fields could not be saved." : "Profil alanları kaydedilemedi."
+    "The profile fields could not be saved." : "Profil alanları kaydedilemedi.",
+    "Forget my usage" : "Kullanımımı unut",
+    "Sorted alphabetically" : "Alfabetik sıralandı",
+    "Sorted by most used" : "En çok kullanılana göre sıralandı",
+    "Sorted by last used" : "Son kullanılana göre sıralandı",
+    "Sorted at random" : "Rastgele sıralandı",
+    "Sort tiles" : "Kutucukları sırala",
+    "By hand" : "Elle",
+    "Alphabetically" : "Alfabetik",
+    "Most used" : "En çok kullanılan",
+    "Last used" : "Son kullanılan",
+    "At random" : "Rastgele"
 },
 "nplurals=2; plural=(n != 1);"
 );

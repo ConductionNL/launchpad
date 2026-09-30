@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfelterne er gemt.",
     "Save profile fields" : "Gem profilfelter",
     "The profile fields could not be loaded." : "Profilfelterne kunne ikke indlæses.",
-    "The profile fields could not be saved." : "Profilfelterne kunne ikke gemmes."
+    "The profile fields could not be saved." : "Profilfelterne kunne ikke gemmes.",
+    "Forget my usage" : "Glem min brug",
+    "Sorted alphabetically" : "Sorteret alfabetisk",
+    "Sorted by most used" : "Sorteret efter mest brugte",
+    "Sorted by last used" : "Sorteret efter senest brugte",
+    "Sorted at random" : "Sorteret tilfældigt",
+    "Sort tiles" : "Sortér felter",
+    "By hand" : "Manuelt",
+    "Alphabetically" : "Alfabetisk",
+    "Most used" : "Mest brugte",
+    "Last used" : "Senest brugte",
+    "At random" : "Tilfældigt"
 },
 "nplurals=2; plural=(n != 1);"
 );

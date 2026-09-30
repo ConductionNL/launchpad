@@ -1289,6 +1289,17 @@
         "Profile fields saved.": "Поля профілю збережено.",
         "Save profile fields": "Зберегти поля профілю",
         "The profile fields could not be loaded.": "Не вдалося завантажити поля профілю.",
-        "The profile fields could not be saved.": "Не вдалося зберегти поля профілю."
+        "The profile fields could not be saved.": "Не вдалося зберегти поля профілю.",
+        "Forget my usage": "Забути моє використання",
+        "Sorted alphabetically": "Відсортовано за абеткою",
+        "Sorted by most used": "Відсортовано за частотою використання",
+        "Sorted by last used": "Відсортовано за останнім використанням",
+        "Sorted at random": "Відсортовано випадково",
+        "Sort tiles": "Сортування плиток",
+        "By hand": "Вручну",
+        "Alphabetically": "За абеткою",
+        "Most used": "Найчастіше використовувані",
+        "Last used": "Останні використані",
+        "At random": "Випадково"
     }
 }

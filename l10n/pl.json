@@ -1289,6 +1289,17 @@
         "Profile fields saved.": "Pola profilu zapisane.",
         "Save profile fields": "Zapisz pola profilu",
         "The profile fields could not be loaded.": "Nie udało się wczytać pól profilu.",
-        "The profile fields could not be saved.": "Nie udało się zapisać pól profilu."
+        "The profile fields could not be saved.": "Nie udało się zapisać pól profilu.",
+        "Forget my usage": "Zapomnij moje użycie",
+        "Sorted alphabetically": "Posortowane alfabetycznie",
+        "Sorted by most used": "Posortowane według najczęściej używanych",
+        "Sorted by last used": "Posortowane według ostatnio używanych",
+        "Sorted at random": "Posortowane losowo",
+        "Sort tiles": "Sortuj kafelki",
+        "By hand": "Ręcznie",
+        "Alphabetically": "Alfabetycznie",
+        "Most used": "Najczęściej używane",
+        "Last used": "Ostatnio używane",
+        "At random": "Losowo"
     }
 }

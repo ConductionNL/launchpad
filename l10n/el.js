@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Τα πεδία προφίλ αποθηκεύτηκαν.",
     "Save profile fields" : "Αποθήκευση πεδίων προφίλ",
     "The profile fields could not be loaded." : "Δεν ήταν δυνατή η φόρτωση των πεδίων προφίλ.",
-    "The profile fields could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των πεδίων προφίλ."
+    "The profile fields could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των πεδίων προφίλ.",
+    "Forget my usage" : "Διαγραφή της χρήσης μου",
+    "Sorted alphabetically" : "Ταξινομημένα αλφαβητικά",
+    "Sorted by most used" : "Ταξινομημένα κατά συχνότερη χρήση",
+    "Sorted by last used" : "Ταξινομημένα κατά τελευταία χρήση",
+    "Sorted at random" : "Ταξινομημένα τυχαία",
+    "Sort tiles" : "Ταξινόμηση πλακιδίων",
+    "By hand" : "Χειροκίνητα",
+    "Alphabetically" : "Αλφαβητικά",
+    "Most used" : "Συχνότερα χρησιμοποιούμενα",
+    "Last used" : "Τελευταία χρήση",
+    "At random" : "Τυχαία"
 },
 "nplurals=2; plural=(n != 1);"
 );

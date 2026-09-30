@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfelder gespeichert.",
     "Save profile fields" : "Profilfelder speichern",
     "The profile fields could not be loaded." : "Die Profilfelder konnten nicht geladen werden.",
-    "The profile fields could not be saved." : "Die Profilfelder konnten nicht gespeichert werden."
+    "The profile fields could not be saved." : "Die Profilfelder konnten nicht gespeichert werden.",
+    "Forget my usage" : "Meine Nutzung vergessen",
+    "Sorted alphabetically" : "Alphabetisch sortiert",
+    "Sorted by most used" : "Nach häufigster Nutzung sortiert",
+    "Sorted by last used" : "Nach letzter Nutzung sortiert",
+    "Sorted at random" : "Zufällig sortiert",
+    "Sort tiles" : "Kacheln sortieren",
+    "By hand" : "Von Hand",
+    "Alphabetically" : "Alphabetisch",
+    "Most used" : "Am häufigsten genutzt",
+    "Last used" : "Zuletzt genutzt",
+    "At random" : "Zufällig"
 },
 "nplurals=2; plural=(n != 1);"
 );

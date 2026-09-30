@@ -1288,6 +1288,17 @@
         "Profile fields saved.": "Fushat e profilit u ruajtën.",
         "Save profile fields": "Ruaj fushat e profilit",
         "The profile fields could not be loaded.": "Fushat e profilit nuk u ngarkuan.",
-        "The profile fields could not be saved.": "Fushat e profilit nuk u ruajtën."
+        "The profile fields could not be saved.": "Fushat e profilit nuk u ruajtën.",
+        "Forget my usage": "Harro përdorimin tim",
+        "Sorted alphabetically": "Renditur sipas alfabetit",
+        "Sorted by most used": "Renditur sipas më të përdorurave",
+        "Sorted by last used": "Renditur sipas përdorimit të fundit",
+        "Sorted at random": "Renditur rastësisht",
+        "Sort tiles": "Rendit pllakat",
+        "By hand": "Me dorë",
+        "Alphabetically": "Sipas alfabetit",
+        "Most used": "Më të përdorurat",
+        "Last used": "Përdorur së fundi",
+        "At random": "Rastësisht"
     }
 }

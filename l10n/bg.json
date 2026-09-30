@@ -1288,6 +1288,17 @@
         "Profile fields saved.": "Полетата на профила са запазени.",
         "Save profile fields": "Запазване на полетата на профила",
         "The profile fields could not be loaded.": "Полетата на профила не можаха да се заредят.",
-        "The profile fields could not be saved.": "Полетата на профила не можаха да се запазят."
+        "The profile fields could not be saved.": "Полетата на профила не можаха да се запазят.",
+        "Forget my usage": "Забрави използването ми",
+        "Sorted alphabetically": "Подредено по азбучен ред",
+        "Sorted by most used": "Подредено по най-използвани",
+        "Sorted by last used": "Подредено по последно използвани",
+        "Sorted at random": "Подредено в случаен ред",
+        "Sort tiles": "Подреждане на плочките",
+        "By hand": "Ръчно",
+        "Alphabetically": "По азбучен ред",
+        "Most used": "Най-използвани",
+        "Last used": "Последно използвани",
+        "At random": "В случаен ред"
     }
 }

@@ -1288,6 +1288,17 @@
         "Profile fields saved.": "Profilfeltene er lagret.",
         "Save profile fields": "Lagre profilfelt",
         "The profile fields could not be loaded.": "Profilfeltene kunne ikke lastes inn.",
-        "The profile fields could not be saved.": "Profilfeltene kunne ikke lagres."
+        "The profile fields could not be saved.": "Profilfeltene kunne ikke lagres.",
+        "Forget my usage": "Glem bruken min",
+        "Sorted alphabetically": "Sortert alfabetisk",
+        "Sorted by most used": "Sortert etter mest brukt",
+        "Sorted by last used": "Sortert etter sist brukt",
+        "Sorted at random": "Sortert tilfeldig",
+        "Sort tiles": "Sorter fliser",
+        "By hand": "Manuelt",
+        "Alphabetically": "Alfabetisk",
+        "Most used": "Mest brukt",
+        "Last used": "Sist brukt",
+        "At random": "Tilfeldig"
     }
 }

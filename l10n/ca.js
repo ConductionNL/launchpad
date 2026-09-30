@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "S'han desat els camps del perfil.",
     "Save profile fields" : "Desa els camps del perfil",
     "The profile fields could not be loaded." : "No s'han pogut carregar els camps del perfil.",
-    "The profile fields could not be saved." : "No s'han pogut desar els camps del perfil."
+    "The profile fields could not be saved." : "No s'han pogut desar els camps del perfil.",
+    "Forget my usage" : "Oblida el meu ús",
+    "Sorted alphabetically" : "Ordenat alfabèticament",
+    "Sorted by most used" : "Ordenat pels més usats",
+    "Sorted by last used" : "Ordenat pels darrers usats",
+    "Sorted at random" : "Ordenat a l'atzar",
+    "Sort tiles" : "Ordena les rajoles",
+    "By hand" : "A mà",
+    "Alphabetically" : "Alfabèticament",
+    "Most used" : "Els més usats",
+    "Last used" : "Darrers usats",
+    "At random" : "A l'atzar"
 },
 "nplurals=2; plural=(n != 1);"
 );

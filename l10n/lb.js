@@ -1312,7 +1312,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfelder gespäichert.",
     "Save profile fields" : "Profilfelder späicheren",
     "The profile fields could not be loaded." : "D'Profilfelder konnten net geluede ginn.",
-    "The profile fields could not be saved." : "D'Profilfelder konnten net gespäichert ginn."
+    "The profile fields could not be saved." : "D'Profilfelder konnten net gespäichert ginn.",
+    "Forget my usage" : "Meng Notzung vergiessen",
+    "Sorted alphabetically" : "Alphabetesch sortéiert",
+    "Sorted by most used" : "No der meeschter Notzung sortéiert",
+    "Sorted by last used" : "No der leschter Notzung sortéiert",
+    "Sorted at random" : "Zoufälleg sortéiert",
+    "Sort tiles" : "Kachelen sortéieren",
+    "By hand" : "Vun Hand",
+    "Alphabetically" : "Alphabetesch",
+    "Most used" : "Am meeschte benotzt",
+    "Last used" : "Lescht benotzt",
+    "At random" : "Zoufälleg"
 },
 "nplurals=2; plural=(n != 1);"
 );

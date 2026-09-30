@@ -1289,6 +1289,17 @@
         "Profile fields saved.": "Polja profila su spremljena.",
         "Save profile fields": "Spremi polja profila",
         "The profile fields could not be loaded.": "Polja profila nisu mogla biti učitana.",
-        "The profile fields could not be saved.": "Polja profila nisu mogla biti spremljena."
+        "The profile fields could not be saved.": "Polja profila nisu mogla biti spremljena.",
+        "Forget my usage": "Zaboravi moje korištenje",
+        "Sorted alphabetically": "Poredano abecedno",
+        "Sorted by most used": "Poredano po najčešće korištenim",
+        "Sorted by last used": "Poredano po zadnje korištenim",
+        "Sorted at random": "Poredano nasumično",
+        "Sort tiles": "Poredaj pločice",
+        "By hand": "Ručno",
+        "Alphabetically": "Abecedno",
+        "Most used": "Najčešće korišteno",
+        "Last used": "Zadnje korišteno",
+        "At random": "Nasumično"
     }
 }

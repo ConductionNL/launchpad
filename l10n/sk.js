@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Polia profilu sú uložené.",
     "Save profile fields" : "Uložiť polia profilu",
     "The profile fields could not be loaded." : "Polia profilu sa nepodarilo načítať.",
-    "The profile fields could not be saved." : "Polia profilu sa nepodarilo uložiť."
+    "The profile fields could not be saved." : "Polia profilu sa nepodarilo uložiť.",
+    "Forget my usage" : "Zabudnúť moje používanie",
+    "Sorted alphabetically" : "Zoradené abecedne",
+    "Sorted by most used" : "Zoradené podľa najpoužívanejších",
+    "Sorted by last used" : "Zoradené podľa naposledy použitých",
+    "Sorted at random" : "Zoradené náhodne",
+    "Sort tiles" : "Zoradenie dlaždíc",
+    "By hand" : "Ručne",
+    "Alphabetically" : "Abecedne",
+    "Most used" : "Najpoužívanejšie",
+    "Last used" : "Naposledy použité",
+    "At random" : "Náhodne"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

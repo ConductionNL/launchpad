@@ -1321,7 +1321,18 @@ OC.L10N.register(
     "Profile fields saved." : "Il-oqsma tal-profil ġew salvati.",
     "Save profile fields" : "Issejvja l-oqsma tal-profil",
     "The profile fields could not be loaded." : "Il-oqsma tal-profil ma setgħux jitgħabbew.",
-    "The profile fields could not be saved." : "Il-oqsma tal-profil ma setgħux jiġu salvati."
+    "The profile fields could not be saved." : "Il-oqsma tal-profil ma setgħux jiġu salvati.",
+    "Forget my usage" : "Insa l-użu tiegħi",
+    "Sorted alphabetically" : "Issortjat alfabetikament",
+    "Sorted by most used" : "Issortjat skont l-aktar użati",
+    "Sorted by last used" : "Issortjat skont l-aħħar użu",
+    "Sorted at random" : "Issortjat b'mod każwali",
+    "Sort tiles" : "Issortja l-madum",
+    "By hand" : "Bl-idejn",
+    "Alphabetically" : "Alfabetikament",
+    "Most used" : "L-aktar użati",
+    "Last used" : "L-aħħar użati",
+    "At random" : "B'mod każwali"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

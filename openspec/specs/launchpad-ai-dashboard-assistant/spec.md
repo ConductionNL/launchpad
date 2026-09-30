@@ -4,188 +4,82 @@ status: done
 
 # Spec: launchpad-ai-dashboard-assistant
 
-**Status:** proposed
+**Status:** built (search-ai-dashboard-assistant, 29 Sep 2026)
 **Scope:** launchpad
 **Tier:** widget-capabilities
-**Depends on:** widgets, widget-add-edit-modal, runtime-shell, initial-state-contract, permissions; cross-app runtime sources: openconnector (LLM source `local-llm`), openregister (MCP discovery + GraphQL, read-only)
+**Depends on:** widgets, widget-add-edit-modal, runtime-shell, initial-state-contract, permissions; cross-app runtime: hermiq (chat engine, `/apps/hermiq/api/chat/*`), reached through `@conduction/nextcloud-vue` `useAiChatStream`
 
 ## Purpose
 
-Add an embedded AI assistant widget (`launchpad_ai_assistant`) that lets
-the dashboard viewer ask natural-language questions about their
-dashboard's data and receive a streamed reply — summarising open
-cases, surfacing consultation responses, explaining an aggregate
-trend. The widget is a **thin chat surface** that delegates inference
-to the openconnector-registered LLM source (Ollama + Qwen via
-`local-llm` per `reference_llphant-ollama-think-false`). launchpad MUST
-NOT carry its own LLM client SDK or call any inference endpoint
-directly.
+An assistant widget (`ai-assistant`) lets a dashboard viewer ask plain-language questions about the dashboard and read the answer as it streams in. The widget is a thin chat surface: every question goes to hermiq, the fleet's chat engine, through nextcloud-vue's `useAiChatStream`. launchpad carries no model client, no model URL and no prompt in code. Tools the model may call run inside hermiq over its governed MCP transport, under OpenRegister RBAC, for the person asking.
 
-Tool calls (the LLM reading sibling-app data) MUST go through OR's
-MCP discovery (ADR-022 table row "MCP discovery") — every callable
-tool is an OR-published MCP capability already scoped by OR's RBAC.
-The assistant is read-only by default; write tools (creating an
-object, dispatching a notification) MUST require an explicit
-admin-side opt-in.
-
-Sourced from Specter draft `ai-dashboard-assistant` (2 features:
-case summary, consultation-response summary).
+Decided on 29 Sep 2026 (DECISIONS row 16, row `a-assistant`), replacing the earlier openconnector-source design.
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented widget — `launchpad_ai_assistant` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. All scenarios assert registry/manifest contract, schema validation, openconnector-SSE/MCP-tool routing, and source-absence runtime gating — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
+@e2e exclude a live answer needs a running hermiq with a model on the instance; the widget is asserted in src/components/Widgets/Renderers/__tests__/AiAssistantWidget.spec.js and src/components/Widgets/Renderers/__tests__/noModelClient.spec.js, the registry in src/constants/__tests__/widgetRegistry.completeness.spec.js
 
-### REQ-ADA-001: The system SHALL register a `launchpad_ai_assistant` widget type
+### REQ-ADA-001: The system SHALL register an `ai-assistant` widget type
 
-The widget MUST appear in `src/constants/widgetRegistry.js` and the
-unified Add Widget modal (REQ-WDG-010 / REQ-WDG-014). The registry
-entry MUST carry `displayName`, `defaultContent`, `renderer`, `form`,
-`icon`, and a soft `requires.openconnectorSources: ['local-llm']`
-declaration. The widget MUST NOT add `openconnector` to
-`manifest.dependencies` — runtime checks gate behaviour.
+The widget MUST be registered in `src/constants/widgetRegistry.js` with `renderer`, `form`, `defaultContent`, `displayName` and `icon`, and listed in `lib/widget-types.json`, like every LaunchPad-rendered widget type.
 
 #### Scenario: Widget registered and discoverable
 
 - **GIVEN** the registry completeness test
 - **WHEN** it runs
-- **THEN** `ai-assistant` MUST be in EXPECTED_TYPES
-- **AND** the entry MUST surface in `listWidgetTypes()`
+- **THEN** `ai-assistant` is in `lib/widget-types.json` and surfaces in `listWidgetTypes()` with a form and a renderer
 
-#### Scenario: Widget appears in the Add modal
+### REQ-ADA-002: The widget content SHALL name only the hermiq agent
 
-- **GIVEN** the Add Widget modal is open
-- **WHEN** the user opens the type picker
-- **THEN** `AI assistant` MUST be selectable
-- **AND** picking it MUST mount the `AiAssistantForm` sub-form
+The placement MUST persist `{type: 'ai-assistant', content: {agentUuid}}`. `agentUuid` is optional; empty means hermiq's default agent.
 
-### REQ-ADA-002: The widget content shape SHALL describe the assistant's bounded conversation surface
+#### Scenario: Default agent
 
-The placement MUST persist `{type: 'ai-assistant', content: {...}}` with:
+- **GIVEN** a placement with `content: {agentUuid: ''}`
+- **WHEN** a question is sent
+- **THEN** the request carries `agentUuid: ''` and hermiq answers with its default agent
 
-| Field | Type | Required | Default | Purpose |
-|---|---|---|---|---|
-| `modelAlias` | string | Yes | `'local-llm'` | openconnector source alias to route through (NEVER a model name) |
-| `systemPromptKey` | string | No | `'launchpad.ai.default'` | i18n key (per ADR-007 + ADR-025) resolved at render time; widget MUST NOT ship raw prompt strings |
-| `scope` | enum | Yes | `'dashboard'` | `'dashboard' \| 'workspace' \| 'tenant'` — bounds the tool calls (REQ-ADA-005) |
-| `allowWriteTools` | boolean | No | `false` | Opt-in for MCP write tools (default read-only) |
-| `historyMaxTurns` | integer | No | `10` | Per-session conversation length cap |
-| `temperature` | number | No | `0.2` | LLM sampling parameter forwarded to openconnector |
+### REQ-ADA-003: There SHALL be no manifest entry for the widget
 
-#### Scenario: Defaults applied on minimal placement
+LaunchPad-rendered widgets are declared in the registry, not in `src/manifest.json` `widgets[]`; the assistant follows them. The manifest's `dependencies` MUST NOT list hermiq: hermiq's presence is checked at runtime (REQ-ADA-004).
 
-- **GIVEN** a placement with `{type: 'ai-assistant', content: {modelAlias: 'local-llm', scope: 'dashboard'}}`
-- **WHEN** validation runs
-- **THEN** it MUST pass
-- **AND** unset fields MUST inherit the defaults above
-
-#### Scenario: Raw model name rejected
-
-- **GIVEN** the form attempts `modelAlias = 'qwen3.5-optimized'`
-- **WHEN** `validate()` runs
-- **THEN** it MUST return an error indicating model aliases must
-  point at openconnector sources, not raw model names
-- **AND** the Add button MUST be disabled
-
-### REQ-ADA-003: The widget SHALL declare a `launchpad_ai_assistant` entry in `src/manifest.json` with a soft `requires` clause
-
-The manifest entry MUST live in `widgets[]` (per ADR-024). Its
-`requires.openconnectorSources` MUST list `'local-llm'`. The
-manifest's top-level `dependencies` MUST NOT include `openconnector`.
-
-#### Scenario: Manifest entry present
-
-- **GIVEN** the launchpad manifest
-- **WHEN** parsed
-- **THEN** `manifest.widgets[].find(w => w.id === 'launchpad_ai_assistant')` MUST exist
-- **AND** `manifest.dependencies` MUST NOT include `openconnector`
-
-#### Scenario: Manifest validation passes
+#### Scenario: Manifest unchanged
 
 - **GIVEN** `npm run check:manifest`
-- **WHEN** the script runs
-- **THEN** the widget entry MUST validate against the canonical
-  schema (per ADR-024 §5)
+- **WHEN** it runs
+- **THEN** it passes and the manifest names neither the widget nor hermiq
 
-### REQ-ADA-004: Inference SHALL route exclusively through the openconnector LLM source — launchpad MUST NOT contain an LLM client
+### REQ-ADA-004: Inference SHALL route exclusively through hermiq; launchpad MUST NOT contain an LLM client
 
-Every inference call MUST POST to the openconnector source URL for
-`modelAlias`. The widget MUST consume the Server-Sent-Events stream
-exposed by openconnector per the established
-`project_ai-chat-companion-end-to-end` pattern (ADR-034 chain). launchpad
-source files MUST NOT import any LLM SDK, MUST NOT call
-`localhost:11434` (Ollama default) directly, and MUST NOT contain
-prompt-engineered system prompts checked into source — every prompt
-is an i18n string keyed at render time.
+Every question MUST go to hermiq's chat endpoints (`/apps/hermiq/api/chat/stream`, falling back to `/apps/hermiq/api/chat/send`) through `useAiChatStream` with `chatAppId: 'hermiq'` and the context `{appId: 'launchpad', pageKind: 'dashboard', objectUuid: <dashboard uuid>, route}`. launchpad source MUST NOT import an LLM SDK, MUST NOT call a model URL, and MUST NOT carry a system prompt in code.
 
-#### Scenario: Renderer issues SSE call to openconnector
+#### Scenario: Question streams through hermiq
 
-- **GIVEN** the user submits a question
-- **WHEN** the widget issues the inference call
-- **THEN** the target MUST be openconnector's source endpoint for
-  `local-llm`
-- **AND** the response MUST be consumed as SSE event chunks
-- **AND** chunks MUST stream into the bubble incrementally
+- **GIVEN** hermiq is installed and its health probe answers
+- **WHEN** Pieter asks "Which of my cases are overdue?" in the assistant widget
+- **THEN** the request goes to hermiq with the dashboard as context, and the answer appears as it streams
 
-#### Scenario: No LLM SDK or direct-URL imports
+#### Scenario: hermiq absent
 
-- **GIVEN** the assistant widget source files
-- **WHEN** scanned for `import .* from '@ollama'`, `from 'openai'`,
-  `from '@anthropic-ai'`, `from 'llphant'`, or
-  `localhost:11434`
-- **THEN** zero matches MUST exist
-
-#### Scenario: Source absent disables widget gracefully
-
-- **GIVEN** openconnector is not installed OR `local-llm` source is
-  not configured
+- **GIVEN** `GET /apps/hermiq/api/chat/health` does not answer 2xx
 - **WHEN** the widget mounts
-- **THEN** the chat input MUST render disabled with a tooltip
-  identifying the missing source
-- **AND** the widget MUST NOT throw — the rest of the dashboard
-  MUST remain interactive
+- **THEN** the input is not offered and the widget says the assistant needs hermiq; the rest of the dashboard works
 
-### REQ-ADA-005: Tool calls SHALL be resolved against OR's MCP discovery — scoped by `content.scope`
+#### Scenario: No LLM client in launchpad
 
-When the LLM emits a tool call, the widget MUST resolve the tool
-via OR's MCP discovery endpoint (ADR-022 row "MCP discovery"). Tools
-not present in OR's discovery MUST be rejected. The discovery
-filter MUST honour `content.scope`:
+- **GIVEN** the launchpad `src/` tree
+- **WHEN** scanned for `openai`, `@anthropic-ai`, `@ollama`, `llphant` imports or a `localhost:11434` string
+- **THEN** there are no matches
 
-| Scope | Tool inclusion |
-|---|---|
-| `dashboard` | Only tools backed by registers consumed by widgets on the current dashboard |
-| `workspace` | Tools backed by every register the viewer can read on this Nextcloud instance |
-| `tenant` | Tools backed by every register, including cross-tenant — admin opt-in |
+### REQ-ADA-005: Tool calls SHALL be governed by hermiq
 
-When `content.allowWriteTools === false` (default), write-shaped
-tools (any tool whose MCP descriptor declares
-`x-mutation: true`) MUST be filtered out client-side before the
-LLM sees them.
+launchpad MUST NOT pass a tool list. Which tools the model may call, and on what data, is decided by hermiq for the asking person over its governed MCP transport, under OpenRegister RBAC. `useAiChatStream` carries a fixed context shape, so a per-widget scope is not sent.
 
-#### Scenario: Read-only by default
+#### Scenario: No tools from launchpad
 
-- **GIVEN** `content.allowWriteTools === false`
-- **WHEN** the widget mounts
-- **THEN** the tool list passed to the LLM MUST exclude every
-  tool whose MCP descriptor sets `x-mutation: true`
-
-#### Scenario: Out-of-scope tool rejected
-
-- **GIVEN** scope `dashboard` and the LLM emits a tool call for a
-  register NOT consumed by any widget on the current dashboard
-- **WHEN** the widget validates the call
-- **THEN** the call MUST be rejected with an error returned to the
-  LLM ("Tool out of scope")
-- **AND** the call MUST NOT reach the sibling app
-
-#### Scenario: Write tool with allow flag enabled
-
-- **GIVEN** `content.allowWriteTools === true` AND the viewer has
-  the OR-side RBAC capability to invoke a write tool
-- **WHEN** the LLM emits the call
-- **THEN** the call MUST be forwarded to the sibling app
-- **AND** the call MUST be recorded in OR's audit-trail-immutable
-  (the sibling app does this; launchpad does NOT write to audit)
+- **GIVEN** any question sent from the widget
+- **WHEN** the request body is read
+- **THEN** it carries `message`, `context` and `agentUuid`, and no `tools` field
 
 ### REQ-ADA-006: The widget SHALL render two reply modes — streamed chat and inline summary
 
@@ -193,7 +87,7 @@ When the placement is large enough (≥6 grid cells), the widget MUST
 render a full chat interface (input box + scrollable history +
 streamed response). When the placement is smaller (`<6` cells), it
 MUST render in **summary mode**: a single tap-to-refresh "Summarise
-this dashboard" call that uses `systemPromptKey` as the prompt and
+this dashboard" call that uses a translated question ("Summarise this dashboard for me.") as the prompt and
 fills the cell with the rendered Markdown reply.
 
 #### Scenario: Large placement renders full chat
@@ -255,37 +149,6 @@ dependency this spec exists to avoid.
 
 ## Non-Functional Requirements
 
-- **Performance:** First streamed chunk SHOULD reach the viewer
-  within 1 s on the local Ollama path (warm cache). The widget MUST
-  surface a thinking indicator if no chunk arrives within 500 ms.
-- **Accessibility:** Streamed text MUST update via `aria-live="polite"`
-  regions so screen readers announce new content. The input box
-  MUST carry a proper `aria-label` and be reachable via keyboard.
-- **Localisation:** Default system prompts MUST be available in
-  English and Dutch (i18n keys per ADR-007 + ADR-025).
-- **Privacy:** The default openconnector source MUST be `local-llm`
-  (Ollama + Qwen, on-prem). Hosted LLM sources are admin-configurable
-  only and MUST surface a "data leaves the instance" banner in the
-  Add modal form when selected.
-- **Cost:** Token usage MUST be reported by openconnector; launchpad
-  does NOT meter usage locally.
-
-## Reuses (launchpad)
-
-- `widgets`, `widget-add-edit-modal`, `widget-collision-placement`
-- `runtime-shell` + `initial-state-contract`
-- `permissions` for view gating
-- `responsive-grid-breakpoints` for mode-switch (chat vs summary)
-
-## Standards & References
-
-- ADR-022 — OR abstractions consumed: MCP discovery (tool list),
-  RBAC (per-tool authorisation by sibling app), audit-trail-immutable
-  (writes recorded by sibling app, not launchpad).
-- ADR-024 — manifest widget entry + soft `requires`.
-- `feedback_launchpad-no-or-dependency.md`.
-- `project_ai-chat-companion-end-to-end.md` — proven SSE +
-  openconnector pattern on decidesk.
-- `reference_llphant-ollama-think-false.md` — `think: false` +
-  `keep_alive: -1` are openconnector-side concerns, not launchpad's.
-- WCAG 2.1 AA — `aria-live="polite"` for streamed output.
+- **Accessibility:** answers update inside an `aria-live="polite"` region; the question input has a label and is reachable by keyboard.
+- **Localisation:** every string, including the summary question, is in all 36 locales.
+- **Privacy:** which model answers, and where it runs, is hermiq's configuration; launchpad sends only the question and the dashboard context.

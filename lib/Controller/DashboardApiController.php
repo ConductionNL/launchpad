@@ -1504,6 +1504,7 @@ class DashboardApiController extends Controller {
 	 * @param string $uuid The dashboard UUID from the URL.
 	 * @param string|null $publishAt The future ISO-8601 timestamp from
 	 *                               the request body.
+	 * @param string|null $unpublishAt Optional take-down time (REQ-SCHEDUI-002).
 	 *
 	 * @return JSONResponse The updated dashboard payload.
 	 *
@@ -1513,6 +1514,7 @@ class DashboardApiController extends Controller {
 	public function schedule(
 		string $uuid,
 		?string $publishAt = null,
+		?string $unpublishAt = null,
 	): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
@@ -1525,7 +1527,8 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::unauthorized();
 		}
 
-		if ($publishAt === null || $publishAt === '') {
+		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
+		if (($publishAt === null || $publishAt === '') && ($unpublishAt === null || $unpublishAt === '')) {
 			return new JSONResponse(
 				data: [
 					'status' => 'error',
@@ -1540,7 +1543,8 @@ class DashboardApiController extends Controller {
 			$dashboard = $this->dashboardService->schedule(
 				uuid: $uuid,
 				publishAt: $publishAt,
-				userId: $this->userId
+				userId: $this->userId,
+				unpublishAt: $unpublishAt
 			);
 
 			return ResponseHelper::success(

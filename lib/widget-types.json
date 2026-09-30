@@ -8,6 +8,7 @@
 		"Add or remove a type in the registry and here in the same commit; the vitest names the drift."
 	],
 	"types": [
+		"ai-assistant",
 		"calendar",
 		"chart",
 		"clock",

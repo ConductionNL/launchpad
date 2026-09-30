@@ -93,6 +93,8 @@
 					:source="activeDashboardSource"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
+					:canManagePublication="canManagePublication"
+					:canViewHistory="canViewVersionHistory"
 					:defaultUuid="defaultDashboardUuid"
 					:isEditMode="isEditMode"
 					:activeDashboardId="activeDashboard.id"
@@ -112,6 +114,11 @@
 						onRowSetDefault(activeDashboard, activeDashboardSource)
 					"
 					@share="openShareDrawer"
+					@publish="onPublishActive"
+					@unpublish="onUnpublishActive"
+					@schedule="scheduleDialogOpen = true"
+					@versionHistory="versionHistoryOpen = true"
+					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<NcButton
 					variant="secondary"
@@ -178,6 +185,34 @@
 			</div>
 		</Teleport>
 
+		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
+		<ForceReleaseLockDialog
+			:open="forceReleaseDialogOpen"
+			:holderName="editLock.state.holderName"
+			@update:open="forceReleaseDialogOpen = $event"
+			@confirm="onTakeOverConfirmed" />
+
+		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
+		<ScheduleDashboardDialog
+			v-if="scheduleDialogOpen"
+			:open="true"
+			:error="scheduleError"
+			@update:open="
+				(v) => {
+					if (!v) {
+						scheduleDialogOpen = false
+						scheduleError = ''
+					}
+				}
+			"
+			@save="onScheduleActive" />
+		<!-- Version history of the active dashboard (REQ-VERSUI-001..003). -->
+		<VersionHistoryModal
+			:open="versionHistoryOpen"
+			:dashboardUuid="activeDashboard?.uuid ?? ''"
+			@close="versionHistoryOpen = false"
+			@restored="onVersionRestored" />
+
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
 			:open="ackReportOpen"
@@ -188,6 +223,19 @@
 		<div
 			class="launchpad-container"
 			:class="{ 'launchpad-edit-mode': isEditMode }">
+			<p
+				v-if="canManagePublication && publicationNote"
+				class="launchpad-publication-note"
+				role="status"
+				data-testid="publication-note">
+				{{ publicationNote }}
+			</p>
+			<EditLockBanner
+				:status="editLock.state.status"
+				:holderName="editLock.state.holderName"
+				:expiresIn="editLock.state.expiresIn"
+				:isAdmin="isAdmin === true"
+				@takeOver="forceReleaseDialogOpen = true" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -399,15 +447,20 @@ import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
+import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
+import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
+import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
+import { useDashboardLock } from '../composables/useDashboardLock.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
@@ -448,6 +501,10 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		ScheduleDashboardDialog,
+		EditLockBanner,
+		ForceReleaseLockDialog,
+		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
 
@@ -462,6 +519,13 @@ export default {
 		primaryGroupName: {
 			from: 'primaryGroupName',
 			default: '',
+		},
+
+		// Server-computed admin flag (PageController initial state); only
+		// decides whether "Take over" is offered. The server checks again.
+		isAdmin: {
+			from: 'isAdmin',
+			default: false,
 		},
 
 		// Canonical slug-chain path the server resolved for the active
@@ -613,6 +677,21 @@ export default {
 			// report modal state.
 			ackReportOpen: false,
 			ackReportKey: '',
+			// dashboard-edit-lock-ui: the editing lock of the active
+			// dashboard (REQ-LOCKUI-001..003) and the take-over dialog.
+			editLock: useDashboardLock({
+				onLost: () => this.onEditLockLost(),
+			}),
+
+			forceReleaseDialogOpen: false,
+			// sharing-dashboard-schedule-screen: the schedule dialog.
+			scheduleDialogOpen: false,
+			scheduleError: '',
+			// dashboard-version-history-ui: the history modal, and per
+			// dashboard uuid whether versioning is supported (read when the
+			// dashboard menu opens; absent means not known yet).
+			versionHistoryOpen: false,
+			versionSupport: {},
 		}
 	},
 
@@ -728,6 +807,61 @@ export default {
 		canShareActiveDashboard() {
 			const dash = this.activeDashboard
 			return !!dash && dash.isOwner !== false && (dash.id ?? null) !== null
+		},
+
+		/**
+		 * Publish, unpublish and schedule are for the owner or an
+		 * administrator (REQ-SCHEDUI-001); the server checks again.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		canManagePublication() {
+			const dash = this.activeDashboard
+			return !!dash?.uuid && (dash.isOwner === true || this.isAdmin === true)
+		},
+
+		/**
+		 * "Goes live on …" and/or "Comes down on …" for the active dashboard.
+		 *
+		 * @return {string} The note, or empty.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		publicationNote() {
+			const dash = this.activeDashboard
+			const parts = []
+			if (dash?.publicationStatus === 'scheduled' && dash.publishAt) {
+				parts.push(
+					t('launchpad', 'Goes live on {date}.', {
+						date: this.formatStamp(dash.publishAt),
+					}),
+				)
+			}
+			if (dash?.unpublishAt) {
+				parts.push(
+					t('launchpad', 'Comes down on {date}.', {
+						date: this.formatStamp(dash.unpublishAt),
+					}),
+				)
+			}
+			return parts.join(' ')
+		},
+
+		/**
+		 * Whether the dashboard menu offers "Version history…": the owner or
+		 * an administrator, and the server said this dashboard keeps
+		 * versions (REQ-VERSUI-001). The server checks ownership again.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		canViewVersionHistory() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid) {
+				return false
+			}
+			const mayManage = dash.isOwner === true || this.isAdmin === true
+			return mayManage && this.versionSupport[dash.uuid] === true
 		},
 
 		/**
@@ -1003,6 +1137,8 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		// Leaving the page while editing gives the lock back.
+		this.editLock.release()
 	},
 
 	methods: {
@@ -1222,15 +1358,211 @@ export default {
 			await this.switchDashboard(id)
 		},
 
-		/** @spec openspec/specs/dashboards/spec.md */
-		toggleEditMode() {
-			this.isEditMode = !this.isEditMode
+		/**
+		 * Show a stored timestamp in the viewer's locale.
+		 *
+		 * @param {string} value Timestamp from the server.
+		 * @return {string} Formatted date and time.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		formatStamp(value) {
+			const parsed = new Date(String(value).replace(' ', 'T'))
+			return Number.isNaN(parsed.getTime())
+				? String(value)
+				: parsed.toLocaleString(undefined, {
+						dateStyle: 'medium',
+						timeStyle: 'short',
+					})
+		},
+
+		/**
+		 * Publish the active dashboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onPublishActive() {
+			await useDashboardStore().publishDashboard(this.activeDashboard.uuid)
+		},
+
+		/**
+		 * Unpublish the active dashboard.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onUnpublishActive() {
+			await useDashboardStore().unpublishDashboard(this.activeDashboard.uuid)
+		},
+
+		/**
+		 * Schedule the active dashboard; a refusal stays in the dialog.
+		 *
+		 * @param {{publishAt: (string|null), unpublishAt: (string|null)}} times The chosen times.
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		async onScheduleActive({ publishAt, unpublishAt }) {
+			this.scheduleError = ''
+			try {
+				await useDashboardStore().scheduleDashboard(
+					this.activeDashboard.uuid,
+					publishAt,
+					unpublishAt,
+				)
+				this.scheduleDialogOpen = false
+			} catch (error) {
+				const message = error?.response?.data?.message ?? ''
+				if (message === 'unpublishAt must be after publishAt') {
+					this.scheduleError = t(
+						'launchpad',
+						'The dashboard has to go live before it comes down.',
+					)
+				} else if (message === 'publishAt must be a future timestamp') {
+					this.scheduleError = t(
+						'launchpad',
+						'Choose a time in the future.',
+					)
+				} else {
+					this.scheduleError = t(
+						'launchpad',
+						'The dashboard could not be scheduled.',
+					)
+				}
+			}
+		},
+
+		/**
+		 * The dashboard menu opened: find out once per dashboard whether it
+		 * keeps versions, so "Version history…" is offered only where it
+		 * works. A refusal (not owner, not admin) reads as not offered.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		async checkVersionSupport() {
+			const dash = this.activeDashboard
+			if (!dash?.uuid || dash.uuid in this.versionSupport) {
+				return
+			}
+			if (dash.isOwner !== true && this.isAdmin !== true) {
+				return
+			}
+			try {
+				const { data } = await api.listVersions(dash.uuid)
+				this.versionSupport = {
+					...this.versionSupport,
+					[dash.uuid]: data?.modeSupported !== false,
+				}
+			} catch {
+				this.versionSupport = { ...this.versionSupport, [dash.uuid]: false }
+			}
+		},
+
+		/**
+		 * A version was restored: read the dashboard again from the server
+		 * rather than patching local state from the snapshot.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-versioning/spec.md
+		 */
+		async onVersionRestored() {
+			const id = this.activeDashboard?.id
+			if (id !== undefined && id !== null) {
+				await this.switchDashboard(id)
+			}
+		},
+
+		/**
+		 * Enter or leave edit mode. Entering asks for the dashboard's
+		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async toggleEditMode() {
 			if (!this.isEditMode) {
-				this.closeWidgetModal()
-				this.closeStyleEditor()
-				// Leaving edit mode also dismisses any open right-click
-				// popover so view mode never carries an edit-only surface.
-				this.grid.closeContextMenu()
+				await this.enterEditMode()
+				return
+			}
+			this.leaveEditMode()
+			await this.editLock.release()
+		},
+
+		/**
+		 * Enter edit mode only when the lock is granted. A colleague's lock
+		 * (409), a refusal (403) or a failed request all leave the page
+		 * read-only and the banner says why.
+		 *
+		 * @return {Promise<boolean>} Whether the page is in edit mode now.
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async enterEditMode() {
+			if (this.isEditMode) {
+				return true
+			}
+			const uuid = this.activeDashboard?.uuid ?? this.activeDashboard?.id
+			if (!uuid) {
+				return false
+			}
+			const granted = await this.editLock.acquire(String(uuid))
+			if (granted) {
+				this.isEditMode = true
+			}
+			return granted
+		},
+
+		/**
+		 * Drop edit mode and every edit-only surface. The lock itself is
+		 * released by the caller.
+		 *
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		leaveEditMode() {
+			this.isEditMode = false
+			this.closeWidgetModal()
+			this.closeStyleEditor()
+			// Leaving edit mode also dismisses any open right-click
+			// popover so view mode never carries an edit-only surface.
+			this.grid.closeContextMenu()
+		},
+
+		/**
+		 * Before another dashboard becomes active: leave edit mode, give the
+		 * lock back and clear a banner that was about the previous one.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async dropEditLock() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+			await this.editLock.release()
+		},
+
+		/**
+		 * A refresh answered 404: someone else holds the lock now. Back to
+		 * view mode; the banner says what happened (REQ-LOCKUI-002).
+		 *
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		onEditLockLost() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+		},
+
+		/**
+		 * Administrator confirmed the take-over: force-release, then edit.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/dashboard-locking/spec.md
+		 */
+		async onTakeOverConfirmed() {
+			this.forceReleaseDialogOpen = false
+			if (await this.editLock.takeOver()) {
+				this.isEditMode = true
 			}
 		},
 
@@ -1423,9 +1755,9 @@ export default {
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
-		openWidgetModal() {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openWidgetModal() {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.isWidgetModalOpen = true
 		},
@@ -1443,9 +1775,9 @@ export default {
 		 * @param {string|null} type registry key, or null for picker flow
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		openCustomWidgetModal(type = null) {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openCustomWidgetModal(type = null) {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.customWidgetPreselectedType = type
 			this.customWidgetEditing = null
@@ -1691,9 +2023,9 @@ export default {
 		 *   editor for a brand-new tile.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
-		openTileEditor(tile = null) {
-			if (!this.isEditMode) {
-				this.isEditMode = true
+		async openTileEditor(tile = null) {
+			if (!(await this.enterEditMode())) {
+				return
 			}
 			this.editingTile = tile
 			this.isTileEditorOpen = true
@@ -1874,6 +2206,7 @@ export default {
 			// signature is kept explicit so per-source behaviour can land
 			// without re-touching this view (and so the load-bearing
 			// REQ-SWITCH-002 contract is visible at the call site).
+			await this.dropEditLock()
 			await this.switchDashboard(id)
 		},
 
@@ -2003,6 +2336,7 @@ export default {
 				const res = await api.getDashboardByPath(suffix)
 				const dashboard = res?.data?.dashboard
 				if (dashboard?.id !== undefined && dashboard?.id !== null) {
+					await this.dropEditLock()
 					await this.switchDashboard(dashboard.id)
 				}
 			} catch (e) {
@@ -2327,5 +2661,9 @@ export default {
 	min-height: calc(
 		100vh - var(--header-height, 50px) - var(--body-container-margin, 8px)
 	);
+}
+.launchpad-publication-note {
+	margin: 0 8px 8px;
+	color: var(--color-text-maxcontrast);
 }
 </style>

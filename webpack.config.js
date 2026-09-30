@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-const path = require('path')
-const fs = require('fs')
 const webpackConfig = require('@nextcloud/webpack-vue-config')
+const fs = require('fs')
+const path = require('path')
 
 webpackConfig.entry = {
 	main: path.join(__dirname, 'src', 'main.js'),
 	admin: path.join(__dirname, 'src', 'admin.js'),
 	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
 	public: path.join(__dirname, 'src', 'public.js'),
+	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
+	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
 }
 
 webpackConfig.output = {

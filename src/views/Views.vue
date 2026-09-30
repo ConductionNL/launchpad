@@ -1008,7 +1008,10 @@ export default {
 		 */
 		'activeDashboard.id': {
 			immediate: true,
-			/** @spec openspec/specs/dashboards/spec.md */
+			/**
+			 * @param {number|string|null} id Active dashboard id.
+			 * @spec openspec/specs/dashboards/spec.md
+			 */
 			handler(id) {
 				if (id !== undefined && id !== null && this.canHideForMe) {
 					this.personalLayer.load(id).catch(() => {})

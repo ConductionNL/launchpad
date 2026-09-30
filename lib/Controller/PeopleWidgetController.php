@@ -92,6 +92,8 @@ class PeopleWidgetController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
+	 * @SuppressWarnings(PHPMD.ShortVariable) `q` is the query parameter's public name.
+	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	#[NoAdminRequired]

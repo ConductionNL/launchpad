@@ -53,6 +53,8 @@ class LaunchPadPersonal implements ISettings {
 	 *
 	 * @return TemplateResponse
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) Util::addScript() is how Nextcloud loads a settings bundle.
+	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function getForm(): TemplateResponse {

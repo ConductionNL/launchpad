@@ -14,6 +14,8 @@ webpackConfig.entry = {
 	public: path.join(__dirname, 'src', 'public.js'),
 	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
 	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
+	// Personal settings: the person's own profile fields (REQ-PEX-002).
+	personal: path.join(__dirname, 'src', 'personal.js'),
 }
 
 webpackConfig.output = {

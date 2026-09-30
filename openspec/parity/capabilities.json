@@ -4984,11 +4984,12 @@
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/SearchShortcutService.php; src/composables/useTileSearch.js (parsePrefix); src/components/RuntimeShellSearch.vue; src/components/admin/tabs/SearchShortcutsTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/search-ai-prefix-shortcuts"
+				"change": "openspec/changes/archive/2026-09-30-search-ai-prefix-shortcuts"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Any search widget: type !t printer (a prefix the administrator set under Admin settings > LaunchPad > Search shortcuts) or ? for the list",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175653-global-search users 'search by category' (Announcements, Apps, Email, Files, Folders, Knowledge articles, People, plus OpenIMS or Egnyte when configured); no prefix syntax to send a query to another site (read 2026-09-26)",
 				"microsoft-viva": "not checked: Microsoft 365 roadmap 562015 'Scoped Search for SharePoint app in Teams' scopes search to SharePoint global search (cached roadmap, read 2026-09-26); no prefix to an external site found",

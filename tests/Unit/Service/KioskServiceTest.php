@@ -27,6 +27,8 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Db\KioskPlaylistMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -58,6 +60,9 @@ class KioskServiceTest extends TestCase {
 	/** @var LoggerInterface&MockObject */
 	private $logger;
 
+	/** @var WidgetPlacementMapper&MockObject */
+	private $placementMapper;
+
 	private KioskService $service;
 
 	protected function setUp(): void {
@@ -67,6 +72,7 @@ class KioskServiceTest extends TestCase {
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->secureRandom = $this->createMock(ISecureRandom::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
 
 		$this->service = new KioskService(
 			playlistMapper: $this->playlistMapper,
@@ -75,6 +81,7 @@ class KioskServiceTest extends TestCase {
 			groupManager: $this->groupManager,
 			secureRandom: $this->secureRandom,
 			logger: $this->logger,
+			placementMapper: $this->placementMapper,
 		);
 	}
 
@@ -424,5 +431,37 @@ class KioskServiceTest extends TestCase {
 		// The playlist descriptor strips createdBy for anonymous renderers.
 		$this->assertArrayNotHasKey('createdBy', $result['playlist']);
 		$this->assertSame('Wall', $result['playlist']['name']);
+	}
+
+	/**
+	 * A kiosk screen needs the widgets, not only the dashboard record:
+	 * every entry carries its placements, as the public share does
+	 * (sharing-kiosk-screens REQ-KIOSKUI-002).
+	 */
+	public function testRenderPlaylistIncludesEachDashboardsPlacements(): void {
+		$playlist = new KioskPlaylist();
+		$playlist->setToken('tok');
+		$playlist->setName('Lobby');
+		$playlist->setCreatedBy('alice');
+		$playlist->setEntries((string)json_encode([['dashboardUuid' => 'nieuws', 'dwellSeconds' => 30]]));
+		$this->playlistMapper->method('findByToken')->willReturn($playlist);
+
+		$dashboard = $this->dashboard('alice');
+		$dashboard->setId(42);
+		$this->dashMapper->method('findByUuid')->willReturn($dashboard);
+
+		$placement = new WidgetPlacement();
+		$placement->setWidgetId('text');
+		$placement->setDashboardId(42);
+		$this->placementMapper
+			->expects($this->once())
+			->method('findByDashboardId')
+			->with(dashboardId: 42)
+			->willReturn([$placement]);
+
+		$result = $this->service->renderPlaylist(token: 'tok');
+
+		$this->assertCount(1, $result['entries'][0]['placements']);
+		$this->assertSame('text', $result['entries'][0]['placements'][0]['widgetId']);
 	}
 }//end class

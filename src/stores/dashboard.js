@@ -548,23 +548,24 @@ export const useDashboardStore = defineStore('dashboard', {
 		},
 
 		/**
-		 * Schedule a dashboard for automatic publication (REQ-DASH-034).
+		 * Schedule a dashboard's go-live and take-down times (REQ-DASH-034,
+		 * REQ-SCHEDUI-001, REQ-SCHEDUI-002). A refusal is rethrown so the
+		 * schedule dialog can show the server's reason.
 		 *
-		 * @param {string} uuid      The dashboard UUID to schedule.
-		 * @param {string} publishAt The future ISO-8601 timestamp.
-		 * @return {Promise<object|null>} The updated dashboard or null.
-		 * @spec openspec/specs/dashboards/spec.md
+		 * @param {string} uuid The dashboard UUID to schedule.
+		 * @param {string|null} publishAt The future ISO-8601 go-live time, or null.
+		 * @param {string|null} [unpublishAt] The ISO-8601 take-down time, or null.
+		 * @return {Promise<object|null>} The updated dashboard.
+		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
 		 */
-		async scheduleDashboard(uuid, publishAt) {
-			try {
-				const response = await api.scheduleDashboard(uuid, publishAt)
-				this.applyPublicationPatch(response.data?.dashboard)
-				return response.data?.dashboard ?? null
-			} catch (error) {
-				logger.error('Failed to schedule dashboard:', error)
-				showError(t('launchpad', 'Schedule dashboard'))
-				return null
-			}
+		async scheduleDashboard(uuid, publishAt, unpublishAt = null) {
+			const response = await api.scheduleDashboard(
+				uuid,
+				publishAt,
+				unpublishAt,
+			)
+			this.applyPublicationPatch(response.data?.dashboard)
+			return response.data?.dashboard ?? null
 		},
 
 		/**
@@ -586,6 +587,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					...this.dashboards[idx],
 					publicationStatus: dashboard.publicationStatus,
 					publishAt: dashboard.publishAt,
+					unpublishAt: dashboard.unpublishAt ?? null,
 					publishedAt: dashboard.publishedAt,
 				}
 			}
@@ -594,6 +596,7 @@ export const useDashboardStore = defineStore('dashboard', {
 					...this.activeDashboard,
 					publicationStatus: dashboard.publicationStatus,
 					publishAt: dashboard.publishAt,
+					unpublishAt: dashboard.unpublishAt ?? null,
 					publishedAt: dashboard.publishedAt,
 				}
 			}

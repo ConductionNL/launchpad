@@ -102,6 +102,36 @@
 			{{ t('launchpad', 'Version history…') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canPublish"
+			:closeAfterClick="true"
+			data-testid="cog-publish"
+			@click="$emit('publish')">
+			<template #icon>
+				<Publish :size="20" />
+			</template>
+			{{ t('launchpad', 'Publish') }}
+		</NcActionButton>
+		<NcActionButton
+			v-if="canPublish"
+			:closeAfterClick="true"
+			data-testid="cog-unpublish"
+			@click="$emit('unpublish')">
+			<template #icon>
+				<PublishOff :size="20" />
+			</template>
+			{{ t('launchpad', 'Unpublish') }}
+		</NcActionButton>
+		<NcActionButton
+			v-if="canPublish"
+			:closeAfterClick="true"
+			data-testid="cog-schedule"
+			@click="$emit('schedule')">
+			<template #icon>
+				<CalendarClock :size="20" />
+			</template>
+			{{ t('launchpad', 'Schedule…') }}
+		</NcActionButton>
+		<NcActionButton
 			v-if="canShare"
 			:closeAfterClick="true"
 			data-testid="cog-share"
@@ -127,10 +157,13 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
+import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import History from 'vue-material-design-icons/History.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
+import Publish from 'vue-material-design-icons/Publish.vue'
+import PublishOff from 'vue-material-design-icons/PublishOff.vue'
 import ShapePolygonPlus from 'vue-material-design-icons/ShapePolygonPlus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Star from 'vue-material-design-icons/Star.vue'
@@ -154,6 +187,9 @@ export default {
 		StarCheck,
 		ShareVariant,
 		History,
+		Publish,
+		PublishOff,
+		CalendarClock,
 	},
 
 	props: {
@@ -227,6 +263,16 @@ export default {
 		},
 
 		/*
+		 * When true the menu renders "Publish", "Unpublish" and
+		 * "Schedule…" (REQ-SCHEDUI-001). The host decides: owner or
+		 * administrator, the same check the server makes. Off by default.
+		 */
+		canPublish: {
+			type: Boolean,
+			default: false,
+		},
+
+		/*
 		 * NcActions toggle button style. Defaults to the subtle
 		 * `tertiary-no-background` used at the edge of each sidebar row;
 		 * the top-right active cog passes `secondary` so it matches the
@@ -256,6 +302,9 @@ export default {
 		'share',
 		'versionHistory',
 		'menuOpen',
+		'publish',
+		'unpublish',
+		'schedule',
 	],
 
 	computed: {

@@ -94,6 +94,7 @@
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
 					:canViewHistory="canViewVersionHistory"
+					:canPublish="canPublishActiveDashboard"
 					:defaultUuid="defaultDashboardUuid"
 					:isEditMode="isEditMode"
 					:activeDashboardId="activeDashboard.id"
@@ -114,6 +115,9 @@
 					"
 					@share="openShareDrawer"
 					@versionHistory="versionHistoryOpen = true"
+					@publish="publishDashboard(activeDashboard.uuid)"
+					@unpublish="unpublishDashboard(activeDashboard.uuid)"
+					@schedule="scheduleDialogOpen = true"
 					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<NcButton
@@ -187,6 +191,12 @@
 			@close="versionHistoryOpen = false"
 			@restored="onVersionRestored" />
 
+		<!-- Go-live and take-down times of the active dashboard (REQ-SCHEDUI-001). -->
+		<ScheduleDashboardDialog
+			:open="scheduleDialogOpen"
+			:dashboard="activeDashboard"
+			@update:open="scheduleDialogOpen = $event" />
+
 		<!-- Admin read-receipt report (REQ-ACK-004/006). -->
 		<AcknowledgementReportModal
 			:open="ackReportOpen"
@@ -203,6 +213,7 @@
 				:expiresIn="editLock.state.expiresIn"
 				:isAdmin="isAdmin === true"
 				@takeOver="forceReleaseDialogOpen = true" />
+			<DashboardScheduleNotice :dashboard="activeDashboard" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="widgetPlacements"
@@ -405,6 +416,7 @@ import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import DashboardScheduleNotice from '../components/DashboardScheduleNotice.vue'
 import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
@@ -414,6 +426,7 @@ import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherS
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
+import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
@@ -464,6 +477,8 @@ export default {
 		EditLockBanner,
 		ForceReleaseLockDialog,
 		VersionHistoryModal,
+		ScheduleDashboardDialog,
+		DashboardScheduleNotice,
 	},
 
 	// REQ-INIT-004 / REQ-ASET-003 / REQ-TMPL-012: pull typed initial-state
@@ -643,6 +658,7 @@ export default {
 			// dashboard uuid whether versioning is supported (read when the
 			// dashboard menu opens; absent means not known yet).
 			versionHistoryOpen: false,
+			scheduleDialogOpen: false,
 			versionSupport: {},
 		}
 	},
@@ -765,6 +781,19 @@ export default {
 			}
 			const mayManage = dash.isOwner === true || this.isAdmin === true
 			return mayManage && this.versionSupport[dash.uuid] === true
+		},
+
+		/**
+		 * Whether the dashboard menu offers "Publish", "Unpublish" and
+		 * "Schedule…" (REQ-SCHEDUI-001): the owner or an administrator, the
+		 * same check the server makes.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/sharing-dashboard-schedule-screen/specs/dashboards/spec.md
+		 */
+		canPublishActiveDashboard() {
+			const dash = this.activeDashboard
+			return !!dash?.uuid && (dash.isOwner === true || this.isAdmin === true)
 		},
 
 		/**
@@ -1140,6 +1169,8 @@ export default {
 			'removeWidgetFromDashboard',
 			'updateWidgetPlacement',
 			'recordViewEvent',
+			'publishDashboard',
+			'unpublishDashboard',
 		]),
 
 		/**

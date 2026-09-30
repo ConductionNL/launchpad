@@ -139,6 +139,14 @@ class DashboardService {
 	public const ERR_SCHEDULE_PAST_DATE = 'publishAt must be a future timestamp';
 
 	/**
+	 * Validation error when the take-down time is not after the go-live
+	 * time (sharing-dashboard-schedule-screen REQ-SCHEDUI-002).
+	 *
+	 * @var string
+	 */
+	public const ERR_UNPUBLISH_BEFORE_PUBLISH = 'unpublishAt must be after publishAt';
+
+	/**
 	 * Constructor
 	 *
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
@@ -1585,33 +1593,7 @@ class DashboardService {
 
 		foreach ($entries as $entry) {
 			$dashboard = $entry['dashboard'];
-			$status = $dashboard->getPublicationStatus();
-			// Pre-migration / legacy rows that never set the column
-			// semantically remain visible (REQ-DASH-035): treat an
-			// empty string as `'published'` so backwards compatibility
-			// holds even if an entity is hydrated without the column.
-			if ($status === '') {
-				$status = Dashboard::STATUS_PUBLISHED;
-			}
-
-			// REQ-DASH-034: lazy materialisation of due scheduled rows.
-			if ($status === Dashboard::STATUS_SCHEDULED) {
-				$publishAt = $dashboard->getPublishAt();
-				if ($publishAt !== null && $publishAt !== '') {
-					try {
-						$when = new DateTime($publishAt);
-						if ($when <= $now) {
-							$dashboard->setPublicationStatus(
-								Dashboard::STATUS_PUBLISHED
-							);
-							$status = Dashboard::STATUS_PUBLISHED;
-						}
-					} catch (Exception) {
-						// Malformed timestamp — leave as scheduled and
-						// fall through to the visibility check below.
-					}
-				}
-			}
+			$status = $this->effectivePublicationStatus(dashboard: $dashboard, now: $now);
 
 			if ($status === Dashboard::STATUS_PUBLISHED) {
 				$filtered[] = $entry;
@@ -1629,6 +1611,60 @@ class DashboardService {
 
 		return $filtered;
 	}//end filterByPublicationState()
+
+	/**
+	 * The publication state a dashboard has at read time, applied to the
+	 * entity in memory only: an empty legacy status reads as published
+	 * (REQ-DASH-035), a scheduled row past `publishAt` as published
+	 * (REQ-DASH-034), and a published row past `unpublishAt` as a draft
+	 * (REQ-SCHEDUI-002).
+	 *
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param DateTime $now The moment of the read.
+	 *
+	 * @return string The effective status.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function effectivePublicationStatus(Dashboard $dashboard, DateTime $now): string {
+		$status = $dashboard->getPublicationStatus();
+		// Pre-migration / legacy rows that never set the column
+		// semantically remain visible (REQ-DASH-035): treat an
+		// empty string as `'published'` so backwards compatibility
+		// holds even if an entity is hydrated without the column.
+		if ($status === '') {
+			$status = Dashboard::STATUS_PUBLISHED;
+		}
+
+		// REQ-DASH-034: lazy materialisation of due scheduled rows.
+		if ($status === Dashboard::STATUS_SCHEDULED) {
+			$publishAt = $dashboard->getPublishAt();
+			if ($publishAt !== null && $publishAt !== '') {
+				try {
+					$when = new DateTime($publishAt);
+					if ($when <= $now) {
+						$dashboard->setPublicationStatus(
+							Dashboard::STATUS_PUBLISHED
+						);
+						$status = Dashboard::STATUS_PUBLISHED;
+					}
+				} catch (Exception) {
+					// Malformed timestamp — leave as scheduled and
+					// fall through to the visibility check below.
+				}
+			}
+		}
+
+		// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
+		// dashboard whose take-down time has passed reads as a draft, so
+		// only its owner and administrators keep seeing it.
+		if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+			$status = Dashboard::STATUS_DRAFT;
+		}
+
+		return $status;
+	}//end effectivePublicationStatus()
 
 	/**
 	 * Resolve the active dashboard for a user using the 7-step precedence
@@ -1989,6 +2025,18 @@ class DashboardService {
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
+		// REQ-SCHEDUI-002: publishing now overrides a take-down time that
+		// already passed. The stored status can still read `published`
+		// (the take-down is computed at read time), so this runs before the
+		// idempotent return; otherwise the dashboard stays down.
+		if ($this->isTakenDown(dashboard: $dashboard, now: new DateTime()) === true) {
+			$dashboard->setUnpublishAt(null);
+			if ($dashboard->getPublicationStatus() === Dashboard::STATUS_PUBLISHED) {
+				$dashboard->setUpdatedAt($now);
+				return $this->dashboardMapper->update(entity: $dashboard);
+			}
+		}
+
 		// Idempotent: already published — no-op other than touching
 		// updatedAt is intentionally skipped so audit timestamps stay
 		// accurate. Caller still receives the current state.
@@ -2052,6 +2100,8 @@ class DashboardService {
 		// cleared because the scheduled hint no longer applies once we
 		// are explicitly back in draft state.
 		$dashboard->setPublishAt(null);
+		// REQ-SCHEDUI-002: a take-down time means nothing for a draft.
+		$dashboard->setUnpublishAt(null);
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -2070,9 +2120,10 @@ class DashboardService {
 	 * HTTP 400 with an i18n-translatable copy. Owner-or-admin gated.
 	 *
 	 * @param string $uuid The dashboard UUID to schedule.
-	 * @param string $publishAt The ISO-8601 timestamp at which the
+	 * @param string|null $publishAt The ISO-8601 timestamp at which the
 	 *                          dashboard should automatically publish.
 	 * @param string $userId The acting user ID.
+	 * @param string|null $unpublishAt Optional take-down time (REQ-SCHEDUI-002); null or empty leaves none.
 	 *
 	 * @return Dashboard The updated dashboard entity.
 	 *
@@ -2086,8 +2137,9 @@ class DashboardService {
 	 */
 	public function schedule(
 		string $uuid,
-		string $publishAt,
+		?string $publishAt,
 		string $userId,
+		?string $unpublishAt = null,
 	): Dashboard {
 		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		$this->assertOwnerOrAdmin(
@@ -2095,10 +2147,33 @@ class DashboardService {
 			actorUserId: $userId
 		);
 
-		$parsed = $this->parseFuturePublishAt(publishAt: $publishAt);
+		$hasPublishAt = ($publishAt !== null && trim($publishAt) !== '');
+		$hasUnpublishAt = ($unpublishAt !== null && trim($unpublishAt) !== '');
+		if ($hasPublishAt === false && $hasUnpublishAt === false) {
+			throw new InvalidArgumentException(message: self::ERR_SCHEDULE_PAST_DATE);
+		}
 
-		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
-		$dashboard->setPublishAt($parsed);
+		$parsedPublish = null;
+		if ($hasPublishAt === true) {
+			$parsedPublish = $this->parseFuturePublishAt(publishAt: (string)$publishAt);
+		}
+
+		$parsedUnpublish = null;
+		if ($hasUnpublishAt === true) {
+			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
+			// time is also in the future, and after the go-live time.
+			$parsedUnpublish = $this->parseFuturePublishAt(publishAt: (string)$unpublishAt);
+			if ($parsedPublish !== null && $parsedUnpublish <= $parsedPublish) {
+				throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
+			}
+		}
+
+		if ($parsedPublish !== null) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+			$dashboard->setPublishAt($parsedPublish);
+		}
+
+		$dashboard->setUnpublishAt($parsedUnpublish);
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -3373,6 +3448,29 @@ class DashboardService {
 			message: self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
 		);
 	}//end assertOwnerOrAdmin()
+
+	/**
+	 * Whether a dashboard's take-down time has passed.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param DateTime $now The moment of the read.
+	 *
+	 * @return bool True when `unpublishAt` is set and not in the future.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function isTakenDown(Dashboard $dashboard, DateTime $now): bool {
+		$unpublishAt = $dashboard->getUnpublishAt();
+		if ($unpublishAt === null || $unpublishAt === '') {
+			return false;
+		}
+
+		try {
+			return new DateTime($unpublishAt) <= $now;
+		} catch (Exception) {
+			return false;
+		}
+	}//end isTakenDown()
 
 	/**
 	 * Parse and validate a `publishAt` argument for the schedule action.

@@ -129,6 +129,28 @@ class DashboardMetadataController extends Controller {
 	}//end getMetadata()
 
 	/**
+	 * `GET /api/metadata-fields`: the field definitions, readable by any
+	 * logged-in user, so a dashboard owner who is not an administrator can
+	 * fill in the Details tab. Definitions only (key, label, type,
+	 * options); no values of any dashboard. Writing definitions stays
+	 * administrator-only in MetadataAdminController.
+	 *
+	 * @return JSONResponse `{fields: [...]}`, or 401 without a login.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	#[NoAdminRequired]
+	public function fields(): JSONResponse {
+		if ($this->userId === null || $this->userSession->getUser() === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		return ResponseHelper::success(
+			data: ['fields' => ResponseHelper::serializeList(entities: $this->metadataService->listFields())]
+		);
+	}//end fields()
+
+	/**
 	 * `PUT /api/dashboards/{uuid}/metadata` — REQ-MDFL-005 / REQ-MDFL-008.
 	 *
 	 * Body: flat key-value object. Omitted keys are NOT removed; only

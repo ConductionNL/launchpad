@@ -383,6 +383,8 @@ class ReactionService {
 			'counts' => (object)$counts,
 			'mine' => $mine,
 			'enabled' => true,
+			// The reactions bar offers only these (REQ-RXN-007, REQ-RXN-010).
+			'allowed' => $this->getAllowedEmojis(),
 		];
 	}//end buildSummary()
 

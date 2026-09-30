@@ -14,8 +14,21 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards`)
 	},
 
-	// REQ-DASH-013 — deduplicated union of personal + group + default dashboards.
-	getVisibleDashboards() {
+	/**
+	 * REQ-DASH-013: deduplicated union of personal, group and default dashboards.
+	 *
+	 * @param {object|null} metadata Optional `{key: value}` detail filter (REQ-MDUI-003).
+	 * @return {Promise<object>} The axios response.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	getVisibleDashboards(metadata = null) {
+		// dashboard-language-and-details-tabs: `metadata[<key>]=<value>`
+		// filters the list server-side (REQ-MDUI-003).
+		if (metadata && Object.keys(metadata).length > 0) {
+			return axios.get(`${baseUrl}/api/dashboards/visible`, {
+				params: { metadata },
+			})
+		}
 		return axios.get(`${baseUrl}/api/dashboards/visible`)
 	},
 
@@ -132,10 +145,17 @@ export const api = {
 	 * Delete a dashboard and its placements.
 	 *
 	 * @param {number|string} id Numeric id of the dashboard to delete.
+	 * @param cascade
 	 * @return {Promise} Axios response for the delete call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	deleteDashboard(id) {
+	deleteDashboard(id, cascade = false) {
+		if (cascade) {
+			// REQ-DASH-030: also delete the dashboards under it.
+			return axios.delete(`${baseUrl}/api/dashboard/${id}`, {
+				params: { cascade: true },
+			})
+		}
 		return axios.delete(`${baseUrl}/api/dashboard/${id}`)
 	},
 
@@ -355,15 +375,22 @@ export const api = {
 	 * Schedule a dashboard for automatic publication (REQ-DASH-034).
 	 *
 	 * @param {string} uuid UUID of the dashboard to schedule.
-	 * @param {string} publishAt Future ISO-8601 timestamp; the backend
-	 *   rejects past dates with a localised 400 error message.
+	 * @param {string|null} publishAt Future ISO-8601 timestamp, or null
+	 *   with only a take-down time; the backend rejects past dates.
+	 * @param {string|null} [unpublishAt] Future take-down time, or null.
 	 * @return {Promise} Axios response for the schedule call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	scheduleDashboard(uuid, publishAt) {
+	scheduleDashboard(uuid, publishAt, unpublishAt = null) {
+		// sharing-dashboard-schedule-screen: a take-down time, alone or with
+		// the go-live time (REQ-SCHEDUI-002).
+		const body = { publishAt }
+		if (unpublishAt) {
+			body.unpublishAt = unpublishAt
+		}
 		return axios.post(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/schedule`,
-			{ publishAt },
+			body,
 		)
 	},
 
@@ -983,6 +1010,140 @@ export const api = {
 		})
 	},
 
+	/**
+	 * Language versions of a dashboard, for its owner (REQ-DASH-038).
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @return {Promise} Axios response resolving to `{translations: [...]}`.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	listTranslations(uuid) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`,
+		)
+	},
+
+	/**
+	 * Add a language version, blank or copied from another language.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {object} body `{languageCode, name?, description?, copyFrom?}`.
+	 * @return {Promise} Axios response (201) with the new variant.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	createTranslation(uuid, body) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations`,
+			body,
+		)
+	},
+
+	/**
+	 * Change a language version's name or description.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} lang Language code.
+	 * @param {object} body `{name?, description?}`.
+	 * @return {Promise} Axios response with the variant.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	updateTranslation(uuid, lang, body) {
+		return axios.put(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`,
+			body,
+		)
+	},
+
+	/**
+	 * Delete a language version that is not the primary or the only one.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} lang Language code.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	deleteTranslation(uuid, lang) {
+		return axios.delete(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}`,
+		)
+	},
+
+	/**
+	 * Make a language version the primary one.
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} lang Language code.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	setPrimaryTranslation(uuid, lang) {
+		return axios.post(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/translations/${encodeURIComponent(lang)}/set-primary`,
+		)
+	},
+
+	/**
+	 * The dashboard in the reader's language (REQ-DASH-039).
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @return {Promise} Axios response `{dashboard, translation, currentLanguage, isFallback, availableLanguages}`.
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	getResolvedDashboard(uuid) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/resolved`,
+		)
+	},
+
+	/**
+	 * Detail field definitions, readable by any logged-in user.
+	 *
+	 * @return {Promise} Axios response `{fields: [...]}`.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	getMetadataFieldDefinitions() {
+		return axios.get(`${baseUrl}/api/metadata-fields`)
+	},
+
+	/**
+	 * Create a detail field (administrators).
+	 *
+	 * @param {object} field `{key, label, type, options?, required?, sortOrder?}`.
+	 * @return {Promise} Axios response (201) with the field.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	createMetadataField(field) {
+		return axios.post(`${baseUrl}/api/admin/metadata-fields`, field)
+	},
+
+	/**
+	 * Change a detail field (administrators).
+	 *
+	 * @param {number} id Field id.
+	 * @param {object} field Changed attributes.
+	 * @return {Promise} Axios response with the field.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	updateMetadataField(id, field) {
+		return axios.put(
+			`${baseUrl}/api/admin/metadata-fields/${encodeURIComponent(id)}`,
+			field,
+		)
+	},
+
+	/**
+	 * Delete a detail field (administrators).
+	 *
+	 * @param {number} id Field id.
+	 * @return {Promise} Axios response.
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	deleteMetadataField(id) {
+		return axios.delete(
+			`${baseUrl}/api/admin/metadata-fields/${encodeURIComponent(id)}`,
+		)
+	},
+
 	// Dashboard metadata-fields admin CRUD (REQ-MDFL-001..003).
 	getMetadataFields() {
 		return axios.get(`${baseUrl}/api/admin/metadata-fields`)
@@ -1269,6 +1430,20 @@ export const api = {
 	 * @return {Promise} Axios response for the delete call.
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
+	/**
+	 * Who reacted with one emoji, first page (REQ-RXN-004).
+	 *
+	 * @param {string} uuid Dashboard UUID.
+	 * @param {string} emoji The emoji.
+	 * @return {Promise} Axios response with `{reactors, total, ...}`.
+	 * @spec openspec/specs/dashboard-reactions/spec.md
+	 */
+	getDashboardReactors(uuid, emoji) {
+		return axios.get(
+			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}/users`,
+		)
+	},
+
 	removeDashboardReaction(uuid, emoji) {
 		return axios.delete(
 			`${baseUrl}/api/dashboards/${encodeURIComponent(uuid)}/reactions/${encodeURIComponent(emoji)}`,

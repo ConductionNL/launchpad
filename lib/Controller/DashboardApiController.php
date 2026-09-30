@@ -1567,7 +1567,7 @@ class DashboardApiController extends Controller {
 		}
 
 		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
-		if (($publishAt === null || $publishAt === '') && ($unpublishAt === null || $unpublishAt === '')) {
+		if ($this->isBlank(value: $publishAt) === true && $this->isBlank(value: $unpublishAt) === true) {
 			return new JSONResponse(
 				data: [
 					'status' => 'error',
@@ -1610,6 +1610,19 @@ class DashboardApiController extends Controller {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
 	}//end schedule()
+
+	/**
+	 * Whether a request value is missing or empty.
+	 *
+	 * @param string|null $value The request value.
+	 *
+	 * @return bool True for null or an empty string.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function isBlank(?string $value): bool {
+		return $value === null || $value === '';
+	}//end isBlank()
 
 	/**
 	 * Record a dashboard view event (REQ-ANLT-002).

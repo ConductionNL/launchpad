@@ -40,6 +40,9 @@ use Psr\Log\LoggerInterface;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Definition validation,
  *  self edits, the LDAP sync, the standard-field mirror and the visibility
  *  rule share one data model; splitting them would scatter that rule.
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods) Same reason: the listener,
+ *  the job, both controllers, the people service and the demo installer each
+ *  call their own entry point on this one model.
  *
  * @spec openspec/specs/people-widget/spec.md
  */
@@ -457,7 +460,7 @@ class ProfileFieldService {
 		$owner = $row->getUserId();
 
 		if (isset(self::MIRRORED_STANDARD_FIELDS[$key]) === true) {
-			return self::scopeAllows(scope: $row->getScope(), viewerId: $viewerId, ownerId: $owner);
+			return $this->scopeAllows(scope: $row->getScope(), viewerId: $viewerId, ownerId: $owner);
 		}
 
 		$definition = $definitions[$key] ?? null;
@@ -481,7 +484,7 @@ class ProfileFieldService {
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
-	public static function scopeAllows(?string $scope, ?string $viewerId, string $ownerId): bool {
+	public function scopeAllows(?string $scope, ?string $viewerId, string $ownerId): bool {
 		if ($viewerId !== null && $viewerId === $ownerId) {
 			return true;
 		}
@@ -676,7 +679,15 @@ class ProfileFieldService {
 		$this->saveDefinitions(
 			raw: [
 				['key' => 'office', 'label' => 'Kantoorlocatie', 'type' => 'text', 'source' => 'self', 'searchable' => true, 'shownInWidget' => true],
-				['key' => 'cost_centre', 'label' => 'Kostenplaats', 'type' => 'text', 'source' => 'self', 'searchable' => false, 'shownInWidget' => false, 'visibility' => 'groups'],
+				[
+					'key' => 'cost_centre',
+					'label' => 'Kostenplaats',
+					'type' => 'text',
+					'source' => 'self',
+					'searchable' => false,
+					'shownInWidget' => false,
+					'visibility' => 'groups',
+				],
 				['key' => 'expertise', 'label' => 'Expertise', 'type' => 'tags', 'source' => 'self', 'searchable' => true, 'shownInWidget' => true],
 			]
 		);

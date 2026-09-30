@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use Exception;
+use Throwable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskService;
@@ -350,7 +351,7 @@ class KioskController extends Controller {
 		} catch (PlaylistNotFoundException) {
 			$response->setStatus(Http::STATUS_NOT_FOUND);
 			$response->throttle(['action' => PublicShareService::ACTION_SHARE_ACCESS]);
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$this->logError(message: $e->getMessage());
 		}
 

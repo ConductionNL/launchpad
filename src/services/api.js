@@ -14,7 +14,13 @@ export const api = {
 		return axios.get(`${baseUrl}/api/dashboards`)
 	},
 
-	// REQ-DASH-013 — deduplicated union of personal + group + default dashboards.
+	/**
+	 * REQ-DASH-013: deduplicated union of personal, group and default dashboards.
+	 *
+	 * @param {object|null} metadata Optional `{key: value}` detail filter (REQ-MDUI-003).
+	 * @return {Promise<object>} The axios response.
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
 	getVisibleDashboards(metadata = null) {
 		// dashboard-language-and-details-tabs: `metadata[<key>]=<value>`
 		// filters the list server-side (REQ-MDUI-003).

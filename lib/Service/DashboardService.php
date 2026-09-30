@@ -1593,41 +1593,7 @@ class DashboardService {
 
 		foreach ($entries as $entry) {
 			$dashboard = $entry['dashboard'];
-			$status = $dashboard->getPublicationStatus();
-			// Pre-migration / legacy rows that never set the column
-			// semantically remain visible (REQ-DASH-035): treat an
-			// empty string as `'published'` so backwards compatibility
-			// holds even if an entity is hydrated without the column.
-			if ($status === '') {
-				$status = Dashboard::STATUS_PUBLISHED;
-			}
-
-			// REQ-DASH-034: lazy materialisation of due scheduled rows.
-			if ($status === Dashboard::STATUS_SCHEDULED) {
-				$publishAt = $dashboard->getPublishAt();
-				if ($publishAt !== null && $publishAt !== '') {
-					try {
-						$when = new DateTime($publishAt);
-						if ($when <= $now) {
-							$dashboard->setPublicationStatus(
-								Dashboard::STATUS_PUBLISHED
-							);
-							$status = Dashboard::STATUS_PUBLISHED;
-						}
-					} catch (Exception) {
-						// Malformed timestamp — leave as scheduled and
-						// fall through to the visibility check below.
-					}
-				}
-			}
-
-			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
-			// dashboard whose take-down time has passed reads as a draft, so
-			// only its owner and administrators keep seeing it.
-			if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
-				$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
-				$status = Dashboard::STATUS_DRAFT;
-			}
+			$status = $this->effectivePublicationStatus(dashboard: $dashboard, now: $now);
 
 			if ($status === Dashboard::STATUS_PUBLISHED) {
 				$filtered[] = $entry;
@@ -1645,6 +1611,60 @@ class DashboardService {
 
 		return $filtered;
 	}//end filterByPublicationState()
+
+	/**
+	 * The publication state a dashboard has at read time, applied to the
+	 * entity in memory only: an empty legacy status reads as published
+	 * (REQ-DASH-035), a scheduled row past `publishAt` as published
+	 * (REQ-DASH-034), and a published row past `unpublishAt` as a draft
+	 * (REQ-SCHEDUI-002).
+	 *
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param DateTime $now The moment of the read.
+	 *
+	 * @return string The effective status.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function effectivePublicationStatus(Dashboard $dashboard, DateTime $now): string {
+		$status = $dashboard->getPublicationStatus();
+		// Pre-migration / legacy rows that never set the column
+		// semantically remain visible (REQ-DASH-035): treat an
+		// empty string as `'published'` so backwards compatibility
+		// holds even if an entity is hydrated without the column.
+		if ($status === '') {
+			$status = Dashboard::STATUS_PUBLISHED;
+		}
+
+		// REQ-DASH-034: lazy materialisation of due scheduled rows.
+		if ($status === Dashboard::STATUS_SCHEDULED) {
+			$publishAt = $dashboard->getPublishAt();
+			if ($publishAt !== null && $publishAt !== '') {
+				try {
+					$when = new DateTime($publishAt);
+					if ($when <= $now) {
+						$dashboard->setPublicationStatus(
+							Dashboard::STATUS_PUBLISHED
+						);
+						$status = Dashboard::STATUS_PUBLISHED;
+					}
+				} catch (Exception) {
+					// Malformed timestamp — leave as scheduled and
+					// fall through to the visibility check below.
+				}
+			}
+		}
+
+		// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
+		// dashboard whose take-down time has passed reads as a draft, so
+		// only its owner and administrators keep seeing it.
+		if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+			$status = Dashboard::STATUS_DRAFT;
+		}
+
+		return $status;
+	}//end effectivePublicationStatus()
 
 	/**
 	 * Resolve the active dashboard for a user using the 7-step precedence

@@ -47,6 +47,11 @@ use Psr\Log\LoggerInterface;
  * Service for kiosk-playlist lifecycle management and public render.
  *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) A playlist entry carries its
+ *                                                  dashboard's widget
+ *                                                  placements, as the public
+ *                                                  share render does.
  */
 class KioskService {
 

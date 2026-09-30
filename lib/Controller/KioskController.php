@@ -53,6 +53,12 @@ use Psr\Log\LoggerInterface;
  * Controller for kiosk-playlist CRUD and anonymous render endpoints.
  *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-4
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One controller serves the
+ *                                                  playlist API and the
+ *                                                  player page, so it needs
+ *                                                  both JSON and template
+ *                                                  responses.
  */
 class KioskController extends Controller {
 	/**

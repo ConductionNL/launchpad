@@ -660,6 +660,31 @@ class ProfileFieldService {
 	}//end cleanLdapValues()
 
 	/**
+	 * Define the demo fields when none are defined yet: an office location
+	 * and a cost centre to fill in, and searchable expertise tags. Existing
+	 * definitions are never touched.
+	 *
+	 * @return bool True when the demo fields were added.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	public function seedDemoDefinitions(): bool {
+		if ($this->getDefinitions() !== []) {
+			return false;
+		}
+
+		$this->saveDefinitions(
+			raw: [
+				['key' => 'office', 'label' => 'Kantoorlocatie', 'type' => 'text', 'source' => 'self', 'searchable' => true, 'shownInWidget' => true],
+				['key' => 'cost_centre', 'label' => 'Kostenplaats', 'type' => 'text', 'source' => 'self', 'searchable' => false, 'shownInWidget' => false, 'visibility' => 'groups'],
+				['key' => 'expertise', 'label' => 'Expertise', 'type' => 'tags', 'source' => 'self', 'searchable' => true, 'shownInWidget' => true],
+			]
+		);
+
+		return true;
+	}//end seedDemoDefinitions()
+
+	/**
 	 * Remove every value of a deleted person.
 	 *
 	 * @param string $userId The person.

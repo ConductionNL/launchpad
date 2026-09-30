@@ -288,6 +288,20 @@ class ProfileFieldServiceTest extends TestCase {
 		$this->assertContains('karin', $this->service->findMatchingUserIds(viewerId: 'karin', query: 'subsidies'), 'CONTROL: the owner matches her own private field');
 	}//end testAPrivateBiographyIsMirroredButNeverMatchesForOthers()
 
+	/**
+	 * Demo installs get the three demo fields, and never overwrite existing ones.
+	 *
+	 * @return void
+	 */
+	public function testDemoFieldsAreSeededOnlyWhenNoneAreDefined(): void {
+		$this->assertTrue($this->service->seedDemoDefinitions());
+		$this->assertSame(['office', 'cost_centre', 'expertise'], array_column($this->service->getDefinitions(), 'key'));
+
+		$this->service->saveDefinitions(raw: [['key' => 'room', 'label' => 'Room']]);
+		$this->assertFalse($this->service->seedDemoDefinitions());
+		$this->assertSame(['room'], array_column($this->service->getDefinitions(), 'key'));
+	}//end testDemoFieldsAreSeededOnlyWhenNoneAreDefined()
+
 	public function testDeletingAUserRemovesTheirValues(): void {
 		$this->defineFields();
 		$this->service->saveOwnValues(userId: 'pieter', values: ['expertise' => ['subsidies']]);

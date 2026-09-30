@@ -1409,7 +1409,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Dit bestand kon niet als bladwijzerbestand worden gelezen.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Ruimte over op dit dashboard: {count}. Kies minder mappen.",
     "The import failed; nothing was added." : "Het importeren is mislukt; er is niets toegevoegd.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bladwijzer overgeslagen: alleen webadressen kunnen een tegel worden", "{count} bladwijzers overgeslagen: alleen webadressen kunnen een tegel worden"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bladwijzer overgeslagen: alleen webadressen kunnen een tegel worden", "{count} bladwijzers overgeslagen: alleen webadressen kunnen een tegel worden"],
+    "Office networks" : "Kantoornetwerken",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Verzoeken vanaf deze netwerken openen het kantooradres van een tegel, als die er een heeft. Vul per regel één IPv4- of IPv6-bereik in, zoals 10.20.0.0/16.",
+    "Network ranges" : "Netwerkbereiken",
+    "Office networks saved." : "Kantoornetwerken opgeslagen.",
+    "Save office networks" : "Kantoornetwerken opslaan",
+    "Your current address {address} is on the office network." : "Je huidige adres {address} zit op het kantoornetwerk.",
+    "Your current address {address} is not on the office network." : "Je huidige adres {address} zit niet op het kantoornetwerk.",
+    "The office networks could not be loaded." : "De kantoornetwerken konden niet worden geladen.",
+    "The office networks could not be saved." : "De kantoornetwerken konden niet worden opgeslagen.",
+    "Address on the office network" : "Adres op het kantoornetwerk",
+    "Optional, for example http://zaken.intern" : "Optioneel, bijvoorbeeld http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Je zit op het kantoornetwerk: deze tegel opent het interne adres",
+    "You are not on the office network: this tile opens the main address" : "Je zit niet op het kantoornetwerk: deze tegel opent het hoofdadres"
 },
 "nplurals=2; plural=(n != 1);"
 );

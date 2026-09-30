@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Filen kunde inte läsas som en bokmärkesfil.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Plats kvar på den här instrumentpanelen: {count}. Välj färre mappar.",
     "The import failed; nothing was added." : "Importen misslyckades; inget lades till.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bokmärke hoppades över: bara webbadresser kan bli paneler", "{count} bokmärken hoppades över: bara webbadresser kan bli paneler"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bokmärke hoppades över: bara webbadresser kan bli paneler", "{count} bokmärken hoppades över: bara webbadresser kan bli paneler"],
+    "Office networks" : "Kontorsnätverk",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Förfrågningar från de här näten öppnar panelens kontorsadress, om den har en. Ange ett IPv4- eller IPv6-intervall per rad, till exempel 10.20.0.0/16.",
+    "Network ranges" : "Nätverksintervall",
+    "Office networks saved." : "Kontorsnätverken har sparats.",
+    "Save office networks" : "Spara kontorsnätverk",
+    "Your current address {address} is on the office network." : "Din nuvarande adress {address} finns på kontorsnätverket.",
+    "Your current address {address} is not on the office network." : "Din nuvarande adress {address} finns inte på kontorsnätverket.",
+    "The office networks could not be loaded." : "Kontorsnätverken kunde inte läsas in.",
+    "The office networks could not be saved." : "Kontorsnätverken kunde inte sparas.",
+    "Address on the office network" : "Adress på kontorsnätverket",
+    "Optional, for example http://zaken.intern" : "Valfritt, till exempel http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Du är på kontorsnätverket: den här panelen öppnar den interna adressen",
+    "You are not on the office network: this tile opens the main address" : "Du är inte på kontorsnätverket: den här panelen öppnar huvudadressen"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1331,6 +1331,19 @@
             "{count} marcaj omis: doar adresele web pot deveni dale",
             "{count} marcaje omise: doar adresele web pot deveni dale",
             "{count} de marcaje omise: doar adresele web pot deveni dale"
-        ]
+        ],
+        "Office networks": "Rețele de birou",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Cererile din aceste rețele deschid adresa de birou a dalei, dacă are una. Introdu câte un interval IPv4 sau IPv6 pe linie, de exemplu 10.20.0.0/16.",
+        "Network ranges": "Intervale de rețea",
+        "Office networks saved.": "Rețelele de birou au fost salvate.",
+        "Save office networks": "Salvează rețelele de birou",
+        "Your current address {address} is on the office network.": "Adresa ta actuală {address} este în rețeaua de birou.",
+        "Your current address {address} is not on the office network.": "Adresa ta actuală {address} nu este în rețeaua de birou.",
+        "The office networks could not be loaded.": "Rețelele de birou nu au putut fi încărcate.",
+        "The office networks could not be saved.": "Rețelele de birou nu au putut fi salvate.",
+        "Address on the office network": "Adresă în rețeaua de birou",
+        "Optional, for example http://zaken.intern": "Opțional, de exemplu http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Ești în rețeaua de birou: această dală deschide adresa internă",
+        "You are not on the office network: this tile opens the main address": "Nu ești în rețeaua de birou: această dală deschide adresa principală"
     }
 }

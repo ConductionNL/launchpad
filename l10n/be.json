@@ -1331,6 +1331,19 @@
             "Прапушчана {count} закладка: толькі вэб-адрасы могуць стаць пліткамі",
             "Прапушчана {count} закладкі: толькі вэб-адрасы могуць стаць пліткамі",
             "Прапушчана {count} закладак: толькі вэб-адрасы могуць стаць пліткамі"
-        ]
+        ],
+        "Office networks": "Офісныя сеткі",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Запыты з гэтых сетак адкрываюць офісны адрас пліткі, калі ён ёсць. Увядзіце па адным дыяпазоне IPv4 або IPv6 у радку, напрыклад 10.20.0.0/16.",
+        "Network ranges": "Дыяпазоны сетак",
+        "Office networks saved.": "Офісныя сеткі захаваны.",
+        "Save office networks": "Захаваць офісныя сеткі",
+        "Your current address {address} is on the office network.": "Ваш бягучы адрас {address} у офіснай сетцы.",
+        "Your current address {address} is not on the office network.": "Ваш бягучы адрас {address} не ў офіснай сетцы.",
+        "The office networks could not be loaded.": "Не ўдалося загрузіць офісныя сеткі.",
+        "The office networks could not be saved.": "Не ўдалося захаваць офісныя сеткі.",
+        "Address on the office network": "Адрас у офіснай сетцы",
+        "Optional, for example http://zaken.intern": "Неабавязкова, напрыклад http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Вы ў офіснай сетцы: гэтая плітка адкрывае ўнутраны адрас",
+        "You are not on the office network: this tile opens the main address": "Вы не ў офіснай сетцы: гэтая плітка адкрывае асноўны адрас"
     }
 }

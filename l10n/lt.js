@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Šio failo nepavyko perskaityti kaip žymių failo.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Laisvos vietos šiame skydelyje: {count}. Pasirinkite mažiau aplankų.",
     "The import failed; nothing was added." : "Importuoti nepavyko; nieko nepridėta.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Praleista {count} žymė: plytele gali tapti tik žiniatinklio adresas", "Praleistos {count} žymės: plytele gali tapti tik žiniatinklio adresas", "Praleista {count} žymių: plytele gali tapti tik žiniatinklio adresas"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Praleista {count} žymė: plytele gali tapti tik žiniatinklio adresas", "Praleistos {count} žymės: plytele gali tapti tik žiniatinklio adresas", "Praleista {count} žymių: plytele gali tapti tik žiniatinklio adresas"],
+    "Office networks" : "Biuro tinklai",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Užklausos iš šių tinklų atveria plytelės biuro adresą, jei jis yra. Įveskite po vieną IPv4 arba IPv6 diapazoną eilutėje, pvz., 10.20.0.0/16.",
+    "Network ranges" : "Tinklo diapazonai",
+    "Office networks saved." : "Biuro tinklai išsaugoti.",
+    "Save office networks" : "Išsaugoti biuro tinklus",
+    "Your current address {address} is on the office network." : "Jūsų dabartinis adresas {address} yra biuro tinkle.",
+    "Your current address {address} is not on the office network." : "Jūsų dabartinis adresas {address} nėra biuro tinkle.",
+    "The office networks could not be loaded." : "Nepavyko įkelti biuro tinklų.",
+    "The office networks could not be saved." : "Nepavyko išsaugoti biuro tinklų.",
+    "Address on the office network" : "Adresas biuro tinkle",
+    "Optional, for example http://zaken.intern" : "Neprivaloma, pvz., http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Esate biuro tinkle: ši plytelė atveria vidinį adresą",
+    "You are not on the office network: this tile opens the main address" : "Nesate biuro tinkle: ši plytelė atveria pagrindinį adresą"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

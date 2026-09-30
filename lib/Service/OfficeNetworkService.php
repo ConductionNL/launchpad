@@ -102,7 +102,7 @@ class OfficeNetworkService {
 			}
 
 			if ($this->isValidRange(range: $range) === false) {
-				throw new InvalidArgumentException(message: 'Not an IP range: ' . mb_substr(string: $range, start: 0, length: 64));
+				throw new InvalidArgumentException(message: 'This is not a valid network range: ' . mb_substr(string: $range, start: 0, length: 64));
 			}
 
 			$ranges[$range] = $range;

@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Ekki tókst að lesa þessa skrá sem bókamerkjaskrá.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Pláss eftir á þessu stjórnborði: {count}. Veldu færri möppur.",
     "The import failed; nothing was added." : "Innflutningur mistókst; engu var bætt við.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bókamerki sleppt: aðeins vefslóðir geta orðið reitir", "{count} bókamerkjum sleppt: aðeins vefslóðir geta orðið reitir"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bókamerki sleppt: aðeins vefslóðir geta orðið reitir", "{count} bókamerkjum sleppt: aðeins vefslóðir geta orðið reitir"],
+    "Office networks" : "Skrifstofunet",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Beiðnir frá þessum netum opna skrifstofuslóð reitsins, ef hún er til. Sláðu inn eitt IPv4- eða IPv6-svið í hverja línu, t.d. 10.20.0.0/16.",
+    "Network ranges" : "Netsvið",
+    "Office networks saved." : "Skrifstofunet vistuð.",
+    "Save office networks" : "Vista skrifstofunet",
+    "Your current address {address} is on the office network." : "Núverandi vistfang þitt {address} er á skrifstofunetinu.",
+    "Your current address {address} is not on the office network." : "Núverandi vistfang þitt {address} er ekki á skrifstofunetinu.",
+    "The office networks could not be loaded." : "Ekki tókst að hlaða inn skrifstofunetum.",
+    "The office networks could not be saved." : "Ekki tókst að vista skrifstofunetin.",
+    "Address on the office network" : "Slóð á skrifstofunetinu",
+    "Optional, for example http://zaken.intern" : "Valfrjálst, t.d. http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Þú ert á skrifstofunetinu: þessi reitur opnar innri slóðina",
+    "You are not on the office network: this tile opens the main address" : "Þú ert ekki á skrifstofunetinu: þessi reitur opnar aðalslóðina"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

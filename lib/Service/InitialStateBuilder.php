@@ -356,7 +356,7 @@ class InitialStateBuilder {
 
 	/**
 	 * Say whether this request comes from an office network, so tiles open
-	 * their internal address (launcher-tile-internal-address, REQ-TIA-002).
+	 * their internal address (launcher-tile-internal-address, REQ-TIA-003).
 	 * Optional key; the JS reader defaults it to false.
 	 *
 	 * @param bool $onOfficeNetwork Whether the request is on an office network.

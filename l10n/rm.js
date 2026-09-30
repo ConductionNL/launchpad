@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Questa datoteca na po betg vegnir legida sco datoteca da segnapaginas.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Plaz restanta sin quest dashboard: {count}. Tscherna main ordinaturs.",
     "The import failed; nothing was added." : "L'import n'è betg reussì; nagut n'è vegnì agiuntà.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} segnapaginas sursiglì: mo adressas web pon daventar quadrels", "{count} segnapaginas sursiglids: mo adressas web pon daventar quadrels"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} segnapaginas sursiglì: mo adressas web pon daventar quadrels", "{count} segnapaginas sursiglids: mo adressas web pon daventar quadrels"],
+    "Office networks" : "Raits dal biro",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Dumondas da quests raits avran l'adressa da biro dal quadrel, sch'el ha ina. Endatescha ina zona IPv4 u IPv6 per lingia, sco 10.20.0.0/16.",
+    "Network ranges" : "Zonas da rait",
+    "Office networks saved." : "Raits dal biro memorisadas.",
+    "Save office networks" : "Memorisar las raits dal biro",
+    "Your current address {address} is on the office network." : "Tia adressa actuala {address} è en la rait dal biro.",
+    "Your current address {address} is not on the office network." : "Tia adressa actuala {address} n'è betg en la rait dal biro.",
+    "The office networks could not be loaded." : "I n'è betg reussì da chargiar las raits dal biro.",
+    "The office networks could not be saved." : "I n'è betg reussì da memorisar las raits dal biro.",
+    "Address on the office network" : "Adressa en la rait dal biro",
+    "Optional, for example http://zaken.intern" : "Facultativ, per exempel http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Ti es en la rait dal biro: quest quadrel avra l'adressa interna",
+    "You are not on the office network: this tile opens the main address" : "Ti n'es betg en la rait dal biro: quest quadrel avra l'adressa principala"
 },
 "nplurals=2; plural=(n != 1);"
 );

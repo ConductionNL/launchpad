@@ -1331,6 +1331,19 @@
             "Прескочен {count} обележивач: само веб адресе могу постати плочице",
             "Прескочена {count} обележивача: само веб адресе могу постати плочице",
             "Прескочено {count} обележивача: само веб адресе могу постати плочице"
-        ]
+        ],
+        "Office networks": "Канцеларијске мреже",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Захтеви из ових мрежа отварају канцеларијску адресу плочице, ако је има. Унесите један IPv4 или IPv6 опсег по реду, нпр. 10.20.0.0/16.",
+        "Network ranges": "Мрежни опсези",
+        "Office networks saved.": "Канцеларијске мреже су сачуване.",
+        "Save office networks": "Сачувај канцеларијске мреже",
+        "Your current address {address} is on the office network.": "Ваша тренутна адреса {address} је у канцеларијској мрежи.",
+        "Your current address {address} is not on the office network.": "Ваша тренутна адреса {address} није у канцеларијској мрежи.",
+        "The office networks could not be loaded.": "Канцеларијске мреже нису могле да се учитају.",
+        "The office networks could not be saved.": "Канцеларијске мреже нису могле да се сачувају.",
+        "Address on the office network": "Адреса у канцеларијској мрежи",
+        "Optional, for example http://zaken.intern": "Необавезно, нпр. http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Ви сте у канцеларијској мрежи: ова плочица отвара интерну адресу",
+        "You are not on the office network: this tile opens the main address": "Нисте у канцеларијској мрежи: ова плочица отвара главну адресу"
     }
 }

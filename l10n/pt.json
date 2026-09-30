@@ -1329,6 +1329,19 @@
         "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
             "{count} marcador ignorado: só endereços web podem ser mosaicos",
             "{count} marcadores ignorados: só endereços web podem ser mosaicos"
-        ]
+        ],
+        "Office networks": "Redes do escritório",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Os pedidos destas redes abrem o endereço de escritório do mosaico, se tiver um. Introduza um intervalo IPv4 ou IPv6 por linha, como 10.20.0.0/16.",
+        "Network ranges": "Intervalos de rede",
+        "Office networks saved.": "Redes do escritório guardadas.",
+        "Save office networks": "Guardar redes do escritório",
+        "Your current address {address} is on the office network.": "O seu endereço atual {address} está na rede do escritório.",
+        "Your current address {address} is not on the office network.": "O seu endereço atual {address} não está na rede do escritório.",
+        "The office networks could not be loaded.": "Não foi possível carregar as redes do escritório.",
+        "The office networks could not be saved.": "Não foi possível guardar as redes do escritório.",
+        "Address on the office network": "Endereço na rede do escritório",
+        "Optional, for example http://zaken.intern": "Opcional, por exemplo http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Está na rede do escritório: este mosaico abre o endereço interno",
+        "You are not on the office network: this tile opens the main address": "Não está na rede do escritório: este mosaico abre o endereço principal"
     }
 }

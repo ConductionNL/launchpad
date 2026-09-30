@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Цей файл не вдалося прочитати як файл закладок.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Залишилося місця на цій панелі: {count}. Виберіть менше тек.",
     "The import failed; nothing was added." : "Імпорт не вдався; нічого не додано.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Пропущено {count} закладку: плиткою може стати лише веб-адреса", "Пропущено {count} закладки: плиткою може стати лише веб-адреса", "Пропущено {count} закладок: плиткою може стати лише веб-адреса"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Пропущено {count} закладку: плиткою може стати лише веб-адреса", "Пропущено {count} закладки: плиткою може стати лише веб-адреса", "Пропущено {count} закладок: плиткою може стати лише веб-адреса"],
+    "Office networks" : "Офісні мережі",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Запити з цих мереж відкривають офісну адресу плитки, якщо вона є. Введіть по одному діапазону IPv4 або IPv6 у рядку, наприклад 10.20.0.0/16.",
+    "Network ranges" : "Діапазони мереж",
+    "Office networks saved." : "Офісні мережі збережено.",
+    "Save office networks" : "Зберегти офісні мережі",
+    "Your current address {address} is on the office network." : "Ваша поточна адреса {address} у офісній мережі.",
+    "Your current address {address} is not on the office network." : "Ваша поточна адреса {address} не в офісній мережі.",
+    "The office networks could not be loaded." : "Не вдалося завантажити офісні мережі.",
+    "The office networks could not be saved." : "Не вдалося зберегти офісні мережі.",
+    "Address on the office network" : "Адреса в офісній мережі",
+    "Optional, for example http://zaken.intern" : "Необов'язково, наприклад http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Ви в офісній мережі: ця плитка відкриває внутрішню адресу",
+    "You are not on the office network: this tile opens the main address" : "Ви не в офісній мережі: ця плитка відкриває основну адресу"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

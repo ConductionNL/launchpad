@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Dan il-fajl ma setax jinqara bħala fajl tal-bookmarks.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Spazju li fadal f'dan id-dashboard: {count}. Agħżel inqas folders.",
     "The import failed; nothing was added." : "L-importazzjoni falliet; ma żdied xejn.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum", "{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum", "{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum", "{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum", "{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum", "{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum", "{count} bookmark inqabeż: indirizzi tal-web biss jistgħu jsiru madum"],
+    "Office networks" : "Netwerks tal-uffiċċju",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Talbiet minn dawn in-netwerks jiftħu l-indirizz tal-uffiċċju tal-madum, jekk għandu wieħed. Daħħal firxa IPv4 jew IPv6 waħda f'kull linja, bħal 10.20.0.0/16.",
+    "Network ranges" : "Firxiet tan-netwerk",
+    "Office networks saved." : "In-netwerks tal-uffiċċju ġew salvati.",
+    "Save office networks" : "Issejvja n-netwerks tal-uffiċċju",
+    "Your current address {address} is on the office network." : "L-indirizz attwali tiegħek {address} jinsab fuq in-netwerk tal-uffiċċju.",
+    "Your current address {address} is not on the office network." : "L-indirizz attwali tiegħek {address} mhuwiex fuq in-netwerk tal-uffiċċju.",
+    "The office networks could not be loaded." : "In-netwerks tal-uffiċċju ma setgħux jitgħabbew.",
+    "The office networks could not be saved." : "In-netwerks tal-uffiċċju ma setgħux jiġu salvati.",
+    "Address on the office network" : "Indirizz fuq in-netwerk tal-uffiċċju",
+    "Optional, for example http://zaken.intern" : "Mhux obbligatorju, pereżempju http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Int fuq in-netwerk tal-uffiċċju: dan il-madum jiftaħ l-indirizz intern",
+    "You are not on the office network: this tile opens the main address" : "M'intix fuq in-netwerk tal-uffiċċju: dan il-madum jiftaħ l-indirizz ewlieni"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

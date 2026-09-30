@@ -295,6 +295,9 @@
 								&& item.content.healthPingEnabled === true
 							"
 							:pingInterval="item.content && item.content.pingInterval"
+							:internalUrl="
+								(item.content && item.content.internalUrl) || ''
+							"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -2214,6 +2217,8 @@ export default {
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002.
+				internalUrl: content.internalUrl || '',
 			}
 			this.openTileEditor(tileData)
 		},
@@ -2240,6 +2245,8 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002.
+				internalUrl: String(tileData.internalUrl || '').trim(),
 			}
 			try {
 				if (this.editingTile) {
@@ -2259,7 +2266,11 @@ export default {
 					// `addWidget` create-then-patch pattern above) — persist
 					// the health-ping block with a follow-up patch only when
 					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
+					if (
+						newPlacement?.id
+						&& (healthPingContent.healthPingEnabled
+							|| healthPingContent.internalUrl)
+					) {
 						await this.updateWidgetPlacement(newPlacement.id, {
 							content: healthPingContent,
 						})

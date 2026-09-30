@@ -1329,6 +1329,19 @@
         "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
             "{count} marque-page ignoré : seules les adresses web peuvent devenir des tuiles",
             "{count} marque-pages ignorés : seules les adresses web peuvent devenir des tuiles"
-        ]
+        ],
+        "Office networks": "Réseaux du bureau",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Les requêtes venant de ces réseaux ouvrent l'adresse de bureau de la tuile, si elle en a une. Saisissez une plage IPv4 ou IPv6 par ligne, par exemple 10.20.0.0/16.",
+        "Network ranges": "Plages réseau",
+        "Office networks saved.": "Réseaux du bureau enregistrés.",
+        "Save office networks": "Enregistrer les réseaux du bureau",
+        "Your current address {address} is on the office network.": "Votre adresse actuelle {address} est sur le réseau du bureau.",
+        "Your current address {address} is not on the office network.": "Votre adresse actuelle {address} n'est pas sur le réseau du bureau.",
+        "The office networks could not be loaded.": "Les réseaux du bureau n'ont pas pu être chargés.",
+        "The office networks could not be saved.": "Les réseaux du bureau n'ont pas pu être enregistrés.",
+        "Address on the office network": "Adresse sur le réseau du bureau",
+        "Optional, for example http://zaken.intern": "Facultatif, par exemple http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Vous êtes sur le réseau du bureau : cette tuile ouvre l'adresse interne",
+        "You are not on the office network: this tile opens the main address": "Vous n'êtes pas sur le réseau du bureau : cette tuile ouvre l'adresse principale"
     }
 }

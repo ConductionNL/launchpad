@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Tento soubor nelze přečíst jako soubor záložek.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Zbývající místo na této nástěnce: {count}. Vyberte méně složek.",
     "The import failed; nothing was added." : "Import se nezdařil; nic nebylo přidáno.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Přeskočena {count} záložka: dlaždicí může být jen webová adresa", "Přeskočeny {count} záložky: dlaždicí může být jen webová adresa", "Přeskočeno {count} záložek: dlaždicí může být jen webová adresa"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Přeskočena {count} záložka: dlaždicí může být jen webová adresa", "Přeskočeny {count} záložky: dlaždicí může být jen webová adresa", "Přeskočeno {count} záložek: dlaždicí může být jen webová adresa"],
+    "Office networks" : "Kancelářské sítě",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Požadavky z těchto sítí otevírají kancelářskou adresu dlaždice, pokud ji má. Zadejte jeden rozsah IPv4 nebo IPv6 na řádek, například 10.20.0.0/16.",
+    "Network ranges" : "Rozsahy sítí",
+    "Office networks saved." : "Kancelářské sítě jsou uloženy.",
+    "Save office networks" : "Uložit kancelářské sítě",
+    "Your current address {address} is on the office network." : "Vaše aktuální adresa {address} je v kancelářské síti.",
+    "Your current address {address} is not on the office network." : "Vaše aktuální adresa {address} není v kancelářské síti.",
+    "The office networks could not be loaded." : "Kancelářské sítě se nepodařilo načíst.",
+    "The office networks could not be saved." : "Kancelářské sítě se nepodařilo uložit.",
+    "Address on the office network" : "Adresa v kancelářské síti",
+    "Optional, for example http://zaken.intern" : "Nepovinné, například http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Jste v kancelářské síti: tato dlaždice otevře interní adresu",
+    "You are not on the office network: this tile opens the main address" : "Nejste v kancelářské síti: tato dlaždice otevře hlavní adresu"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

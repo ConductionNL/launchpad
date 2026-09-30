@@ -1329,6 +1329,19 @@
         "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
             "S'ha omès {count} adreça d'interès: només les adreces web poden ser rajoles",
             "S'han omès {count} adreces d'interès: només les adreces web poden ser rajoles"
-        ]
+        ],
+        "Office networks": "Xarxes de l'oficina",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Les peticions des d'aquestes xarxes obren l'adreça d'oficina de la rajola, si en té. Introduïu un interval IPv4 o IPv6 per línia, com ara 10.20.0.0/16.",
+        "Network ranges": "Intervals de xarxa",
+        "Office networks saved.": "S'han desat les xarxes de l'oficina.",
+        "Save office networks": "Desa les xarxes de l'oficina",
+        "Your current address {address} is on the office network.": "La vostra adreça actual {address} és a la xarxa de l'oficina.",
+        "Your current address {address} is not on the office network.": "La vostra adreça actual {address} no és a la xarxa de l'oficina.",
+        "The office networks could not be loaded.": "No s'han pogut carregar les xarxes de l'oficina.",
+        "The office networks could not be saved.": "No s'han pogut desar les xarxes de l'oficina.",
+        "Address on the office network": "Adreça a la xarxa de l'oficina",
+        "Optional, for example http://zaken.intern": "Opcional, per exemple http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Sou a la xarxa de l'oficina: aquesta rajola obre l'adreça interna",
+        "You are not on the office network: this tile opens the main address": "No sou a la xarxa de l'oficina: aquesta rajola obre l'adreça principal"
     }
 }

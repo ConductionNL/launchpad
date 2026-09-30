@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Αυτό το αρχείο δεν ήταν δυνατό να διαβαστεί ως αρχείο σελιδοδεικτών.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Διαθέσιμος χώρος σε αυτόν τον πίνακα: {count}. Επιλέξτε λιγότερους φακέλους.",
     "The import failed; nothing was added." : "Η εισαγωγή απέτυχε· δεν προστέθηκε τίποτα.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Παραλείφθηκε {count} σελιδοδείκτης: μόνο διευθύνσεις ιστού γίνονται πλακίδια", "Παραλείφθηκαν {count} σελιδοδείκτες: μόνο διευθύνσεις ιστού γίνονται πλακίδια"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Παραλείφθηκε {count} σελιδοδείκτης: μόνο διευθύνσεις ιστού γίνονται πλακίδια", "Παραλείφθηκαν {count} σελιδοδείκτες: μόνο διευθύνσεις ιστού γίνονται πλακίδια"],
+    "Office networks" : "Δίκτυα γραφείου",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Τα αιτήματα από αυτά τα δίκτυα ανοίγουν τη διεύθυνση γραφείου του πλακιδίου, αν έχει. Εισαγάγετε ένα εύρος IPv4 ή IPv6 ανά γραμμή, π.χ. 10.20.0.0/16.",
+    "Network ranges" : "Εύρη δικτύου",
+    "Office networks saved." : "Τα δίκτυα γραφείου αποθηκεύτηκαν.",
+    "Save office networks" : "Αποθήκευση δικτύων γραφείου",
+    "Your current address {address} is on the office network." : "Η τρέχουσα διεύθυνσή σας {address} είναι στο δίκτυο γραφείου.",
+    "Your current address {address} is not on the office network." : "Η τρέχουσα διεύθυνσή σας {address} δεν είναι στο δίκτυο γραφείου.",
+    "The office networks could not be loaded." : "Δεν ήταν δυνατή η φόρτωση των δικτύων γραφείου.",
+    "The office networks could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των δικτύων γραφείου.",
+    "Address on the office network" : "Διεύθυνση στο δίκτυο γραφείου",
+    "Optional, for example http://zaken.intern" : "Προαιρετικό, π.χ. http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Είστε στο δίκτυο γραφείου: αυτό το πλακίδιο ανοίγει την εσωτερική διεύθυνση",
+    "You are not on the office network: this tile opens the main address" : "Δεν είστε στο δίκτυο γραφείου: αυτό το πλακίδιο ανοίγει την κύρια διεύθυνση"
 },
 "nplurals=2; plural=(n != 1);"
 );

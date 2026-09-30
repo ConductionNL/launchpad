@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Diese Datei konnte nicht als Lesezeichendatei gelesen werden.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Platz auf diesem Dashboard: noch {count}. Wähle weniger Ordner.",
     "The import failed; nothing was added." : "Der Import ist fehlgeschlagen; nichts wurde hinzugefügt.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} Lesezeichen übersprungen: nur Webadressen können Kacheln werden", "{count} Lesezeichen übersprungen: nur Webadressen können Kacheln werden"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} Lesezeichen übersprungen: nur Webadressen können Kacheln werden", "{count} Lesezeichen übersprungen: nur Webadressen können Kacheln werden"],
+    "Office networks" : "Büronetzwerke",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Anfragen aus diesen Netzwerken öffnen die Büroadresse einer Kachel, sofern sie eine hat. Gib einen IPv4- oder IPv6-Bereich pro Zeile ein, etwa 10.20.0.0/16.",
+    "Network ranges" : "Netzwerkbereiche",
+    "Office networks saved." : "Büronetzwerke gespeichert.",
+    "Save office networks" : "Büronetzwerke speichern",
+    "Your current address {address} is on the office network." : "Deine aktuelle Adresse {address} liegt im Büronetzwerk.",
+    "Your current address {address} is not on the office network." : "Deine aktuelle Adresse {address} liegt nicht im Büronetzwerk.",
+    "The office networks could not be loaded." : "Die Büronetzwerke konnten nicht geladen werden.",
+    "The office networks could not be saved." : "Die Büronetzwerke konnten nicht gespeichert werden.",
+    "Address on the office network" : "Adresse im Büronetzwerk",
+    "Optional, for example http://zaken.intern" : "Optional, zum Beispiel http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Du bist im Büronetzwerk: diese Kachel öffnet die interne Adresse",
+    "You are not on the office network: this tile opens the main address" : "Du bist nicht im Büronetzwerk: diese Kachel öffnet die Hauptadresse"
 },
 "nplurals=2; plural=(n != 1);"
 );

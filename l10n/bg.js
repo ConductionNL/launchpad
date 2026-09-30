@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Този файл не може да се прочете като файл с отметки.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Оставащо място на това табло: {count}. Изберете по-малко папки.",
     "The import failed; nothing was added." : "Импортирането не успя; нищо не е добавено.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} отметка е пропусната: само уеб адреси могат да станат плочки", "{count} отметки са пропуснати: само уеб адреси могат да станат плочки"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} отметка е пропусната: само уеб адреси могат да станат плочки", "{count} отметки са пропуснати: само уеб адреси могат да станат плочки"],
+    "Office networks" : "Офис мрежи",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Заявките от тези мрежи отварят офис адреса на плочката, ако има такъв. Въведете по един IPv4 или IPv6 диапазон на ред, например 10.20.0.0/16.",
+    "Network ranges" : "Мрежови диапазони",
+    "Office networks saved." : "Офис мрежите са запазени.",
+    "Save office networks" : "Запазване на офис мрежите",
+    "Your current address {address} is on the office network." : "Текущият ви адрес {address} е в офис мрежата.",
+    "Your current address {address} is not on the office network." : "Текущият ви адрес {address} не е в офис мрежата.",
+    "The office networks could not be loaded." : "Офис мрежите не можаха да се заредят.",
+    "The office networks could not be saved." : "Офис мрежите не можаха да се запазят.",
+    "Address on the office network" : "Адрес в офис мрежата",
+    "Optional, for example http://zaken.intern" : "По избор, например http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Вие сте в офис мрежата: тази плочка отваря вътрешния адрес",
+    "You are not on the office network: this tile opens the main address" : "Не сте в офис мрежата: тази плочка отваря основния адрес"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Этот файл не удалось прочитать как файл закладок.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Осталось места на этой панели: {count}. Выберите меньше папок.",
     "The import failed; nothing was added." : "Импорт не удался; ничего не добавлено.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Пропущена {count} закладка: плиткой может стать только веб-адрес", "Пропущено {count} закладки: плиткой может стать только веб-адрес", "Пропущено {count} закладок: плиткой может стать только веб-адрес"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Пропущена {count} закладка: плиткой может стать только веб-адрес", "Пропущено {count} закладки: плиткой может стать только веб-адрес", "Пропущено {count} закладок: плиткой может стать только веб-адрес"],
+    "Office networks" : "Офисные сети",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Запросы из этих сетей открывают офисный адрес плитки, если он есть. Введите по одному диапазону IPv4 или IPv6 в строке, например 10.20.0.0/16.",
+    "Network ranges" : "Диапазоны сетей",
+    "Office networks saved." : "Офисные сети сохранены.",
+    "Save office networks" : "Сохранить офисные сети",
+    "Your current address {address} is on the office network." : "Ваш текущий адрес {address} находится в офисной сети.",
+    "Your current address {address} is not on the office network." : "Ваш текущий адрес {address} не находится в офисной сети.",
+    "The office networks could not be loaded." : "Не удалось загрузить офисные сети.",
+    "The office networks could not be saved." : "Не удалось сохранить офисные сети.",
+    "Address on the office network" : "Адрес в офисной сети",
+    "Optional, for example http://zaken.intern" : "Необязательно, например http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Вы в офисной сети: эта плитка открывает внутренний адрес",
+    "You are not on the office network: this tile opens the main address" : "Вы не в офисной сети: эта плитка открывает основной адрес"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

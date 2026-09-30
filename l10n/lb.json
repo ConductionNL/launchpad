@@ -1329,6 +1329,19 @@
         "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
             "{count} Lieszeechen iwwersprongen: nëmme Webadresse kënne Kachele ginn",
             "{count} Lieszeechen iwwersprongen: nëmme Webadresse kënne Kachele ginn"
-        ]
+        ],
+        "Office networks": "Büronetzwierker",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Ufroe vun dësen Netzwierker maachen d'Büroadress vun enger Kachel op, wann se eng huet. Gëff eng IPv4- oder IPv6-Plage pro Linn an, wéi 10.20.0.0/16.",
+        "Network ranges": "Netzwierkplagen",
+        "Office networks saved.": "Büronetzwierker gespäichert.",
+        "Save office networks": "Büronetzwierker späicheren",
+        "Your current address {address} is on the office network.": "Deng aktuell Adress {address} ass am Büronetzwierk.",
+        "Your current address {address} is not on the office network.": "Deng aktuell Adress {address} ass net am Büronetzwierk.",
+        "The office networks could not be loaded.": "D'Büronetzwierker konnten net geluede ginn.",
+        "The office networks could not be saved.": "D'Büronetzwierker konnten net gespäichert ginn.",
+        "Address on the office network": "Adress am Büronetzwierk",
+        "Optional, for example http://zaken.intern": "Optional, zum Beispill http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Du bass am Büronetzwierk: dës Kachel mécht déi intern Adress op",
+        "You are not on the office network: this tile opens the main address": "Du bass net am Büronetzwierk: dës Kachel mécht d'Haaptadress op"
     }
 }

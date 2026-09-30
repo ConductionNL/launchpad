@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Bu dosya bir yer imi dosyası olarak okunamadı.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Bu panoda kalan yer: {count}. Daha az klasör seç.",
     "The import failed; nothing was added." : "İçe aktarma başarısız oldu; hiçbir şey eklenmedi.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} yer imi atlandı: yalnızca web adresleri kutucuk olabilir", "{count} yer imi atlandı: yalnızca web adresleri kutucuk olabilir"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} yer imi atlandı: yalnızca web adresleri kutucuk olabilir", "{count} yer imi atlandı: yalnızca web adresleri kutucuk olabilir"],
+    "Office networks" : "Ofis ağları",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Bu ağlardan gelen istekler, varsa kutucuğun ofis adresini açar. Her satıra bir IPv4 veya IPv6 aralığı gir, örneğin 10.20.0.0/16.",
+    "Network ranges" : "Ağ aralıkları",
+    "Office networks saved." : "Ofis ağları kaydedildi.",
+    "Save office networks" : "Ofis ağlarını kaydet",
+    "Your current address {address} is on the office network." : "Şu anki adresin {address} ofis ağında.",
+    "Your current address {address} is not on the office network." : "Şu anki adresin {address} ofis ağında değil.",
+    "The office networks could not be loaded." : "Ofis ağları yüklenemedi.",
+    "The office networks could not be saved." : "Ofis ağları kaydedilemedi.",
+    "Address on the office network" : "Ofis ağındaki adres",
+    "Optional, for example http://zaken.intern" : "İsteğe bağlı, örneğin http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Ofis ağındasın: bu kutucuk iç adresi açar",
+    "You are not on the office network: this tile opens the main address" : "Ofis ağında değilsin: bu kutucuk ana adresi açar"
 },
 "nplurals=2; plural=(n != 1);"
 );

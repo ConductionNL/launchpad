@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Níorbh fhéidir an comhad seo a léamh mar chomhad leabharmharcanna.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Spás fágtha ar an deais seo: {count}. Roghnaigh níos lú fillteán.",
     "The import failed; nothing was added." : "Theip ar an iompórtáil; níor cuireadh aon rud leis.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna", "Scipeáladh {count} leabharmharc: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna"],
+    "Office networks" : "Líonraí oifige",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Osclaíonn iarratais ó na líonraí seo seoladh oifige na tíle, má tá ceann aici. Iontráil raon IPv4 nó IPv6 amháin in aghaidh an líne, mar shampla 10.20.0.0/16.",
+    "Network ranges" : "Raonta líonra",
+    "Office networks saved." : "Líonraí oifige sábháilte.",
+    "Save office networks" : "Sábháil líonraí oifige",
+    "Your current address {address} is on the office network." : "Tá do sheoladh reatha {address} ar líonra na hoifige.",
+    "Your current address {address} is not on the office network." : "Níl do sheoladh reatha {address} ar líonra na hoifige.",
+    "The office networks could not be loaded." : "Níorbh fhéidir líonraí na hoifige a lódáil.",
+    "The office networks could not be saved." : "Níorbh fhéidir líonraí na hoifige a shábháil.",
+    "Address on the office network" : "Seoladh ar líonra na hoifige",
+    "Optional, for example http://zaken.intern" : "Roghnach, mar shampla http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Tá tú ar líonra na hoifige: osclaíonn an tíl seo an seoladh inmheánach",
+    "You are not on the office network: this tile opens the main address" : "Níl tú ar líonra na hoifige: osclaíonn an tíl seo an príomhsheoladh"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

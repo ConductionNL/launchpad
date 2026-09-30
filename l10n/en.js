@@ -1339,7 +1339,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "This file could not be read as a bookmarks file.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Room left on this dashboard: {count}. Pick fewer folders.",
     "The import failed; nothing was added." : "The import failed; nothing was added.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bookmark skipped: only web addresses can become tiles", "{count} bookmarks skipped: only web addresses can become tiles"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bookmark skipped: only web addresses can become tiles", "{count} bookmarks skipped: only web addresses can become tiles"],
+    "Office networks" : "Office networks",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.",
+    "Network ranges" : "Network ranges",
+    "Office networks saved." : "Office networks saved.",
+    "Save office networks" : "Save office networks",
+    "Your current address {address} is on the office network." : "Your current address {address} is on the office network.",
+    "Your current address {address} is not on the office network." : "Your current address {address} is not on the office network.",
+    "The office networks could not be loaded." : "The office networks could not be loaded.",
+    "The office networks could not be saved." : "The office networks could not be saved.",
+    "Address on the office network" : "Address on the office network",
+    "Optional, for example http://zaken.intern" : "Optional, for example http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "You are on the office network: this tile opens the internal address",
+    "You are not on the office network: this tile opens the main address" : "You are not on the office network: this tile opens the main address"
 },
 "nplurals=2; plural=(n != 1);"
 );

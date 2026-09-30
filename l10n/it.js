@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Questo file non può essere letto come file di segnalibri.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Spazio rimasto su questa dashboard: {count}. Scegli meno cartelle.",
     "The import failed; nothing was added." : "Importazione non riuscita; non è stato aggiunto nulla.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} segnalibro saltato: solo gli indirizzi web possono diventare riquadri", "{count} segnalibri saltati: solo gli indirizzi web possono diventare riquadri"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} segnalibro saltato: solo gli indirizzi web possono diventare riquadri", "{count} segnalibri saltati: solo gli indirizzi web possono diventare riquadri"],
+    "Office networks" : "Reti dell'ufficio",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Le richieste da queste reti aprono l'indirizzo d'ufficio del riquadro, se ne ha uno. Inserisci un intervallo IPv4 o IPv6 per riga, ad esempio 10.20.0.0/16.",
+    "Network ranges" : "Intervalli di rete",
+    "Office networks saved." : "Reti dell'ufficio salvate.",
+    "Save office networks" : "Salva reti dell'ufficio",
+    "Your current address {address} is on the office network." : "Il tuo indirizzo attuale {address} è nella rete dell'ufficio.",
+    "Your current address {address} is not on the office network." : "Il tuo indirizzo attuale {address} non è nella rete dell'ufficio.",
+    "The office networks could not be loaded." : "Non è stato possibile caricare le reti dell'ufficio.",
+    "The office networks could not be saved." : "Non è stato possibile salvare le reti dell'ufficio.",
+    "Address on the office network" : "Indirizzo nella rete dell'ufficio",
+    "Optional, for example http://zaken.intern" : "Facoltativo, ad esempio http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Sei nella rete dell'ufficio: questo riquadro apre l'indirizzo interno",
+    "You are not on the office network: this tile opens the main address" : "Non sei nella rete dell'ufficio: questo riquadro apre l'indirizzo principale"
 },
 "nplurals=2; plural=(n != 1);"
 );

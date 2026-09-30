@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Filen kunne ikke læses som en bogmærkefil.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Plads tilbage på dette dashboard: {count}. Vælg færre mapper.",
     "The import failed; nothing was added." : "Importen mislykkedes; intet blev tilføjet.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bogmærke sprunget over: kun webadresser kan blive til felter", "{count} bogmærker sprunget over: kun webadresser kan blive til felter"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} bogmærke sprunget over: kun webadresser kan blive til felter", "{count} bogmærker sprunget over: kun webadresser kan blive til felter"],
+    "Office networks" : "Kontornetværk",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Forespørgsler fra disse netværk åbner feltets kontoradresse, hvis det har en. Angiv ét IPv4- eller IPv6-interval pr. linje, fx 10.20.0.0/16.",
+    "Network ranges" : "Netværksintervaller",
+    "Office networks saved." : "Kontornetværkene er gemt.",
+    "Save office networks" : "Gem kontornetværk",
+    "Your current address {address} is on the office network." : "Din nuværende adresse {address} er på kontornetværket.",
+    "Your current address {address} is not on the office network." : "Din nuværende adresse {address} er ikke på kontornetværket.",
+    "The office networks could not be loaded." : "Kontornetværkene kunne ikke indlæses.",
+    "The office networks could not be saved." : "Kontornetværkene kunne ikke gemmes.",
+    "Address on the office network" : "Adresse på kontornetværket",
+    "Optional, for example http://zaken.intern" : "Valgfrit, fx http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Du er på kontornetværket: dette felt åbner den interne adresse",
+    "You are not on the office network: this tile opens the main address" : "Du er ikke på kontornetværket: dette felt åbner hovedadressen"
 },
 "nplurals=2; plural=(n != 1);"
 );

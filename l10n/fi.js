@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Tiedostoa ei voitu lukea kirjanmerkkitiedostona.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Tilaa jäljellä tällä kojelaudalla: {count}. Valitse vähemmän kansioita.",
     "The import failed; nothing was added." : "Tuonti epäonnistui; mitään ei lisätty.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} kirjanmerkki ohitettiin: vain verkko-osoitteista voi tulla ruutuja", "{count} kirjanmerkkiä ohitettiin: vain verkko-osoitteista voi tulla ruutuja"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["{count} kirjanmerkki ohitettiin: vain verkko-osoitteista voi tulla ruutuja", "{count} kirjanmerkkiä ohitettiin: vain verkko-osoitteista voi tulla ruutuja"],
+    "Office networks" : "Toimistoverkot",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Näistä verkoista tulevat pyynnöt avaavat ruudun toimisto-osoitteen, jos sellainen on. Anna yksi IPv4- tai IPv6-alue riviä kohden, esimerkiksi 10.20.0.0/16.",
+    "Network ranges" : "Verkkoalueet",
+    "Office networks saved." : "Toimistoverkot tallennettu.",
+    "Save office networks" : "Tallenna toimistoverkot",
+    "Your current address {address} is on the office network." : "Nykyinen osoitteesi {address} on toimistoverkossa.",
+    "Your current address {address} is not on the office network." : "Nykyinen osoitteesi {address} ei ole toimistoverkossa.",
+    "The office networks could not be loaded." : "Toimistoverkkoja ei voitu ladata.",
+    "The office networks could not be saved." : "Toimistoverkkoja ei voitu tallentaa.",
+    "Address on the office network" : "Osoite toimistoverkossa",
+    "Optional, for example http://zaken.intern" : "Valinnainen, esimerkiksi http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Olet toimistoverkossa: tämä ruutu avaa sisäisen osoitteen",
+    "You are not on the office network: this tile opens the main address" : "Et ole toimistoverkossa: tämä ruutu avaa pääosoitteen"
 },
 "nplurals=2; plural=(n != 1);"
 );

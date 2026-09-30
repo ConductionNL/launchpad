@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Ova datoteka ne može se pročitati kao datoteka knjižnih oznaka.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Preostalo mjesta na ovoj nadzornoj ploči: {count}. Odaberite manje mapa.",
     "The import failed; nothing was added." : "Uvoz nije uspio; ništa nije dodano.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Preskočena {count} knjižna oznaka: samo web adrese mogu postati pločice", "Preskočene {count} knjižne oznake: samo web adrese mogu postati pločice", "Preskočeno {count} knjižnih oznaka: samo web adrese mogu postati pločice"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Preskočena {count} knjižna oznaka: samo web adrese mogu postati pločice", "Preskočene {count} knjižne oznake: samo web adrese mogu postati pločice", "Preskočeno {count} knjižnih oznaka: samo web adrese mogu postati pločice"],
+    "Office networks" : "Uredske mreže",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Zahtjevi iz ovih mreža otvaraju uredsku adresu pločice, ako je ima. Unesite jedan IPv4 ili IPv6 raspon po retku, npr. 10.20.0.0/16.",
+    "Network ranges" : "Mrežni rasponi",
+    "Office networks saved." : "Uredske mreže su spremljene.",
+    "Save office networks" : "Spremi uredske mreže",
+    "Your current address {address} is on the office network." : "Vaša trenutačna adresa {address} je u uredskoj mreži.",
+    "Your current address {address} is not on the office network." : "Vaša trenutačna adresa {address} nije u uredskoj mreži.",
+    "The office networks could not be loaded." : "Uredske mreže nije bilo moguće učitati.",
+    "The office networks could not be saved." : "Uredske mreže nije bilo moguće spremiti.",
+    "Address on the office network" : "Adresa u uredskoj mreži",
+    "Optional, for example http://zaken.intern" : "Neobavezno, npr. http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Vi ste u uredskoj mreži: ova pločica otvara internu adresu",
+    "You are not on the office network: this tile opens the main address" : "Niste u uredskoj mreži: ova pločica otvara glavnu adresu"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

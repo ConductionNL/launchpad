@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Ky skedar nuk u lexua dot si skedar faqerojtësish.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Hapësirë e mbetur në këtë panel: {count}. Zgjidh më pak dosje.",
     "The import failed; nothing was added." : "Importimi dështoi; nuk u shtua asgjë.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["U anashkalua {count} faqerojtës: vetëm adresat web mund të bëhen pllaka", "U anashkaluan {count} faqerojtës: vetëm adresat web mund të bëhen pllaka"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["U anashkalua {count} faqerojtës: vetëm adresat web mund të bëhen pllaka", "U anashkaluan {count} faqerojtës: vetëm adresat web mund të bëhen pllaka"],
+    "Office networks" : "Rrjetet e zyrës",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Kërkesat nga këto rrjete hapin adresën e zyrës së pllakës, nëse ka një të tillë. Shkruaj një varg IPv4 ose IPv6 për rresht, si 10.20.0.0/16.",
+    "Network ranges" : "Vargje rrjeti",
+    "Office networks saved." : "Rrjetet e zyrës u ruajtën.",
+    "Save office networks" : "Ruaj rrjetet e zyrës",
+    "Your current address {address} is on the office network." : "Adresa jote aktuale {address} është në rrjetin e zyrës.",
+    "Your current address {address} is not on the office network." : "Adresa jote aktuale {address} nuk është në rrjetin e zyrës.",
+    "The office networks could not be loaded." : "Rrjetet e zyrës nuk u ngarkuan.",
+    "The office networks could not be saved." : "Rrjetet e zyrës nuk u ruajtën.",
+    "Address on the office network" : "Adresa në rrjetin e zyrës",
+    "Optional, for example http://zaken.intern" : "Opsionale, p.sh. http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Je në rrjetin e zyrës: kjo pllakë hap adresën e brendshme",
+    "You are not on the office network: this tile opens the main address" : "Nuk je në rrjetin e zyrës: kjo pllakë hap adresën kryesore"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1350,6 +1350,19 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Ова датотека не може да се прочита као датотека обележивача.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Преостало места на овој контролној табли: {count}. Изаберите мање фасцикли.",
     "The import failed; nothing was added." : "Увоз није успео; ништа није додато.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Прескочен {count} обележивач: само веб адресе могу постати плочице", "Прескочена {count} обележивача: само веб адресе могу постати плочице", "Прескочено {count} обележивача: само веб адресе могу постати плочице"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Прескочен {count} обележивач: само веб адресе могу постати плочице", "Прескочена {count} обележивача: само веб адресе могу постати плочице", "Прескочено {count} обележивача: само веб адресе могу постати плочице"],
+    "Office networks" : "Канцеларијске мреже",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Захтеви из ових мрежа отварају канцеларијску адресу плочице, ако је има. Унесите један IPv4 или IPv6 опсег по реду, нпр. 10.20.0.0/16.",
+    "Network ranges" : "Мрежни опсези",
+    "Office networks saved." : "Канцеларијске мреже су сачуване.",
+    "Save office networks" : "Сачувај канцеларијске мреже",
+    "Your current address {address} is on the office network." : "Ваша тренутна адреса {address} је у канцеларијској мрежи.",
+    "Your current address {address} is not on the office network." : "Ваша тренутна адреса {address} није у канцеларијској мрежи.",
+    "The office networks could not be loaded." : "Канцеларијске мреже нису могле да се учитају.",
+    "The office networks could not be saved." : "Канцеларијске мреже нису могле да се сачувају.",
+    "Address on the office network" : "Адреса у канцеларијској мрежи",
+    "Optional, for example http://zaken.intern" : "Необавезно, нпр. http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Ви сте у канцеларијској мрежи: ова плочица отвара интерну адресу",
+    "You are not on the office network: this tile opens the main address" : "Нисте у канцеларијској мрежи: ова плочица отвара главну адресу"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

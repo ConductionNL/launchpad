@@ -1359,7 +1359,20 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Te datoteke ni bilo mogoče prebrati kot datoteke z zaznamki.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Preostali prostor na tej nadzorni plošči: {count}. Izberite manj map.",
     "The import failed; nothing was added." : "Uvoz ni uspel; nič ni bilo dodano.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Preskočen {count} zaznamek: ploščica je lahko le spletni naslov", "Preskočena {count} zaznamka: ploščica je lahko le spletni naslov", "Preskočeni {count} zaznamki: ploščica je lahko le spletni naslov", "Preskočenih {count} zaznamkov: ploščica je lahko le spletni naslov"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Preskočen {count} zaznamek: ploščica je lahko le spletni naslov", "Preskočena {count} zaznamka: ploščica je lahko le spletni naslov", "Preskočeni {count} zaznamki: ploščica je lahko le spletni naslov", "Preskočenih {count} zaznamkov: ploščica je lahko le spletni naslov"],
+    "Office networks" : "Pisarniška omrežja",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Zahteve iz teh omrežij odprejo pisarniški naslov ploščice, če ga ima. Vnesite en obseg IPv4 ali IPv6 na vrstico, na primer 10.20.0.0/16.",
+    "Network ranges" : "Omrežni obsegi",
+    "Office networks saved." : "Pisarniška omrežja so shranjena.",
+    "Save office networks" : "Shrani pisarniška omrežja",
+    "Your current address {address} is on the office network." : "Vaš trenutni naslov {address} je v pisarniškem omrežju.",
+    "Your current address {address} is not on the office network." : "Vaš trenutni naslov {address} ni v pisarniškem omrežju.",
+    "The office networks could not be loaded." : "Pisarniških omrežij ni bilo mogoče naložiti.",
+    "The office networks could not be saved." : "Pisarniških omrežij ni bilo mogoče shraniti.",
+    "Address on the office network" : "Naslov v pisarniškem omrežju",
+    "Optional, for example http://zaken.intern" : "Neobvezno, na primer http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Ste v pisarniškem omrežju: ta ploščica odpre notranji naslov",
+    "You are not on the office network: this tile opens the main address" : "Niste v pisarniškem omrežju: ta ploščica odpre glavni naslov"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

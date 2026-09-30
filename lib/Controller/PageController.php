@@ -98,7 +98,7 @@ class PageController extends Controller {
 	 *                                               (REQ-SPX-002).
 	 * @param OfficeNetworkService $officeNetworks Whether the request comes
 	 *                                             from an office network
-	 *                                             (REQ-TIA-002).
+	 *                                             (REQ-TIA-003).
 	 */
 	public function __construct(
 		IRequest $request,

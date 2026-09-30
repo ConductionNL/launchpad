@@ -1329,6 +1329,19 @@
         "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_": [
             "{count} könyvjelző kimaradt: csak webcímekből lehet csempe",
             "{count} könyvjelző kimaradt: csak webcímekből lehet csempe"
-        ]
+        ],
+        "Office networks": "Irodai hálózatok",
+        "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16.": "Az ezekről a hálózatokról érkező kérések a csempe irodai címét nyitják meg, ha van ilyen. Soronként egy IPv4 vagy IPv6 tartományt adj meg, például 10.20.0.0/16.",
+        "Network ranges": "Hálózati tartományok",
+        "Office networks saved.": "Irodai hálózatok mentve.",
+        "Save office networks": "Irodai hálózatok mentése",
+        "Your current address {address} is on the office network.": "A jelenlegi címed ({address}) az irodai hálózaton van.",
+        "Your current address {address} is not on the office network.": "A jelenlegi címed ({address}) nincs az irodai hálózaton.",
+        "The office networks could not be loaded.": "Az irodai hálózatokat nem sikerült betölteni.",
+        "The office networks could not be saved.": "Az irodai hálózatokat nem sikerült menteni.",
+        "Address on the office network": "Cím az irodai hálózaton",
+        "Optional, for example http://zaken.intern": "Nem kötelező, például http://zaken.intern",
+        "You are on the office network: this tile opens the internal address": "Az irodai hálózaton vagy: ez a csempe a belső címet nyitja meg",
+        "You are not on the office network: this tile opens the main address": "Nem az irodai hálózaton vagy: ez a csempe a fő címet nyitja meg"
     }
 }

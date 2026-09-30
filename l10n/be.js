@@ -1350,6 +1350,19 @@ OC.L10N.register(
     "This file could not be read as a bookmarks file." : "Гэты файл не ўдалося прачытаць як файл закладак.",
     "Room left on this dashboard: {count}. Pick fewer folders." : "Засталося месца на панэлі: {count}. Выберыце менш папак.",
     "The import failed; nothing was added." : "Імпарт не ўдаўся; нічога не дададзена.",
-    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Прапушчана {count} закладка: толькі вэб-адрасы могуць стаць пліткамі", "Прапушчана {count} закладкі: толькі вэб-адрасы могуць стаць пліткамі", "Прапушчана {count} закладак: толькі вэб-адрасы могуць стаць пліткамі"]
+    "_{count} bookmark skipped: only web addresses can become tiles_::_{count} bookmarks skipped: only web addresses can become tiles_" : ["Прапушчана {count} закладка: толькі вэб-адрасы могуць стаць пліткамі", "Прапушчана {count} закладкі: толькі вэб-адрасы могуць стаць пліткамі", "Прапушчана {count} закладак: толькі вэб-адрасы могуць стаць пліткамі"],
+    "Office networks" : "Офісныя сеткі",
+    "Requests from these networks open a tile's address on the office network, when the tile has one. Enter one IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "Запыты з гэтых сетак адкрываюць офісны адрас пліткі, калі ён ёсць. Увядзіце па адным дыяпазоне IPv4 або IPv6 у радку, напрыклад 10.20.0.0/16.",
+    "Network ranges" : "Дыяпазоны сетак",
+    "Office networks saved." : "Офісныя сеткі захаваны.",
+    "Save office networks" : "Захаваць офісныя сеткі",
+    "Your current address {address} is on the office network." : "Ваш бягучы адрас {address} у офіснай сетцы.",
+    "Your current address {address} is not on the office network." : "Ваш бягучы адрас {address} не ў офіснай сетцы.",
+    "The office networks could not be loaded." : "Не ўдалося загрузіць офісныя сеткі.",
+    "The office networks could not be saved." : "Не ўдалося захаваць офісныя сеткі.",
+    "Address on the office network" : "Адрас у офіснай сетцы",
+    "Optional, for example http://zaken.intern" : "Неабавязкова, напрыклад http://zaken.intern",
+    "You are on the office network: this tile opens the internal address" : "Вы ў офіснай сетцы: гэтая плітка адкрывае ўнутраны адрас",
+    "You are not on the office network: this tile opens the main address" : "Вы не ў офіснай сетцы: гэтая плітка адкрывае асноўны адрас"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

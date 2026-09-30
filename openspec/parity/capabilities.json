@@ -4827,11 +4827,12 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/BookmarkImportService.php; lib/Controller/BookmarkImportController.php; src/utils/parseBookmarks.js; src/dialogs/BookmarkImportDialog.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-bookmark-import"
+				"change": "openspec/changes/archive/2026-09-30-launcher-bookmark-import"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Active dashboard menu (cog) > Import bookmarks…, on a dashboard the person may add widgets to",
 			"evidence": {
 				"workspace-365": "not checked: user guide 175363 and FAQ for users 175611 cover creating shortcut tiles by hand ('+ Add tiles') but no import of browser bookmarks (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Quick links card takes links added one by one ('+ Add link', up to 20); no bookmark import found (read 2026-09-26)",

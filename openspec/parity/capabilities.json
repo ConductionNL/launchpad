@@ -3272,10 +3272,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/KioskService.php:263; src/stores/kioskPlaylists.js:19",
+				"state": "built",
+				"evidence": "src/components/admin/AdminSettings.vue:239; lib/Controller/KioskController.php; src/views/KioskPlayerView.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/sharing-kiosk-screens"
+				"change": "openspec/changes/archive/2026-09-29-sharing-kiosk-screens"
 			},
 			"reachedOn": "nothing: /kiosk/{token} returns JSON that no page renders, and useKioskPlaylistStore has no caller, so no screen creates a playlist",
 			"evidence": {

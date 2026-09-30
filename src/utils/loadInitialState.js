@@ -63,6 +63,10 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
+		// search-ai-prefix-shortcuts REQ-QSP-002: the admin's search
+		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
+		// list keeps every search box as it was.
+		searchShortcuts: [],
 	},
 	admin: {
 		allGroups: [],

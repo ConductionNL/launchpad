@@ -30,6 +30,34 @@ use PHPUnit\Framework\TestCase;
 
 class InitialStateBuilderTest extends TestCase {
 	/**
+	 * REQ-QSP-002: the search shortcuts reach the workspace page.
+	 *
+	 * @return void
+	 */
+	public function testSearchShortcutsReachTheWorkspace(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$shortcuts = [['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://topdesk.example.nl/?q={query}']];
+
+		(new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('g')
+			->setPrimaryGroupName('G')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->setSearchShortcuts($shortcuts)
+			->apply();
+
+		$this->assertSame($shortcuts, $sink['searchShortcuts']);
+	}//end testSearchShortcutsReachTheWorkspace()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject

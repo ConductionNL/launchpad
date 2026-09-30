@@ -84,6 +84,8 @@ class ActionAuthBaselineTest extends TestCase {
 		'metadata-admin.update-field',
 		'metadata-admin.delete-field',
 		'people-widget.get-users',
+		'search-shortcut.list',
+		'search-shortcut.save',
 		'profile-fields.get-definitions',
 		'profile-fields.save-definitions',
 		'rule.get-rules',

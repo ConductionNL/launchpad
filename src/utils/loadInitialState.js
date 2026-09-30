@@ -67,6 +67,10 @@ const PAGE_KEYS = {
 		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
 		// list keeps every search box as it was.
 		searchShortcuts: [],
+		// launcher-tile-internal-address REQ-TIA-002: whether this request
+		// comes from an office network, so tiles open their internal
+		// address. Optional key; false keeps every tile on its normal address.
+		onOfficeNetwork: false,
 	},
 	admin: {
 		allGroups: [],

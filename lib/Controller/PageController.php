@@ -34,6 +34,7 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\OfficeNetworkService;
 use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
@@ -95,6 +96,9 @@ class PageController extends Controller {
 	 * @param SearchShortcutService $searchShortcuts The search shortcuts every
 	 *                                               search box honours
 	 *                                               (REQ-SPX-002).
+	 * @param OfficeNetworkService $officeNetworks Whether the request comes
+	 *                                             from an office network
+	 *                                             (REQ-TIA-002).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -108,6 +112,7 @@ class PageController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly AdminSettingsService $adminSettingsService,
 		private readonly SearchShortcutService $searchShortcuts,
+		private readonly OfficeNetworkService $officeNetworks,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -230,6 +235,7 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->searchShortcuts->getShortcuts())
+			->setOnOfficeNetwork($this->officeNetworks->isOfficeRequest())
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

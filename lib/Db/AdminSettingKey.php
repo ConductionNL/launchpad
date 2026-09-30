@@ -18,6 +18,7 @@
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
  *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
+ *  - Tiles:                OFFICE_NETWORKS (launcher-tile-internal-address)
  *
  * @category Db
  * @package  OCA\LaunchPad\Db
@@ -64,4 +65,5 @@ enum AdminSettingKey: string {
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
 	case SEARCH_SHORTCUTS = 'search_shortcuts';
+	case OFFICE_NETWORKS = 'office_networks';
 }//end enum

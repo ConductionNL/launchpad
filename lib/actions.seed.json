@@ -62,6 +62,8 @@
     "people-widget.get-users": ["admin"],
     "search-shortcut.list": ["admin"],
     "search-shortcut.save": ["admin"],
+    "office-network.list": ["admin"],
+    "office-network.save": ["admin"],
     "profile-fields.get-own": ["admin", "@all"],
     "profile-fields.save-own": ["admin", "@all"],
     "profile-fields.get-definitions": ["admin"],

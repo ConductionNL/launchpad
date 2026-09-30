@@ -355,6 +355,22 @@ class InitialStateBuilder {
 	}//end setSearchShortcuts()
 
 	/**
+	 * Say whether this request comes from an office network, so tiles open
+	 * their internal address (launcher-tile-internal-address, REQ-TIA-002).
+	 * Optional key; the JS reader defaults it to false.
+	 *
+	 * @param bool $onOfficeNetwork Whether the request is on an office network.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/tiles/spec.md
+	 */
+	public function setOnOfficeNetwork(bool $onOfficeNetwork): self {
+		$this->values['onOfficeNetwork'] = $onOfficeNetwork;
+		return $this;
+	}//end setOnOfficeNetwork()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

@@ -461,6 +461,10 @@ return [
 		['name' => 'searchShortcuts#index', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],
 		['name' => 'searchShortcuts#save', 'url' => '/api/admin/search-shortcuts', 'verb' => 'PUT'],
 
+		// Office networks (launcher-tile-internal-address REQ-TIA-001): admin list.
+		['name' => 'officeNetworks#index', 'url' => '/api/admin/office-networks', 'verb' => 'GET'],
+		['name' => 'officeNetworks#save', 'url' => '/api/admin/office-networks', 'verb' => 'PUT'],
+
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.
 		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],

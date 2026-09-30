@@ -86,6 +86,8 @@ class ActionAuthBaselineTest extends TestCase {
 		'people-widget.get-users',
 		'search-shortcut.list',
 		'search-shortcut.save',
+		'office-network.list',
+		'office-network.save',
 		'profile-fields.get-definitions',
 		'profile-fields.save-definitions',
 		'rule.get-rules',

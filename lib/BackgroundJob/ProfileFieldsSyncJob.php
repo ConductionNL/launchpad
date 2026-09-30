@@ -64,18 +64,23 @@ class ProfileFieldsSyncJob extends TimedJob {
 	 *
 	 * @return void
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is required by TimedJob.
+	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	protected function run($argument): void {
 		$failed = 0;
 		$this->userManager->callForSeenUsers(
-			function (IUser $user) use (&$failed): void {
+			function (IUser $user) use (&$failed): bool {
 				try {
 					$this->profileFields->syncLdapFields(user: $user);
 					$this->profileFields->mirrorStandardFields(user: $user);
 				} catch (Throwable) {
 					$failed++;
 				}
+
+				// True keeps the iteration going.
+				return true;
 			}
 		);
 

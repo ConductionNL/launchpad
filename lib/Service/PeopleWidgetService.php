@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\IGroupManager;
 use OCP\IURLGenerator;
@@ -781,20 +782,8 @@ class PeopleWidgetService {
 				continue;
 			}
 
-			try {
-				$prop = $account->getProperty(property: $property);
-				$value = $prop->getValue();
-				$scope = $prop->getScope();
-			} catch (Exception $e) {
-				continue;
-			}
-
-			// REQ-PEX-004: a private field shows to its owner only.
-			if (ProfileFieldService::scopeAllows(scope: $scope, viewerId: $this->viewerId, ownerId: $user->getUID()) === false) {
-				continue;
-			}
-
-			if ($value === '') {
+			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID());
+			if ($value === null || $value === '') {
 				continue;
 			}
 
@@ -813,6 +802,32 @@ class PeopleWidgetService {
 
 		return $fields;
 	}//end buildAccountFields()
+
+	/**
+	 * A standard property's value when the viewer may see it (REQ-PEX-004:
+	 * a private field shows to its owner only), else null.
+	 *
+	 * @param IAccount $account The owner's account.
+	 * @param string $property The property name.
+	 * @param string $ownerId The owner's user id.
+	 *
+	 * @return string|null The value, or null when unreadable or hidden.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function visibleValue(IAccount $account, string $property, string $ownerId): ?string {
+		try {
+			$prop = $account->getProperty(property: $property);
+		} catch (Exception) {
+			return null;
+		}
+
+		if ($this->profileFields->scopeAllows(scope: $prop->getScope(), viewerId: $this->viewerId, ownerId: $ownerId) === false) {
+			return null;
+		}
+
+		return $prop->getValue();
+	}//end visibleValue()
 
 	/**
 	 * Build an absolute avatar URL pointing at the standard NC route.

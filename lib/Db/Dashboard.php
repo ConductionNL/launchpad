@@ -67,6 +67,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setPublicationStatus(string $publicationStatus)
  * @method string|null getPublishAt()
  * @method void setPublishAt(?string $publishAt)
+ * @method string|null getUnpublishAt()
+ * @method void setUnpublishAt(?string $unpublishAt)
  * @method string|null getPublishedAt()
  * @method void setPublishedAt(?string $publishedAt)
  * @method int|null getCommentsEnabled()
@@ -475,6 +477,16 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected ?string $publishAt = null;
 
 	/**
+	 * The take-down timestamp (REQ-SCHEDUI-002).
+	 *
+	 * Once it has passed, a published dashboard is treated as unpublished
+	 * when read. Computed at read time, like `publishAt`; no job flips it.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $unpublishAt = null;
+
+	/**
 	 * The first-publication timestamp (REQ-DASH-031, REQ-DASH-032).
 	 *
 	 * Set automatically the first time the dashboard transitions to
@@ -675,6 +687,7 @@ class Dashboard extends Entity implements JsonSerializable {
 			'sortOrder' => $this->sortOrder,
 			'publicationStatus' => $this->publicationStatus,
 			'publishAt' => $this->publishAt,
+			'unpublishAt' => $this->unpublishAt,
 			'publishedAt' => $this->publishedAt,
 			// REQ-FTR-006 — surface the per-dashboard footer override
 			// fields on every API payload so frontend renderers can

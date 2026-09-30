@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Betűrendben",
     "Most used" : "Leggyakrabban használt",
     "Last used" : "Legutóbb használt",
-    "At random" : "Véletlenszerűen"
+    "At random" : "Véletlenszerűen",
+    "Search shortcuts" : "Keresési parancsikonok",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Az előtaggal kezdődő keresés, például !t printer, közvetlenül az adott oldalra visz egy új lapon. Ha ? jelet írsz a keresőmezőbe, megjelennek a parancsikonok.",
+    "Prefix" : "Előtag",
+    "Address with {query}" : "Cím {query} jelöléssel",
+    "No search shortcuts yet." : "Még nincsenek keresési parancsikonok.",
+    "Search shortcuts saved." : "Keresési parancsikonok mentve.",
+    "Add shortcut" : "Parancsikon hozzáadása",
+    "Save search shortcuts" : "Keresési parancsikonok mentése",
+    "The search shortcuts could not be loaded." : "A keresési parancsikonokat nem sikerült betölteni.",
+    "The search shortcuts could not be saved." : "A keresési parancsikonokat nem sikerült menteni.",
+    "Search {name} for {query}" : "Keresés itt: {name}, erre: {query}",
+    "Type what to search for in {name}" : "Írd be, mit keresel itt: {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

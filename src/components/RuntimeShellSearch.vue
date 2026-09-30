@@ -37,7 +37,7 @@
 			:id="listboxId"
 			class="runtime-shell-search__results"
 			role="listbox"
-			:aria-label="t('launchpad', 'Matching tiles')">
+			:aria-label="listboxLabel">
 			<li
 				v-for="(result, index) in search.state.results"
 				:id="optionId(index)"
@@ -64,7 +64,7 @@
 							index !== search.state.activeIndex,
 					}"
 					aria-hidden="true" />
-				<span>{{ result.label }}</span>
+				<span>{{ resultLabel(result) }}</span>
 			</li>
 		</ul>
 
@@ -179,6 +179,14 @@ export default {
 			type: String,
 			default: '',
 		},
+
+		/**
+		 * The admin's search shortcuts `{prefix, name, urlTemplate}` (REQ-SPX-002).
+		 */
+		shortcuts: {
+			type: Array,
+			default: () => [],
+		},
 	},
 
 	emits: ['open', 'filter', 'fallback', 'clear'],
@@ -197,6 +205,7 @@ export default {
 					this.$emit('fallback', action)
 				},
 				getFallbackTarget: () => this.fallbackTarget,
+				getShortcuts: () => this.shortcuts,
 			}),
 
 			instanceId: `runtime-shell-search-${(instanceCounter += 1)}`,
@@ -239,6 +248,22 @@ export default {
 		 * @spec openspec/specs/tile-quick-search/spec.md#req-qsearch-003
 		 * @return {string|null}
 		 */
+		/**
+		 * Whether the results are shortcuts rather than tiles (REQ-SPX-002/003).
+		 *
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		showsShortcuts() {
+			return Boolean(this.search.state.results[0]?.kind)
+		},
+
+		/** @spec openspec/specs/tile-quick-search/spec.md */
+		listboxLabel() {
+			return this.showsShortcuts
+				? this.t('launchpad', 'Search shortcuts')
+				: this.t('launchpad', 'Matching tiles')
+		},
+
 		ariaControls() {
 			return this.hasResults ? this.listboxId : null
 		},
@@ -290,6 +315,11 @@ export default {
 			if (count === 0) {
 				return this.noResultsMessage
 			}
+			if (this.showsShortcuts) {
+				return this.search.state.results
+					.map((result) => this.resultLabel(result))
+					.join(', ')
+			}
 			return this.n(
 				'launchpad',
 				'%n matching tile',
@@ -329,6 +359,10 @@ export default {
 	},
 
 	watch: {
+		shortcuts() {
+			this.search.setItems(this.items)
+		},
+
 		items: {
 			immediate: true,
 			/**
@@ -376,6 +410,28 @@ export default {
 		 * @param {number} index the option's index in `results`.
 		 * @return {string}
 		 */
+		/**
+		 * The visible text of a result: a tile's label, a listed shortcut,
+		 * or where a shortcut will search (REQ-SPX-002/003).
+		 *
+		 * @param {object} result A result from the composable.
+		 * @return {string} The text.
+		 * @spec openspec/specs/tile-quick-search/spec.md
+		 */
+		resultLabel(result) {
+			if (result.kind === 'shortcut') {
+				return result.rest
+					? this.t('launchpad', 'Search {name} for {query}', {
+							name: result.shortcut.name,
+							query: result.rest,
+						})
+					: this.t('launchpad', 'Type what to search for in {name}', {
+							name: result.shortcut.name,
+						})
+			}
+			return result.label
+		},
+
 		optionId(index) {
 			return `${this.listboxId}-option-${index}`
 		},
@@ -443,7 +499,8 @@ export default {
 		 */
 		emitFilter() {
 			const query = this.search.state.query
-			if (!query) {
+			// A shortcut query is not a tile filter: no tile is dimmed.
+			if (!query || this.showsShortcuts) {
 				this.$emit('filter', null)
 				return
 			}

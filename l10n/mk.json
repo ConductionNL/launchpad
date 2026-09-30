@@ -1299,6 +1299,18 @@
         "Alphabetically": "Азбучно",
         "Most used": "Најкористени",
         "Last used": "Последно користени",
-        "At random": "По случаен избор"
+        "At random": "По случаен избор",
+        "Search shortcuts": "Кратенки за пребарување",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "Пребарување што почнува со префикс, на пр. !t printer, оди директно на таа страница во ново јазиче. Со внесување ? во полето за пребарување се прикажуваат кратенките.",
+        "Prefix": "Префикс",
+        "Address with {query}": "Адреса со {query}",
+        "No search shortcuts yet.": "Сè уште нема кратенки за пребарување.",
+        "Search shortcuts saved.": "Кратенките за пребарување се зачувани.",
+        "Add shortcut": "Додај кратенка",
+        "Save search shortcuts": "Зачувај кратенки за пребарување",
+        "The search shortcuts could not be loaded.": "Кратенките за пребарување не можеа да се вчитаат.",
+        "The search shortcuts could not be saved.": "Кратенките за пребарување не можеа да се зачуваат.",
+        "Search {name} for {query}": "Пребарај во {name} за {query}",
+        "Type what to search for in {name}": "Внесете што да се бара во {name}"
     }
 }

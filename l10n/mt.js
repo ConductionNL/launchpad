@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Alfabetikament",
     "Most used" : "L-aktar użati",
     "Last used" : "L-aħħar użati",
-    "At random" : "B'mod każwali"
+    "At random" : "B'mod każwali",
+    "Search shortcuts" : "Shortcuts tat-tfittxija",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Tfittxija li tibda bi prefiss, bħal !t printer, tmur dritt għal dak is-sit f'tab ġdida. Ikteb ? f'kaxxa tat-tfittxija biex tara l-shortcuts.",
+    "Prefix" : "Prefiss",
+    "Address with {query}" : "Indirizz b'{query}",
+    "No search shortcuts yet." : "Għad m'hemmx shortcuts tat-tfittxija.",
+    "Search shortcuts saved." : "Il-shortcuts tat-tfittxija ġew salvati.",
+    "Add shortcut" : "Żid shortcut",
+    "Save search shortcuts" : "Issejvja l-shortcuts tat-tfittxija",
+    "The search shortcuts could not be loaded." : "Il-shortcuts tat-tfittxija ma setgħux jitgħabbew.",
+    "The search shortcuts could not be saved." : "Il-shortcuts tat-tfittxija ma setgħux jiġu salvati.",
+    "Search {name} for {query}" : "Fittex {name} għal {query}",
+    "Type what to search for in {name}" : "Ikteb x'tixtieq tfittex f'{name}"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

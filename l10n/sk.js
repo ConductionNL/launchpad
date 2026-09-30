@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Abecedne",
     "Most used" : "Najpoužívanejšie",
     "Last used" : "Naposledy použité",
-    "At random" : "Náhodne"
+    "At random" : "Náhodne",
+    "Search shortcuts" : "Skratky vyhľadávania",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Vyhľadávanie, ktoré začína predponou, napríklad !t printer, prejde priamo na danú stránku v novej karte. Napísaním ? do vyhľadávacieho poľa zobrazíte skratky.",
+    "Prefix" : "Predpona",
+    "Address with {query}" : "Adresa s {query}",
+    "No search shortcuts yet." : "Zatiaľ žiadne skratky vyhľadávania.",
+    "Search shortcuts saved." : "Skratky vyhľadávania sú uložené.",
+    "Add shortcut" : "Pridať skratku",
+    "Save search shortcuts" : "Uložiť skratky vyhľadávania",
+    "The search shortcuts could not be loaded." : "Skratky vyhľadávania sa nepodarilo načítať.",
+    "The search shortcuts could not be saved." : "Skratky vyhľadávania sa nepodarilo uložiť.",
+    "Search {name} for {query}" : "Hľadať v {name}: {query}",
+    "Type what to search for in {name}" : "Napíšte, čo hľadať v {name}"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

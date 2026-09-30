@@ -1299,6 +1299,18 @@
         "Alphabetically": "Alfabetik",
         "Most used": "En çok kullanılan",
         "Last used": "Son kullanılan",
-        "At random": "Rastgele"
+        "At random": "Rastgele",
+        "Search shortcuts": "Arama kısayolları",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "!t printer gibi bir önekle başlayan arama, doğrudan o siteye yeni bir sekmede gider. Arama kutusuna ? yazınca kısayollar listelenir.",
+        "Prefix": "Önek",
+        "Address with {query}": "{query} içeren adres",
+        "No search shortcuts yet.": "Henüz arama kısayolu yok.",
+        "Search shortcuts saved.": "Arama kısayolları kaydedildi.",
+        "Add shortcut": "Kısayol ekle",
+        "Save search shortcuts": "Arama kısayollarını kaydet",
+        "The search shortcuts could not be loaded.": "Arama kısayolları yüklenemedi.",
+        "The search shortcuts could not be saved.": "Arama kısayolları kaydedilemedi.",
+        "Search {name} for {query}": "{name} içinde {query} ara",
+        "Type what to search for in {name}": "{name} içinde ne aranacağını yaz"
     }
 }

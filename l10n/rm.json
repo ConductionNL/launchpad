@@ -1299,6 +1299,18 @@
         "Alphabetically": "Alfabeticamain",
         "Most used": "Il pli savens duvrà",
         "Last used": "Duvrà l'ultim",
-        "At random": "A chaschun"
+        "At random": "A chaschun",
+        "Search shortcuts": "Scursanidas da tschertga",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "Ina tschertga che cumenza cun in prefix, sco !t printer, va directamain a quella pagina en in nov tab. Cun ? en in champ da tschertga vesas las scursanidas.",
+        "Prefix": "Prefix",
+        "Address with {query}": "Adressa cun {query}",
+        "No search shortcuts yet.": "Anc naginas scursanidas da tschertga.",
+        "Search shortcuts saved.": "Scursanidas da tschertga memorisadas.",
+        "Add shortcut": "Agiuntar ina scursanida",
+        "Save search shortcuts": "Memorisar las scursanidas da tschertga",
+        "The search shortcuts could not be loaded.": "I n'è betg reussì da chargiar las scursanidas da tschertga.",
+        "The search shortcuts could not be saved.": "I n'è betg reussì da memorisar las scursanidas da tschertga.",
+        "Search {name} for {query}": "Tschertgar en {name} suenter {query}",
+        "Type what to search for in {name}": "Endatescha tge tschertgar en {name}"
     }
 }

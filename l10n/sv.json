@@ -1299,6 +1299,18 @@
         "Alphabetically": "I bokstavsordning",
         "Most used": "Mest använda",
         "Last used": "Senast använda",
-        "At random": "Slumpmässigt"
+        "At random": "Slumpmässigt",
+        "Search shortcuts": "Sökgenvägar",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "En sökning som börjar med ett prefix, till exempel !t printer, går direkt till den webbplatsen i en ny flik. Skriv ? i en sökruta för att se genvägarna.",
+        "Prefix": "Prefix",
+        "Address with {query}": "Adress med {query}",
+        "No search shortcuts yet.": "Inga sökgenvägar ännu.",
+        "Search shortcuts saved.": "Sökgenvägarna har sparats.",
+        "Add shortcut": "Lägg till genväg",
+        "Save search shortcuts": "Spara sökgenvägar",
+        "The search shortcuts could not be loaded.": "Sökgenvägarna kunde inte läsas in.",
+        "The search shortcuts could not be saved.": "Sökgenvägarna kunde inte sparas.",
+        "Search {name} for {query}": "Sök i {name} efter {query}",
+        "Type what to search for in {name}": "Skriv vad du vill söka efter i {name}"
     }
 }

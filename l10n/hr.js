@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Abecedno",
     "Most used" : "Najčešće korišteno",
     "Last used" : "Posljednje korišteno",
-    "At random" : "Nasumično"
+    "At random" : "Nasumično",
+    "Search shortcuts" : "Prečaci za pretraživanje",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Pretraživanje koje počinje prefiksom, npr. !t printer, ide izravno na tu stranicu u novoj kartici. Upisivanjem ? u okvir za pretraživanje prikazuju se prečaci.",
+    "Prefix" : "Prefiks",
+    "Address with {query}" : "Adresa s {query}",
+    "No search shortcuts yet." : "Još nema prečaca za pretraživanje.",
+    "Search shortcuts saved." : "Prečaci za pretraživanje su spremljeni.",
+    "Add shortcut" : "Dodaj prečac",
+    "Save search shortcuts" : "Spremi prečace za pretraživanje",
+    "The search shortcuts could not be loaded." : "Prečace za pretraživanje nije bilo moguće učitati.",
+    "The search shortcuts could not be saved." : "Prečace za pretraživanje nije bilo moguće spremiti.",
+    "Search {name} for {query}" : "Pretraži {name} za {query}",
+    "Type what to search for in {name}" : "Upišite što tražite u {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

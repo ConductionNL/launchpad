@@ -4,7 +4,7 @@
  * SearchShortcutsController
  *
  * Administrator endpoints for the search shortcuts (search-ai-prefix-shortcuts,
- * REQ-QSP-001). Every user receives the list through the workspace initial
+ * REQ-SPX-001). Every user receives the list through the workspace initial
  * state; only administrators read and write it here.
  *
  * @category  Controller

@@ -1299,6 +1299,18 @@
         "Alphabetically": "Sipas alfabetit",
         "Most used": "Më të përdorurat",
         "Last used": "Përdorur së fundi",
-        "At random": "Rastësisht"
+        "At random": "Rastësisht",
+        "Search shortcuts": "Shkurtore kërkimi",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "Një kërkim që nis me një parashtesë, si !t printer, shkon drejt e në atë faqe në një skedë të re. Duke shkruar ? në kutinë e kërkimit shfaqen shkurtoret.",
+        "Prefix": "Parashtesë",
+        "Address with {query}": "Adresë me {query}",
+        "No search shortcuts yet.": "Ende nuk ka shkurtore kërkimi.",
+        "Search shortcuts saved.": "Shkurtoret e kërkimit u ruajtën.",
+        "Add shortcut": "Shto shkurtore",
+        "Save search shortcuts": "Ruaj shkurtoret e kërkimit",
+        "The search shortcuts could not be loaded.": "Shkurtoret e kërkimit nuk u ngarkuan.",
+        "The search shortcuts could not be saved.": "Shkurtoret e kërkimit nuk u ruajtën.",
+        "Search {name} for {query}": "Kërko në {name} për {query}",
+        "Type what to search for in {name}": "Shkruaj çfarë të kërkosh në {name}"
     }
 }

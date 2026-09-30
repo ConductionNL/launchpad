@@ -1382,7 +1382,19 @@ OC.L10N.register(
     "Alphabetically" : "Alfabetisch",
     "Most used" : "Meest gebruikt",
     "Last used" : "Laatst gebruikt",
-    "At random" : "Willekeurig"
+    "At random" : "Willekeurig",
+    "Search shortcuts" : "Zoeksnelkoppelingen",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Een zoekopdracht die begint met een voorvoegsel, zoals !t printer, gaat meteen naar die site in een nieuw tabblad. Typ ? in een zoekvak om de snelkoppelingen te zien.",
+    "Prefix" : "Voorvoegsel",
+    "Address with {query}" : "Adres met {query}",
+    "No search shortcuts yet." : "Nog geen zoeksnelkoppelingen.",
+    "Search shortcuts saved." : "Zoeksnelkoppelingen opgeslagen.",
+    "Add shortcut" : "Snelkoppeling toevoegen",
+    "Save search shortcuts" : "Zoeksnelkoppelingen opslaan",
+    "The search shortcuts could not be loaded." : "De zoeksnelkoppelingen konden niet worden geladen.",
+    "The search shortcuts could not be saved." : "De zoeksnelkoppelingen konden niet worden opgeslagen.",
+    "Search {name} for {query}" : "Zoek in {name} naar {query}",
+    "Type what to search for in {name}" : "Typ waarnaar je in {name} wilt zoeken"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Aakkosjärjestyksessä",
     "Most used" : "Eniten käytetyt",
     "Last used" : "Viimeksi käytetyt",
-    "At random" : "Satunnaisesti"
+    "At random" : "Satunnaisesti",
+    "Search shortcuts" : "Hakuoikotiet",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Etuliitteellä alkava haku, kuten !t printer, avaa kyseisen sivuston suoraan uuteen välilehteen. Kirjoita hakukenttään ?, niin näet oikotiet.",
+    "Prefix" : "Etuliite",
+    "Address with {query}" : "Osoite, jossa {query}",
+    "No search shortcuts yet." : "Hakuoikoteitä ei vielä ole.",
+    "Search shortcuts saved." : "Hakuoikotiet tallennettu.",
+    "Add shortcut" : "Lisää oikotie",
+    "Save search shortcuts" : "Tallenna hakuoikotiet",
+    "The search shortcuts could not be loaded." : "Hakuoikoteitä ei voitu ladata.",
+    "The search shortcuts could not be saved." : "Hakuoikoteitä ei voitu tallentaa.",
+    "Search {name} for {query}" : "Hae {name}-palvelusta: {query}",
+    "Type what to search for in {name}" : "Kirjoita, mitä haetaan palvelusta {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

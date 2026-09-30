@@ -1300,6 +1300,18 @@
         "Alphabetically": "Alfabētiski",
         "Most used": "Visbiežāk lietotie",
         "Last used": "Pēdējie lietotie",
-        "At random": "Nejauši"
+        "At random": "Nejauši",
+        "Search shortcuts": "Meklēšanas saīsnes",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "Meklēšana, kas sākas ar prefiksu, piemēram, !t printer, uzreiz atver šo vietni jaunā cilnē. Ierakstot ? meklēšanas lodziņā, redzamas saīsnes.",
+        "Prefix": "Prefikss",
+        "Address with {query}": "Adrese ar {query}",
+        "No search shortcuts yet.": "Meklēšanas saīsņu vēl nav.",
+        "Search shortcuts saved.": "Meklēšanas saīsnes saglabātas.",
+        "Add shortcut": "Pievienot saīsni",
+        "Save search shortcuts": "Saglabāt meklēšanas saīsnes",
+        "The search shortcuts could not be loaded.": "Neizdevās ielādēt meklēšanas saīsnes.",
+        "The search shortcuts could not be saved.": "Neizdevās saglabāt meklēšanas saīsnes.",
+        "Search {name} for {query}": "Meklēt {name}: {query}",
+        "Type what to search for in {name}": "Ierakstiet, ko meklēt {name}"
     }
 }

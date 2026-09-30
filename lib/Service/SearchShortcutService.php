@@ -4,7 +4,7 @@
  * SearchShortcutService
  *
  * The administrator's search shortcuts (search-ai-prefix-shortcuts,
- * REQ-QSP-001): a prefix such as `!t`, a name and an https address with
+ * REQ-SPX-001): a prefix such as `!t`, a name and an https address with
  * `{query}`. A query in a LaunchPad search box that starts with a known
  * prefix goes straight to that site; the query never passes through the
  * LaunchPad server.
@@ -138,7 +138,7 @@ class SearchShortcutService {
 
 			$template = trim(string: (string)($entry['urlTemplate'] ?? ''));
 			if ($this->adminSettings->isValidQuicksearchFallbackUrlTemplate(value: $template) === false) {
-				throw new InvalidArgumentException(message: 'The address must be an https address containing {query}: ' . $prefix);
+				throw new InvalidArgumentException(message: 'Use an https address that contains {query}: ' . $prefix);
 			}
 
 			$seen[$prefix] = true;

@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "In ordine alfabetico",
     "Most used" : "Più usati",
     "Last used" : "Ultimo utilizzo",
-    "At random" : "A caso"
+    "At random" : "A caso",
+    "Search shortcuts" : "Scorciatoie di ricerca",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Una ricerca che inizia con un prefisso, come !t printer, va direttamente a quel sito in una nuova scheda. Digitando ? in una casella di ricerca si vedono le scorciatoie.",
+    "Prefix" : "Prefisso",
+    "Address with {query}" : "Indirizzo con {query}",
+    "No search shortcuts yet." : "Nessuna scorciatoia di ricerca per ora.",
+    "Search shortcuts saved." : "Scorciatoie di ricerca salvate.",
+    "Add shortcut" : "Aggiungi scorciatoia",
+    "Save search shortcuts" : "Salva scorciatoie di ricerca",
+    "The search shortcuts could not be loaded." : "Non è stato possibile caricare le scorciatoie di ricerca.",
+    "The search shortcuts could not be saved." : "Non è stato possibile salvare le scorciatoie di ricerca.",
+    "Search {name} for {query}" : "Cerca {query} in {name}",
+    "Type what to search for in {name}" : "Scrivi cosa cercare in {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

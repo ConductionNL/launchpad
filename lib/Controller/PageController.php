@@ -94,7 +94,7 @@ class PageController extends Controller {
 	 *                                                   REQ-QSEARCH-004).
 	 * @param SearchShortcutService $searchShortcuts The search shortcuts every
 	 *                                               search box honours
-	 *                                               (REQ-QSP-002).
+	 *                                               (REQ-SPX-002).
 	 */
 	public function __construct(
 		IRequest $request,

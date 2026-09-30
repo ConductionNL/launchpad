@@ -30,7 +30,7 @@ use PHPUnit\Framework\TestCase;
 
 class InitialStateBuilderTest extends TestCase {
 	/**
-	 * REQ-QSP-002: the search shortcuts reach the workspace page.
+	 * REQ-SPX-002: the search shortcuts reach the workspace page.
 	 *
 	 * @return void
 	 */

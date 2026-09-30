@@ -1299,6 +1299,18 @@
         "Alphabetically": "Alfabèticament",
         "Most used": "Els més usats",
         "Last used": "Darrers usats",
-        "At random": "A l'atzar"
+        "At random": "A l'atzar",
+        "Search shortcuts": "Dreceres de cerca",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "Una cerca que comença amb un prefix, com ara !t printer, va directament a aquell lloc en una pestanya nova. Escriure ? en un quadre de cerca mostra les dreceres.",
+        "Prefix": "Prefix",
+        "Address with {query}": "Adreça amb {query}",
+        "No search shortcuts yet.": "Encara no hi ha dreceres de cerca.",
+        "Search shortcuts saved.": "S'han desat les dreceres de cerca.",
+        "Add shortcut": "Afegeix una drecera",
+        "Save search shortcuts": "Desa les dreceres de cerca",
+        "The search shortcuts could not be loaded.": "No s'han pogut carregar les dreceres de cerca.",
+        "The search shortcuts could not be saved.": "No s'han pogut desar les dreceres de cerca.",
+        "Search {name} for {query}": "Cerca {query} a {name}",
+        "Type what to search for in {name}": "Escriviu què voleu cercar a {name}"
     }
 }

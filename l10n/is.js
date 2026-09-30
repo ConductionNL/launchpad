@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Í stafrófsröð",
     "Most used" : "Mest notað",
     "Last used" : "Síðast notað",
-    "At random" : "Af handahófi"
+    "At random" : "Af handahófi",
+    "Search shortcuts" : "Leitarflýtileiðir",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Leit sem byrjar á forskeyti, eins og !t printer, fer beint á þá síðu í nýjum flipa. Sláðu inn ? í leitarreit til að sjá flýtileiðirnar.",
+    "Prefix" : "Forskeyti",
+    "Address with {query}" : "Vefslóð með {query}",
+    "No search shortcuts yet." : "Engar leitarflýtileiðir enn.",
+    "Search shortcuts saved." : "Leitarflýtileiðir vistaðar.",
+    "Add shortcut" : "Bæta við flýtileið",
+    "Save search shortcuts" : "Vista leitarflýtileiðir",
+    "The search shortcuts could not be loaded." : "Ekki tókst að hlaða inn leitarflýtileiðum.",
+    "The search shortcuts could not be saved." : "Ekki tókst að vista leitarflýtileiðirnar.",
+    "Search {name} for {query}" : "Leita í {name} að {query}",
+    "Type what to search for in {name}" : "Sláðu inn hvað á að leita að í {name}"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

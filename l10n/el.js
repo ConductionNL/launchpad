@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Αλφαβητικά",
     "Most used" : "Συχνότερα χρησιμοποιούμενα",
     "Last used" : "Τελευταία χρήση",
-    "At random" : "Τυχαία"
+    "At random" : "Τυχαία",
+    "Search shortcuts" : "Συντομεύσεις αναζήτησης",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Μια αναζήτηση που ξεκινά με πρόθεμα, όπως !t printer, πηγαίνει κατευθείαν σε εκείνη την τοποθεσία σε νέα καρτέλα. Πληκτρολογώντας ? σε ένα πεδίο αναζήτησης εμφανίζονται οι συντομεύσεις.",
+    "Prefix" : "Πρόθεμα",
+    "Address with {query}" : "Διεύθυνση με {query}",
+    "No search shortcuts yet." : "Δεν υπάρχουν ακόμα συντομεύσεις αναζήτησης.",
+    "Search shortcuts saved." : "Οι συντομεύσεις αναζήτησης αποθηκεύτηκαν.",
+    "Add shortcut" : "Προσθήκη συντόμευσης",
+    "Save search shortcuts" : "Αποθήκευση συντομεύσεων αναζήτησης",
+    "The search shortcuts could not be loaded." : "Δεν ήταν δυνατή η φόρτωση των συντομεύσεων αναζήτησης.",
+    "The search shortcuts could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των συντομεύσεων αναζήτησης.",
+    "Search {name} for {query}" : "Αναζήτηση στο {name} για {query}",
+    "Type what to search for in {name}" : "Πληκτρολογήστε τι να αναζητηθεί στο {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

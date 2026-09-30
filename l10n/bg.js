@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "По азбучен ред",
     "Most used" : "Най-използвани",
     "Last used" : "Последно използвани",
-    "At random" : "В случаен ред"
+    "At random" : "В случаен ред",
+    "Search shortcuts" : "Преки пътища за търсене",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Търсене, което започва с префикс, например !t printer, отива направо към този сайт в нов раздел. Въвеждането на ? в поле за търсене показва преките пътища.",
+    "Prefix" : "Префикс",
+    "Address with {query}" : "Адрес с {query}",
+    "No search shortcuts yet." : "Все още няма преки пътища за търсене.",
+    "Search shortcuts saved." : "Преките пътища за търсене са запазени.",
+    "Add shortcut" : "Добавяне на пряк път",
+    "Save search shortcuts" : "Запазване на преките пътища за търсене",
+    "The search shortcuts could not be loaded." : "Преките пътища за търсене не можаха да се заредят.",
+    "The search shortcuts could not be saved." : "Преките пътища за търсене не можаха да се запазят.",
+    "Search {name} for {query}" : "Търсене в {name} за {query}",
+    "Type what to search for in {name}" : "Въведете какво да търсите в {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

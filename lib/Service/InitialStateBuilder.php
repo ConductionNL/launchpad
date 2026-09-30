@@ -340,7 +340,7 @@ class InitialStateBuilder {
 
 	/**
 	 * Set the search shortcuts every search box honours (search-ai-prefix-shortcuts,
-	 * REQ-QSP-002). Optional key, like `quicksearchFallbackTarget`: the JS reader
+	 * REQ-SPX-002). Optional key, like `quicksearchFallbackTarget`: the JS reader
 	 * defaults it to an empty list.
 	 *
 	 * @param array $shortcuts Validated `{prefix, name, urlTemplate}` entries.

@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Alfabetisk",
     "Most used" : "Mest brukt",
     "Last used" : "Sist brukt",
-    "At random" : "Tilfeldig"
+    "At random" : "Tilfeldig",
+    "Search shortcuts" : "Søkesnarveier",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Et søk som starter med et prefiks, for eksempel !t printer, går rett til det nettstedet i en ny fane. Skriv ? i et søkefelt for å se snarveiene.",
+    "Prefix" : "Prefiks",
+    "Address with {query}" : "Adresse med {query}",
+    "No search shortcuts yet." : "Ingen søkesnarveier ennå.",
+    "Search shortcuts saved." : "Søkesnarveiene er lagret.",
+    "Add shortcut" : "Legg til snarvei",
+    "Save search shortcuts" : "Lagre søkesnarveier",
+    "The search shortcuts could not be loaded." : "Søkesnarveiene kunne ikke lastes inn.",
+    "The search shortcuts could not be saved." : "Søkesnarveiene kunne ikke lagres.",
+    "Search {name} for {query}" : "Søk i {name} etter {query}",
+    "Type what to search for in {name}" : "Skriv hva du vil søke etter i {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

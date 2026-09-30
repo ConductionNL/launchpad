@@ -1299,6 +1299,18 @@
         "Alphabetically": "Tähestiku järgi",
         "Most used": "Enim kasutatud",
         "Last used": "Viimati kasutatud",
-        "At random": "Juhuslikult"
+        "At random": "Juhuslikult",
+        "Search shortcuts": "Otsingu otseteed",
+        "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts.": "Eesliitega algav otsing, näiteks !t printer, viib otse sellele saidile uuel vahekaardil. Sisesta otsingukasti ?, et näha otseteid.",
+        "Prefix": "Eesliide",
+        "Address with {query}": "Aadress koos {query}",
+        "No search shortcuts yet.": "Otsingu otseteid veel pole.",
+        "Search shortcuts saved.": "Otsingu otseteed salvestatud.",
+        "Add shortcut": "Lisa otsetee",
+        "Save search shortcuts": "Salvesta otsingu otseteed",
+        "The search shortcuts could not be loaded.": "Otsingu otseteid ei õnnestunud laadida.",
+        "The search shortcuts could not be saved.": "Otsingu otseteid ei õnnestunud salvestada.",
+        "Search {name} for {query}": "Otsi {name} kaudu: {query}",
+        "Type what to search for in {name}": "Sisesta, mida {name} kaudu otsida"
     }
 }

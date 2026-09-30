@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "По алфавиту",
     "Most used" : "Самые используемые",
     "Last used" : "Последние использованные",
-    "At random" : "Случайно"
+    "At random" : "Случайно",
+    "Search shortcuts" : "Ярлыки поиска",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Поиск, начинающийся с префикса, например !t printer, сразу открывает этот сайт в новой вкладке. Введите ? в поле поиска, чтобы увидеть ярлыки.",
+    "Prefix" : "Префикс",
+    "Address with {query}" : "Адрес с {query}",
+    "No search shortcuts yet." : "Ярлыков поиска пока нет.",
+    "Search shortcuts saved." : "Ярлыки поиска сохранены.",
+    "Add shortcut" : "Добавить ярлык",
+    "Save search shortcuts" : "Сохранить ярлыки поиска",
+    "The search shortcuts could not be loaded." : "Не удалось загрузить ярлыки поиска.",
+    "The search shortcuts could not be saved." : "Не удалось сохранить ярлыки поиска.",
+    "Search {name} for {query}" : "Искать в {name}: {query}",
+    "Type what to search for in {name}" : "Введите, что искать в {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

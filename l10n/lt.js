@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Abėcėlės tvarka",
     "Most used" : "Dažniausiai naudojami",
     "Last used" : "Paskutiniai naudoti",
-    "At random" : "Atsitiktinai"
+    "At random" : "Atsitiktinai",
+    "Search shortcuts" : "Paieškos nuorodos",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Paieška, prasidedanti priešdėliu, pvz., !t printer, iškart atveria tą svetainę naujame skirtuke. Įvedę ? paieškos laukelyje pamatysite nuorodas.",
+    "Prefix" : "Priešdėlis",
+    "Address with {query}" : "Adresas su {query}",
+    "No search shortcuts yet." : "Paieškos nuorodų dar nėra.",
+    "Search shortcuts saved." : "Paieškos nuorodos išsaugotos.",
+    "Add shortcut" : "Pridėti nuorodą",
+    "Save search shortcuts" : "Išsaugoti paieškos nuorodas",
+    "The search shortcuts could not be loaded." : "Nepavyko įkelti paieškos nuorodų.",
+    "The search shortcuts could not be saved." : "Nepavyko išsaugoti paieškos nuorodų.",
+    "Search {name} for {query}" : "Ieškoti {name}: {query}",
+    "Type what to search for in {name}" : "Įveskite, ko ieškoti {name}"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

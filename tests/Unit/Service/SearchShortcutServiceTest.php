@@ -3,7 +3,7 @@
 /**
  * SearchShortcutServiceTest
  *
- * Search shortcuts (search-ai-prefix-shortcuts, REQ-QSP-001): the prefix
+ * Search shortcuts (search-ai-prefix-shortcuts, REQ-SPX-001): the prefix
  * pattern, case-insensitive uniqueness, the https `{query}` template check
  * reused from the quick-search fallback, and the limit of 30.
  *

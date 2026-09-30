@@ -1323,7 +1323,19 @@ OC.L10N.register(
     "Alphabetically" : "Alphabetesch",
     "Most used" : "Am meeschte benotzt",
     "Last used" : "Lescht benotzt",
-    "At random" : "Zoufälleg"
+    "At random" : "Zoufälleg",
+    "Search shortcuts" : "Sich-Ofkierzungen",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Eng Sich, déi mat engem Präfix ufänkt, wéi !t printer, geet direkt op dee Site an engem neien Tab. Mat ? am Sichfeld gesäis du d'Ofkierzungen.",
+    "Prefix" : "Präfix",
+    "Address with {query}" : "Adress mat {query}",
+    "No search shortcuts yet." : "Nach keng Sich-Ofkierzungen.",
+    "Search shortcuts saved." : "Sich-Ofkierzunge gespäichert.",
+    "Add shortcut" : "Ofkierzung derbäisetzen",
+    "Save search shortcuts" : "Sich-Ofkierzunge späicheren",
+    "The search shortcuts could not be loaded." : "D'Sich-Ofkierzunge konnten net geluede ginn.",
+    "The search shortcuts could not be saved." : "D'Sich-Ofkierzunge konnten net gespäichert ginn.",
+    "Search {name} for {query}" : "A {name} no {query} sichen",
+    "Type what to search for in {name}" : "Gëff an, wat an {name} gesicht gëtt"
 },
 "nplurals=2; plural=(n != 1);"
 );

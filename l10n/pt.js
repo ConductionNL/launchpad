@@ -1332,7 +1332,19 @@ OC.L10N.register(
     "Alphabetically" : "Alfabeticamente",
     "Most used" : "Mais usados",
     "Last used" : "Último uso",
-    "At random" : "Aleatoriamente"
+    "At random" : "Aleatoriamente",
+    "Search shortcuts" : "Atalhos de pesquisa",
+    "A search that starts with a prefix, such as !t printer, goes straight to that site in a new tab. Typing ? in a search box lists the shortcuts." : "Uma pesquisa que começa com um prefixo, como !t printer, vai diretamente para esse site num novo separador. Escrever ? numa caixa de pesquisa mostra os atalhos.",
+    "Prefix" : "Prefixo",
+    "Address with {query}" : "Endereço com {query}",
+    "No search shortcuts yet." : "Ainda não há atalhos de pesquisa.",
+    "Search shortcuts saved." : "Atalhos de pesquisa guardados.",
+    "Add shortcut" : "Adicionar atalho",
+    "Save search shortcuts" : "Guardar atalhos de pesquisa",
+    "The search shortcuts could not be loaded." : "Não foi possível carregar os atalhos de pesquisa.",
+    "The search shortcuts could not be saved." : "Não foi possível guardar os atalhos de pesquisa.",
+    "Search {name} for {query}" : "Pesquisar {query} em {name}",
+    "Type what to search for in {name}" : "Escreva o que pesquisar em {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

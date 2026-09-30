@@ -35,6 +35,7 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Db\KioskPlaylistMapper;
+use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -46,6 +47,11 @@ use Psr\Log\LoggerInterface;
  * Service for kiosk-playlist lifecycle management and public render.
  *
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) A playlist entry carries its
+ *                                                  dashboard's widget
+ *                                                  placements, as the public
+ *                                                  share render does.
  */
 class KioskService {
 
@@ -93,6 +99,7 @@ class KioskService {
 	 * @param IGroupManager $groupManager NC group manager for admin scoping.
 	 * @param ISecureRandom $secureRandom CSPRNG for token generation.
 	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param WidgetPlacementMapper $placementMapper Placements of each played dashboard.
 	 */
 	public function __construct(
 		private readonly KioskPlaylistMapper $playlistMapper,
@@ -101,6 +108,7 @@ class KioskService {
 		private readonly IGroupManager $groupManager,
 		private readonly ISecureRandom $secureRandom,
 		private readonly LoggerInterface $logger,
+		private readonly WidgetPlacementMapper $placementMapper,
 	) {
 	}//end __construct()
 
@@ -278,9 +286,19 @@ class KioskService {
 				continue;
 			}
 
+			// The screen shows the widgets, so each entry carries the
+			// dashboard's placements, as the public share render does.
+			$placements = $this->placementMapper->findByDashboardId(
+				dashboardId: (int)$dashboard->getId()
+			);
+
 			$rendered[] = [
 				'dwellSeconds' => $entry['dwellSeconds'],
 				'dashboard' => $this->publicDashboardPayload(dashboard: $dashboard),
+				'placements' => array_map(
+					callback: static fn ($placement) => $placement->jsonSerialize(),
+					array: $placements
+				),
 			];
 		}
 

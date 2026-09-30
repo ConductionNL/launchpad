@@ -925,10 +925,10 @@
 			"homarr": "no",
 			"dashy": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardVersionService.php:433",
+				"state": "built",
+				"evidence": "src/views/Views.vue:177; src/modals/VersionHistoryModal.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/dashboard-version-history-ui"
+				"change": "openspec/changes/archive/2026-09-29-dashboard-version-history-ui"
 			},
 			"reachedOn": "nothing: /api/dashboards/{uuid}/versions and its restore route have no caller in src/",
 			"provider": "launchpad",
@@ -3272,10 +3272,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/KioskService.php:263; src/stores/kioskPlaylists.js:19",
+				"state": "built",
+				"evidence": "src/components/admin/AdminSettings.vue:239; lib/Controller/KioskController.php; src/views/KioskPlayerView.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/sharing-kiosk-screens"
+				"change": "openspec/changes/archive/2026-09-29-sharing-kiosk-screens"
 			},
 			"reachedOn": "nothing: /kiosk/{token} returns JSON that no page renders, and useKioskPlaylistStore has no caller, so no screen creates a playlist",
 			"evidence": {
@@ -3303,10 +3303,10 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/DashboardService.php:2069",
+				"state": "built",
+				"evidence": "src/components/Workspace/DashboardRowActions.vue; src/dialogs/ScheduleDashboardDialog.vue; lib/Service/DashboardService.php",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/sharing-dashboard-schedule-screen"
+				"change": "openspec/changes/archive/2026-09-29-sharing-dashboard-schedule-screen"
 			},
 			"reachedOn": "nothing: the store actions publishDashboard and scheduleDashboard have no component caller",
 			"provider": "launchpad",

@@ -29,6 +29,8 @@ use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -221,5 +223,57 @@ class KioskControllerTest extends TestCase {
 		$response = $controller->render(token: 'bogus');
 
 		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
+
+	/**
+	 * A browser opening the kiosk link gets the player page, not JSON
+	 * (sharing-kiosk-screens REQ-KIOSKUI-002).
+	 */
+	public function testRenderServesThePlayerPageToABrowser(): void {
+		$controller = $this->makeController(userId: null);
+		$this->request->method('getHeader')->willReturnMap([
+			['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'],
+		]);
+		$this->kioskService->method('renderPlaylist')->willReturn(['playlist' => ['name' => 'Lobby'], 'entries' => []]);
+
+		$response = $controller->render(token: 'tok');
+
+		$this->assertInstanceOf(TemplateResponse::class, $response);
+		$this->assertSame('kiosk', $response->getTemplateName());
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+	}
+
+	/**
+	 * A revoked or unknown link answers 404 to the browser too, and counts
+	 * toward the brute-force bucket.
+	 */
+	public function testRenderServesA404PlayerPageForARevokedToken(): void {
+		$controller = $this->makeController(userId: null);
+		$this->request->method('getHeader')->willReturnMap([
+			['Accept', 'text/html,*/*;q=0.8'],
+		]);
+		$this->kioskService->method('renderPlaylist')->willThrowException(new PlaylistNotFoundException());
+
+		$response = $controller->render(token: 'gone');
+
+		$this->assertInstanceOf(TemplateResponse::class, $response);
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertNotEmpty($response->getThrottleMetadata());
+	}
+
+	/**
+	 * The player itself asks for JSON and keeps getting the data.
+	 */
+	public function testRenderKeepsJsonForTheJsonAccept(): void {
+		$controller = $this->makeController(userId: null);
+		$this->request->method('getHeader')->willReturnMap([
+			['Accept', 'application/json, text/plain, */*'],
+		]);
+		$this->kioskService->method('renderPlaylist')->willReturn(['playlist' => ['name' => 'Lobby'], 'entries' => []]);
+
+		$response = $controller->render(token: 'tok');
+
+		$this->assertInstanceOf(DataResponse::class, $response);
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 	}
 }//end class

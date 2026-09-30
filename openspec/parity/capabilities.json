@@ -4890,11 +4890,12 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/OfficeNetworkService.php; lib/Service/TileUpdater.php (assertValidInternalUrl); src/components/TileWidget.vue (tileUrl); src/modals/TileEditor.vue; src/components/admin/tabs/OfficeNetworksTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-internal-address"
+				"change": "openspec/changes/archive/2026-09-30-launcher-tile-internal-address"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Tile editor > Address on the office network; Admin settings > LaunchPad > Office networks",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175495-conditional-access 'With IP ranges you can choose on which IP range(s) the app is available ... e.g. the company network' and the same app can be offered locally or as a remote app; one tile with an internal and a public address is not documented (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Web link and Quick links cards take one URL per link; no network-dependent address found (read 2026-09-26)",

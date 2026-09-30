@@ -161,6 +161,7 @@ export function readLocalTileUse() {
  *
  * @param {object} use The use map.
  * @return {boolean} True when stored.
+ * @spec openspec/specs/container-widget/spec.md
  */
 function writeLocalTileUse(use) {
 	try {
@@ -250,6 +251,7 @@ export function randomRankFor(key) {
  * Drop the page-load random ranks.
  *
  * @return {void}
+ * @spec openspec/specs/container-widget/spec.md
  */
 function resetRandomRanks() {
 	randomRanks = new Map()

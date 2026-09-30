@@ -499,6 +499,8 @@ return [
 		// declared above precede the wildcard `{id}` patterns; the
 		// `{uuid}/metadata` URLs cannot collide with them because the
 		// `metadata` literal is unique to this capability.
+		// Field definitions for every logged-in user (the Details tab).
+		['name' => 'dashboardMetadata#fields', 'url' => '/api/metadata-fields', 'verb' => 'GET'],
 		['name' => 'dashboardMetadata#getMetadata', 'url' => '/api/dashboards/{uuid}/metadata', 'verb' => 'GET'],
 		['name' => 'dashboardMetadata#setMetadata', 'url' => '/api/dashboards/{uuid}/metadata', 'verb' => 'PUT'],
 

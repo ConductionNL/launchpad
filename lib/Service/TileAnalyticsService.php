@@ -213,10 +213,12 @@ class TileAnalyticsService {
 	public function getTopTiles(string $period, int $limit): array {
 		[$startDate, $endDate] = AnalyticsService::periodToDateRange(period: $period);
 
-		return $this->tileClickMapper->findTopTilesInRange(
-			startDate: $startDate,
-			endDate: $endDate,
-			limit: $limit
+		return $this->withNames(
+			rows: $this->tileClickMapper->findTopTilesInRange(
+				startDate: $startDate,
+				endDate: $endDate,
+				limit: $limit
+			)
 		);
 	}//end getTopTiles()
 
@@ -239,12 +241,97 @@ class TileAnalyticsService {
 	): array {
 		[$startDate, $endDate] = AnalyticsService::periodToDateRange(period: $period);
 
-		return $this->tileClickMapper->findByDashboardInRange(
-			dashboardUuid: $dashboardUuid,
-			startDate: $startDate,
-			endDate: $endDate
+		return $this->withNames(
+			rows: $this->tileClickMapper->findByDashboardInRange(
+				dashboardUuid: $dashboardUuid,
+				startDate: $startDate,
+				endDate: $endDate
+			)
 		);
 	}//end getDashboardBreakdown()
+
+	/**
+	 * Add `tileTitle` and `dashboardName` to aggregate rows, so the report
+	 * can label them without fetching every dashboard. A tile or dashboard
+	 * removed since the clicks were counted gets null and keeps its count.
+	 *
+	 * @param array<int, array<string, mixed>> $rows Aggregate rows.
+	 *
+	 * @return array<int, array<string, mixed>> The rows with names.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	private function withNames(array $rows): array {
+		$titles = [];
+		$names = [];
+		foreach ($rows as $index => $row) {
+			$placementId = (string)($row['placementUuid'] ?? '');
+			if (array_key_exists($placementId, $titles) === false) {
+				$titles[$placementId] = $this->tileTitle(placementId: $placementId);
+			}
+
+			$rows[$index]['tileTitle'] = $titles[$placementId];
+
+			$dashboardUuid = (string)($row['dashboardUuid'] ?? '');
+			if ($dashboardUuid === '') {
+				continue;
+			}
+
+			if (array_key_exists($dashboardUuid, $names) === false) {
+				$names[$dashboardUuid] = $this->dashboardName(uuid: $dashboardUuid);
+			}
+
+			$rows[$index]['dashboardName'] = $names[$dashboardUuid];
+		}//end foreach
+
+		return $rows;
+	}//end withNames()
+
+	/**
+	 * The title a person sees on a tile, or null when it is gone.
+	 *
+	 * @param string $placementId The placement id as stored on the row.
+	 *
+	 * @return string|null The title.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	private function tileTitle(string $placementId): ?string {
+		if (ctype_digit($placementId) === false) {
+			return null;
+		}
+
+		try {
+			$placement = $this->placementMapper->find(id: (int)$placementId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		foreach ([$placement->getCustomTitle(), $placement->getTileTitle()] as $title) {
+			if (is_string($title) === true && $title !== '') {
+				return $title;
+			}
+		}
+
+		return (string)$placement->getWidgetId();
+	}//end tileTitle()
+
+	/**
+	 * A dashboard's name, or null when it is gone.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return string|null The name.
+	 *
+	 * @spec openspec/specs/dashboard-view-analytics/spec.md
+	 */
+	private function dashboardName(string $uuid): ?string {
+		try {
+			return (string)$this->dashboardMapper->findByUuid(uuid: $uuid)->getName();
+		} catch (DoesNotExistException) {
+			return null;
+		}
+	}//end dashboardName()
 
 	/**
 	 * Generate a CSV export of every aggregate row in the supplied

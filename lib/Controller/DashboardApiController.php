@@ -25,14 +25,17 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
+use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -124,6 +127,8 @@ class DashboardApiController extends Controller {
 	 *                                        service used to gate
 	 *                                        dashboard creation
 	 *                                        (dashboard-quota-limits).
+	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one language.
+	 * @param MetadataService|null $metadataService Filters the visible list by detail fields.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -137,6 +142,8 @@ class DashboardApiController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly ?string $userId,
 		private readonly ?QuotaService $quotaService = null,
+		private readonly ?DashboardTranslationService $translationService = null,
+		private readonly ?MetadataService $metadataService = null,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -216,8 +223,10 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::unauthorized();
 		}
 
-		$items = $this->dashboardService->getVisibleToUser(
-			userId: $this->userId
+		$items = $this->filterByMetadata(
+			items: $this->dashboardService->getVisibleToUser(
+				userId: $this->userId
+			)
 		);
 
 		$serialized = [];
@@ -306,6 +315,7 @@ class DashboardApiController extends Controller {
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
+				'hasVariants' => $this->hasVariants(uuid: (string)$activeDashboard->getUuid()),
 			]
 		);
 	}//end getActive()
@@ -372,9 +382,96 @@ class DashboardApiController extends Controller {
 				'permissionLevel' => $result['permissionLevel'],
 				'isOwner' => $isOwner,
 				'sharedBy' => $sharedBy,
+				'hasVariants' => $this->hasVariants(uuid: (string)$dashboard->getUuid()),
+				'breadcrumbs' => $this->visibleBreadcrumbs(dashboard: $dashboard, userId: $this->userId),
 			]
 		);
 	}//end show()
+
+	/**
+	 * Whether a dashboard has more than one language version, so the page
+	 * asks for the resolved variant only when it can differ.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return bool True with two or more variants.
+	 *
+	 * @spec openspec/specs/dashboard-language-content/spec.md
+	 */
+	private function hasVariants(string $uuid): bool {
+		if ($this->translationService === null || $uuid === '') {
+			return false;
+		}
+
+		return count($this->translationService->listVariants(dashboardUuid: $uuid)) > 1;
+	}//end hasVariants()
+
+	/**
+	 * Keep only the visible entries whose dashboards match the
+	 * `metadata[<key>]` filters of the request (REQ-MDFL-007), through
+	 * MetadataService::filterDashboards().
+	 *
+	 * @param array<int, array{dashboard: \OCA\LaunchPad\Db\Dashboard, source: string}> $items Visible entries.
+	 *
+	 * @return array<int, array{dashboard: \OCA\LaunchPad\Db\Dashboard, source: string}> The matching entries.
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	private function filterByMetadata(array $items): array {
+		$filters = $this->request->getParam('metadata');
+		if ($this->metadataService === null || is_array($filters) === false || $filters === []) {
+			return $items;
+		}
+
+		$kept = $this->metadataService->filterDashboards(
+			dashboards: array_map(static fn (array $entry) => $entry['dashboard'], $items),
+			metadataFilters: $filters
+		);
+
+		return array_values(
+			array_filter(
+				$items,
+				static fn (array $entry): bool => in_array($entry['dashboard'], $kept, true)
+			)
+		);
+	}//end filterByMetadata()
+
+	/**
+	 * The breadcrumbs of a child dashboard, root to leaf. An ancestor the
+	 * viewer may not see keeps its place but loses its uuid, name and slug,
+	 * so the trail never leaks a hidden dashboard's name. A top-level
+	 * dashboard has none.
+	 *
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param string $userId The reader.
+	 *
+	 * @return array<int, array<string, mixed>> The crumbs.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function visibleBreadcrumbs(Dashboard $dashboard, string $userId): array {
+		$parent = $dashboard->getParentUuid();
+		if ($parent === null || $parent === '') {
+			return [];
+		}
+
+		$visible = [];
+		foreach ($this->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
+			$visible[(string)$entry['dashboard']->getUuid()] = true;
+		}
+
+		$crumbs = [];
+		foreach ($this->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
+			if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
+				$crumbs[] = $crumb + ['hidden' => false];
+				continue;
+			}
+
+			$crumbs[] = ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+		}
+
+		return $crumbs;
+	}//end visibleBreadcrumbs()
 
 	/**
 	 * Create a new dashboard.
@@ -1504,6 +1601,7 @@ class DashboardApiController extends Controller {
 	 * @param string $uuid The dashboard UUID from the URL.
 	 * @param string|null $publishAt The future ISO-8601 timestamp from
 	 *                               the request body.
+	 * @param string|null $unpublishAt Optional take-down time (REQ-SCHEDUI-002).
 	 *
 	 * @return JSONResponse The updated dashboard payload.
 	 *
@@ -1513,6 +1611,7 @@ class DashboardApiController extends Controller {
 	public function schedule(
 		string $uuid,
 		?string $publishAt = null,
+		?string $unpublishAt = null,
 	): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
@@ -1525,7 +1624,8 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::unauthorized();
 		}
 
-		if ($publishAt === null || $publishAt === '') {
+		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
+		if (($publishAt === null || $publishAt === '') && ($unpublishAt === null || $unpublishAt === '')) {
 			return new JSONResponse(
 				data: [
 					'status' => 'error',
@@ -1540,7 +1640,8 @@ class DashboardApiController extends Controller {
 			$dashboard = $this->dashboardService->schedule(
 				uuid: $uuid,
 				publishAt: $publishAt,
-				userId: $this->userId
+				userId: $this->userId,
+				unpublishAt: $unpublishAt
 			);
 
 			return ResponseHelper::success(

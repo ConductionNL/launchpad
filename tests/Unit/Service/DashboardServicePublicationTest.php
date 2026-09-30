@@ -356,4 +356,109 @@ class DashboardServicePublicationTest extends TestCase {
 			userId: 'alice'
 		);
 	}//end testScheduleRejectsEmptyPublishAt()
+
+	/**
+	 * sharing-dashboard-schedule-screen REQ-SCHEDUI-002: a take-down time
+	 * is stored with the go-live time.
+	 *
+	 * @return void
+	 */
+	public function testScheduleTakesATakeDownTime(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->method('update')->willReturnArgument(0);
+
+		$result = $this->service->schedule(
+			uuid: 'd-uuid-1',
+			publishAt: (new \DateTime('+1 day'))->format('c'),
+			userId: 'alice',
+			unpublishAt: (new \DateTime('+3 days'))->format('c')
+		);
+
+		$this->assertSame(Dashboard::STATUS_SCHEDULED, $result->getPublicationStatus());
+		$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string)$result->getUnpublishAt());
+	}//end testScheduleTakesATakeDownTime()
+
+	/**
+	 * A take-down before the go-live is refused.
+	 *
+	 * @return void
+	 */
+	public function testTakeDownBeforeGoLiveIsRefused(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage(DashboardService::ERR_UNPUBLISH_BEFORE_PUBLISH);
+
+		$this->service->schedule(
+			uuid: 'd-uuid-1',
+			publishAt: (new \DateTime('+3 days'))->format('c'),
+			userId: 'alice',
+			unpublishAt: (new \DateTime('+1 day'))->format('c')
+		);
+	}//end testTakeDownBeforeGoLiveIsRefused()
+
+	/**
+	 * A take-down time alone keeps a published dashboard published until then.
+	 *
+	 * @return void
+	 */
+	public function testTakeDownAloneKeepsItPublished(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->method('update')->willReturnArgument(0);
+
+		$result = $this->service->schedule(
+			uuid: 'd-uuid-1',
+			publishAt: null,
+			userId: 'alice',
+			unpublishAt: (new \DateTime('+1 day'))->format('c')
+		);
+
+		$this->assertSame(Dashboard::STATUS_PUBLISHED, $result->getPublicationStatus());
+		$this->assertNotNull($result->getUnpublishAt());
+	}//end testTakeDownAloneKeepsItPublished()
+
+	/**
+	 * REQ-SCHEDUI-002: once the take-down time has passed, a colleague no
+	 * longer sees the dashboard; the owner still does.
+	 *
+	 * @return void
+	 */
+	public function testAPassedTakeDownHidesTheDashboardFromColleagues(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$dashboard->setId(9);
+		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		$dashboard->setUnpublishAt((new \DateTime('-1 hour'))->format('Y-m-d H:i:s'));
+		$this->dashboardMapper->method('findVisibleToUser')->willReturn(
+			[['dashboard' => $dashboard, 'source' => 'group']]
+		);
+
+		$this->assertSame([], $this->service->getVisibleToUser(userId: 'bob'));
+		$this->assertCount(1, $this->service->getVisibleToUser(userId: 'alice'));
+	}//end testAPassedTakeDownHidesTheDashboardFromColleagues()
+	/**
+	 * Publishing now overrides a take-down time that already passed, even
+	 * when the stored status is still published (the take-down is computed
+	 * at read time); unpublishing drops the take-down time (REQ-SCHEDUI-002).
+	 *
+	 * @return void
+	 */
+	public function testPublishAndUnpublishClearAPassedTakeDownTime(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		$dashboard->setUnpublishAt((new \DateTime('-1 hour'))->format('Y-m-d H:i:s'));
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->expects($this->exactly(2))->method('update')->willReturnArgument(0);
+
+		$result = $this->service->publishDashboard(uuid: 'd-uuid-1', userId: 'alice');
+		$this->assertNull($result->getUnpublishAt());
+		$this->assertSame(Dashboard::STATUS_PUBLISHED, $result->getPublicationStatus());
+
+		$dashboard->setUnpublishAt((new \DateTime('+1 hour'))->format('Y-m-d H:i:s'));
+		$result = $this->service->unpublish(uuid: 'd-uuid-1', userId: 'alice');
+		$this->assertNull($result->getUnpublishAt());
+	}//end testPublishAndUnpublishClearAPassedTakeDownTime()
 }//end class

@@ -125,16 +125,25 @@
 				</button>
 			</div>
 		</template>
+
+		<!-- launcher-tile-click-report: most clicked tiles for the same period. -->
+		<TileClickReport :period="period" />
 	</section>
 </template>
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import TileClickReport from './TileClickReport.vue'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
 export default {
 	name: 'AdminAnalytics',
+
+	components: {
+		TileClickReport,
+	},
+
 	data() {
 		return {
 			period: '30d',

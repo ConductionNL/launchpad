@@ -24,6 +24,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\DashboardMetadataController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\MetadataService;
@@ -177,5 +178,31 @@ class DashboardMetadataControllerTest extends TestCase {
 		$response = $controller->setMetadata('abc', ['department' => 'marketing']);
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame(['department' => 'marketing'], $response->getData());
+	}
+
+	/**
+	 * A dashboard owner who is not an administrator can read the field
+	 * definitions, so the Details tab can render one control per field
+	 * (dashboard-language-and-details-tabs REQ-MDUI-002).
+	 */
+	public function testAnyLoggedInUserCanReadTheFieldDefinitions(): void {
+		$field = new MetadataField();
+		$field->setFieldKey('department');
+		$field->setLabel('Department');
+		$field->setType('select');
+		$field->setOptions('["HR","Finance"]');
+		$this->metadataService->method('listFields')->willReturn([$field]);
+
+		$response = $this->controller('sanne')->fields();
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('department', $response->getData()['fields'][0]['key']);
+		$this->assertSame(['HR', 'Finance'], $response->getData()['fields'][0]['options']);
+	}
+
+	public function testFieldDefinitionsNeedALogin(): void {
+		$response = $this->controller(null)->fields();
+
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 	}
 }

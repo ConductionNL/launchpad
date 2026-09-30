@@ -79,7 +79,7 @@ class ProfileFieldsController extends Controller {
 	#[NoAdminRequired]
 	public function getOwn(): JSONResponse {
 		$user = $this->userSession->getUser();
-		$guard = $this->guard(user: $user, action: 'profile-fields.get-own');
+		$guard = $this->guard(user: $user, check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.get-own'));
 		if ($guard !== null || $user === null) {
 			return $guard ?? self::unauthenticated();
 		}
@@ -100,7 +100,7 @@ class ProfileFieldsController extends Controller {
 	#[NoAdminRequired]
 	public function saveOwn(?array $values = null): JSONResponse {
 		$user = $this->userSession->getUser();
-		$guard = $this->guard(user: $user, action: 'profile-fields.save-own');
+		$guard = $this->guard(user: $user, check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.save-own'));
 		if ($guard !== null || $user === null) {
 			return $guard ?? self::unauthenticated();
 		}
@@ -123,7 +123,7 @@ class ProfileFieldsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getDefinitions(): JSONResponse {
-		$guard = $this->adminGuard(action: 'profile-fields.get-definitions');
+		$guard = $this->adminGuard(check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.get-definitions'));
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -142,7 +142,7 @@ class ProfileFieldsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function saveDefinitions(?array $fields = null): JSONResponse {
-		$guard = $this->adminGuard(action: 'profile-fields.save-definitions');
+		$guard = $this->adminGuard(check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.save-definitions'));
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -160,17 +160,17 @@ class ProfileFieldsController extends Controller {
 	 * Signed-in and allowed to call the action.
 	 *
 	 * @param IUser|null $user The caller.
-	 * @param string $action ADR-023 action id.
+	 * @param callable $check ADR-023 action check; throws OCSForbiddenException when refused.
 	 *
 	 * @return JSONResponse|null An error response, or null when allowed.
 	 */
-	private function guard(?IUser $user, string $action): ?JSONResponse {
+	private function guard(?IUser $user, callable $check): ?JSONResponse {
 		if ($user === null) {
 			return self::unauthenticated();
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, $action);
+			$check($user);
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
 		}
@@ -181,17 +181,17 @@ class ProfileFieldsController extends Controller {
 	/**
 	 * Signed-in administrator allowed to call the action.
 	 *
-	 * @param string $action ADR-023 action id.
+	 * @param callable $check ADR-023 action check; throws OCSForbiddenException when refused.
 	 *
 	 * @return JSONResponse|null An error response, or null when allowed.
 	 */
-	private function adminGuard(string $action): ?JSONResponse {
+	private function adminGuard(callable $check): ?JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user !== null && $this->groupManager->isAdmin(userId: $user->getUID()) === false) {
 			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
 		}
 
-		return $this->guard(user: $user, action: $action);
+		return $this->guard(user: $user, check: $check);
 	}//end adminGuard()
 
 	/**

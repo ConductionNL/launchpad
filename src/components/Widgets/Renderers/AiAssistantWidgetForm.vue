@@ -31,7 +31,7 @@ import { translate as t } from '@nextcloud/l10n'
  * AiAssistantWidgetForm: the assistant widget's settings, the Hermiq agent
  * to ask (optional). Emits `update:content` like the other widget forms.
  *
- * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+ * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
  */
 export default {
 	name: 'AiAssistantWidgetForm',
@@ -50,7 +50,7 @@ export default {
 
 	emits: ['update:content'],
 
-	/** @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md */
+	/** @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md */
 	data() {
 		const initial = this.editingWidget?.content || this.value || {}
 		return { agentUuid: initial.agentUuid ?? '' }
@@ -62,7 +62,7 @@ export default {
 		/**
 		 * Tell the host the content.
 		 *
-		 * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		emit() {
 			this.$emit('update:content', { agentUuid: this.agentUuid.trim() })
@@ -72,7 +72,7 @@ export default {
 		 * Nothing is required.
 		 *
 		 * @return {Array<string>} No errors.
-		 * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		validate() {
 			return []

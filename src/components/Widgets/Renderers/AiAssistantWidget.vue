@@ -117,7 +117,7 @@ function activeDashboardUuid() {
  * the input is disabled and says so. A placement under six cells shows one
  * "Summarise this dashboard" button instead of the chat.
  *
- * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+ * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
  */
 export default {
 	name: 'AiAssistantWidget',
@@ -136,7 +136,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md */
+	/** @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md */
 	data() {
 		return {
 			available: null,
@@ -163,7 +163,7 @@ export default {
 	computed: {
 		/**
 		 * @return {boolean} Whether the placement is too small for a chat.
-		 * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		summaryMode() {
 			const cells =
@@ -174,7 +174,7 @@ export default {
 
 		/**
 		 * @return {string} The last answer, for summary mode.
-		 * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		lastAnswer() {
 			const answers = this.chat.messages.filter((m) => m.role === 'assistant')
@@ -184,7 +184,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md */
+	/** @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md */
 	async mounted() {
 		try {
 			await axios.get(chatHealthUrl(CHAT_APP_ID), { timeout: 5000 })
@@ -201,7 +201,7 @@ export default {
 		 * Send the typed question.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		async ask() {
 			const question = this.question.trim()
@@ -222,7 +222,7 @@ export default {
 		 * Ask for a summary of the dashboard (summary mode).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/search-ai-dashboard-assistant/specs/launchpad-ai-dashboard-assistant/spec.md
+		 * @spec openspec/specs/launchpad-ai-dashboard-assistant/spec.md
 		 */
 		async summarise() {
 			if (this.available !== true) {

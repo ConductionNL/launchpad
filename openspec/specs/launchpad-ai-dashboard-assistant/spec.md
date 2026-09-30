@@ -81,71 +81,37 @@ launchpad MUST NOT pass a tool list. Which tools the model may call, and on what
 - **WHEN** the request body is read
 - **THEN** it carries `message`, `context` and `agentUuid`, and no `tools` field
 
-### REQ-ADA-006: The widget SHALL render two reply modes — streamed chat and inline summary
+### REQ-ADA-006: The widget SHALL render two reply modes, streamed chat and inline summary
 
-When the placement is large enough (≥6 grid cells), the widget MUST
-render a full chat interface (input box + scrollable history +
-streamed response). When the placement is smaller (`<6` cells), it
-MUST render in **summary mode**: a single tap-to-refresh "Summarise
-this dashboard" call that uses a translated question ("Summarise this dashboard for me.") as the prompt and
-fills the cell with the rendered Markdown reply.
+A placement of 6 grid cells or more (`gridWidth × gridHeight`) MUST render the chat: a labelled question input, the conversation and the answer as it streams. A smaller placement MUST render summary mode: one "Summarise this dashboard" button that sends the translated question "Summarise this dashboard for me." and shows the latest answer in the cell.
 
 #### Scenario: Large placement renders full chat
 
-- **GIVEN** a placement with `gridWidth × gridHeight ≥ 6`
-- **WHEN** the widget renders
-- **THEN** an input box + conversation history MUST be visible
-- **AND** the user MUST be able to submit follow-up turns up to
-  `content.historyMaxTurns`
+- **GIVEN** a placement of 4 by 4 cells
+- **WHEN** the widget renders and Hermiq answers its health probe
+- **THEN** the question input and the conversation are visible, and each question adds a turn
 
 #### Scenario: Small placement renders summary mode
 
-- **GIVEN** a placement with `gridWidth × gridHeight < 6`
-- **WHEN** the widget renders
-- **THEN** a single "Summarise" button MUST be visible alongside the
-  most recent reply
-- **AND** clicking the button MUST issue a fresh inference call
+- **GIVEN** a placement of 2 by 2 cells
+- **WHEN** the viewer clicks "Summarise this dashboard"
+- **THEN** the widget sends "Summarise this dashboard for me." to Hermiq and shows the answer in the cell, and each click asks again
 
-#### Scenario: Open cases summary acceptance (Specter source)
+### REQ-ADA-007: History SHALL live in the browser session, not on a launchpad backend
 
-- **GIVEN** a case worker with open cases on the dashboard AND the
-  widget in summary mode
-- **WHEN** the viewer clicks Summarise
-- **THEN** the widget MUST stream a reply whose first sentence
-  names the total open count
-- **AND** each case row in the reply MUST show identifier,
-  status, and last-updated date (sourced from procest GraphQL via
-  the MCP tool call)
-
-#### Scenario: Consultation responses summary acceptance (Specter source)
-
-- **GIVEN** a consultation has received responses AND the widget
-  is in summary mode
-- **WHEN** the viewer triggers a summary
-- **THEN** the reply MUST surface total responses + response
-  breakdown without the viewer needing to navigate away
-
-### REQ-ADA-007: History SHALL persist on the placement, not on a launchpad backend
-
-Conversation turns MUST persist only inside the Vue component's
-session-local state. launchpad MUST NOT add a backend table or endpoint
-to store chat history — the workspace already carries no chat
-history surface, and adding one would create the install-time
-dependency this spec exists to avoid.
+Conversation turns MUST live only in the widget's own state for the page session. launchpad MUST NOT add a backend table or endpoint for chat history; Hermiq keeps its own conversations.
 
 #### Scenario: History scoped to session
 
 - **GIVEN** a chat with 3 turns
-- **WHEN** the user reloads the page
-- **THEN** history MUST be empty after reload
-- **AND** the widget MUST NOT issue any history-load API call
+- **WHEN** the viewer reloads the page
+- **THEN** the widget starts empty and makes no history request
 
 #### Scenario: No backend persistence route added
 
-- **GIVEN** the launchpad backend route table after this widget ships
-- **WHEN** inspected
-- **THEN** zero routes matching `chat/history`, `ai/conversation`,
-  or `assistant/messages` MUST exist
+- **GIVEN** `appinfo/routes.php` after this widget ships
+- **WHEN** it is read
+- **THEN** no route matches `chat/history`, `ai/conversation` or `assistant/messages`
 
 ## Non-Functional Requirements
 

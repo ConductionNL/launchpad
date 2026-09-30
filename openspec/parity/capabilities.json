@@ -3768,12 +3768,13 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/components/Widgets/Renderers/AiAssistantWidget.vue (widget type ai-assistant, questions through Hermiq via useAiChatStream)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/search-ai-dashboard-assistant"
+				"change": "openspec/changes/archive/2026-09-30-search-ai-dashboard-assistant"
 			},
 			"reachedOn": "nothing",
-			"note": "corrections round 9 (2026-09-28): no change carries this row at 9d5535a, so built.state is none. The evidence cites a main spec, openspec/specs/launchpad-ai-dashboard-assistant (REQ-ADA-001 to 007, a chat widget answering plain-language questions), not a change. The change that wrote it, openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics, was spec-only and its tasks.md says the ai-dashboard-assistant widget chain remains spec-only; no ai-assistant widget exists in src/ or lib/. The open change launchpad-ai-dashboard-assistant carries AI summary widgets for cases and consultations, not questions and answers. Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears.",
+			"note": "corrections round 9 (2026-09-28): no change carries this row at 9d5535a, so built.state is none. The evidence cites a main spec, openspec/specs/launchpad-ai-dashboard-assistant (REQ-ADA-001 to 007, a chat widget answering plain-language questions), not a change. The change that wrote it, openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics, was spec-only and its tasks.md says the ai-dashboard-assistant widget chain remains spec-only; no ai-assistant widget exists in src/ or lib/. The open change launchpad-ai-dashboard-assistant carries AI summary widgets for cases and consultations, not questions and answers. Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears. Reversed to build 2026-09-29 (DECISIONS row 16); built 2026-09-30 by search-ai-dashboard-assistant, answers through Hermiq.",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/500975-faq-ai-in-workspace-365-kelly 'Kelly only sees sources the user can access'; https://support.workspace365.net/en/articles/836094-release-notes-workspace-365-v4-48 Kelly out of beta (read 2026-09-26)",
 				"microsoft-viva": "not checked: the April reading (intelligence-db competitor_features#28749, captured 2026-04-24) records no source URL (its spec_path is empty and the competitor has no analysis_path), and the vendor documentation read on 2026-09-26 did not confirm it, so the earlier yes is withdrawn until a public page is found",

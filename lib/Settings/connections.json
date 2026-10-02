@@ -1,0 +1,54 @@
+{
+    "app": "launchpad",
+    "connections": [
+        {
+            "key": "dashboard-registry",
+            "title": "Dashboard registry",
+            "description": "A registry of another instance, where you find and install dashboards other organisations published.",
+            "order": 10,
+            "settingsUrl": "/settings/admin/launchpad?tab=sharing#section-dashboard-registry",
+            "requiredConfig": ["registry_url"],
+            "unconfiguredMessage": "No registry address is set. Set the registry URL on the Sharing tab of the LaunchPad settings."
+        },
+        {
+            "key": "weather",
+            "title": "Weather provider",
+            "description": "Weather widgets with a location read the provider URL an admin sets. Widgets without a location read Nextcloud's weather status app.",
+            "order": 20,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. LaunchPad reports here after a weather widget with a location fetches a reading. Set weather_provider_url with occ."
+        },
+        {
+            "key": "news-feeds",
+            "title": "News feeds",
+            "description": "News widgets fetch the RSS and Atom feeds they name. Each widget names its own address, so this row shows the last fetch.",
+            "order": 30,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. LaunchPad reports here after a news widget fetches a feed."
+        },
+        {
+            "key": "ics-calendars",
+            "title": "Calendar feeds",
+            "description": "Calendar widgets fetch the ICS feeds they name. Each widget names its own address, so this row shows the last fetch.",
+            "order": 40,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. LaunchPad reports here after a calendar widget fetches an ICS feed."
+        },
+        {
+            "key": "live-tiles",
+            "title": "Live tiles",
+            "description": "Live tiles fetch a value from the address they name. Only hosts in livetile_allowed_hosts are fetched.",
+            "order": 50,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. LaunchPad reports here after a live tile fetches its value. Set livetile_allowed_hosts with occ."
+        },
+        {
+            "key": "health-ping",
+            "title": "Health ping",
+            "description": "Tiles check whether the service they link to answers. Only hosts in healthping_allowed_hosts are pinged.",
+            "order": 60,
+            "reportedOnly": true,
+            "unconfiguredMessage": "Not checked yet. LaunchPad reports here after a tile pings its service. Set healthping_allowed_hosts with occ."
+        }
+    ]
+}

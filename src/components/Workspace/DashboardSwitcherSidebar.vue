@@ -84,6 +84,8 @@
 		</div>
 
 		<div class="dashboard-switcher-sidebar__body">
+			<!-- dashboard-language-and-details-tabs REQ-MDUI-003 -->
+			<DetailFilter :fields="filterFields" @change="$emit('filter', $event)" />
 			<!-- 1. Primary group dashboards -->
 			<section
 				v-if="primaryGroupDashboards.length > 0"
@@ -94,10 +96,14 @@
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
-						v-for="dashboard in primaryGroupDashboards"
+						v-for="{ dashboard, depth, hasChildren } in treeRows(
+							primaryGroupDashboards,
+						)"
 						:key="`group-${dashboard.id}`"
 						class="dashboard-switcher-sidebar__item"
 						:class="{ active: isActive(dashboard.id) }"
+						:data-depth="depth"
+						:style="depthStyle(depth)"
 						data-source="group"
 						tabindex="0"
 						role="button"
@@ -105,6 +111,27 @@
 						@click="onSwitch(dashboard.id, 'group')"
 						@keydown.enter="onSwitch(dashboard.id, 'group')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'group')">
+						<button
+							v-if="hasChildren"
+							type="button"
+							class="dashboard-switcher-sidebar__expander"
+							:data-testid="`tree-expand-${dashboard.uuid}`"
+							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
+							:aria-label="
+								isExpanded(dashboard)
+									? t('launchpad', 'Collapse {name}', {
+											name: dashboard.name,
+										})
+									: t('launchpad', 'Expand {name}', {
+											name: dashboard.name,
+										})
+							"
+							@click.stop="toggleExpanded(dashboard)"
+							@keydown.enter.stop
+							@keydown.space.stop>
+							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
+							<ChevronRight v-else :size="16" />
+						</button>
 						<span class="dashboard-switcher-sidebar__icon">
 							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
@@ -159,10 +186,14 @@
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
-						v-for="dashboard in defaultGroupDashboards"
+						v-for="{ dashboard, depth, hasChildren } in treeRows(
+							defaultGroupDashboards,
+						)"
 						:key="`default-${dashboard.id}`"
 						class="dashboard-switcher-sidebar__item"
 						:class="{ active: isActive(dashboard.id) }"
+						:data-depth="depth"
+						:style="depthStyle(depth)"
 						data-source="default"
 						tabindex="0"
 						role="button"
@@ -170,6 +201,27 @@
 						@click="onSwitch(dashboard.id, 'default')"
 						@keydown.enter="onSwitch(dashboard.id, 'default')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'default')">
+						<button
+							v-if="hasChildren"
+							type="button"
+							class="dashboard-switcher-sidebar__expander"
+							:data-testid="`tree-expand-${dashboard.uuid}`"
+							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
+							:aria-label="
+								isExpanded(dashboard)
+									? t('launchpad', 'Collapse {name}', {
+											name: dashboard.name,
+										})
+									: t('launchpad', 'Expand {name}', {
+											name: dashboard.name,
+										})
+							"
+							@click.stop="toggleExpanded(dashboard)"
+							@keydown.enter.stop
+							@keydown.space.stop>
+							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
+							<ChevronRight v-else :size="16" />
+						</button>
 						<span class="dashboard-switcher-sidebar__icon">
 							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
@@ -225,10 +277,14 @@
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
-						v-for="dashboard in userDashboards"
+						v-for="{ dashboard, depth, hasChildren } in treeRows(
+							userDashboards,
+						)"
 						:key="`user-${dashboard.id}`"
 						class="dashboard-switcher-sidebar__item dashboard-switcher-sidebar__item--personal"
 						:class="{ active: isActive(dashboard.id) }"
+						:data-depth="depth"
+						:style="depthStyle(depth)"
 						data-source="user"
 						tabindex="0"
 						role="button"
@@ -236,6 +292,27 @@
 						@click="onSwitch(dashboard.id, 'user')"
 						@keydown.enter="onSwitch(dashboard.id, 'user')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
+						<button
+							v-if="hasChildren"
+							type="button"
+							class="dashboard-switcher-sidebar__expander"
+							:data-testid="`tree-expand-${dashboard.uuid}`"
+							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
+							:aria-label="
+								isExpanded(dashboard)
+									? t('launchpad', 'Collapse {name}', {
+											name: dashboard.name,
+										})
+									: t('launchpad', 'Expand {name}', {
+											name: dashboard.name,
+										})
+							"
+							@click.stop="toggleExpanded(dashboard)"
+							@keydown.enter.stop
+							@keydown.space.stop>
+							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
+							<ChevronRight v-else :size="16" />
+						</button>
 						<span class="dashboard-switcher-sidebar__icon">
 							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
@@ -327,10 +404,14 @@
 				</h3>
 				<ul class="dashboard-switcher-sidebar__list">
 					<li
-						v-for="dashboard in sharedDashboards"
+						v-for="{ dashboard, depth, hasChildren } in treeRows(
+							sharedDashboards,
+						)"
 						:key="`shared-${dashboard.id}`"
 						class="dashboard-switcher-sidebar__item"
 						:class="{ active: isActive(dashboard.id) }"
+						:data-depth="depth"
+						:style="depthStyle(depth)"
 						data-source="shared"
 						tabindex="0"
 						role="button"
@@ -338,6 +419,27 @@
 						@click="onSwitch(dashboard.id, 'shared')"
 						@keydown.enter="onSwitch(dashboard.id, 'shared')"
 						@keydown.space.prevent="onSwitch(dashboard.id, 'shared')">
+						<button
+							v-if="hasChildren"
+							type="button"
+							class="dashboard-switcher-sidebar__expander"
+							:data-testid="`tree-expand-${dashboard.uuid}`"
+							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
+							:aria-label="
+								isExpanded(dashboard)
+									? t('launchpad', 'Collapse {name}', {
+											name: dashboard.name,
+										})
+									: t('launchpad', 'Expand {name}', {
+											name: dashboard.name,
+										})
+							"
+							@click.stop="toggleExpanded(dashboard)"
+							@keydown.enter.stop
+							@keydown.space.stop>
+							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
+							<ChevronRight v-else :size="16" />
+						</button>
 						<span class="dashboard-switcher-sidebar__icon">
 							<CnDashboardIcon :name="dashboard.icon" :size="20" />
 						</span>
@@ -387,16 +489,22 @@
 <script>
 import { CnDashboardIcon, NcButton } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import ChevronDown from 'vue-material-design-icons/ChevronDown.vue'
+import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
 import Close from 'vue-material-design-icons/Close.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Star from 'vue-material-design-icons/Star.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
+import DetailFilter from './DetailFilter.vue'
 import SidebarFooter from './SidebarFooter.vue'
 
 export default {
 	name: 'DashboardSwitcherSidebar',
 
 	components: {
+		DetailFilter,
+		ChevronDown,
+		ChevronRight,
 		Close,
 		Plus,
 		Star,
@@ -407,6 +515,12 @@ export default {
 	},
 
 	props: {
+		/** Detail field definitions for "Filter by detail". */
+		filterFields: {
+			type: Array,
+			default: () => [],
+		},
+
 		/**
 		 * Controlled by the parent. Vue 3 removed the component-level
 		 * `model: { prop, event }` option that used to rebind a bare
@@ -539,6 +653,8 @@ export default {
 
 	emits: [
 		'switch',
+		// `{<key>: <value>}` or null: filter the list by a detail field.
+		'filter',
 		'createDashboard',
 		'deleteDashboard',
 		'update:open',
@@ -553,6 +669,14 @@ export default {
 		// the user's default via `POST /api/dashboards/default`.
 		'setDefault',
 	],
+
+	/** @spec openspec/specs/dashboards/spec.md */
+	data() {
+		return {
+			// Parent uuids the person expanded (REQ-TREEUI-001).
+			expanded: {},
+		}
+	},
 
 	computed: {
 		/** @spec openspec/specs/dashboard-switcher/spec.md */
@@ -653,6 +777,117 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Order a section's dashboards as a tree: each parent followed by
+		 * its children, indented. A parent outside this section counts as
+		 * no parent. Children of a collapsed parent are left out, unless
+		 * the active dashboard is among them. With no parents at all the
+		 * list comes back as it was, flat and in order.
+		 *
+		 * @param {Array<object>} list Dashboards of one section.
+		 * @return {Array<{dashboard: object, depth: number, hasChildren: boolean}>} Rows to render.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		treeRows(list) {
+			const byUuid = new Map()
+			for (const dashboard of list) {
+				if (dashboard?.uuid) {
+					byUuid.set(dashboard.uuid, dashboard)
+				}
+			}
+			const children = new Map()
+			const roots = []
+			for (const dashboard of list) {
+				const parent = dashboard?.parentUuid
+				if (parent && parent !== dashboard.uuid && byUuid.has(parent)) {
+					if (!children.has(parent)) {
+						children.set(parent, [])
+					}
+					children.get(parent).push(dashboard)
+				} else {
+					roots.push(dashboard)
+				}
+			}
+			const openChain = this.activeChain(byUuid)
+			const rows = []
+			const seen = new Set()
+			const walk = (dashboard, depth) => {
+				if (seen.has(dashboard.uuid ?? dashboard.id)) {
+					return
+				}
+				seen.add(dashboard.uuid ?? dashboard.id)
+				const kids = children.get(dashboard.uuid) ?? []
+				rows.push({ dashboard, depth, hasChildren: kids.length > 0 })
+				if (
+					kids.length > 0
+					&& (this.expanded[dashboard.uuid] === true
+						|| openChain.has(dashboard.uuid))
+				) {
+					for (const kid of kids) {
+						walk(kid, depth + 1)
+					}
+				}
+			}
+			for (const root of roots) {
+				walk(root, 0)
+			}
+			return rows
+		},
+
+		/**
+		 * Uuids of the active dashboard's ancestors, so its branch shows.
+		 *
+		 * @param {Map<string, object>} byUuid Section dashboards by uuid.
+		 * @return {Set<string>} Ancestor uuids.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		activeChain(byUuid) {
+			const chain = new Set()
+			let current = [...byUuid.values()].find((d) => this.isActive(d.id))
+			while (
+				current?.parentUuid
+				&& byUuid.has(current.parentUuid)
+				&& !chain.has(current.parentUuid)
+			) {
+				chain.add(current.parentUuid)
+				current = byUuid.get(current.parentUuid)
+			}
+			return chain
+		},
+
+		/**
+		 * @param {object} dashboard A parent row.
+		 * @return {boolean} Whether its children show.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		isExpanded(dashboard) {
+			return this.expanded[dashboard.uuid] === true
+		},
+
+		/**
+		 * Expand or collapse a parent row.
+		 *
+		 * @param {object} dashboard A parent row.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		toggleExpanded(dashboard) {
+			this.expanded = {
+				...this.expanded,
+				[dashboard.uuid]: !this.isExpanded(dashboard),
+			}
+		},
+
+		/**
+		 * Indent a nested row.
+		 *
+		 * @param {number} depth Nesting depth.
+		 * @return {object|null} Inline style.
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		depthStyle(depth) {
+			return depth > 0 ? { paddingInlineStart: `${depth * 20}px` } : null
+		},
+
 		t,
 
 		/**
@@ -995,5 +1230,18 @@ export default {
 	.dashboard-switcher-sidebar__item {
 		transition: none;
 	}
+}
+
+.dashboard-switcher-sidebar__expander {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background: none;
+	color: inherit;
+	cursor: pointer;
 }
 </style>

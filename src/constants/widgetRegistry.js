@@ -53,13 +53,18 @@ import {
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
-import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
 // communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
 // like the `nc-widget` escape-hatch above, so they flow through the same
 // `CnAddWidgetModal` type picker and `WidgetRenderer` dispatch as every
 // communal type — no LaunchPad-side branching needed.
+// `ai-assistant` — ask Hermiq about the dashboard (search-ai-dashboard-assistant,
+// openspec/specs/launchpad-ai-dashboard-assistant). Same LaunchPad-only
+// registration pattern as `clock`/`weather`.
+import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
+import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
@@ -77,6 +82,10 @@ import LinkButtonWidget from '../components/Widgets/Renderers/LinkButtonHost.vue
 // LaunchPad-only registration pattern as `clock`/`weather`.
 import LiveTileWidget from '../components/Widgets/Renderers/LiveTileWidget.vue'
 import LiveTileWidgetForm from '../components/Widgets/Renderers/LiveTileWidgetForm.vue'
+// `news` — moved out of nc-vue, whose renderer had no way to fetch a feed.
+// LaunchPad owns the feed path, so it owns the widget.
+import NewsWidget from '../components/Widgets/Renderers/NewsWidget.vue'
+import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 // `search` — the quick-search / launcher bar, formerly runtime-shell chrome
 // (openspec/specs/tile-quick-search). Registered below like the other
 // LaunchPad-only types.
@@ -149,6 +158,16 @@ if (!cnGetWidgetTypeEntry('nc-widget')) {
 // `clock` — fully client-side ambient tile (REQ-CLOCK-001..003). Always
 // (re-)registered here since it is a LaunchPad-only type, never supplied by
 // the communal nc-vue catalog.
+registerDashboardWidget('ai-assistant', {
+	renderer: AiAssistantWidget,
+	form: AiAssistantWidgetForm,
+	defaultContent: {
+		agentUuid: '',
+	},
+	displayName: 'Assistant',
+	icon: 'RobotOutline',
+})
+
 registerDashboardWidget('clock', {
 	renderer: ClockWidget,
 	form: ClockWidgetForm,
@@ -232,6 +251,26 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// `news` — RSS/Atom headlines fetched server-side
+// (openspec/specs/news-widget). Registered after the shared catalog import, so
+// this entry replaces the communal one while nc-vue still ships it.
+registerDashboardWidget('news', {
+	renderer: NewsWidget,
+	form: NewsWidgetForm,
+	defaultContent: {
+		feedUrls: [],
+		layout: 'list',
+		itemLimit: 10,
+		showThumbnails: true,
+		showSummary: true,
+		summaryMaxChars: 200,
+		dateFormat: 'relative',
+		metadataFilter: null,
+	},
+	displayName: 'News',
+	icon: 'RssBox',
 })
 
 // Inject LaunchPad's form-overrides INTO the shared registry so the communal

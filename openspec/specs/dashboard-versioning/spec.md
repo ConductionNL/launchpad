@@ -349,6 +349,54 @@ The system MUST degrade gracefully when version storage is unavailable, returnin
 - THEN the UI SHOULD display "Version history is not available for this dashboard"
 - AND the restore button SHOULD be disabled or hidden
 
+### Requirement: The owner sees the version history (REQ-VERSUI-001)
+
+@e2e exclude restoring needs a seeded version history on a live instance; the flow is asserted in src/modals/__tests__/VersionHistoryModal.spec.js and the menu gate in src/views/__tests__/ViewsVersionHistory.spec.js
+
+The dashboard menu MUST show "Version history" to the dashboard owner and to administrators when versioning is supported for the dashboard. It MUST list versions newest first with number, date, author and note.
+
+#### Scenario: Owner opens the history
+
+- **GIVEN** Sanne owns the personal dashboard "Mijn week" and it has four saved versions
+- **WHEN** she chooses "Version history" from the dashboard menu
+- **THEN** a dialog lists the four versions newest first with date and author
+
+#### Scenario: Colleague sees no entry
+
+- **GIVEN** Pieter can view but does not own "Mijn week" and is not an administrator
+- **WHEN** he opens the dashboard menu
+- **THEN** no "Version history" entry is shown
+
+#### Scenario: Unsupported dashboard
+
+- **GIVEN** a groupfolder-backed dashboard for which `modeSupported` is false
+- **WHEN** the owner opens the dashboard menu
+- **THEN** the entry is hidden
+
+### Requirement: A person can save a named version (REQ-VERSUI-002)
+
+@e2e exclude restoring needs a seeded version history on a live instance; the flow is asserted in src/modals/__tests__/VersionHistoryModal.spec.js and the menu gate in src/views/__tests__/ViewsVersionHistory.spec.js
+
+The history dialog MUST offer "Save this version now" with an optional note, calling the explicit snapshot endpoint, and the new version MUST appear at the top of the list.
+
+#### Scenario: Named snapshot
+
+- **GIVEN** Sanne is about to rearrange her dashboard
+- **WHEN** she types "before the reorganisation" and saves a version
+- **THEN** the list shows a new top entry with that note
+
+### Requirement: Restoring asks first and can be undone (REQ-VERSUI-003)
+
+@e2e exclude restoring needs a seeded version history on a live instance; the flow is asserted in src/modals/__tests__/VersionHistoryModal.spec.js and the menu gate in src/views/__tests__/ViewsVersionHistory.spec.js
+
+Restore MUST ask for confirmation naming the version date, restore through the restore endpoint, and reload the dashboard. The list MUST then show the `pre-restore` version so the restore can itself be reversed.
+
+#### Scenario: Restore last week's layout
+
+- **GIVEN** Sanne changed her dashboard on Monday and wants Friday's layout back
+- **WHEN** she restores the Friday version and confirms
+- **THEN** the dashboard reloads with the Friday layout and the list holds a new `pre-restore` entry with Monday's layout
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/dashboards/{uuid}/versions MUST return within 500ms for dashboards with up to 50 versions. Restore operations MUST complete within 2 seconds.

@@ -1295,6 +1295,114 @@ endpoints).
 - THEN the tab MUST NOT be rendered (UI gate)
 - AND any direct call to the underlying admin endpoints MUST return HTTP 403 (server gate, already enforced by `multi-scope-dashboards`)
 
+### Requirement: Dashboards with a parent nest in the switcher (REQ-TREEUI-001)
+
+@e2e exclude nesting needs seeded parent and child dashboards on a live instance; the switcher is asserted in src/components/Workspace/__tests__/DashboardSwitcherSidebar.tree.spec.js, the breadcrumb in src/components/Workspace/__tests__/DashboardBreadcrumb.spec.js and tests/Unit/Controller/DashboardApiControllerBreadcrumbsTest.php, the form and delete flow in src/views/__tests__/ViewsTree.spec.js
+
+When at least one visible dashboard has a parent, the switcher MUST show it nested under that parent with an expand control. When none has a parent it MUST render as it does today.
+
+#### Scenario: Nested onboarding pages
+
+- **GIVEN** the group dashboard "HR" has the children "Onboarding" and "Vacation rules"
+- **WHEN** Sanne opens the dashboard switcher
+- **THEN** "HR" shows an expand control and, expanded, lists "Onboarding" and "Vacation rules" indented under it
+
+#### Scenario: No parents
+
+- **GIVEN** no dashboard has a parent
+- **WHEN** Pieter opens the switcher
+- **THEN** the list is the flat grouped list it was before
+
+### Requirement: A child page shows where it sits (REQ-TREEUI-002)
+
+@e2e exclude nesting needs seeded parent and child dashboards on a live instance; the switcher is asserted in src/components/Workspace/__tests__/DashboardSwitcherSidebar.tree.spec.js, the breadcrumb in src/components/Workspace/__tests__/DashboardBreadcrumb.spec.js and tests/Unit/Controller/DashboardApiControllerBreadcrumbsTest.php, the form and delete flow in src/views/__tests__/ViewsTree.spec.js
+
+A dashboard with a parent MUST show a breadcrumb of its ancestors above the grid, taken from the server, and MUST NOT show the name of an ancestor the viewer may not see.
+
+#### Scenario: Breadcrumb
+
+- **GIVEN** Sanne opens "Onboarding" under "HR"
+- **WHEN** the page renders
+- **THEN** a navigation landmark reads "HR / Onboarding" with "HR" as a link
+
+### Requirement: A parent is chosen in the form and validated (REQ-TREEUI-003)
+
+@e2e exclude nesting needs seeded parent and child dashboards on a live instance; the switcher is asserted in src/components/Workspace/__tests__/DashboardSwitcherSidebar.tree.spec.js, the breadcrumb in src/components/Workspace/__tests__/DashboardBreadcrumb.spec.js and tests/Unit/Controller/DashboardApiControllerBreadcrumbsTest.php, the form and delete flow in src/views/__tests__/ViewsTree.spec.js
+
+The create and rename dialogs MUST offer a "Parent dashboard" select and a slug field, and MUST show the service message when the parent would create a cycle or the slug is already used among siblings.
+
+#### Scenario: Cycle refused
+
+- **GIVEN** "HR" is the parent of "Onboarding"
+- **WHEN** Sanne sets the parent of "HR" to "Onboarding"
+- **THEN** the dialog shows the cycle message and nothing is saved
+
+### Requirement: A person can hide a widget for themselves (REQ-PERSUI-001)
+
+@e2e exclude two people on one shared dashboard need a live instance; the page behaviour is asserted in src/views/__tests__/ViewsPersonalHide.spec.js, the menu in src/components/__tests__/WidgetWrapper.hide.spec.js, the list in src/components/Workspace/__tests__/HiddenWidgetsControl.spec.js, the store in src/stores/__tests__/personalLayer.spec.js
+
+In view mode every widget that is not compulsory MUST offer "Hide for me" in its menu. Hiding MUST save the personal layer and reload the dashboard, and MUST NOT change what any other person sees.
+
+#### Scenario: Hide one widget
+
+- **GIVEN** Pieter views the shared dashboard "Team" that shows a weather widget he never uses
+- **WHEN** he chooses "Hide for me" on the weather widget
+- **THEN** the widget is gone for Pieter, and Sanne still sees it on the same dashboard
+
+#### Scenario: Compulsory widget
+
+- **GIVEN** the administrator marked the "Safety notice" widget compulsory
+- **WHEN** Pieter opens its menu
+- **THEN** no "Hide for me" item is offered
+
+### Requirement: A person can bring hidden widgets back (REQ-PERSUI-002)
+
+@e2e exclude two people on one shared dashboard need a live instance; the page behaviour is asserted in src/views/__tests__/ViewsPersonalHide.spec.js, the menu in src/components/__tests__/WidgetWrapper.hide.spec.js, the list in src/components/Workspace/__tests__/HiddenWidgetsControl.spec.js, the store in src/stores/__tests__/personalLayer.spec.js
+
+A "Hidden (n)" control MUST list the widgets the person hid, each with "Show again", and MUST be absent when nothing is hidden. "Reset my view" MUST delete the whole layer after confirmation.
+
+#### Scenario: Show one again
+
+- **GIVEN** Pieter hid two widgets
+- **WHEN** he opens "Hidden (2)" and chooses "Show again" on one
+- **THEN** that widget returns and the control now reads "Hidden (1)"
+
+#### Scenario: Reset
+
+- **GIVEN** Pieter hid two widgets and moved a third
+- **WHEN** he confirms "Reset my view"
+- **THEN** all three return to the shared layout
+
+### Requirement: A manager can publish, unpublish and schedule a dashboard (REQ-SCHEDUI-001)
+
+@e2e exclude go-live and take-down need real time to pass on a live instance; asserted in src/views/__tests__/ViewsSchedule.spec.js, src/dialogs/__tests__/ScheduleDashboardDialog.spec.js, tests/Unit/Service/DashboardServicePublicationTest.php and tests/Unit/Controller/DashboardApiControllerScheduleTest.php
+
+A person who may edit a dashboard MUST find "Publish", "Unpublish" and "Schedule..." in its menu. "Schedule..." MUST accept a go-live time, a take-down time or both, and MUST show the server's message when a time is in the past.
+
+#### Scenario: Schedule go-live
+
+- **GIVEN** Sanne manages the dashboard "Open day"
+- **WHEN** she schedules it to go live tomorrow at 09:00
+- **THEN** the header reads "Goes live on" with that date, and colleagues do not see the dashboard until then
+
+#### Scenario: Past time refused
+
+- **GIVEN** Sanne opens "Schedule..."
+- **WHEN** she enters a go-live time in the past and saves
+- **THEN** the dialog shows the refusal and nothing changes
+
+### Requirement: A dashboard can come down at a set time (REQ-SCHEDUI-002)
+
+@e2e exclude go-live and take-down need real time to pass on a live instance; asserted in src/views/__tests__/ViewsSchedule.spec.js, src/dialogs/__tests__/ScheduleDashboardDialog.spec.js, tests/Unit/Service/DashboardServicePublicationTest.php and tests/Unit/Controller/DashboardApiControllerScheduleTest.php
+
+A dashboard MAY carry `unpublishAt`. Once that time has passed, the dashboard MUST be treated as unpublished when read, and `unpublishAt` MUST NOT be earlier than `publishAt`.
+
+#### Scenario: Take-down passes
+
+- **GIVEN** the dashboard "Open day" is published with a take-down time of yesterday
+- **WHEN** a colleague lists dashboards
+- **THEN** "Open day" is not among the published dashboards
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/dashboards MUST return within 500ms for users with up to 50 dashboards. GET /api/dashboard MUST return within 1 second including template distribution if needed.

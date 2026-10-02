@@ -291,6 +291,48 @@ Reading and writing metadata MUST be scoped to the dashboard's owner (for person
 - WHEN she sends `PUT /api/dashboards/abc-123/metadata` with body `{"metadata": {"department": "marketing"}}`
 - THEN the system MUST update the metadata and return HTTP 200
 
+### Requirement: An administrator defines detail fields (REQ-MDUI-001)
+
+@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
+
+The administration settings MUST let an administrator create, edit and delete detail fields of type text, number, date, select and multi-select, with options for the two select types, and MUST refuse a select field without options with the service message.
+
+#### Scenario: Department field
+
+- **GIVEN** Ruben is a Nextcloud administrator
+- **WHEN** he adds a select field "Department" with options "HR" and "Finance"
+- **THEN** the field is listed and appears on every dashboard's Details tab
+
+#### Scenario: Select without options
+
+- **GIVEN** the same administrator
+- **WHEN** he saves a select field with no options
+- **THEN** the form shows the service message and nothing is saved
+
+### Requirement: A dashboard owner fills in the details (REQ-MDUI-002)
+
+@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
+
+The dashboard settings dialog MUST have a "Details" tab showing one control per defined field and saving the values for that dashboard.
+
+#### Scenario: Set the owning department
+
+- **GIVEN** the field "Department" exists and Sanne owns "Payroll"
+- **WHEN** she selects "Finance" on the Details tab and saves
+- **THEN** reopening the dialog shows "Finance"
+
+### Requirement: Dashboards can be filtered by a detail (REQ-MDUI-003)
+
+@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
+
+The dashboards list endpoint MUST pass `metadata.<key>` query parameters to the metadata filter, and the switcher MUST offer "Filter by detail" when at least one field can be filtered.
+
+#### Scenario: Filter to Finance
+
+- **GIVEN** "Payroll" has Department Finance and "Onboarding" has Department HR
+- **WHEN** Pieter filters the switcher by Department Finance
+- **THEN** only "Payroll" is listed
+
 ## Non-Functional Requirements
 
 - **Performance**: `GET /api/admin/metadata-fields` MUST return within 200ms for up to 1000 fields. `GET /api/dashboards?metadata.*=*` MUST return within 1000ms for 10,000 dashboards with filtering applied (indexed queries on `launchpad_meta_vunique` / `launchpad_meta_vfield`).

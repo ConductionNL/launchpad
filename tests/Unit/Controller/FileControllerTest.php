@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\FileController;
+use OCA\LaunchPad\Exception\FileAlreadyExistsException;
 use OCA\LaunchPad\Exception\FileTypeNotAllowedException;
 use OCA\LaunchPad\Exception\InvalidFilenameException;
 use OCA\LaunchPad\Service\FileService;
@@ -88,6 +89,36 @@ class FileControllerTest extends TestCase {
 		$data = $response->getData();
 		$this->assertSame('success', $data['status']);
 		$this->assertSame(42, $data['fileId']);
+	}
+
+	/**
+	 * Issue #712: the controller passes overwrite=false through, and an
+	 * existing file answers 409 with the stable error code.
+	 */
+	public function testOverwriteFalseOnExistingFileMapsToHttp409(): void {
+		$this->request->method('getParam')->willReturnMap([['overwrite', null, false]]);
+		$this->fileService->expects($this->once())->method('createFile')
+			->with('alice', 'report.docx', '/', '', FileService::ON_EXISTING_REFUSE)
+			->willThrowException(new FileAlreadyExistsException());
+
+		$response = $this->controller->createFile(
+			filename: 'report.docx',
+			dir: '/',
+			content: ''
+		);
+
+		$this->assertSame(Http::STATUS_CONFLICT, $response->getStatus());
+		$this->assertSame('file_exists', $response->getData()['error']);
+	}
+
+	public function testOverwriteDefaultsToTrue(): void {
+		$this->fileService->expects($this->once())->method('createFile')
+			->with('alice', 'report.docx', '/', '', FileService::ON_EXISTING_REPLACE)
+			->willReturn(['status' => 'success', 'fileId' => 1, 'url' => 'u']);
+
+		$response = $this->controller->createFile(filename: 'report.docx');
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 	}
 
 	public function testUnauthenticatedReturnsForbiddenEnvelope(): void {

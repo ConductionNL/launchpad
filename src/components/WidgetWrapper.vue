@@ -55,6 +55,22 @@
 		     the component directly loses the cascade tie and the cog drops into
 		     flow (pushing content). Wrapping matches the shared nc-vue
 		     CnDashboardPage pattern. -->
+		<!-- dashboards-personal-hide-ui REQ-PERSUI-001: in view mode a widget
+		     on a shared dashboard can be hidden for this person only. Not
+		     offered for a compulsory widget (the server refuses it anyway). -->
+		<div v-if="showHideForMe" class="launchpad-widget__cog">
+			<NcActions :aria-label="t('launchpad', 'Widget options')">
+				<NcActionButton
+					:closeAfterClick="true"
+					data-testid="widget-hide-for-me"
+					@click="$emit('hideForMe', placement)">
+					<template #icon>
+						<EyeOff :size="20" />
+					</template>
+					{{ t('launchpad', 'Hide for me') }}
+				</NcActionButton>
+			</NcActions>
+		</div>
 		<div v-if="editMode" class="launchpad-widget__cog">
 			<CnWidgetEditCog
 				:menuLabel="t('launchpad', 'Widget menu')"
@@ -67,7 +83,13 @@
 </template>
 
 <script>
-import { CnWidgetEditCog, CnWidgetWrapper } from '@conduction/nextcloud-vue'
+import {
+	CnWidgetEditCog,
+	CnWidgetWrapper,
+	NcActionButton,
+	NcActions,
+} from '@conduction/nextcloud-vue'
+import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -78,6 +100,9 @@ export default {
 	components: {
 		CnWidgetWrapper,
 		CnWidgetEditCog,
+		EyeOff,
+		NcActionButton,
+		NcActions,
 		WidgetRenderer,
 		AcknowledgementPrompt,
 	},
@@ -119,11 +144,33 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
+		// dashboards-personal-hide-ui: the host allows "Hide for me" here
+		// (a shared dashboard the viewer does not own).
+		canHideForMe: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
-	emits: ['remove', 'style', 'edit', 'acknowledged'],
+	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
 
 	computed: {
+		/**
+		 * Whether "Hide for me" is offered: view mode, allowed by the host,
+		 * and not a compulsory widget.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/dashboards/spec.md
+		 */
+		showHideForMe() {
+			return (
+				this.canHideForMe
+				&& !this.editMode
+				&& Number(this.placement?.isCompulsory) !== 1
+			)
+		},
+
 		/**
 		 * Whether this placement renders a reusable tile, identified by the
 		 * `tile-` widgetId prefix.

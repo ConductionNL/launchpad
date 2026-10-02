@@ -26,6 +26,7 @@ use DateTime;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -138,6 +139,14 @@ class DashboardService {
 	public const ERR_SCHEDULE_PAST_DATE = 'publishAt must be a future timestamp';
 
 	/**
+	 * Validation error when the take-down time is not after the go-live
+	 * time (sharing-dashboard-schedule-screen REQ-SCHEDUI-002).
+	 *
+	 * @var string
+	 */
+	public const ERR_UNPUBLISH_BEFORE_PUBLISH = 'unpublishAt must be after publishAt';
+
+	/**
 	 * Constructor
 	 *
 	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
@@ -176,6 +185,19 @@ class DashboardService {
 	 *                              fork name
 	 *                              (REQ-DASH-020).
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param PersonalLayerService $personalLayers Lays a reader's own
+	 *                                             arrangement over a
+	 *                                             dashboard somebody else
+	 *                                             owns (REQ-DWMS-001).
+	 *                                             Required, not nullable:
+	 *                                             a null here is
+	 *                                             indistinguishable from a
+	 *                                             reader who has no layer,
+	 *                                             so broken wiring would
+	 *                                             store layers and show
+	 *                                             none of them, in silence
+	 *                                             and with every test
+	 *                                             green.
 	 * @param DashboardTranslationService|null $translationService Optional
 	 *                                                             translation
 	 *                                                             service
@@ -283,6 +305,9 @@ class DashboardService {
 	 *                                               cannot produce
 	 *                                               duplicate slugs
 	 *                                               (REQ-DASH-020).
+	 * @param DashboardActivityEmitter|null $activity Sends dashboard_published
+	 *                                                and dashboard_updated to
+	 *                                                the audience (#713).
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,
@@ -298,6 +323,7 @@ class DashboardService {
 		private readonly IConfig $config,
 		private readonly IFactory $l10nFactory,
 		private readonly LoggerInterface $logger,
+		private readonly PersonalLayerService $personalLayers,
 		private readonly ?DashboardTranslationService $translationService = null,
 		private readonly ?DashboardLockMapper $lockMapper = null,
 		private readonly ?FooterService $footerService = null,
@@ -307,6 +333,7 @@ class DashboardService {
 		private readonly ?QuotaService $quotaService = null,
 		private readonly ?IURLGenerator $urlGenerator = null,
 		private readonly ?ILockingProvider $lockingProvider = null,
+		private readonly ?DashboardActivityEmitter $activity = null,
 	) {
 	}//end __construct()
 
@@ -410,7 +437,11 @@ class DashboardService {
 			if (isset($levels[$dashboard->getId()]) === true) {
 				return [
 					'dashboard' => $dashboard,
-					'placements' => $placements,
+					'placements' => $this->withPersonalLayer(
+						placements: $placements,
+						dashboard: $dashboard,
+						userId: $userId
+					),
 					'permissionLevel' => $levels[$dashboard->getId()],
 				];
 			}
@@ -418,13 +449,85 @@ class DashboardService {
 
 		return $this->dashResolver->buildResult(
 			dashboard: $dashboard,
-			placements: $placements
+			placements: $this->withPersonalLayer(
+				placements: $placements,
+				dashboard: $dashboard,
+				userId: $userId
+			)
 		);
 	}//end getDashboardForUser()
 
 	/**
+	 * Lay the caller's own arrangement over a dashboard somebody else owns.
+	 *
+	 * Their own dashboard is left alone: the arrangement there IS the
+	 * dashboard, and a layer on top of it would be a second place the same
+	 * thing is stored. A caller with no layer gets the placements back
+	 * unchanged, so this costs one miss until somebody uses the feature.
+	 *
+	 * The layer service is required rather than nullable. It used to be
+	 * nullable, and a null read exactly like a caller with no layer, so a
+	 * wiring failure would have stored layers and applied none of them
+	 * without a single test noticing.
+	 *
+	 * @param array $placements What the owner composed.
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param string $userId The caller.
+	 *
+	 * @return array The placements the caller sees.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	private function withPersonalLayer(
+		array $placements,
+		Dashboard $dashboard,
+		string $userId,
+	): array {
+		if ((string)$dashboard->getUserId() === $userId) {
+			return $placements;
+		}
+
+		return $this->personalLayers->applyTo(
+			placements: $placements,
+			userId: $userId,
+			dashboardId: (int)$dashboard->getId()
+		);
+	}//end withPersonalLayer()
+
+	/**
 	 * Get the effective dashboard for a user.
 	 * Returns user's active dashboard or applicable admin template.
+	 *
+	 * This is `GET /api/dashboard`, the call the grid loads from, so it is
+	 * the read the personal layer has to reach. The resolution chain below
+	 * has eight exits, several of them inside DashboardResolver, so the
+	 * layer goes on here, once, over whatever the chain settled on, rather
+	 * than at eight places where the ninth would be forgotten.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The effective dashboard data or null.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function getEffectiveDashboard(string $userId): ?array {
+		$result = $this->resolveEffectiveDashboard(userId: $userId);
+		if ($result === null || isset($result['placements']) === false) {
+			return $result;
+		}
+
+		$result['placements'] = $this->withPersonalLayer(
+			placements: $result['placements'],
+			dashboard: $result['dashboard'],
+			userId: $userId
+		);
+
+		return $result;
+	}//end getEffectiveDashboard()
+
+	/**
+	 * The resolution chain behind {@see self::getEffectiveDashboard()}.
 	 *
 	 * @param string $userId The user ID.
 	 *
@@ -432,7 +535,7 @@ class DashboardService {
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	public function getEffectiveDashboard(string $userId): ?array {
+	private function resolveEffectiveDashboard(string $userId): ?array {
 		// Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
 		// then the auto-overwriting last-used preference (REQ-DASH-019),
 		// both against the user's full visible set. This honours a
@@ -486,7 +589,7 @@ class DashboardService {
 			return $result;
 		}
 
-		$result = $this->resolveDefaultGroupDashboard(userId: $userId);
+		$result = $this->resolveRoleLayoutOrDefaultGroupDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
@@ -508,7 +611,45 @@ class DashboardService {
 		}
 
 		return $this->tryCreateFromTemplate(userId: $userId);
-	}//end getEffectiveDashboard()
+	}//end resolveEffectiveDashboard()
+
+	/**
+	 * The user's role layout when their groups carry one, else the instance default.
+	 *
+	 * Kept out of getEffectiveDashboard() so that method takes this as one
+	 * step: inline, the extra branches put it over phpmd's NPath threshold.
+	 *
+	 * @param string $userId The user to resolve for.
+	 *
+	 * @return array|null The built dashboard result, or null when neither exists.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function resolveRoleLayoutOrDefaultGroupDashboard(string $userId): ?array {
+		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
+		// REQ-RFP-002 says a new user is seeded from their group's
+		// RoleLayoutDefault rows. Since #361 seeds one `default`
+		// group-shared dashboard on install, the default group step matched
+		// for EVERY new user, so `tryCreateFromTemplate()` at the end of
+		// getEffectiveDashboard() never ran and no role layout was ever
+		// seeded. Measured on a fresh instance: a user in a group with layout
+		// defaults resolved to the shared `default` dashboard and owned
+		// nothing.
+		//
+		// Narrow on purpose: only an instance that configured role layout
+		// defaults for one of this user's groups takes the new path, and
+		// `tryCreateFromTemplate()` still answers null when personal
+		// dashboards are switched off, which falls through to the old
+		// behaviour.
+		if ($this->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
+			$result = $this->tryCreateFromTemplate(userId: $userId);
+			if ($result !== null) {
+				return $result;
+			}
+		}
+
+		return $this->resolveDefaultGroupDashboard(userId: $userId);
+	}//end resolveRoleLayoutOrDefaultGroupDashboard()
 
 	/**
 	 * Resolve an instance-wide dashboard on the reserved `default` group.
@@ -716,7 +857,11 @@ class DashboardService {
 			data: $data
 		);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		// Shared dashboards announce a save, at most once a day (#713).
+		$this->activity?->updated(dashboard: $saved, actor: $userId);
+
+		return $saved;
 	}//end updateDashboard()
 
 	/**
@@ -1141,7 +1286,11 @@ class DashboardService {
 			data: $patch
 		);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		// The group hears about a save, at most once a day (#713).
+		$this->activity?->updated(dashboard: $saved, actor: $actorUserId);
+
+		return $saved;
 	}//end updateGroupShared()
 
 	/**
@@ -1444,33 +1593,7 @@ class DashboardService {
 
 		foreach ($entries as $entry) {
 			$dashboard = $entry['dashboard'];
-			$status = $dashboard->getPublicationStatus();
-			// Pre-migration / legacy rows that never set the column
-			// semantically remain visible (REQ-DASH-035): treat an
-			// empty string as `'published'` so backwards compatibility
-			// holds even if an entity is hydrated without the column.
-			if ($status === '') {
-				$status = Dashboard::STATUS_PUBLISHED;
-			}
-
-			// REQ-DASH-034: lazy materialisation of due scheduled rows.
-			if ($status === Dashboard::STATUS_SCHEDULED) {
-				$publishAt = $dashboard->getPublishAt();
-				if ($publishAt !== null && $publishAt !== '') {
-					try {
-						$when = new DateTime($publishAt);
-						if ($when <= $now) {
-							$dashboard->setPublicationStatus(
-								Dashboard::STATUS_PUBLISHED
-							);
-							$status = Dashboard::STATUS_PUBLISHED;
-						}
-					} catch (Exception) {
-						// Malformed timestamp — leave as scheduled and
-						// fall through to the visibility check below.
-					}
-				}
-			}
+			$status = $this->effectivePublicationStatus(dashboard: $dashboard, now: $now);
 
 			if ($status === Dashboard::STATUS_PUBLISHED) {
 				$filtered[] = $entry;
@@ -1488,6 +1611,60 @@ class DashboardService {
 
 		return $filtered;
 	}//end filterByPublicationState()
+
+	/**
+	 * The publication state a dashboard has at read time, applied to the
+	 * entity in memory only: an empty legacy status reads as published
+	 * (REQ-DASH-035), a scheduled row past `publishAt` as published
+	 * (REQ-DASH-034), and a published row past `unpublishAt` as a draft
+	 * (REQ-SCHEDUI-002).
+	 *
+	 * @param Dashboard $dashboard The dashboard being read.
+	 * @param DateTime $now The moment of the read.
+	 *
+	 * @return string The effective status.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function effectivePublicationStatus(Dashboard $dashboard, DateTime $now): string {
+		$status = $dashboard->getPublicationStatus();
+		// Pre-migration / legacy rows that never set the column
+		// semantically remain visible (REQ-DASH-035): treat an
+		// empty string as `'published'` so backwards compatibility
+		// holds even if an entity is hydrated without the column.
+		if ($status === '') {
+			$status = Dashboard::STATUS_PUBLISHED;
+		}
+
+		// REQ-DASH-034: lazy materialisation of due scheduled rows.
+		if ($status === Dashboard::STATUS_SCHEDULED) {
+			$publishAt = $dashboard->getPublishAt();
+			if ($publishAt !== null && $publishAt !== '') {
+				try {
+					$when = new DateTime($publishAt);
+					if ($when <= $now) {
+						$dashboard->setPublicationStatus(
+							Dashboard::STATUS_PUBLISHED
+						);
+						$status = Dashboard::STATUS_PUBLISHED;
+					}
+				} catch (Exception) {
+					// Malformed timestamp — leave as scheduled and
+					// fall through to the visibility check below.
+				}
+			}
+		}
+
+		// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
+		// dashboard whose take-down time has passed reads as a draft, so
+		// only its owner and administrators keep seeing it.
+		if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
+			$status = Dashboard::STATUS_DRAFT;
+		}
+
+		return $status;
+	}//end effectivePublicationStatus()
 
 	/**
 	 * Resolve the active dashboard for a user using the 7-step precedence
@@ -1848,6 +2025,18 @@ class DashboardService {
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
+		// REQ-SCHEDUI-002: publishing now overrides a take-down time that
+		// already passed. The stored status can still read `published`
+		// (the take-down is computed at read time), so this runs before the
+		// idempotent return; otherwise the dashboard stays down.
+		if ($this->isTakenDown(dashboard: $dashboard, now: new DateTime()) === true) {
+			$dashboard->setUnpublishAt(null);
+			if ($dashboard->getPublicationStatus() === Dashboard::STATUS_PUBLISHED) {
+				$dashboard->setUpdatedAt($now);
+				return $this->dashboardMapper->update(entity: $dashboard);
+			}
+		}
+
 		// Idempotent: already published — no-op other than touching
 		// updatedAt is intentionally skipped so audit timestamps stay
 		// accurate. Caller still receives the current state.
@@ -1869,7 +2058,12 @@ class DashboardService {
 		$dashboard->setPublishAt(null);
 		$dashboard->setUpdatedAt($now);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		// Only the transition into published is announced; the idempotent
+		// early return above sends nothing (#713).
+		$this->activity?->published(dashboard: $saved, actor: $userId);
+
+		return $saved;
 	}//end publishDashboard()
 
 	/**
@@ -1906,6 +2100,8 @@ class DashboardService {
 		// cleared because the scheduled hint no longer applies once we
 		// are explicitly back in draft state.
 		$dashboard->setPublishAt(null);
+		// REQ-SCHEDUI-002: a take-down time means nothing for a draft.
+		$dashboard->setUnpublishAt(null);
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -1924,9 +2120,10 @@ class DashboardService {
 	 * HTTP 400 with an i18n-translatable copy. Owner-or-admin gated.
 	 *
 	 * @param string $uuid The dashboard UUID to schedule.
-	 * @param string $publishAt The ISO-8601 timestamp at which the
+	 * @param string|null $publishAt The ISO-8601 timestamp at which the
 	 *                          dashboard should automatically publish.
 	 * @param string $userId The acting user ID.
+	 * @param string|null $unpublishAt Optional take-down time (REQ-SCHEDUI-002); null or empty leaves none.
 	 *
 	 * @return Dashboard The updated dashboard entity.
 	 *
@@ -1940,8 +2137,9 @@ class DashboardService {
 	 */
 	public function schedule(
 		string $uuid,
-		string $publishAt,
+		?string $publishAt,
 		string $userId,
+		?string $unpublishAt = null,
 	): Dashboard {
 		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		$this->assertOwnerOrAdmin(
@@ -1949,10 +2147,33 @@ class DashboardService {
 			actorUserId: $userId
 		);
 
-		$parsed = $this->parseFuturePublishAt(publishAt: $publishAt);
+		$hasPublishAt = ($publishAt !== null && trim($publishAt) !== '');
+		$hasUnpublishAt = ($unpublishAt !== null && trim($unpublishAt) !== '');
+		if ($hasPublishAt === false && $hasUnpublishAt === false) {
+			throw new InvalidArgumentException(message: self::ERR_SCHEDULE_PAST_DATE);
+		}
 
-		$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
-		$dashboard->setPublishAt($parsed);
+		$parsedPublish = null;
+		if ($hasPublishAt === true) {
+			$parsedPublish = $this->parseFuturePublishAt(publishAt: (string)$publishAt);
+		}
+
+		$parsedUnpublish = null;
+		if ($hasUnpublishAt === true) {
+			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
+			// time is also in the future, and after the go-live time.
+			$parsedUnpublish = $this->parseFuturePublishAt(publishAt: (string)$unpublishAt);
+			if ($parsedPublish !== null && $parsedUnpublish <= $parsedPublish) {
+				throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
+			}
+		}
+
+		if ($parsedPublish !== null) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+			$dashboard->setPublishAt($parsedPublish);
+		}
+
+		$dashboard->setUnpublishAt($parsedUnpublish);
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
@@ -1990,7 +2211,10 @@ class DashboardService {
 
 			$dashboard->setPublishAt(null);
 			$dashboard->setUpdatedAt($now);
-			$this->dashboardMapper->update(entity: $dashboard);
+			$saved = $this->dashboardMapper->update(entity: $dashboard);
+			// A scheduled dashboard is announced once, when its row flips
+			// to published here; the owner is the actor (#713).
+			$this->activity?->published(dashboard: $saved, actor: (string) $saved->getUserId());
 		}
 
 		return count($dueRows);
@@ -2521,6 +2745,40 @@ class DashboardService {
 	}//end findFirstGroupSharedWhere()
 
 	/**
+	 * A root slug for this user's auto-provisioned dashboard that no sibling holds.
+	 *
+	 * Root slugs share one namespace across every owner, so 'my-dashboard'
+	 * belongs to whoever provisioned first. The owner's id is appended for
+	 * everyone else, and a random segment settles the rest.
+	 *
+	 * @param string $userId The owner.
+	 *
+	 * @return string A slug free at root, or the plain one when nothing holds it.
+	 *
+	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
+	 */
+	private function uniqueRootSlugFor(string $userId): string {
+		$base = SlugGenerator::slugify(name: 'My Dashboard');
+		$candidates = [$base, ($base . '-' . SlugGenerator::slugify(name: $userId))];
+		$candidates[] = ($base . '-' . bin2hex(random_bytes(4)));
+
+		foreach ($candidates as $candidate) {
+			if ($candidate === '' || $candidate === $base . '-') {
+				continue;
+			}
+
+			try {
+				$this->treeService->validateSlugUnique(parentUuid: null, slug: $candidate);
+				return $candidate;
+			} catch (InvalidArgumentException) {
+				continue;
+			}
+		}
+
+		return ($base . '-' . bin2hex(random_bytes(6)));
+	}//end uniqueRootSlugFor()
+
+	/**
 	 * Try to create a dashboard from a template or empty.
 	 *
 	 * @param string $userId The user ID.
@@ -2543,9 +2801,17 @@ class DashboardService {
 		}
 
 		if ($allowUserDashboards === true) {
+			// 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
+			// `validateSlugUnique()` looks for any root dashboard with this
+			// slug, whoever owns it, and every auto-provisioned dashboard is
+			// named 'My Dashboard'. So the SECOND user ever to reach this
+			// branch got `Slug must be unique among siblings` and the request
+			// answered HTTP 500 with no dashboard at all. Measured on a fresh
+			// instance: the first user provisioned, the next one 500'd.
 			$dashboard = $this->createDashboard(
 				userId: $userId,
-				name: 'My Dashboard'
+				name: 'My Dashboard',
+				slug: $this->uniqueRootSlugFor(userId: $userId)
 			);
 
 			// REQ-RFP-002: when no admin template applies, prefer seeding
@@ -2555,7 +2821,7 @@ class DashboardService {
 			// The dependency is nullable to keep legacy PHPUnit doubles (built
 			// before role-based-content shipped) working — when null we treat
 			// it as "no defaults seeded" so the legacy hardcoded fallback runs.
-			$seeded = false;
+			$seeded = 0;
 			if ($this->roleFeaturePerm !== null) {
 				$seeded = $this->roleFeaturePerm->seedLayoutFromRoleDefaults(
 					userId: $userId,
@@ -2563,11 +2829,18 @@ class DashboardService {
 				);
 			}
 
-			$placements = $this->createDefaultPlacements(
-				dashboardId: $dashboard->getId()
-			);
+			// The comment above says the hardcoded pair is a FALLBACK, and it
+			// was not: it was created on every path, so a role-seeded layout
+			// came out carrying the role defaults AND tile/tile/tile/files.
+			$placements = [];
 			if ($seeded > 0) {
 				$placements = $this->placementMapper->findByDashboardId(
+					dashboardId: $dashboard->getId()
+				);
+			}
+
+			if ($seeded === 0) {
+				$placements = $this->createDefaultPlacements(
 					dashboardId: $dashboard->getId()
 				);
 			}
@@ -3175,6 +3448,29 @@ class DashboardService {
 			message: self::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN
 		);
 	}//end assertOwnerOrAdmin()
+
+	/**
+	 * Whether a dashboard's take-down time has passed.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param DateTime $now The moment of the read.
+	 *
+	 * @return bool True when `unpublishAt` is set and not in the future.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function isTakenDown(Dashboard $dashboard, DateTime $now): bool {
+		$unpublishAt = $dashboard->getUnpublishAt();
+		if ($unpublishAt === null || $unpublishAt === '') {
+			return false;
+		}
+
+		try {
+			return new DateTime($unpublishAt) <= $now;
+		} catch (Exception) {
+			return false;
+		}
+	}//end isTakenDown()
 
 	/**
 	 * Parse and validate a `publishAt` argument for the schedule action.

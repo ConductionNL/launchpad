@@ -32,8 +32,6 @@ enterprise guest/role perms + view-as-another-role).
 
 ## Requirements
 
-@e2e exclude proposed/unimplemented widget — `launchpad_security_access` is not in widgetRegistry.js nor the manifest; no UI surface exists to drive. Scenarios assert admin-only registration, schema validation, OR-RBAC GraphQL consumption, SSO/MFA card rendering, and impersonation-preview flows from Specter sources — backend/contract concerns belong in unit + Newman. Re-annotate with real UI tests when the widget is built.
-
 ### REQ-ESA-001: The system SHALL register a `launchpad_security_access` widget type
 
 The widget MUST appear in `src/constants/widgetRegistry.js` and the
@@ -49,6 +47,8 @@ admin permission per `admin-roles`).
 - **WHEN** it runs
 - **THEN** `security-access` MUST appear in EXPECTED_TYPES
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. There is no registry entry to assert.
+
 #### Scenario: Non-admin cannot add the widget
 
 - **GIVEN** a viewer without the launchpad admin permission
@@ -56,6 +56,8 @@ admin permission per `admin-roles`).
 - **THEN** `Security & access` MUST NOT appear in the list
 - **AND** the gate MUST be enforced by `admin-roles` (server-side
   on the placement POST)
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. The add-widget endpoint does gate on role permissions (WidgetApiControllerRoleTest), but this widget id is not addable at all.
 
 ### REQ-ESA-002: The widget content shape SHALL describe scope + which cards to render
 
@@ -76,11 +78,15 @@ The placement MUST persist `{type: 'security-access', content: {...}}` with:
 - **WHEN** `{type: 'security-access', content: {scope: 'tenant'}}` is saved
 - **THEN** validation MUST pass
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. There is no content schema to validate.
+
 #### Scenario: Group scope requires `groupIds`
 
 - **GIVEN** `scope === 'group'` AND `groupIds = []`
 - **WHEN** `validate()` runs
 - **THEN** an error MUST surface ("Select at least one group")
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. There is no content schema to validate.
 
 ### REQ-ESA-003: The role-assignments card SHALL consume OR's RBAC abstraction via GraphQL — never mirror a local role table
 
@@ -100,6 +106,8 @@ to OR's RBAC admin UI for any mutation.
   count and named scope
 - **AND** the data MUST come from OR's `/graphql`
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No GraphQL client for openregister.roles exists in this app.
+
 #### Scenario: Revocation reflected on next reload (Specter source)
 
 - **GIVEN** a role's permissions are revoked in OR's admin UI
@@ -107,12 +115,16 @@ to OR's RBAC admin UI for any mutation.
 - **THEN** the card MUST reflect the revocation (the role no
   longer shows the revoked scope)
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No GraphQL client for openregister.roles exists in this app.
+
 #### Scenario: No write to OR RBAC
 
 - **GIVEN** the security-access widget source files
 - **WHEN** scanned for HTTP `POST` / `PUT` / `DELETE` targeting
   `/apps/openregister/.*role` or `/apps/openregister/.*permission`
 - **THEN** zero matches MUST exist
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. The app writes to no OR RBAC endpoint from anywhere, so there is no write path to assert the absence of.
 
 ### REQ-ESA-004: The SSO status card SHALL consume Nextcloud's `user_saml` (or successor) provider info — read-only
 
@@ -136,12 +148,16 @@ the missing app.
 - **THEN** it MUST display the provider name + "SAML 2.0" + active
   status
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. Nothing in this app reads user_saml provider info.
+
 #### Scenario: SSO app absent
 
 - **GIVEN** `user_saml` is not installed
 - **WHEN** the card renders
 - **THEN** it MUST display
   `t('launchpad', 'SSO unavailable — user_saml not installed')`
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. Nothing in this app reads user_saml provider info.
 
 ### REQ-ESA-005: The MFA enforcement card SHALL consume Nextcloud's TOTP / WebAuthn provider state — read-only
 
@@ -164,12 +180,16 @@ Nextcloud's `Settings → Security` UI for changes.
 - **THEN** the card MUST show `TOTP enabled` and
   `Enforcement: on for 1 group (admins)`
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. Nothing in this app reads TOTP or WebAuthn provider state.
+
 #### Scenario: No MFA providers
 
 - **GIVEN** no twofactor app is enabled
 - **WHEN** the card renders
 - **THEN** the card MUST display the empty-state and the link to
   Nextcloud's Security settings
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. Nothing in this app reads TOTP or WebAuthn provider state.
 
 ### REQ-ESA-006: "View as another role" SHALL be a read-only preview, audited via OR's audit-trail-immutable (Specter source)
 
@@ -189,12 +209,16 @@ event table.
 - **THEN** the dashboard MUST re-render showing only widgets +
   data the target role can see (per `role-based-content`)
 
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No view-as-another-role preview exists.
+
 #### Scenario: Persistent banner with exit control (Specter source)
 
 - **GIVEN** a "View as" preview is active
 - **WHEN** the page renders
 - **THEN** a persistent banner MUST display the assumed role with
   a one-click "Exit view" control
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No view-as-another-role preview exists.
 
 #### Scenario: Impersonation audited (Specter source)
 
@@ -203,6 +227,8 @@ event table.
 - **THEN** both start + exit events MUST be present in OR's
   audit-trail (recorded via OR's audit hooks at the moment the
   RBAC context switches, NOT by a launchpad-local writer)
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No view-as-another-role preview exists, so no impersonation event is ever raised.
 
 #### Scenario: Session end auto-exits the preview (Specter source)
 
@@ -244,3 +270,6 @@ event table.
 - Nextcloud Authentication apps: `user_saml`, `twofactor_totp`,
   `twofactor_webauthn`.
 - WCAG 2.1 AA.
+
+@e2e exclude never built: `launchpad_security_access` appears in no commit on any branch under src, lib, appinfo or templates (`git log --all -S`), and is absent from widgetRegistry.js, src/manifest.json and lib/widget-types.json. No unit or Newman test covers it either. No view-as-another-role preview exists.
+

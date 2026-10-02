@@ -40,6 +40,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -111,6 +112,7 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 			config: $this->config,
 			l10nFactory: $this->createMock(IFactory::class),
 			logger: $this->createMock(LoggerInterface::class),
+			personalLayers: $this->createMock(PersonalLayerService::class),
 		);
 	}//end setUp()
 

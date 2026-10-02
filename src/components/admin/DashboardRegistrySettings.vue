@@ -4,7 +4,14 @@
 -->
 
 <template>
-	<div class="registry-settings" data-test="dashboard-registry-settings">
+	<!-- `section-dashboard-registry` is the anchor lib/Settings/connections.json
+	     links the Dashboard registry row to (adopt-connection-registry). Keep the
+	     id stable. The link also carries ?tab=sharing, because BeheerTabs only
+	     renders the active tab. -->
+	<div
+		id="section-dashboard-registry"
+		class="registry-settings"
+		data-test="dashboard-registry-settings">
 		<h3>{{ t('launchpad', 'Dashboard registry') }}</h3>
 		<p class="registry-settings__hint">
 			{{

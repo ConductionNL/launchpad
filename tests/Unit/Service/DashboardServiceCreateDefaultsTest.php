@@ -33,6 +33,7 @@ use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\FooterService;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -89,6 +90,7 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 			config: $this->createMock(IConfig::class),
 			l10nFactory: $this->createMock(IFactory::class),
 			logger: $this->createMock(LoggerInterface::class),
+			personalLayers: $this->createMock(PersonalLayerService::class),
 			footerService: $this->createMock(FooterService::class),
 		);
 	}//end setUp()

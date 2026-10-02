@@ -67,6 +67,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setPublicationStatus(string $publicationStatus)
  * @method string|null getPublishAt()
  * @method void setPublishAt(?string $publishAt)
+ * @method string|null getUnpublishAt()
+ * @method void setUnpublishAt(?string $unpublishAt)
  * @method string|null getPublishedAt()
  * @method void setPublishedAt(?string $publishedAt)
  * @method int|null getCommentsEnabled()
@@ -486,6 +488,15 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected ?string $publishedAt = null;
 
 	/**
+	 * When a published dashboard comes down (sharing-dashboard-schedule-screen
+	 * REQ-SCHEDUI-002). After this moment the read filter treats the dashboard
+	 * as unpublished. DATETIME column, NULL when it stays up.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $unpublishAt = null;
+
+	/**
 	 * Per-dashboard comments toggle (REQ-CMNT-007).
 	 *
 	 * Three legal values:
@@ -676,6 +687,7 @@ class Dashboard extends Entity implements JsonSerializable {
 			'publicationStatus' => $this->publicationStatus,
 			'publishAt' => $this->publishAt,
 			'publishedAt' => $this->publishedAt,
+			'unpublishAt' => $this->unpublishAt,
 			// REQ-FTR-006 — surface the per-dashboard footer override
 			// fields on every API payload so frontend renderers can
 			// decide whether to draw an instance footer, hide it, or

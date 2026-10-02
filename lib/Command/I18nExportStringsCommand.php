@@ -154,29 +154,15 @@ class I18nExportStringsCommand extends CommandBase {
 			return CommandService::EXIT_SUCCESS;
 		}
 
-		$signed = is_file(filename: $appRoot . '/appinfo/signature.json');
-		if (is_string(value: $target) === false || $target === '') {
-			if ($signed === true) {
-				return $this->emitError(
-					input: $input,
-					output: $output,
-					exitCode: CommandService::EXIT_INVALID_ARGS,
-					code: 'SIGNED_RELEASE',
-					message: 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
-						. 'the new file as a code integrity problem. Pass --output=<path>, or --output=- to print the file.'
-				);
-			}
-
-			$target = $appRoot . '/l10n/launchpad.pot';
-		}
-
-		if ($signed === true && $this->isInside(path: $target, folder: $appRoot) === true) {
+		$target = $this->targetPath(target: $target, appRoot: $appRoot);
+		if ($target === null) {
 			return $this->emitError(
 				input: $input,
 				output: $output,
 				exitCode: CommandService::EXIT_INVALID_ARGS,
 				code: 'SIGNED_RELEASE',
-				message: 'This is a signed release, so nothing is written into the app folder. Pass an --output path outside it.'
+				message: 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
+					. 'the new file as a code integrity problem. Pass --output=<path> outside it, or --output=- to print the file.'
 			);
 		}
 
@@ -275,6 +261,27 @@ class I18nExportStringsCommand extends CommandBase {
 
 		file_put_contents(filename: $outPath, data: $pot);
 	}//end writePot()
+
+	/**
+	 * Where to write the POT file, or null when that would be inside a signed release.
+	 *
+	 * @param mixed  $target  The `--output` value, or null when it was not given.
+	 * @param string $appRoot The app folder (resolved).
+	 *
+	 * @return string|null The path to write, or null to refuse.
+	 */
+	private function targetPath(mixed $target, string $appRoot): ?string {
+		$signed = is_file(filename: $appRoot . '/appinfo/signature.json');
+		if (is_string(value: $target) === false || $target === '') {
+			$target = $appRoot . '/l10n/launchpad.pot';
+		}
+
+		if ($signed === true && $this->isInside(path: $target, folder: $appRoot) === true) {
+			return null;
+		}
+
+		return $target;
+	}//end targetPath()
 
 	/**
 	 * Whether a path, existing or not, lies inside a folder.

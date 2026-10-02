@@ -46,6 +46,7 @@ use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
@@ -159,6 +160,9 @@ class HealthPingService {
 	 * @param IAppConfig $appConfig Admin config: allow-listed hosts, latency threshold.
 	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id / enumerates all placements.
 	 * @param LoggerInterface $logger PSR logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a ping met, or nothing when absent.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly IClientService $clientService,
@@ -166,6 +170,7 @@ class HealthPingService {
 		private readonly IAppConfig $appConfig,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly LoggerInterface $logger,
+		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
 
@@ -397,6 +402,8 @@ class HealthPingService {
 	 * @param array<string,mixed> $config The placement's health-ping config.
 	 *
 	 * @return array<string,mixed>|null `{state, latencyMs}` or `null` when refused.
+	 *
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	private function attemptPing(array $config): ?array {
 		$url = trim(string: (string)($config['healthUrl'] ?? ''));
@@ -409,6 +416,7 @@ class HealthPingService {
 				message: 'HealthPingService: host not on healthping_allowed_hosts, refusing ping (fail-closed)',
 				context: ['app' => Application::APP_ID]
 			);
+			$this->connectionReporter?->reportAllowListRefusal(key: ConnectionReporter::KEY_HEALTH_PING);
 			return null;
 		}
 
@@ -437,11 +445,13 @@ class HealthPingService {
 				message: 'HealthPingService: ping transport failure, classifying offline',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
+			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_HEALTH_PING, url: $url, httpStatus: null);
 			return ['state' => 'offline', 'latencyMs' => $latencyMs];
 		}//end try
 
 		$latencyMs = (int)round((microtime(as_float: true) - $startedAt) * 1000);
 		$status = (int)$response->getStatusCode();
+		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_HEALTH_PING, url: $url, httpStatus: $status);
 
 		if ($this->matchesExpectedStatus(status: $status, expectedStatus: $expectedStatus) === false) {
 			return ['state' => 'offline', 'latencyMs' => $latencyMs];

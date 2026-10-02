@@ -313,11 +313,24 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 
 #### Scenario: Export translatable strings to POT
 
-- GIVEN a developer runs `php occ launchpad:i18n:export-strings`
+- GIVEN a developer runs `php occ launchpad:i18n:export-strings` on a development checkout
 - WHEN the command scans `lib/` and `src/` for i18n markers
 - THEN a `.pot` file is written to `l10n/launchpad.pot`
 - AND the exit code MUST be 0
 - AND the file contains all discovered translatable strings
+
+#### Scenario: A signed release is never written to
+
+- GIVEN the app is a signed release, so `appinfo/signature.json` exists
+- WHEN an operator runs `php occ launchpad:i18n:export-strings` without `--output`, or with an `--output` path inside the app folder
+- THEN no file MUST be created or changed in the app folder, because Nextcloud would report it as a code integrity problem (EXTRA_FILE)
+- AND the exit code MUST be 2, with a message naming `--output`
+
+#### Scenario: The POT file goes where the operator says
+
+- WHEN an operator runs the command with `--output=<path>` outside the app folder, or `--output=-`
+- THEN the POT file MUST be written to that path, or printed to standard output
+- AND the exit code MUST be 0
 
 #### Scenario: Migrate language structure one-time
 

@@ -365,4 +365,22 @@ class ReactionServiceTest extends TestCase {
 		$this->assertNull($page['nextCursor']);
 		$this->assertSame(1, $page['total']);
 	}
+
+	/**
+	 * The summary carries the allowed emoji, so the reactions bar offers
+	 * only those (engagement-dashboard-reactions-bar REQ-RXN-010).
+	 */
+	public function testTheEnabledSummaryListsTheAllowedEmoji(): void {
+		$dash = $this->makeDashboard(perDashFlag: 1);
+		$this->dashboardMapper->method('findByUuid')->willReturn($dash);
+		$this->permissionService->method('canViewDashboard')->willReturn(true);
+		$this->appConfig->method('getValueBool')->willReturn(true);
+		$this->reactionMapper->method('countByEmoji')->willReturn([]);
+		$this->reactionMapper->method('findByUser')->willReturn([]);
+
+		$summary = $this->service->getReactionsSummary(dashboardUuid: 'dash-123', userId: 'alice');
+
+		$this->assertSame($this->service->getAllowedEmojis(), $summary['allowed']);
+		$this->assertNotEmpty($summary['allowed']);
+	}
 }

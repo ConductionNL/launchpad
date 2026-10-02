@@ -37,6 +37,7 @@ use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
+use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\StoreService;
@@ -265,6 +266,7 @@ class Application extends App implements IBootstrap {
 	 * @return void
 	 *
 	 * @spec openspec/changes/store-plane-dashboard-sharing/specs/dashboard-store/spec.md#requirement-req-store-002-an-absent-openregister-must-degrade-never-fatal
+	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-002-a-registry-settings-save-asks-integriq-to-look-again
 	 */
 	private function registerStore(IRegistrationContext $context): void {
 		$context->registerService(
@@ -278,7 +280,11 @@ class Application extends App implements IBootstrap {
 					),
 					importService: $c->get(ImportService::class),
 					appConfig: $c->get(\OCP\IAppConfig::class),
-					logger: $c->get(\Psr\Log\LoggerInterface::class)
+					logger: $c->get(\Psr\Log\LoggerInterface::class),
+					// Adopt-connection-registry: without it a registry save would
+					// never ask integriq to look again and no search would report.
+					// The argument is optional, so leaving it out is a silent no-op.
+					connectionReporter: $c->get(ConnectionReporter::class)
 				);
 			}
 		);

@@ -315,6 +315,42 @@ Existing dashboards without translation rows MUST continue to function as before
 - THEN the `oc_launchpad_dash_translations` table MUST be dropped
 - AND existing dashboard records MUST remain unaffected (the widget tree is still in `oc_launchpad_dashboards`)
 
+### Requirement: A dashboard owner manages language versions in the settings dialog (REQ-LANGUI-001)
+
+@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
+
+The dashboard settings dialog MUST have a "Languages" tab, hidden while creating, listing each variant with its language and marking the primary. It MUST let the owner add a variant blank or copied from an existing language, edit its name and description, delete a non-primary variant, and make another variant primary.
+
+#### Scenario: Add a Dutch version
+
+- **GIVEN** Sanne owns "Intranet" whose only variant is English
+- **WHEN** she opens Settings, Languages, chooses "Add language", picks Dutch and "Copy from English"
+- **THEN** a Dutch variant is listed with the copied content and she can edit its name
+
+#### Scenario: Primary switch
+
+- **GIVEN** "Intranet" has English (primary) and Dutch
+- **WHEN** she makes Dutch primary
+- **THEN** Dutch is marked primary and English is a normal variant
+
+### Requirement: The workspace page shows the reader's language (REQ-LANGUI-002)
+
+@e2e exclude switching language and filtering need seeded variants and fields on a live instance; asserted in src/components/Workspace/config/__tests__/LanguagesTab.spec.js, src/components/Workspace/config/__tests__/DetailsTab.spec.js, src/components/Workspace/__tests__/DashboardLanguageHeading.spec.js, src/components/admin/__tests__/MetadataFieldsSettings.spec.js, src/views/__tests__/ViewsDetailFilter.spec.js and tests/Unit/Controller/DashboardApiControllerLanguagesAndDetailsTest.php
+
+When a dashboard has more than one variant, the workspace page MUST show the variant that matches the reader's Nextcloud language, and the primary with a visible note when none matches.
+
+#### Scenario: Reader in Dutch
+
+- **GIVEN** "Intranet" has Dutch and English variants and Jan's Nextcloud language is Dutch
+- **WHEN** Jan opens "Intranet"
+- **THEN** he sees the Dutch name and description
+
+#### Scenario: Reader in German
+
+- **GIVEN** the same dashboard and Petra's language is German
+- **WHEN** Petra opens it
+- **THEN** she sees the primary variant and a note "Shown in the primary language"
+
 ## Non-Functional Requirements
 
 - **Performance**: Locale resolution (normalisation + database lookup) MUST complete in <100ms per request. `GET /api/dashboards/{uuid}/resolved` MUST return within 500ms including all translation metadata.

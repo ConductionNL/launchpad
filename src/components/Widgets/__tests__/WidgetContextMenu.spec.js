@@ -34,18 +34,26 @@ function mountMenu(props = {}) {
 }
 
 describe('WidgetContextMenu', () => {
-	it('REQ-WDG-015: renders five items — Edit, Move, Visibility rules…, Remove, Cancel', () => {
+	it('REQ-WDG-015: renders six items — Edit, Move, Visibility rules…, Read confirmation…, Remove, Cancel', () => {
 		const wrapper = mountMenu()
 		const buttons = wrapper.findAll('.widget-context-menu__item')
-		expect(buttons.length).toBe(5)
+		expect(buttons.length).toBe(6)
 		const labels = buttons.map((b) => b.text().trim())
 		expect(labels).toEqual([
 			'Edit',
 			'Move',
 			'Visibility rules…',
+			'Read confirmation…',
 			'Remove',
 			'Cancel',
 		])
+	})
+
+	it('REQ-ACK-007: Read confirmation emits readConfirmation then close', async () => {
+		const wrapper = mountMenu()
+		await wrapper.find('[data-testid="ctx-read-confirmation"]').trigger('click')
+		expect(wrapper.emitted('readConfirmation')).toHaveLength(1)
+		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
 	it('grid-layout: clicking Move emits move then close (single-instance)', async () => {

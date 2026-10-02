@@ -44,6 +44,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * `launchpad:i18n:export-strings` console command.
+ *
+ * @spec openspec/specs/cli-commands/spec.md#requirement-req-cli-005-new-commands-i18n-management
  */
 class I18nExportStringsCommand extends CommandBase {
 	/**
@@ -87,7 +89,8 @@ class I18nExportStringsCommand extends CommandBase {
 				name: 'output',
 				shortcut: 'o',
 				mode: InputOption::VALUE_REQUIRED,
-				description: 'Where to write the POT file: a path, or - for standard output. Defaults to l10n/launchpad.pot on a development checkout; a signed release needs this option.'
+				description: 'Where to write the POT file: a path, or - for standard output. '
+					. 'Defaults to l10n/launchpad.pot on a development checkout; a signed release needs this option.'
 			)
 			->setHelp(
 				help: implode(
@@ -159,7 +162,8 @@ class I18nExportStringsCommand extends CommandBase {
 					output: $output,
 					exitCode: CommandService::EXIT_INVALID_ARGS,
 					code: 'SIGNED_RELEASE',
-					message: 'This is a signed release, so nothing is written into the app folder: Nextcloud would report the new file as a code integrity problem. Pass --output=<path>, or --output=- to print the file.'
+					message: 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
+						. 'the new file as a code integrity problem. Pass --output=<path>, or --output=- to print the file.'
 				);
 			}
 

@@ -402,6 +402,13 @@ return [
 		['name' => 'template#gallery', 'url' => '/api/templates/gallery', 'verb' => 'GET'],
 
 		// Admin endpoints
+		// Templates LaunchPad ships with (REQ-TMPL-018). Registered BEFORE
+		// the `/api/admin/templates/{id}` wildcard routes so the literal
+		// `shipped` segment wins.
+		['name' => 'adminShippedTemplate#index', 'url' => '/api/admin/templates/shipped', 'verb' => 'GET'],
+		['name' => 'adminShippedTemplate#install',
+		 'url' => '/api/admin/templates/shipped/{id}/install', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],
 		// Preview-image upload — REQ-TMPL-017. Registered BEFORE the
@@ -590,6 +597,10 @@ return [
 		['name' => 'adminDemoShowcases#destroy',
 		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '[a-z0-9\-]+']],
+
+		// Attention feed: what the user's apps declare as needing attention
+		// (REQ-ATT-002). Declarations only; the widget runs the counts.
+		['name' => 'attention#sources', 'url' => '/api/attention/sources', 'verb' => 'GET'],
 
 		// Weather widget — cached reading for one placement (REQ-WEATHER-001).
 		// View-time ACL guarded in the controller; never returns the provider

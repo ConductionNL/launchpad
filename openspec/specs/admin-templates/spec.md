@@ -769,13 +769,13 @@ A definition that is missing or malformed MUST fail the install with an error. I
 
 The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
 
-The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the employee's dossiq cases past their deadline, the employee's open dossiq cases and recent activity. The header and the list of cases past their deadline are compulsory. Its permission level is `add_only`.
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the "First today" list across apps (`attention-feed`, since template version 2), the employee's dossiq cases past their deadline, the employee's open dossiq cases and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`.
 
 #### Scenario: An administrator adds the shipped template and gives it to a group
 - GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
 - WHEN an administrator adds it from the Templates page, then edits it and picks the group "medewerkers"
 - THEN the template list MUST show "Mijn werkdag" with the group "medewerkers"
-- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the list of cases past their deadline marked compulsory
+- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the "First today" list marked compulsory
 
 @e2e exclude No Playwright test was written for this. The install is pinned by ShippedTemplateServiceTest::testInstallAddsTheTemplateThroughTheImporter, the compulsory flags by ::testTheShippedTemplateSurvivesExportAndImport, and the page by TemplatesPage.shipped.spec.js. It has not been run in a browser.
 

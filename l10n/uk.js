@@ -1301,7 +1301,19 @@ OC.L10N.register(
     "Add template" : "Add template",
     "The ready-made templates could not be loaded." : "The ready-made templates could not be loaded.",
     "The template \"{name}\" could not be added." : "The template \"{name}\" could not be added.",
-    "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded."
+    "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
+    "First today" : "First today",
+    "Checking your apps…" : "Checking your apps…",
+    "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
+    "And {count} more." : "And {count} more.",
+    "Nothing needs your attention right now." : "Nothing needs your attention right now.",
+    "None of your apps reports attention items yet." : "None of your apps reports attention items yet.",
+    "Could not check: {apps}" : "Could not check: {apps}",
+    "Urgent:" : "Urgent:",
+    "Soon:" : "Soon:",
+    "For your information:" : "For your information:",
+    "Shows what needs attention today, from every app that reports it. Each line links into the app." : "Shows what needs attention today, from every app that reports it. Each line links into the app.",
+    "Lines to show" : "Lines to show"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -60,12 +60,12 @@ A file that is not valid MUST NOT take the feed down. The app MUST be reported u
 
 ### Requirement: REQ-ATT-002 The sources endpoint
 
-`GET /api/attention/sources` MUST return `{ sources: [...], invalid: [...] }` for the signed-in user. It MUST require a signed-in user and MUST NOT require an administrator. It MUST NOT run any count and MUST NOT return any object data: it returns what the apps declared.
+`GET /api/attention/sources` MUST return `{ userId, sources: [...], invalid: [...] }` for the signed-in user. `userId` is the user's own id, which the widget writes where a filter says `@me`. It MUST require a signed-in user and MUST NOT require an administrator. It MUST NOT run any count and MUST NOT return any object data: it returns what the apps declared.
 
 #### Scenario: A signed-in employee gets the sources
 - GIVEN Pieter is signed in
 - WHEN his browser asks `GET /api/attention/sources`
-- THEN the answer MUST be HTTP 200 with `sources` and `invalid`
+- THEN the answer MUST be HTTP 200 with `userId: "pieter"`, `sources` and `invalid`
 
 @e2e exclude Pinned by AttentionControllerTest::testASignedInUserGetsTheSources. Not run in a browser.
 
@@ -87,7 +87,7 @@ The link into the app MUST be the declared path with the SAME filter as its quer
 - GIVEN the dossiq source with the filter `assignee: "@me"`, `isFinalStatus: false`, `"deadline[lt]": "@today+1d"`
 - WHEN the widget builds the count request and the link on 5 October 2026 for the user `pieter`
 - THEN the count request's query MUST be `assignee=pieter&isFinalStatus=false&deadline[lt]=2026-10-06&_limit=1`
-- AND the link MUST be `/apps/dossiq/cases?assignee=@me&isFinalStatus=false&deadline[lt]=@today+1d`
+- AND the link MUST be `/apps/dossiq/cases?assignee=@me&isFinalStatus=false&deadline[lt]=@today%2B1d` (the `+` is written as `%2B`, or the app would read a space)
 - AND the link's parameter names MUST equal the count's parameter names without `_limit`
 
 @e2e exclude Pinned by attentionFeed.spec.js "the count and the link carry the same filter". Not run in a browser.

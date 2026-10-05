@@ -1,11 +1,11 @@
 {
 	"templateId": "mijn-werkdag",
-	"templateVersion": 1,
+	"templateVersion": 2,
 	"language": "nl",
 	"dashboard": {
 		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
 		"name": "Mijn werkdag",
-		"description": "Startpagina voor medewerkers: termijnen, zaken, taken, besluitvorming en de agenda van vandaag.",
+		"description": "Startpagina voor medewerkers: wat vandaag eerst moet, termijnen, zaken, taken, besluitvorming en de agenda.",
 		"icon": null,
 		"type": "admin_template",
 		"userId": null,
@@ -16,7 +16,7 @@
 		"sortOrder": 0,
 		"publicationStatus": "published",
 		"templateCategory": "Werkplek",
-		"templateDescription": "Startpagina voor medewerkers van een gemeente. Bevat de widgets van dossiq en decidiq, de agenda en recente activiteit.",
+		"templateDescription": "Startpagina voor medewerkers van een gemeente. Bevat wat vandaag aandacht vraagt uit alle apps, de widgets van dossiq en decidiq, de agenda en recente activiteit.",
 		"widgets": [
 			{
 				"widgetId": "header",
@@ -40,12 +40,29 @@
 				"sortOrder": 0
 			},
 			{
-				"widgetId": "nc-widget",
+				"widgetId": "attention",
 				"gridX": 0,
 				"gridY": 2,
+				"gridWidth": 12,
+				"gridHeight": 5,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Vandaag eerst",
+				"customIcon": null,
+				"content": {
+					"limit": 5
+				},
+				"showTitle": 1,
+				"sortOrder": 1
+			},
+			{
+				"widgetId": "nc-widget",
+				"gridX": 0,
+				"gridY": 7,
 				"gridWidth": 6,
 				"gridHeight": 6,
-				"isCompulsory": 1,
+				"isCompulsory": 0,
 				"isVisible": 1,
 				"styleConfig": {},
 				"customTitle": "Termijnen die aflopen",
@@ -56,12 +73,12 @@
 					"displayMode": "vertical"
 				},
 				"showTitle": 1,
-				"sortOrder": 1
+				"sortOrder": 2
 			},
 			{
 				"widgetId": "nc-widget",
 				"gridX": 6,
-				"gridY": 2,
+				"gridY": 7,
 				"gridWidth": 6,
 				"gridHeight": 6,
 				"isCompulsory": 0,
@@ -75,12 +92,12 @@
 					"displayMode": "vertical"
 				},
 				"showTitle": 1,
-				"sortOrder": 2
+				"sortOrder": 3
 			},
 			{
 				"widgetId": "object-list",
 				"gridX": 0,
-				"gridY": 8,
+				"gridY": 13,
 				"gridWidth": 6,
 				"gridHeight": 7,
 				"isCompulsory": 0,
@@ -129,12 +146,12 @@
 					"emptyText": "Er zijn geen zaken aan u toegewezen."
 				},
 				"showTitle": 1,
-				"sortOrder": 3
+				"sortOrder": 4
 			},
 			{
 				"widgetId": "nc-widget",
 				"gridX": 6,
-				"gridY": 8,
+				"gridY": 13,
 				"gridWidth": 6,
 				"gridHeight": 7,
 				"isCompulsory": 0,
@@ -148,12 +165,12 @@
 					"displayMode": "vertical"
 				},
 				"showTitle": 1,
-				"sortOrder": 4
+				"sortOrder": 5
 			},
 			{
 				"widgetId": "nc-widget",
 				"gridX": 0,
-				"gridY": 15,
+				"gridY": 20,
 				"gridWidth": 4,
 				"gridHeight": 6,
 				"isCompulsory": 0,
@@ -167,12 +184,12 @@
 					"displayMode": "vertical"
 				},
 				"showTitle": 1,
-				"sortOrder": 5
+				"sortOrder": 6
 			},
 			{
 				"widgetId": "calendar",
 				"gridX": 4,
-				"gridY": 15,
+				"gridY": 20,
 				"gridWidth": 4,
 				"gridHeight": 6,
 				"isCompulsory": 0,
@@ -189,12 +206,12 @@
 					"externalIcsUrls": []
 				},
 				"showTitle": 1,
-				"sortOrder": 6
+				"sortOrder": 7
 			},
 			{
 				"widgetId": "nc-widget",
 				"gridX": 8,
-				"gridY": 15,
+				"gridY": 20,
 				"gridWidth": 4,
 				"gridHeight": 6,
 				"isCompulsory": 0,
@@ -208,7 +225,7 @@
 					"displayMode": "vertical"
 				},
 				"showTitle": 1,
-				"sortOrder": 7
+				"sortOrder": 8
 			}
 		]
 	}

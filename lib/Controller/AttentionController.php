@@ -61,7 +61,7 @@ class AttentionController extends Controller {
 	 * Any signed-in user may ask: the answer is what apps enabled for THIS
 	 * user declare, and holds no object data.
 	 *
-	 * @return JSONResponse `{sources, invalid}`, or 401 without a session.
+	 * @return JSONResponse `{userId, sources, invalid}`, or 401 without a session.
 	 *
 	 * @spec openspec/specs/attention-feed/spec.md#req-att-002
 	 */
@@ -75,6 +75,9 @@ class AttentionController extends Controller {
 			);
 		}
 
-		return new JSONResponse(data: $this->sources->collect(user: $user));
+		// The widget resolves `@me` in a filter to this id before it counts.
+		return new JSONResponse(
+			data: (['userId' => $user->getUID()] + $this->sources->collect(user: $user))
+		);
 	}//end sources()
 }//end class

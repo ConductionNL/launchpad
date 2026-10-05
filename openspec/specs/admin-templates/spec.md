@@ -769,13 +769,13 @@ A definition that is missing or malformed MUST fail the install with an error. I
 
 The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
 
-The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. It uses only widgets that exist: a header, the dossiq deadline, overdue and task widgets, a list of the employee's dossiq cases, the decidiq widget, today's agenda and recent activity. The header and the deadline widget are compulsory. Its permission level is `add_only`.
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. It uses only widgets that exist: a header, the "First today" list across apps (`attention-feed`, since template version 2), the dossiq deadline, overdue and task widgets, a list of the employee's dossiq cases, the decidiq widget, today's agenda and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`.
 
 #### Scenario: An administrator adds the shipped template and gives it to a group
 - GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
 - WHEN an administrator adds it from the Templates page, then edits it and picks the group "medewerkers"
 - THEN the template list MUST show "Mijn werkdag" with the group "medewerkers"
-- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the deadline widget marked compulsory
+- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the "First today" list marked compulsory
 
 @e2e exclude No Playwright test was written for this. The install is pinned by ShippedTemplateServiceTest::testInstallAddsTheTemplateThroughTheImporter, the compulsory flags by ::testTheShippedTemplateSurvivesExportAndImport, and the page by TemplatesPage.shipped.spec.js. It has not been run in a browser.
 

@@ -284,7 +284,7 @@ class ShippedTemplateServiceTest extends TestCase {
 			$instance['placements']->getArrayCopy(),
 			static fn (WidgetPlacement $p): bool => $p->getIsCompulsory() === 1
 		);
-		self::assertCount(2, $compulsory, 'the header and the deadline widget are compulsory');
+		self::assertCount(2, $compulsory, 'the header and the First today widget are compulsory');
 	}
 
 	/**
@@ -333,7 +333,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		// The control: the comparison would also pass if both sides were
 		// empty, so pin that the compulsory flags really crossed.
 		self::assertSame(
-			[1, 1, 0, 0, 0, 0, 0, 0],
+			[1, 1, 0, 0, 0, 0, 0, 0, 0],
 			array_column(self::definitionOf($onB)['widgets'], 'isCompulsory')
 		);
 	}
@@ -459,7 +459,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		self::assertSame('mijn-werkdag', $listing[0]['id']);
 		self::assertSame('Mijn werkdag', $listing[0]['name']);
 		self::assertSame('nl', $listing[0]['language']);
-		self::assertSame(8, $listing[0]['widgetCount']);
+		self::assertSame(9, $listing[0]['widgetCount']);
 		self::assertFalse($listing[0]['isInstalled']);
 		self::assertNull($listing[0]['installedVersion']);
 		self::assertSame(['decidesk'], $listing[0]['missingWidgets']);

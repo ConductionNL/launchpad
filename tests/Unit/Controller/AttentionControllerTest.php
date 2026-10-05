@@ -25,6 +25,7 @@ use ReflectionMethod;
 class AttentionControllerTest extends TestCase {
 	public function testASignedInUserGetsTheSources(): void {
 		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('pieter');
 		$session = $this->createMock(IUserSession::class);
 		$session->method('getUser')->willReturn($user);
 		$service = $this->createMock(AttentionSourceService::class);
@@ -34,7 +35,10 @@ class AttentionControllerTest extends TestCase {
 		$response = (new AttentionController($this->createMock(IRequest::class), $service, $session))->sources();
 
 		self::assertSame(Http::STATUS_OK, $response->getStatus());
-		self::assertSame(['sources' => [['appId' => 'dossiq']], 'invalid' => []], $response->getData());
+		self::assertSame(
+			['userId' => 'pieter', 'sources' => [['appId' => 'dossiq']], 'invalid' => []],
+			$response->getData()
+		);
 	}
 
 	public function testNobodySignedInGets401(): void {

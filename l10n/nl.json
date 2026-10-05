@@ -1328,6 +1328,18 @@
         "Add template": "Sjabloon toevoegen",
         "The ready-made templates could not be loaded.": "De kant-en-klare sjablonen konden niet worden geladen.",
         "The template \"{name}\" could not be added.": "Het sjabloon \"{name}\" kon niet worden toegevoegd.",
-        "The template \"{name}\" could not be downloaded.": "Het sjabloon \"{name}\" kon niet worden gedownload."
+        "The template \"{name}\" could not be downloaded.": "Het sjabloon \"{name}\" kon niet worden gedownload.",
+        "First today": "Vandaag eerst",
+        "Checking your apps…": "Uw apps worden nagekeken…",
+        "This list could not be loaded. Reload the page to try again.": "Deze lijst kon niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
+        "And {count} more.": "En nog {count}.",
+        "Nothing needs your attention right now.": "Niets vraagt nu uw aandacht.",
+        "None of your apps reports attention items yet.": "Geen van uw apps meldt nog iets dat aandacht vraagt.",
+        "Could not check: {apps}": "Niet kunnen nakijken: {apps}",
+        "Urgent:": "Dringend:",
+        "Soon:": "Binnenkort:",
+        "For your information:": "Ter informatie:",
+        "Shows what needs attention today, from every app that reports it. Each line links into the app.": "Toont wat vandaag aandacht vraagt, uit elke app die dat meldt. Elke regel opent de app.",
+        "Lines to show": "Aantal regels"
     }
 }

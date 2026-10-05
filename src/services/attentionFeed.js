@@ -113,6 +113,7 @@ export function filterPairs(filter, resolve = (value) => value) {
  *
  * @param {Array<[string, string]>} pairs The pairs.
  * @return {string} `a=b&c=d`, or an empty string.
+ * @spec openspec/specs/attention-feed/spec.md#req-att-003
  */
 export function toQuery(pairs) {
 	return pairs

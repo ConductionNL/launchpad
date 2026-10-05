@@ -1231,6 +1231,7 @@ export default {
 		transition: none;
 	}
 }
+
 .dashboard-switcher-sidebar__expander {
 	display: inline-flex;
 	align-items: center;

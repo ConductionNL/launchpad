@@ -21,7 +21,8 @@
  * WHAT IS DELIBERATELY NOT CARRIED. Fields that point at THIS instance or at a
  * workflow on it rather than describing the widget: `id`, `dashboardId`,
  * `templatePlacementId` (the id of another placement row), `isCompulsory`
- * (an admin push, not part of a dashboard's layout), the mandatory-read
+ * (an admin push, not part of a dashboard's layout; the one exception is an
+ * admin TEMPLATE, where the flag is the definition itself), the mandatory-read
  * `acknowledgement*` fields and `announcementKey`. A fresh placement gets
  * fresh timestamps.
  *
@@ -73,12 +74,23 @@ class PlacementPayloadHydrator {
 	 * @param int                  $dashboardId The dashboard the placement joins.
 	 * @param array<string, mixed> $payload     One entry of an exported dashboard's
 	 *                                          `widgets` array.
+	 * @param bool                 $asTemplate  True when the dashboard is an admin
+	 *                                          template. Only then is `isCompulsory`
+	 *                                          carried: on a template the flag is part
+	 *                                          of the definition every copy is made
+	 *                                          from, anywhere else it is one admin's
+	 *                                          push on one instance (REQ-EXIM-012).
 	 *
 	 * @return WidgetPlacement The placement, not yet persisted.
 	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+	 *      One fact about the dashboard decides one field; a second builder
+	 *      for templates is the drift this class exists to end.
+	 *
 	 * @spec openspec/specs/dashboard-export-import/spec.md
+	 * @spec openspec/specs/dashboard-export-import/spec.md#req-exim-012
 	 */
-	public function hydrate(int $dashboardId, array $payload): WidgetPlacement {
+	public function hydrate(int $dashboardId, array $payload, bool $asTemplate = false): WidgetPlacement {
 		$placement = new WidgetPlacement();
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
@@ -96,6 +108,10 @@ class PlacementPayloadHydrator {
 		$placement->setSortOrder((int)($payload['sortOrder'] ?? 0));
 		$placement->setCreatedAt($now);
 		$placement->setUpdatedAt($now);
+
+		if ($asTemplate === true) {
+			$placement->setIsCompulsory((int)($payload['isCompulsory'] ?? 0));
+		}
 
 		if (isset($payload['customTitle']) === true) {
 			$placement->setCustomTitle((string)$payload['customTitle']);

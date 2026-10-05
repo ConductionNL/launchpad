@@ -127,6 +127,7 @@ class ImportService {
 	 *
 	 * @return array{importedDashboardCount:int, skippedDashboardCount:int,
 	 *               errors:array<int, array<string,mixed>>,
+	 *               dashboards:array<int, array{sourceUuid:string, uuid:string, id:int}>,
 	 *               manifest:array<string,mixed>,
 	 *               status:string}
 	 *
@@ -165,6 +166,7 @@ class ImportService {
 					'importedDashboardCount' => 0,
 					'skippedDashboardCount' => 0,
 					'errors' => $collisions,
+					'dashboards' => [],
 				];
 			}
 
@@ -303,7 +305,8 @@ class ImportService {
 	 * @param bool $preserveUuids Preserve flag.
 	 *
 	 * @return array{importedDashboardCount:int, skippedDashboardCount:int,
-	 *               errors:array<int, array<string,mixed>>}
+	 *               errors:array<int, array<string,mixed>>,
+	 *               dashboards:array<int, array{sourceUuid:string, uuid:string, id:int}>}
 	 */
 	private function importDashboardBatch(
 		array $dashboards,
@@ -313,6 +316,7 @@ class ImportService {
 		$imported = 0;
 		$skipped = 0;
 		$errors = [];
+		$created = [];
 
 		foreach ($dashboards as $payload) {
 			// The archive's UUID, not the one a remap may have minted: it is
@@ -344,7 +348,8 @@ class ImportService {
 
 						$placement = $this->placementHydrator->hydrate(
 							dashboardId: (int)$persisted->getId(),
-							payload: $widgetPayload
+							payload: $widgetPayload,
+							asTemplate: $persisted->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
 						);
 						$this->placementMapper->insert(entity: $placement);
 					}
@@ -352,6 +357,11 @@ class ImportService {
 
 				$this->db->commit();
 				$imported++;
+				$created[] = [
+					'sourceUuid' => $uuid,
+					'uuid' => (string)$persisted->getUuid(),
+					'id' => (int)$persisted->getId(),
+				];
 			} catch (Throwable $e) {
 				$this->db->rollBack();
 				$skipped++;
@@ -371,6 +381,7 @@ class ImportService {
 			'importedDashboardCount' => $imported,
 			'skippedDashboardCount' => $skipped,
 			'errors' => $errors,
+			'dashboards' => $created,
 		];
 	}//end importDashboardBatch()
 
@@ -658,6 +669,13 @@ class ImportService {
 			$userId = $currentUserId;
 		}
 
+		// An admin template belongs to nobody (admin-templates data model:
+		// `userId` is null). The fallback above would hand an imported
+		// template to whoever ran the import.
+		if ($type === Dashboard::TYPE_ADMIN_TEMPLATE) {
+			$userId = null;
+		}
+
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$dashboard->setUserId($userId);
 	}//end applyEntityOwnership()
@@ -691,6 +709,15 @@ class ImportService {
 			&& is_array($payload['targetGroups']) === true
 		) {
 			$dashboard->setTargetGroupsArray(groups: $payload['targetGroups']);
+		}
+
+		// What a template is filed under and how it is described in the
+		// gallery is part of the template, so it travels with it (REQ-EXIM-012).
+		foreach (['templateCategory', 'templateDescription'] as $field) {
+			if (isset($payload[$field]) === true) {
+				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+				$dashboard->{'set' . ucfirst($field)}((string)$payload[$field]);
+			}
 		}
 	}//end applyEntityLayout()
 

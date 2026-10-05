@@ -1440,6 +1440,7 @@ export default {
 	align-items: center;
 	gap: 8px;
 }
+
 .dashboard-config__error {
 	color: var(--color-error-text);
 }

@@ -818,6 +818,67 @@ The first shipped template is `mijn-werkdag`, a start page for a municipal emplo
 
 @e2e exclude A check on shipped data, not a browser behaviour: pinned by ShippedTemplateServiceTest::testTheShippedDefinitionIsWellFormed.
 
+### Requirement: REQ-TMPL-019 A member is shown their template on the first visit
+
+A user who owns no personal dashboard and has no saved choice (no pinned default and no last-used dashboard that they can still see) MUST be shown the admin template that applies to them (REQ-TMPL-005: a template that targets one of their groups, else the default template). Both resolution chains MUST do this at the same place, directly after the saved-choice steps and before any group dashboard: the page shell's chain (REQ-DASH-018, step 1b) and `GET /api/dashboard` (REQ-DASH-009).
+
+Precedence:
+
+- A template that targets one of the user's groups MUST outrank every group dashboard, the user's own group's default included.
+- The default template MUST outrank the dashboards of the `default` group (everyone), including the one seeded on install. It MUST step aside for a default dashboard of the user's own primary group, which is the more specific of the two.
+
+What the user gets:
+
+- With personal dashboards allowed (`allowUserDashboards`), the user MUST receive a personal copy (REQ-TMPL-005), once. The copy MUST be stored as their last-used dashboard, so later visits resolve it through the saved-choice step.
+- With personal dashboards off, no copy MUST be made (REQ-ASET-003). The template itself MUST be shown, view only. Its compulsory flags have no effect then, because nothing can be removed.
+
+A user who owns a personal dashboard, or has a saved choice, MUST NOT be affected by this requirement.
+
+**Why this was written down.** Templates were only known to `GET /api/dashboard`, at the very end of its chain. The page decides what to show from the other chain, which did not know templates. So on an instance with the seeded dashboard for everyone, that dashboard always won; and without it the page said "No dashboards available" and never called the API that would have made the copy. Every unit test was green and no member of a targeted group had ever been shown a template. Found by a live check on 5 October 2026.
+
+**What changes on an instance that already has templates.** A user who owns nothing and has no saved choice now lands on their template (and, with personal dashboards on, receives a copy) where they used to land on a group dashboard. Nobody else is moved.
+
+**Known limit.** With personal dashboards off, the view-only template is not in the dashboard switcher. A member who opens another dashboard cannot switch back to it.
+
+#### Scenario: A new member sees the template, although a dashboard for everyone exists
+- GIVEN the instance has the seeded dashboard for everyone and personal dashboards are allowed
+- AND the template "Mijn werkdag" targets the group "behandelaars"
+- AND Sanne is in "behandelaars" and has never opened LaunchPad
+- WHEN Sanne opens LaunchPad
+- THEN she MUST see "Mijn werkdag", as a personal copy with the template's compulsory widgets
+- AND a second visit MUST show the same copy and MUST NOT make another
+
+#### Scenario: Without any other dashboard the page still shows the template
+- GIVEN no group dashboard exists and the template targets Sanne's group
+- WHEN Sanne opens LaunchPad for the first time
+- THEN she MUST see the template's dashboard and MUST NOT see "No dashboards available"
+
+@e2e exclude Needs an instance with no group dashboard at all, and the e2e instance is shared with other suites' fixtures. Pinned by DashboardServiceTemplateRungTest::testWithNoOtherDashboardThePageStillShowsTheTemplate.
+
+#### Scenario: Personal dashboards off
+- GIVEN personal dashboards are off and the template targets Sanne's group
+- WHEN Sanne opens LaunchPad for the first time
+- THEN she MUST see the template itself, view only
+- AND no personal dashboard MUST be created for her
+
+@e2e exclude Pinned by DashboardServiceTemplateRungTest::testWithPersonalDashboardsOffTheTemplateItselfIsShownViewOnly. Not run in a browser.
+
+#### Scenario: The default template replaces the dashboard for everyone
+- GIVEN the seeded dashboard for everyone exists and a default template exists
+- AND Mark is in no group that a template targets and his primary group has no default dashboard
+- WHEN Mark opens LaunchPad for the first time
+- THEN he MUST get the default template, not the seeded dashboard
+
+@e2e exclude Making a template the instance default changes what every other suite's fresh user lands on. Pinned by DashboardServiceTemplateRungTest::testTheDefaultTemplateReplacesTheSeededDashboard and ::testTheDefaultTemplateStepsAsideForTheUsersOwnGroupDefault.
+
+#### Scenario: People already using LaunchPad are left alone
+- GIVEN Pieter owns a personal dashboard, and Lotte has a last-used dashboard she can still see
+- AND a template now targets a group both are in
+- WHEN each opens LaunchPad
+- THEN neither MUST be moved to the template and no copy MUST be made for them
+
+@e2e exclude Pinned by DashboardServiceTemplateRungTest::testAUserWhoOwnsADashboardGetsNoTemplate and ::testASavedChoiceIsKept.
+
 ## Non-Functional Requirements
 
 - **Performance**: Template distribution (copying placements) MUST complete within 2 seconds per user, even for templates with 20+ widget placements. The first-access check MUST add no more than 200ms to the initial dashboard load. `GET /api/templates/gallery` MUST return within 500ms even with 100+ templates; the gallery list SHOULD NOT fetch widget placements (use `WidgetPlacementMapper::countByDashboardId()` for the count, not `findByDashboardId()`).

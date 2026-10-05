@@ -3511,7 +3511,8 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "building",
+				"evidence": "lib/Service/AnnouncementService.php; src/components/Widgets/Renderers/AnnouncementsWidget.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/engagement-announcements"
 			},
@@ -3679,8 +3680,8 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "src/components/Widgets/VisibilityRuleRow.vue:111; lib/widget-types.json:37",
+				"state": "building",
+				"evidence": "src/components/Announcements/NoticeRegion.vue; lib/Service/AnnouncementService.php",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/engagement-announcements"
 			},
@@ -5173,7 +5174,8 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "building",
+				"evidence": "src/modals/AnnouncementEditorModal.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/engagement-announcements"
 			},

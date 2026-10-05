@@ -1,6 +1,16 @@
-# Delta for announcements
+---
+status: building
+---
 
-## ADDED Requirements
+# Announcements specification
+
+## Purpose
+
+Authors write news items and notices for the people in chosen groups. News shows in the Announcements widget with likes, comments and category follows; a notice shows as a banner above every dashboard of the people it targets, for its period. Targeting is checked on the server for every read. Likes and comments are stored by Nextcloud's comments service.
+
+The decisions behind it are in `openspec/changes/engagement-announcements/design.md`.
+
+## Requirements
 
 ### Requirement: Authors publish targeted announcements (REQ-ANN-001)
 

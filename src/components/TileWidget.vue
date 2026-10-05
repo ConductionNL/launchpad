@@ -38,7 +38,7 @@
 		<a
 			:href="tileUrl"
 			class="tile-widget__link"
-			:target="tile.linkType === 'url' ? '_blank' : '_self'"
+			:target="linkTarget"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -81,6 +81,20 @@
 				{{ tile.title }}
 			</div>
 		</a>
+		<!-- REQ-TLT-001: a browser says nothing when no program answers an
+		     address, so the tile says it after activation. -->
+		<p
+			v-if="showProgramHint"
+			class="tile-widget__hint"
+			role="status"
+			data-testid="tile-program-hint">
+			{{
+				t(
+					'launchpad',
+					'Nothing happened? The program may not be installed on this computer.',
+				)
+			}}
+		</p>
 	</div>
 </template>
 
@@ -110,6 +124,15 @@ export default {
 		injectedOnOfficeNetwork: {
 			from: 'onOfficeNetwork',
 			default: false,
+		},
+
+		/**
+		 * The single sign-on launch templates `{key, name, urlTemplate}`
+		 * (REQ-TLT-003), from the page's initial state.
+		 */
+		injectedSsoLaunchTemplates: {
+			from: 'ssoLaunchTemplates',
+			default: () => [],
 		},
 	},
 
@@ -166,9 +189,38 @@ export default {
 			type: String,
 			default: '',
 		},
+
+		/**
+		 * A remote desktop tile's connection (REQ-TLT-002): `{mode:
+		 * 'gateway', url}` or `{mode: 'rdp', host, port, remoteApp,
+		 * gateway}`, from the tile's content.
+		 *
+		 * @type {object|null}
+		 */
+		remote: {
+			type: Object,
+			default: null,
+		},
+
+		/**
+		 * A single sign-on tile's `{template, appId}` (REQ-TLT-003), from the
+		 * tile's content.
+		 *
+		 * @type {object|null}
+		 */
+		sso: {
+			type: Object,
+			default: null,
+		},
 	},
 
 	emits: ['edit', 'remove'],
+
+	data() {
+		return {
+			showProgramHint: false,
+		}
+	},
 
 	computed: {
 		/**
@@ -179,6 +231,10 @@ export default {
 		 * @spec openspec/specs/tiles/spec.md
 		 */
 		tileUrl() {
+			const launchUrl = this.launchUrl()
+			if (launchUrl !== undefined) {
+				return launchUrl
+			}
 			if (this.injectedOnOfficeNetwork === true && this.internalUrl) {
 				return this.resolveAddress(this.internalUrl)
 			}
@@ -198,6 +254,25 @@ export default {
 				return generateUrl(value)
 			}
 			return value
+		},
+
+		/**
+		 * Web addresses and sign-on apps open in a new tab; a program, an
+		 * RDP file and a Nextcloud app stay in this one (REQ-TLT-001 to
+		 * REQ-TLT-003).
+		 *
+		 * @return {string} The link target.
+		 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+		 */
+		linkTarget() {
+			const type = this.tile.linkType
+			if (type === 'url' || type === 'sso') {
+				return '_blank'
+			}
+			if (type === 'remote-desktop' && this.remote?.mode === 'gateway') {
+				return '_blank'
+			}
+			return '_self'
 		},
 	},
 
@@ -267,6 +342,48 @@ export default {
 		 */
 		handleActivate() {
 			recordTileClick(this.tile?.id)
+			if (this.tile?.linkType === 'program') {
+				this.showProgramHint = true
+			}
+		},
+
+		/**
+		 * The address of a program, remote desktop or single sign-on tile,
+		 * or undefined for an app or web tile (REQ-TLT-001 to REQ-TLT-003).
+		 * Null leaves the link without an address, for a tile whose settings
+		 * are incomplete. The server checked every value when it was saved.
+		 *
+		 * @return {string|null|undefined} The href.
+		 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+		 */
+		launchUrl() {
+			const type = this.tile.linkType
+			if (type === 'program') {
+				return this.tile.linkValue || null
+			}
+			if (type === 'remote-desktop') {
+				if (this.remote?.mode === 'gateway') {
+					return this.remote.url || null
+				}
+				if (this.remote?.mode === 'rdp' && this.placementId !== null) {
+					return generateUrl('/apps/launchpad/api/tiles/{id}/rdp', {
+						id: this.placementId,
+					})
+				}
+				return null
+			}
+			if (type === 'sso') {
+				const template = (this.injectedSsoLaunchTemplates || []).find(
+					(candidate) => candidate.key === this.sso?.template,
+				)
+				if (!template || !this.sso?.appId) {
+					return null
+				}
+				return template.urlTemplate
+					.split('{appId}')
+					.join(encodeURIComponent(this.sso.appId))
+			}
+			return undefined
 		},
 	},
 }
@@ -283,6 +400,19 @@ export default {
 	border: none;
 	overflow: hidden;
 	background-color: var(--tile-bg-color) !important;
+}
+
+.tile-widget__hint {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: 0;
+	padding: 4px 8px;
+	font-size: var(--font-size-small, 13px);
+	text-align: center;
+	color: var(--color-main-text);
+	background-color: var(--color-main-background);
 }
 
 .tile-widget__link {

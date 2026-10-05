@@ -298,6 +298,8 @@
 							:internalUrl="
 								(item.content && item.content.internalUrl) || ''
 							"
+							:remote="(item.content && item.content.remote) || null"
+							:sso="(item.content && item.content.sso) || null"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -2223,6 +2225,9 @@ export default {
 				pingInterval: content.pingInterval || 60,
 				// launcher-tile-internal-address REQ-TIA-002.
 				internalUrl: content.internalUrl || '',
+				// launcher-tile-launch-types REQ-TLT-002, REQ-TLT-003.
+				remote: content.remote || null,
+				sso: content.sso || null,
 			}
 			this.openTileEditor(tileData)
 		},
@@ -2252,6 +2257,14 @@ export default {
 				// launcher-tile-internal-address REQ-TIA-002.
 				internalUrl: String(tileData.internalUrl || '').trim(),
 			}
+			// launcher-tile-launch-types REQ-TLT-002, REQ-TLT-003: a remote
+			// desktop or sign-on tile keeps its settings in the content too.
+			if (tileData.remote) {
+				healthPingContent.remote = tileData.remote
+			}
+			if (tileData.sso) {
+				healthPingContent.sso = tileData.sso
+			}
 			try {
 				if (this.editingTile) {
 					await this.updateWidgetPlacement(this.editingTile.id, {
@@ -2273,7 +2286,9 @@ export default {
 					if (
 						newPlacement?.id
 						&& (healthPingContent.healthPingEnabled
-							|| healthPingContent.internalUrl)
+							|| healthPingContent.internalUrl
+							|| healthPingContent.remote
+							|| healthPingContent.sso)
 					) {
 						await this.updateWidgetPlacement(newPlacement.id, {
 							content: healthPingContent,

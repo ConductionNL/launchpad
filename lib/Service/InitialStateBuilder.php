@@ -371,6 +371,25 @@ class InitialStateBuilder {
 	}//end setOnOfficeNetwork()
 
 	/**
+	 * Hand the tile editor and the tiles the administrator's launch settings
+	 * (launcher-tile-launch-types, REQ-TLT-001, REQ-TLT-003): the schemes a
+	 * program tile may use and the single sign-on launch templates. Optional
+	 * keys; the JS reader defaults both to empty lists.
+	 *
+	 * @param string[] $allowedSchemes The allowed program schemes.
+	 * @param array    $ssoTemplates   The launch templates `{key, name, urlTemplate}`.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+	 */
+	public function setTileLaunchSettings(array $allowedSchemes, array $ssoTemplates): self {
+		$this->values['tileAllowedSchemes'] = array_values(array: $allowedSchemes);
+		$this->values['ssoLaunchTemplates'] = array_values(array: $ssoTemplates);
+		return $this;
+	}//end setTileLaunchSettings()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

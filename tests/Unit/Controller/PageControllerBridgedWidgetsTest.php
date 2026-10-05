@@ -66,6 +66,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 			adminSettingsService: $this->createMock(AdminSettingsService::class),
 			searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class),
 			officeNetworks: $this->createMock(\OCA\LaunchPad\Service\OfficeNetworkService::class),
+			tileLaunchSettings: $this->createMock(\OCA\LaunchPad\Service\TileLaunchSettingsService::class),
 		);
 	}//end makeController()
 

@@ -259,6 +259,9 @@
 				<template #office-networks>
 					<OfficeNetworksTab />
 				</template>
+				<template #tile-launch>
+					<TileLaunchTab />
+				</template>
 				<template #announcements>
 					<AnnouncementsTab />
 				</template>
@@ -311,6 +314,7 @@ import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SearchShortcutsTab from './tabs/SearchShortcutsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
+import TileLaunchTab from './tabs/TileLaunchTab.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
@@ -337,6 +341,7 @@ export default {
 		AnnouncementsTab,
 		SearchShortcutsTab,
 		OfficeNetworksTab,
+		TileLaunchTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -441,6 +446,10 @@ export default {
 				{
 					slug: 'office-networks',
 					label: this.t('launchpad', 'Office networks'),
+				},
+				{
+					slug: 'tile-launch',
+					label: this.t('launchpad', 'Programs and sign-on'),
 				},
 				{
 					slug: 'announcements',

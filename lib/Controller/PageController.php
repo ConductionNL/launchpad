@@ -36,6 +36,7 @@ use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\OfficeNetworkService;
 use OCA\LaunchPad\Service\SearchShortcutService;
+use OCA\LaunchPad\Service\TileLaunchSettingsService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -99,6 +100,10 @@ class PageController extends Controller {
 	 * @param OfficeNetworkService $officeNetworks Whether the request comes
 	 *                                             from an office network
 	 *                                             (REQ-TIA-003).
+	 * @param TileLaunchSettingsService $tileLaunchSettings Program schemes and
+	 *                                                     launch templates
+	 *                                                     (REQ-TLT-001,
+	 *                                                     REQ-TLT-003).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -113,6 +118,7 @@ class PageController extends Controller {
 		private readonly AdminSettingsService $adminSettingsService,
 		private readonly SearchShortcutService $searchShortcuts,
 		private readonly OfficeNetworkService $officeNetworks,
+		private readonly TileLaunchSettingsService $tileLaunchSettings,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -239,6 +245,10 @@ class PageController extends Controller {
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->searchShortcuts->getShortcuts())
 			->setOnOfficeNetwork($this->officeNetworks->isOfficeRequest())
+			->setTileLaunchSettings(
+				allowedSchemes: $this->tileLaunchSettings->getAllowedSchemes(),
+				ssoTemplates: $this->tileLaunchSettings->getSsoTemplates()
+			)
 			->apply();
 
 		return $this->workspaceResponse();

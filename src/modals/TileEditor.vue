@@ -106,28 +106,126 @@
 					</div>
 				</div>
 
-				<NcTextField
-					v-model="form.linkValue"
-					:label="t('launchpad', 'URL')"
-					:placeholder="
-						t('launchpad', 'https://example.com or /apps/files')
-					"
-					type="text" />
+				<!-- launcher-tile-launch-types REQ-TLT-001 to REQ-TLT-003. -->
+				<NcSelect
+					v-model="selectedLinkType"
+					:options="linkTypeOptions"
+					:clearable="false"
+					:inputLabel="t('launchpad', 'This tile opens')"
+					data-testid="tile-link-type" />
 
-				<!-- launcher-tile-internal-address REQ-TIA-002/003. -->
-				<NcTextField
-					v-model="form.internalUrl"
-					:label="t('launchpad', 'Address on the office network')"
-					:placeholder="
-						t('launchpad', 'Optional, for example http://zaken.intern')
-					"
-					type="text" />
-				<p
-					v-if="form.internalUrl"
-					class="tile-editor__address-in-effect"
-					data-testid="tile-address-in-effect">
-					{{ addressInEffect }}
-				</p>
+				<template v-if="isWebLink">
+					<NcTextField
+						v-model="form.linkValue"
+						:label="t('launchpad', 'URL')"
+						:placeholder="
+							t('launchpad', 'https://example.com or /apps/files')
+						"
+						type="text" />
+
+					<!-- launcher-tile-internal-address REQ-TIA-002/003. -->
+					<NcTextField
+						v-model="form.internalUrl"
+						:label="t('launchpad', 'Address on the office network')"
+						:placeholder="
+							t('launchpad', 'Optional, for example http://zaken.intern')
+						"
+						type="text" />
+					<p
+						v-if="form.internalUrl"
+						class="tile-editor__address-in-effect"
+						data-testid="tile-address-in-effect">
+						{{ addressInEffect }}
+					</p>
+				</template>
+
+				<template v-else-if="form.linkType === 'program'">
+					<NcTextField
+						v-model="form.linkValue"
+						:label="t('launchpad', 'Program address')"
+						placeholder="ms-word:ofe|u|https://"
+						type="text"
+						data-testid="tile-program-address" />
+					<p class="tile-editor__hint" data-testid="tile-program-schemes">
+						{{ programSchemesLine }}
+					</p>
+				</template>
+
+				<template v-else-if="form.linkType === 'remote-desktop'">
+					<div
+						class="tile-editor__remote-mode"
+						role="radiogroup"
+						:aria-label="t('launchpad', 'How the remote desktop starts')">
+						<NcCheckboxRadioSwitch
+							v-model="form.remote.mode"
+							value="gateway"
+							name="tile-remote-mode"
+							type="radio">
+							{{ t('launchpad', 'Through a web gateway') }}
+						</NcCheckboxRadioSwitch>
+						<NcCheckboxRadioSwitch
+							v-model="form.remote.mode"
+							value="rdp"
+							name="tile-remote-mode"
+							type="radio">
+							{{ t('launchpad', 'As a remote desktop file') }}
+						</NcCheckboxRadioSwitch>
+					</div>
+					<NcTextField
+						v-if="form.remote.mode === 'gateway'"
+						v-model="form.remote.url"
+						:label="t('launchpad', 'Gateway address')"
+						placeholder="https://desktop.example.nl/guacamole/"
+						type="text"
+						data-testid="tile-remote-url" />
+					<template v-else>
+						<NcTextField
+							v-model="form.remote.host"
+							:label="t('launchpad', 'Computer name')"
+							placeholder="rds01.example.local"
+							type="text"
+							data-testid="tile-remote-host" />
+						<NcTextField
+							v-model="form.remote.port"
+							:label="t('launchpad', 'Port')"
+							placeholder="3389"
+							type="number" />
+						<NcTextField
+							v-model="form.remote.remoteApp"
+							:label="t('launchpad', 'Published program (optional)')"
+							placeholder="||Belastingen"
+							type="text" />
+						<NcTextField
+							v-model="form.remote.gateway"
+							:label="t('launchpad', 'Remote desktop gateway (optional)')"
+							placeholder="rdgw.example.nl"
+							type="text" />
+					</template>
+				</template>
+
+				<template v-else-if="form.linkType === 'sso'">
+					<NcSelect
+						v-model="selectedSsoTemplate"
+						:options="ssoTemplateOptions"
+						:inputLabel="t('launchpad', 'Identity provider')"
+						data-testid="tile-sso-template" />
+					<p
+						v-if="ssoTemplateOptions.length === 0"
+						class="tile-editor__hint"
+						data-testid="tile-sso-none">
+						{{
+							t(
+								'launchpad',
+								'An administrator has not added an identity provider yet.',
+							)
+						}}
+					</p>
+					<NcTextField
+						v-model="form.sso.appId"
+						:label="t('launchpad', 'App id at the identity provider')"
+						type="text"
+						data-testid="tile-sso-app-id" />
+				</template>
 
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
@@ -205,13 +303,40 @@ import {
 	NcCheckboxRadioSwitch,
 	NcColorPicker,
 	NcModal,
+	NcSelect,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
+import { t } from '@nextcloud/l10n'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
 const MIN_PING_INTERVAL = 15
+
+/**
+ * A remote desktop tile's settings before the author fills them in.
+ *
+ * @return {object} The empty settings.
+ */
+function emptyRemote() {
+	return {
+		mode: 'gateway',
+		url: '',
+		host: '',
+		port: '',
+		remoteApp: '',
+		gateway: '',
+	}
+}
+
+/**
+ * A single sign-on tile's settings before the author fills them in.
+ *
+ * @return {object} The empty settings.
+ */
+function emptySso() {
+	return { template: '', appId: '' }
+}
 const DEFAULT_PING_INTERVAL = 60
 const DEFAULT_EXPECTED_STATUS = 200
 
@@ -224,6 +349,7 @@ export default {
 		NcTextField,
 		NcColorPicker,
 		NcCheckboxRadioSwitch,
+		NcSelect,
 		CnIconBrowser,
 	},
 
@@ -232,6 +358,18 @@ export default {
 		injectedOnOfficeNetwork: {
 			from: 'onOfficeNetwork',
 			default: false,
+		},
+
+		/** The program schemes an administrator allowed (REQ-TLT-001). */
+		injectedAllowedSchemes: {
+			from: 'tileAllowedSchemes',
+			default: () => [],
+		},
+
+		/** The single sign-on launch templates (REQ-TLT-003). */
+		injectedSsoLaunchTemplates: {
+			from: 'ssoLaunchTemplates',
+			default: () => [],
 		},
 	},
 
@@ -260,6 +398,8 @@ export default {
 				linkType: 'url',
 				linkValue: '',
 				internalUrl: '',
+				remote: emptyRemote(),
+				sso: emptySso(),
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -326,6 +466,96 @@ export default {
 		},
 
 		/**
+		 * The kinds of thing a tile opens (REQ-TLT-001 to REQ-TLT-003). A
+		 * Nextcloud app is listed only for tiles that already open one.
+		 *
+		 * @return {Array<{id: string, label: string}>} The options.
+		 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+		 */
+		linkTypeOptions() {
+			const options = [
+				{ id: 'url', label: t('launchpad', 'Web address') },
+				{ id: 'program', label: t('launchpad', 'Program on this computer') },
+				{ id: 'remote-desktop', label: t('launchpad', 'Remote desktop') },
+				{ id: 'sso', label: t('launchpad', 'Single sign-on app') },
+			]
+			if (this.form.linkType === 'app') {
+				options.unshift({ id: 'app', label: t('launchpad', 'Nextcloud app') })
+			}
+			return options
+		},
+
+		selectedLinkType: {
+			/** @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md */
+			get() {
+				return (
+					this.linkTypeOptions.find(
+						(option) => option.id === this.form.linkType,
+					) || null
+				)
+			},
+
+			/**
+			 * @param {{id: string}|null} option The chosen type.
+			 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+			 */
+			set(option) {
+				this.form.linkType = option?.id || 'url'
+			},
+		},
+
+		/** @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md */
+		isWebLink() {
+			return this.form.linkType === 'url' || this.form.linkType === 'app'
+		},
+
+		/**
+		 * Which program address types the administrator allows.
+		 *
+		 * @return {string} The line under the program address.
+		 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+		 */
+		programSchemesLine() {
+			const schemes = this.injectedAllowedSchemes || []
+			if (schemes.length === 0) {
+				return t(
+					'launchpad',
+					'An administrator has not allowed any program address yet, so this tile does nothing.',
+				)
+			}
+			return t('launchpad', 'Allowed program addresses: {schemes}', {
+				schemes: schemes.map((scheme) => scheme + ':').join(', '),
+			})
+		},
+
+		/** @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md */
+		ssoTemplateOptions() {
+			return (this.injectedSsoLaunchTemplates || []).map((template) => ({
+				id: template.key,
+				label: template.name,
+			}))
+		},
+
+		selectedSsoTemplate: {
+			/** @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md */
+			get() {
+				return (
+					this.ssoTemplateOptions.find(
+						(option) => option.id === this.form.sso.template,
+					) || null
+				)
+			},
+
+			/**
+			 * @param {{id: string}|null} option The chosen template.
+			 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+			 */
+			set(option) {
+				this.form.sso.template = option?.id || ''
+			},
+		},
+
+		/**
 		 * Which address the author would get right now (REQ-TIA-003).
 		 *
 		 * @spec openspec/specs/tiles/spec.md
@@ -358,6 +588,8 @@ export default {
 					this.form = {
 						...newTile,
 						iconType: newTile.iconType || 'class',
+						remote: { ...emptyRemote(), ...(newTile.remote || {}) },
+						sso: { ...emptySso(), ...(newTile.sso || {}) },
 					}
 				} else {
 					this.resetForm()
@@ -394,6 +626,8 @@ export default {
 				linkType: 'url',
 				linkValue: '',
 				internalUrl: '',
+				remote: emptyRemote(),
+				sso: emptySso(),
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -480,10 +714,48 @@ export default {
 		saveTile() {
 			this.$emit('save', {
 				...this.form,
+				...this.launchSettings(),
 				expectedStatus:
 					Number(this.form.expectedStatus) || DEFAULT_EXPECTED_STATUS,
 				pingInterval: this.clampPingInterval(this.form.pingInterval),
 			})
+		},
+
+		/**
+		 * The settings the chosen type keeps, trimmed; the others are null so
+		 * a tile that changes type drops them (REQ-TLT-002, REQ-TLT-003).
+		 * Remote desktop and sign-on tiles carry no address of their own.
+		 *
+		 * @return {{remote: object|null, sso: object|null, linkValue?: string}} The settings.
+		 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+		 */
+		launchSettings() {
+			const type = this.form.linkType
+			if (type === 'remote-desktop') {
+				const remote = this.form.remote
+				const settings =
+					remote.mode === 'gateway'
+						? { mode: 'gateway', url: String(remote.url || '').trim() }
+						: {
+								mode: 'rdp',
+								host: String(remote.host || '').trim(),
+								port: remote.port === '' ? null : Number(remote.port),
+								remoteApp: String(remote.remoteApp || '').trim(),
+								gateway: String(remote.gateway || '').trim(),
+							}
+				return { remote: settings, sso: null, linkValue: '' }
+			}
+			if (type === 'sso') {
+				return {
+					remote: null,
+					sso: {
+						template: this.form.sso.template,
+						appId: String(this.form.sso.appId || '').trim(),
+					},
+					linkValue: '',
+				}
+			}
+			return { remote: null, sso: null }
 		},
 	},
 }

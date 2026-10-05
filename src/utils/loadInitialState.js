@@ -71,6 +71,12 @@ const PAGE_KEYS = {
 		// comes from an office network, so tiles open their internal
 		// address. Optional key; false keeps every tile on its normal address.
 		onOfficeNetwork: false,
+		// launcher-tile-launch-types REQ-TLT-001, REQ-TLT-003: the schemes
+		// a program tile may use and the single sign-on launch templates
+		// `{key, name, urlTemplate}`. Optional keys; empty lists leave the
+		// new tile types inert.
+		tileAllowedSchemes: [],
+		ssoLaunchTemplates: [],
 	},
 	admin: {
 		allGroups: [],

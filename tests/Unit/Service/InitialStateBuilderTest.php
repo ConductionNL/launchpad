@@ -58,6 +58,37 @@ class InitialStateBuilderTest extends TestCase {
 	}//end testSearchShortcutsReachTheWorkspace()
 
 	/**
+	 * REQ-TLT-001, REQ-TLT-003: the allowed program schemes and the launch
+	 * templates reach the workspace page, where the tile editor and the
+	 * tiles read them.
+	 *
+	 * @return void
+	 */
+	public function testTileLaunchSettingsReachTheWorkspace(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$templates = [5 => ['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];
+
+		(new InitialStateBuilder(initialState: $state, page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('g')
+			->setPrimaryGroupName('G')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null)
+			->setTileLaunchSettings(allowedSchemes: ['ms-word'], ssoTemplates: $templates)
+			->apply();
+
+		$this->assertSame(['ms-word'], $sink['tileAllowedSchemes']);
+		$this->assertSame([$templates[5]], $sink['ssoLaunchTemplates'], 'a list, never an object keyed by position');
+	}//end testTileLaunchSettingsReachTheWorkspace()
+
+	/**
 	 * In-memory IInitialState stub that records every push.
 	 *
 	 * @return IInitialState&\PHPUnit\Framework\MockObject\MockObject

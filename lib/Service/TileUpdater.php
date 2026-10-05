@@ -39,6 +39,20 @@ class TileUpdater {
 	];
 
 	/**
+	 * Constructor.
+	 *
+	 * @param TileLaunchValidator $launchValidator Checks link types and
+	 *                                             addresses (REQ-TLT-001
+	 *                                             to REQ-TLT-003).
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md
+	 */
+	public function __construct(
+		private readonly TileLaunchValidator $launchValidator,
+	) {
+	}//end __construct()
+
+	/**
 	 * Apply tile configuration to a new placement entity.
 	 *
 	 * @param WidgetPlacement $placement The placement entity.
@@ -52,6 +66,13 @@ class TileUpdater {
 		WidgetPlacement $placement,
 		array $tileData,
 	): void {
+		// REQ-TLT-001 to REQ-TLT-003: an unknown type or a refused address
+		// stops the create before anything is set.
+		$this->launchValidator->assertValidLink(
+			type: ($tileData['linkType'] ?? 'app'),
+			value: ($tileData['linkVal'] ?? '')
+		);
+
 		$placement->setTileType('custom');
 		$placement->setTileTitle(
 			$tileData['title'] ?? 'New Tile'
@@ -101,6 +122,17 @@ class TileUpdater {
 			if (isset($data[$key]) === true) {
 				$placement->$setter($data[$key]);
 			}
+		}
+
+		// REQ-TLT-001 to REQ-TLT-003: when the link or the content changes,
+		// the tile as it would be stored must be valid; the caller writes
+		// nothing when this throws.
+		if (isset($data['tileLinkType']) === true || isset($data['tileLinkValue']) === true || is_array(value: $content) === true) {
+			$this->launchValidator->assertValidTile(
+				type: $placement->getTileLinkType(),
+				value: $placement->getTileLinkValue(),
+				content: $placement->getContentArray()
+			);
 		}
 	}//end applyTileUpdates()
 

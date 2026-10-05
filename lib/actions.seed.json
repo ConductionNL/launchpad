@@ -69,6 +69,8 @@
     "search-shortcut.save": ["admin"],
     "office-network.list": ["admin"],
     "office-network.save": ["admin"],
+    "tile-launch.list": ["admin"],
+    "tile-launch.save": ["admin"],
     "profile-fields.get-own": ["admin", "@all"],
     "profile-fields.save-own": ["admin", "@all"],
     "profile-fields.get-definitions": ["admin"],

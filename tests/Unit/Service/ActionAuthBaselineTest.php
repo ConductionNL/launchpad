@@ -88,6 +88,8 @@ class ActionAuthBaselineTest extends TestCase {
 		'search-shortcut.save',
 		'office-network.list',
 		'office-network.save',
+		'tile-launch.list',
+		'tile-launch.save',
 		'profile-fields.get-definitions',
 		// engagement-announcements D6: the editor groups are an admin setting.
 		'announcement.settings',

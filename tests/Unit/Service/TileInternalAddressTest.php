@@ -28,6 +28,9 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\PlacementUpdater;
 use OCA\LaunchPad\Service\TileUpdater;
+use OCA\LaunchPad\Service\TileLaunchSettingsService;
+use OCA\LaunchPad\Service\TileLaunchValidator;
+use OCA\LaunchPad\Db\AdminSettingMapper;
 use PHPUnit\Framework\TestCase;
 
 class TileInternalAddressTest extends TestCase {
@@ -51,7 +54,7 @@ class TileInternalAddressTest extends TestCase {
 
 		return new PlacementService(
 			placementMapper: $mapper,
-			tileUpdater: new TileUpdater(),
+			tileUpdater: new TileUpdater(launchValidator: new TileLaunchValidator(settings: new TileLaunchSettingsService(settingMapper: $this->createMock(AdminSettingMapper::class)))),
 			placementUpdater: new PlacementUpdater(),
 		);
 	}//end service()

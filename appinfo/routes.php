@@ -472,6 +472,12 @@ return [
 		['name' => 'officeNetworks#index', 'url' => '/api/admin/office-networks', 'verb' => 'GET'],
 		['name' => 'officeNetworks#save', 'url' => '/api/admin/office-networks', 'verb' => 'PUT'],
 
+		// Tile launch types (launcher-tile-launch-types REQ-TLT-001 to REQ-TLT-003):
+		// admin schemes and launch templates, and a tile's RDP connection file.
+		['name' => 'tileLaunchSettings#index', 'url' => '/api/admin/tile-launch', 'verb' => 'GET'],
+		['name' => 'tileLaunchSettings#save', 'url' => '/api/admin/tile-launch', 'verb' => 'PUT'],
+		['name' => 'tileLaunch#rdp', 'url' => '/api/tiles/{placementId}/rdp', 'verb' => 'GET', 'requirements' => ['placementId' => '\d+']],
+
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.
 		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],

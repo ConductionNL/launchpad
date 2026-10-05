@@ -34,6 +34,8 @@ use OCA\LaunchPad\Service\PlacementService;
 use OCA\LaunchPad\Service\PlacementUpdater;
 use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Service\TileUpdater;
+use OCA\LaunchPad\Service\TileLaunchSettingsService;
+use OCA\LaunchPad\Service\TileLaunchValidator;
 use OCP\IDBConnection;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -85,7 +87,7 @@ class BookmarkImportServiceTest extends TestCase {
 		);
 		$placements = new PlacementService(
 			placementMapper: $mapper,
-			tileUpdater: new TileUpdater(),
+			tileUpdater: new TileUpdater(launchValidator: new TileLaunchValidator(settings: new TileLaunchSettingsService(settingMapper: $this->createMock(AdminSettingMapper::class)))),
 			placementUpdater: $this->createMock(PlacementUpdater::class),
 			quotaService: $quota,
 		);

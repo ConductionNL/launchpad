@@ -18,7 +18,9 @@
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
  *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
- *  - Tiles:                OFFICE_NETWORKS (launcher-tile-internal-address)
+ *  - Tiles:                OFFICE_NETWORKS (launcher-tile-internal-address),
+ *                          TILE_ALLOWED_SCHEMES, SSO_LAUNCH_TEMPLATES
+ *                          (launcher-tile-launch-types)
  *  - Announcements:        ANNOUNCEMENT_EDITOR_GROUPS (engagement-announcements)
  *
  * @category Db
@@ -67,5 +69,7 @@ enum AdminSettingKey: string {
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
 	case SEARCH_SHORTCUTS = 'search_shortcuts';
 	case OFFICE_NETWORKS = 'office_networks';
+	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
+	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
 	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 }//end enum

@@ -11,6 +11,7 @@ namespace OCA\LaunchPad\Tests\Unit\Command;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Command\TemplateInstallCommand;
+use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\ShippedTemplateService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -48,12 +49,18 @@ class TemplateInstallCommandTest extends TestCase {
 		];
 	}
 
+	private function settings(bool $personalDashboards): AdminSettingsService {
+		$settings = $this->createMock(AdminSettingsService::class);
+		$settings->method('getSettings')->willReturn(['allowUserDashboards' => $personalDashboards]);
+		return $settings;
+	}
+
 	public function testInstallsForAGroup(): void {
 		$this->templates->expects(self::once())->method('install')
 			->with('mijn-werkdag', ['medewerkers', 'bestuur'], true, false)
 			->willReturn(self::installResult(['targetGroups' => ['medewerkers', 'bestuur'], 'isDefault' => true]));
 
-		$tester = new CommandTester(new TemplateInstallCommand($this->templates));
+		$tester = new CommandTester(new TemplateInstallCommand($this->templates, $this->settings(true)));
 		$exit = $tester->execute([
 			'id' => 'mijn-werkdag',
 			'--group' => ['medewerkers', 'bestuur'],
@@ -65,6 +72,7 @@ class TemplateInstallCommandTest extends TestCase {
 		self::assertStringContainsString('Installed template mijn-werkdag version 1 (UUID: uuid-1).', $display);
 		self::assertStringContainsString('Groups: medewerkers, bestuur. Default for everyone: yes.', $display);
 		self::assertStringNotContainsString('registers', $display);
+		self::assertStringNotContainsString('Personal dashboards are off', $display);
 	}
 
 	public function testASecondRunSaysSoAndPassesForce(): void {
@@ -72,7 +80,7 @@ class TemplateInstallCommandTest extends TestCase {
 			->with('mijn-werkdag', [], false, true)
 			->willReturn(self::installResult(['alreadyInstalled' => true, 'missingWidgets' => ['decidesk']]));
 
-		$tester = new CommandTester(new TemplateInstallCommand($this->templates));
+		$tester = new CommandTester(new TemplateInstallCommand($this->templates, $this->settings(false)));
 		$exit = $tester->execute(['id' => 'mijn-werkdag', '--force' => true]);
 
 		self::assertSame(0, $exit);
@@ -80,13 +88,14 @@ class TemplateInstallCommandTest extends TestCase {
 		self::assertStringContainsString('Already installed: template mijn-werkdag', $display);
 		self::assertStringContainsString('Groups: (none). Default for everyone: no.', $display);
 		self::assertStringContainsString('decidesk', $display);
+		self::assertStringContainsString('Personal dashboards are off. Members will see this template read-only', $display);
 	}
 
 	public function testAnUnknownGroupExitsOne(): void {
 		$this->templates->method('install')
 			->willThrowException(new InvalidArgumentException('Unknown group: medewerkerz'));
 
-		$tester = new CommandTester(new TemplateInstallCommand($this->templates));
+		$tester = new CommandTester(new TemplateInstallCommand($this->templates, $this->settings(true)));
 
 		self::assertSame(1, $tester->execute(['id' => 'mijn-werkdag', '--group' => ['medewerkerz']]));
 		self::assertStringContainsString('Unknown group: medewerkerz', $tester->getDisplay());
@@ -97,7 +106,7 @@ class TemplateInstallCommandTest extends TestCase {
 			new InvalidArgumentException('Unknown template: nope. Shipped templates: mijn-werkdag')
 		);
 
-		$tester = new CommandTester(new TemplateInstallCommand($this->templates));
+		$tester = new CommandTester(new TemplateInstallCommand($this->templates, $this->settings(true)));
 
 		self::assertSame(1, $tester->execute(['id' => 'nope']));
 		self::assertStringContainsString('Shipped templates: mijn-werkdag', $tester->getDisplay());
@@ -106,7 +115,7 @@ class TemplateInstallCommandTest extends TestCase {
 	public function testAFailedInstallExitsOne(): void {
 		$this->templates->method('install')->willThrowException(new RuntimeException('disk full'));
 
-		$tester = new CommandTester(new TemplateInstallCommand($this->templates));
+		$tester = new CommandTester(new TemplateInstallCommand($this->templates, $this->settings(true)));
 
 		self::assertSame(1, $tester->execute(['id' => 'mijn-werkdag']));
 		self::assertStringContainsString('Installation failed: disk full', $tester->getDisplay());

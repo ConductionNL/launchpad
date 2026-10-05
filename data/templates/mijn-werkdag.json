@@ -5,7 +5,7 @@
 	"dashboard": {
 		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
 		"name": "Mijn werkdag",
-		"description": "Startpagina voor medewerkers: wat vandaag eerst moet, termijnen, zaken, taken, besluitvorming en de agenda.",
+		"description": "Startpagina voor medewerkers: wat vandaag eerst moet uit al uw apps, zaken over de termijn, uw open zaken en recente activiteit.",
 		"icon": null,
 		"type": "admin_template",
 		"userId": null,
@@ -16,7 +16,7 @@
 		"sortOrder": 0,
 		"publicationStatus": "published",
 		"templateCategory": "Werkplek",
-		"templateDescription": "Startpagina voor medewerkers van een gemeente. Bevat wat vandaag aandacht vraagt uit alle apps, de widgets van dossiq en decidiq, de agenda en recente activiteit.",
+		"templateDescription": "Startpagina voor medewerkers van een gemeente. Toont wat vandaag aandacht vraagt uit alle apps, uw dossiq-zaken over de termijn, uw open zaken en recente activiteit. Werkt zonder extra instellingen.",
 		"widgets": [
 			{
 				"widgetId": "header",
@@ -31,7 +31,7 @@
 				"customIcon": null,
 				"content": {
 					"title": "Mijn werkdag",
-					"subtitle": "Uw zaken, taken en afspraken van vandaag op één pagina",
+					"subtitle": "Uw zaken en wat vandaag eerst moet, op één pagina",
 					"textAlign": "left",
 					"verticalAlign": "middle",
 					"height": "small"
@@ -57,30 +57,11 @@
 				"sortOrder": 1
 			},
 			{
-				"widgetId": "nc-widget",
+				"widgetId": "object-list",
 				"gridX": 0,
 				"gridY": 7,
 				"gridWidth": 6,
-				"gridHeight": 6,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": "Termijnen die aflopen",
-				"customIcon": null,
-				"content": {
-					"title": "Termijnen die aflopen",
-					"widgetId": "procest_deadline_alerts_widget",
-					"displayMode": "vertical"
-				},
-				"showTitle": 1,
-				"sortOrder": 2
-			},
-			{
-				"widgetId": "nc-widget",
-				"gridX": 6,
-				"gridY": 7,
-				"gridWidth": 6,
-				"gridHeight": 6,
+				"gridHeight": 7,
 				"isCompulsory": 0,
 				"isVisible": 1,
 				"styleConfig": {},
@@ -88,33 +69,17 @@
 				"customIcon": null,
 				"content": {
 					"title": "Zaken over de termijn",
-					"widgetId": "procest_overdue_cases_widget",
-					"displayMode": "vertical"
-				},
-				"showTitle": 1,
-				"sortOrder": 3
-			},
-			{
-				"widgetId": "object-list",
-				"gridX": 0,
-				"gridY": 13,
-				"gridWidth": 6,
-				"gridHeight": 7,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": "Mijn zaken",
-				"customIcon": null,
-				"content": {
-					"title": "Mijn zaken",
 					"register": "dossiq",
 					"schema": "case",
 					"filter": {
 						"assignee": "@me",
-						"isFinalStatus": false
+						"isFinalStatus": false,
+						"statusHiddenInLists": false,
+						"isDraft": false,
+						"deadline[lt]": "@today+1d"
 					},
 					"sort": {
-						"field": "plannedEndDate",
+						"field": "deadline",
 						"dir": "asc"
 					},
 					"limit": 10,
@@ -128,91 +93,75 @@
 							"label": "Zaak"
 						},
 						{
-							"key": "status",
-							"label": "Status",
-							"widget": "fkResolve",
-							"widgetProps": {
-								"register": "dossiq",
-								"schema": "statusType",
-								"labelField": "name"
-							}
+							"key": "statusPublicLabel",
+							"label": "Status"
 						},
 						{
-							"key": "plannedEndDate",
-							"label": "Streefdatum"
+							"key": "deadline",
+							"label": "Termijn"
+						}
+					],
+					"allowCreate": false,
+					"emptyText": "Geen van uw zaken is over de termijn."
+				},
+				"showTitle": 1,
+				"sortOrder": 2
+			},
+			{
+				"widgetId": "object-list",
+				"gridX": 6,
+				"gridY": 7,
+				"gridWidth": 6,
+				"gridHeight": 7,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Mijn zaken",
+				"customIcon": null,
+				"content": {
+					"title": "Mijn zaken",
+					"register": "dossiq",
+					"schema": "case",
+					"filter": {
+						"assignee": "@me",
+						"isFinalStatus": false,
+						"statusHiddenInLists": false,
+						"isDraft": false
+					},
+					"sort": {
+						"field": "deadline",
+						"dir": "asc"
+					},
+					"limit": 10,
+					"columns": [
+						{
+							"key": "identifier",
+							"label": "Nummer"
+						},
+						{
+							"key": "title",
+							"label": "Zaak"
+						},
+						{
+							"key": "statusPublicLabel",
+							"label": "Status"
+						},
+						{
+							"key": "deadline",
+							"label": "Termijn"
 						}
 					],
 					"allowCreate": false,
 					"emptyText": "Er zijn geen zaken aan u toegewezen."
 				},
 				"showTitle": 1,
-				"sortOrder": 4
-			},
-			{
-				"widgetId": "nc-widget",
-				"gridX": 6,
-				"gridY": 13,
-				"gridWidth": 6,
-				"gridHeight": 7,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": "Mijn taken",
-				"customIcon": null,
-				"content": {
-					"title": "Mijn taken",
-					"widgetId": "procest_my_tasks_widget",
-					"displayMode": "vertical"
-				},
-				"showTitle": 1,
-				"sortOrder": 5
+				"sortOrder": 3
 			},
 			{
 				"widgetId": "nc-widget",
 				"gridX": 0,
-				"gridY": 20,
-				"gridWidth": 4,
-				"gridHeight": 6,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": "Besluitvorming",
-				"customIcon": null,
-				"content": {
-					"title": "Besluitvorming",
-					"widgetId": "decidesk",
-					"displayMode": "vertical"
-				},
-				"showTitle": 1,
-				"sortOrder": 6
-			},
-			{
-				"widgetId": "calendar",
-				"gridX": 4,
-				"gridY": 20,
-				"gridWidth": 4,
-				"gridHeight": 6,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": "Agenda vandaag",
-				"customIcon": null,
-				"content": {
-					"title": "Agenda vandaag",
-					"viewMode": "agenda",
-					"daysAhead": 1,
-					"colorByCalendar": true,
-					"internalCalendars": [],
-					"externalIcsUrls": []
-				},
-				"showTitle": 1,
-				"sortOrder": 7
-			},
-			{
-				"widgetId": "nc-widget",
-				"gridX": 8,
-				"gridY": 20,
-				"gridWidth": 4,
+				"gridY": 14,
+				"gridWidth": 12,
 				"gridHeight": 6,
 				"isCompulsory": 0,
 				"isVisible": 1,
@@ -225,7 +174,7 @@
 					"displayMode": "vertical"
 				},
 				"showTitle": 1,
-				"sortOrder": 8
+				"sortOrder": 4
 			}
 		]
 	}

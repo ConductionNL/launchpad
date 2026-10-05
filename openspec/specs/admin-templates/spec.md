@@ -769,7 +769,7 @@ A definition that is missing or malformed MUST fail the install with an error. I
 
 The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
 
-The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. It uses only widgets that exist: a header, the "First today" list across apps (`attention-feed`, since template version 2), the dossiq deadline, overdue and task widgets, a list of the employee's dossiq cases, the decidiq widget, today's agenda and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`.
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the "First today" list across apps (`attention-feed`, since template version 2), the employee's dossiq cases past their deadline, the employee's open dossiq cases and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`.
 
 #### Scenario: An administrator adds the shipped template and gives it to a group
 - GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
@@ -803,11 +803,19 @@ The first shipped template is `mijn-werkdag`, a start page for a municipal emplo
 @e2e exclude A packaging fault cannot be staged in a browser: pinned by ShippedTemplateServiceTest::testAMalformedDefinitionFails.
 
 #### Scenario: The listing names widgets no app registers here
-- GIVEN the instance does not have decidiq installed
+- GIVEN no app on the instance registers the `activity` widget
 - WHEN an administrator lists the shipped templates
-- THEN `mijn-werkdag` MUST list `decidesk` under `missingWidgets`
+- THEN `mijn-werkdag` MUST list `activity` under `missingWidgets`
 
 @e2e exclude Needs an instance without the app: pinned by ShippedTemplateServiceTest::testTheListingNamesWidgetsNothingRegisters.
+
+#### Scenario: The shipped template renders as installed
+- GIVEN the shipped definition `data/templates/mijn-werkdag.json` and an instance with dossiq and default LaunchPad settings
+- WHEN a member opens the dashboard made from it
+- THEN no widget MUST show "This widget can only be shown on the Nextcloud dashboard itself." or a raw widget id as its heading
+- AND the "Termijn" column of both case lists MUST show each case's deadline
+
+@e2e exclude Needs dossiq with cases on the instance, which the e2e instance does not have. Pinned by ShippedTemplateServiceTest::testAShippedTemplateRendersAsInstalled, and seen in a browser on a test instance on 5 October 2026.
 
 #### Scenario: Every widget in the shipped template is one LaunchPad can place
 - GIVEN the shipped definition `data/templates/mijn-werkdag.json`

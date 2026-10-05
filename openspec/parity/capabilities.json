@@ -1453,7 +1453,8 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "building",
+				"evidence": "lib/Controller/TileLaunchController.php; lib/Service/RdpFileBuilder.php",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/launcher-tile-launch-types"
 			},
@@ -1481,7 +1482,8 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "building",
+				"evidence": "lib/Service/TileLaunchValidator.php; src/components/TileWidget.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/launcher-tile-launch-types"
 			},
@@ -1509,7 +1511,8 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "building",
+				"evidence": "lib/Service/TileLaunchSettingsService.php; src/components/admin/tabs/TileLaunchTab.vue",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/launcher-tile-launch-types"
 			},

@@ -48,3 +48,11 @@ Validation and file generation in services; LaunchPad has no schema register for
 - PHPUnit: every forbidden scheme refused, allowed scheme accepted, gateway URL checks, RDP host and port patterns, RDP file content, RDP endpoint 403 for a user without view rights, SSO template resolution and app id pattern.
 - Vitest: `TileWidget` hrefs per type, the program hint, the editor fields per type.
 - Playwright: an SSO tile on a template resolves to the expected identity-provider address; an RDP tile downloads a file with the configured host.
+
+## As built (5 Oct 2026)
+
+- The two admin keys live in their own `TileLaunchSettingsService` with its own admin endpoints (`GET`/`PUT /api/admin/tile-launch`, actions `tile-launch.list` and `tile-launch.save`, administrators only), following the office-networks setting, instead of growing `AdminSettingsService`. Both lists are checked before either is stored.
+- Validation sits in `TileLaunchValidator`, called by `TileUpdater` on create (type and address) and on every update that touches the type, the address or the content (the whole tile as it would be stored). The forbidden schemes are refused for every link type, web tiles included, because the browser follows any tile address as a link.
+- The gateway address is checked as an https address with a host, not through `UrlSafetyValidator::isSafe()`: that guard resolves DNS and refuses private addresses, which is right for addresses the server fetches but would refuse an internal gateway that only the browser opens.
+- The RDP file goes out as a `DataDisplayResponse` with `Content-Type: application/x-rdp` and an `attachment` disposition, because `DataDownloadResponse` needs Symfony classes the unit tests cannot load. A missing tile answers 403 like a tile the caller may not view, so the endpoint does not reveal which ids exist.
+- The tiles and the editor read the allowed schemes and the templates from the page's initial state (`tileAllowedSchemes`, `ssoLaunchTemplates`). The sign-on address is built in the browser from the template; the server checked the template key and the app id when the tile was saved.

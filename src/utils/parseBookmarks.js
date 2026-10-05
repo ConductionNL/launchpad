@@ -24,6 +24,7 @@ export const MAX_BOOKMARKS = 2000
 export class BookmarkFileError extends Error {
 	/**
 	 * @param {string} code `too-large` or `too-many`.
+	 * @spec openspec/specs/tiles/spec.md
 	 */
 	constructor(code) {
 		super(code)

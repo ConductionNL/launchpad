@@ -593,7 +593,7 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - `--default` makes it the default template for everyone without a group template (REQ-TMPL-008).
 - `--force` adds a fresh copy even when the template is already installed.
 
-The command MUST print the template's UUID, its version, its groups and whether it is the default. It MUST name the widgets no app on the instance registers. Run a second time without `--force`, it MUST add nothing and MUST apply `--group` and `--default` again. It MUST exit 0 on success and 1 on an unknown id, an unknown group or a failed install.
+The command MUST print the template's UUID, its version, its groups and whether it is the default. It MUST name the widgets no app on the instance registers. When personal dashboards are off it MUST say that members will see the template read-only and that its compulsory widgets have no effect (REQ-TMPL-019). Run a second time without `--force`, it MUST add nothing and MUST apply `--group` and `--default` again. It MUST exit 0 on success and 1 on an unknown id, an unknown group or a failed install.
 
 #### Scenario: A deploy script installs the template for a group
 - GIVEN the group "medewerkers" exists and `mijn-werkdag` is not installed

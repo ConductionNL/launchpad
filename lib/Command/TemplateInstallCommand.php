@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Command;
 
 use InvalidArgumentException;
+use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\ShippedTemplateService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -45,9 +46,11 @@ class TemplateInstallCommand extends Command {
 	 * Constructor.
 	 *
 	 * @param ShippedTemplateService $templates Shipped template service.
+	 * @param AdminSettingsService   $settings  Says whether members may own a copy.
 	 */
 	public function __construct(
 		private readonly ShippedTemplateService $templates,
+		private readonly AdminSettingsService $settings,
 	) {
 		parent::__construct();
 	}//end __construct()
@@ -144,6 +147,17 @@ class TemplateInstallCommand extends Command {
 			$output->writeln(
 				messages: '<comment>No app on this instance registers these widgets, so they will show empty: '
 					. implode(separator: ', ', array: $result['missingWidgets']) . '</comment>'
+			);
+		}
+
+		// Off means a member is shown the template itself, view only, and its
+		// compulsory flags do nothing (REQ-TMPL-019). An administrator rolling
+		// out a template needs to know before the members do.
+		if (($this->settings->getSettings()['allowUserDashboards'] ?? false) !== true) {
+			$output->writeln(
+				messages: '<comment>Personal dashboards are off. Members will see this template read-only and its'
+					. ' compulsory widgets have no effect. Turn on "allow personal dashboards" in the LaunchPad'
+					. ' admin settings to give each member their own copy.</comment>'
 			);
 		}
 

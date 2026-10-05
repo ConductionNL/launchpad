@@ -25,7 +25,9 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\TemplateNotInstalledException;
 use OCA\LaunchPad\Service\ShippedTemplateService;
+use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -38,12 +40,12 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
- * List and install shipped templates.
+ * List, install and update shipped templates.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  *      {@see ResponseHelper} is an all-static envelope builder with no state.
  * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
- *      `$force` is a request parameter bound by the framework.
+ *      `$force` and `$dryRun` are request parameters bound by the framework.
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
@@ -52,7 +54,8 @@ class AdminShippedTemplateController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest               $request      The request.
-	 * @param ShippedTemplateService $templates    Shipped template service.
+	 * @param ShippedTemplateService       $templates    Shipped template service.
+	 * @param ShippedTemplateUpdateService $updates      Updates an installed template in place.
 	 * @param IUserSession           $userSession  The user session.
 	 * @param IGroupManager          $groupManager The group manager.
 	 * @param LoggerInterface        $logger       Logger.
@@ -60,6 +63,7 @@ class AdminShippedTemplateController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly ShippedTemplateService $templates,
+		private readonly ShippedTemplateUpdateService $updates,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
@@ -153,4 +157,50 @@ class AdminShippedTemplateController extends Controller {
 
 		return new JSONResponse(data: $result, statusCode: $statusCode);
 	}//end install()
+
+	/**
+	 * Update an installed shipped template to the version LaunchPad ships
+	 * now, in place, and bring the members' copies along. With `dryRun` it
+	 * only says what would change.
+	 *
+	 * @param string $id     The shipped template id.
+	 * @param bool   $dryRun Report the changes, write nothing.
+	 *
+	 * @return JSONResponse The widgets added, removed and changed; 404 for an
+	 *                      unknown id, 409 when the template is not installed.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
+	public function update(string $id, bool $dryRun = false): JSONResponse {
+		$admin = $this->requireAdmin();
+		if ($admin instanceof JSONResponse) {
+			return $admin;
+		}
+
+		try {
+			$result = $this->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
+		} catch (InvalidArgumentException) {
+			return new JSONResponse(
+				data: ['error' => 'Template not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (TemplateNotInstalledException) {
+			return new JSONResponse(
+				data: ['error' => 'Template not installed'],
+				statusCode: Http::STATUS_CONFLICT
+			);
+		} catch (Throwable $e) {
+			$this->logger->error(
+				message: 'Shipped template update failed',
+				context: ['templateId' => $id, 'exception' => $e]
+			);
+			return new JSONResponse(
+				data: ['error' => 'Template update failed'],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
+
+		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+	}//end update()
 }//end class

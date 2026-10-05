@@ -575,14 +575,6 @@ class DashboardService {
 			}
 		}//end if
 
-		// REQ-TMPL-019: a member who owns nothing yet gets the template meant
-		// for them here, ahead of the dashboard everyone shares. The page
-		// shell takes the same rung at the same place.
-		$fromTemplate = $this->resolveTemplateRung(userId: $userId);
-		if ($fromTemplate !== null) {
-			return $this->describeTemplateRung(rung: $fromTemplate);
-		}
-
 		$result = $this->dashResolver->tryGetActiveDashboard(
 			userId: $userId
 		);
@@ -634,6 +626,15 @@ class DashboardService {
 	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
 	 */
 	private function resolveRoleLayoutOrDefaultGroupDashboard(string $userId): ?array {
+		// REQ-TMPL-019: a member who owns nothing yet gets the template meant
+		// for them, ahead of the dashboard everyone shares. Whoever owns a
+		// personal dashboard left the chain two steps earlier. The page shell
+		// takes the same rung at the same place (resolveTemplateOrGroupShared).
+		$fromTemplate = $this->resolveTemplateRung(userId: $userId);
+		if ($fromTemplate !== null) {
+			return $this->describeTemplateRung(rung: $fromTemplate);
+		}
+
 		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
 		// REQ-RFP-002 says a new user is seeded from their group's
 		// RoleLayoutDefault rows. Since #361 seeds one `default`
@@ -1754,25 +1755,12 @@ class DashboardService {
 			return $saved;
 		}
 
-		// Step 1b (REQ-TMPL-019): the admin template meant for this user,
-		// for a user who owns no dashboard yet. Without this rung the page
-		// never looked at templates at all: a group dashboard for everyone
-		// (one is seeded on install) always won, and with none the page said
-		// "No dashboards available" while `GET /api/dashboard` held the
-		// template. Same rung, same place, in resolveEffectiveDashboard().
-		$fromTemplate = $this->resolveTemplateRung(userId: $userId);
-		if ($fromTemplate !== null) {
-			$source = Dashboard::SOURCE_USER;
-			if ($fromTemplate['viewOnly'] === true) {
-				$source = Dashboard::SOURCE_GROUP;
-			}
-
-			return ['dashboard' => $fromTemplate['dashboard'], 'source' => $source];
-		}
-
 		// Steps 2-3: group-shared with isDefault = 1.
 		// Steps 4-5: first group-shared (sortOrder ASC, createdAt ASC).
-		$groupShared = $this->resolveGroupSharedDashboard(
+		// Step 1b (REQ-TMPL-019) sits in front of them: the admin template
+		// meant for a user who owns no dashboard yet.
+		$groupShared = $this->resolveTemplateOrGroupShared(
+			userId: $userId,
 			visible: $visible,
 			groupId: $groupId
 		);
@@ -1855,6 +1843,36 @@ class DashboardService {
 	}//end resolvePreferredDashboard()
 
 	/**
+	 * Step 1b, then steps 2-5, of the page shell's chain.
+	 *
+	 * Without step 1b the page never looked at templates at all: a group
+	 * dashboard for everyone (one is seeded on install) always won, and with
+	 * none the page said "No dashboards available" while `GET /api/dashboard`
+	 * held the template.
+	 *
+	 * @param string $userId The user.
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible set.
+	 * @param string $groupId The normalised primary group.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|NULL The hit, or NULL to fall through.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
+	 */
+	private function resolveTemplateOrGroupShared(string $userId, array $visible, string $groupId): ?array {
+		$fromTemplate = $this->resolveTemplateRung(userId: $userId);
+		if ($fromTemplate === null) {
+			return $this->resolveGroupSharedDashboard(visible: $visible, groupId: $groupId);
+		}
+
+		$source = Dashboard::SOURCE_USER;
+		if ($fromTemplate['viewOnly'] === true) {
+			$source = Dashboard::SOURCE_GROUP;
+		}
+
+		return ['dashboard' => $fromTemplate['dashboard'], 'source' => $source];
+	}//end resolveTemplateOrGroupShared()
+
+	/**
 	 * The template rung of both resolution chains (REQ-TMPL-019).
 	 *
 	 * Answers for a user who owns no personal dashboard and has no saved
@@ -1880,12 +1898,14 @@ class DashboardService {
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
 	 */
 	private function resolveTemplateRung(string $userId): ?array {
-		if ($this->dashboardMapper->findByUserId(userId: $userId) !== []) {
+		$template = $this->templateService->getApplicableTemplate(userId: $userId);
+		if ($template === null) {
 			return null;
 		}
 
-		$template = $this->templateService->getApplicableTemplate(userId: $userId);
-		if ($template === null) {
+		// "First time" means: owns nothing yet. Whoever has a personal
+		// dashboard already made, or was given, their start.
+		if ($this->dashboardMapper->findByUserId(userId: $userId) !== []) {
 			return null;
 		}
 

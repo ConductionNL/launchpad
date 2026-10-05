@@ -402,6 +402,13 @@ return [
 		['name' => 'template#gallery', 'url' => '/api/templates/gallery', 'verb' => 'GET'],
 
 		// Admin endpoints
+		// Templates LaunchPad ships with (REQ-TMPL-018). Registered BEFORE
+		// the `/api/admin/templates/{id}` wildcard routes so the literal
+		// `shipped` segment wins.
+		['name' => 'adminShippedTemplate#index', 'url' => '/api/admin/templates/shipped', 'verb' => 'GET'],
+		['name' => 'adminShippedTemplate#install',
+		 'url' => '/api/admin/templates/shipped/{id}/install', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],
 		// Preview-image upload — REQ-TMPL-017. Registered BEFORE the

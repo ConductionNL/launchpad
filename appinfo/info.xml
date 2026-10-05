@@ -162,6 +162,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<!-- REQ-DEMO-009: bundled demo showcase install / list. -->
 		<command>OCA\LaunchPad\Command\DemoShowcasesInstallCommand</command>
 		<command>OCA\LaunchPad\Command\DemoShowcasesListCommand</command>
+		<command>OCA\LaunchPad\Command\TemplateInstallCommand</command>
 		<!-- REQ-WIZ-010: setup wizard via `php occ launchpad:setup`. -->
 		<command>OCA\LaunchPad\Command\SetupCommand</command>
 	</commands>

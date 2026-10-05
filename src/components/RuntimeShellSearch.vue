@@ -359,6 +359,7 @@ export default {
 	},
 
 	watch: {
+		/** @spec openspec/specs/tile-quick-search/spec.md */
 		shortcuts() {
 			this.search.setItems(this.items)
 		},

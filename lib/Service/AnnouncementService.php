@@ -604,6 +604,62 @@ class AnnouncementService {
 	}//end notifyFollowers()
 
 	/**
+	 * The three demo announcements of the design's seed data, written once:
+	 * nothing is added when any announcement already exists. A target group
+	 * that does not exist on this instance is left out, so the item reaches
+	 * everyone instead of nobody.
+	 *
+	 * @param string $authorId The author recorded on the demo items.
+	 *
+	 * @return integer The number of announcements added.
+	 *
+	 * @spec openspec/specs/announcements/spec.md
+	 */
+	public function seedDemoAnnouncements(string $authorId): int {
+		if ($this->announcements->findAllNewestFirst() !== []) {
+			return 0;
+		}
+
+		$now      = $this->time->getTime();
+		$saturday = strtotime(datetime: 'next saturday 12:00 UTC', baseTimestamp: $now);
+		$staff    = [];
+		if ($this->groupManager->groupExists(gid: 'Medewerkers') === true) {
+			$staff = ['Medewerkers'];
+		}
+
+		$seeds = [
+			['kind' => Announcement::KIND_NEWS, 'title' => 'Nieuwe werkplekken op de 3e verdieping', 'category' => 'Facilitair', 'targetGroups' => []],
+			['kind' => Announcement::KIND_NEWS, 'title' => 'Inloopspreekuur privacy', 'category' => 'Privacy', 'targetGroups' => $staff],
+			[
+				'kind'         => Announcement::KIND_NOTICE,
+				'title'        => 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00',
+				'level'        => Announcement::LEVEL_WARNING,
+				'dismissible'  => false,
+				'targetGroups' => [],
+				'expiresAt'    => gmdate(format: DATE_ATOM, timestamp: (int) $saturday),
+			],
+		];
+
+		foreach ($seeds as $seed) {
+			$announcement = new Announcement();
+			$stamp        = $this->now();
+			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$announcement->setUuid($this->uuid());
+			$announcement->setAuthorId($authorId);
+			$announcement->setCreatedAt($stamp);
+			$announcement->setUpdatedAt($stamp);
+			$announcement->setStatus(Announcement::STATUS_PUBLISHED);
+			$announcement->setPublishAt($stamp);
+			$announcement->setNotifiedAt($stamp);
+			// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$this->apply(announcement: $announcement, data: $seed, isNew: true);
+			$this->announcements->insert(entity: $announcement);
+		}
+
+		return count($seeds);
+	}//end seedDemoAnnouncements()
+
+	/**
 	 * Send one notification; a failing notification is logged, not thrown.
 	 *
 	 * @param Announcement $announcement The announcement.

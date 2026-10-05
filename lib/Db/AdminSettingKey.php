@@ -19,6 +19,7 @@
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
  *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
  *  - Tiles:                OFFICE_NETWORKS (launcher-tile-internal-address)
+ *  - Announcements:        ANNOUNCEMENT_EDITOR_GROUPS (engagement-announcements)
  *
  * @category Db
  * @package  OCA\LaunchPad\Db
@@ -66,4 +67,5 @@ enum AdminSettingKey: string {
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
 	case SEARCH_SHORTCUTS = 'search_shortcuts';
 	case OFFICE_NETWORKS = 'office_networks';
+	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 }//end enum

@@ -3,6 +3,11 @@
   "actions": {
     "admin.get-my-role": ["admin", "@all"],
     "admin-org-navigation.get-org-navigation": ["admin"],
+    "announcement.read": ["admin", "@all"],
+    "announcement.comment": ["admin", "@all"],
+    "announcement.follow": ["admin", "@all"],
+    "announcement.manage": ["admin", "@all"],
+    "announcement.settings": ["admin"],
     "admin-org-navigation.get-position": ["admin"],
     "analytics.top-dashboards": ["admin"],
     "analytics.dashboard-detail": ["admin"],

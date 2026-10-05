@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Listener;
 
 use DateTimeImmutable;
+use OCA\LaunchPad\Db\AnnouncementFollowMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
@@ -77,6 +78,8 @@ class UserDeletedListener implements IEventListener {
 	 *                                               (SB1 fix, REQ-CSC-001).
 	 *                                               Nullable for backwards-
 	 *                                               compat.
+	 * @param AnnouncementFollowMapper|null $announcementFollows Category follows
+	 *                                                          removed with the person.
 	 */
 	public function __construct(
 		private readonly DashboardShareMapper $shareMapper,
@@ -89,6 +92,7 @@ class UserDeletedListener implements IEventListener {
 		private readonly LoggerInterface $logger,
 		private readonly RoleService $roleService,
 		private readonly ?IEventDispatcher $eventDispatcher = null,
+		private readonly ?AnnouncementFollowMapper $announcementFollows = null,
 	) {
 	}//end __construct()
 
@@ -126,6 +130,9 @@ class UserDeletedListener implements IEventListener {
 				context: ['app' => 'launchpad']
 			);
 		}
+
+		// engagement-announcements: the categories the person followed.
+		$this->announcementFollows?->deleteByUser(userId: $userId);
 
 		// Step A: remove shares granted TO the deleted user.
 		$this->shareMapper->deleteByRecipientUser(userId: $userId);

@@ -479,6 +479,23 @@ return [
 		['name' => 'profileFields#getDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'GET'],
 		['name' => 'profileFields#saveDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'PUT'],
 
+		// Announcements (engagement-announcements REQ-ANN-001..005). The
+		// literal prefixes announcement-reach, announcement-follows and
+		// announcement-settings keep clear of the {uuid} routes.
+		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],
+		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
+		['name' => 'announcement#show', 'url' => '/api/announcements/{uuid}', 'verb' => 'GET'],
+		['name' => 'announcement#update', 'url' => '/api/announcements/{uuid}', 'verb' => 'PUT'],
+		['name' => 'announcement#destroy', 'url' => '/api/announcements/{uuid}', 'verb' => 'DELETE'],
+		['name' => 'announcement#publish', 'url' => '/api/announcements/{uuid}/publish', 'verb' => 'POST'],
+		['name' => 'announcement#like', 'url' => '/api/announcements/{uuid}/like', 'verb' => 'PUT'],
+		['name' => 'announcement#comments', 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'GET'],
+		['name' => 'announcement#comment', 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'POST'],
+		['name' => 'announcement#reach', 'url' => '/api/announcement-reach', 'verb' => 'POST'],
+		['name' => 'announcement#follow', 'url' => '/api/announcement-follows', 'verb' => 'PUT'],
+		['name' => 'announcement#getSettings', 'url' => '/api/announcement-settings', 'verb' => 'GET'],
+		['name' => 'announcement#saveSettings', 'url' => '/api/announcement-settings', 'verb' => 'PUT'],
+
 		// Setup wizard endpoints (REQ-WIZ-008, REQ-WIZ-009, REQ-WIZ-003).
 		// Admin-only via runtime `IGroupManager::isAdmin` check inside the
 		// controller. The state endpoint also drives the "Run setup wizard"

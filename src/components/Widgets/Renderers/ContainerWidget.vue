@@ -250,6 +250,7 @@ export default {
 		},
 	},
 
+	/** @spec openspec/specs/container-widget/spec.md */
 	mounted() {
 		// REQ-TSO-002: one delegated listener counts clicks on the tiles'
 		// own links and buttons; the wrapper itself is not a control.
@@ -257,6 +258,7 @@ export default {
 		this.initInnerGrid()
 	},
 
+	/** @spec openspec/specs/container-widget/spec.md */
 	beforeUnmount() {
 		this.$refs.innerGrid?.removeEventListener('click', this.onGridClick)
 		this.destroyInnerGrid()

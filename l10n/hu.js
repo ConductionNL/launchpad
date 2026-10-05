@@ -1293,7 +1293,15 @@ OC.L10N.register(
     "Read receipts at the top of the dashboard show who has confirmed." : "Az irányítópult tetején lévő olvasási nyugták mutatják, ki igazolta.",
     "{emoji}: {count} reactions" : "{emoji}: {count} reakció",
     "React with {emoji}" : "Reagálás ezzel: {emoji}",
-    "{names} and {count} more" : "{names} és még {count}"
+    "{names} and {count} more" : "{names} és még {count}",
+    "Ready-made templates" : "Ready-made templates",
+    "Add a template that comes with LaunchPad. Then edit it to choose who gets it." : "Add a template that comes with LaunchPad. Then edit it to choose who gets it.",
+    "No app here provides these widgets, so they will show empty: {widgets}" : "No app here provides these widgets, so they will show empty: {widgets}",
+    "Added" : "Added",
+    "Add template" : "Add template",
+    "The ready-made templates could not be loaded." : "The ready-made templates could not be loaded.",
+    "The template \"{name}\" could not be added." : "The template \"{name}\" could not be added.",
+    "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded."
 },
 "nplurals=2; plural=(n != 1);"
 );

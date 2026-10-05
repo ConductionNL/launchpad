@@ -1293,7 +1293,15 @@ OC.L10N.register(
     "Read receipts at the top of the dashboard show who has confirmed." : "Izlasīšanas apliecinājumi paneļa augšā rāda, kurš ir apstiprinājis.",
     "{emoji}: {count} reactions" : "{emoji}: {count} reakcijas",
     "React with {emoji}" : "Reaģēt ar {emoji}",
-    "{names} and {count} more" : "{names} un vēl {count}"
+    "{names} and {count} more" : "{names} un vēl {count}",
+    "Ready-made templates" : "Ready-made templates",
+    "Add a template that comes with LaunchPad. Then edit it to choose who gets it." : "Add a template that comes with LaunchPad. Then edit it to choose who gets it.",
+    "No app here provides these widgets, so they will show empty: {widgets}" : "No app here provides these widgets, so they will show empty: {widgets}",
+    "Added" : "Added",
+    "Add template" : "Add template",
+    "The ready-made templates could not be loaded." : "The ready-made templates could not be loaded.",
+    "The template \"{name}\" could not be added." : "The template \"{name}\" could not be added.",
+    "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

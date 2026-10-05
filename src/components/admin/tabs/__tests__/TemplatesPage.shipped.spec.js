@@ -20,36 +20,48 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		name: 'NcButton',
 		props: ['disabled'],
 		emits: ['click'],
-		template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+		template:
+			'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
 	},
 	NcEmptyContent: { name: 'NcEmptyContent', template: '<div class="empty" />' },
 	CnDashboardIcon: { name: 'CnDashboardIcon', template: '<i />' },
 }))
 vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
-const api = {
-	getAdminTemplates: vi.fn(),
-	getShippedTemplates: vi.fn(),
-	installShippedTemplate: vi.fn(),
-	exportDashboards: vi.fn(),
-}
+const { api } = vi.hoisted(() => ({
+	api: {
+		getAdminTemplates: vi.fn(),
+		getShippedTemplates: vi.fn(),
+		installShippedTemplate: vi.fn(),
+		exportDashboards: vi.fn(),
+	},
+}))
 vi.mock('../../../../services/api.js', () => ({ api }))
+// The two modals are the page's own children and not under test here.
+vi.mock('../../../../modals/TemplateEditorModal.vue', () => ({
+	default: { name: 'TemplateEditorModal', template: '<div />' },
+}))
+vi.mock('../../../../modals/TemplateResyncModal.vue', () => ({
+	default: { name: 'TemplateResyncModal', template: '<div />' },
+}))
 
 import TemplatesPage from '../TemplatesPage.vue'
 
-const shipped = (overrides = {}) => ({
-	id: 'mijn-werkdag',
-	name: 'Mijn werkdag',
-	description: 'Startpagina voor medewerkers',
-	language: 'nl',
-	version: 1,
-	widgetCount: 8,
-	isInstalled: false,
-	installedUuid: '',
-	installedVersion: null,
-	missingWidgets: [],
-	...overrides,
-})
+function shipped(overrides = {}) {
+	return {
+		id: 'mijn-werkdag',
+		name: 'Mijn werkdag',
+		description: 'Startpagina voor medewerkers',
+		language: 'nl',
+		version: 1,
+		widgetCount: 8,
+		isInstalled: false,
+		installedUuid: '',
+		installedVersion: null,
+		missingWidgets: [],
+		...overrides,
+	}
+}
 
 const installedTemplate = {
 	id: 4,
@@ -85,31 +97,53 @@ describe('TemplatesPage ready-made templates', () => {
 		const wrapper = mountPage()
 		await flushPromises()
 
-		const row = wrapper.find('[data-testid="admin-shipped-template-mijn-werkdag"]')
+		const row = wrapper.find(
+			'[data-testid="admin-shipped-template-mijn-werkdag"]',
+		)
 		expect(row.exists()).toBe(true)
 		expect(row.text()).toContain('Mijn werkdag')
 		expect(row.text()).toContain('Startpagina voor medewerkers')
-		expect(row.find('[data-testid="admin-shipped-template-add"]').exists()).toBe(true)
-		expect(row.find('[data-testid="admin-shipped-template-added"]').exists()).toBe(false)
-		expect(row.find('[data-testid="admin-shipped-template-missing"]').exists()).toBe(false)
+		expect(row.find('[data-testid="admin-shipped-template-add"]').exists()).toBe(
+			true,
+		)
+		expect(
+			row.find('[data-testid="admin-shipped-template-added"]').exists(),
+		).toBe(false)
+		expect(
+			row.find('[data-testid="admin-shipped-template-missing"]').exists(),
+		).toBe(false)
 	})
 
 	it('adds the template, then shows it in the list and marks it added', async () => {
-		api.installShippedTemplate.mockResolvedValue({ data: { uuid: 'uuid-4', alreadyInstalled: false } })
+		api.installShippedTemplate.mockResolvedValue({
+			data: { uuid: 'uuid-4', alreadyInstalled: false },
+		})
 		const wrapper = mountPage()
 		await flushPromises()
 		api.getAdminTemplates.mockResolvedValue({ data: [installedTemplate] })
-		api.getShippedTemplates.mockResolvedValue({ data: [shipped({ isInstalled: true, installedUuid: 'uuid-4' })] })
+		api.getShippedTemplates.mockResolvedValue({
+			data: [shipped({ isInstalled: true, installedUuid: 'uuid-4' })],
+		})
 
-		await wrapper.find('[data-testid="admin-shipped-template-add"]').trigger('click')
+		await wrapper
+			.find('[data-testid="admin-shipped-template-add"]')
+			.trigger('click')
 		await flushPromises()
 
 		expect(api.installShippedTemplate).toHaveBeenCalledTimes(1)
 		expect(api.installShippedTemplate).toHaveBeenCalledWith('mijn-werkdag')
-		expect(wrapper.find('[data-testid="admin-shipped-template-added"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="admin-shipped-template-add"]').exists()).toBe(false)
-		expect(wrapper.find('.launchpad-admin__templates').text()).toContain('Mijn werkdag')
-		expect(wrapper.find('[data-testid="admin-templates-error"]').exists()).toBe(false)
+		expect(
+			wrapper.find('[data-testid="admin-shipped-template-added"]').exists(),
+		).toBe(true)
+		expect(
+			wrapper.find('[data-testid="admin-shipped-template-add"]').exists(),
+		).toBe(false)
+		expect(wrapper.find('.launchpad-admin__templates').text()).toContain(
+			'Mijn werkdag',
+		)
+		expect(wrapper.find('[data-testid="admin-templates-error"]').exists()).toBe(
+			false,
+		)
 	})
 
 	it('says so when adding fails, and leaves the button', async () => {
@@ -117,21 +151,33 @@ describe('TemplatesPage ready-made templates', () => {
 		const wrapper = mountPage()
 		await flushPromises()
 
-		await wrapper.find('[data-testid="admin-shipped-template-add"]').trigger('click')
+		await wrapper
+			.find('[data-testid="admin-shipped-template-add"]')
+			.trigger('click')
 		await flushPromises()
 
-		expect(wrapper.find('[data-testid="admin-templates-error"]').text())
-			.toBe('The template "Mijn werkdag" could not be added.')
-		expect(wrapper.find('[data-testid="admin-shipped-template-add"]').attributes('disabled')).toBeUndefined()
+		expect(wrapper.find('[data-testid="admin-templates-error"]').text()).toBe(
+			'The template "Mijn werkdag" could not be added.',
+		)
+		expect(
+			wrapper
+				.find('[data-testid="admin-shipped-template-add"]')
+				.attributes('disabled'),
+		).toBeUndefined()
 	})
 
 	it('names the widgets no app provides', async () => {
-		api.getShippedTemplates.mockResolvedValue({ data: [shipped({ missingWidgets: ['decidesk', 'activity'] })] })
+		api.getShippedTemplates.mockResolvedValue({
+			data: [shipped({ missingWidgets: ['decidesk', 'activity'] })],
+		})
 		const wrapper = mountPage()
 		await flushPromises()
 
-		expect(wrapper.find('[data-testid="admin-shipped-template-missing"]').text())
-			.toBe('No app here provides these widgets, so they will show empty: decidesk, activity')
+		expect(
+			wrapper.find('[data-testid="admin-shipped-template-missing"]').text(),
+		).toBe(
+			'No app here provides these widgets, so they will show empty: decidesk, activity',
+		)
 	})
 
 	it('says so when the shipped list fails, and still lists the templates', async () => {
@@ -140,10 +186,15 @@ describe('TemplatesPage ready-made templates', () => {
 		const wrapper = mountPage()
 		await flushPromises()
 
-		expect(wrapper.find('[data-testid="admin-shipped-templates"]').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="admin-templates-error"]').text())
-			.toBe('The ready-made templates could not be loaded.')
-		expect(wrapper.find('.launchpad-admin__templates').text()).toContain('Mijn werkdag')
+		expect(
+			wrapper.find('[data-testid="admin-shipped-templates"]').exists(),
+		).toBe(false)
+		expect(wrapper.find('[data-testid="admin-templates-error"]').text()).toBe(
+			'The ready-made templates could not be loaded.',
+		)
+		expect(wrapper.find('.launchpad-admin__templates').text()).toContain(
+			'Mijn werkdag',
+		)
 	})
 })
 
@@ -153,16 +204,25 @@ describe('TemplatesPage download', () => {
 		api.exportDashboards.mockResolvedValue({ data: new Blob(['zip']) })
 		window.URL.createObjectURL = vi.fn(() => 'blob:x')
 		window.URL.revokeObjectURL = vi.fn()
-		const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+		const click = vi
+			.spyOn(HTMLAnchorElement.prototype, 'click')
+			.mockImplementation(() => {})
 		const wrapper = mountPage()
 		await flushPromises()
 
-		await wrapper.find('[data-testid="admin-download-template"]').trigger('click')
+		await wrapper
+			.find('[data-testid="admin-download-template"]')
+			.trigger('click')
 		await flushPromises()
 
-		expect(api.exportDashboards).toHaveBeenCalledWith({ scope: 'dashboard', dashboardUuid: 'uuid-4' })
+		expect(api.exportDashboards).toHaveBeenCalledWith({
+			scope: 'dashboard',
+			dashboardUuid: 'uuid-4',
+		})
 		expect(click).toHaveBeenCalledTimes(1)
-		expect(click.mock.instances[0].download).toBe('launchpad-template-uuid-4.zip')
+		expect(click.mock.instances[0].download).toBe(
+			'launchpad-template-uuid-4.zip',
+		)
 		expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:x')
 		click.mockRestore()
 	})
@@ -173,10 +233,13 @@ describe('TemplatesPage download', () => {
 		const wrapper = mountPage()
 		await flushPromises()
 
-		await wrapper.find('[data-testid="admin-download-template"]').trigger('click')
+		await wrapper
+			.find('[data-testid="admin-download-template"]')
+			.trigger('click')
 		await flushPromises()
 
-		expect(wrapper.find('[data-testid="admin-templates-error"]').text())
-			.toBe('The template "Mijn werkdag" could not be downloaded.')
+		expect(wrapper.find('[data-testid="admin-templates-error"]').text()).toBe(
+			'The template "Mijn werkdag" could not be downloaded.',
+		)
 	})
 })

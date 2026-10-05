@@ -48,7 +48,9 @@
 				:data-testid="`admin-shipped-template-${shipped.id}`">
 				<div class="launchpad-admin__template-info">
 					<strong>{{ shipped.name }}</strong>
-					<span class="launchpad-admin__template-groups">{{ shipped.description }}</span>
+					<span class="launchpad-admin__template-groups">{{
+						shipped.description
+					}}</span>
 					<span
 						v-if="shipped.missingWidgets.length > 0"
 						class="launchpad-admin__template-groups"
@@ -225,7 +227,10 @@ export default {
 				this.shippedTemplates = Array.isArray(data) ? data : []
 			} catch (error) {
 				logger.error('Failed to load shipped templates:', error)
-				this.errorMessage = t('launchpad', 'The ready-made templates could not be loaded.')
+				this.errorMessage = t(
+					'launchpad',
+					'The ready-made templates could not be loaded.',
+				)
 			}
 		},
 
@@ -240,10 +245,17 @@ export default {
 			this.errorMessage = ''
 			try {
 				await api.installShippedTemplate(shipped.id)
-				await Promise.all([this.loadTemplates(), this.loadShippedTemplates()])
+				await Promise.all([
+					this.loadTemplates(),
+					this.loadShippedTemplates(),
+				])
 			} catch (error) {
 				logger.error('Failed to add shipped template:', error)
-				this.errorMessage = t('launchpad', 'The template "{name}" could not be added.', { name: shipped.name })
+				this.errorMessage = t(
+					'launchpad',
+					'The template "{name}" could not be added.',
+					{ name: shipped.name },
+				)
 			} finally {
 				this.installingId = null
 			}
@@ -259,7 +271,10 @@ export default {
 		async downloadTemplate(template) {
 			this.errorMessage = ''
 			try {
-				const response = await api.exportDashboards({ scope: 'dashboard', dashboardUuid: template.uuid })
+				const response = await api.exportDashboards({
+					scope: 'dashboard',
+					dashboardUuid: template.uuid,
+				})
 				const url = window.URL.createObjectURL(response.data)
 				const link = document.createElement('a')
 				link.href = url
@@ -270,7 +285,11 @@ export default {
 				window.URL.revokeObjectURL(url)
 			} catch (error) {
 				logger.error('Failed to download template:', error)
-				this.errorMessage = t('launchpad', 'The template "{name}" could not be downloaded.', { name: template.name })
+				this.errorMessage = t(
+					'launchpad',
+					'The template "{name}" could not be downloaded.',
+					{ name: template.name },
+				)
 			}
 		},
 

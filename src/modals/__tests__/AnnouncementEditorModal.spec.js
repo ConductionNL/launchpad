@@ -80,7 +80,7 @@ describe('AnnouncementEditorModal', () => {
 		expect(axios.post).toHaveBeenCalledWith('/apps/launchpad/api/announcements', expect.objectContaining({ kind: 'notice', targetGroups: ['Burgerzaken'] }))
 		expect(axios.post.mock.calls.map((call) => call[0])).not.toContain('/apps/launchpad/api/announcements/u1/publish')
 		expect(document.body.querySelector('.notice-banner').textContent).toContain('Onderhoud zaaksysteem zaterdag 08:00 tot 12:00')
-		expect(document.body.textContent).toContain('Reaches about 42 people')
+		expect(document.body.textContent).toContain('People reached: 42')
 		wrapper.unmount()
 	})
 

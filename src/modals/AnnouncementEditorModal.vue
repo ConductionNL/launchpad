@@ -63,7 +63,7 @@
 				<NoticeBanner v-if="form.kind === 'notice'" :notice="previewItem" :allowDismiss="false" />
 				<AnnouncementCard v-else :item="previewItem" preview />
 				<p class="announcement-editor__reach">
-					{{ n('launchpad', 'Reaches about %n person', 'Reaches about %n people', reach) }}
+					{{ t('launchpad', 'People reached: {count}', { count: reach }) }}
 				</p>
 				<div class="announcement-editor__preview-as">
 					<NcTextField v-model="previewUserId" :label="t('launchpad', 'Preview as (user ID)')" />
@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
+import { translate as t } from '@nextcloud/l10n'
 import {
 	NcButton,
 	NcCheckboxRadioSwitch,
@@ -233,7 +233,6 @@ export default {
 
 	methods: {
 		t,
-		n,
 
 		/**
 		 * Save the draft and show the preview with its reach.

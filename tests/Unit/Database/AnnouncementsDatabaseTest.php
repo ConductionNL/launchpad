@@ -26,11 +26,9 @@ namespace Unit\Database;
 use OCA\LaunchPad\Db\AnnouncementFollowMapper;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCP\Comments\ICommentsManager;
-use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use OCP\Server;
-use OCP\User\Events\UserDeletedEvent;
 
 /**
  * @SuppressWarnings(PHPMD.StaticAccess) Server::get() is the only way in from a test.
@@ -108,7 +106,10 @@ class AnnouncementsDatabaseTest extends RealDatabaseTestCase {
 		$this->assertContains($person, $follows->findFollowersOf(category: 'Privacy'));
 
 		$user = Server::get(IUserManager::class)->get(uid: $person);
-		Server::get(IEventDispatcher::class)->dispatchTyped(event: new UserDeletedEvent(user: $user));
+		// Delete the account the way Nextcloud does, so the server fires
+		// BeforeUserDeletedEvent and then UserDeletedEvent (its own listeners refuse the
+		// second without the first) and the app's UserDeletedListener runs for real.
+		$this->assertTrue($user->delete(), 'CONTROL: the account could be deleted');
 		$this->assertSame([], $this->storedRows('launchpad_ann_follows', 'user_id', $person), 'UserDeletedListener removes the follows');
 	}//end testFollowIsStoredOnceAndGoesWithThePerson()
 }//end class

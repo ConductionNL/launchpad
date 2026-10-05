@@ -95,6 +95,20 @@ class AnnouncementServiceTest extends TestCase {
 	}//end testDraftsAreHiddenFromReaders()
 
 	/**
+	 * A new item without a kind is stored as news: the kind column has no
+	 * database default, so the insert must carry it (pgsql refused the row
+	 * with a NOT NULL violation when only the entity's property default held it).
+	 *
+	 * @return void
+	 */
+	public function testNewItemWithoutKindInsertsKindNews(): void {
+		$item = $this->service->create(userId: 'karin', data: ['title' => 'Zonder soort']);
+
+		$this->assertSame('news', $item->getKind());
+		$this->assertArrayHasKey('kind', $item->getUpdatedFields(), 'the insert only writes updated fields, so kind must be one');
+	}//end testNewItemWithoutKindInsertsKindNews()
+
+	/**
 	 * REQ-ANN-005 "Maintenance banner": visible inside its window only.
 	 *
 	 * @return void

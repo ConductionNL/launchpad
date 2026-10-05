@@ -832,7 +832,7 @@ class AnnouncementService {
 	 *
 	 * @param Announcement $announcement The announcement.
 	 * @param array $data The fields.
-	 * @param boolean $isNew Whether the title is required.
+	 * @param boolean $isNew Whether the item is new (title required, kind defaults to news).
 	 *
 	 * @return void
 	 *
@@ -843,8 +843,10 @@ class AnnouncementService {
 	 */
 	private function apply(Announcement $announcement, array $data, bool $isNew): void {
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		if (array_key_exists('kind', $data) === true) {
-			$kind = (string) $data['kind'];
+		// A new item always sets its kind: the column has no database default and
+		// an insert writes only the fields a setter touched.
+		if (array_key_exists('kind', $data) === true || $isNew === true) {
+			$kind = (string) ($data['kind'] ?? Announcement::KIND_NEWS);
 			if (in_array($kind, [Announcement::KIND_NEWS, Announcement::KIND_NOTICE], true) === false) {
 				throw new InvalidArgumentException('Kind must be news or notice');
 			}

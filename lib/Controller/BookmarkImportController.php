@@ -42,6 +42,8 @@ use Throwable;
 /**
  * Bookmark import endpoint.
  *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One endpoint that maps the import's five outcomes (401, 403, 409, 400, 500) to responses.
+ *
  * @spec openspec/specs/tiles/spec.md
  */
 class BookmarkImportController extends Controller {
@@ -107,7 +109,7 @@ class BookmarkImportController extends Controller {
 				bookmarks: ($bookmarks ?? [])
 			);
 		} catch (QuotaExceededException $e) {
-			return ResponseHelper::quotaExceeded(exception: $e);
+			return new JSONResponse(data: $e->toResponseBody(), statusCode: Http::STATUS_CONFLICT);
 		} catch (InvalidArgumentException $e) {
 			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (Throwable $e) {

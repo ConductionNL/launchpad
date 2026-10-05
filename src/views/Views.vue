@@ -2923,6 +2923,7 @@ export default {
 		100vh - var(--header-height, 50px) - var(--body-container-margin, 8px)
 	);
 }
+
 .launchpad-publication-note {
 	margin: 0 8px 8px;
 	color: var(--color-text-maxcontrast);

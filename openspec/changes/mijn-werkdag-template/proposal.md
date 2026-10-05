@@ -35,28 +35,29 @@ Measured on `development` at `da724518`:
 
 ## What the template holds, and what the design asks that it cannot hold yet
 
-Built only from widgets that exist on `development`:
+The template must work as installed. A live check on 5 October 2026 showed that the first version did not: four of its widgets proxied Nextcloud dashboard widgets of dossiq and decidiq. Those widgets paint through their own script, which LaunchPad only loads when the legacy widget bridge is on (off by default, because it loads every app's widget script on the page). As installed they showed "This widget can only be shown on the Nextcloud dashboard itself." under their raw id. With the bridge on, the dossiq widgets rendered, still under their raw id, and listed cases that were not the signed-in user's. So the template now uses lists on the case register instead.
 
 | Design section | In the template | Widget |
 | --- | --- | --- |
 | Greeting | Header "Mijn werkdag" (compulsory) | `header` |
-| Vandaag eerst | dossiq deadline alerts (compulsory) and overdue cases | `nc-widget` to `procest_deadline_alerts_widget`, `procest_overdue_cases_widget` |
-| Mijn werk, dossiq | "Mijn zaken" and "Mijn taken" | `object-list` on the dossiq case register, `nc-widget` to `procest_my_tasks_widget` |
-| Mijn werk, decidiq | "Besluitvorming" | `nc-widget` to `decidesk` |
-| Agenda vandaag | Agenda, one day | `calendar` |
-| Verder waar u was | Recent activity | `nc-widget` to `activity` |
+| Vandaag eerst | "Zaken over de termijn": the employee's cases whose deadline is today or earlier (compulsory) | `object-list` on dossiq `case` |
+| Mijn werk, dossiq | "Mijn zaken": the employee's open cases, by deadline | `object-list` on dossiq `case` |
+| Verder waar u was | Recent activity | `nc-widget` to `activity`, which has an items API |
 
-No widget exists yet for:
+No widget that renders as installed exists yet for:
 
 - the greeting with the employee's name and the date. The header widget shows a fixed title.
-- "Vandaag eerst" as one ranked list across apps. That is the next change, `cross-app-attention-feed`. Until then the dossiq deadline widget stands in for it.
+- "Vandaag eerst" as one ranked list across apps. That is the next change, `cross-app-attention-feed`.
 - the "Mijn werk" cards with one number per app.
-- pipelinq "my tickets". pipelinq registers six Nextcloud widgets (leads, deals, find client, start request, create lead, recent activities) and none lists the employee's tickets, so the template has no pipelinq widget.
-- decidiq "to initial". The decidiq widget shows open votes and the next meeting.
-- "Van de organisatie". The news widget needs a feed address that differs per organisation, so it is not in a shipped template.
+- dossiq "my tasks". Tasks are not objects in the dossiq register, and the dossiq tasks widget needs the bridge.
+- pipelinq "my tickets" and decidiq "to initial". pipelinq registers six Nextcloud widgets and decidiq one; none has both an items API and that content.
+- "Agenda vandaag". LaunchPad's calendar widget shows "No calendar is selected yet" until each user picks a calendar, and the Calendar app's own widget is only there when that app is installed.
+- "Van de organisatie". The news widget needs a feed address that differs per organisation.
 - "Alle apps" as a row of pills.
 
-The widget ids `procest_*` and `decidesk` are the ids those apps register today. They are older than the apps' current names and are used as they are.
+## Updating an instance that installed an earlier version
+
+There is no in-place update. `occ launchpad:template:install mijn-werkdag --force` adds the current version as a second template next to the first. The administrator then moves the groups to the new one and deletes the old one. Dashboards members already received keep their widgets: a copy does not follow a new template. Replacing the installed template's widgets in place and re-syncing the copies (REQ-RESYNC-001) is the missing piece and is not in this change.
 
 ## Impact
 

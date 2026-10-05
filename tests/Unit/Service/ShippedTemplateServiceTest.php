@@ -284,7 +284,7 @@ class ShippedTemplateServiceTest extends TestCase {
 			$instance['placements']->getArrayCopy(),
 			static fn (WidgetPlacement $p): bool => $p->getIsCompulsory() === 1
 		);
-		self::assertCount(2, $compulsory, 'the header and the deadline widget are compulsory');
+		self::assertCount(2, $compulsory, 'the header and the list of cases past their deadline are compulsory');
 	}
 
 	/**
@@ -333,7 +333,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		// The control: the comparison would also pass if both sides were
 		// empty, so pin that the compulsory flags really crossed.
 		self::assertSame(
-			[1, 1, 0, 0, 0, 0, 0, 0],
+			[1, 1, 0, 0],
 			array_column(self::definitionOf($onB)['widgets'], 'isCompulsory')
 		);
 	}
@@ -445,12 +445,8 @@ class ShippedTemplateServiceTest extends TestCase {
 	 * REQ-TMPL-018: the listing names proxied widgets nothing registers.
 	 */
 	public function testTheListingNamesWidgetsNothingRegisters(): void {
-		$this->registeredWidgets = [
-			'procest_deadline_alerts_widget',
-			'procest_overdue_cases_widget',
-			'procest_my_tasks_widget',
-			'activity',
-		];
+		// Nothing registers `activity` here, the one Nextcloud widget the template proxies.
+		$this->registeredWidgets = ['files-favorites'];
 		$service = $this->makeService($this->makeInstance());
 
 		$listing = $service->listTemplates();
@@ -459,10 +455,70 @@ class ShippedTemplateServiceTest extends TestCase {
 		self::assertSame('mijn-werkdag', $listing[0]['id']);
 		self::assertSame('Mijn werkdag', $listing[0]['name']);
 		self::assertSame('nl', $listing[0]['language']);
-		self::assertSame(8, $listing[0]['widgetCount']);
+		self::assertSame(4, $listing[0]['widgetCount']);
 		self::assertFalse($listing[0]['isInstalled']);
 		self::assertNull($listing[0]['installedVersion']);
-		self::assertSame(['decidesk'], $listing[0]['missingWidgets']);
+		self::assertSame(['activity'], $listing[0]['missingWidgets']);
+	}
+
+	/**
+	 * REQ-TMPL-018: a shipped template renders as installed.
+	 *
+	 * Two live defects, both invisible to every other test here:
+	 *  - four widgets proxied Nextcloud dashboard widgets that only paint
+	 *    through their own script (`IWidget` without an items API). LaunchPad
+	 *    loads those scripts only when the legacy widget bridge is switched
+	 *    on, so as installed they showed one sentence and their raw id;
+	 *  - a list sorted on `plannedEndDate` and showed it as a column, while a
+	 *    dossiq case carries `deadline`. The column was empty for every case.
+	 *
+	 * So: a proxied Nextcloud widget must be on the short list of widgets
+	 * known to answer the items API, and every field a list names on a known
+	 * register must exist in that register's schema.
+	 */
+	public function testAShippedTemplateRendersAsInstalled(): void {
+		$service = $this->makeService($this->makeInstance());
+		// Nextcloud widgets whose provider implements IAPIWidget(V2), measured
+		// on Nextcloud 35 via /ocs/v2.php/apps/dashboard/api/v1/widgets
+		// (`item_api_versions` not empty). Add one only after measuring it.
+		$itemsApiWidgets = ['activity', 'recommendations', 'files-favorites', 'user_status'];
+		$schemas = [];
+		foreach (glob(dirname(__DIR__, 2) . '/fixtures/registers/*.json') ?: [] as $file) {
+			$fixture = json_decode((string)file_get_contents($file), true);
+			$schemas[$fixture['register'] . '/' . $fixture['schema']] = $fixture['properties'];
+		}
+		self::assertArrayHasKey('dossiq/case', $schemas);
+
+		$listsChecked = 0;
+		foreach (ShippedTemplateService::SHIPPED_IDS as $id) {
+			foreach ($service->readDefinition(templateId: $id)['dashboard']['widgets'] as $widget) {
+				$content = $widget['content'];
+				if ($widget['widgetId'] === 'nc-widget') {
+					self::assertContains($content['widgetId'], $itemsApiWidgets, 'this widget cannot paint without the legacy bridge');
+				}
+				if ($widget['widgetId'] !== 'object-list') {
+					continue;
+				}
+
+				$key = $content['register'] . '/' . $content['schema'];
+				self::assertArrayHasKey($key, $schemas, 'no field list for ' . $key . ': add tests/fixtures/registers');
+				$named = array_column($content['columns'], 'key');
+				$named[] = $content['sort']['field'];
+				foreach (array_keys($content['filter']) as $filterKey) {
+					// `deadline[lt]` names the field `deadline`.
+					$named[] = preg_replace('/\[.*$/', '', (string)$filterKey);
+				}
+				foreach ($named as $field) {
+					self::assertContains($field, $schemas[$key], $widget['customTitle'] . ' names a field ' . $key . ' does not have');
+				}
+				foreach ($content['filter'] as $value) {
+					self::assertIsNotArray($value, 'an operator goes in the key, as in "deadline[lt]"');
+				}
+				$listsChecked++;
+			}
+		}
+
+		self::assertGreaterThanOrEqual(2, $listsChecked);
 	}
 
 	/**

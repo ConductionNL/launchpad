@@ -704,6 +704,75 @@ class ImportServiceTest extends TestCase {
 	}//end configuredTile()
 
 	/**
+	 * REQ-EXIM-012: `isCompulsory` crosses for an admin template and for
+	 * nothing else, and a template arrives without an owner.
+	 *
+	 * @return void
+	 */
+	public function testCompulsoryIsCarriedForATemplateOnly(): void {
+		$seen = [];
+		foreach ([Dashboard::TYPE_ADMIN_TEMPLATE, Dashboard::TYPE_USER, Dashboard::TYPE_GROUP_SHARED] as $type) {
+			$dashboardMapper = $this->createMock(originalClassName: DashboardMapper::class);
+			$placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
+			$dashboardMapper->method('findByUuid')
+				->willThrowException(exception: new DoesNotExistException(msg: 'no'));
+			$owner = 'unset';
+			$dashboardMapper->method('insert')->willReturnCallback(
+				static function (Dashboard $dashboard) use (&$owner): Dashboard {
+					$owner = $dashboard->getUserId();
+					// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+					$dashboard->setId(7);
+					return $dashboard;
+				}
+			);
+			$compulsory = null;
+			$placementMapper->method('insert')->willReturnCallback(
+				static function (WidgetPlacement $placement) use (&$compulsory): WidgetPlacement {
+					$compulsory = $placement->getIsCompulsory();
+					return $placement;
+				}
+			);
+			$service = new ImportService(
+				dashboardMapper: $dashboardMapper,
+				placementMapper: $placementMapper,
+				db: $this->db,
+				logger: new NullLogger(),
+			);
+
+			$uuid = 'a0000000-0000-4000-8000-00000000000' . (string)count($seen);
+			$zipPath = $this->makeZip(entries: [
+				'manifest.json' => (string)json_encode(value: ['schemaVersion' => 1, 'scope' => 'dashboard']),
+				'dashboards/' . $uuid . '.json' => (string)json_encode(value: [
+					'uuid' => $uuid,
+					'name' => 'Pinned',
+					'type' => $type,
+					'userId' => null,
+					'widgets' => [['widgetId' => 'text', 'isCompulsory' => 1]],
+				]),
+			]);
+			try {
+				$result = $service->import(zipPath: $zipPath, preserveUuids: false, currentUserId: 'admin');
+			} finally {
+				@unlink(filename: $zipPath);
+			}
+
+			self::assertSame(1, $result['importedDashboardCount']);
+			self::assertSame($uuid, $result['dashboards'][0]['sourceUuid']);
+			self::assertSame(7, $result['dashboards'][0]['id']);
+			$seen[$type] = ['compulsory' => $compulsory, 'owner' => $owner];
+		}//end foreach
+
+		self::assertSame(
+			[
+				Dashboard::TYPE_ADMIN_TEMPLATE => ['compulsory' => 1, 'owner' => null],
+				Dashboard::TYPE_USER => ['compulsory' => 0, 'owner' => 'admin'],
+				Dashboard::TYPE_GROUP_SHARED => ['compulsory' => 0, 'owner' => 'admin'],
+			],
+			$seen
+		);
+	}
+
+	/**
 	 * Build a temporary ZIP archive containing the provided entries.
 	 *
 	 * @param array<string, string> $entries Map of archive name to bytes.

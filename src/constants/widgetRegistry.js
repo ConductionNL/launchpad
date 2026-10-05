@@ -64,6 +64,8 @@ import {
 // registration pattern as `clock`/`weather`.
 import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
 import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
+import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
@@ -169,6 +171,19 @@ registerDashboardWidget('ai-assistant', {
 	},
 	displayName: 'Assistant',
 	icon: 'RobotOutline',
+})
+
+// `attention`: "First today", the ranked list of what the user's apps say
+// needs attention (openspec/specs/attention-feed). LaunchPad-only: it reads
+// LaunchPad's own sources endpoint. Same registration pattern as `clock`.
+registerDashboardWidget('attention', {
+	renderer: AttentionWidget,
+	form: AttentionWidgetForm,
+	defaultContent: {
+		limit: 5,
+	},
+	displayName: 'First today',
+	icon: 'AlertCircleOutline',
 })
 
 registerDashboardWidget('clock', {

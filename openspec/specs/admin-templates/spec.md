@@ -755,6 +755,138 @@ A real (non-dry-run) re-sync MUST be idempotent — applying the same plan twice
 - THEN the system MUST enqueue `TemplateResyncJob` and return a prompt accepted response
 - AND the job MUST apply the plan per copy and notify each affected user on completion
 
+### Requirement: REQ-TMPL-018 Templates that ship with LaunchPad
+
+LaunchPad MUST ship ready-made admin templates as data, one file per template at `data/templates/<id>.json`. A definition holds `templateId`, an integer `templateVersion`, a `language`, and one `dashboard` in the shape an export writes to `dashboards/<uuid>.json` (REQ-EXIM-001). The list of shipped ids is fixed in `ShippedTemplateService::SHIPPED_IDS`.
+
+An administrator MUST be able to add a shipped template as an admin template from the Templates page (`POST /api/admin/templates/shipped/{id}/install`) and from the command line (REQ-CLI-012). Installing MUST go through the dashboard importer (REQ-EXIM-004), so a shipped template and an uploaded archive take one path. The installed template MUST keep every widget's configuration and its `isCompulsory` flag (REQ-EXIM-012).
+
+Installing MUST NOT hand the template to anybody on its own. The definition ships with no target groups and is not the default. The administrator chooses the groups, or makes it the default, with the install options or afterwards on the Templates page (REQ-TMPL-003).
+
+LaunchPad MUST remember the install per template: app config `shipped_template_<id>` holds the UUID and `shipped_template_version_<id>` the version. A second install MUST add nothing unless forced. A forced install MUST add a fresh copy and MUST leave the earlier one in place, because dashboards made from it point at it. When the recorded template was deleted, the shipped template MUST count as not installed.
+
+A definition that is missing or malformed MUST fail the install with an error. It MUST NOT install an empty template.
+
+The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
+
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the "First today" list across apps (`attention-feed`, since template version 2), the employee's dossiq cases past their deadline, the employee's open dossiq cases and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`.
+
+#### Scenario: An administrator adds the shipped template and gives it to a group
+- GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
+- WHEN an administrator adds it from the Templates page, then edits it and picks the group "medewerkers"
+- THEN the template list MUST show "Mijn werkdag" with the group "medewerkers"
+- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the "First today" list marked compulsory
+
+@e2e exclude No Playwright test was written for this. The install is pinned by ShippedTemplateServiceTest::testInstallAddsTheTemplateThroughTheImporter, the compulsory flags by ::testTheShippedTemplateSurvivesExportAndImport, and the page by TemplatesPage.shipped.spec.js. It has not been run in a browser.
+
+#### Scenario: Installing twice adds one template
+- GIVEN `mijn-werkdag` is installed
+- WHEN an administrator installs it again without forcing
+- THEN no second template MUST be added
+- AND the response MUST say it was already installed and name the same UUID
+
+@e2e exclude Service behaviour with no page of its own: pinned by ShippedTemplateServiceTest::testASecondInstallAddsNothing.
+
+#### Scenario: A template deleted by the administrator can be added again
+- GIVEN `mijn-werkdag` was installed and the administrator deleted that template
+- WHEN the administrator installs it again
+- THEN a new template MUST be added without forcing
+
+@e2e exclude Pinned by ShippedTemplateServiceTest::testADeletedTemplateCountsAsNotInstalled.
+
+#### Scenario: A broken definition fails loudly
+- GIVEN the file for a shipped template is missing or has no widgets
+- WHEN an administrator installs it
+- THEN the install MUST fail with an error that names the file
+- AND no template MUST be added
+
+@e2e exclude A packaging fault cannot be staged in a browser: pinned by ShippedTemplateServiceTest::testAMalformedDefinitionFails.
+
+#### Scenario: The listing names widgets no app registers here
+- GIVEN no app on the instance registers the `activity` widget
+- WHEN an administrator lists the shipped templates
+- THEN `mijn-werkdag` MUST list `activity` under `missingWidgets`
+
+@e2e exclude Needs an instance without the app: pinned by ShippedTemplateServiceTest::testTheListingNamesWidgetsNothingRegisters.
+
+#### Scenario: The shipped template renders as installed
+- GIVEN the shipped definition `data/templates/mijn-werkdag.json` and an instance with dossiq and default LaunchPad settings
+- WHEN a member opens the dashboard made from it
+- THEN no widget MUST show "This widget can only be shown on the Nextcloud dashboard itself." or a raw widget id as its heading
+- AND the "Termijn" column of both case lists MUST show each case's deadline
+
+@e2e exclude Needs dossiq with cases on the instance, which the e2e instance does not have. Pinned by ShippedTemplateServiceTest::testAShippedTemplateRendersAsInstalled, and seen in a browser on a test instance on 5 October 2026.
+
+#### Scenario: Every widget in the shipped template is one LaunchPad can place
+- GIVEN the shipped definition `data/templates/mijn-werkdag.json`
+- WHEN its widgets are read
+- THEN every `widgetId` MUST be on LaunchPad's own widget type list (`lib/widget-types.json`)
+- AND no two widgets MUST share a grid cell
+- AND every widget MUST fit inside the template's grid columns
+
+@e2e exclude A check on shipped data, not a browser behaviour: pinned by ShippedTemplateServiceTest::testTheShippedDefinitionIsWellFormed.
+
+### Requirement: REQ-TMPL-019 A member is shown their template on the first visit
+
+A user who owns no personal dashboard and has no saved choice (no pinned default and no last-used dashboard that they can still see) MUST be shown the admin template that applies to them (REQ-TMPL-005: a template that targets one of their groups, else the default template). Both resolution chains MUST do this at the same place, directly after the saved-choice steps and before any group dashboard: the page shell's chain (REQ-DASH-018, step 1b) and `GET /api/dashboard` (REQ-DASH-009).
+
+Precedence:
+
+- A template that targets one of the user's groups MUST outrank every group dashboard, the user's own group's default included.
+- The default template MUST outrank the dashboards of the `default` group (everyone), including the one seeded on install. It MUST step aside for a default dashboard of the user's own primary group, which is the more specific of the two.
+
+What the user gets:
+
+- With personal dashboards allowed (`allowUserDashboards`), the user MUST receive a personal copy (REQ-TMPL-005), once. The copy MUST be stored as their last-used dashboard, so later visits resolve it through the saved-choice step.
+- With personal dashboards off, no copy MUST be made (REQ-ASET-003). The template itself MUST be shown, view only. Its compulsory flags have no effect then, because nothing can be removed.
+
+A user who owns a personal dashboard, or has a saved choice, MUST NOT be affected by this requirement.
+
+**Why this was written down.** Templates were only known to `GET /api/dashboard`, at the very end of its chain. The page decides what to show from the other chain, which did not know templates. So on an instance with the seeded dashboard for everyone, that dashboard always won; and without it the page said "No dashboards available" and never called the API that would have made the copy. Every unit test was green and no member of a targeted group had ever been shown a template. Found by a live check on 5 October 2026.
+
+**What changes on an instance that already has templates.** A user who owns nothing and has no saved choice now lands on their template (and, with personal dashboards on, receives a copy) where they used to land on a group dashboard. Nobody else is moved.
+
+**Known limit.** With personal dashboards off, the view-only template is not in the dashboard switcher. A member who opens another dashboard cannot switch back to it.
+
+#### Scenario: A new member sees the template, although a dashboard for everyone exists
+- GIVEN the instance has the seeded dashboard for everyone and personal dashboards are allowed
+- AND the template "Mijn werkdag" targets the group "behandelaars"
+- AND Sanne is in "behandelaars" and has never opened LaunchPad
+- WHEN Sanne opens LaunchPad
+- THEN she MUST see "Mijn werkdag", as a personal copy with the template's compulsory widgets
+- AND a second visit MUST show the same copy and MUST NOT make another
+
+#### Scenario: Without any other dashboard the page still shows the template
+- GIVEN no group dashboard exists and the template targets Sanne's group
+- WHEN Sanne opens LaunchPad for the first time
+- THEN she MUST see the template's dashboard and MUST NOT see "No dashboards available"
+
+@e2e exclude Needs an instance with no group dashboard at all, and the e2e instance is shared with other suites' fixtures. Pinned by DashboardServiceTemplateRungTest::testWithNoOtherDashboardThePageStillShowsTheTemplate.
+
+#### Scenario: Personal dashboards off
+- GIVEN personal dashboards are off and the template targets Sanne's group
+- WHEN Sanne opens LaunchPad for the first time
+- THEN she MUST see the template itself, view only
+- AND no personal dashboard MUST be created for her
+
+@e2e exclude Pinned by DashboardServiceTemplateRungTest::testWithPersonalDashboardsOffTheTemplateItselfIsShownViewOnly. Not run in a browser.
+
+#### Scenario: The default template replaces the dashboard for everyone
+- GIVEN the seeded dashboard for everyone exists and a default template exists
+- AND Mark is in no group that a template targets and his primary group has no default dashboard
+- WHEN Mark opens LaunchPad for the first time
+- THEN he MUST get the default template, not the seeded dashboard
+
+@e2e exclude Making a template the instance default changes what every other suite's fresh user lands on. Pinned by DashboardServiceTemplateRungTest::testTheDefaultTemplateReplacesTheSeededDashboard and ::testTheDefaultTemplateStepsAsideForTheUsersOwnGroupDefault.
+
+#### Scenario: People already using LaunchPad are left alone
+- GIVEN Pieter owns a personal dashboard, and Lotte has a last-used dashboard she can still see
+- AND a template now targets a group both are in
+- WHEN each opens LaunchPad
+- THEN neither MUST be moved to the template and no copy MUST be made for them
+
+@e2e exclude Pinned by DashboardServiceTemplateRungTest::testAUserWhoOwnsADashboardGetsNoTemplate and ::testASavedChoiceIsKept.
+
 ## Non-Functional Requirements
 
 - **Performance**: Template distribution (copying placements) MUST complete within 2 seconds per user, even for templates with 20+ widget placements. The first-access check MUST add no more than 200ms to the initial dashboard load. `GET /api/templates/gallery` MUST return within 500ms even with 100+ templates; the gallery list SHOULD NOT fetch widget placements (use `WidgetPlacementMapper::countByDashboardId()` for the count, not `findByDashboardId()`).

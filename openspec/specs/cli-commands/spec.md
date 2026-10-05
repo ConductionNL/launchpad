@@ -313,11 +313,24 @@ The system MUST provide three i18n commands: `launchpad:i18n:export-strings` (ex
 
 #### Scenario: Export translatable strings to POT
 
-- GIVEN a developer runs `php occ launchpad:i18n:export-strings`
+- GIVEN a developer runs `php occ launchpad:i18n:export-strings` on a development checkout
 - WHEN the command scans `lib/` and `src/` for i18n markers
 - THEN a `.pot` file is written to `l10n/launchpad.pot`
 - AND the exit code MUST be 0
 - AND the file contains all discovered translatable strings
+
+#### Scenario: A signed release is never written to
+
+- GIVEN the app is a signed release, so `appinfo/signature.json` exists
+- WHEN an operator runs `php occ launchpad:i18n:export-strings` without `--output`, or with an `--output` path inside the app folder
+- THEN no file MUST be created or changed in the app folder, because Nextcloud would report it as a code integrity problem (EXTRA_FILE)
+- AND the exit code MUST be 2, with a message naming `--output`
+
+#### Scenario: The POT file goes where the operator says
+
+- WHEN an operator runs the command with `--output=<path>` outside the app folder, or `--output=-`
+- THEN the POT file MUST be written to that path, or printed to standard output
+- AND the exit code MUST be 0
 
 #### Scenario: Migrate language structure one-time
 
@@ -571,3 +584,35 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - GIVEN an operator sees `launchpad:i18n:export-strings` in `php occ list launchpad` output
 - WHEN they run `php occ launchpad:i18n:export-strings --help`
 - THEN the detailed help text MUST be displayed, providing a path from discovery to usage
+
+### Requirement: REQ-CLI-012 Install a shipped template
+
+`php occ launchpad:template:install <id> [--group=<gid>]... [--default] [--force]` MUST add a template that ships with LaunchPad (REQ-TMPL-018) as an admin template, for scripted deploys.
+
+- `--group` names a group whose members get the template. It may be repeated. A group that does not exist MUST fail the command before anything is added.
+- `--default` makes it the default template for everyone without a group template (REQ-TMPL-008).
+- `--force` adds a fresh copy even when the template is already installed.
+
+The command MUST print the template's UUID, its version, its groups and whether it is the default. It MUST name the widgets no app on the instance registers. When personal dashboards are off it MUST say that members will see the template read-only and that its compulsory widgets have no effect (REQ-TMPL-019). Run a second time without `--force`, it MUST add nothing and MUST apply `--group` and `--default` again. It MUST exit 0 on success and 1 on an unknown id, an unknown group or a failed install.
+
+#### Scenario: A deploy script installs the template for a group
+- GIVEN the group "medewerkers" exists and `mijn-werkdag` is not installed
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkers`
+- THEN the command MUST exit 0 and print the new template's UUID
+- AND the template MUST target the group "medewerkers"
+
+@e2e exclude A console command has no browser surface: pinned by TemplateInstallCommandTest::testInstallsForAGroup.
+
+#### Scenario: An unknown group stops the install
+- GIVEN no group "medewerkerz" exists
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkerz`
+- THEN the command MUST exit 1 and name the group
+- AND no template MUST be added
+
+@e2e exclude Pinned by ShippedTemplateServiceTest::testAnUnknownGroupStopsTheInstall and TemplateInstallCommandTest::testAnUnknownGroupExitsOne.
+
+#### Scenario: An unknown template id lists the shipped ones
+- WHEN an operator runs `php occ launchpad:template:install does-not-exist`
+- THEN the command MUST exit 1 and list the shipped template ids
+
+@e2e exclude Pinned by TemplateInstallCommandTest::testAnUnknownIdExitsOne.

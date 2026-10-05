@@ -88,8 +88,11 @@ class PeopleWidgetController extends Controller {
 	 * @param string|null $sortBy Sort key.
 	 * @param int|null $limit Page size.
 	 * @param int|null $offset Page offset.
+	 * @param string|null $q Search text; 2 or more characters search the whole directory by name, email and profile fields (REQ-PEX-003).
 	 *
 	 * @return JSONResponse
+	 *
+	 * @SuppressWarnings(PHPMD.ShortVariable) `q` is the query parameter's public name.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
@@ -102,6 +105,7 @@ class PeopleWidgetController extends Controller {
 		?string $sortBy = 'displayName',
 		?int $limit = PeopleWidgetService::DEFAULT_LIMIT,
 		?int $offset = 0,
+		?string $q = null,
 	): JSONResponse {
 		if ($this->userId === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
@@ -137,6 +141,8 @@ class PeopleWidgetController extends Controller {
 				sortBy: ($sortBy ?? 'displayName'),
 				limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
 				offset: ($offset ?? 0),
+				query: $q,
+				viewerId: $user->getUID(),
 			);
 		} catch (InvalidArgumentException $e) {
 			return ResponseHelper::error(

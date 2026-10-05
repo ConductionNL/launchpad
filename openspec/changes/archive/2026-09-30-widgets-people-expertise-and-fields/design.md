@@ -51,3 +51,13 @@ Demo installs define "Kantoorlocatie" (text, self), "Kostenplaats" (text, self, 
 - PHPUnit: field definition validation, self edits, LDAP sync with a stubbed provider, search across fields, private fields not matched, paging.
 - Vitest: personal settings form, tag chips, widget search calling the server.
 - Playwright: Pieter adds the tag "subsidies"; Sanne searches "subsidie" in a people widget and finds Pieter.
+
+## What the build corrected (2026-09-30)
+
+- `value` and `value_search` are TEXT (a biography does not fit 255 characters), so there is no unique index on the value and no index can serve `LIKE '%text%'`. The table has indexes on `user_id` and `field_key`; a search reads at most 1,000 matching rows (`ProfileValueMapper::SEARCH_ROW_CAP`) and at most 500 name and email matches (`PeopleWidgetService::SEARCH_CANDIDATE_CAP`).
+- Tags are unique per person and field case-insensitively in the service (the first spelling wins), not by a database constraint.
+- The personal form sits on the Personal info page (`personal-info` section) and only when an administrator defined a field. It reads its fields from `GET /api/profile-fields/me`, so it needs no initial state.
+- Demo installs get the three demo fields (only when none are defined). LaunchPad ships no demo users, so no demo tags are seeded.
+- The standard-field scope rule also applies to what the card shows, not only to the search: a private role, headline or biography shows to its owner only.
+- The old REQ-PPL-004 notes about a shared server cache were stale: the service keeps no server cache.
+

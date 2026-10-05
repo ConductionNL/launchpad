@@ -250,6 +250,9 @@
 				<template #detail-fields>
 					<MetadataFieldsSettings />
 				</template>
+				<template #profile-fields>
+					<ProfileFieldsTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -292,6 +295,7 @@ import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
+import ProfileFieldsTab from './tabs/ProfileFieldsTab.vue'
 import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
@@ -317,6 +321,7 @@ export default {
 		VersioningAuditTab,
 		MetadataFieldsSettings,
 		KioskTab,
+		ProfileFieldsTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -409,6 +414,10 @@ export default {
 				{
 					slug: 'detail-fields',
 					label: this.t('launchpad', 'Detail fields'),
+				},
+				{
+					slug: 'profile-fields',
+					label: this.t('launchpad', 'Profile fields'),
 				},
 			]
 		},

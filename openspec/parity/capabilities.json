@@ -5136,12 +5136,12 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "lib/Service/PeopleWidgetService.php:91",
-				"change": "openspec/changes/widgets-people-expertise-and-fields"
+				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields"
 			},
-			"reachedOn": "Workspace page, Add widget, People",
+			"reachedOn": "People widget cards show custom fields; Personal settings > Personal info > LaunchPad profile; Admin settings > LaunchPad > Profile fields",
 			"evidence": {
 				"workspace-365": "v4.46 (2026-08-19) 'map up to five fields from Entra ID to custom fields in Workspace 365' (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards People card reads contact information from Entra ID; custom fields not described (read 2026-09-26)",
@@ -5352,11 +5352,12 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/ProfileFieldService.php; lib/Service/PeopleWidgetService.php (searchCandidates); src/components/Widgets/Renderers/PeopleWidget.vue; src/views/settings/ProfileFieldsSettings.vue; src/components/admin/tabs/ProfileFieldsTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/widgets-people-expertise-and-fields"
+				"change": "openspec/changes/archive/2026-09-30-widgets-people-expertise-and-fields"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "People widget search box: 2 or more characters search the whole directory, including expertise tags (GET /api/people?q=)",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175651-address-book users search colleagues by 'names, job titles, email address, departments and office locations, skills and expertise, interests, and more' (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/copilot/microsoft-365/people-skills-overview (read via its public source MicrosoftDocs/microsoft-365-docs) GA 'Skills in Traditional People Search (SharePoint people search)', available with Microsoft 365 or Viva plans; SharePoint search is what the SharePoint app in Teams uses (read 2026-09-26)",

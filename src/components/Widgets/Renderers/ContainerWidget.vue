@@ -28,7 +28,7 @@
 				:gs-y="child.gridY || 0"
 				:gs-w="child.gridWidth || 2"
 				:gs-h="child.gridHeight || 2"
-				@click="onChildClick(child)">
+				:data-use-key="useKey(child)">
 				<div class="grid-stack-item-content">
 					<ContainerChild :placement="child" :editMode="editMode" />
 				</div>
@@ -251,10 +251,14 @@ export default {
 	},
 
 	mounted() {
+		// REQ-TSO-002: one delegated listener counts clicks on the tiles'
+		// own links and buttons; the wrapper itself is not a control.
+		this.$refs.innerGrid?.addEventListener('click', this.onGridClick)
 		this.initInnerGrid()
 	},
 
 	beforeUnmount() {
+		this.$refs.innerGrid?.removeEventListener('click', this.onGridClick)
 		this.destroyInnerGrid()
 	},
 
@@ -282,14 +286,17 @@ export default {
 		 * does not change until the next page load, so tiles never jump
 		 * under the pointer.
 		 *
-		 * @param {object} child The clicked child placement.
+		 * @param {MouseEvent} event The click inside the grid.
 		 * @spec openspec/specs/container-widget/spec.md
 		 */
-		onChildClick(child) {
+		onGridClick(event) {
 			if (this.editMode) {
 				return
 			}
-			recordLocalTileUse(this.useKey(child))
+			const item = event?.target?.closest?.('[data-use-key]')
+			if (item) {
+				recordLocalTileUse(item.dataset.useKey)
+			}
 		},
 
 		/**

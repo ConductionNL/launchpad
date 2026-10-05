@@ -1,0 +1,181 @@
+{
+	"templateId": "mijn-werkdag",
+	"templateVersion": 2,
+	"language": "nl",
+	"dashboard": {
+		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
+		"name": "Mijn werkdag",
+		"description": "Startpagina voor medewerkers: wat vandaag eerst moet uit al uw apps, zaken over de termijn, uw open zaken en recente activiteit.",
+		"icon": null,
+		"type": "admin_template",
+		"userId": null,
+		"gridColumns": 12,
+		"permissionLevel": "add_only",
+		"targetGroups": [],
+		"slug": null,
+		"sortOrder": 0,
+		"publicationStatus": "published",
+		"templateCategory": "Werkplek",
+		"templateDescription": "Startpagina voor medewerkers van een gemeente. Toont wat vandaag aandacht vraagt uit alle apps, uw dossiq-zaken over de termijn, uw open zaken en recente activiteit. Werkt zonder extra instellingen.",
+		"widgets": [
+			{
+				"widgetId": "header",
+				"gridX": 0,
+				"gridY": 0,
+				"gridWidth": 12,
+				"gridHeight": 2,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"title": "Mijn werkdag",
+					"subtitle": "Uw zaken en wat vandaag eerst moet, op één pagina",
+					"textAlign": "left",
+					"verticalAlign": "middle",
+					"height": "small"
+				},
+				"showTitle": 0,
+				"sortOrder": 0
+			},
+			{
+				"widgetId": "attention",
+				"gridX": 0,
+				"gridY": 2,
+				"gridWidth": 12,
+				"gridHeight": 5,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Vandaag eerst",
+				"customIcon": null,
+				"content": {
+					"limit": 5
+				},
+				"showTitle": 1,
+				"sortOrder": 1
+			},
+			{
+				"widgetId": "object-list",
+				"gridX": 0,
+				"gridY": 7,
+				"gridWidth": 6,
+				"gridHeight": 7,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Zaken over de termijn",
+				"customIcon": null,
+				"content": {
+					"title": "Zaken over de termijn",
+					"register": "dossiq",
+					"schema": "case",
+					"filter": {
+						"assignee": "@me",
+						"isFinalStatus": false,
+						"statusHiddenInLists": false,
+						"isDraft": false,
+						"deadline[lt]": "@today+1d"
+					},
+					"sort": {
+						"field": "deadline",
+						"dir": "asc"
+					},
+					"limit": 10,
+					"columns": [
+						{
+							"key": "identifier",
+							"label": "Nummer"
+						},
+						{
+							"key": "title",
+							"label": "Zaak"
+						},
+						{
+							"key": "statusPublicLabel",
+							"label": "Status"
+						},
+						{
+							"key": "deadline",
+							"label": "Termijn"
+						}
+					],
+					"allowCreate": false,
+					"emptyText": "Geen van uw zaken is over de termijn."
+				},
+				"showTitle": 1,
+				"sortOrder": 2
+			},
+			{
+				"widgetId": "object-list",
+				"gridX": 6,
+				"gridY": 7,
+				"gridWidth": 6,
+				"gridHeight": 7,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Mijn zaken",
+				"customIcon": null,
+				"content": {
+					"title": "Mijn zaken",
+					"register": "dossiq",
+					"schema": "case",
+					"filter": {
+						"assignee": "@me",
+						"isFinalStatus": false,
+						"statusHiddenInLists": false,
+						"isDraft": false
+					},
+					"sort": {
+						"field": "deadline",
+						"dir": "asc"
+					},
+					"limit": 10,
+					"columns": [
+						{
+							"key": "identifier",
+							"label": "Nummer"
+						},
+						{
+							"key": "title",
+							"label": "Zaak"
+						},
+						{
+							"key": "statusPublicLabel",
+							"label": "Status"
+						},
+						{
+							"key": "deadline",
+							"label": "Termijn"
+						}
+					],
+					"allowCreate": false,
+					"emptyText": "Er zijn geen zaken aan u toegewezen."
+				},
+				"showTitle": 1,
+				"sortOrder": 3
+			},
+			{
+				"widgetId": "nc-widget",
+				"gridX": 0,
+				"gridY": 14,
+				"gridWidth": 12,
+				"gridHeight": 6,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Verder waar u was",
+				"customIcon": null,
+				"content": {
+					"title": "Verder waar u was",
+					"widgetId": "activity",
+					"displayMode": "vertical"
+				},
+				"showTitle": 1,
+				"sortOrder": 4
+			}
+		]
+	}
+}

@@ -73,7 +73,9 @@ export function resolveToken(value, ctx) {
 		return ymd(new Date(now.getFullYear(), now.getMonth(), 1))
 	}
 	if (value === '@quarterStart') {
-		return ymd(new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1))
+		return ymd(
+			new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1),
+		)
 	}
 	if (value === '@yearStart') {
 		return ymd(new Date(now.getFullYear(), 0, 1))
@@ -88,7 +90,7 @@ export function resolveToken(value, ctx) {
  * the link passes nothing.
  *
  * @param {object} filter The declared filter.
- * @param {Function} [resolve] Maps each value before it is written.
+ * @param {(value: unknown) => unknown} [resolve] Maps each value before it is written.
  * @return {Array<[string, string]>} The pairs.
  * @spec openspec/specs/attention-feed/spec.md#req-att-003
  */
@@ -117,7 +119,10 @@ export function filterPairs(filter, resolve = (value) => value) {
  */
 export function toQuery(pairs) {
 	return pairs
-		.map(([key, value]) => `${encodeURIComponent(key).replace(/%5B/g, '[').replace(/%5D/g, ']')}=${encodeURIComponent(value).replace(/%40/g, '@')}`)
+		.map(
+			([key, value]) =>
+				`${encodeURIComponent(key).replace(/%5B/g, '[').replace(/%5D/g, ']')}=${encodeURIComponent(value).replace(/%40/g, '@')}`,
+		)
 		.join('&')
 }
 
@@ -160,13 +165,20 @@ export function actionPath(source) {
  */
 export function needsAttention(count, op, value) {
 	switch (op) {
-	case 'gt': return count > value
-	case 'gte': return count >= value
-	case 'lt': return count < value
-	case 'lte': return count <= value
-	case 'eq': return count === value
-	case 'neq': return count !== value
-	default: throw new Error(`unknown operator ${op}`)
+		case 'gt':
+			return count > value
+		case 'gte':
+			return count >= value
+		case 'lt':
+			return count < value
+		case 'lte':
+			return count <= value
+		case 'eq':
+			return count === value
+		case 'neq':
+			return count !== value
+		default:
+			throw new Error(`unknown operator ${op}`)
 	}
 }
 
@@ -179,11 +191,12 @@ export function needsAttention(count, op, value) {
  * @spec openspec/specs/attention-feed/spec.md#req-att-004
  */
 export function rank(entries) {
-	return [...entries].sort((a, b) =>
-		SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity)
-		|| b.count - a.count
-		|| a.appName.localeCompare(b.appName)
-		|| a.id.localeCompare(b.id),
+	return [...entries].sort(
+		(a, b) =>
+			SEVERITIES.indexOf(a.severity) - SEVERITIES.indexOf(b.severity)
+			|| b.count - a.count
+			|| a.appName.localeCompare(b.appName)
+			|| a.id.localeCompare(b.id),
 	)
 }
 
@@ -237,12 +250,16 @@ export async function checkSource(source, ctx) {
  * @spec openspec/specs/attention-feed/spec.md#req-att-005
  */
 export async function loadAttentionFeed(ctx = {}) {
-	const { data } = await axios.get(generateUrl('/apps/launchpad/api/attention/sources'))
+	const { data } = await axios.get(
+		generateUrl('/apps/launchpad/api/attention/sources'),
+	)
 	const context = { userId: data?.userId || '', now: ctx.now || new Date() }
 	const sources = Array.isArray(data?.sources) ? data.sources : []
 	const invalid = Array.isArray(data?.invalid) ? data.invalid : []
 
-	const entries = await Promise.all(sources.map((source) => checkSource(source, context)))
+	const entries = await Promise.all(
+		sources.map((source) => checkSource(source, context)),
+	)
 
 	const failedApps = [
 		...entries.filter((entry) => entry.failed).map((entry) => entry.appName),

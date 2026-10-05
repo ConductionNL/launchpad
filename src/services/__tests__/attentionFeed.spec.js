@@ -62,7 +62,11 @@ const pipelinq = {
 	source: {
 		register: 'pipelinq',
 		schema: 'ticket',
-		filter: { assignee: '@me', status: 'in_progress', 'slaDeadline[lt]': '@today+1d' },
+		filter: {
+			assignee: '@me',
+			status: 'in_progress',
+			'slaDeadline[lt]': '@today+1d',
+		},
 	},
 	op: 'gt',
 	value: 0,
@@ -75,7 +79,11 @@ const decidiq = {
 	title: 'Decisions wait for the vote',
 	reason: '{value} decisions are open for voting.',
 	severity: 'warning',
-	source: { register: 'decidiq', schema: 'decision', filter: { lifecycle: 'voting' } },
+	source: {
+		register: 'decidiq',
+		schema: 'decision',
+		filter: { lifecycle: 'voting' },
+	},
 	op: 'gt',
 	value: 0,
 	action: { label: 'Open these decisions', path: '/apps/decidiq/decisions' },
@@ -84,7 +92,9 @@ const decidiq = {
 /** Split `a=b&c=d` into decoded pairs. */
 function pairsOf(url) {
 	const query = url.includes('?') ? url.slice(url.indexOf('?') + 1) : ''
-	return query === '' ? [] : query.split('&').map((part) => part.split('=').map(decodeURIComponent))
+	return query === ''
+		? []
+		: query.split('&').map((part) => part.split('=').map(decodeURIComponent))
 }
 
 /** Answer each OpenRegister count by register, or reject. */
@@ -95,7 +105,9 @@ function answerCounts(byRegister) {
 		}
 		const register = /\/api\/objects\/([^/]+)\//.exec(url)[1]
 		const answer = byRegister[register]
-		return answer instanceof Error ? Promise.reject(answer) : Promise.resolve({ data: answer })
+		return answer instanceof Error
+			? Promise.reject(answer)
+			: Promise.resolve({ data: answer })
 	})
 }
 
@@ -126,7 +138,9 @@ describe('resolveToken', () => {
 	it('throws on a token it does not know, and on @me without a user', () => {
 		expect(() => resolveToken('@manager', ctx)).toThrow('unknown token @manager')
 		expect(() => resolveToken('@today+1w', ctx)).toThrow('unknown token')
-		expect(() => resolveToken('@me', { userId: '', now: ctx.now })).toThrow('@me needs a signed-in user')
+		expect(() => resolveToken('@me', { userId: '', now: ctx.now })).toThrow(
+			'@me needs a signed-in user',
+		)
 	})
 })
 
@@ -137,11 +151,11 @@ describe('the count and the link', () => {
 
 		expect(count).toBe(
 			'/apps/openregister/api/objects/dossiq/case'
-			+ '?assignee=pieter&isFinalStatus=false&statusHiddenInLists=false&isDraft=false&deadline[lt]=2026-10-06&_limit=1',
+				+ '?assignee=pieter&isFinalStatus=false&statusHiddenInLists=false&isDraft=false&deadline[lt]=2026-10-06&_limit=1',
 		)
 		expect(link).toBe(
 			'/apps/dossiq/cases'
-			+ '?assignee=@me&isFinalStatus=false&statusHiddenInLists=false&isDraft=false&deadline[lt]=@today%2B1d',
+				+ '?assignee=@me&isFinalStatus=false&statusHiddenInLists=false&isDraft=false&deadline[lt]=@today%2B1d',
 		)
 
 		// The serialised addresses, compared: same keys in the same order,
@@ -150,43 +164,75 @@ describe('the count and the link', () => {
 		const countPairs = pairsOf(count).filter(([key]) => key !== '_limit')
 		const linkPairs = pairsOf(link)
 		expect(linkPairs.map(([key]) => key)).toEqual(countPairs.map(([key]) => key))
-		expect(linkPairs.map(([, value]) => String(resolveToken(value, ctx))))
-			.toEqual(countPairs.map(([, value]) => value))
+		expect(
+			linkPairs.map(([, value]) => String(resolveToken(value, ctx))),
+		).toEqual(countPairs.map(([, value]) => value))
 	})
 
 	it('holds for every declaration the apps are asked to ship', () => {
 		for (const source of [dossiq, pipelinq, decidiq]) {
-			const countPairs = pairsOf(countPath(source, ctx)).filter(([key]) => key !== '_limit')
+			const countPairs = pairsOf(countPath(source, ctx)).filter(
+				([key]) => key !== '_limit',
+			)
 			const linkPairs = pairsOf(actionPath(source))
-			expect(linkPairs.map(([key]) => key), source.appId).toEqual(Object.keys(source.source.filter))
-			expect(linkPairs.map(([, value]) => String(resolveToken(value, ctx))), source.appId)
-				.toEqual(countPairs.map(([, value]) => value))
+			expect(
+				linkPairs.map(([key]) => key),
+				source.appId,
+			).toEqual(Object.keys(source.source.filter))
+			expect(
+				linkPairs.map(([, value]) => String(resolveToken(value, ctx))),
+				source.appId,
+			).toEqual(countPairs.map(([, value]) => value))
 		}
 	})
 
 	it('writes a list as repeated key[] pairs in both', () => {
 		const source = {
 			...decidiq,
-			source: { register: 'decidiq', schema: 'governance-commitment', filter: { lifecycle: ['open', 'in-execution'] } },
+			source: {
+				register: 'decidiq',
+				schema: 'governance-commitment',
+				filter: { lifecycle: ['open', 'in-execution'] },
+			},
 		}
 
-		expect(filterPairs(source.source.filter)).toEqual([['lifecycle[]', 'open'], ['lifecycle[]', 'in-execution']])
-		expect(countPath(source, ctx)).toContain('?lifecycle[]=open&lifecycle[]=in-execution&_limit=1')
-		expect(actionPath(source)).toBe('/apps/decidiq/decisions?lifecycle[]=open&lifecycle[]=in-execution')
+		expect(filterPairs(source.source.filter)).toEqual([
+			['lifecycle[]', 'open'],
+			['lifecycle[]', 'in-execution'],
+		])
+		expect(countPath(source, ctx)).toContain(
+			'?lifecycle[]=open&lifecycle[]=in-execution&_limit=1',
+		)
+		expect(actionPath(source)).toBe(
+			'/apps/decidiq/decisions?lifecycle[]=open&lifecycle[]=in-execution',
+		)
 	})
 
 	it('links to the bare path when there is no filter', () => {
-		const source = { ...decidiq, source: { register: 'decidiq', schema: 'decision', filter: {} } }
+		const source = {
+			...decidiq,
+			source: { register: 'decidiq', schema: 'decision', filter: {} },
+		}
 
 		expect(actionPath(source)).toBe('/apps/decidiq/decisions')
-		expect(countPath(source, ctx)).toBe('/apps/openregister/api/objects/decidiq/decision?_limit=1')
+		expect(countPath(source, ctx)).toBe(
+			'/apps/openregister/api/objects/decidiq/decision?_limit=1',
+		)
 	})
 
 	it('encodes a value that could break out of the query', () => {
-		const source = { ...decidiq, source: { register: 'r', schema: 's', filter: { title: 'a&b=c #d' } } }
+		const source = {
+			...decidiq,
+			source: { register: 'r', schema: 's', filter: { title: 'a&b=c #d' } },
+		}
 
-		expect(actionPath(source)).toBe('/apps/decidiq/decisions?title=a%26b%3Dc%20%23d')
-		expect(pairsOf(countPath(source, ctx))).toEqual([['title', 'a&b=c #d'], ['_limit', '1']])
+		expect(actionPath(source)).toBe(
+			'/apps/decidiq/decisions?title=a%26b%3Dc%20%23d',
+		)
+		expect(pairsOf(countPath(source, ctx))).toEqual([
+			['title', 'a&b=c #d'],
+			['_limit', '1'],
+		])
 	})
 })
 
@@ -206,7 +252,12 @@ describe('needsAttention', () => {
 
 describe('rank', () => {
 	it('ranks by severity, then count, then app', () => {
-		const entry = (appName, severity, count, id = 'x') => ({ appName, severity, count, id })
+		const entry = (appName, severity, count, id = 'x') => ({
+			appName,
+			severity,
+			count,
+			id,
+		})
 		const ranked = rank([
 			entry('Decidiq', 'warning', 2),
 			entry('Learniq', 'info', 99),
@@ -217,7 +268,12 @@ describe('rank', () => {
 		])
 
 		expect(ranked.map((e) => `${e.appName}/${e.id}`)).toEqual([
-			'Pipelinq/x', 'Dossiq/x', 'Alpha/a', 'Alpha/x', 'Decidiq/x', 'Learniq/x',
+			'Pipelinq/x',
+			'Dossiq/x',
+			'Alpha/a',
+			'Alpha/x',
+			'Decidiq/x',
+			'Learniq/x',
 		])
 	})
 })
@@ -244,14 +300,30 @@ describe('checkSource', () => {
 	it('a zero is checked and needs no attention', async () => {
 		get.mockResolvedValue({ data: { total: 0, results: [] } })
 
-		expect(await checkSource(dossiq, ctx)).toMatchObject({ failed: false, count: 0, attention: false })
+		expect(await checkSource(dossiq, ctx)).toMatchObject({
+			failed: false,
+			count: 0,
+			attention: false,
+		})
 	})
 
 	it.each([
-		['a server error', () => Promise.reject(new Error('Request failed with status code 500'))],
-		['no access', () => Promise.reject(new Error('Request failed with status code 403'))],
-		['an answer without a total', () => Promise.resolve({ data: { results: [] } })],
-		['a total that is not a number', () => Promise.resolve({ data: { total: '3' } })],
+		[
+			'a server error',
+			() => Promise.reject(new Error('Request failed with status code 500')),
+		],
+		[
+			'no access',
+			() => Promise.reject(new Error('Request failed with status code 403')),
+		],
+		[
+			'an answer without a total',
+			() => Promise.resolve({ data: { results: [] } }),
+		],
+		[
+			'a total that is not a number',
+			() => Promise.resolve({ data: { total: '3' } }),
+		],
 		['an empty answer', () => Promise.resolve({ data: null })],
 	])('%s is a failure, never a zero', async (_name, answer) => {
 		get.mockImplementation(answer)
@@ -264,7 +336,10 @@ describe('checkSource', () => {
 	})
 
 	it('an unknown token fails the source and sends nothing', async () => {
-		const source = { ...dossiq, source: { ...dossiq.source, filter: { owner: '@manager' } } }
+		const source = {
+			...dossiq,
+			source: { ...dossiq.source, filter: { owner: '@manager' } },
+		}
 
 		const entry = await checkSource(source, ctx)
 
@@ -277,7 +352,11 @@ describe('checkSource', () => {
 describe('loadAttentionFeed', () => {
 	it('merges the apps, ranks them and uses the user the endpoint names', async () => {
 		answerCounts({
-			__sources: { userId: 'pieter', sources: [decidiq, dossiq, pipelinq], invalid: [] },
+			__sources: {
+				userId: 'pieter',
+				sources: [decidiq, dossiq, pipelinq],
+				invalid: [],
+			},
 			dossiq: { total: 3 },
 			pipelinq: { total: 5 },
 			decidiq: { total: 2 },
@@ -285,11 +364,19 @@ describe('loadAttentionFeed', () => {
 
 		const feed = await loadAttentionFeed({ now: ctx.now })
 
-		expect(get.mock.calls[0][0]).toBe('/index.php/apps/launchpad/api/attention/sources')
-		expect(feed.items.map((item) => item.appId)).toEqual(['pipelinq', 'dossiq', 'decidiq'])
+		expect(get.mock.calls[0][0]).toBe(
+			'/index.php/apps/launchpad/api/attention/sources',
+		)
+		expect(feed.items.map((item) => item.appId)).toEqual([
+			'pipelinq',
+			'dossiq',
+			'decidiq',
+		])
 		expect(feed.failedApps).toEqual([])
 		expect(feed.sourceCount).toBe(3)
-		const dossiqCall = get.mock.calls.map(([url]) => url).find((url) => url.includes('/objects/dossiq/'))
+		const dossiqCall = get.mock.calls
+			.map(([url]) => url)
+			.find((url) => url.includes('/objects/dossiq/'))
 		expect(dossiqCall).toContain('assignee=pieter')
 	})
 
@@ -298,7 +385,13 @@ describe('loadAttentionFeed', () => {
 			__sources: {
 				userId: 'pieter',
 				sources: [dossiq, pipelinq],
-				invalid: [{ appId: 'learniq', appName: 'Learniq', message: 'item "late": ...' }],
+				invalid: [
+					{
+						appId: 'learniq',
+						appName: 'Learniq',
+						message: 'item "late": ...',
+					},
+				],
 			},
 			dossiq: new Error('Request failed with status code 500'),
 			pipelinq: { total: 5 },
@@ -314,7 +407,11 @@ describe('loadAttentionFeed', () => {
 	it('reports no sources as no sources', async () => {
 		answerCounts({ __sources: { userId: 'pieter', sources: [], invalid: [] } })
 
-		expect(await loadAttentionFeed({ now: ctx.now })).toEqual({ items: [], failedApps: [], sourceCount: 0 })
+		expect(await loadAttentionFeed({ now: ctx.now })).toEqual({
+			items: [],
+			failedApps: [],
+			sourceCount: 0,
+		})
 	})
 
 	it('rejects when the sources endpoint itself fails', async () => {

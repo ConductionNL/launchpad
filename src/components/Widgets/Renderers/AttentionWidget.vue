@@ -17,7 +17,12 @@
 			class="attention-widget__state attention-widget__state--failed"
 			role="alert"
 			data-testid="attention-error">
-			{{ t('launchpad', 'This list could not be loaded. Reload the page to try again.') }}
+			{{
+				t(
+					'launchpad',
+					'This list could not be loaded. Reload the page to try again.',
+				)
+			}}
 		</div>
 
 		<template v-else>
@@ -33,10 +38,14 @@
 					:data-testid="`attention-item-${item.appId}-${item.id}`">
 					<span class="attention-widget__text">
 						<strong class="attention-widget__title">
-							<span class="attention-widget__sr">{{ severityLabel(item.severity) }}</span>
+							<span class="attention-widget__sr">{{
+								severityLabel(item.severity)
+							}}</span>
 							{{ item.title }}
 						</strong>
-						<span class="attention-widget__reason">{{ item.reason }}</span>
+						<span class="attention-widget__reason">{{
+							item.reason
+						}}</span>
 					</span>
 					<span class="attention-widget__app">{{ item.appName }}</span>
 					<a class="attention-widget__action" :href="item.href">
@@ -65,7 +74,9 @@
 				v-if="state === 'none'"
 				class="attention-widget__state"
 				data-testid="attention-none">
-				{{ t('launchpad', 'None of your apps reports attention items yet.') }}
+				{{
+					t('launchpad', 'None of your apps reports attention items yet.')
+				}}
 			</p>
 
 			<p
@@ -73,7 +84,11 @@
 				class="attention-widget__failed"
 				role="status"
 				data-testid="attention-failed">
-				{{ t('launchpad', 'Could not check: {apps}', { apps: failedApps.join(', ') }) }}
+				{{
+					t('launchpad', 'Could not check: {apps}', {
+						apps: failedApps.join(', '),
+					})
+				}}
 			</p>
 		</template>
 	</div>
@@ -314,7 +329,7 @@ export default {
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
-	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
 	white-space: nowrap;
 }
 </style>

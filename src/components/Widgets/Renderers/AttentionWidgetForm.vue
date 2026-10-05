@@ -64,7 +64,9 @@ export default {
 	emits: ['update:content'],
 
 	data() {
-		const initial = Number((this.editingWidget?.content || this.value || {}).limit)
+		const initial = Number(
+			(this.editingWidget?.content || this.value || {}).limit,
+		)
 		return {
 			limitOptions: LIMIT_OPTIONS,
 			limit: LIMIT_OPTIONS.includes(initial) ? initial : DEFAULT_LIMIT,
@@ -81,7 +83,9 @@ export default {
 		 * @spec openspec/specs/attention-feed/spec.md#req-att-004
 		 */
 		updateLimit(limit) {
-			this.limit = LIMIT_OPTIONS.includes(Number(limit)) ? Number(limit) : DEFAULT_LIMIT
+			this.limit = LIMIT_OPTIONS.includes(Number(limit))
+				? Number(limit)
+				: DEFAULT_LIMIT
 			this.$emit('update:content', { limit: this.limit })
 		},
 

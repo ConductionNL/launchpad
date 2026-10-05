@@ -755,6 +755,69 @@ A real (non-dry-run) re-sync MUST be idempotent — applying the same plan twice
 - THEN the system MUST enqueue `TemplateResyncJob` and return a prompt accepted response
 - AND the job MUST apply the plan per copy and notify each affected user on completion
 
+### Requirement: REQ-TMPL-018 Templates that ship with LaunchPad
+
+LaunchPad MUST ship ready-made admin templates as data, one file per template at `data/templates/<id>.json`. A definition holds `templateId`, an integer `templateVersion`, a `language`, and one `dashboard` in the shape an export writes to `dashboards/<uuid>.json` (REQ-EXIM-001). The list of shipped ids is fixed in `ShippedTemplateService::SHIPPED_IDS`.
+
+An administrator MUST be able to add a shipped template as an admin template from the Templates page (`POST /api/admin/templates/shipped/{id}/install`) and from the command line (REQ-CLI-012). Installing MUST go through the dashboard importer (REQ-EXIM-004), so a shipped template and an uploaded archive take one path. The installed template MUST keep every widget's configuration and its `isCompulsory` flag (REQ-EXIM-012).
+
+Installing MUST NOT hand the template to anybody on its own. The definition ships with no target groups and is not the default. The administrator chooses the groups, or makes it the default, with the install options or afterwards on the Templates page (REQ-TMPL-003).
+
+LaunchPad MUST remember the install per template: app config `shipped_template_<id>` holds the UUID and `shipped_template_version_<id>` the version. A second install MUST add nothing unless forced. A forced install MUST add a fresh copy and MUST leave the earlier one in place, because dashboards made from it point at it. When the recorded template was deleted, the shipped template MUST count as not installed.
+
+A definition that is missing or malformed MUST fail the install with an error. It MUST NOT install an empty template.
+
+The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
+
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. It uses only widgets that exist: a header, the dossiq deadline, overdue and task widgets, a list of the employee's dossiq cases, the decidiq widget, today's agenda and recent activity. The header and the deadline widget are compulsory. Its permission level is `add_only`.
+
+#### Scenario: An administrator adds the shipped template and gives it to a group
+- GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
+- WHEN an administrator adds it from the Templates page, then edits it and picks the group "medewerkers"
+- THEN the template list MUST show "Mijn werkdag" with the group "medewerkers"
+- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the deadline widget marked compulsory
+
+@e2e exclude No Playwright test was written for this. The install is pinned by ShippedTemplateServiceTest::testInstallAddsTheTemplateThroughTheImporter, the compulsory flags by ::testTheShippedTemplateSurvivesExportAndImport, and the page by TemplatesPage.shipped.spec.js. It has not been run in a browser.
+
+#### Scenario: Installing twice adds one template
+- GIVEN `mijn-werkdag` is installed
+- WHEN an administrator installs it again without forcing
+- THEN no second template MUST be added
+- AND the response MUST say it was already installed and name the same UUID
+
+@e2e exclude Service behaviour with no page of its own: pinned by ShippedTemplateServiceTest::testASecondInstallAddsNothing.
+
+#### Scenario: A template deleted by the administrator can be added again
+- GIVEN `mijn-werkdag` was installed and the administrator deleted that template
+- WHEN the administrator installs it again
+- THEN a new template MUST be added without forcing
+
+@e2e exclude Pinned by ShippedTemplateServiceTest::testADeletedTemplateCountsAsNotInstalled.
+
+#### Scenario: A broken definition fails loudly
+- GIVEN the file for a shipped template is missing or has no widgets
+- WHEN an administrator installs it
+- THEN the install MUST fail with an error that names the file
+- AND no template MUST be added
+
+@e2e exclude A packaging fault cannot be staged in a browser: pinned by ShippedTemplateServiceTest::testAMalformedDefinitionFails.
+
+#### Scenario: The listing names widgets no app registers here
+- GIVEN the instance does not have decidiq installed
+- WHEN an administrator lists the shipped templates
+- THEN `mijn-werkdag` MUST list `decidesk` under `missingWidgets`
+
+@e2e exclude Needs an instance without the app: pinned by ShippedTemplateServiceTest::testTheListingNamesWidgetsNothingRegisters.
+
+#### Scenario: Every widget in the shipped template is one LaunchPad can place
+- GIVEN the shipped definition `data/templates/mijn-werkdag.json`
+- WHEN its widgets are read
+- THEN every `widgetId` MUST be on LaunchPad's own widget type list (`lib/widget-types.json`)
+- AND no two widgets MUST share a grid cell
+- AND every widget MUST fit inside the template's grid columns
+
+@e2e exclude A check on shipped data, not a browser behaviour: pinned by ShippedTemplateServiceTest::testTheShippedDefinitionIsWellFormed.
+
 ## Non-Functional Requirements
 
 - **Performance**: Template distribution (copying placements) MUST complete within 2 seconds per user, even for templates with 20+ widget placements. The first-access check MUST add no more than 200ms to the initial dashboard load. `GET /api/templates/gallery` MUST return within 500ms even with 100+ templates; the gallery list SHOULD NOT fetch widget placements (use `WidgetPlacementMapper::countByDashboardId()` for the count, not `findByDashboardId()`).

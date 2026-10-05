@@ -587,6 +587,10 @@ return [
 		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '[a-z0-9\-]+']],
 
+		// Attention feed: what the user's apps declare as needing attention
+		// (REQ-ATT-002). Declarations only; the widget runs the counts.
+		['name' => 'attention#sources', 'url' => '/api/attention/sources', 'verb' => 'GET'],
+
 		// Weather widget — cached reading for one placement (REQ-WEATHER-001).
 		// View-time ACL guarded in the controller; never returns the provider
 		// API key or raw provider URL.

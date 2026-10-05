@@ -770,6 +770,27 @@ export const api = {
 	},
 
 	/**
+	 * List the templates LaunchPad ships with, and whether each is installed.
+	 *
+	 * @return {Promise} Axios response resolving to the shipped templates.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 */
+	getShippedTemplates() {
+		return axios.get(`${baseUrl}/api/admin/templates/shipped`)
+	},
+
+	/**
+	 * Add a shipped template as an admin template.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @return {Promise} Axios response resolving to the installed template.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 */
+	installShippedTemplate(id) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/install`)
+	},
+
+	/**
 	 * Create an admin dashboard template.
 	 *
 	 * @param {object} data Template attributes (name, layout, widgets, …).

@@ -177,6 +177,9 @@ class ShippedTemplateService {
 	 * @throws InvalidArgumentException When the id or a group is unknown.
 	 * @throws RuntimeException When the definition or the import fails.
 	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+	 *      The two flags are the command's `--default` and `--force`, one to one.
+	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
 	 */
 	public function install(
@@ -272,17 +275,29 @@ class ShippedTemplateService {
 		// an empty template and report success.
 		if (is_array($decoded) === false
 			|| is_int($decoded['templateVersion'] ?? null) === false
-			|| is_array($decoded['dashboard'] ?? null) === false
-			|| is_string($decoded['dashboard']['uuid'] ?? null) === false
-			|| is_string($decoded['dashboard']['name'] ?? null) === false
-			|| is_array($decoded['dashboard']['widgets'] ?? null) === false
-			|| $decoded['dashboard']['widgets'] === []
+			|| $this->isUsableDashboard(dashboard: ($decoded['dashboard'] ?? null)) === false
 		) {
 			throw new RuntimeException(message: 'Template definition missing or malformed: ' . $path);
 		}
 
 		return $decoded;
 	}//end readDefinition()
+
+	/**
+	 * Whether a definition's dashboard can be installed: it has a UUID, a
+	 * name and at least one widget.
+	 *
+	 * @param mixed $dashboard The decoded `dashboard` value.
+	 *
+	 * @return bool True when it can be installed.
+	 */
+	private function isUsableDashboard(mixed $dashboard): bool {
+		return is_array($dashboard) === true
+			&& is_string($dashboard['uuid'] ?? null) === true
+			&& is_string($dashboard['name'] ?? null) === true
+			&& is_array($dashboard['widgets'] ?? null) === true
+			&& $dashboard['widgets'] !== [];
+	}//end isUsableDashboard()
 
 	/**
 	 * The UUID of the installed copy, or '' when there is none.

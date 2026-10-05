@@ -40,6 +40,11 @@ use Throwable;
 /**
  * List and install shipped templates.
  *
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ *      {@see ResponseHelper} is an all-static envelope builder with no state.
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+ *      `$force` is a request parameter bound by the framework.
+ *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
 class AdminShippedTemplateController extends Controller {

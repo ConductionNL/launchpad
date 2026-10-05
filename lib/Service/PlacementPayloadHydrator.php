@@ -83,6 +83,10 @@ class PlacementPayloadHydrator {
 	 *
 	 * @return WidgetPlacement The placement, not yet persisted.
 	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+	 *      One fact about the dashboard decides one field; a second builder
+	 *      for templates is the drift this class exists to end.
+	 *
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 * @spec openspec/specs/dashboard-export-import/spec.md#req-exim-012
 	 */

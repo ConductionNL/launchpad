@@ -1343,7 +1343,15 @@ OC.L10N.register(
     "Read receipts at the top of the dashboard show who has confirmed." : "Leesbevestigingen bovenaan het dashboard tonen wie heeft bevestigd.",
     "{emoji}: {count} reactions" : "{emoji}: {count} reacties",
     "React with {emoji}" : "Reageren met {emoji}",
-    "{names} and {count} more" : "{names} en {count} anderen"
+    "{names} and {count} more" : "{names} en {count} anderen",
+    "Ready-made templates" : "Kant-en-klare sjablonen",
+    "Add a template that comes with LaunchPad. Then edit it to choose who gets it." : "Voeg een sjabloon toe dat met LaunchPad wordt meegeleverd. Bewerk het daarna om te kiezen wie het krijgt.",
+    "No app here provides these widgets, so they will show empty: {widgets}" : "Geen app op deze omgeving levert deze widgets, dus ze blijven leeg: {widgets}",
+    "Added" : "Toegevoegd",
+    "Add template" : "Sjabloon toevoegen",
+    "The ready-made templates could not be loaded." : "De kant-en-klare sjablonen konden niet worden geladen.",
+    "The template \"{name}\" could not be added." : "Het sjabloon \"{name}\" kon niet worden toegevoegd.",
+    "The template \"{name}\" could not be downloaded." : "Het sjabloon \"{name}\" kon niet worden gedownload."
 },
 "nplurals=2; plural=(n != 1);"
 );

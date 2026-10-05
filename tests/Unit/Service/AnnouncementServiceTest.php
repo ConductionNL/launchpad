@@ -23,21 +23,11 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use InvalidArgumentException;
-use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\AppFramework\Utility\ITimeFactory;
-use OCP\Comments\ICommentsManager;
-use OCP\IGroupManager;
-use OCP\IUser;
-use OCP\IUserManager;
-use OCP\Notification\IManager as INotificationManager;
-use OCP\Notification\INotification;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Unit\Support\InMemoryAnnouncementFollows;
-use Unit\Support\InMemoryAnnouncements;
+use Unit\Support\AnnouncementWorld;
 
 /**
  * Tests for AnnouncementService.
@@ -45,50 +35,7 @@ use Unit\Support\InMemoryAnnouncements;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class AnnouncementServiceTest extends TestCase {
-	/**
-	 * Group memberships of the people in the scenarios.
-	 */
-	private const MEMBERS = [
-		'admin'  => ['admin'],
-		'karin'  => ['Redactie'],
-		'pieter' => ['Medewerkers', 'Burgerzaken'],
-		'sanne'  => [],
-	];
-
-	/**
-	 * Clock, seconds since the epoch; tests move it.
-	 *
-	 * @var integer
-	 */
-	public int $clock = 1791190800;
-
-	/**
-	 * Notifications sent: [user, subject, parameters].
-	 *
-	 * @var array<int, array{0: string, 1: string, 2: array}>
-	 */
-	private array $sent = [];
-
-	/**
-	 * Rows.
-	 *
-	 * @var InMemoryAnnouncements
-	 */
-	private InMemoryAnnouncements $rows;
-
-	/**
-	 * Follows.
-	 *
-	 * @var InMemoryAnnouncementFollows
-	 */
-	private InMemoryAnnouncementFollows $follows;
-
-	/**
-	 * Service under test.
-	 *
-	 * @var AnnouncementService
-	 */
-	private AnnouncementService $service;
+	use AnnouncementWorld;
 
 	/**
 	 * Wire the service.
@@ -97,78 +44,7 @@ class AnnouncementServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->rows    = new InMemoryAnnouncements();
-		$this->follows = new InMemoryAnnouncementFollows();
-
-		$settings = $this->createMock(AdminSettingMapper::class);
-		$settings->method('getValue')->willReturnCallback(
-			static fn (string $key, mixed $default = null): mixed => $key === 'announcement_editor_groups' ? ['Redactie'] : $default
-		);
-
-		$users = $this->createMock(IUserManager::class);
-		$users->method('get')->willReturnCallback(function (string $uid): ?IUser {
-			if (array_key_exists($uid, self::MEMBERS) === false) {
-				return null;
-			}
-
-			$user = $this->createMock(IUser::class);
-			$user->method('getUID')->willReturn($uid);
-
-			return $user;
-		});
-		$users->method('userExists')->willReturnCallback(static fn (string $uid): bool => array_key_exists($uid, self::MEMBERS));
-
-		$groups = $this->createMock(IGroupManager::class);
-		$groups->method('isAdmin')->willReturnCallback(static fn (string $uid): bool => $uid === 'admin');
-		$groups->method('getUserGroupIds')->willReturnCallback(static fn (IUser $user): array => self::MEMBERS[$user->getUID()]);
-		$groups->method('groupExists')->willReturnCallback(static fn (string $gid): bool => in_array($gid, ['admin', 'Redactie', 'Medewerkers', 'Burgerzaken'], true));
-
-		$comments = $this->createMock(ICommentsManager::class);
-		$comments->method('getNumberOfCommentsForObjects')->willReturn([]);
-		$comments->method('getForObject')->willReturn([]);
-
-		$notifications = $this->createMock(INotificationManager::class);
-		$notifications->method('createNotification')->willReturnCallback(function (): INotification {
-			$notification = $this->createMock(INotification::class);
-			$state        = new \stdClass();
-			$notification->method('setApp')->willReturnSelf();
-			$notification->method('setDateTime')->willReturnSelf();
-			$notification->method('setObject')->willReturnSelf();
-			$notification->method('setUser')->willReturnCallback(function (string $user) use ($notification, $state): INotification {
-				$state->user = $user;
-
-				return $notification;
-			});
-			$notification->method('setSubject')->willReturnCallback(function (string $subject, array $parameters = []) use ($notification, $state): INotification {
-				$state->subject    = $subject;
-				$state->parameters = $parameters;
-
-				return $notification;
-			});
-			$notification->method('getUser')->willReturnCallback(static fn (): string => $state->user);
-			$notification->method('getSubject')->willReturnCallback(static fn (): string => $state->subject);
-			$notification->method('getSubjectParameters')->willReturnCallback(static fn (): array => $state->parameters);
-
-			return $notification;
-		});
-		$notifications->method('notify')->willReturnCallback(function (INotification $notification): void {
-			$this->sent[] = [$notification->getUser(), $notification->getSubject(), $notification->getSubjectParameters()];
-		});
-
-		$time = $this->createMock(ITimeFactory::class);
-		$time->method('getTime')->willReturnCallback(fn (): int => $this->clock);
-
-		$this->service = new AnnouncementService(
-			announcements: $this->rows,
-			follows: $this->follows,
-			settings: $settings,
-			groupManager: $groups,
-			userManager: $users,
-			comments: $comments,
-			notifications: $notifications,
-			time: $time,
-			logger: $this->createMock(LoggerInterface::class),
-		);
+		$this->buildAnnouncementWorld();
 	}//end setUp()
 
 	/**

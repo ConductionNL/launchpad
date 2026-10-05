@@ -182,7 +182,7 @@ class Notifier implements INotifier {
 	 *
 	 * @return INotification The prepared notification.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	private function prepareAnnouncementPublished(
 		INotification $notification,

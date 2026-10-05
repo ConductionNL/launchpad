@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use OCP\Migration\SimpleMigrationStep;
 /**
  * Create the announcement tables.
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class Version002013Date20261005190000 extends SimpleMigrationStep {
 	/**
@@ -48,7 +48,7 @@ class Version002013Date20261005190000 extends SimpleMigrationStep {
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) Signature fixed by SimpleMigrationStep.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function changeSchema(
 		IOutput $output,

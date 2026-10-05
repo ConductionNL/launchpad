@@ -259,6 +259,9 @@
 				<template #office-networks>
 					<OfficeNetworksTab />
 				</template>
+				<template #announcements>
+					<AnnouncementsTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -296,6 +299,7 @@ import {
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import AnnouncementsTab from './tabs/AnnouncementsTab.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
@@ -330,6 +334,7 @@ export default {
 		MetadataFieldsSettings,
 		KioskTab,
 		ProfileFieldsTab,
+		AnnouncementsTab,
 		SearchShortcutsTab,
 		OfficeNetworksTab,
 		SharingTab,
@@ -436,6 +441,10 @@ export default {
 				{
 					slug: 'office-networks',
 					label: this.t('launchpad', 'Office networks'),
+				},
+				{
+					slug: 'announcements',
+					label: this.t('launchpad', 'Announcements'),
 				},
 			]
 		},

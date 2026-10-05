@@ -48,7 +48,7 @@ use OCP\IUserSession;
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) One method per route.
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class AnnouncementController extends Controller {
 	/**
@@ -60,7 +60,7 @@ class AnnouncementController extends Controller {
 	 * @param IUserSession $userSession Current user.
 	 * @param IGroupManager $groupManager Admin check for the settings.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
@@ -84,7 +84,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse `{announcements: [...], canAuthor: bool, following: [...]}`.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function index(?string $kind = null, ?string $scope = null): JSONResponse {
@@ -118,7 +118,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse The announcement, or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function show(string $uuid): JSONResponse {
@@ -133,7 +133,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse The draft, 400 or 403.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function create(): JSONResponse {
@@ -155,7 +155,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse The announcement, 400, 403 or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function update(string $uuid): JSONResponse {
@@ -177,7 +177,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse The announcement, 400, 403 or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
@@ -196,7 +196,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse 204, 403 or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid): JSONResponse {
@@ -219,7 +219,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse `{reach: int, reachesPreviewUser: bool|null}`, 400 or 403.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function reach(?array $targetGroups = null, ?string $previewUserId = null): JSONResponse {
@@ -250,7 +250,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse The announcement with fresh counts, or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function like(string $uuid, bool $liked = true): JSONResponse {
@@ -269,7 +269,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse `{comments: [...]}` or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function comments(string $uuid): JSONResponse {
@@ -289,7 +289,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse The comment, 400, 403 or 404.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function comment(string $uuid, string $message = ''): JSONResponse {
@@ -310,7 +310,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse `{following: [...]}` or 400.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[NoAdminRequired]
 	public function follow(string $category = '', bool $follow = true): JSONResponse {
@@ -327,7 +327,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse `{groups: [...]}` or 403.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getSettings(): JSONResponse {
@@ -343,7 +343,7 @@ class AnnouncementController extends Controller {
 	 *
 	 * @return JSONResponse `{groups: [...]}`, 400 or 403.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function saveSettings(?array $groups = null): JSONResponse {

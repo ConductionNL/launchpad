@@ -33,7 +33,7 @@ use OCP\IDBConnection;
  *
  * @extends QBMapper<Announcement>
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class AnnouncementMapper extends QBMapper {
 	/**
@@ -46,7 +46,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @param IDBConnection $db Database connection.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct(IDBConnection $db) {
 		parent::__construct(
@@ -65,7 +65,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @throws DoesNotExistException When there is none.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function findByUuid(string $uuid): Announcement {
 		$qb = $this->db->getQueryBuilder();
@@ -83,7 +83,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @return Announcement[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function findLive(string $now): array {
 		$qb = $this->db->getQueryBuilder();
@@ -109,7 +109,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @return Announcement[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function findAllNewestFirst(): array {
 		$qb = $this->db->getQueryBuilder();
@@ -129,7 +129,7 @@ class AnnouncementMapper extends QBMapper {
 	 *
 	 * @return Announcement[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function findDueForNotification(string $now): array {
 		$qb = $this->db->getQueryBuilder();

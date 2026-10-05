@@ -34,7 +34,7 @@ use OCP\BackgroundJob\TimedJob;
  *
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument required by TimedJob.
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class AnnouncementNotifyJob extends TimedJob {
 	/**
@@ -43,7 +43,7 @@ class AnnouncementNotifyJob extends TimedJob {
 	 * @param ITimeFactory $time Clock.
 	 * @param AnnouncementService $announcements Announcement service.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct(
 		ITimeFactory $time,
@@ -60,7 +60,7 @@ class AnnouncementNotifyJob extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	protected function run($argument): void {
 		$this->announcements->notifyDue();

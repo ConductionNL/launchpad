@@ -64,6 +64,8 @@ import {
 // registration pattern as `clock`/`weather`.
 import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
 import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
+import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
@@ -184,6 +186,19 @@ registerDashboardWidget('attention', {
 	},
 	displayName: 'First today',
 	icon: 'AlertCircleOutline',
+})
+
+// `announcements`: news items that target the reader, with likes, comments
+// and category follows (openspec/specs/announcements). LaunchPad-only: it
+// reads LaunchPad's announcement endpoints. Same registration as `attention`.
+registerDashboardWidget('announcements', {
+	renderer: AnnouncementsWidget,
+	form: AnnouncementsWidgetForm,
+	defaultContent: {
+		limit: 5,
+	},
+	displayName: 'Announcements',
+	icon: 'BullhornOutline',
 })
 
 registerDashboardWidget('clock', {

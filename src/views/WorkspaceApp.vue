@@ -69,6 +69,10 @@
 		     widget machinery. `tabindex="-1"` makes the grid a valid
 		     programmatic focus target for the quick-search Esc contract
 		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
+		<!-- Notices (announcements REQ-ANN-005): the notices that target the
+		     reader, above the grid of whichever dashboard is open. -->
+		<NoticeRegion />
+
 		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
 			<Views v-if="hasActiveDashboard" />
 			<div v-else class="workspace-shell__empty">
@@ -105,6 +109,7 @@
 import { t } from '@nextcloud/l10n'
 import { NcButton } from '@nextcloud/vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
+import NoticeRegion from '../components/Announcements/NoticeRegion.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
@@ -146,6 +151,7 @@ export default {
 		MenuIcon,
 		Views,
 		DashboardFooter,
+		NoticeRegion,
 		OrgNavigationPanel,
 		SidebarBackdrop,
 	},

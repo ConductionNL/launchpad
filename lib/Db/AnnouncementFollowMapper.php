@@ -31,7 +31,7 @@ use OCP\IDBConnection;
  *
  * @extends QBMapper<AnnouncementFollow>
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class AnnouncementFollowMapper extends QBMapper {
 	/**
@@ -39,7 +39,7 @@ class AnnouncementFollowMapper extends QBMapper {
 	 *
 	 * @param IDBConnection $db Database connection.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct(IDBConnection $db) {
 		parent::__construct(
@@ -56,7 +56,7 @@ class AnnouncementFollowMapper extends QBMapper {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function findCategoriesOf(string $userId): array {
 		$qb = $this->db->getQueryBuilder();
@@ -82,7 +82,7 @@ class AnnouncementFollowMapper extends QBMapper {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function findFollowersOf(string $category): array {
 		$qb = $this->db->getQueryBuilder();
@@ -109,7 +109,7 @@ class AnnouncementFollowMapper extends QBMapper {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function follow(string $userId, string $category): void {
 		if (in_array(needle: $category, haystack: $this->findCategoriesOf(userId: $userId), strict: true) === true) {
@@ -134,7 +134,7 @@ class AnnouncementFollowMapper extends QBMapper {
 	 *
 	 * @return integer Rows removed.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function unfollow(string $userId, string $category): int {
 		$qb = $this->db->getQueryBuilder();
@@ -152,7 +152,7 @@ class AnnouncementFollowMapper extends QBMapper {
 	 *
 	 * @return integer Rows removed.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function deleteByUser(string $userId): int {
 		$qb = $this->db->getQueryBuilder();

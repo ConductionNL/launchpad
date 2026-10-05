@@ -34,7 +34,7 @@ use OCP\AppFramework\Db\Entity;
  * @method string getCreatedAt()
  * @method void setCreatedAt(string $createdAt)
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class AnnouncementFollow extends Entity {
 
@@ -62,7 +62,7 @@ class AnnouncementFollow extends Entity {
 	/**
 	 * Register the column types.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');

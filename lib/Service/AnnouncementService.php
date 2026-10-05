@@ -58,7 +58,7 @@ use Throwable;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Authoring, reading, reactions and follows share the visibility rule.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) Each public method backs one endpoint.
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class AnnouncementService {
 	/**
@@ -100,7 +100,7 @@ class AnnouncementService {
 	 * @param ITimeFactory $time Clock.
 	 * @param LoggerInterface $logger Logger.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct(
 		private readonly AnnouncementMapper $announcements,
@@ -120,7 +120,7 @@ class AnnouncementService {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function getEditorGroups(): array {
 		$raw = $this->settings->getValue(key: AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS->value, default: []);
@@ -140,7 +140,7 @@ class AnnouncementService {
 	 *
 	 * @throws InvalidArgumentException When a group does not exist.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function saveEditorGroups(array $groups): array {
 		$clean = $this->cleanGroups(groups: $groups);
@@ -157,7 +157,7 @@ class AnnouncementService {
 	 *
 	 * @return boolean
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function canAuthor(string $userId): bool {
 		if ($this->groupManager->isAdmin(userId: $userId) === true) {
@@ -178,7 +178,7 @@ class AnnouncementService {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function listVisible(string $userId, ?string $kind = null): array {
 		$groups = $this->groupsOf(userId: $userId);
@@ -205,7 +205,7 @@ class AnnouncementService {
 	 *
 	 * @throws ForbiddenException When the person may not author.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function listForAuthor(string $userId): array {
 		$this->requireAuthor(userId: $userId);
@@ -225,7 +225,7 @@ class AnnouncementService {
 	 *
 	 * @throws DoesNotExistException When the person may not see it.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function get(string $userId, string $uuid): array {
 		return $this->withReactions(items: [$this->findVisible(userId: $userId, uuid: $uuid)], userId: $userId)[0];
@@ -243,7 +243,7 @@ class AnnouncementService {
 	 * @throws ForbiddenException When the person may not author.
 	 * @throws InvalidArgumentException When a field is invalid.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function create(string $userId, array $data): Announcement {
 		$this->requireAuthor(userId: $userId);
@@ -276,7 +276,7 @@ class AnnouncementService {
 	 * @throws DoesNotExistException When there is none.
 	 * @throws InvalidArgumentException When a field is invalid.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function update(string $userId, string $uuid, array $data): Announcement {
 		$this->requireAuthor(userId: $userId);
@@ -306,7 +306,7 @@ class AnnouncementService {
 	 * @throws DoesNotExistException When there is none.
 	 * @throws InvalidArgumentException When a notice has no end time.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function publish(string $userId, string $uuid): Announcement {
 		$this->requireAuthor(userId: $userId);
@@ -342,7 +342,7 @@ class AnnouncementService {
 	 * @throws ForbiddenException When the person may not author.
 	 * @throws DoesNotExistException When there is none.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function delete(string $userId, string $uuid): void {
 		$this->requireAuthor(userId: $userId);
@@ -363,7 +363,7 @@ class AnnouncementService {
 	 * @throws ForbiddenException When the person may not author.
 	 * @throws InvalidArgumentException When a group does not exist.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function reach(string $userId, array $groups): int {
 		$this->requireAuthor(userId: $userId);
@@ -405,7 +405,7 @@ class AnnouncementService {
 	 * @throws ForbiddenException When the person may not author.
 	 * @throws InvalidArgumentException When the person does not exist.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function reachesPerson(string $userId, array $groups, string $readerId): bool {
 		$this->requireAuthor(userId: $userId);
@@ -429,7 +429,7 @@ class AnnouncementService {
 	 *
 	 * @throws DoesNotExistException When the person may not see it.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function setLiked(string $userId, string $uuid, bool $liked): array {
 		$announcement = $this->findVisible(userId: $userId, uuid: $uuid);
@@ -461,7 +461,7 @@ class AnnouncementService {
 	 * @throws ForbiddenException When comments are off.
 	 * @throws InvalidArgumentException When the message is empty or too long.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function addComment(string $userId, string $uuid, string $message): array {
 		$announcement = $this->findVisible(userId: $userId, uuid: $uuid);
@@ -492,7 +492,7 @@ class AnnouncementService {
 	 *
 	 * @throws DoesNotExistException When the person may not see it.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function listComments(string $userId, string $uuid): array {
 		$this->findVisible(userId: $userId, uuid: $uuid);
@@ -513,7 +513,7 @@ class AnnouncementService {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function followedCategories(string $userId): array {
 		return $this->follows->findCategoriesOf(userId: $userId);
@@ -530,7 +530,7 @@ class AnnouncementService {
 	 *
 	 * @throws InvalidArgumentException When the category is empty or too long.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function setFollowing(string $userId, string $category, bool $follow): array {
 		$category = trim(string: $category);
@@ -555,7 +555,7 @@ class AnnouncementService {
 	 *
 	 * @return integer Notifications sent.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function notifyDue(): int {
 		$sent = 0;
@@ -575,7 +575,7 @@ class AnnouncementService {
 	 *
 	 * @return integer Notifications sent.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function notifyFollowers(Announcement $announcement): int {
 		if ($announcement->getNotifiedAt() !== null) {

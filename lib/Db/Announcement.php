@@ -62,7 +62,7 @@ use OCP\AppFramework\Db\Entity;
  * @method string getUpdatedAt()
  * @method void setUpdatedAt(string $updatedAt)
  *
- * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+ * @spec openspec/specs/announcements/spec.md
  */
 class Announcement extends Entity implements JsonSerializable {
 	public const KIND_NEWS = 'news';
@@ -187,7 +187,7 @@ class Announcement extends Entity implements JsonSerializable {
 	/**
 	 * Register the column types.
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function __construct() {
 		$this->addType(fieldName: 'id', type: 'integer');
@@ -200,7 +200,7 @@ class Announcement extends Entity implements JsonSerializable {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function getTargetGroupList(): array {
 		$decoded = json_decode(json: ($this->targetGroups ?? '[]'), associative: true);
@@ -216,7 +216,7 @@ class Announcement extends Entity implements JsonSerializable {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md
+	 * @spec openspec/specs/announcements/spec.md
 	 */
 	public function jsonSerialize(): array {
 		return [

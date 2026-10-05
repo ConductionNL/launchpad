@@ -1293,7 +1293,15 @@ OC.L10N.register(
     "Read receipts at the top of the dashboard show who has confirmed." : "Potvrde čitanja na vrhu kontrolne ploče pokazuju ko je potvrdio.",
     "{emoji}: {count} reactions" : "{emoji}: {count} reakcija",
     "React with {emoji}" : "Reaguj sa {emoji}",
-    "{names} and {count} more" : "{names} i još {count}"
+    "{names} and {count} more" : "{names} i još {count}",
+    "Ready-made templates" : "Ready-made templates",
+    "Add a template that comes with LaunchPad. Then edit it to choose who gets it." : "Add a template that comes with LaunchPad. Then edit it to choose who gets it.",
+    "No app here provides these widgets, so they will show empty: {widgets}" : "No app here provides these widgets, so they will show empty: {widgets}",
+    "Added" : "Added",
+    "Add template" : "Add template",
+    "The ready-made templates could not be loaded." : "The ready-made templates could not be loaded.",
+    "The template \"{name}\" could not be added." : "The template \"{name}\" could not be added.",
+    "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

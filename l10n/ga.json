@@ -1263,6 +1263,14 @@
         "Read receipts at the top of the dashboard show who has confirmed.": "Taispeánann admhálacha léite ag barr an deais cé a dheimhnigh.",
         "{emoji}: {count} reactions": "{emoji}: {count} imoibriú",
         "React with {emoji}": "Freagair le {emoji}",
-        "{names} and {count} more": "{names} agus {count} eile"
+        "{names} and {count} more": "{names} agus {count} eile",
+        "Ready-made templates": "Ready-made templates",
+        "Add a template that comes with LaunchPad. Then edit it to choose who gets it.": "Add a template that comes with LaunchPad. Then edit it to choose who gets it.",
+        "No app here provides these widgets, so they will show empty: {widgets}": "No app here provides these widgets, so they will show empty: {widgets}",
+        "Added": "Added",
+        "Add template": "Add template",
+        "The ready-made templates could not be loaded.": "The ready-made templates could not be loaded.",
+        "The template \"{name}\" could not be added.": "The template \"{name}\" could not be added.",
+        "The template \"{name}\" could not be downloaded.": "The template \"{name}\" could not be downloaded."
     }
 }

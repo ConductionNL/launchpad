@@ -46,6 +46,11 @@ let allowBefore: boolean | null = null
 
 test.describe.configure({ mode: 'serial' })
 
+// A brand-new account's first login builds its home folder, and that alone can
+// take most of the default 60 s on a loaded instance. Measured on the first run
+// of this spec: the page was showing the template when the default ran out.
+test.setTimeout(180_000)
+
 test.beforeAll(async () => {
 	api = await pwRequest.newContext({
 		baseURL: BASE,

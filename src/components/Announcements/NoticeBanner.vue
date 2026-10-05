@@ -9,7 +9,11 @@
 		:class="`notice-banner--${level}`"
 		:role="level === 'warning' ? 'alert' : 'status'"
 		:aria-label="levelLabel">
-		<component :is="levelIcon" class="notice-banner__icon" :size="20" aria-hidden="true" />
+		<component
+			:is="levelIcon"
+			class="notice-banner__icon"
+			:size="20"
+			aria-hidden="true" />
 		<div class="notice-banner__text">
 			<p class="notice-banner__title">
 				<span class="notice-banner__level">{{ levelLabel }}:</span>
@@ -55,10 +59,10 @@ export default {
 			required: true,
 		},
 
-		/** Show the close button (false in the editor preview). */
-		allowDismiss: {
+		/** Hide the close button (the editor preview). */
+		hideDismiss: {
 			type: Boolean,
-			default: true,
+			default: false,
 		},
 	},
 
@@ -79,12 +83,14 @@ export default {
 
 		/** @spec openspec/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005 */
 		levelIcon() {
-			return this.level === 'warning' ? AlertOutlineIcon : InformationOutlineIcon
+			return this.level === 'warning'
+				? AlertOutlineIcon
+				: InformationOutlineIcon
 		},
 
 		/** @spec openspec/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005 */
 		dismissible() {
-			return this.allowDismiss && this.notice.dismissible === true
+			return !this.hideDismiss && this.notice.dismissible === true
 		},
 	},
 

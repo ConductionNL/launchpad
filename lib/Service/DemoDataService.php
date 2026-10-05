@@ -240,7 +240,7 @@ class DemoDataService {
 		// (office, cost centre, expertise tags), only when none are defined.
 		$this->profileFields->seedDemoDefinitions();
 
-		// engagement-announcements: two news items and a maintenance notice,
+		// Engagement-announcements: two news items and a maintenance notice,
 		// only on an instance without announcements. The app is the author.
 		$this->announcements?->seedDemoAnnouncements(authorId: Application::APP_ID);
 

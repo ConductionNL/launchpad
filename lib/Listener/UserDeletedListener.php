@@ -131,7 +131,7 @@ class UserDeletedListener implements IEventListener {
 			);
 		}
 
-		// engagement-announcements: the categories the person followed.
+		// Engagement-announcements: the categories the person followed.
 		$this->announcementFollows?->deleteByUser(userId: $userId);
 
 		// Step A: remove shares granted TO the deleted user.

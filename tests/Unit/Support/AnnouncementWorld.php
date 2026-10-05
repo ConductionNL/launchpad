@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Unit\Support;
 
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Comments\ICommentsManager;
@@ -111,7 +112,6 @@ trait AnnouncementWorld {
 
 		$groups = $this->createMock(IGroupManager::class);
 		$groups->method('isAdmin')->willReturnCallback(static fn (string $uid): bool => $uid === 'admin');
-		$groups->method('getUserGroupIds')->willReturnCallback(static fn (IUser $user): array => self::ANNOUNCEMENT_MEMBERS[$user->getUID()]);
 		$groups->method('groupExists')->willReturnCallback(static fn (string $gid): bool => in_array($gid, ['admin', 'Redactie', 'Medewerkers', 'Burgerzaken'], true));
 
 		$comments = $this->createMock(ICommentsManager::class);
@@ -146,6 +146,9 @@ trait AnnouncementWorld {
 			$this->sent[] = [$notification->getUser(), $notification->getSubject(), $notification->getSubjectParameters()];
 		});
 
+		$templates = $this->createMock(AdminTemplateService::class);
+		$templates->method('getUserGroupIdsFor')->willReturnCallback(static fn (string $uid): array => self::ANNOUNCEMENT_MEMBERS[$uid] ?? []);
+
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getTime')->willReturnCallback(fn (): int => $this->clock);
 
@@ -159,6 +162,7 @@ trait AnnouncementWorld {
 			notifications: $notifications,
 			time: $time,
 			logger: $this->createMock(LoggerInterface::class),
+			adminTemplates: $templates,
 		);
 		return $this->service;
 	}//end buildAnnouncementWorld()

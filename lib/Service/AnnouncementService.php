@@ -57,6 +57,8 @@ use Throwable;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One service owns the whole announcement flow by design (D1-D6).
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Authoring, reading, reactions and follows share the visibility rule.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) Each public method backs one endpoint.
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList) Storage, people, comments, notifications and the clock are separate Nextcloud services.
+ * @SuppressWarnings(PHPMD.TooManyMethods) Each private helper guards one rule of the visibility check or the field validation.
  *
  * @spec openspec/specs/announcements/spec.md
  */
@@ -99,6 +101,7 @@ class AnnouncementService {
 	 * @param INotificationManager $notifications Nextcloud notifications.
 	 * @param ITimeFactory $time Clock.
 	 * @param LoggerInterface $logger Logger.
+	 * @param AdminTemplateService $adminTemplates The one place a person's groups are read (REQ-TMPL-013).
 	 *
 	 * @spec openspec/specs/announcements/spec.md
 	 */
@@ -112,6 +115,7 @@ class AnnouncementService {
 		private readonly INotificationManager $notifications,
 		private readonly ITimeFactory $time,
 		private readonly LoggerInterface $logger,
+		private readonly AdminTemplateService $adminTemplates,
 	) {
 	}//end __construct()
 
@@ -760,8 +764,18 @@ class AnnouncementService {
 		}
 
 		$uuids    = array_map(callback: static fn (Announcement $item): string => $item->getUuid(), array: $items);
-		$likes    = $this->comments->getNumberOfCommentsForObjects(objectType: self::OBJECT_TYPE, objectIds: $uuids, notOlderThan: null, verb: self::VERB_LIKE);
-		$comments = $this->comments->getNumberOfCommentsForObjects(objectType: self::OBJECT_TYPE, objectIds: $uuids, notOlderThan: null, verb: self::VERB_COMMENT);
+		$likes    = $this->comments->getNumberOfCommentsForObjects(
+			objectType: self::OBJECT_TYPE,
+			objectIds: $uuids,
+			notOlderThan: null,
+			verb: self::VERB_LIKE
+		);
+		$comments = $this->comments->getNumberOfCommentsForObjects(
+			objectType: self::OBJECT_TYPE,
+			objectIds: $uuids,
+			notOlderThan: null,
+			verb: self::VERB_COMMENT
+		);
 
 		$out = [];
 		foreach ($items as $item) {
@@ -862,7 +876,11 @@ class AnnouncementService {
 				throw new InvalidArgumentException('A category needs at most 128 characters');
 			}
 
-			$announcement->setCategory($category === '' ? null : $category);
+			if ($category === '') {
+				$category = null;
+			}
+
+			$announcement->setCategory($category);
 		}
 
 		if (array_key_exists('level', $data) === true) {
@@ -875,15 +893,19 @@ class AnnouncementService {
 		}
 
 		if (array_key_exists('dismissible', $data) === true) {
-			$announcement->setDismissible((bool) $data['dismissible'] === true ? 1 : 0);
+			$announcement->setDismissible((int) ((bool) $data['dismissible']));
 		}
 
 		if (array_key_exists('allowComments', $data) === true) {
-			$announcement->setAllowComments((bool) $data['allowComments'] === true ? 1 : 0);
+			$announcement->setAllowComments((int) ((bool) $data['allowComments']));
 		}
 
 		if (array_key_exists('targetGroups', $data) === true) {
-			$groups = is_array($data['targetGroups']) === true ? $data['targetGroups'] : [];
+			$groups = [];
+			if (is_array($data['targetGroups']) === true) {
+				$groups = $data['targetGroups'];
+			}
+
 			$announcement->setTargetGroups(json_encode($this->cleanGroups(groups: $groups)));
 		}
 
@@ -967,12 +989,7 @@ class AnnouncementService {
 	 * @return string[]
 	 */
 	private function groupsOf(string $userId): array {
-		$user = $this->userManager->get(uid: $userId);
-		if ($user === null) {
-			return [];
-		}
-
-		return $this->groupManager->getUserGroupIds(user: $user);
+		return $this->adminTemplates->getUserGroupIdsFor(userId: $userId);
 	}//end groupsOf()
 
 	/**
@@ -990,7 +1007,9 @@ class AnnouncementService {
 		}
 
 		try {
-			$time = new DateTime(datetime: (string) $value, timezone: new DateTimeZone(timezone: 'UTC'));
+			// Psalm's stub names DateTime's first parameter differently from PHP, so positional here.
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$time = new DateTime((string) $value, new DateTimeZone(timezone: 'UTC'));
 		} catch (Exception) {
 			throw new InvalidArgumentException(message: 'Not a valid time: ' . (string) $value);
 		}

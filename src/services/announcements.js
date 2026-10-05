@@ -65,7 +65,10 @@ export async function createAnnouncement(fields) {
  * @spec openspec/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
  */
 export async function updateAnnouncement(uuid, fields) {
-	const { data } = await axios.put(url(`${BASE}/${encodeURIComponent(uuid)}`), fields)
+	const { data } = await axios.put(
+		url(`${BASE}/${encodeURIComponent(uuid)}`),
+		fields,
+	)
 	return data
 }
 
@@ -77,7 +80,9 @@ export async function updateAnnouncement(uuid, fields) {
  * @spec openspec/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
  */
 export async function publishAnnouncement(uuid) {
-	const { data } = await axios.post(url(`${BASE}/${encodeURIComponent(uuid)}/publish`))
+	const { data } = await axios.post(
+		url(`${BASE}/${encodeURIComponent(uuid)}/publish`),
+	)
 	return data
 }
 
@@ -90,7 +95,10 @@ export async function publishAnnouncement(uuid) {
  * @spec openspec/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
  */
 export async function announcementReach(targetGroups, previewUserId = '') {
-	const { data } = await axios.post(url('/apps/launchpad/api/announcement-reach'), { targetGroups, previewUserId })
+	const { data } = await axios.post(
+		url('/apps/launchpad/api/announcement-reach'),
+		{ targetGroups, previewUserId },
+	)
 	return data
 }
 
@@ -103,7 +111,10 @@ export async function announcementReach(targetGroups, previewUserId = '') {
  * @spec openspec/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
  */
 export async function likeAnnouncement(uuid, liked) {
-	const { data } = await axios.put(url(`${BASE}/${encodeURIComponent(uuid)}/like`), { liked })
+	const { data } = await axios.put(
+		url(`${BASE}/${encodeURIComponent(uuid)}/like`),
+		{ liked },
+	)
 	return data
 }
 
@@ -115,7 +126,9 @@ export async function likeAnnouncement(uuid, liked) {
  * @spec openspec/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
  */
 export async function listAnnouncementComments(uuid) {
-	const { data } = await axios.get(url(`${BASE}/${encodeURIComponent(uuid)}/comments`))
+	const { data } = await axios.get(
+		url(`${BASE}/${encodeURIComponent(uuid)}/comments`),
+	)
 	return data.comments || []
 }
 
@@ -128,7 +141,10 @@ export async function listAnnouncementComments(uuid) {
  * @spec openspec/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
  */
 export async function commentOnAnnouncement(uuid, message) {
-	const { data } = await axios.post(url(`${BASE}/${encodeURIComponent(uuid)}/comments`), { message })
+	const { data } = await axios.post(
+		url(`${BASE}/${encodeURIComponent(uuid)}/comments`),
+		{ message },
+	)
 	return data
 }
 
@@ -141,7 +157,10 @@ export async function commentOnAnnouncement(uuid, message) {
  * @spec openspec/specs/announcements/spec.md#requirement-readers-follow-categories-req-ann-003
  */
 export async function followCategory(category, follow) {
-	const { data } = await axios.put(url('/apps/launchpad/api/announcement-follows'), { category, follow })
+	const { data } = await axios.put(
+		url('/apps/launchpad/api/announcement-follows'),
+		{ category, follow },
+	)
 	return data.following || []
 }
 
@@ -152,7 +171,9 @@ export async function followCategory(category, follow) {
  * @spec openspec/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 export async function getAnnouncementEditorGroups() {
-	const { data } = await axios.get(url('/apps/launchpad/api/announcement-settings'))
+	const { data } = await axios.get(
+		url('/apps/launchpad/api/announcement-settings'),
+	)
 	return data.groups || []
 }
 
@@ -164,7 +185,10 @@ export async function getAnnouncementEditorGroups() {
  * @spec openspec/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001
  */
 export async function saveAnnouncementEditorGroups(groups) {
-	const { data } = await axios.put(url('/apps/launchpad/api/announcement-settings'), { groups })
+	const { data } = await axios.put(
+		url('/apps/launchpad/api/announcement-settings'),
+		{ groups },
+	)
 	return data.groups || []
 }
 
@@ -176,7 +200,9 @@ export async function saveAnnouncementEditorGroups(groups) {
  */
 export async function getDismissedNotices() {
 	try {
-		const { data } = await axios.get(url(`/apps/launchpad/api/preferences/${DISMISSED_KEY}`))
+		const { data } = await axios.get(
+			url(`/apps/launchpad/api/preferences/${DISMISSED_KEY}`),
+		)
 		const value = data?.value
 		const list = typeof value === 'string' ? JSON.parse(value || '[]') : value
 		return Array.isArray(list) ? list.filter((id) => typeof id === 'string') : []
@@ -193,5 +219,7 @@ export async function getDismissedNotices() {
  * @spec openspec/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005
  */
 export async function saveDismissedNotices(uuids) {
-	await axios.put(url(`/apps/launchpad/api/preferences/${DISMISSED_KEY}`), { value: JSON.stringify(uuids) })
+	await axios.put(url(`/apps/launchpad/api/preferences/${DISMISSED_KEY}`), {
+		value: JSON.stringify(uuids),
+	})
 }

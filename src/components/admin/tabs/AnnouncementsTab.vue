@@ -7,7 +7,12 @@
 	<div class="announcements-tab" data-testid="announcements-tab">
 		<h3>{{ t('launchpad', 'Announcement editors') }}</h3>
 		<p class="announcements-tab__intro">
-			{{ t('launchpad', 'Members of these groups write announcements and notices. Administrators always can.') }}
+			{{
+				t(
+					'launchpad',
+					'Members of these groups write announcements and notices. Administrators always can.',
+				)
+			}}
 		</p>
 
 		<p v-if="loading">
@@ -36,7 +41,10 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcButton, NcSelect } from '@nextcloud/vue'
-import { getAnnouncementEditorGroups, saveAnnouncementEditorGroups } from '../../../services/announcements.js'
+import {
+	getAnnouncementEditorGroups,
+	saveAnnouncementEditorGroups,
+} from '../../../services/announcements.js'
 
 /**
  * AnnouncementsTab: which groups may write announcements besides the
@@ -62,7 +70,10 @@ export default {
 		try {
 			this.groups = await getAnnouncementEditorGroups()
 		} catch {
-			this.error = t('launchpad', 'The announcement editors could not be loaded.')
+			this.error = t(
+				'launchpad',
+				'The announcement editors could not be loaded.',
+			)
 		} finally {
 			this.loading = false
 		}
@@ -84,7 +95,9 @@ export default {
 				this.groups = await saveAnnouncementEditorGroups(this.groups)
 				this.saved = true
 			} catch (error) {
-				this.error = error?.response?.data?.error || t('launchpad', 'The announcement editors could not be saved.')
+				this.error =
+					error?.response?.data?.error
+					|| t('launchpad', 'The announcement editors could not be saved.')
 			} finally {
 				this.saving = false
 			}

@@ -129,7 +129,7 @@ class Notifier implements INotifier {
 			);
 		}
 
-		// engagement-announcements REQ-ANN-003: a follower is told about a
+		// Engagement-announcements REQ-ANN-003: a follower is told about a
 		// new announcement in a followed category. The object id is the
 		// announcement uuid; the link opens the workspace.
 		if ($subject === 'announcement_published') {

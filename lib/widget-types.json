@@ -9,6 +9,7 @@
 	],
 	"types": [
 		"ai-assistant",
+		"announcements",
 		"attention",
 		"calendar",
 		"chart",

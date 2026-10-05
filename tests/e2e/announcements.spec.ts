@@ -64,7 +64,9 @@ test.beforeAll(async () => {
 	})
 
 	group = `e2e-burgerzaken-${Date.now()}`
-	const madeGroup = await api.post('/ocs/v1.php/cloud/groups', { form: { groupid: group } })
+	const madeGroup = await api.post('/ocs/v1.php/cloud/groups', {
+		form: { groupid: group },
+	})
 	expect(madeGroup.ok(), 'the group must be created').toBe(true)
 
 	member = await provisionThrowawayUser('e2e-ann-lid')
@@ -76,7 +78,9 @@ test.beforeAll(async () => {
 	expect(joined.ok(), 'the member must join the group').toBe(true)
 
 	// A notice without an end time is refused (REQ-ANN-005).
-	const endless = await api.post(`${API}/announcements`, { data: { kind: 'notice', title: 'Zonder einde' } })
+	const endless = await api.post(`${API}/announcements`, {
+		data: { kind: 'notice', title: 'Zonder einde' },
+	})
 	const endlessUuid = (await endless.json()).uuid as string
 	created.push(endlessUuid)
 	const refused = await api.post(`${API}/announcements/${endlessUuid}/publish`)
@@ -91,7 +95,12 @@ test.beforeAll(async () => {
 		targetGroups: [group],
 		expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
 	})
-	await publish({ kind: 'news', title: NEWS, category: 'Facilitair', allowComments: true })
+	await publish({
+		kind: 'news',
+		title: NEWS,
+		category: 'Facilitair',
+		allowComments: true,
+	})
 })
 
 test.afterAll(async () => {
@@ -110,29 +119,51 @@ test.afterAll(async () => {
 })
 
 // @e2e announcements::maintenance-banner
-test('a member sees the notice above the dashboard, with a warning word and no close button', async ({ browser }) => {
-	const { context, page } = await loginAs(browser, member!.username, member!.password)
+test('a member sees the notice above the dashboard, with a warning word and no close button', async ({
+	browser,
+}) => {
+	const { context, page } = await loginAs(
+		browser,
+		member!.username,
+		member!.password,
+	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
 		const banner = page.locator('.notice-banner', { hasText: NOTICE })
 		await expect(banner).toBeVisible({ timeout: 30_000 })
 		await expect(banner).toContainText('Warning:')
-		await expect(banner.getByRole('button', { name: 'Close this notice' })).toHaveCount(0)
+		await expect(
+			banner.getByRole('button', { name: 'Close this notice' }),
+		).toHaveCount(0)
 	} finally {
 		await context.close()
 	}
 })
 
 // @e2e announcements::news-for-one-group
-test('someone outside the group does not see the notice and gets 404 for it by id', async ({ browser }) => {
-	const { context, page } = await loginAs(browser, outsider!.username, outsider!.password)
+test('someone outside the group does not see the notice and gets 404 for it by id', async ({
+	browser,
+}) => {
+	const { context, page } = await loginAs(
+		browser,
+		outsider!.username,
+		outsider!.password,
+	)
 	try {
 		await page.goto('/index.php/apps/launchpad/')
-		await page.waitForSelector('.workspace-shell, .launchpad-floating-controls', { timeout: 30_000 })
-		await expect(page.locator('.notice-banner', { hasText: NOTICE })).toHaveCount(0)
-		const byId = await context.request.get(`${API}/announcements/${created[1]}`, {
-			headers: { 'OCS-APIRequest': 'true' },
-		})
+		await page.waitForSelector(
+			'.workspace-shell, .launchpad-floating-controls',
+			{ timeout: 30_000 },
+		)
+		await expect(
+			page.locator('.notice-banner', { hasText: NOTICE }),
+		).toHaveCount(0)
+		const byId = await context.request.get(
+			`${API}/announcements/${created[1]}`,
+			{
+				headers: { 'OCS-APIRequest': 'true' },
+			},
+		)
 		expect(byId.status()).toBe(404)
 	} finally {
 		await context.close()
@@ -140,24 +171,40 @@ test('someone outside the group does not see the notice and gets 404 for it by i
 })
 
 // @e2e announcements::pieter-likes-and-comments
-test('a reader likes and comments on a news item and the counts show 1 and 1', async ({ browser }) => {
+test('a reader likes and comments on a news item and the counts show 1 and 1', async ({
+	browser,
+}) => {
 	const { context } = await loginAs(browser, member!.username, member!.password)
 	const headers = { 'OCS-APIRequest': 'true' }
 	try {
 		const uuid = created[2]
-		const liked = await context.request.put(`${API}/announcements/${uuid}/like`, { headers, data: { liked: true } })
+		const liked = await context.request.put(
+			`${API}/announcements/${uuid}/like`,
+			{ headers, data: { liked: true } },
+		)
 		expect(liked.ok()).toBe(true)
-		const commented = await context.request.post(`${API}/announcements/${uuid}/comments`, {
-			headers,
-			data: { message: 'Komen er ook sta-bureaus?' },
-		})
+		const commented = await context.request.post(
+			`${API}/announcements/${uuid}/comments`,
+			{
+				headers,
+				data: { message: 'Komen er ook sta-bureaus?' },
+			},
+		)
 		expect(commented.status()).toBe(201)
 
-		const seen = await (await context.request.get(`${API}/announcements/${uuid}`, { headers })).json()
+		const seen = await (
+			await context.request.get(`${API}/announcements/${uuid}`, { headers })
+		).json()
 		expect(seen.likeCount).toBe(1)
 		expect(seen.commentCount).toBe(1)
-		const comments = await (await context.request.get(`${API}/announcements/${uuid}/comments`, { headers })).json()
-		expect(comments.comments.map((c: { message: string }) => c.message)).toContain('Komen er ook sta-bureaus?')
+		const comments = await (
+			await context.request.get(`${API}/announcements/${uuid}/comments`, {
+				headers,
+			})
+		).json()
+		expect(
+			comments.comments.map((c: { message: string }) => c.message),
+		).toContain('Komen er ook sta-bureaus?')
 	} finally {
 		await context.close()
 	}

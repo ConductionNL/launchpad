@@ -12,7 +12,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
-vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn(), post: vi.fn(), put: vi.fn() } }))
+vi.mock('@nextcloud/axios', () => ({
+	default: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
+}))
 vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
 	generateUrl: (path) => path,
@@ -54,14 +56,19 @@ describe('AnnouncementsWidget', () => {
 	it('asks for news only and shows each item with its like and comment counts', async () => {
 		const wrapper = await mountWith({
 			announcements: [
-				news('a', 'Nieuwe werkplekken op de 3e verdieping', 'Facilitair', { likeCount: 1, commentCount: 1 }),
+				news('a', 'Nieuwe werkplekken op de 3e verdieping', 'Facilitair', {
+					likeCount: 1,
+					commentCount: 1,
+				}),
 				news('b', 'Inloopspreekuur privacy', 'Privacy'),
 			],
 			following: [],
 			canAuthor: false,
 		})
 
-		expect(axios.get).toHaveBeenCalledWith('/apps/launchpad/api/announcements', { params: { kind: 'news' } })
+		expect(axios.get).toHaveBeenCalledWith('/apps/launchpad/api/announcements', {
+			params: { kind: 'news' },
+		})
 		const cards = wrapper.findAll('.announcement-card')
 		expect(cards).toHaveLength(2)
 		expect(cards[0].text()).toContain('Nieuwe werkplekken op de 3e verdieping')
@@ -72,40 +79,69 @@ describe('AnnouncementsWidget', () => {
 	})
 
 	it('says so when nothing targets the reader', async () => {
-		const wrapper = await mountWith({ announcements: [], following: [], canAuthor: false })
+		const wrapper = await mountWith({
+			announcements: [],
+			following: [],
+			canAuthor: false,
+		})
 		expect(wrapper.text()).toContain('No announcements for you yet.')
 	})
 
 	it('offers "New announcement" to authors only', async () => {
-		const wrapper = await mountWith({ announcements: [], following: [], canAuthor: true })
+		const wrapper = await mountWith({
+			announcements: [],
+			following: [],
+			canAuthor: true,
+		})
 		expect(wrapper.text()).toContain('New announcement')
 	})
 
 	it('filters on a category', async () => {
 		const wrapper = await mountWith({
-			announcements: [news('a', 'Werkplekken', 'Facilitair'), news('b', 'Spreekuur', 'Privacy')],
+			announcements: [
+				news('a', 'Werkplekken', 'Facilitair'),
+				news('b', 'Spreekuur', 'Privacy'),
+			],
 			following: [],
 			canAuthor: false,
 		})
 		wrapper.vm.category = 'Privacy'
 		await flushPromises()
-		const titles = wrapper.findAll('.announcement-card__title').map((node) => node.text())
+		const titles = wrapper
+			.findAll('.announcement-card__title')
+			.map((node) => node.text())
 		expect(titles).toEqual(['Spreekuur'])
 	})
 
 	it('likes an item and shows the count the server returns', async () => {
-		const wrapper = await mountWith({ announcements: [news('a', 'Werkplekken', 'Facilitair')], following: [], canAuthor: false })
-		axios.put.mockResolvedValue({ data: news('a', 'Werkplekken', 'Facilitair', { likeCount: 1, likedByMe: true }) })
+		const wrapper = await mountWith({
+			announcements: [news('a', 'Werkplekken', 'Facilitair')],
+			following: [],
+			canAuthor: false,
+		})
+		axios.put.mockResolvedValue({
+			data: news('a', 'Werkplekken', 'Facilitair', {
+				likeCount: 1,
+				likedByMe: true,
+			}),
+		})
 
 		await wrapper.find('.announcement-card__actions button').trigger('click')
 		await flushPromises()
 
-		expect(axios.put).toHaveBeenCalledWith('/apps/launchpad/api/announcements/a/like', { liked: true })
+		expect(axios.put).toHaveBeenCalledWith(
+			'/apps/launchpad/api/announcements/a/like',
+			{ liked: true },
+		)
 		expect(wrapper.find('.announcement-card__actions button').text()).toBe('1')
 	})
 
 	it('follows and unfollows a category', async () => {
-		const wrapper = await mountWith({ announcements: [news('b', 'Spreekuur', 'Privacy')], following: [], canAuthor: false })
+		const wrapper = await mountWith({
+			announcements: [news('b', 'Spreekuur', 'Privacy')],
+			following: [],
+			canAuthor: false,
+		})
 		axios.put.mockResolvedValue({ data: { following: ['Privacy'] } })
 
 		const follow = wrapper.findAll('.announcement-card__actions button')[2]
@@ -113,7 +149,12 @@ describe('AnnouncementsWidget', () => {
 		await follow.trigger('click')
 		await flushPromises()
 
-		expect(axios.put).toHaveBeenCalledWith('/apps/launchpad/api/announcement-follows', { category: 'Privacy', follow: true })
-		expect(wrapper.findAll('.announcement-card__actions button')[2].text()).toBe('Stop following Privacy')
+		expect(axios.put).toHaveBeenCalledWith(
+			'/apps/launchpad/api/announcement-follows',
+			{ category: 'Privacy', follow: true },
+		)
+		expect(wrapper.findAll('.announcement-card__actions button')[2].text()).toBe(
+			'Stop following Privacy',
+		)
 	})
 })

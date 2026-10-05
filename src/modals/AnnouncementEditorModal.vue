@@ -4,10 +4,17 @@
 -->
 
 <template>
-	<NcModal :name="t('launchpad', 'New announcement')" size="normal" @close="$emit('close')">
+	<NcModal
+		:name="t('launchpad', 'New announcement')"
+		size="normal"
+		@close="$emit('close')">
 		<div class="announcement-editor">
 			<h3 class="announcement-editor__heading">
-				{{ step === 'edit' ? t('launchpad', 'New announcement') : t('launchpad', 'Preview') }}
+				{{
+					step === 'edit'
+						? t('launchpad', 'New announcement')
+						: t('launchpad', 'Preview')
+				}}
 			</h3>
 
 			<NcNoteCard v-if="error" type="error">
@@ -22,9 +29,19 @@
 					label="label"
 					:inputLabel="t('launchpad', 'Kind')"
 					:clearable="false" />
-				<NcTextField v-model="form.title" :label="t('launchpad', 'Title')" :maxlength="255" required />
-				<NcTextArea v-model="form.body" :label="t('launchpad', 'Text')" :maxlength="20000" />
-				<NcTextField v-model="form.category" :label="t('launchpad', 'Category')" :maxlength="128" />
+				<NcTextField
+					v-model="form.title"
+					:label="t('launchpad', 'Title')"
+					:maxlength="255"
+					required />
+				<NcTextArea
+					v-model="form.body"
+					:label="t('launchpad', 'Text')"
+					:maxlength="20000" />
+				<NcTextField
+					v-model="form.category"
+					:label="t('launchpad', 'Category')"
+					:maxlength="128" />
 				<NcSelect
 					v-model="form.targetGroups"
 					multiple
@@ -60,29 +77,54 @@
 			</template>
 
 			<template v-else>
-				<NoticeBanner v-if="form.kind === 'notice'" :notice="previewItem" :allowDismiss="false" />
+				<NoticeBanner
+					v-if="form.kind === 'notice'"
+					:notice="previewItem"
+					hideDismiss />
 				<AnnouncementCard v-else :item="previewItem" preview />
 				<p class="announcement-editor__reach">
 					{{ t('launchpad', 'People reached: {count}', { count: reach }) }}
 				</p>
 				<div class="announcement-editor__preview-as">
-					<NcTextField v-model="previewUserId" :label="t('launchpad', 'Preview as (user ID)')" />
-					<NcButton :disabled="previewUserId.trim() === ''" @click="checkPreviewUser">
+					<NcTextField
+						v-model="previewUserId"
+						:label="t('launchpad', 'Preview as (user ID)')" />
+					<NcButton
+						:disabled="previewUserId.trim() === ''"
+						@click="checkPreviewUser">
 						{{ t('launchpad', 'Check') }}
 					</NcButton>
 				</div>
-				<p v-if="previewAnswer !== null" class="announcement-editor__preview-answer" role="status">
-					{{ previewAnswer
-						? t('launchpad', '{user} sees this announcement', { user: previewUserId })
-						: t('launchpad', '{user} does not see this announcement', { user: previewUserId }) }}
+				<p
+					v-if="previewAnswer !== null"
+					class="announcement-editor__preview-answer"
+					role="status">
+					{{
+						previewAnswer
+							? t('launchpad', '{user} sees this announcement', {
+									user: previewUserId,
+								})
+							: t(
+									'launchpad',
+									'{user} does not see this announcement',
+									{ user: previewUserId },
+								)
+					}}
 				</p>
 			</template>
 
 			<div class="announcement-editor__actions">
-				<NcButton v-if="step === 'preview'" variant="tertiary" @click="step = 'edit'">
+				<NcButton
+					v-if="step === 'preview'"
+					variant="tertiary"
+					@click="step = 'edit'">
 					{{ t('launchpad', 'Back to editing') }}
 				</NcButton>
-				<NcButton v-if="step === 'edit'" variant="primary" :disabled="busy || form.title.trim() === ''" @click="toPreview">
+				<NcButton
+					v-if="step === 'edit'"
+					variant="primary"
+					:disabled="busy || form.title.trim() === ''"
+					@click="toPreview">
 					{{ t('launchpad', 'Preview') }}
 				</NcButton>
 				<NcButton v-else variant="primary" :disabled="busy" @click="publish">
@@ -122,7 +164,10 @@ import {
  * @spec openspec/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
  */
 function errorText(error) {
-	return error?.response?.data?.error || t('launchpad', 'The announcement could not be saved.')
+	return (
+		error?.response?.data?.error
+		|| t('launchpad', 'The announcement could not be saved.')
+	)
 }
 
 /**
@@ -177,7 +222,10 @@ export default {
 		kindOptions() {
 			return [
 				{ id: 'news', label: t('launchpad', 'News item') },
-				{ id: 'notice', label: t('launchpad', 'Notice above the dashboard') },
+				{
+					id: 'notice',
+					label: t('launchpad', 'Notice above the dashboard'),
+				},
 			]
 		},
 
@@ -194,6 +242,7 @@ export default {
 			get() {
 				return this.form.kind
 			},
+
 			set(value) {
 				this.form.kind = value
 			},
@@ -204,6 +253,7 @@ export default {
 			get() {
 				return this.form.level
 			},
+
 			set(value) {
 				this.form.level = value
 			},
@@ -213,8 +263,13 @@ export default {
 		payload() {
 			return {
 				...this.form,
-				publishAt: this.publishAt ? new Date(this.publishAt).toISOString() : '',
-				expiresAt: this.expiresAt ? new Date(this.expiresAt).toISOString() : '',
+				publishAt: this.publishAt
+					? new Date(this.publishAt).toISOString()
+					: '',
+
+				expiresAt: this.expiresAt
+					? new Date(this.expiresAt).toISOString()
+					: '',
 			}
 		},
 
@@ -266,7 +321,10 @@ export default {
 		async checkPreviewUser() {
 			this.error = ''
 			try {
-				const answer = await announcementReach(this.form.targetGroups, this.previewUserId.trim())
+				const answer = await announcementReach(
+					this.form.targetGroups,
+					this.previewUserId.trim(),
+				)
 				this.previewAnswer = answer.reachesPreviewUser === true
 			} catch (error) {
 				this.previewAnswer = null

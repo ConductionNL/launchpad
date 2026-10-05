@@ -14,7 +14,10 @@
 				label="label"
 				:inputLabel="t('launchpad', 'Category')"
 				:clearable="false" />
-			<NcButton v-if="canAuthor" variant="secondary" @click="editorOpen = true">
+			<NcButton
+				v-if="canAuthor"
+				variant="secondary"
+				@click="editorOpen = true">
 				{{ t('launchpad', 'New announcement') }}
 			</NcButton>
 		</div>
@@ -39,16 +42,23 @@
 				@commented="onCommented" />
 		</div>
 
-		<AnnouncementEditorModal v-if="editorOpen" @close="editorOpen = false" @published="load" />
+		<AnnouncementEditorModal
+			v-if="editorOpen"
+			@close="editorOpen = false"
+			@published="load" />
 	</div>
 </template>
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcButton, NcSelect } from '@nextcloud/vue'
-import AnnouncementCard from '../../Announcements/AnnouncementCard.vue'
 import AnnouncementEditorModal from '../../../modals/AnnouncementEditorModal.vue'
-import { followCategory, likeAnnouncement, listAnnouncements } from '../../../services/announcements.js'
+import AnnouncementCard from '../../Announcements/AnnouncementCard.vue'
+import {
+	followCategory,
+	likeAnnouncement,
+	listAnnouncements,
+} from '../../../services/announcements.js'
 import { logger } from '../../../utils/logger.js'
 
 const ALL = ''
@@ -97,22 +107,28 @@ export default {
 
 		/** @spec openspec/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001 */
 		categories() {
-			return [...new Set(this.items.map((item) => item.category).filter(Boolean))].sort()
+			return [
+				...new Set(this.items.map((item) => item.category).filter(Boolean)),
+			].sort()
 		},
 
 		/** @spec openspec/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001 */
 		categoryOptions() {
 			return [
 				{ id: ALL, label: t('launchpad', 'All categories') },
-				...this.categories.map((category) => ({ id: category, label: category })),
+				...this.categories.map((category) => ({
+					id: category,
+					label: category,
+				})),
 			]
 		},
 
 		/** @spec openspec/specs/announcements/spec.md#requirement-authors-publish-targeted-announcements-req-ann-001 */
 		visibleItems() {
-			const filtered = this.category === ALL
-				? this.items
-				: this.items.filter((item) => item.category === this.category)
+			const filtered =
+				this.category === ALL
+					? this.items
+					: this.items.filter((item) => item.category === this.category)
 			return filtered.slice(0, this.limit)
 		},
 	},
@@ -154,7 +170,10 @@ export default {
 		 */
 		async toggleLike(item) {
 			try {
-				const fresh = await likeAnnouncement(item.uuid, item.likedByMe !== true)
+				const fresh = await likeAnnouncement(
+					item.uuid,
+					item.likedByMe !== true,
+				)
 				this.replace(fresh)
 			} catch (error) {
 				logger.error('Liking an announcement failed', { error })
@@ -193,7 +212,9 @@ export default {
 		 * @spec openspec/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
 		 */
 		replace(fresh) {
-			this.items = this.items.map((item) => (item.uuid === fresh.uuid ? fresh : item))
+			this.items = this.items.map((item) =>
+				item.uuid === fresh.uuid ? fresh : item,
+			)
 		},
 	},
 }

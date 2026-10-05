@@ -41,12 +41,15 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 
 /**
  * Announcement endpoints.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) One method per route.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) One controller maps the service's three refusals (403, 404, 400) for thirteen routes.
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag) The like and follow toggles arrive as a boolean in the request body.
  *
  * @spec openspec/specs/announcements/spec.md
  */
@@ -88,26 +91,26 @@ class AnnouncementController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function index(?string $kind = null, ?string $scope = null): JSONResponse {
-		$action = 'announcement.read';
 		if ($scope === 'manage') {
-			$action = 'announcement.manage';
+			return $this->run(
+				check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.manage'),
+				work: fn (string $userId): JSONResponse => $this->listResponse(
+					userId: $userId,
+					list: $this->announcements->listForAuthor(userId: $userId)
+				)
+			);
+		}
+
+		if ($kind === '') {
+			$kind = null;
 		}
 
 		return $this->run(
-			action: $action,
-			work: function (string $userId) use ($kind, $scope): JSONResponse {
-				$list = ($scope === 'manage')
-					? $this->announcements->listForAuthor(userId: $userId)
-					: $this->announcements->listVisible(userId: $userId, kind: ($kind === '' ? null : $kind));
-
-				return new JSONResponse(
-					data: [
-						'announcements' => $list,
-						'canAuthor'     => $this->announcements->canAuthor(userId: $userId),
-						'following'     => $this->announcements->followedCategories(userId: $userId),
-					]
-				);
-			}
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.read'),
+			work: fn (string $userId): JSONResponse => $this->listResponse(
+				userId: $userId,
+				list: $this->announcements->listVisible(userId: $userId, kind: $kind)
+			)
 		);
 	}//end index()
 
@@ -123,7 +126,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function show(string $uuid): JSONResponse {
 		return $this->run(
-			action: 'announcement.read',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.read'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(data: $this->announcements->get(userId: $userId, uuid: $uuid))
 		);
 	}//end show()
@@ -140,7 +143,7 @@ class AnnouncementController extends Controller {
 		$data = $this->request->getParams();
 
 		return $this->run(
-			action: 'announcement.manage',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.manage'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: $this->announcements->create(userId: $userId, data: $data)->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
@@ -163,7 +166,7 @@ class AnnouncementController extends Controller {
 		unset($data['uuid'], $data['_route']);
 
 		return $this->run(
-			action: 'announcement.manage',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.manage'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: $this->announcements->update(userId: $userId, uuid: $uuid, data: $data)->jsonSerialize()
 			)
@@ -182,7 +185,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
 		return $this->run(
-			action: 'announcement.manage',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.manage'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: $this->announcements->publish(userId: $userId, uuid: $uuid)->jsonSerialize()
 			)
@@ -201,7 +204,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function destroy(string $uuid): JSONResponse {
 		return $this->run(
-			action: 'announcement.manage',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.manage'),
 			work: function (string $userId) use ($uuid): JSONResponse {
 				$this->announcements->delete(userId: $userId, uuid: $uuid);
 
@@ -224,7 +227,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function reach(?array $targetGroups = null, ?string $previewUserId = null): JSONResponse {
 		return $this->run(
-			action: 'announcement.manage',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.manage'),
 			work: function (string $userId) use ($targetGroups, $previewUserId): JSONResponse {
 				$groups  = ($targetGroups ?? []);
 				$reaches = null;
@@ -255,7 +258,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function like(string $uuid, bool $liked = true): JSONResponse {
 		return $this->run(
-			action: 'announcement.comment',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.comment'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: $this->announcements->setLiked(userId: $userId, uuid: $uuid, liked: $liked)
 			)
@@ -274,7 +277,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function comments(string $uuid): JSONResponse {
 		return $this->run(
-			action: 'announcement.read',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.read'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: ['comments' => $this->announcements->listComments(userId: $userId, uuid: $uuid)]
 			)
@@ -294,7 +297,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function comment(string $uuid, string $message = ''): JSONResponse {
 		return $this->run(
-			action: 'announcement.comment',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.comment'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: $this->announcements->addComment(userId: $userId, uuid: $uuid, message: $message),
 				statusCode: Http::STATUS_CREATED
@@ -315,7 +318,7 @@ class AnnouncementController extends Controller {
 	#[NoAdminRequired]
 	public function follow(string $category = '', bool $follow = true): JSONResponse {
 		return $this->run(
-			action: 'announcement.follow',
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'announcement.follow'),
 			work: fn (string $userId): JSONResponse => new JSONResponse(
 				data: ['following' => $this->announcements->setFollowing(userId: $userId, category: $category, follow: $follow)]
 			)
@@ -353,6 +356,24 @@ class AnnouncementController extends Controller {
 	}//end saveSettings()
 
 	/**
+	 * The list response with the caller's author right and follows.
+	 *
+	 * @param string $userId The caller.
+	 * @param array $list The announcements.
+	 *
+	 * @return JSONResponse
+	 */
+	private function listResponse(string $userId, array $list): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'announcements' => $list,
+				'canAuthor'     => $this->announcements->canAuthor(userId: $userId),
+				'following'     => $this->announcements->followedCategories(userId: $userId),
+			]
+		);
+	}//end listResponse()
+
+	/**
 	 * Run an administrator-only endpoint behind `announcement.settings`.
 	 *
 	 * @param callable $work Produces the response.
@@ -365,25 +386,28 @@ class AnnouncementController extends Controller {
 			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
 		}
 
-		return $this->run(action: 'announcement.settings', work: fn (string $userId): JSONResponse => $work());
+		return $this->run(
+			check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'announcement.settings'),
+			work: $work
+		);
 	}//end runAdmin()
 
 	/**
 	 * Check sign-in and the action, run the work and map errors to statuses.
 	 *
-	 * @param string $action ADR-023 action.
+	 * @param callable $check ADR-023 action check for the caller; throws when refused.
 	 * @param callable $work Receives the caller's user id, returns the response.
 	 *
 	 * @return JSONResponse
 	 */
-	private function run(string $action, callable $work): JSONResponse {
+	private function run(callable $check, callable $work): JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(data: ['error' => 'Not authenticated'], statusCode: Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, $action);
+			$check($user);
 
 			return $work($user->getUID());
 		} catch (OCSForbiddenException | ForbiddenException $e) {

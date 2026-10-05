@@ -62,6 +62,8 @@ use OCP\AppFramework\Db\Entity;
  * @method string getUpdatedAt()
  * @method void setUpdatedAt(string $updatedAt)
  *
+ * @SuppressWarnings(PHPMD.TooManyFields) One property per table column; Nextcloud entities map columns to fields.
+ *
  * @spec openspec/specs/announcements/spec.md
  */
 class Announcement extends Entity implements JsonSerializable {

@@ -15,7 +15,11 @@
 
 <script>
 import NoticeBanner from './NoticeBanner.vue'
-import { getDismissedNotices, listAnnouncements, saveDismissedNotices } from '../../services/announcements.js'
+import {
+	getDismissedNotices,
+	listAnnouncements,
+	saveDismissedNotices,
+} from '../../services/announcements.js'
 import { logger } from '../../utils/logger.js'
 
 /**
@@ -38,7 +42,13 @@ export default {
 	computed: {
 		/** @spec openspec/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005 */
 		shown() {
-			return this.notices.filter((notice) => !(notice.dismissible === true && this.dismissed.includes(notice.uuid)))
+			return this.notices.filter(
+				(notice) =>
+					!(
+						notice.dismissible === true
+						&& this.dismissed.includes(notice.uuid)
+					),
+			)
 		},
 	},
 
@@ -66,7 +76,9 @@ export default {
 		 */
 		async dismiss(uuid) {
 			const running = this.notices.map((notice) => notice.uuid)
-			this.dismissed = [...new Set([...this.dismissed, uuid])].filter((id) => running.includes(id))
+			this.dismissed = [...new Set([...this.dismissed, uuid])].filter((id) =>
+				running.includes(id),
+			)
 			try {
 				await saveDismissedNotices(this.dismissed)
 			} catch (error) {

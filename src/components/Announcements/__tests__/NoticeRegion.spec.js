@@ -12,7 +12,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
-vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn(), post: vi.fn(), put: vi.fn() } }))
+vi.mock('@nextcloud/axios', () => ({
+	default: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
+}))
 vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
 	generateUrl: (path) => path,
@@ -29,14 +31,23 @@ const MAINTENANCE = {
 	title: 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00',
 	body: '',
 }
-const INFO = { uuid: 'n2', kind: 'notice', level: 'info', dismissible: true, title: 'Nieuwe huisstijl', body: '' }
+const INFO = {
+	uuid: 'n2',
+	kind: 'notice',
+	level: 'info',
+	dismissible: true,
+	title: 'Nieuwe huisstijl',
+	body: '',
+}
 
 async function mountWith(notices, dismissed = []) {
-	axios.get.mockImplementation((url) => Promise.resolve({
-		data: url.includes('/preferences/')
-			? { value: dismissed.length ? JSON.stringify(dismissed) : null }
-			: { announcements: notices },
-	}))
+	axios.get.mockImplementation((url) =>
+		Promise.resolve({
+			data: url.includes('/preferences/')
+				? { value: dismissed.length ? JSON.stringify(dismissed) : null }
+				: { announcements: notices },
+		}),
+	)
 	const wrapper = mount(NoticeRegion)
 	await flushPromises()
 	return wrapper
@@ -51,10 +62,14 @@ describe('NoticeRegion', () => {
 	it('asks for notices and shows a warning by icon and word, without a close button', async () => {
 		const wrapper = await mountWith([MAINTENANCE])
 
-		expect(axios.get).toHaveBeenCalledWith('/apps/launchpad/api/announcements', { params: { kind: 'notice' } })
+		expect(axios.get).toHaveBeenCalledWith('/apps/launchpad/api/announcements', {
+			params: { kind: 'notice' },
+		})
 		const banner = wrapper.find('.notice-banner')
 		expect(banner.text()).toContain('Warning:')
-		expect(banner.text()).toContain('Onderhoud zaaksysteem zaterdag 08:00 tot 12:00')
+		expect(banner.text()).toContain(
+			'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00',
+		)
 		expect(banner.attributes('role')).toBe('alert')
 		expect(banner.find('svg').exists()).toBe(true)
 		expect(banner.find('button').exists()).toBe(false)
@@ -70,13 +85,20 @@ describe('NoticeRegion', () => {
 		await flushPromises()
 
 		expect(wrapper.findAll('.notice-banner')).toHaveLength(1)
-		expect(axios.put).toHaveBeenCalledWith('/apps/launchpad/api/preferences/dismissed-notices', { value: JSON.stringify(['n2']) })
+		expect(axios.put).toHaveBeenCalledWith(
+			'/apps/launchpad/api/preferences/dismissed-notices',
+			{ value: JSON.stringify(['n2']) },
+		)
 	})
 
 	it('keeps a dismissed notice hidden on the next visit, but never a non-dismissible one', async () => {
 		const wrapper = await mountWith([MAINTENANCE, INFO], ['n1', 'n2'])
-		const titles = wrapper.findAll('.notice-banner__title').map((node) => node.text())
-		expect(titles).toEqual(['Warning: Onderhoud zaaksysteem zaterdag 08:00 tot 12:00'])
+		const titles = wrapper
+			.findAll('.notice-banner__title')
+			.map((node) => node.text())
+		expect(titles).toEqual([
+			'Warning: Onderhoud zaaksysteem zaterdag 08:00 tot 12:00',
+		])
 	})
 
 	it('renders nothing when no notice targets the reader', async () => {

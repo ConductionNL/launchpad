@@ -10,7 +10,9 @@
 				{{ item.title }}
 			</h4>
 			<p class="announcement-card__meta">
-				<span v-if="item.category" class="announcement-card__category">{{ item.category }}</span>
+				<span v-if="item.category" class="announcement-card__category">{{
+					item.category
+				}}</span>
 				<span v-if="publishedLabel">{{ publishedLabel }}</span>
 			</p>
 		</header>
@@ -47,9 +49,15 @@
 				v-if="item.category && !preview"
 				variant="tertiary"
 				@click="$emit('follow', item.category, !following)">
-				{{ following
-					? t('launchpad', 'Stop following {category}', { category: item.category })
-					: t('launchpad', 'Follow {category}', { category: item.category }) }}
+				{{
+					following
+						? t('launchpad', 'Stop following {category}', {
+								category: item.category,
+							})
+						: t('launchpad', 'Follow {category}', {
+								category: item.category,
+							})
+				}}
 			</NcButton>
 		</footer>
 
@@ -60,7 +68,10 @@
 					{{ comment.message }}
 				</li>
 			</ul>
-			<form v-if="item.allowComments" class="announcement-card__comment-form" @submit.prevent="sendComment">
+			<form
+				v-if="item.allowComments"
+				class="announcement-card__comment-form"
+				@submit.prevent="sendComment">
 				<NcTextField
 					v-model="draft"
 					:label="t('launchpad', 'Write a comment')"
@@ -79,7 +90,10 @@ import { NcButton, NcTextField } from '@nextcloud/vue'
 import CommentOutlineIcon from 'vue-material-design-icons/CommentOutline.vue'
 import ThumbUpIcon from 'vue-material-design-icons/ThumbUp.vue'
 import ThumbUpOutlineIcon from 'vue-material-design-icons/ThumbUpOutline.vue'
-import { commentOnAnnouncement, listAnnouncementComments } from '../../services/announcements.js'
+import {
+	commentOnAnnouncement,
+	listAnnouncementComments,
+} from '../../services/announcements.js'
 import { logger } from '../../utils/logger.js'
 
 /**
@@ -90,7 +104,13 @@ import { logger } from '../../utils/logger.js'
 export default {
 	name: 'AnnouncementCard',
 
-	components: { NcButton, NcTextField, CommentOutlineIcon, ThumbUpIcon, ThumbUpOutlineIcon },
+	components: {
+		NcButton,
+		NcTextField,
+		CommentOutlineIcon,
+		ThumbUpIcon,
+		ThumbUpOutlineIcon,
+	},
 
 	props: {
 		/** The announcement as the API returns it. */

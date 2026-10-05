@@ -21,8 +21,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Db;
 
-use DateTime;
-use DateTimeZone;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 
@@ -121,7 +119,7 @@ class AnnouncementFollowMapper extends QBMapper {
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$row->setUserId($userId);
 		$row->setCategory($category);
-		$row->setCreatedAt((new DateTime(timezone: new DateTimeZone(timezone: 'UTC')))->format(format: 'Y-m-d H:i:s'));
+		$row->setCreatedAt(gmdate('Y-m-d H:i:s'));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$this->insert(entity: $row);
 	}//end follow()

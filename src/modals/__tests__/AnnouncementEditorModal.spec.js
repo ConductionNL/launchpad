@@ -12,7 +12,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
-vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn(), post: vi.fn(), put: vi.fn() } }))
+vi.mock('@nextcloud/axios', () => ({
+	default: { get: vi.fn(), post: vi.fn(), put: vi.fn() },
+}))
 vi.mock('@nextcloud/router', async (importOriginal) => ({
 	...(await importOriginal()),
 	generateUrl: (path) => path,
@@ -29,7 +31,9 @@ import AnnouncementEditorModal from '../AnnouncementEditorModal.vue'
  * @return {HTMLButtonElement|undefined} The button.
  */
 function buttonByText(_wrapper, text) {
-	return [...document.body.querySelectorAll('button')].find((node) => node.textContent.trim() === text)
+	return [...document.body.querySelectorAll('button')].find(
+		(node) => node.textContent.trim() === text,
+	)
 }
 
 async function writeNotice() {
@@ -53,10 +57,17 @@ function routePosts({ reaches, publishError = '' }) {
 			return Promise.resolve({ data: { uuid: 'u1', ...body } })
 		}
 		if (url === '/apps/launchpad/api/announcement-reach') {
-			return Promise.resolve({ data: { reach: 42, reachesPreviewUser: body.previewUserId ? reaches : null } })
+			return Promise.resolve({
+				data: {
+					reach: 42,
+					reachesPreviewUser: body.previewUserId ? reaches : null,
+				},
+			})
 		}
 		if (publishError) {
-			return Promise.reject({ response: { status: 400, data: { error: publishError } } })
+			return Promise.reject({
+				response: { status: 400, data: { error: publishError } },
+			})
 		}
 		return Promise.resolve({ data: { uuid: 'u1', status: 'published' } })
 	})
@@ -77,9 +88,19 @@ describe('AnnouncementEditorModal', () => {
 		await buttonByText(wrapper, 'Preview').click()
 		await flushPromises()
 
-		expect(axios.post).toHaveBeenCalledWith('/apps/launchpad/api/announcements', expect.objectContaining({ kind: 'notice', targetGroups: ['Burgerzaken'] }))
-		expect(axios.post.mock.calls.map((call) => call[0])).not.toContain('/apps/launchpad/api/announcements/u1/publish')
-		expect(document.body.querySelector('.notice-banner').textContent).toContain('Onderhoud zaaksysteem zaterdag 08:00 tot 12:00')
+		expect(axios.post).toHaveBeenCalledWith(
+			'/apps/launchpad/api/announcements',
+			expect.objectContaining({
+				kind: 'notice',
+				targetGroups: ['Burgerzaken'],
+			}),
+		)
+		expect(axios.post.mock.calls.map((call) => call[0])).not.toContain(
+			'/apps/launchpad/api/announcements/u1/publish',
+		)
+		expect(document.body.querySelector('.notice-banner').textContent).toContain(
+			'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00',
+		)
 		expect(document.body.textContent).toContain('People reached: 42')
 		wrapper.unmount()
 	})
@@ -95,8 +116,13 @@ describe('AnnouncementEditorModal', () => {
 		await buttonByText(wrapper, 'Check').click()
 		await flushPromises()
 
-		expect(axios.post).toHaveBeenLastCalledWith('/apps/launchpad/api/announcement-reach', { targetGroups: ['Burgerzaken'], previewUserId: 'sanne' })
-		expect(document.body.textContent).toContain('sanne does not see this announcement')
+		expect(axios.post).toHaveBeenLastCalledWith(
+			'/apps/launchpad/api/announcement-reach',
+			{ targetGroups: ['Burgerzaken'], previewUserId: 'sanne' },
+		)
+		expect(document.body.textContent).toContain(
+			'sanne does not see this announcement',
+		)
 		wrapper.unmount()
 	})
 
@@ -110,7 +136,9 @@ describe('AnnouncementEditorModal', () => {
 		await buttonByText(wrapper, 'Publish').click()
 		await flushPromises()
 
-		expect(axios.post).toHaveBeenLastCalledWith('/apps/launchpad/api/announcements/u1/publish')
+		expect(axios.post).toHaveBeenLastCalledWith(
+			'/apps/launchpad/api/announcements/u1/publish',
+		)
 		expect(document.body.textContent).toContain('A notice needs an end time')
 		expect(wrapper.emitted('published')).toBeUndefined()
 		wrapper.unmount()

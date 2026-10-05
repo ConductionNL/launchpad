@@ -26,6 +26,19 @@ use OCA\LaunchPad\Db\WidgetPlacement;
  */
 class TileUpdater {
 	/**
+	 * Request keys a tile update may change, with the placement setter for each.
+	 */
+	private const TILE_SETTERS = [
+		'tileTitle'           => 'setTileTitle',
+		'tileIcon'            => 'setTileIcon',
+		'tileIconType'        => 'setTileIconType',
+		'tileBackgroundColor' => 'setTileBackgroundColor',
+		'tileTextColor'       => 'setTileTextColor',
+		'tileLinkType'        => 'setTileLinkType',
+		'tileLinkValue'       => 'setTileLinkValue',
+	];
+
+	/**
 	 * Apply tile configuration to a new placement entity.
 	 *
 	 * @param WidgetPlacement $placement The placement entity.
@@ -84,42 +97,10 @@ class TileUpdater {
 			self::assertValidInternalUrl(value: $content['internalUrl']);
 		}
 
-		if (isset($data['tileTitle']) === true) {
-			$placement->setTileTitle($data['tileTitle']);
-		}
-
-		if (isset($data['tileIcon']) === true) {
-			$placement->setTileIcon($data['tileIcon']);
-		}
-
-		if (isset($data['tileIconType']) === true) {
-			$placement->setTileIconType(
-				$data['tileIconType']
-			);
-		}
-
-		if (isset($data['tileBackgroundColor']) === true) {
-			$placement->setTileBackgroundColor(
-				$data['tileBackgroundColor']
-			);
-		}
-
-		if (isset($data['tileTextColor']) === true) {
-			$placement->setTileTextColor(
-				$data['tileTextColor']
-			);
-		}
-
-		if (isset($data['tileLinkType']) === true) {
-			$placement->setTileLinkType(
-				$data['tileLinkType']
-			);
-		}
-
-		if (isset($data['tileLinkValue']) === true) {
-			$placement->setTileLinkValue(
-				$data['tileLinkValue']
-			);
+		foreach (self::TILE_SETTERS as $key => $setter) {
+			if (isset($data[$key]) === true) {
+				$placement->$setter($data[$key]);
+			}
 		}
 	}//end applyTileUpdates()
 
@@ -140,18 +121,32 @@ class TileUpdater {
 			return;
 		}
 
-		if (is_string(value: $value) === false || strlen(string: $value) > 2048) {
+		if (self::isSafeInternalUrl(value: $value) === false) {
 			throw new InvalidArgumentException(message: 'The office network address must be an http or https address, or a path');
+		}
+	}//end assertValidInternalUrl()
+
+	/**
+	 * An http or https address with a host, or a path on this Nextcloud.
+	 *
+	 * @param mixed $value The submitted, non-empty value.
+	 *
+	 * @return boolean
+	 *
+	 * @spec openspec/specs/tiles/spec.md
+	 */
+	private static function isSafeInternalUrl(mixed $value): bool {
+		if (is_string(value: $value) === false || strlen(string: $value) > 2048) {
+			return false;
 		}
 
 		if (str_starts_with(haystack: $value, needle: '/') === true && str_starts_with(haystack: $value, needle: '//') === false) {
-			return;
+			return true;
 		}
 
 		$scheme = strtolower(string: (string)parse_url(url: $value, component: PHP_URL_SCHEME));
 		$host = (string)parse_url(url: $value, component: PHP_URL_HOST);
-		if (($scheme !== 'http' && $scheme !== 'https') || $host === '') {
-			throw new InvalidArgumentException(message: 'The office network address must be an http or https address, or a path');
-		}
-	}//end assertValidInternalUrl()
+
+		return in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === true && $host !== '';
+	}//end isSafeInternalUrl()
 }//end class

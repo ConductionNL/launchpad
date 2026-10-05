@@ -241,6 +241,17 @@ class PageController extends Controller {
 			->setOnOfficeNetwork($this->officeNetworks->isOfficeRequest())
 			->apply();
 
+		return $this->workspaceResponse();
+	}//end index()
+
+	/**
+	 * The workspace template response with its CSP.
+	 *
+	 * @return TemplateResponse
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md
+	 */
+	private function workspaceResponse(): TemplateResponse {
 		// 🔴 NO CHROME SLOT IDS. This used to pass
 		// `'id-app-navigation' => null` (REQ-SHELL-001), which suppressed
 		// Nextcloud's left navigation panel because the app rendered its own
@@ -263,7 +274,7 @@ class PageController extends Controller {
 		$response->setContentSecurityPolicy(csp: $this->buildWorkspaceCsp());
 
 		return $response;
-	}//end index()
+	}//end workspaceResponse()
 
 	/**
 	 * Resolve the widgets to bridge into the workspace, if any.

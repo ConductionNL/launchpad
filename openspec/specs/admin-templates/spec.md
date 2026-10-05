@@ -228,7 +228,7 @@ When a user accesses LaunchPad for the first time, the system MUST create person
 - AND bob has never opened LaunchPad
 - WHEN bob navigates to LaunchPad
 - THEN the system MUST create a personal copy of "Marketing Dashboard" for bob
-- NOTE: `TemplateService::getApplicableTemplate()` returns only ONE template (the first matching group-targeted template takes priority over the default). Multiple template distribution is NOT implemented.
+- NOTE: `TemplateService::getApplicableTemplate()` returns only ONE template (a group-targeted template takes priority over the default; REQ-TMPL-021 says which one when several target the user's groups). Multiple template distribution is NOT implemented.
 
 #### Scenario: First-time user not in any target group
 - GIVEN template "Marketing Dashboard" targets groups ["marketing"]
@@ -763,7 +763,7 @@ An administrator MUST be able to add a shipped template as an admin template fro
 
 Installing MUST NOT hand the template to anybody on its own. The definition ships with no target groups and is not the default. The administrator chooses the groups, or makes it the default, with the install options or afterwards on the Templates page (REQ-TMPL-003).
 
-LaunchPad MUST remember the install per template: app config `shipped_template_<id>` holds the UUID and `shipped_template_version_<id>` the version. A second install MUST add nothing unless forced. A forced install MUST add a fresh copy and MUST leave the earlier one in place, because dashboards made from it point at it. When the recorded template was deleted, the shipped template MUST count as not installed.
+LaunchPad MUST remember the install per template: app config `shipped_template_<id>` holds the UUID and `shipped_template_version_<id>` the version. A second install MUST add nothing unless forced. A forced install MUST add a fresh copy and MUST leave the earlier one in place, because dashboards made from it point at it. Bringing an installed template to a newer shipped version is not a forced install: that is the update of REQ-TMPL-020, which keeps the template and its copies. When the recorded template was deleted, the shipped template MUST count as not installed.
 
 A definition that is missing or malformed MUST fail the install with an error. It MUST NOT install an empty template.
 
@@ -886,6 +886,109 @@ A user who owns a personal dashboard, or has a saved choice, MUST NOT be affecte
 - THEN neither MUST be moved to the template and no copy MUST be made for them
 
 @e2e exclude Pinned by DashboardServiceTemplateRungTest::testAUserWhoOwnsADashboardGetsNoTemplate and ::testASavedChoiceIsKept.
+
+### Requirement: REQ-TMPL-020 Updating an installed shipped template in place
+
+When LaunchPad ships a higher `templateVersion` of a template than the one installed (`shipped_template_version_<id>`), an administrator MUST be able to bring the installed template to that version with one action: the "Update to version N" button on the Templates page (`POST /api/admin/templates/shipped/{id}/update`) or `occ launchpad:template:install <id> --update` (REQ-CLI-012). The listing (REQ-TMPL-018) MUST say so per template with `updateAvailable`.
+
+The update MUST keep the installed template: its id, UUID, name, description, target groups, default flag and permission level stay as they are. It MUST replace the template's widgets with the shipped version's. A widget an administrator added to the installed template by hand, or changed there, is replaced with it.
+
+**A widget in both versions keeps its row.** A member's copy remembers, per widget, the id of the template widget it came from, and re-sync matches on that id (REQ-RESYNC-003). A definition carries no key per widget, so the update pairs the installed widgets with the new ones in three passes, each over what the pass before left:
+
+1. every field a definition sets is equal: the widget is unchanged and is not written;
+2. same widget type, same proxied Nextcloud widget and same title: the row is kept and changed;
+3. same widget type, when exactly one such widget is left on each side: the row is kept and changed.
+
+What is then left of the new version is added. What is left of the installed template is removed. Settings (`content`, `styleConfig`) are compared as data, so the same settings in another key order are unchanged.
+
+**Members' copies follow.** After the template is written, the update MUST re-sync the copies with the `merge` strategy (REQ-RESYNC-001, -003, -004). So a compulsory widget the new version adds arrives in every copy, a widget the new version drops leaves every copy, and a widget a member added to their own copy stays. As with every merge re-sync, a template widget a member moved or changed is set back to the template's, and a template widget a member removed comes back. More than 50 copies are re-synced in the background (REQ-RESYNC-005). With personal dashboards off there are no copies: members see the template itself (REQ-TMPL-019), so they see the new version at once.
+
+**Never silently.** The result MUST name every widget added, removed and changed, the number unchanged and the number of members' copies. A dry run (`dryRun=true`, `--dry-run`) MUST return the same lists and MUST write nothing: no widget, no version, no copy. The Templates page MUST show the dry run and ask for confirmation before it updates.
+
+The widgets of the template MUST be written in one transaction. When a write fails, nothing MUST be kept and the recorded version MUST stay, so the next run tries again. The recorded version MUST be raised only after the widgets are written.
+
+When the installed version is the shipped one or newer, the update MUST change nothing and MUST say so (`upToDate`). When the template is not installed, the endpoint MUST answer 409 and the command MUST exit 1; an unknown id answers 404.
+
+#### Scenario: An administrator updates the installed template from the Templates page
+- GIVEN `mijn-werkdag` is installed at version 2, targets the group "behandelaars", and LaunchPad ships version 3
+- WHEN the administrator presses "Update to version 3" on the Templates page
+- THEN a dialog MUST list the widgets that are added, removed and changed, and the number of members with a copy
+- AND nothing MUST be written until the administrator confirms
+- WHEN the administrator confirms
+- THEN the same template MUST hold version 3's widgets, still target "behandelaars", and the button MUST be gone
+
+@e2e exclude Staging "a newer version ships" needs a second definition file on the server, which a browser test cannot place. The page and the dialog are pinned by TemplatesPage.shippedUpdate.spec.js, the update by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate. Seen in a browser on a test instance on 5 October 2026.
+
+#### Scenario: A member's copy follows and keeps what the member added
+- GIVEN Pieter has a copy of the installed template and added a widget of his own to it
+- WHEN the administrator updates the template to a version that adds a compulsory widget and drops another widget
+- THEN Pieter's copy MUST hold the new compulsory widget
+- AND the dropped widget MUST be gone from his copy
+- AND the widget Pieter added MUST still be there
+
+@e2e exclude Same reason as above. Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget, which makes the copy with the service a first visit uses and re-syncs it with the real re-sync service.
+
+#### Scenario: A dry run writes nothing
+- GIVEN `mijn-werkdag` is installed at an older version
+- WHEN an administrator asks for the update with `dryRun`
+- THEN the answer MUST list the widgets added, removed and changed
+- AND the template, the recorded version and every copy MUST be as before
+
+@e2e exclude Pinned by ShippedTemplateUpdateServiceTest::testADryRunWritesNothing.
+
+#### Scenario: A widget in both versions keeps its row
+- GIVEN the installed template and the new version both hold the list "Mijn zaken", with other settings
+- WHEN the template is updated
+- THEN the list's row MUST keep its id and carry the new settings
+
+@e2e exclude A database row id has no browser surface. Pinned by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate and ::testTheShippedDefinitionPairsWithItsOwnInstall.
+
+#### Scenario: Nothing to do
+- GIVEN the installed version is the version LaunchPad ships
+- WHEN an administrator asks for the update
+- THEN nothing MUST be written and the answer MUST say the template is up to date
+
+@e2e exclude Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget (second run) and TemplateInstallCommandTest::testAnUpToDateTemplateSaysSoAndExitsZero.
+
+#### Scenario: A failed write keeps the recorded version
+- GIVEN the database refuses a write halfway through the update
+- THEN the update MUST fail with an error, roll back, and leave the recorded version unchanged
+
+@e2e exclude A database fault cannot be staged in a browser. Pinned by ShippedTemplateUpdateServiceTest::testAFailedWriteKeepsTheRecordedVersion.
+
+### Requirement: REQ-TMPL-021 One rule picks the template when several target the same group
+
+When more than one admin template targets a group the user is in, `TemplateService::getApplicableTemplate()` MUST pick the same template on every instance and every visit, by this order:
+
+1. the installed copy of a shipped template (the template `shipped_template_<id>` names) goes before a template made by hand, and among shipped templates the higher recorded version goes first;
+2. then the lowest template id, which is the oldest template.
+
+A template that targets one of the user's groups still goes before the default template (REQ-TMPL-005).
+
+**Why.** The rule used to be "the first match", and the list was sorted by name, so two templates with the same name came out in the order the database happened to return them. After `occ launchpad:template:install <id> --force` an instance holds the old and the new copy of a shipped template for the same group, under the same name, and a new member could get either. The forced copy is the recorded one, so it now wins.
+
+**What changes on an existing instance.** Only where two or more templates target the same group. There, a user without a dashboard of their own used to get the template whose name sorts first; they now get the installed shipped template if one of them is that, else the oldest. With personal dashboards off, where members are shown the template itself on every visit (REQ-TMPL-019), such a member can see another template after the upgrade than before. A user who already has a copy keeps it. An instance where every group has one template is not affected.
+
+#### Scenario: The oldest hand-made template wins
+- GIVEN the templates "Aanvragen" (id 9) and "Zaken" (id 4) both target a group Pieter is in
+- WHEN Pieter opens LaunchPad for the first time
+- THEN he MUST get "Zaken"
+
+@e2e exclude Two templates for one group would change what every other suite's fresh user of that group lands on. Pinned by TemplateServiceApplicableTemplateTest::testTheLowestIdWinsAmongHandMadeTemplates.
+
+#### Scenario: After a forced install the recorded copy wins
+- GIVEN a forced install left the earlier "Mijn werkdag" (id 7) next to the recorded one (id 9), both for "behandelaars"
+- WHEN a new member of "behandelaars" opens LaunchPad
+- THEN they MUST get the template with id 9
+
+@e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testTheInstalledShippedTemplateGoesBeforeAnEarlierForcedCopy.
+
+#### Scenario: A shipped template goes before a hand-made one
+- GIVEN the hand-made template "Afdeling" (id 3) and the installed shipped template "Mijn werkdag" (id 9) both target a group Pieter is in
+- WHEN Pieter opens LaunchPad for the first time
+- THEN he MUST get "Mijn werkdag"
+
+@e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testAShippedTemplateGoesBeforeAHandMadeOneWithALowerId.
 
 ## Non-Functional Requirements
 

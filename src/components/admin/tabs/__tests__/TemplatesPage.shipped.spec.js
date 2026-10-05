@@ -45,6 +45,10 @@ vi.mock('../../../../modals/TemplateResyncModal.vue', () => ({
 	default: { name: 'TemplateResyncModal', template: '<div />' },
 }))
 
+vi.mock('../../../../dialogs/ShippedTemplateUpdateDialog.vue', () => ({
+	default: { name: 'ShippedTemplateUpdateDialog', template: '<div />' },
+}))
+
 import TemplatesPage from '../TemplatesPage.vue'
 
 function shipped(overrides = {}) {

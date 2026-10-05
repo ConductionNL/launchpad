@@ -23,7 +23,7 @@
 
 			<template v-if="step === 'edit'">
 				<NcSelect
-					v-model="kind"
+					v-model="form.kind"
 					:options="kindOptions"
 					:reduce="(option) => option.id"
 					label="label"
@@ -61,7 +61,7 @@
 					:label="t('launchpad', 'End time')" />
 				<template v-if="form.kind === 'notice'">
 					<NcSelect
-						v-model="level"
+						v-model="form.level"
 						:options="levelOptions"
 						:reduce="(option) => option.id"
 						label="label"
@@ -235,28 +235,6 @@ export default {
 				{ id: 'info', label: t('launchpad', 'Information') },
 				{ id: 'warning', label: t('launchpad', 'Warning') },
 			]
-		},
-
-		/** @spec openspec/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004 */
-		kind: {
-			get() {
-				return this.form.kind
-			},
-
-			set(value) {
-				this.form.kind = value
-			},
-		},
-
-		/** @spec openspec/specs/announcements/spec.md#requirement-notices-show-above-every-targeted-dashboard-for-their-period-req-ann-005 */
-		level: {
-			get() {
-				return this.form.level
-			},
-
-			set(value) {
-				this.form.level = value
-			},
 		},
 
 		/** @spec openspec/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004 */

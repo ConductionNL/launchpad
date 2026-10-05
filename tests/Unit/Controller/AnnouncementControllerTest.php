@@ -126,6 +126,8 @@ class AnnouncementControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_NOT_FOUND, $this->as(uid: 'sanne')->show(uuid: $uuid)->getStatus());
 		$this->assertSame(Http::STATUS_NOT_FOUND, $this->as(uid: 'sanne')->comment(uuid: $uuid, message: 'Hallo')->getStatus());
 		$this->assertSame('Inloopspreekuur privacy', $this->as(uid: 'pieter')->show(uuid: $uuid)->getData()['title']);
+		$this->assertSame(['comments' => []], $this->as(uid: 'pieter')->comments(uuid: $uuid)->getData());
+		$this->assertSame(Http::STATUS_NOT_FOUND, $this->as(uid: 'sanne')->comments(uuid: $uuid)->getStatus());
 		$this->assertSame([], $this->as(uid: 'sanne')->index()->getData()['announcements']);
 	}//end testANonMemberGets404ById()
 

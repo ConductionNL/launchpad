@@ -917,7 +917,7 @@ When the installed version is the shipped one or newer, the update MUST change n
 - WHEN the administrator confirms
 - THEN the same template MUST hold version 3's widgets, still target "behandelaars", and the button MUST be gone
 
-@e2e exclude Staging "a newer version ships" needs a second definition file on the server, which a browser test cannot place. The page and the dialog are pinned by TemplatesPage.shippedUpdate.spec.js, the update by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate. Seen in a browser on a test instance on 5 October 2026.
+@e2e exclude Staging "a newer version ships" needs a second definition file on the server, which a browser test cannot place. The page and the dialog are pinned by TemplatesPage.shippedUpdate.spec.js, the update by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate. On 5 October 2026 the command was run on a test instance and a member's page was seen in a browser afterwards; the button and the dialog were not opened in a browser.
 
 #### Scenario: A member's copy follows and keeps what the member added
 - GIVEN Pieter has a copy of the installed template and added a widget of his own to it

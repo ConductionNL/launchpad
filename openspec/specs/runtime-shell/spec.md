@@ -194,3 +194,43 @@ The shared library's first-open support note (`CnSupportDialog`: donate, get sup
 
 @e2e exclude Pinned by src/__tests__/App.supportNote.spec.js.
 
+
+### Requirement: REQ-SHELL-009 Start page without navigation panel
+
+An administrator MUST be able to turn on the option "Start page without navigation panel" (`start_page_without_navigation`, API key `startPageWithoutNavigation`, default `false`) on the admin settings page beside the other layout options. The option is stored with the other admin settings and pushed to the workspace initial state as the optional key `startPageWithoutNavigation`.
+
+When the option is on, the dashboard view (`/` and `/dashboards/:id`) MUST render without the left navigation panel: `App.vue` overrides `CnAppRoot`'s `#menu` slot with a hidden, empty node, so `CnAppNav` is not rendered and `NcAppContent` takes the full width. Every other page (Store, Reports, Flows, the admin pages) keeps the panel.
+
+Everything the panel offered MUST stay reachable on the dashboard view: the dashboards through the dashboard switcher that is already in the workspace's top-right controls, and the panel's other entries (`manifest.menu` in the sections main, footer and settings, after the same permission filter the panel applies; the personal settings dialog; for an administrator the link to Nextcloud's admin settings) through a "Menu" button (`StartPageMenu`) beside the switcher. A member without an active dashboard gets the same button in the empty state. The menu is keyboard reachable with visible focus and uses no colour of its own. An external destination opens in a new tab, as the panel's did.
+
+When the option is off, or the initial state does not carry the key, nothing changes: the panel renders as before and the menu button is not rendered.
+
+**Why.** The Zuiddrecht design (`LpStart`) is a full-width start page under the top bar; the shared library has no prop to leave the panel out (`CnAppRoot.vue`: the `#menu` slot is the override, and Vue renders the slot's default content when the override holds no real node), and hiding the panel with CSS keeps a landmark nobody can see and takes the footer destinations with it.
+
+#### Scenario: The option is off
+- GIVEN the option is off (the default)
+- WHEN a member opens the dashboard view
+- THEN the navigation panel MUST render with its dashboards, footer destinations and settings foldout, and no "Menu" button MUST be rendered
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: The option is on
+- GIVEN an administrator turned the option on
+- WHEN a member opens the dashboard view
+- THEN no navigation panel MUST be rendered, the content MUST take the full width, and the "Menu" button MUST offer Documentation, Store, Reports, Features & roadmap and the personal settings; the dashboard switcher MUST still be beside it
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: Other pages keep the panel
+- GIVEN the option is on
+- WHEN a member opens the Store page
+- THEN the navigation panel MUST render
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: No destination is lost
+- GIVEN the option is on
+- WHEN the menu is built from the app's manifest for a member and for an administrator
+- THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009

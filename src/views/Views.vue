@@ -131,6 +131,12 @@
 						<MenuIcon :size="20" />
 					</template>
 				</NcButton>
+				<!-- runtime-shell REQ-SHELL-009: when the start page renders
+				     without the left navigation panel, the panel's destinations
+				     (Documentation, Store, Reports, Features & roadmap, the
+				     settings entries) are in this menu, beside the dashboard
+				     switcher above. Renders nothing while the panel is there. -->
+				<StartPageMenu />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -487,6 +493,7 @@ import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherS
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
@@ -545,6 +552,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		StartPageMenu,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,

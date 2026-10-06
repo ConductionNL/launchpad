@@ -107,6 +107,7 @@ class AdminSettingsService {
 		// a value the frontend can't safely act on.
 		$fallbackKey = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
 		$storedFallbackTarget = $settings[$fallbackKey] ?? null;
+		$noRailKey = AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION;
 
 		$quicksearchFallbackTarget = self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
 		if (is_string($storedFallbackTarget) === true
@@ -146,6 +147,10 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
+			// Runtime-shell REQ-SHELL-009: the dashboard view without the left
+			// navigation panel. Off by default so an existing instance keeps its
+			// rail; a stored value that is not a boolean reads as off.
+			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
 		];
 	}//end getSettings()
 
@@ -327,6 +332,11 @@ class AdminSettingsService {
 	 *                                               `{query}`.
 	 *                                               tile-quick-search
 	 *                                               REQ-QSEARCH-004.
+	 * @param bool|null $startPageWithoutNavigation Render the dashboard
+	 *                                              view without the left
+	 *                                              navigation panel
+	 *                                              (runtime-shell
+	 *                                              REQ-SHELL-009).
 	 *
 	 * @return void
 	 *
@@ -350,6 +360,7 @@ class AdminSettingsService {
 		?int $maxDashboardsPerUser = null,
 		?int $maxWidgetsPerDashboard = null,
 		?string $quicksearchFallbackTarget = null,
+		?bool $startPageWithoutNavigation = null,
 	): void {
 		if ($defaultPermLevel !== null) {
 			$this->settingMapper->setSetting(
@@ -410,6 +421,13 @@ class AdminSettingsService {
 			forcedShareGroups: $forcedShareGroups,
 			legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
 		);
+
+		if ($startPageWithoutNavigation !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION,
+				value: $startPageWithoutNavigation
+			);
+		}
 	}//end updateSettings()
 
 	/**

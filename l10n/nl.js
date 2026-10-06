@@ -1407,7 +1407,13 @@ OC.L10N.register(
     "Update to version {version}" : "Bijwerken naar versie {version}",
     "Updated \"{name}\" to version {version}. Members with a copy: {count}." : "\"{name}\" is bijgewerkt naar versie {version}. Medewerkers met een kopie: {count}.",
     "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members." : "De lijsten lezen deze registers: {registers}. Een lijst waarvan het register niet op deze omgeving staat, wordt voor medewerkers verborgen.",
-    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" hoort bij de startpagina die uw beheerder voor uw groep heeft ingesteld en kan niet worden verwijderd."
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" hoort bij de startpagina die uw beheerder voor uw groep heeft ingesteld en kan niet worden verwijderd.",
+    "Start page without navigation panel" : "Startpagina zonder navigatiepaneel",
+    "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel." : "Als dit aanstaat heeft de dashboardweergave geen navigatiepaneel links en gebruikt hij de volle breedte. De dashboardkiezer en de bestemmingen Documentatie, Store, Rapporten, Functies en roadmap en instellingen staan dan in de knop Menu in de bovenste rij. Andere pagina's houden het paneel.",
+    "Personal settings" : "Persoonlijke instellingen",
+    "Store" : "Store",
+    "Reports" : "Rapporten",
+    "Flows" : "Flows"
 },
 "nplurals=2; plural=(n != 1);"
 );

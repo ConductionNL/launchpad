@@ -52,7 +52,7 @@ Ideaal voor organisaties die consistente, samengestelde dashboards willen voor h
 
 Vrij en open source onder de EUPL-1.2-licentie.
     ]]></description>
-	<version>1.1.7-unstable.20261005190000</version>
+	<version>1.1.7-unstable.20261005200000</version>
 	<licence>EUPL-1.2</licence>
 	<author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
 	<namespace>LaunchPad</namespace>
@@ -97,6 +97,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 		<!-- widgets-people-expertise-and-fields REQ-PEX-001/004: daily LDAP and profile mirror sync. -->
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
+		<!-- engagement-announcements REQ-ANN-003: notify followers of announcements that became visible. -->
+		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
 	</background-jobs>
 
 	<repair-steps>

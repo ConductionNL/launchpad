@@ -86,7 +86,8 @@ class Notifier implements INotifier {
 	/**
 	 * Prepare and render an INotification for display.
 	 *
-	 * Handles `dashboard_shared` and `dashboard_ownership_transferred`.
+	 * Handles `dashboard_shared`, `dashboard_ownership_transferred` and
+	 * `announcement_published`.
 	 * Throws `UnknownNotificationException` for any other subject so that
 	 * the Nextcloud notification chain can pass it to the next notifier.
 	 *
@@ -128,6 +129,16 @@ class Notifier implements INotifier {
 			);
 		}
 
+		// Engagement-announcements REQ-ANN-003: a follower is told about a
+		// new announcement in a followed category. The object id is the
+		// announcement uuid; the link opens the workspace.
+		if ($subject === 'announcement_published') {
+			return $this->prepareAnnouncementPublished(
+				notification: $notification,
+				l: $l
+			);
+		}
+
 		$url = $this->buildDashboardUrl(
 			objectId: $notification->getObjectId()
 		);
@@ -160,6 +171,36 @@ class Notifier implements INotifier {
 			message: 'Unknown subject: ' . $subject
 		);
 	}//end prepare()
+
+	/**
+	 * Prepare an `announcement_published` notification (REQ-ANN-003).
+	 *
+	 * Subject parameters: [category, title].
+	 *
+	 * @param INotification $notification The notification.
+	 * @param IL10N $l The L10N instance.
+	 *
+	 * @return INotification The prepared notification.
+	 *
+	 * @spec openspec/specs/announcements/spec.md
+	 */
+	private function prepareAnnouncementPublished(
+		INotification $notification,
+		IL10N $l,
+	): INotification {
+		$params   = $notification->getSubjectParameters();
+		$category = (string)($params[0] ?? '');
+		$title    = (string)($params[1] ?? '');
+
+		$subject = $l->t('New announcement in %1$s: %2$s', [$category, $title]);
+		$notification->setRichSubject(subject: $subject, parameters: []);
+		$notification->setParsedSubject(subject: $subject);
+		$notification->setLink(
+			link: $this->urlGenerator->linkToRouteAbsolute(routeName: 'launchpad.page.index')
+		);
+
+		return $notification;
+	}//end prepareAnnouncementPublished()
 
 	/**
 	 * Prepare a `mentioned_in_comment` notification (REQ-CMNT-006).

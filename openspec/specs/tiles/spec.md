@@ -343,6 +343,117 @@ A future migration MAY rewrite legacy placements into the new content shape, but
 - **THEN** the resulting `oc_launchpad_widget_placements` row MUST have its data in `content` (JSON column)
 - **AND** the legacy flat `tileTitle`/`tileIcon`/etc. columns MUST NOT be populated for new placements
 
+### Requirement: Users can import a browser bookmarks file as tiles (REQ-BMI-001)
+
+@e2e exclude Playwright is not wired for the bookmark import yet; covered by tests/Unit/Service/BookmarkImportServiceTest.php, src/utils/__tests__/parseBookmarks.spec.js and src/dialogs/__tests__/BookmarkImportDialog.spec.js
+
+A user with add rights on a dashboard MUST be able to choose a bookmarks file in the HTML format browsers export, see its folders and bookmarks, pick which to import, and have them added as tiles. Each chosen top-level folder MUST become a container titled with the folder name holding its bookmarks as tiles, with nested folders flattened into it. Loose bookmarks MUST become tiles on the dashboard. New items MUST be appended at the bottom of the dashboard.
+
+#### Scenario: Import one folder
+
+- **GIVEN** Pieter has full permission on "Mijn werkplek" and a bookmarks file with folders "Werk" (12 bookmarks) and "Privé" (30 bookmarks)
+- **WHEN** he chooses "Import bookmarks", selects the file, ticks only "Werk" and confirms
+- **THEN** a container "Werk" with 12 tiles appears at the bottom of "Mijn werkplek"
+- **AND** nothing from "Privé" is imported
+
+#### Scenario: View-only dashboard offers no import
+
+- **GIVEN** Pieter views the group dashboard "Organisatie" with view-only permission
+- **WHEN** he opens the dashboard menu
+- **THEN** "Import bookmarks" is not in the menu
+
+### Requirement: The import checks every address (REQ-BMI-002)
+
+@e2e exclude Playwright is not wired for the bookmark import yet; covered by tests/Unit/Service/BookmarkImportServiceTest.php, src/utils/__tests__/parseBookmarks.spec.js and src/dialogs/__tests__/BookmarkImportDialog.spec.js
+
+The server MUST import only `http` and `https` addresses that pass the shared URL safety check. Other bookmarks MUST be skipped and listed back to the user with the reason.
+
+#### Scenario: A script bookmark is skipped
+
+- **GIVEN** the chosen folder holds a bookmarklet `javascript:alert(1)` and 5 normal bookmarks
+- **WHEN** Pieter confirms the import
+- **THEN** 5 tiles are created
+- **AND** the result says "1 bookmark skipped: only web addresses can become tiles"
+
+### Requirement: The import respects the widget quota as one operation (REQ-BMI-003)
+
+@e2e exclude Playwright is not wired for the bookmark import yet; covered by tests/Unit/Service/BookmarkImportServiceTest.php, src/utils/__tests__/parseBookmarks.spec.js and src/dialogs/__tests__/BookmarkImportDialog.spec.js
+
+The server MUST check the dashboard's widget quota for the whole import before creating anything, and MUST create all items in one transaction. When the quota would be exceeded it MUST return HTTP 409 with the quota body and create nothing.
+
+#### Scenario: Import too large for the quota
+
+- **GIVEN** the administrator limits dashboards to 20 widgets and "Mijn werkplek" has 18
+- **WHEN** Pieter imports 3 folders
+- **THEN** the response is 409, the dialog says the dashboard has room for 2 more items, and no container or tile is created
+
+### Requirement: Large files are refused in the browser (REQ-BMI-004)
+
+@e2e exclude Playwright is not wired for the bookmark import yet; covered by tests/Unit/Service/BookmarkImportServiceTest.php, src/utils/__tests__/parseBookmarks.spec.js and src/dialogs/__tests__/BookmarkImportDialog.spec.js
+
+The browser MUST refuse bookmark files over 5 MB or with more than 2,000 bookmarks before sending anything, with a message naming the limit.
+
+#### Scenario: Oversized file
+
+- **GIVEN** a bookmarks file with 3,500 bookmarks
+- **WHEN** Pieter selects it
+- **THEN** the dialog says "This file has more than 2,000 bookmarks. Export one folder at a time." and nothing is sent to the server
+
+### Requirement: Administrators declare the office networks (REQ-TIA-001)
+
+@e2e exclude Playwright is not wired for office network addresses yet; covered by tests/Unit/Service/OfficeNetworkServiceTest.php, tests/Unit/Service/TileInternalAddressTest.php and src/components/__tests__/TileWidget.internalAddress.spec.js
+
+An administrator MUST be able to list the office networks as IPv4 and IPv6 CIDR ranges on the LaunchPad admin page. The server MUST reject a malformed range with HTTP 400. The page MUST show the administrator's own current address and whether it falls inside the listed ranges.
+
+#### Scenario: Administrator adds the office range
+
+- **GIVEN** Noor is a Nextcloud administrator on the LaunchPad admin page
+- **WHEN** she adds `10.20.0.0/16` under "Office networks" and saves
+- **THEN** the list shows `10.20.0.0/16`
+- **AND** the page says whether her current address is inside the office networks
+
+#### Scenario: Malformed range is refused
+
+- **GIVEN** Noor edits the office networks
+- **WHEN** she enters `10.20.0.0/40` and saves
+- **THEN** the save fails with the message "This is not a valid network range" and the stored list is unchanged
+
+### Requirement: A tile can hold an office-network address (REQ-TIA-002)
+
+@e2e exclude Playwright is not wired for office network addresses yet; covered by tests/Unit/Service/OfficeNetworkServiceTest.php, tests/Unit/Service/TileInternalAddressTest.php and src/components/__tests__/TileWidget.internalAddress.spec.js
+
+A tile MUST accept an optional second address for use on the office network. The server MUST validate it with the same rules as the tile's main address.
+
+#### Scenario: Author adds the internal address
+
+- **GIVEN** Ella may edit the dashboard "Team Vergunningen" with a tile "Zaaksysteem" at `https://zaken.gemeente.nl`
+- **WHEN** she sets "Address on the office network" to `http://zaken.intern` and saves
+- **THEN** the tile keeps both addresses
+
+### Requirement: The tile opens the address that fits the network (REQ-TIA-003)
+
+@e2e exclude Playwright is not wired for office network addresses yet; covered by tests/Unit/Service/OfficeNetworkServiceTest.php, tests/Unit/Service/TileInternalAddressTest.php and src/components/__tests__/TileWidget.internalAddress.spec.js
+
+When a request comes from an address inside the office networks, a tile with an office-network address MUST open that address. Everywhere else, and whenever no office networks are set, it MUST open its main address. The decision MUST be made by the server from the request address, not by probing hosts from the browser.
+
+#### Scenario: At the office
+
+- **GIVEN** the office networks include `10.20.0.0/16` and Pieter's request comes from `10.20.4.7`
+- **WHEN** he clicks "Zaaksysteem"
+- **THEN** his browser opens `http://zaken.intern`
+
+#### Scenario: At home
+
+- **GIVEN** Pieter's request comes from `84.1.2.3`, outside the office networks
+- **WHEN** he clicks "Zaaksysteem"
+- **THEN** his browser opens `https://zaken.gemeente.nl`
+
+#### Scenario: Editor shows the address in effect
+
+- **GIVEN** Ella is on the office network and edits "Zaaksysteem"
+- **WHEN** she looks below "Address on the office network"
+- **THEN** she reads "You are on the office network: this tile opens the internal address"
+
 ## Non-Functional Requirements
 
 - **Performance**: GET /api/tiles MUST return within 300ms for users with up to 100 tiles.

@@ -64,12 +64,15 @@ import {
 // registration pattern as `clock`/`weather`.
 import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
 import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
+import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+import ContainerWidgetForm from '../components/Widgets/Renderers/ContainerWidgetForm.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
 // refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
@@ -129,6 +132,8 @@ const RENDERER_OVERRIDES = {
  */
 const FORM_OVERRIDES = {
 	calendar: CalendarForm,
+	// launcher-tile-sorting: the communal fields plus "Sort tiles".
+	container: ContainerWidgetForm,
 	people: PeopleForm,
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,
@@ -181,6 +186,19 @@ registerDashboardWidget('attention', {
 	},
 	displayName: 'First today',
 	icon: 'AlertCircleOutline',
+})
+
+// `announcements`: news items that target the reader, with likes, comments
+// and category follows (openspec/specs/announcements). LaunchPad-only: it
+// reads LaunchPad's announcement endpoints. Same registration as `attention`.
+registerDashboardWidget('announcements', {
+	renderer: AnnouncementsWidget,
+	form: AnnouncementsWidgetForm,
+	defaultContent: {
+		limit: 5,
+	},
+	displayName: 'Announcements',
+	icon: 'BullhornOutline',
 })
 
 registerDashboardWidget('clock', {

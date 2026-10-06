@@ -90,6 +90,25 @@
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
 
+				<!-- runtime-shell REQ-SHELL-009: off by default so an existing
+				     instance keeps its navigation panel. -->
+				<NcCheckboxRadioSwitch
+					:modelValue="settings.startPageWithoutNavigation"
+					data-testid="admin-start-page-without-navigation"
+					@update:modelValue="
+						updateSetting('startPageWithoutNavigation', $event)
+					">
+					{{ t('launchpad', 'Start page without navigation panel') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.',
+						)
+					}}
+				</p>
+
 				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultGridColumns"
@@ -356,6 +375,8 @@ export default {
 
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
+				// runtime-shell REQ-SHELL-009: off by default.
+				startPageWithoutNavigation: false,
 				defaultGridColumns: 12,
 				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
 				maxDashboardsPerUser: 0,
@@ -471,6 +492,8 @@ export default {
 					defaultPermLevel: this.settings.defaultPermissionLevel?.id,
 					allowUserDash: this.settings.allowUserDashboards,
 					allowMultiDash: this.settings.allowMultipleDashboards,
+					startPageWithoutNavigation:
+						this.settings.startPageWithoutNavigation === true,
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].

@@ -63,6 +63,10 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
+		// runtime-shell REQ-SHELL-009: the dashboard view without the left
+		// navigation panel. Optional key, same rationale as `deepLinkPath`:
+		// a server without the setter keeps the panel.
+		startPageWithoutNavigation: false,
 	},
 	admin: {
 		allGroups: [],

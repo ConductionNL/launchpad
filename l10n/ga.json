@@ -1327,6 +1327,12 @@
         "Update to version {version}": "Update to version {version}",
         "Updated \"{name}\" to version {version}. Members with a copy: {count}.": "Updated \"{name}\" to version {version}. Members with a copy: {count}.",
         "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.": "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.",
-        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.",
+        "Start page without navigation panel": "Start page without navigation panel",
+        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
+        "Personal settings": "Personal settings",
+        "Store": "Store",
+        "Reports": "Reports",
+        "Flows": "Flows"
     }
 }

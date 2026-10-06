@@ -63,6 +63,7 @@ function shipped(overrides = {}) {
 		installedUuid: '',
 		installedVersion: null,
 		missingWidgets: [],
+		registers: ['dossiq', 'pipelinq'],
 		...overrides,
 	}
 }
@@ -168,6 +169,17 @@ describe('TemplatesPage ready-made templates', () => {
 				.find('[data-testid="admin-shipped-template-add"]')
 				.attributes('disabled'),
 		).toBeUndefined()
+	})
+
+	it('names the registers the lists read and the hide rule', async () => {
+		const wrapper = mountPage()
+		await flushPromises()
+
+		expect(
+			wrapper.find('[data-testid="admin-shipped-template-registers"]').text(),
+		).toBe(
+			'Its lists read these registers: dossiq, pipelinq. A list whose register is not on this instance is hidden for members.',
+		)
 	})
 
 	it('names the widgets no app provides', async () => {

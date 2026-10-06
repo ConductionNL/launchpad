@@ -157,6 +157,7 @@ class ShippedTemplateService {
 				// REQ-TMPL-020: a newer version ships than the one installed.
 				'updateAvailable' => $installedUuid !== '' && $installedVersion < (int)$definition['templateVersion'],
 				'missingWidgets' => $this->findMissingWidgets(widgets: $dashboard['widgets']),
+				'registers' => $this->findRegisters(widgets: $dashboard['widgets']),
 			];
 		}//end foreach
 
@@ -179,7 +180,8 @@ class ShippedTemplateService {
 	 * @param string             $userId       Who runs the install (for the archive).
 	 *
 	 * @return array{templateId:string, uuid:string, id:int, version:int, alreadyInstalled:bool,
-	 *               targetGroups:array<int,string>, isDefault:bool, missingWidgets:array<int,string>}
+	 *               targetGroups:array<int,string>, isDefault:bool, missingWidgets:array<int,string>,
+	 *               registers:array<int,string>}
 	 *
 	 * @throws InvalidArgumentException When the id or a group is unknown.
 	 * @throws RuntimeException When the definition or the import fails.
@@ -247,6 +249,7 @@ class ShippedTemplateService {
 			'targetGroups' => $template->getTargetGroupsArray(),
 			'isDefault' => $template->getIsDefault() === 1,
 			'missingWidgets' => $this->findMissingWidgets(widgets: $definition['dashboard']['widgets']),
+			'registers' => $this->findRegisters(widgets: $definition['dashboard']['widgets']),
 		];
 	}//end install()
 
@@ -380,6 +383,35 @@ class ShippedTemplateService {
 
 		return $missing;
 	}//end findMissingWidgets()
+
+	/**
+	 * The registers the template's lists read, in the order they first
+	 * appear. LaunchPad does not know which of them are on this instance:
+	 * a list that asked to be hidden when its register is not here hides
+	 * itself on the page (REQ-TMPL-022). The administrator reads the
+	 * names and knows which apps the template expects.
+	 *
+	 * @param array<int, mixed> $widgets The definition's widgets.
+	 *
+	 * @return array<int, string> Register slugs, each once.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+	 */
+	private function findRegisters(array $widgets): array {
+		$registers = [];
+		foreach ($widgets as $widget) {
+			if (is_array($widget) === false || ($widget['widgetId'] ?? '') !== 'object-list') {
+				continue;
+			}
+
+			$register = (string)($widget['content']['register'] ?? '');
+			if ($register !== '' && in_array(needle: $register, haystack: $registers, strict: true) === false) {
+				$registers[] = $register;
+			}
+		}
+
+		return $registers;
+	}//end findRegisters()
 
 	/**
 	 * Wrap the definition in an export archive and import it.

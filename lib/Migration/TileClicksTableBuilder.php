@@ -62,7 +62,7 @@ class TileClicksTableBuilder {
 	/**
 	 * Add columns to the `launchpad_tile_clicks` table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -134,7 +134,7 @@ class TileClicksTableBuilder {
 	 * and the shared retention-purge job (REQ-TANLT-004,
 	 * REQ-TANLT-005).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */

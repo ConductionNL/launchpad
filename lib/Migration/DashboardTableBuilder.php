@@ -50,7 +50,7 @@ class DashboardTableBuilder {
 	 * Delegates to one helper per column group; the call order below is
 	 * the physical column order of the created table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -66,7 +66,7 @@ class DashboardTableBuilder {
 	 * Add the identity / presentation columns (id, uuid, name,
 	 * description, icon).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -120,7 +120,7 @@ class DashboardTableBuilder {
 	 * Add the ownership / provenance columns (type, user_id, group_id,
 	 * based_on_template).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -164,7 +164,7 @@ class DashboardTableBuilder {
 	 * Add the layout / access columns (grid_columns, permission_level,
 	 * target_groups).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -199,7 +199,7 @@ class DashboardTableBuilder {
 	 * Add the boolean-flag columns (is_default, is_active,
 	 * comments_enabled).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -239,7 +239,7 @@ class DashboardTableBuilder {
 	/**
 	 * Add the audit-timestamp columns (created_at, updated_at).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -263,7 +263,7 @@ class DashboardTableBuilder {
 	/**
 	 * Add indexes to the dashboards table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -301,7 +301,7 @@ class DashboardTableBuilder {
 	 * Both columns are nullable — pre-existing rows with no content simply
 	 * keep NULL until explicitly written by the storage layer. Idempotent.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
 	 *
 	 * @return void
 	 *
@@ -342,7 +342,7 @@ class DashboardTableBuilder {
 	 * uniqueness guarantee. Idempotent — every check is `hasColumn` /
 	 * `hasIndex` first.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
 	 *
 	 * @return void
 	 */
@@ -425,7 +425,7 @@ class DashboardTableBuilder {
 	 * column default. Idempotent — every check is `hasColumn` /
 	 * `hasIndex` first.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
 	 *
 	 * @return void
 	 */
@@ -485,7 +485,7 @@ class DashboardTableBuilder {
 	 * no explicit backfill required (footer-customization design D2).
 	 * Idempotent — every column is checked with `hasColumn` first.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
 	 *
 	 * @return void
 	 */
@@ -527,7 +527,7 @@ class DashboardTableBuilder {
 	 * benefits from the existing single-column `type` index. Idempotent —
 	 * every check is `hasColumn` / `hasIndex` first.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The launchpad_dashboards table.
 	 *
 	 * @return void
 	 */

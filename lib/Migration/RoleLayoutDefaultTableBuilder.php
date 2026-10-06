@@ -52,7 +52,7 @@ class RoleLayoutDefaultTableBuilder {
 	 * Delegates to one helper per column group; the call order below is
 	 * the physical column order of the created table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -66,7 +66,7 @@ class RoleLayoutDefaultTableBuilder {
 	 * Add the identity / association columns (id, name, description,
 	 * group_id, widget_id).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -117,7 +117,7 @@ class RoleLayoutDefaultTableBuilder {
 	 * Add the grid-geometry / ordering columns (grid_x, grid_y,
 	 * grid_width, grid_height, sort_order, is_compulsory).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -175,7 +175,7 @@ class RoleLayoutDefaultTableBuilder {
 	/**
 	 * Add the audit-timestamp columns (created_at, updated_at).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -201,7 +201,7 @@ class RoleLayoutDefaultTableBuilder {
 	/**
 	 * Add primary key + uniqueness index on (group_id, widget_id).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
 	 *
 	 * @return void
 	 */

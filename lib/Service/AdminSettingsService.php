@@ -264,8 +264,10 @@ class AdminSettingsService {
 	 *
 	 * @return bool true when `$value` is a valid `https` URL template
 	 *              containing `{query}`.
+	 *
+	 * @spec openspec/specs/tile-quick-search/spec.md
 	 */
-	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
+	public function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
 		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
 			return false;
 		}

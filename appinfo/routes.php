@@ -462,6 +462,10 @@ return [
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 
+		// Search shortcuts (search-ai-prefix-shortcuts REQ-QSP-001): admin list.
+		['name' => 'searchShortcuts#index', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],
+		['name' => 'searchShortcuts#save', 'url' => '/api/admin/search-shortcuts', 'verb' => 'PUT'],
+
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.
 		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],

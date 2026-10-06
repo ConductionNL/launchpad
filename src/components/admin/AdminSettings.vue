@@ -253,6 +253,9 @@
 				<template #profile-fields>
 					<ProfileFieldsTab />
 				</template>
+				<template #search-shortcuts>
+					<SearchShortcutsTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -297,6 +300,7 @@ import OperationsTab from './tabs/OperationsTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import ProfileFieldsTab from './tabs/ProfileFieldsTab.vue'
 import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
+import SearchShortcutsTab from './tabs/SearchShortcutsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
@@ -322,6 +326,7 @@ export default {
 		MetadataFieldsSettings,
 		KioskTab,
 		ProfileFieldsTab,
+		SearchShortcutsTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -418,6 +423,10 @@ export default {
 				{
 					slug: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
+				},
+				{
+					slug: 'search-shortcuts',
+					label: this.t('launchpad', 'Search shortcuts'),
 				},
 			]
 		},

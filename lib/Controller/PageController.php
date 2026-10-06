@@ -34,6 +34,7 @@ use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCA\LaunchPad\Service\SearchShortcutService;
 use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -91,6 +92,9 @@ class PageController extends Controller {
 	 *                                                   admin setting
 	 *                                                   (tile-quick-search
 	 *                                                   REQ-QSEARCH-004).
+	 * @param SearchShortcutService $searchShortcuts The search shortcuts every
+	 *                                               search box honours
+	 *                                               (REQ-SPX-002).
 	 */
 	public function __construct(
 		IRequest $request,
@@ -103,6 +107,7 @@ class PageController extends Controller {
 		private readonly DashboardTreeService $treeService,
 		private readonly LoggerInterface $logger,
 		private readonly AdminSettingsService $adminSettingsService,
+		private readonly SearchShortcutService $searchShortcuts,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -227,6 +232,7 @@ class PageController extends Controller {
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
+			->setSearchShortcuts($this->searchShortcuts->getShortcuts())
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

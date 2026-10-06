@@ -147,7 +147,7 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
-			// runtime-shell REQ-SHELL-009: the dashboard view without the left
+			// Runtime-shell REQ-SHELL-009: the dashboard view without the left
 			// navigation panel. Off by default so an existing instance keeps its
 			// rail; a stored value that is not a boolean reads as off.
 			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,

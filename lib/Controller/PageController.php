@@ -223,7 +223,7 @@ class PageController extends Controller {
 			$settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
 		);
 
-		// runtime-shell REQ-SHELL-009: the dashboard view without the left
+		// Runtime-shell REQ-SHELL-009: the dashboard view without the left
 		// navigation panel. `getSettings()` resolves the `false` default.
 		$startPageWithoutNavigation = (bool)($settings['startPageWithoutNavigation'] ?? false);
 

@@ -1028,6 +1028,27 @@ LaunchPad does not know on the server which registers an instance has. So the li
 
 @e2e exclude Pinned by ViewsHideUnavailableSource.spec.js.
 
+### Requirement: REQ-TMPL-023 A refused delete of a compulsory widget says why
+
+When a member asks to delete a compulsory widget from a copy made from an admin template whose permission level is not `full`, the page MUST say that the widget is part of the start page the administrator set for their group and cannot be removed, naming the widget by its title. It MUST NOT send the delete (the server would answer 403, REQ-TMPL-006) and MUST NOT change the page. This holds for the widget's own menu ("Delete widget") and for the right-click menu ("Remove"), which both end in the page's `removeWidget`.
+
+**Why.** The entry was offered and did nothing: no request, no message, the widget stayed after a reload (#780). The shared edit cog has no way to withhold its delete entry, so the entry stays and explains itself.
+
+#### Scenario: Delete widget on a compulsory widget
+- GIVEN Pieter's copy of "Mijn werkdag" holds the compulsory list "Vandaag eerst"
+- WHEN he opens edit mode and chooses "Delete widget" on it
+- THEN a message MUST say "Vandaag eerst" is part of the start page his administrator set for his group and cannot be removed
+- AND no request MUST be sent and the widget MUST stay
+
+@e2e exclude Pinned by src/views/__tests__/ViewsCompulsoryRemove.spec.js from the page's own method, both menus end there. Not seen in a browser by this change.
+
+#### Scenario: A widget that is not compulsory is deleted as before
+- GIVEN Pieter's copy also holds "Mijn zaken", not compulsory
+- WHEN he chooses "Delete widget" on it
+- THEN it MUST be removed as before, with no message
+
+@e2e exclude Pinned by src/views/__tests__/ViewsCompulsoryRemove.spec.js.
+
 ## Non-Functional Requirements
 
 - **Performance**: Template distribution (copying placements) MUST complete within 2 seconds per user, even for templates with 20+ widget placements. The first-access check MUST add no more than 200ms to the initial dashboard load. `GET /api/templates/gallery` MUST return within 500ms even with 100+ templates; the gallery list SHOULD NOT fetch widget placements (use `WidgetPlacementMapper::countByDashboardId()` for the count, not `findByDashboardId()`).

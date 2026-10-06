@@ -1347,6 +1347,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be updated." : "The template \"{name}\" could not be updated.",
     "Update to version {version}" : "Update to version {version}",
     "Updated \"{name}\" to version {version}. Members with a copy: {count}." : "Updated \"{name}\" to version {version}. Members with a copy: {count}.",
-    "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members." : "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members."
+    "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members." : "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

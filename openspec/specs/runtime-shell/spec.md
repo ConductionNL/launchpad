@@ -171,3 +171,26 @@ The shell MUST register a global `document.click` listener on mount (delegated t
 - WHEN the shell unmounts (e.g. user navigates away)
 - THEN `document.removeEventListener('click', handleClickOutside)` MUST be called
 - AND the GridStack instance MUST be destroyed (no DOM leftover, no memory leak)
+
+### Requirement: REQ-SHELL-008 The first-open support note is for administrators
+
+The shared library's first-open support note (`CnSupportDialog`: donate, get support, suggest a feature, review) MUST be mounted for administrators only. `App.vue` passes `:supportDialog="false"` to `CnAppRoot` for every account without the `admin` permission (`utils/permissions.js`), so a member never sees it; for an administrator the library's own once-per-user behaviour applies.
+
+**Why.** Every new user got the note on top of the start page an administrator had just set for their group (#782, seen for three fresh users on 5 October 2026). The note asks for things only an administrator can act on.
+
+**What this does not change.** The first-visit tour ("Welcome to Launchpad") is the library's walkthrough and is declared in `src/manifest.json`. Its first step is `placement: center`, which dims the whole page, header included, on purpose; the library withholds the tour while the support note is open, so the two never stack.
+
+#### Scenario: A member's first visit shows no support note
+- GIVEN Pieter is not an administrator and has never opened LaunchPad
+- WHEN he opens LaunchPad
+- THEN no "Support LaunchPad" dialog MUST open
+
+@e2e exclude The note is mounted by the shared library from one prop; the prop's value per account is pinned by src/__tests__/App.supportNote.spec.js. Not seen in a browser by this change.
+
+#### Scenario: An administrator's first visit keeps the note
+- GIVEN Ruben is an administrator and has never opened LaunchPad
+- WHEN he opens LaunchPad
+- THEN the note MUST open once, as before
+
+@e2e exclude Pinned by src/__tests__/App.supportNote.spec.js.
+

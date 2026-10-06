@@ -52,6 +52,18 @@
 						shipped.description
 					}}</span>
 					<span
+						v-if="shipped.registers && shipped.registers.length > 0"
+						class="launchpad-admin__template-groups"
+						data-testid="admin-shipped-template-registers">
+						{{
+							t(
+								'launchpad',
+								'Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.',
+								{ registers: shipped.registers.join(', ') },
+							)
+						}}
+					</span>
+					<span
 						v-if="shipped.missingWidgets.length > 0"
 						class="launchpad-admin__template-groups"
 						data-testid="admin-shipped-template-missing">

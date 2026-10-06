@@ -1405,7 +1405,8 @@ OC.L10N.register(
     "The changes could not be worked out. Nothing was updated." : "We konden niet uitzoeken wat er verandert. Er is niets bijgewerkt.",
     "The template \"{name}\" could not be updated." : "Het sjabloon \"{name}\" kon niet worden bijgewerkt.",
     "Update to version {version}" : "Bijwerken naar versie {version}",
-    "Updated \"{name}\" to version {version}. Members with a copy: {count}." : "\"{name}\" is bijgewerkt naar versie {version}. Medewerkers met een kopie: {count}."
+    "Updated \"{name}\" to version {version}. Members with a copy: {count}." : "\"{name}\" is bijgewerkt naar versie {version}. Medewerkers met een kopie: {count}.",
+    "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members." : "De lijsten lezen deze registers: {registers}. Een lijst waarvan het register niet op deze omgeving staat, wordt voor medewerkers verborgen."
 },
 "nplurals=2; plural=(n != 1);"
 );

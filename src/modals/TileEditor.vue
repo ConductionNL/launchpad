@@ -114,6 +114,21 @@
 					"
 					type="text" />
 
+				<!-- launcher-tile-internal-address REQ-TIA-002/003. -->
+				<NcTextField
+					v-model="form.internalUrl"
+					:label="t('launchpad', 'Address on the office network')"
+					:placeholder="
+						t('launchpad', 'Optional, for example http://zaken.intern')
+					"
+					type="text" />
+				<p
+					v-if="form.internalUrl"
+					class="tile-editor__address-in-effect"
+					data-testid="tile-address-in-effect">
+					{{ addressInEffect }}
+				</p>
+
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
@@ -212,6 +227,14 @@ export default {
 		CnIconBrowser,
 	},
 
+	inject: {
+		/** Whether this request comes from an office network (REQ-TIA-003). */
+		injectedOnOfficeNetwork: {
+			from: 'onOfficeNetwork',
+			default: false,
+		},
+	},
+
 	props: {
 		open: {
 			type: Boolean,
@@ -236,6 +259,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -300,6 +324,23 @@ export default {
 		displayIcon() {
 			return normaliseIconValue(this.form.icon)
 		},
+
+		/**
+		 * Which address the author would get right now (REQ-TIA-003).
+		 *
+		 * @spec openspec/specs/tiles/spec.md
+		 */
+		addressInEffect() {
+			return this.injectedOnOfficeNetwork === true
+				? t(
+						'launchpad',
+						'You are on the office network: this tile opens the internal address',
+					)
+				: t(
+						'launchpad',
+						'You are not on the office network: this tile opens the main address',
+					)
+		},
 	},
 
 	watch: {
@@ -352,6 +393,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,

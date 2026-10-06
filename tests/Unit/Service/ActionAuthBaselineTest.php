@@ -84,6 +84,10 @@ class ActionAuthBaselineTest extends TestCase {
 		'metadata-admin.update-field',
 		'metadata-admin.delete-field',
 		'people-widget.get-users',
+		'search-shortcut.list',
+		'search-shortcut.save',
+		'office-network.list',
+		'office-network.save',
 		'profile-fields.get-definitions',
 		'profile-fields.save-definitions',
 		'rule.get-rules',
@@ -123,6 +127,8 @@ class ActionAuthBaselineTest extends TestCase {
 		// The `admin.` prefix is the controller's, not a privilege level:
 		// getMyRole() only ever answers for the caller.
 		'admin.get-my-role',
+		// REQ-BMI-001: importing bookmarks is like adding tiles.
+		'widget.import-bookmarks',
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',

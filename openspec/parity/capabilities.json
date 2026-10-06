@@ -1424,11 +1424,12 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue (displayChildren); src/utils/sortContainerTiles.js; src/components/Widgets/Renderers/ContainerWidgetForm.vue; src/composables/useTileClickTracking.js (readLocalTileUse)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting"
+				"change": "openspec/changes/archive/2026-09-30-launcher-tile-sorting"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "A container widget: Edit > Sort tiles (by hand, alphabetically, most used, last used, at random); the order applies when the dashboard is viewed",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175612-faq-workspace-365-v4 'Frequently used apps' moved to the navigation menu (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: the app menu order is set by hand (apps/theming/src/components/UserSectionAppMenu.vue:133-135, AdminSectionAppMenu.vue:86-90); searched apps/dashboard and apps/theming for usage, frequent, most used: none. The shipped recommendations widget suggests files, not apps",
@@ -4826,11 +4827,12 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/BookmarkImportService.php; lib/Controller/BookmarkImportController.php; src/utils/parseBookmarks.js; src/dialogs/BookmarkImportDialog.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-bookmark-import"
+				"change": "openspec/changes/archive/2026-09-30-launcher-bookmark-import"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Active dashboard menu (cog) > Import bookmarks…, on a dashboard the person may add widgets to",
 			"evidence": {
 				"workspace-365": "not checked: user guide 175363 and FAQ for users 175611 cover creating shortcut tiles by hand ('+ Add tiles') but no import of browser bookmarks (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Quick links card takes links added one by one ('+ Add link', up to 20); no bookmark import found (read 2026-09-26)",
@@ -4888,11 +4890,12 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/OfficeNetworkService.php; lib/Service/TileUpdater.php (assertValidInternalUrl); src/components/TileWidget.vue (tileUrl); src/modals/TileEditor.vue; src/components/admin/tabs/OfficeNetworksTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-internal-address"
+				"change": "openspec/changes/archive/2026-09-30-launcher-tile-internal-address"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Tile editor > Address on the office network; Admin settings > LaunchPad > Office networks",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175495-conditional-access 'With IP ranges you can choose on which IP range(s) the app is available ... e.g. the company network' and the same app can be offered locally or as a remote app; one tile with an internal and a public address is not documented (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Web link and Quick links cards take one URL per link; no network-dependent address found (read 2026-09-26)",
@@ -4983,11 +4986,12 @@
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/SearchShortcutService.php; src/composables/useTileSearch.js (parsePrefix); src/components/RuntimeShellSearch.vue; src/components/admin/tabs/SearchShortcutsTab.vue",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/search-ai-prefix-shortcuts"
+				"change": "openspec/changes/archive/2026-09-30-search-ai-prefix-shortcuts"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Any search widget: type !t printer (a prefix the administrator set under Admin settings > LaunchPad > Search shortcuts) or ? for the list",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175653-global-search users 'search by category' (Announcements, Apps, Email, Files, Folders, Knowledge articles, People, plus OpenIMS or Egnyte when configured); no prefix syntax to send a query to another site (read 2026-09-26)",
 				"microsoft-viva": "not checked: Microsoft 365 roadmap 562015 'Scoped Search for SharePoint app in Teams' scopes search to SharePoint global search (cached roadmap, read 2026-09-26); no prefix to an external site found",
@@ -5045,11 +5049,12 @@
 			"homarr": "no",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue (displayChildren); src/utils/sortContainerTiles.js; src/components/Widgets/Renderers/ContainerWidgetForm.vue; src/composables/useTileClickTracking.js (readLocalTileUse)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/launcher-tile-sorting"
+				"change": "openspec/changes/archive/2026-09-30-launcher-tile-sorting"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "A container widget: Edit > Sort tiles (by hand, alphabetically, most used, last used, at random); the order applies when the dashboard is viewed",
 			"evidence": {
 				"workspace-365": "not checked: user guide 175363 and FAQ for admins 175608 describe drag and drop reordering and automatic gap filling, no sort by name, last use or random (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards card order is set by the author and users drag cards; sort options exist only inside Folder (date, A-Z) and Stream playlist cards, not for cards (read 2026-09-26)",

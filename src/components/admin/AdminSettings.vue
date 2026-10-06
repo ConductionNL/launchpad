@@ -253,6 +253,12 @@
 				<template #profile-fields>
 					<ProfileFieldsTab />
 				</template>
+				<template #search-shortcuts>
+					<SearchShortcutsTab />
+				</template>
+				<template #office-networks>
+					<OfficeNetworksTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -293,10 +299,12 @@ import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
+import OfficeNetworksTab from './tabs/OfficeNetworksTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import ProfileFieldsTab from './tabs/ProfileFieldsTab.vue'
 import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
+import SearchShortcutsTab from './tabs/SearchShortcutsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
@@ -322,6 +330,8 @@ export default {
 		MetadataFieldsSettings,
 		KioskTab,
 		ProfileFieldsTab,
+		SearchShortcutsTab,
+		OfficeNetworksTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -418,6 +428,14 @@ export default {
 				{
 					slug: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
+				},
+				{
+					slug: 'search-shortcuts',
+					label: this.t('launchpad', 'Search shortcuts'),
+				},
+				{
+					slug: 'office-networks',
+					label: this.t('launchpad', 'Office networks'),
 				},
 			]
 		},

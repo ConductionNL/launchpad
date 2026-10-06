@@ -51,7 +51,7 @@ class RulesTableBuilder {
 	/**
 	 * Add columns to the conditional rules table.
 	 *
-	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -109,7 +109,7 @@ class RulesTableBuilder {
 	/**
 	 * Add indexes to the conditional rules table.
 	 *
-	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */

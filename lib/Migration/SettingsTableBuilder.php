@@ -51,7 +51,7 @@ class SettingsTableBuilder {
 	/**
 	 * Add columns to the admin settings table.
 	 *
-	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -92,7 +92,7 @@ class SettingsTableBuilder {
 	/**
 	 * Add indexes to the admin settings table.
 	 *
-	 * @param \OCP\DB\Schema\ITable|\Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */

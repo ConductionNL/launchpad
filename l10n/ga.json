@@ -1311,6 +1311,7 @@
         "Profile fields saved.": "Réimsí próifíle sábháilte.",
         "Save profile fields": "Sábháil réimsí próifíle",
         "The profile fields could not be loaded.": "Níorbh fhéidir na réimsí próifíle a lódáil.",
-        "The profile fields could not be saved.": "Níorbh fhéidir na réimsí próifíle a shábháil."
+        "The profile fields could not be saved.": "Níorbh fhéidir na réimsí próifíle a shábháil.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

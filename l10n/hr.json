@@ -1309,6 +1309,7 @@
         "Profile fields saved.": "Polja profila su spremljena.",
         "Save profile fields": "Spremi polja profila",
         "The profile fields could not be loaded.": "Polja profila nije bilo moguće učitati.",
-        "The profile fields could not be saved.": "Polja profila nije bilo moguće spremiti."
+        "The profile fields could not be saved.": "Polja profila nije bilo moguće spremiti.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

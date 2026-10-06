@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Fushat e profilit u ruajtën.",
     "Save profile fields" : "Ruaj fushat e profilit",
     "The profile fields could not be loaded." : "Fushat e profilit nuk u ngarkuan.",
-    "The profile fields could not be saved." : "Fushat e profilit nuk u ruajtën."
+    "The profile fields could not be saved." : "Fushat e profilit nuk u ruajtën.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

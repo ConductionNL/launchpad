@@ -1308,6 +1308,7 @@
         "Profile fields saved.": "Profilfelder gespeichert.",
         "Save profile fields": "Profilfelder speichern",
         "The profile fields could not be loaded.": "Die Profilfelder konnten nicht geladen werden.",
-        "The profile fields could not be saved.": "Die Profilfelder konnten nicht gespeichert werden."
+        "The profile fields could not be saved.": "Die Profilfelder konnten nicht gespeichert werden.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

@@ -1321,7 +1321,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profile fields saved.",
     "Save profile fields" : "Save profile fields",
     "The profile fields could not be loaded." : "The profile fields could not be loaded.",
-    "The profile fields could not be saved." : "The profile fields could not be saved."
+    "The profile fields could not be saved." : "The profile fields could not be saved.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

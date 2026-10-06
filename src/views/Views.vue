@@ -2111,6 +2111,29 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async removeWidget(placementId) {
+			// A compulsory widget cannot be removed from a copy made from an
+			// admin template unless the template allows everything; the
+			// server answers 403 and the store does not even ask it. Say so
+			// instead of doing nothing (#780, REQ-TMPL-023).
+			const placement = (this.widgetPlacements || []).find(
+				(p) => p.id === placementId,
+			)
+			if (
+				Number(placement?.isCompulsory) === 1
+				&& this.permissionLevel !== 'full'
+			) {
+				showError(
+					t(
+						'launchpad',
+						'"{title}" is part of the start page your administrator set for your group and cannot be removed.',
+						{
+							title:
+								placement?.customTitle || placement?.widgetId || '',
+						},
+					),
+				)
+				return
+			}
 			await this.removeWidgetFromDashboard(placementId)
 		},
 

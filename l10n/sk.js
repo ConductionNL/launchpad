@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Polia profilu sú uložené.",
     "Save profile fields" : "Uložiť polia profilu",
     "The profile fields could not be loaded." : "Polia profilu sa nepodarilo načítať.",
-    "The profile fields could not be saved." : "Polia profilu sa nepodarilo uložiť."
+    "The profile fields could not be saved." : "Polia profilu sa nepodarilo uložiť.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

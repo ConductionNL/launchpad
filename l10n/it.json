@@ -1308,6 +1308,7 @@
         "Profile fields saved.": "Campi del profilo salvati.",
         "Save profile fields": "Salva campi del profilo",
         "The profile fields could not be loaded.": "Non è stato possibile caricare i campi del profilo.",
-        "The profile fields could not be saved.": "Non è stato possibile salvare i campi del profilo."
+        "The profile fields could not be saved.": "Non è stato possibile salvare i campi del profilo.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

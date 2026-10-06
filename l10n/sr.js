@@ -1332,6 +1332,7 @@ OC.L10N.register(
     "Profile fields saved." : "Поља профила су сачувана.",
     "Save profile fields" : "Сачувај поља профила",
     "The profile fields could not be loaded." : "Поља профила нису могла да се учитају.",
-    "The profile fields could not be saved." : "Поља профила нису могла да се сачувају."
+    "The profile fields could not be saved." : "Поља профила нису могла да се сачувају.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

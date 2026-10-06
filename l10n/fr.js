@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Champs du profil enregistrés.",
     "Save profile fields" : "Enregistrer les champs du profil",
     "The profile fields could not be loaded." : "Les champs du profil n'ont pas pu être chargés.",
-    "The profile fields could not be saved." : "Les champs du profil n'ont pas pu être enregistrés."
+    "The profile fields could not be saved." : "Les champs du profil n'ont pas pu être enregistrés.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n > 1);"
 );

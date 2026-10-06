@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Τα πεδία προφίλ αποθηκεύτηκαν.",
     "Save profile fields" : "Αποθήκευση πεδίων προφίλ",
     "The profile fields could not be loaded." : "Δεν ήταν δυνατή η φόρτωση των πεδίων προφίλ.",
-    "The profile fields could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των πεδίων προφίλ."
+    "The profile fields could not be saved." : "Δεν ήταν δυνατή η αποθήκευση των πεδίων προφίλ.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

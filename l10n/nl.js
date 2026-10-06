@@ -1391,7 +1391,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profielvelden opgeslagen.",
     "Save profile fields" : "Profielvelden opslaan",
     "The profile fields could not be loaded." : "De profielvelden konden niet worden geladen.",
-    "The profile fields could not be saved." : "De profielvelden konden niet worden opgeslagen."
+    "The profile fields could not be saved." : "De profielvelden konden niet worden opgeslagen.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" hoort bij de startpagina die uw beheerder voor uw groep heeft ingesteld en kan niet worden verwijderd."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Il-oqsma tal-profil ġew salvati.",
     "Save profile fields" : "Issejvja l-oqsma tal-profil",
     "The profile fields could not be loaded." : "Il-oqsma tal-profil ma setgħux jitgħabbew.",
-    "The profile fields could not be saved." : "Il-oqsma tal-profil ma setgħux jiġu salvati."
+    "The profile fields could not be saved." : "Il-oqsma tal-profil ma setgħux jiġu salvati.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Champs dal profil memorisads.",
     "Save profile fields" : "Memorisar ils champs dal profil",
     "The profile fields could not be loaded." : "I n'è betg reussì da chargiar ils champs dal profil.",
-    "The profile fields could not be saved." : "I n'è betg reussì da memorisar ils champs dal profil."
+    "The profile fields could not be saved." : "I n'è betg reussì da memorisar ils champs dal profil.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

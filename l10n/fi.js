@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profiilikentät tallennettu.",
     "Save profile fields" : "Tallenna profiilikentät",
     "The profile fields could not be loaded." : "Profiilikenttiä ei voitu ladata.",
-    "The profile fields could not be saved." : "Profiilikenttiä ei voitu tallentaa."
+    "The profile fields could not be saved." : "Profiilikenttiä ei voitu tallentaa.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

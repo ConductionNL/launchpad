@@ -1308,6 +1308,7 @@
         "Profile fields saved.": "Profilfelterne er gemt.",
         "Save profile fields": "Gem profilfelter",
         "The profile fields could not be loaded.": "Profilfelterne kunne ikke indlæses.",
-        "The profile fields could not be saved.": "Profilfelterne kunne ikke gemmes."
+        "The profile fields could not be saved.": "Profilfelterne kunne ikke gemmes.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

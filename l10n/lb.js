@@ -1332,7 +1332,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfelder gespäichert.",
     "Save profile fields" : "Profilfelder späicheren",
     "The profile fields could not be loaded." : "D'Profilfelder konnten net geluede ginn.",
-    "The profile fields could not be saved." : "D'Profilfelder konnten net gespäichert ginn."
+    "The profile fields could not be saved." : "D'Profilfelder konnten net gespäichert ginn.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

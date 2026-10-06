@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfälten har sparats.",
     "Save profile fields" : "Spara profilfält",
     "The profile fields could not be loaded." : "Profilfälten kunde inte läsas in.",
-    "The profile fields could not be saved." : "Profilfälten kunde inte sparas."
+    "The profile fields could not be saved." : "Profilfälten kunde inte sparas.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

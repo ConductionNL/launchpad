@@ -1332,6 +1332,7 @@ OC.L10N.register(
     "Profile fields saved." : "Палі профілю захаваны.",
     "Save profile fields" : "Захаваць палі профілю",
     "The profile fields could not be loaded." : "Не ўдалося загрузіць палі профілю.",
-    "The profile fields could not be saved." : "Не ўдалося захаваць палі профілю."
+    "The profile fields could not be saved." : "Не ўдалося захаваць палі профілю.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

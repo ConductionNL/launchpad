@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Pola profilu zapisane.",
     "Save profile fields" : "Zapisz pola profilu",
     "The profile fields could not be loaded." : "Nie udało się wczytać pól profilu.",
-    "The profile fields could not be saved." : "Nie udało się zapisać pól profilu."
+    "The profile fields could not be saved." : "Nie udało się zapisać pól profilu.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

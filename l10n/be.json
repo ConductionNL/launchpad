@@ -1309,6 +1309,7 @@
         "Profile fields saved.": "Палі профілю захаваны.",
         "Save profile fields": "Захаваць палі профілю",
         "The profile fields could not be loaded.": "Не ўдалося загрузіць палі профілю.",
-        "The profile fields could not be saved.": "Не ўдалося захаваць палі профілю."
+        "The profile fields could not be saved.": "Не ўдалося захаваць палі профілю.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

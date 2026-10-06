@@ -1308,6 +1308,7 @@
         "Profile fields saved.": "Profilmezők mentve.",
         "Save profile fields": "Profilmezők mentése",
         "The profile fields could not be loaded.": "A profilmezőket nem sikerült betölteni.",
-        "The profile fields could not be saved.": "A profilmezőket nem sikerült menteni."
+        "The profile fields could not be saved.": "A profilmezőket nem sikerült menteni.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

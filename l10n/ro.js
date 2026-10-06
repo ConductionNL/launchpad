@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Câmpurile de profil au fost salvate.",
     "Save profile fields" : "Salvează câmpurile de profil",
     "The profile fields could not be loaded." : "Câmpurile de profil nu au putut fi încărcate.",
-    "The profile fields could not be saved." : "Câmpurile de profil nu au putut fi salvate."
+    "The profile fields could not be saved." : "Câmpurile de profil nu au putut fi salvate.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

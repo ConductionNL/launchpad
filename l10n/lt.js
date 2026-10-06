@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profilio laukai išsaugoti.",
     "Save profile fields" : "Išsaugoti profilio laukus",
     "The profile fields could not be loaded." : "Nepavyko įkelti profilio laukų.",
-    "The profile fields could not be saved." : "Nepavyko išsaugoti profilio laukų."
+    "The profile fields could not be saved." : "Nepavyko išsaugoti profilio laukų.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

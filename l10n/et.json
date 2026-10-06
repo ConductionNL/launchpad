@@ -1308,6 +1308,7 @@
         "Profile fields saved.": "Profiili väljad salvestatud.",
         "Save profile fields": "Salvesta profiili väljad",
         "The profile fields could not be loaded.": "Profiili välju ei õnnestunud laadida.",
-        "The profile fields could not be saved.": "Profiili välju ei õnnestunud salvestada."
+        "The profile fields could not be saved.": "Profiili välju ei õnnestunud salvestada.",
+        "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
     }
 }

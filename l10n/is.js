@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Prófílreitir vistaðir.",
     "Save profile fields" : "Vista prófílreiti",
     "The profile fields could not be loaded." : "Ekki tókst að hlaða inn prófílreitunum.",
-    "The profile fields could not be saved." : "Ekki tókst að vista prófílreitina."
+    "The profile fields could not be saved." : "Ekki tókst að vista prófílreitina.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

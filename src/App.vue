@@ -19,6 +19,7 @@
 		:pageTypes="pageTypes"
 		:customComponents="customComponents"
 		:permissions="permissions"
+		:supportDialog="supportNoteForThisAccount"
 		appId="launchpad" />
 </template>
 
@@ -26,6 +27,7 @@
 import { CnAppRoot } from '@conduction/nextcloud-vue'
 import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
+import { permits } from './utils/permissions.js'
 
 /**
  * Root component — mounts `CnAppRoot`, which renders the shared chrome
@@ -163,6 +165,24 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the shared first-open support note ("Support LaunchPad":
+		 * donate, get support, suggest a feature, review) is mounted for this
+		 * account: administrators only (REQ-SHELL-008).
+		 *
+		 * It used to open for everyone, over the start page an administrator
+		 * had just rolled out to a group (#782). The note asks for things only
+		 * an administrator can act on, so it is theirs. `CnAppRoot` takes
+		 * `false` to opt out; any other value keeps its default, which is the
+		 * library's per-user "once ever" behaviour for the administrator.
+		 *
+		 * @return {boolean} false for a non-admin account.
+		 * @spec openspec/specs/runtime-shell/spec.md#req-shell-008
+		 */
+		supportNoteForThisAccount() {
+			return permits('admin', this.permissions)
+		},
+
 		/**
 		 * The manifest CnAppRoot should render.
 		 *

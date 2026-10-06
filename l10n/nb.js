@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfeltene er lagret.",
     "Save profile fields" : "Lagre profilfelt",
     "The profile fields could not be loaded." : "Profilfeltene kunne ikke lastes inn.",
-    "The profile fields could not be saved." : "Profilfeltene kunne ikke lagres."
+    "The profile fields could not be saved." : "Profilfeltene kunne ikke lagres.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=2; plural=(n != 1);"
 );

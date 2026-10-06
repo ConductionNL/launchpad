@@ -1341,7 +1341,8 @@ OC.L10N.register(
     "Profile fields saved." : "Réimsí próifíle sábháilte.",
     "Save profile fields" : "Sábháil réimsí próifíle",
     "The profile fields could not be loaded." : "Níorbh fhéidir na réimsí próifíle a lódáil.",
-    "The profile fields could not be saved." : "Níorbh fhéidir na réimsí próifíle a shábháil."
+    "The profile fields could not be saved." : "Níorbh fhéidir na réimsí próifíle a shábháil.",
+    "\"{title}\" is part of the start page your administrator set for your group and cannot be removed." : "\"{title}\" is part of the start page your administrator set for your group and cannot be removed."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

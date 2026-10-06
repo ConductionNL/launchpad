@@ -62,4 +62,5 @@ enum AdminSettingKey: string {
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
+	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 }//end enum

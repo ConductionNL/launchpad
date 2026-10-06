@@ -222,6 +222,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_QUICKSEARCH_FALLBACK_TARGET = AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET->value;
 
 	/**
+	 * BC alias for AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION (runtime-shell REQ-SHELL-009).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION
+	 */
+	public const KEY_START_PAGE_WITHOUT_NAVIGATION = AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION->value;
+
+	/**
 	 * The setting key.
 	 *
 	 * @var string

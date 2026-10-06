@@ -339,6 +339,27 @@ class InitialStateBuilder {
 	}//end setQuicksearchFallbackTarget()
 
 	/**
+	 * Set whether the dashboard view renders without the left navigation
+	 * panel (workspace).
+	 *
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: NOT
+	 * in {@see self::REQUIRED_KEYS}, so a server that has not called this
+	 * setter still passes {@see self::apply()}, and the JS reader's `false`
+	 * default keeps the rail for an older deploy (runtime-shell
+	 * REQ-SHELL-009).
+	 *
+	 * @param bool $withoutNavigation True to leave the panel out of the dashboard view.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+	 */
+	public function setStartPageWithoutNavigation(bool $withoutNavigation): self {
+		$this->values['startPageWithoutNavigation'] = $withoutNavigation;
+		return $this;
+	}//end setStartPageWithoutNavigation()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

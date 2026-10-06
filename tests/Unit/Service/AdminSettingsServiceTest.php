@@ -79,6 +79,7 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
+				'startPageWithoutNavigation' => false,
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -165,7 +166,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('maxWidgetsPerDashboard', $settings);
 		// tile-quick-search REQ-QSEARCH-004.
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
-		$this->assertCount(12, $settings);
+		// runtime-shell REQ-SHELL-009.
+		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
+		$this->assertCount(13, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----
@@ -312,6 +315,47 @@ class AdminSettingsServiceTest extends TestCase {
 			legacyWidgetBridgeEnabled: false
 		);
 	}//end testUpdateSettingsPersistsBridgeToggle()
+
+	/**
+	 * runtime-shell REQ-SHELL-009: off by default, so an instance that
+	 * upgrades keeps its navigation panel.
+	 */
+	public function testGetSettingsStartPageWithoutNavigationDefaultsOff(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturn([]);
+
+		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
+	}//end testGetSettingsStartPageWithoutNavigationDefaultsOff()
+
+	public function testGetSettingsReadsStoredStartPageWithoutNavigation(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturn(
+			[AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION => true]
+		);
+
+		$this->assertTrue($this->service->getSettings()['startPageWithoutNavigation']);
+	}//end testGetSettingsReadsStoredStartPageWithoutNavigation()
+
+	/**
+	 * A hand-edited row that is not a boolean must not take the panel away:
+	 * only a stored `true` does.
+	 */
+	public function testGetSettingsTreatsANonBooleanStartPageValueAsOff(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturn(
+			[AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION => 'yes']
+		);
+
+		$this->assertFalse($this->service->getSettings()['startPageWithoutNavigation']);
+	}//end testGetSettingsTreatsANonBooleanStartPageValueAsOff()
+
+	public function testUpdateSettingsPersistsStartPageWithoutNavigation(): void {
+		$this->settingMapper->expects($this->once())
+			->method('setSetting')
+			->with(
+				AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION,
+				true
+			);
+
+		$this->service->updateSettings(startPageWithoutNavigation: true);
+	}//end testUpdateSettingsPersistsStartPageWithoutNavigation()
 
 	public function testUpdateSettingsRejectsInvalidSharePermissionLevel(): void {
 		$this->expectException(InvalidArgumentException::class);

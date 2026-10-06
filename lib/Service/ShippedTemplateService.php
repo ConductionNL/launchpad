@@ -398,19 +398,16 @@ class ShippedTemplateService {
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 	 */
 	private function findRegisters(array $widgets): array {
-		$registers = [];
-		foreach ($widgets as $widget) {
-			if (is_array($widget) === false || ($widget['widgetId'] ?? '') !== 'object-list') {
-				continue;
-			}
+		$lists = array_filter(
+			$widgets,
+			static fn (mixed $widget): bool => is_array($widget) === true && ($widget['widgetId'] ?? '') === 'object-list'
+		);
+		$registers = array_map(
+			static fn (array $widget): string => (string)($widget['content']['register'] ?? ''),
+			$lists
+		);
 
-			$register = (string)($widget['content']['register'] ?? '');
-			if ($register !== '' && in_array(needle: $register, haystack: $registers, strict: true) === false) {
-				$registers[] = $register;
-			}
-		}
-
-		return $registers;
+		return array_values(array: array_unique(array: array_filter($registers)));
 	}//end findRegisters()
 
 	/**

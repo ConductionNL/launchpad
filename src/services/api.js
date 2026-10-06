@@ -791,6 +791,23 @@ export const api = {
 	},
 
 	/**
+	 * Update an installed shipped template to the version LaunchPad ships
+	 * now, in place. With `dryRun` the server only reports what would change.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @param {object} [options] Call options.
+	 * @param {boolean} [options.dryRun] Report the changes, write nothing.
+	 * @return {Promise} Axios response resolving to the widgets added,
+	 *   removed and changed.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	updateShippedTemplate(id, { dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/update`, {
+			dryRun,
+		})
+	},
+
+	/**
 	 * Create an admin dashboard template.
 	 *
 	 * @param {object} data Template attributes (name, layout, widgets, …).

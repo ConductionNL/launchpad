@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
@@ -48,6 +49,10 @@ use ZipArchive;
 
 /**
  * List and install the templates shipped in `data/templates`.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Wires the importer, the template service, the mapper and four
+ *      Nextcloud services for one job; each is used once.
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
@@ -149,6 +154,8 @@ class ShippedTemplateService {
 				'isInstalled' => $installedUuid !== '',
 				'installedUuid' => $installedUuid,
 				'installedVersion' => $installedVersion,
+				// REQ-TMPL-020: a newer version ships than the one installed.
+				'updateAvailable' => $installedUuid !== '' && $installedVersion < (int)$definition['templateVersion'],
 				'missingWidgets' => $this->findMissingWidgets(widgets: $dashboard['widgets']),
 			];
 		}//end foreach
@@ -242,6 +249,25 @@ class ShippedTemplateService {
 			'missingWidgets' => $this->findMissingWidgets(widgets: $definition['dashboard']['widgets']),
 		];
 	}//end install()
+
+	/**
+	 * The installed template of a shipped id, or null when it is not
+	 * installed (or the installed one was deleted).
+	 *
+	 * @param string $templateId The shipped template id.
+	 *
+	 * @return Dashboard|null The installed admin template.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	public function findInstalled(string $templateId): ?Dashboard {
+		$uuid = $this->findInstalledUuid(templateId: $templateId);
+		if ($uuid === '') {
+			return null;
+		}
+
+		return $this->dashboardMapper->findByUuid(uuid: $uuid);
+	}//end findInstalled()
 
 	/**
 	 * Read and check one shipped definition.

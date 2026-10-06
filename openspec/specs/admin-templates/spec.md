@@ -934,7 +934,7 @@ When the installed version is the shipped one or newer, the update MUST change n
 - THEN the answer MUST list the widgets added, removed and changed
 - AND the template, the recorded version and every copy MUST be as before
 
-@e2e exclude Pinned by ShippedTemplateUpdateServiceTest::testADryRunWritesNothing.
+Pinned by ShippedTemplateUpdateServiceTest::testADryRunWritesNothing and, on a real instance, by tests/e2e/shipped-template-update.spec.ts (the recorded version is lowered through the app-config API, so the dry run's lists are empty there).
 
 #### Scenario: A widget in both versions keeps its row
 - GIVEN the installed template and the new version both hold the list "Mijn zaken", with other settings
@@ -948,7 +948,7 @@ When the installed version is the shipped one or newer, the update MUST change n
 - WHEN an administrator asks for the update
 - THEN nothing MUST be written and the answer MUST say the template is up to date
 
-@e2e exclude Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget (second run) and TemplateInstallCommandTest::testAnUpToDateTemplateSaysSoAndExitsZero.
+Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget (second run), TemplateInstallCommandTest::testAnUpToDateTemplateSaysSoAndExitsZero and tests/e2e/shipped-template-update.spec.ts.
 
 #### Scenario: A failed write keeps the recorded version
 - GIVEN the database refuses a write halfway through the update

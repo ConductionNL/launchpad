@@ -1309,6 +1309,17 @@
         "Profile fields saved.": "Поља профила су сачувана.",
         "Save profile fields": "Сачувај поља профила",
         "The profile fields could not be loaded.": "Поља профила нису могла да се учитају.",
-        "The profile fields could not be saved.": "Поља профила нису могла да се сачувају."
+        "The profile fields could not be saved.": "Поља профила нису могла да се сачувају.",
+        "Forget my usage": "Заборави моје коришћење",
+        "Sorted alphabetically": "Поређано абецедно",
+        "Sorted by most used": "Поређано по најкоришћенијим",
+        "Sorted by last used": "Поређано по последње коришћеним",
+        "Sorted at random": "Поређано насумично",
+        "Sort tiles": "Поређај плочице",
+        "By hand": "Ручно",
+        "Alphabetically": "Абецедно",
+        "Most used": "Најкоришћеније",
+        "Last used": "Последње коришћено",
+        "At random": "Насумично"
     }
 }

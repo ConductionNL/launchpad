@@ -1332,6 +1332,17 @@ OC.L10N.register(
     "Profile fields saved." : "Палі профілю захаваны.",
     "Save profile fields" : "Захаваць палі профілю",
     "The profile fields could not be loaded." : "Не ўдалося загрузіць палі профілю.",
-    "The profile fields could not be saved." : "Не ўдалося захаваць палі профілю."
+    "The profile fields could not be saved." : "Не ўдалося захаваць палі профілю.",
+    "Forget my usage" : "Забыць маё выкарыстанне",
+    "Sorted alphabetically" : "Упарадкавана па алфавіце",
+    "Sorted by most used" : "Упарадкавана па частаце выкарыстання",
+    "Sorted by last used" : "Упарадкавана па апошнім выкарыстанні",
+    "Sorted at random" : "Упарадкавана выпадкова",
+    "Sort tiles" : "Парадак плітак",
+    "By hand" : "Уручную",
+    "Alphabetically" : "Па алфавіце",
+    "Most used" : "Найчасцей выкарыстоўваныя",
+    "Last used" : "Апошнія выкарыстаныя",
+    "At random" : "Выпадкова"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

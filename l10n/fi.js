@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profiilikentät tallennettu.",
     "Save profile fields" : "Tallenna profiilikentät",
     "The profile fields could not be loaded." : "Profiilikenttiä ei voitu ladata.",
-    "The profile fields could not be saved." : "Profiilikenttiä ei voitu tallentaa."
+    "The profile fields could not be saved." : "Profiilikenttiä ei voitu tallentaa.",
+    "Forget my usage" : "Unohda käyttöni",
+    "Sorted alphabetically" : "Järjestetty aakkosjärjestykseen",
+    "Sorted by most used" : "Järjestetty eniten käytetyn mukaan",
+    "Sorted by last used" : "Järjestetty viimeksi käytetyn mukaan",
+    "Sorted at random" : "Järjestetty satunnaisesti",
+    "Sort tiles" : "Ruutujen järjestys",
+    "By hand" : "Käsin",
+    "Alphabetically" : "Aakkosjärjestyksessä",
+    "Most used" : "Eniten käytetyt",
+    "Last used" : "Viimeksi käytetyt",
+    "At random" : "Satunnaisesti"
 },
 "nplurals=2; plural=(n != 1);"
 );

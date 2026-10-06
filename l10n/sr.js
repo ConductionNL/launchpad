@@ -1332,6 +1332,17 @@ OC.L10N.register(
     "Profile fields saved." : "Поља профила су сачувана.",
     "Save profile fields" : "Сачувај поља профила",
     "The profile fields could not be loaded." : "Поља профила нису могла да се учитају.",
-    "The profile fields could not be saved." : "Поља профила нису могла да се сачувају."
+    "The profile fields could not be saved." : "Поља профила нису могла да се сачувају.",
+    "Forget my usage" : "Заборави моје коришћење",
+    "Sorted alphabetically" : "Поређано абецедно",
+    "Sorted by most used" : "Поређано по најкоришћенијим",
+    "Sorted by last used" : "Поређано по последње коришћеним",
+    "Sorted at random" : "Поређано насумично",
+    "Sort tiles" : "Поређај плочице",
+    "By hand" : "Ручно",
+    "Alphabetically" : "Абецедно",
+    "Most used" : "Најкоришћеније",
+    "Last used" : "Последње коришћено",
+    "At random" : "Насумично"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

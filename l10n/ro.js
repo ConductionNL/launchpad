@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Câmpurile de profil au fost salvate.",
     "Save profile fields" : "Salvează câmpurile de profil",
     "The profile fields could not be loaded." : "Câmpurile de profil nu au putut fi încărcate.",
-    "The profile fields could not be saved." : "Câmpurile de profil nu au putut fi salvate."
+    "The profile fields could not be saved." : "Câmpurile de profil nu au putut fi salvate.",
+    "Forget my usage" : "Uită utilizarea mea",
+    "Sorted alphabetically" : "Sortat alfabetic",
+    "Sorted by most used" : "Sortat după cele mai folosite",
+    "Sorted by last used" : "Sortat după ultima utilizare",
+    "Sorted at random" : "Sortat aleatoriu",
+    "Sort tiles" : "Sortează dalele",
+    "By hand" : "Manual",
+    "Alphabetically" : "Alfabetic",
+    "Most used" : "Cele mai folosite",
+    "Last used" : "Ultima utilizare",
+    "At random" : "Aleatoriu"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -1308,6 +1308,17 @@
         "Profile fields saved.": "Champs dal profil memorisads.",
         "Save profile fields": "Memorisar ils champs dal profil",
         "The profile fields could not be loaded.": "I n'è betg reussì da chargiar ils champs dal profil.",
-        "The profile fields could not be saved.": "I n'è betg reussì da memorisar ils champs dal profil."
+        "The profile fields could not be saved.": "I n'è betg reussì da memorisar ils champs dal profil.",
+        "Forget my usage": "Emblidar mes diever",
+        "Sorted alphabetically": "Zavrà alfabeticamain",
+        "Sorted by most used": "Zavrà tenor il diever il pli frequent",
+        "Sorted by last used": "Zavrà tenor l'ultim diever",
+        "Sorted at random": "Zavrà a chaschun",
+        "Sort tiles": "Zavrar ils quadrels",
+        "By hand": "A maun",
+        "Alphabetically": "Alfabeticamain",
+        "Most used": "Il pli savens duvrà",
+        "Last used": "Duvrà l'ultim",
+        "At random": "A chaschun"
     }
 }

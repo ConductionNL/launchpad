@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Réimsí próifíle sábháilte.",
     "Save profile fields" : "Sábháil réimsí próifíle",
     "The profile fields could not be loaded." : "Níorbh fhéidir na réimsí próifíle a lódáil.",
-    "The profile fields could not be saved." : "Níorbh fhéidir na réimsí próifíle a shábháil."
+    "The profile fields could not be saved." : "Níorbh fhéidir na réimsí próifíle a shábháil.",
+    "Forget my usage" : "Déan dearmad ar m'úsáid",
+    "Sorted alphabetically" : "Sórtáilte in ord aibítre",
+    "Sorted by most used" : "Sórtáilte de réir is mó a úsáidtear",
+    "Sorted by last used" : "Sórtáilte de réir an úsáid is déanaí",
+    "Sorted at random" : "Sórtáilte go randamach",
+    "Sort tiles" : "Sórtáil tíleanna",
+    "By hand" : "De láimh",
+    "Alphabetically" : "In ord aibítre",
+    "Most used" : "Is mó a úsáidtear",
+    "Last used" : "Úsáidte is déanaí",
+    "At random" : "Go randamach"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

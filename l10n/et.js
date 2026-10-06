@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profiili väljad salvestatud.",
     "Save profile fields" : "Salvesta profiili väljad",
     "The profile fields could not be loaded." : "Profiili välju ei õnnestunud laadida.",
-    "The profile fields could not be saved." : "Profiili välju ei õnnestunud salvestada."
+    "The profile fields could not be saved." : "Profiili välju ei õnnestunud salvestada.",
+    "Forget my usage" : "Unusta minu kasutus",
+    "Sorted alphabetically" : "Sorditud tähestiku järgi",
+    "Sorted by most used" : "Sorditud enim kasutatu järgi",
+    "Sorted by last used" : "Sorditud viimati kasutatu järgi",
+    "Sorted at random" : "Sorditud juhuslikult",
+    "Sort tiles" : "Paanide järjestus",
+    "By hand" : "Käsitsi",
+    "Alphabetically" : "Tähestiku järgi",
+    "Most used" : "Enim kasutatud",
+    "Last used" : "Viimati kasutatud",
+    "At random" : "Juhuslikult"
 },
 "nplurals=2; plural=(n != 1);"
 );

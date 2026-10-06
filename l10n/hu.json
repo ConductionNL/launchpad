@@ -1308,6 +1308,17 @@
         "Profile fields saved.": "Profilmezők mentve.",
         "Save profile fields": "Profilmezők mentése",
         "The profile fields could not be loaded.": "A profilmezőket nem sikerült betölteni.",
-        "The profile fields could not be saved.": "A profilmezőket nem sikerült menteni."
+        "The profile fields could not be saved.": "A profilmezőket nem sikerült menteni.",
+        "Forget my usage": "Használatom elfelejtése",
+        "Sorted alphabetically": "Betűrendbe rendezve",
+        "Sorted by most used": "A leggyakrabban használtak szerint rendezve",
+        "Sorted by last used": "A legutóbb használtak szerint rendezve",
+        "Sorted at random": "Véletlenszerűen rendezve",
+        "Sort tiles": "Csempék rendezése",
+        "By hand": "Kézzel",
+        "Alphabetically": "Betűrendben",
+        "Most used": "Leggyakrabban használt",
+        "Last used": "Legutóbb használt",
+        "At random": "Véletlenszerűen"
     }
 }

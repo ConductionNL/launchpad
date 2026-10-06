@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profilio laukai išsaugoti.",
     "Save profile fields" : "Išsaugoti profilio laukus",
     "The profile fields could not be loaded." : "Nepavyko įkelti profilio laukų.",
-    "The profile fields could not be saved." : "Nepavyko išsaugoti profilio laukų."
+    "The profile fields could not be saved." : "Nepavyko išsaugoti profilio laukų.",
+    "Forget my usage" : "Pamiršti mano naudojimą",
+    "Sorted alphabetically" : "Surikiuota abėcėlės tvarka",
+    "Sorted by most used" : "Surikiuota pagal dažniausiai naudojamus",
+    "Sorted by last used" : "Surikiuota pagal paskutinį naudojimą",
+    "Sorted at random" : "Surikiuota atsitiktinai",
+    "Sort tiles" : "Plytelių rikiavimas",
+    "By hand" : "Rankiniu būdu",
+    "Alphabetically" : "Abėcėlės tvarka",
+    "Most used" : "Dažniausiai naudojami",
+    "Last used" : "Paskutiniai naudoti",
+    "At random" : "Atsitiktinai"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

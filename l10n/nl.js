@@ -1391,7 +1391,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profielvelden opgeslagen.",
     "Save profile fields" : "Profielvelden opslaan",
     "The profile fields could not be loaded." : "De profielvelden konden niet worden geladen.",
-    "The profile fields could not be saved." : "De profielvelden konden niet worden opgeslagen."
+    "The profile fields could not be saved." : "De profielvelden konden niet worden opgeslagen.",
+    "Forget my usage" : "Mijn gebruik vergeten",
+    "Sorted alphabetically" : "Alfabetisch gesorteerd",
+    "Sorted by most used" : "Gesorteerd op meest gebruikt",
+    "Sorted by last used" : "Gesorteerd op laatst gebruikt",
+    "Sorted at random" : "Willekeurig gesorteerd",
+    "Sort tiles" : "Tegels sorteren",
+    "By hand" : "Handmatig",
+    "Alphabetically" : "Alfabetisch",
+    "Most used" : "Meest gebruikt",
+    "Last used" : "Laatst gebruikt",
+    "At random" : "Willekeurig"
 },
 "nplurals=2; plural=(n != 1);"
 );

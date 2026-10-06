@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Pola profilu zapisane.",
     "Save profile fields" : "Zapisz pola profilu",
     "The profile fields could not be loaded." : "Nie udało się wczytać pól profilu.",
-    "The profile fields could not be saved." : "Nie udało się zapisać pól profilu."
+    "The profile fields could not be saved." : "Nie udało się zapisać pól profilu.",
+    "Forget my usage" : "Zapomnij moje użycie",
+    "Sorted alphabetically" : "Posortowane alfabetycznie",
+    "Sorted by most used" : "Posortowane według najczęściej używanych",
+    "Sorted by last used" : "Posortowane według ostatnio używanych",
+    "Sorted at random" : "Posortowane losowo",
+    "Sort tiles" : "Sortuj kafelki",
+    "By hand" : "Ręcznie",
+    "Alphabetically" : "Alfabetycznie",
+    "Most used" : "Najczęściej używane",
+    "Last used" : "Ostatnio używane",
+    "At random" : "Losowo"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

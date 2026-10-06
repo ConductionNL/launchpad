@@ -1341,7 +1341,18 @@ OC.L10N.register(
     "Profile fields saved." : "Profilfälten har sparats.",
     "Save profile fields" : "Spara profilfält",
     "The profile fields could not be loaded." : "Profilfälten kunde inte läsas in.",
-    "The profile fields could not be saved." : "Profilfälten kunde inte sparas."
+    "The profile fields could not be saved." : "Profilfälten kunde inte sparas.",
+    "Forget my usage" : "Glöm min användning",
+    "Sorted alphabetically" : "Sorterat i bokstavsordning",
+    "Sorted by most used" : "Sorterat efter mest använda",
+    "Sorted by last used" : "Sorterat efter senast använda",
+    "Sorted at random" : "Sorterat slumpmässigt",
+    "Sort tiles" : "Sortera paneler",
+    "By hand" : "Manuellt",
+    "Alphabetically" : "I bokstavsordning",
+    "Most used" : "Mest använda",
+    "Last used" : "Senast använda",
+    "At random" : "Slumpmässigt"
 },
 "nplurals=2; plural=(n != 1);"
 );

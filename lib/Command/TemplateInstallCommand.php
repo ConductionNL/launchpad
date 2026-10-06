@@ -153,6 +153,22 @@ class TemplateInstallCommand extends Command {
 			return self::FAILURE;
 		}
 
+		$this->writeInstalled(output: $output, id: $id, result: $result);
+
+		return self::SUCCESS;
+	}//end execute()
+
+	/**
+	 * Print what an install did: the template, its groups, and the two
+	 * things an administrator has to know before the members do.
+	 *
+	 * @param OutputInterface      $output CLI output.
+	 * @param string               $id     The shipped template id.
+	 * @param array<string, mixed> $result The install result.
+	 *
+	 * @return void
+	 */
+	private function writeInstalled(OutputInterface $output, string $id, array $result): void {
 		$verb = 'Installed';
 		if ($result['alreadyInstalled'] === true) {
 			$verb = 'Already installed:';
@@ -192,9 +208,7 @@ class TemplateInstallCommand extends Command {
 					. ' admin settings to give each member their own copy.</comment>'
 			);
 		}
-
-		return self::SUCCESS;
-	}//end execute()
+	}//end writeInstalled()
 
 	/**
 	 * `--update`: bring the installed template to the shipped version and

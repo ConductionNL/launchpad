@@ -29,6 +29,8 @@ use OCP\IAppConfig;
 
 /**
  * Service for managing admin dashboard templates.
+ *
+ * @spec openspec/specs/admin-templates/spec.md
  */
 class TemplateService {
 	/**

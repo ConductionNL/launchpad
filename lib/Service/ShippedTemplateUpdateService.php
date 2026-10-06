@@ -58,6 +58,11 @@ use Throwable;
 /**
  * Update an installed shipped template in place and bring its copies along.
  *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      One operation over the definition, the template's rows, the
+ *      transaction, the recorded version and the re-sync. Splitting it would
+ *      put the write and the version it must stay in step with in two places.
+ *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
  */
 class ShippedTemplateUpdateService {

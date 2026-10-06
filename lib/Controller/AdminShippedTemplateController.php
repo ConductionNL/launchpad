@@ -46,6 +46,10 @@ use Throwable;
  *      {@see ResponseHelper} is an all-static envelope builder with no state.
  * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  *      `$force` and `$dryRun` are request parameters bound by the framework.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      One controller for the three shipped-template endpoints. The types it
+ *      names are the framework's (request, session, response, attribute) plus
+ *      the two services and the one exception it turns into a 409.
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */

@@ -50,6 +50,10 @@ use ZipArchive;
 /**
  * List and install the templates shipped in `data/templates`.
  *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Wires the importer, the template service, the mapper and four
+ *      Nextcloud services for one job; each is used once.
+ *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
 class ShippedTemplateService {

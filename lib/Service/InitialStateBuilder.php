@@ -339,6 +339,22 @@ class InitialStateBuilder {
 	}//end setQuicksearchFallbackTarget()
 
 	/**
+	 * Set the search shortcuts every search box honours (search-ai-prefix-shortcuts,
+	 * REQ-SPX-002). Optional key, like `quicksearchFallbackTarget`: the JS reader
+	 * defaults it to an empty list.
+	 *
+	 * @param array $shortcuts Validated `{prefix, name, urlTemplate}` entries.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/tile-quick-search/spec.md
+	 */
+	public function setSearchShortcuts(array $shortcuts): self {
+		$this->values['searchShortcuts'] = array_values(array: $shortcuts);
+		return $this;
+	}//end setSearchShortcuts()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

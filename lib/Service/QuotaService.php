@@ -208,6 +208,40 @@ class QuotaService {
 	}//end assertCanAddPlacement()
 
 	/**
+	 * Assert the dashboard has room for `$count` more placements, checked
+	 * once for a batch such as a bookmark import (launcher-bookmark-import
+	 * REQ-BMI-003). Bypassed during admin provisioning like the single check.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 * @param int $count Placements the batch would add.
+	 *
+	 * @return void
+	 *
+	 * @throws QuotaExceededException When the batch would pass the widget limit.
+	 *
+	 * @spec openspec/specs/tiles/spec.md
+	 */
+	public function assertRoomFor(int $dashboardId, int $count): void {
+		if ($count <= 0 || $this->provisioningDepth > 0) {
+			return;
+		}
+
+		$limit = $this->maxWidgetsPerDashboard();
+		if ($limit === 0) {
+			return;
+		}
+
+		$current = $this->placementMapper->countByDashboardId(dashboardId: $dashboardId);
+		if ($current + $count > $limit) {
+			throw new QuotaExceededException(
+				quota: QuotaExceededException::QUOTA_WIDGETS,
+				limit: $limit,
+				current: $current
+			);
+		}
+	}//end assertRoomFor()
+
+	/**
 	 * Build the additive quota-status envelope for the dashboards list
 	 * response (REQ-QUOTA-006).
 	 *

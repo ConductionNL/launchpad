@@ -307,6 +307,8 @@ return [
 		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widgetApi#addWidget', 'url' => '/api/dashboard/{dashboardId}/widgets', 'verb' => 'POST'],
 		['name' => 'widgetApi#addTile', 'url' => '/api/dashboard/{dashboardId}/tile', 'verb' => 'POST'],
+		// Bookmark import (launcher-bookmark-import REQ-BMI-001..003).
+		['name' => 'bookmarkImport#import', 'url' => '/api/dashboard/{dashboardId}/tiles/import', 'verb' => 'POST'],
 		// REQ-CAL-003: calendar widget events endpoint. Registered BEFORE
 		// the wildcard `/api/widgets/{placementId}` PUT/DELETE so the
 		// literal `calendar` segment is matched first.
@@ -461,6 +463,10 @@ return [
 		// for the `people` LaunchPad widget. Authenticated users only;
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
+
+		// Search shortcuts (search-ai-prefix-shortcuts REQ-QSP-001): admin list.
+		['name' => 'searchShortcuts#index', 'url' => '/api/admin/search-shortcuts', 'verb' => 'GET'],
+		['name' => 'searchShortcuts#save', 'url' => '/api/admin/search-shortcuts', 'verb' => 'PUT'],
 
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.

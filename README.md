@@ -198,6 +198,17 @@ Full documentation is available at **[launchpad.app](https://launchpad.app)**
 | [GitHub](https://github.com/ConductionNL/launchpad) | Source code and issue tracker |
 | [Discussions](https://github.com/ConductionNL/launchpad/discussions) | Community Q&A and feature requests |
 
+<!-- discovery:start -->
+## Standards & federation
+
+| Standard | Role | Access |
+|---|---|---|
+| [RSS 2.0](https://www.rssboard.org/rss-specification) 2.0 | Uses | — |
+| [Atom Syndication Format (RFC 4287)](https://datatracker.ietf.org/doc/html/rfc4287) 1.0 | Uses | — |
+
+Other servers can read this list without logging in, from the Nextcloud capabilities endpoint (published by OpenRegister). Details, federation and admin switches: [docs/standards-and-federation.md](docs/standards-and-federation.md).
+<!-- discovery:end -->
+
 ## Standards & Compliance
 
 - **Accessibility:** WCAG AA (Dutch government requirement)

@@ -523,5 +523,24 @@
         ]
       }
     ]
+  },
+  "discovery": {
+    "public": true,
+    "standards": [
+      {
+        "id": "rss",
+        "name": "RSS 2.0",
+        "version": "2.0",
+        "role": "consumes",
+        "specUrl": "https://www.rssboard.org/rss-specification"
+      },
+      {
+        "id": "atom",
+        "name": "Atom Syndication Format (RFC 4287)",
+        "version": "1.0",
+        "role": "consumes",
+        "specUrl": "https://datatracker.ietf.org/doc/html/rfc4287"
+      }
+    ]
   }
 }

@@ -256,7 +256,7 @@
 				@takeOver="forceReleaseDialogOpen = true" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
-				:layout="widgetPlacements"
+				:layout="shownPlacements"
 				:editable="isEditMode"
 				:columns="activeDashboard.gridColumns || 12"
 				:cellHeight="60"
@@ -504,6 +504,11 @@ import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
+import {
+	hidesWhenUnavailable,
+	isSourceAvailable,
+	sourceKey,
+} from '../services/sourceAvailability.js'
 // Stores
 import { useDashboardStore } from '../stores/dashboard.js'
 import { usePersonalLayerStore } from '../stores/personalLayer.js'
@@ -671,6 +676,11 @@ export default {
 	data() {
 		return {
 			isEditMode: false,
+			/**
+			 * Sources (`register/schema`) OpenRegister said are not here,
+			 * keyed by source (REQ-TMPL-022).
+			 */
+			unavailableSources: {},
 			isWidgetModalOpen: false,
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
@@ -754,6 +764,27 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The placements the grid shows: every placement in edit mode, and
+		 * outside it every placement but an object-list that asked to be
+		 * hidden when its register is not on this instance (REQ-TMPL-022).
+		 * In edit mode the list stays, so whoever edits sees it is there.
+		 *
+		 * @return {object[]} the placements to lay out.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 */
+		shownPlacements() {
+			const all = this.widgetPlacements || []
+			if (this.isEditMode) {
+				return all
+			}
+			return all.filter(
+				(p) =>
+					!hidesWhenUnavailable(p)
+					|| this.unavailableSources[sourceKey(p.content)] !== true,
+			)
+		},
+
 		/**
 		 * tile-quick-search REQ-QSEARCH-002 — whether a given placement is
 		 * currently de-emphasised by an active quick-search query.
@@ -1058,6 +1089,22 @@ export default {
 
 	watch: {
 		/**
+		 * Ask, once per source, whether the registers the hideable lists read
+		 * are on this instance (REQ-TMPL-022).
+		 *
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 */
+		widgetPlacements: {
+			immediate: true,
+			/**
+			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+			 */
+			handler() {
+				this.probeHideableSources()
+			},
+		},
+
+		/**
 		 * Read this person's layer whenever another shared dashboard
 		 * becomes active, so "Hidden (n)" is right from the start.
 		 *
@@ -1206,6 +1253,36 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * For every object-list that asked to be hidden when its source is
+		 * not here, ask OpenRegister once and remember a "not here"
+		 * (REQ-TMPL-022). A source that is there, or that could not be
+		 * asked, is left alone: the list renders.
+		 *
+		 * @return {Promise<void>} resolves when every source was asked.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 */
+		async probeHideableSources() {
+			const keys = new Set()
+			for (const placement of this.widgetPlacements || []) {
+				if (hidesWhenUnavailable(placement)) {
+					keys.add(sourceKey(placement.content))
+				}
+			}
+			await Promise.all(
+				[...keys].map(async (key) => {
+					const [register, schema] = key.split('/')
+					const available = await isSourceAvailable(register, schema)
+					if (available === false) {
+						this.unavailableSources = {
+							...this.unavailableSources,
+							[key]: true,
+						}
+					}
+				}),
+			)
+		},
+
 		t,
 
 		/**

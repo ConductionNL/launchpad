@@ -769,7 +769,7 @@ A definition that is missing or malformed MUST fail the install with an error. I
 
 The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
 
-The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the "First today" list across apps (`attention-feed`, since template version 2), the employee's dossiq cases past their deadline, the employee's open dossiq cases and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`.
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the "First today" list across apps (`attention-feed`, since template version 2), the employee's dossiq cases past their deadline, the employee's open dossiq cases, the employee's open pipelinq tickets ("Mijn tickets": `assignee` is the employee, `status` one of `new`, `in_progress`, `awaiting_customer`, by `slaDeadline`; since version 3), the decidiq decisions open for voting ("Wacht op uw stem": `lifecycle` is `voting`, by `submittedAt`; since version 3) and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`. Every list in it sets `hideWhenUnavailable` (REQ-TMPL-022), so on an instance without pipelinq or decidiq those lists are not shown. A filter value that is a list of values means any of them and is sent as `status[0]=..&status[1]=..`, which OpenRegister honours (measured on 5 October 2026); every such value MUST be one the schema's enum names (the renders-as-installed test holds them against `tests/fixtures/registers`).
 
 #### Scenario: An administrator adds the shipped template and gives it to a group
 - GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
@@ -825,6 +825,15 @@ The first shipped template is `mijn-werkdag`, a start page for a municipal emplo
 - AND every widget MUST fit inside the template's grid columns
 
 @e2e exclude A check on shipped data, not a browser behaviour: pinned by ShippedTemplateServiceTest::testTheShippedDefinitionIsWellFormed.
+
+#### Scenario: The version 3 lists name only fields and values their schemas have
+- GIVEN the shipped definition and the copies of pipelinq's `ticket` and decidiq's `decision` schemas in `tests/fixtures/registers`
+- WHEN the lists "Mijn tickets" and "Wacht op uw stem" are read
+- THEN every column, sort field and filter field MUST exist in its schema
+- AND every `status` and `lifecycle` value MUST be one the schema's enum names
+- AND both lists MUST set `hideWhenUnavailable`
+
+@e2e exclude A check on shipped data against copied schemas: pinned by ShippedTemplateServiceTest::testAShippedTemplateRendersAsInstalled. pipelinq and decidiq are not on the e2e instance.
 
 ### Requirement: REQ-TMPL-019 A member is shown their template on the first visit
 
@@ -989,6 +998,35 @@ A template that targets one of the user's groups still goes before the default t
 - THEN he MUST get "Mijn werkdag"
 
 @e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testAShippedTemplateGoesBeforeAHandMadeOneWithALowerId.
+
+### Requirement: REQ-TMPL-022 A list on a register that is not here is hidden
+
+An object-list widget whose configuration sets `hideWhenUnavailable: true` MUST NOT be shown to a viewer when OpenRegister answers 404 for its register or schema (`GET /apps/openregister/api/objects/{register}/{schema}?_limit=1`): the app that owns the register is not installed, so the list has nothing to say and would otherwise show "Could not load these records" under its title to every employee. The page asks once per source and remembers the answer for the page's life.
+
+Only a 404 hides. Any other failure (403, 500, no network) MUST leave the list on the page with its own error line, because that is a fault someone has to see. In edit mode the list MUST stay on the page, so whoever edits the dashboard sees it is there.
+
+A list without the flag behaves as before. The flag is data in the widget's `content`, so a template written by hand can set it too. Every list in a shipped template MUST set it.
+
+LaunchPad does not know on the server which registers an instance has. So the listing of shipped templates and `occ launchpad:template:install` MUST name the registers a template's lists read (`registers`), and say that a list whose register is not here is hidden, instead of claiming which ones are missing.
+
+#### Scenario: An employee on an instance without pipelinq does not see the ticket list
+- GIVEN the instance has dossiq and not pipelinq, and the template `mijn-werkdag` version 3 reaches Pieter
+- WHEN Pieter opens LaunchPad
+- THEN he MUST see "Mijn zaken" and MUST NOT see "Mijn tickets" nor "Could not load these records"
+
+#### Scenario: A list whose source could not be asked still shows
+- GIVEN OpenRegister answers 500 for a list's register
+- WHEN the page is shown
+- THEN the list MUST be on the page, with its own error line
+
+@e2e exclude A 500 from OpenRegister cannot be staged on the e2e instance. Pinned by ViewsHideUnavailableSource.spec.js.
+
+#### Scenario: In edit mode the list is there
+- GIVEN a list is hidden for Pieter because its register is not here
+- WHEN Pieter enters edit mode
+- THEN the list MUST be on the page
+
+@e2e exclude Pinned by ViewsHideUnavailableSource.spec.js.
 
 ### Requirement: REQ-TMPL-023 A refused delete of a compulsory widget says why
 

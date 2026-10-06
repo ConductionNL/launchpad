@@ -81,6 +81,7 @@ class TemplateInstallCommandTest extends TestCase {
 			'targetGroups' => [],
 			'isDefault' => false,
 			'missingWidgets' => [],
+			'registers' => ['dossiq', 'pipelinq'],
 		];
 	}
 
@@ -106,7 +107,7 @@ class TemplateInstallCommandTest extends TestCase {
 		$display = $tester->getDisplay();
 		self::assertStringContainsString('Installed template mijn-werkdag version 1 (UUID: uuid-1).', $display);
 		self::assertStringContainsString('Groups: medewerkers, bestuur. Default for everyone: yes.', $display);
-		self::assertStringNotContainsString('registers', $display);
+		self::assertStringContainsString('Its lists read these registers: dossiq, pipelinq. A list whose register is not on this instance is hidden for members.', $display);
 		self::assertStringNotContainsString('Personal dashboards are off', $display);
 	}
 

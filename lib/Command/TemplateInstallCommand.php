@@ -198,6 +198,13 @@ class TemplateInstallCommand extends Command {
 			);
 		}
 
+		if (($result['registers'] ?? []) !== []) {
+			$output->writeln(
+				messages: 'Its lists read these registers: ' . implode(separator: ', ', array: $result['registers'])
+					. '. A list whose register is not on this instance is hidden for members.'
+			);
+		}
+
 		// Off means a member is shown the template itself, view only, and its
 		// compulsory flags do nothing (REQ-TMPL-019). An administrator rolling
 		// out a template needs to know before the members do.

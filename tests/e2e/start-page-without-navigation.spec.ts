@@ -66,6 +66,8 @@ async function setOption(on: boolean): Promise<void> {
 	expect((body.data ?? body).startPageWithoutNavigation).toBe(on)
 }
 
+const railIds: string[] = []
+
 // @e2e runtime-shell::the-option-is-off
 test('off: the panel is there and there is no menu button', async ({ browser }) => {
 	await setOption(false)
@@ -82,13 +84,27 @@ test('off: the panel is there and there is no menu button', async ({ browser }) 
 		await expect(
 			page.locator('[data-testid="launchpad-start-page-menu"]'),
 		).toHaveCount(0)
+		railIds.push(
+			...(await page
+				.locator('[data-testid^="cn-nav-entry-"]')
+				.evaluateAll((els) =>
+					els.map((el) =>
+						(el.getAttribute('data-testid') ?? '').replace(
+							'cn-nav-entry-',
+							'',
+						),
+					),
+				)),
+		)
+		expect(railIds.length).toBeGreaterThan(0)
 	} finally {
 		await context.close()
 	}
 })
 
 // @e2e runtime-shell::the-option-is-on
-test('on: no panel, full width, every destination in the menu', async ({
+// @e2e runtime-shell::no-destination-is-lost
+test('on: no panel, the content at the left edge, every panel entry in the menu', async ({
 	browser,
 }) => {
 	await setOption(true)
@@ -103,29 +119,48 @@ test('on: no panel, full width, every destination in the menu', async ({
 		await expect(menu).toBeVisible({ timeout: 30_000 })
 		await expect(page.locator('[data-testid="cn-nav"]')).toHaveCount(0)
 		await expect(page.locator('#app-navigation-vue')).toHaveCount(0)
-		// The content takes the width the panel used to share.
-		const content = page.locator('#app-content-vue')
-		const contentBox = await content.boundingBox()
-		const shellBox = await page.locator('#content-vue').boundingBox()
-		expect(contentBox?.width ?? 0).toBeGreaterThan((shellBox?.width ?? 0) - 2)
+		// The content starts where the panel used to.
+		const contentBox = await page.locator('#app-content-vue').boundingBox()
+		expect(contentBox?.x ?? 999).toBeLessThan(40)
 		// The switcher is beside the menu.
 		await expect(page.getByRole('button', { name: 'Dashboards' })).toBeVisible()
 		await menu.getByRole('button').first().click()
-		for (const label of [
-			'Documentation',
-			'Store',
-			'Reports',
-			'Features & roadmap',
-			'Personal settings',
-		]) {
-			await expect(
-				page
-					.locator('[data-testid^="launchpad-start-page-menu-"]', {
-						hasText: label,
-					})
-					.first(),
-			).toBeVisible()
+		const menuIds = await page
+			.locator('[data-testid^="launchpad-start-page-menu-"]')
+			.evaluateAll((els) =>
+				els.map((el) =>
+					(el.getAttribute('data-testid') ?? '').replace(
+						'launchpad-start-page-menu-',
+						'',
+					),
+				),
+			)
+		// Every entry the panel showed with the option off is in the menu.
+		for (const id of railIds) {
+			expect(menuIds, `panel entry ${id} is not in the menu`).toContain(id)
 		}
+		expect(menuIds).toContain('personal-settings')
+	} finally {
+		await context.close()
+	}
+})
+
+// @e2e runtime-shell::other-pages-keep-the-panel
+test('on: the Store page keeps the panel', async ({ browser }) => {
+	await setOption(true)
+	const { context, page } = await loginAs(
+		browser,
+		member!.username,
+		member!.password,
+	)
+	try {
+		await page.goto('/index.php/apps/launchpad/store')
+		await expect(page.locator('[data-testid="cn-nav"]')).toBeVisible({
+			timeout: 30_000,
+		})
+		await expect(
+			page.locator('[data-testid="launchpad-start-page-menu"]'),
+		).toHaveCount(0)
 	} finally {
 		await context.close()
 	}

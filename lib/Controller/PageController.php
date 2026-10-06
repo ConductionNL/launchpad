@@ -223,15 +223,11 @@ class PageController extends Controller {
 			$settings['quicksearchFallbackTarget'] ?? AdminSettingsService::DEFAULT_QUICKSEARCH_FALLBACK_TARGET
 		);
 
-		// Runtime-shell REQ-SHELL-009: the dashboard view without the left
-		// navigation panel. `getSettings()` resolves the `false` default.
-		$startPageWithoutNavigation = (bool)($settings['startPageWithoutNavigation'] ?? false);
-
 		$builder
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
-			->setStartPageWithoutNavigation($startPageWithoutNavigation)
+			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

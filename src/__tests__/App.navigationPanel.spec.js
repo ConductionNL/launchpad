@@ -73,6 +73,11 @@ describe('App without the navigation panel (REQ-SHELL-009)', () => {
 	it('renders the panel when the option is off', () => {
 		const wrapper = mountApp({ option: false, routeName: 'Workspace' })
 		expect(wrapper.find('[data-testid="cn-nav"]').exists()).toBe(true)
+		// Off is today's shell exactly: the root receives no `menu` slot, so
+		// the library renders its own panel as it did before this option.
+		expect(
+			wrapper.findComponent({ name: 'CnAppRoot' }).vm.$slots.menu,
+		).toBeUndefined()
 		expect(
 			wrapper.find('[data-testid="launchpad-rail-suppressed"]').exists(),
 		).toBe(false)

@@ -463,16 +463,12 @@ class AdminController extends Controller {
 	 *                                               `{query}`.
 	 *                                               tile-quick-search
 	 *                                               REQ-QSEARCH-004.
-	 * @param bool|null $startPageWithoutNavigation Render the dashboard
-	 *                                              view without the left
-	 *                                              navigation panel
-	 *                                              (runtime-shell
-	 *                                              REQ-SHELL-009).
 	 * @param string|null $defaultPermissionLevel Alias of `$defaultPermLevel`.
 	 * @param bool|null $allowUserDashboards Alias of `$allowUserDash`.
 	 * @param bool|null $allowMultipleDashboards Alias of `$allowMultiDash`.
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
+	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -492,12 +488,11 @@ class AdminController extends Controller {
 		?int $maxDashboardsPerUser = null,
 		?int $maxWidgetsPerDashboard = null,
 		?string $quicksearchFallbackTarget = null,
-		?bool $startPageWithoutNavigation = null,
 		?string $defaultPermissionLevel = null,
 		?bool $allowUserDashboards = null,
 		?bool $allowMultipleDashboards = null,
 		?int $defaultGridColumns = null,
-		?array $linkCreateFileExtensions = null,
+		?array $linkCreateFileExtensions = null, ?bool $startPageWithoutNavigation = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -519,8 +514,7 @@ class AdminController extends Controller {
 				legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
 				maxDashboardsPerUser: $maxDashboardsPerUser,
 				maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
-				quicksearchFallbackTarget: $quicksearchFallbackTarget,
-				startPageWithoutNavigation: $startPageWithoutNavigation
+				quicksearchFallbackTarget: $quicksearchFallbackTarget, startPageWithoutNavigation: $startPageWithoutNavigation
 			);
 
 			return ResponseHelper::success(data: ['status' => 'ok']);

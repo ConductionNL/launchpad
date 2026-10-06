@@ -226,11 +226,11 @@ When the option is off, or the initial state does not carry the key, nothing cha
 - WHEN a member opens the Store page
 - THEN the navigation panel MUST render
 
-@e2e exclude Pinned by src/__tests__/App.navigationPanel.spec.js for every non-dashboard route; the e2e spec covers the dashboard view both ways.
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
 
 #### Scenario: No destination is lost
 - GIVEN the option is on
 - WHEN the menu is built from the app's manifest for a member and for an administrator
 - THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
 
-@e2e exclude Pinned by src/__tests__/App.navigationPanel.spec.js ("Route no loss") against the bundled manifest with its fragments.
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009

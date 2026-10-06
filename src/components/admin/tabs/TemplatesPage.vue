@@ -65,6 +65,17 @@
 					</span>
 				</div>
 				<div class="launchpad-admin__template-actions">
+					<NcButton
+						v-if="shipped.isInstalled && shipped.updateAvailable"
+						variant="secondary"
+						data-testid="admin-shipped-template-update"
+						@click="openShippedUpdate(shipped)">
+						{{
+							t('launchpad', 'Update to version {version}', {
+								version: shipped.version,
+							})
+						}}
+					</NcButton>
 					<span
 						v-if="shipped.isInstalled"
 						class="launchpad-admin__badge"
@@ -82,6 +93,14 @@
 				</div>
 			</div>
 		</section>
+
+		<p
+			v-if="statusMessage !== ''"
+			class="launchpad-admin__status"
+			role="status"
+			data-testid="admin-templates-status">
+			{{ statusMessage }}
+		</p>
 
 		<p
 			v-if="errorMessage !== ''"
@@ -143,6 +162,12 @@
 			@close="closeResyncModal"
 			@resynced="closeResyncModal" />
 
+		<ShippedTemplateUpdateDialog
+			:open="updatingShipped !== null"
+			:shipped="updatingShipped"
+			@update:open="closeShippedUpdate"
+			@updated="onShippedUpdated" />
+
 		<TemplateEditorModal
 			:open="isEditorOpen"
 			:template="editingTemplate"
@@ -156,6 +181,7 @@ import { CnDashboardIcon, NcButton, NcEmptyContent } from '@conduction/nextcloud
 import { t } from '@nextcloud/l10n'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
+import ShippedTemplateUpdateDialog from '../../../dialogs/ShippedTemplateUpdateDialog.vue'
 import TemplateEditorModal from '../../../modals/TemplateEditorModal.vue'
 import TemplateResyncModal from '../../../modals/TemplateResyncModal.vue'
 import { api } from '../../../services/api.js'
@@ -182,6 +208,7 @@ export default {
 		CnDashboardIcon,
 		TemplateResyncModal,
 		TemplateEditorModal,
+		ShippedTemplateUpdateDialog,
 	},
 
 	data() {
@@ -190,6 +217,8 @@ export default {
 			shippedTemplates: [],
 			installingId: null,
 			errorMessage: '',
+			statusMessage: '',
+			updatingShipped: null,
 			isEditorOpen: false,
 			editingTemplate: null,
 			resyncingTemplate: null,
@@ -259,6 +288,43 @@ export default {
 			} finally {
 				this.installingId = null
 			}
+		},
+
+		/**
+		 * Open the dialog that shows what updating an installed ready-made
+		 * template changes.
+		 *
+		 * @param {object} shipped The shipped template to update.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+		 */
+		openShippedUpdate(shipped) {
+			this.statusMessage = ''
+			this.updatingShipped = shipped
+		},
+
+		/** @spec openspec/specs/admin-templates/spec.md#req-tmpl-020 */
+		closeShippedUpdate() {
+			this.updatingShipped = null
+		},
+
+		/**
+		 * The update ran: say what it did and show the new state.
+		 *
+		 * @param {object} result The update result from the server.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+		 */
+		async onShippedUpdated(result) {
+			this.updatingShipped = null
+			this.statusMessage = t(
+				'launchpad',
+				'Updated "{name}" to version {version}. Members with a copy: {count}.',
+				{
+					name: result.name,
+					version: result.version,
+					count: result.copies,
+				},
+			)
+			await Promise.all([this.loadTemplates(), this.loadShippedTemplates()])
 		},
 
 		/**
@@ -449,6 +515,10 @@ export default {
 
 .launchpad-admin__shipped h4 {
 	margin: 0 0 4px;
+}
+
+.launchpad-admin__status {
+	margin-bottom: 16px;
 }
 
 .launchpad-admin__error {

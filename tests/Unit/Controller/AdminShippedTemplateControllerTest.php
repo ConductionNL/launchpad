@@ -11,7 +11,9 @@ namespace Unit\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminShippedTemplateController;
+use OCA\LaunchPad\Exception\TemplateNotInstalledException;
 use OCA\LaunchPad\Service\ShippedTemplateService;
+use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
 use OCP\IRequest;
@@ -30,6 +32,9 @@ class AdminShippedTemplateControllerTest extends TestCase {
 	/** @var ShippedTemplateService&MockObject */
 	private $service;
 
+	/** @var ShippedTemplateUpdateService&MockObject */
+	private $updates;
+
 	/** @var IGroupManager&MockObject */
 	private $groupManager;
 
@@ -40,12 +45,14 @@ class AdminShippedTemplateControllerTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->service = $this->createMock(ShippedTemplateService::class);
+		$this->updates = $this->createMock(ShippedTemplateUpdateService::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 
 		$this->controller = new AdminShippedTemplateController(
 			request: $this->createMock(IRequest::class),
 			templates: $this->service,
+			updates: $this->updates,
 			userSession: $this->userSession,
 			groupManager: $this->groupManager,
 			logger: new NullLogger(),
@@ -119,5 +126,55 @@ class AdminShippedTemplateControllerTest extends TestCase {
 		$failed = $this->controller->install(id: 'mijn-werkdag');
 		self::assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $failed->getStatus());
 		self::assertSame(['error' => 'Template installation failed'], $failed->getData());
+	}
+
+	/**
+	 * REQ-TMPL-020: only an administrator updates, and a dry run is passed on.
+	 */
+	public function testOnlyAnAdminUpdatesAndADryRunIsPassedOn(): void {
+		$this->loginAs('alice', true);
+		$this->updates->expects(self::exactly(2))->method('update')
+			->willReturnCallback(
+				static fn (string $templateId, bool $dryRun, string $userId): array => [
+					'templateId' => $templateId,
+					'dryRun' => $dryRun,
+					'by' => $userId,
+				]
+			);
+
+		$dry = $this->controller->update(id: 'mijn-werkdag', dryRun: true);
+		$real = $this->controller->update(id: 'mijn-werkdag');
+
+		self::assertSame(Http::STATUS_OK, $dry->getStatus());
+		self::assertSame(['templateId' => 'mijn-werkdag', 'dryRun' => true, 'by' => 'alice'], $dry->getData());
+		self::assertFalse($real->getData()['dryRun']);
+	}
+
+	public function testANonAdminCannotUpdate(): void {
+		$this->loginAs('bob', false);
+		$this->updates->expects(self::never())->method('update');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $this->controller->update(id: 'mijn-werkdag')->getStatus());
+	}
+
+	public function testUpdateAnswers404409And500(): void {
+		$this->loginAs('alice', true);
+		$this->updates->method('update')->willReturnCallback(
+			static function (string $templateId): array {
+				if ($templateId === 'nope') {
+					throw new InvalidArgumentException('Unknown template: nope');
+				}
+				if ($templateId === 'not-installed') {
+					throw new TemplateNotInstalledException('not installed');
+				}
+				throw new RuntimeException('SQLSTATE secret detail');
+			}
+		);
+
+		self::assertSame(Http::STATUS_NOT_FOUND, $this->controller->update(id: 'nope')->getStatus());
+		self::assertSame(Http::STATUS_CONFLICT, $this->controller->update(id: 'not-installed')->getStatus());
+		$failed = $this->controller->update(id: 'mijn-werkdag');
+		self::assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $failed->getStatus());
+		self::assertSame(['error' => 'Template update failed'], $failed->getData());
 	}
 }

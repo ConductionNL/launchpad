@@ -462,6 +462,24 @@ class ShippedTemplateServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-TMPL-020: the listing says when a newer version ships than the
+	 * one installed, and only then.
+	 */
+	public function testTheListingSaysWhenAnUpdateIsAvailable(): void {
+		$service = $this->makeService($this->makeInstance());
+		self::assertFalse($service->listTemplates()[0]['updateAvailable'], 'not installed: nothing to update');
+
+		$service->install(templateId: 'mijn-werkdag');
+		self::assertFalse($service->listTemplates()[0]['updateAvailable']);
+
+		$this->config['shipped_template_version_mijn-werkdag'] = 1;
+		$listing = $service->listTemplates()[0];
+		self::assertTrue($listing['updateAvailable']);
+		self::assertSame(1, $listing['installedVersion']);
+		self::assertNotNull($service->findInstalled(templateId: 'mijn-werkdag'));
+	}
+
+	/**
 	 * REQ-TMPL-018: a shipped template renders as installed.
 	 *
 	 * Two live defects, both invisible to every other test here:

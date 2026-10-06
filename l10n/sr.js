@@ -1332,6 +1332,20 @@ OC.L10N.register(
     "Profile fields saved." : "Поља профила су сачувана.",
     "Save profile fields" : "Сачувај поља профила",
     "The profile fields could not be loaded." : "Поља профила нису могла да се учитају.",
-    "The profile fields could not be saved." : "Поља профила нису могла да се сачувају."
+    "The profile fields could not be saved." : "Поља профила нису могла да се сачувају.",
+    "Update template" : "Update template",
+    "Working out what changes." : "Working out what changes.",
+    "This brings \"{name}\" from version {from} to version {to}. Its name, its groups and whether it is the default stay as they are." : "This brings \"{name}\" from version {from} to version {to}. Its name, its groups and whether it is the default stay as they are.",
+    "The widgets stay as they are." : "The widgets stay as they are.",
+    "Widgets added" : "Widgets added",
+    "Widgets removed" : "Widgets removed",
+    "Widgets changed" : "Widgets changed",
+    "Changes you made to the widgets of this template by hand are replaced." : "Changes you made to the widgets of this template by hand are replaced.",
+    "Members with a copy of this template: {count}. Their copies follow. A widget a member added stays." : "Members with a copy of this template: {count}. Their copies follow. A widget a member added stays.",
+    "Update" : "Update",
+    "The changes could not be worked out. Nothing was updated." : "The changes could not be worked out. Nothing was updated.",
+    "The template \"{name}\" could not be updated." : "The template \"{name}\" could not be updated.",
+    "Update to version {version}" : "Update to version {version}",
+    "Updated \"{name}\" to version {version}. Members with a copy: {count}." : "Updated \"{name}\" to version {version}. Members with a copy: {count}."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

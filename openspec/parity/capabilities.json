@@ -2094,9 +2094,10 @@
 			"dashy": "partial",
 			"built": {
 				"state": "built",
-				"evidence": "lib/widget-types.json:12; src/services/graphqlClient.js:16",
+				"evidence": "src/constants/widgetRegistry.js:116-120 routes the chart and stats-block types to src/components/Widgets/Renderers/ChartHost.vue and StatsBlockHost.vue, thin adapters onto nextcloud-vue's CnChartWidget and CnStatsBlockWidget, which fetch their figures from an OpenRegister dataSource; stat, gauge, delta and table are nextcloud-vue registry types LaunchPad passes through unchanged (lib/widget-types.json:12-38). Renderers, configuration forms and data are nextcloud-vue's and OpenRegister's (nextcloud-vue src/components/CnWidgetGrid/registerDashboardWidgets.js:81-127, main 0f1c0ffbb); src/services/graphqlClient.js, cited before, serves the spend-analytics widget, not these",
 				"owner": "ConductionNL/openregister",
-				"spec": "none"
+				"spec": "none",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "Workspace page, Add widget, Chart, Stat or Table, only with OpenRegister installed",
 			"provider": "openregister",
@@ -2777,7 +2778,7 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/RolesPermissionsTab.vue:15; lib/Service/ActionAuthService.php:95",
 				"owner": "ConductionNL/launchpad",
-				"spec": "none"
+				"spec": "openspec/specs/action-authorization"
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab, action matrix",
 			"provider": "launchpad",
@@ -4556,7 +4557,7 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml:75",
 				"owner": "ConductionNL/launchpad",
-				"spec": "none"
+				"spec": "openspec/specs/runtime-or-consumption"
 			},
 			"reachedOn": "the app installs and boots with no OpenRegister; OpenRegister-backed widgets are feature-detected",
 			"provider": "launchpad",
@@ -4801,7 +4802,7 @@
 				"state": "built",
 				"owner": "ConductionNL/nextcloud-vue",
 				"evidence": "src/manifest.json:475",
-				"spec": "none"
+				"spec": "openspec/specs/runtime-shell"
 			},
 			"reachedOn": "Workspace page on first visit, 'Getting started' tour, and again from the help menu",
 			"evidence": {

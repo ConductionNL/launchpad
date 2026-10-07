@@ -1198,6 +1198,13 @@ export default {
 		// instantiated in `setup()` which has no access to `this`.
 		this.grid._host = this
 
+		// `?edit=1` opens the start page in edit mode: the "Startpagina
+		// aanpassen" button of Mijn werkdag (LpStart) is a link in the
+		// greeting, and a link can only carry its wish in the address.
+		// Read now, because mounted() rewrites the address.
+		const editFromAddress =
+			new URLSearchParams(window.location.search).get('edit') === '1'
+
 		const dashboardStore = useDashboardStore()
 		const widgetStore = useWidgetStore()
 		const tileStore = useTileStore()
@@ -1226,6 +1233,10 @@ export default {
 				'[Views] Failed to load default-dashboard preference:',
 				error,
 			)
+		}
+
+		if (editFromAddress && this.canEdit) {
+			await this.enterEditMode()
 		}
 	},
 

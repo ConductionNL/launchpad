@@ -258,3 +258,17 @@
 	box-shadow: none;
 	padding: 0;
 }
+
+/* The app tiles: the number card fills its cell. The wrapper's and the
+   renderer's 16px padding left a 64px card for an 81px tile, which cut
+   the label and the caption off. */
+.launchpad-container .launchpad-widget:has(.cn-stat-widget) .cn-widget-wrapper__content,
+.launchpad-container .launchpad-widget:has(.cn-stat-widget) .widget-renderer {
+	padding: 0;
+}
+
+.launchpad-container .launchpad-widget:has(.cn-links-widget) .widget-renderer:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container .cn-links-widget.cn-links-widget:not(#lp-ground-a):not(#lp-ground-b) {
+	background: transparent;
+	padding: 0;
+}

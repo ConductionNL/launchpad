@@ -186,16 +186,17 @@ describe('Route no loss: every panel destination stays reachable', () => {
 		expect(ids).toContain('FeaturesRoadmapMenu')
 	})
 
-	it('names the four footer destinations of ADR-114', () => {
-		const footer = panelEntriesFor(manifest, ['user'])
+	it('names the three footer destinations, with Reports under Advanced', () => {
+		const entries = panelEntriesFor(manifest, ['user'])
+		const footer = entries
 			.filter((e) => e.section === 'footer')
 			.map((e) => e.label)
 		expect(footer).toEqual([
 			'Documentation',
 			'Store',
-			'Reports',
 			'Features & roadmap',
 		])
+		expect(entries.find((e) => e.id === 'ReportsMenu').section).toBe('settings')
 	})
 
 	it('opens a scheme-prefixed link in a new tab and an app path in the same one', () => {

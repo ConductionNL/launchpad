@@ -24,6 +24,12 @@ import { generateUrl } from '@nextcloud/router'
 const probes = new Map()
 
 /**
+ * The widget types that read one register and schema and can hide when it
+ * is not here: a list, and a number (the app tiles of Mijn werkdag v4).
+ */
+const HIDEABLE_TYPES = ['object-list', 'stat']
+
+/**
  * The key a placement's source is remembered under.
  *
  * @param {object} content The object-list widget's content.
@@ -31,8 +37,12 @@ const probes = new Map()
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
  */
 export function sourceKey(content) {
-	const register = content && content.register
-	const schema = content && content.schema
+	// An object-list names its source at the top of its content; a stat
+	// widget names it under `source`.
+	const from =
+		content && !content.register && content.source ? content.source : content
+	const register = from && from.register
+	const schema = from && from.schema
 	if (!register || !schema) {
 		return ''
 	}
@@ -43,13 +53,13 @@ export function sourceKey(content) {
  * Whether a placement asks to be hidden when its source is not here.
  *
  * @param {object} placement A widget placement.
- * @return {boolean} True for an object-list with `hideWhenUnavailable`.
+ * @return {boolean} True for an object-list or a stat with `hideWhenUnavailable`.
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
  */
 export function hidesWhenUnavailable(placement) {
 	return (
 		!!placement
-		&& placement.widgetId === 'object-list'
+		&& HIDEABLE_TYPES.includes(placement.widgetId)
 		&& !!placement.content
 		&& placement.content.hideWhenUnavailable === true
 		&& sourceKey(placement.content) !== ''

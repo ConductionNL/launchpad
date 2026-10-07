@@ -121,3 +121,38 @@ describe('Views hides a list whose register is not here', () => {
 		expect(host.shownPlacements).toEqual([])
 	})
 })
+
+describe('Views hides an app tile whose register is not here', () => {
+	it('leaves out a stat that names its source under `source`, and keeps one whose source is here', async () => {
+		// Mijn werkdag 4: one number per app, each reading its own register.
+		const caseTile = {
+			id: 5,
+			widgetId: 'stat',
+			content: {
+				source: { register: 'dossiq', schema: 'case', metric: 'count' },
+				hideWhenUnavailable: true,
+			},
+		}
+		const ticketTile = {
+			id: 6,
+			widgetId: 'stat',
+			content: {
+				source: { register: 'pipelinq', schema: 'ticket', metric: 'count' },
+				hideWhenUnavailable: true,
+			},
+		}
+		const plainTile = {
+			id: 7,
+			widgetId: 'stat',
+			content: {
+				source: { register: 'pipelinq', schema: 'lead', metric: 'count' },
+			},
+		}
+		const host = makeHost([header, caseTile, ticketTile, plainTile])
+
+		await host.probeHideableSources()
+
+		expect(host.shownPlacements.map((p) => p.id)).toEqual([1, 5, 7])
+		expect(get).toHaveBeenCalledTimes(2)
+	})
+})

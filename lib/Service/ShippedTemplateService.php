@@ -398,14 +398,23 @@ class ShippedTemplateService {
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
 	 */
 	private function findRegisters(array $widgets): array {
-		$lists = array_filter(
-			$widgets,
-			static fn (mixed $widget): bool => is_array($widget) === true && ($widget['widgetId'] ?? '') === 'object-list'
-		);
-		$registers = array_map(
-			static fn (array $widget): string => (string)($widget['content']['register'] ?? ''),
-			$lists
-		);
+		$registers = [];
+		foreach ($widgets as $widget) {
+			if (is_array($widget) === false) {
+				continue;
+			}
+
+			// A list names its register at the top of its content, a number
+			// (the app tiles of Mijn werkdag 4) under `source`.
+			$content = (array)($widget['content'] ?? []);
+			if (($widget['widgetId'] ?? '') === 'object-list') {
+				$registers[] = (string)($content['register'] ?? '');
+			}
+
+			if (($widget['widgetId'] ?? '') === 'stat') {
+				$registers[] = (string)(((array)($content['source'] ?? []))['register'] ?? '');
+			}
+		}
 
 		return array_values(array: array_unique(array: array_filter($registers)));
 	}//end findRegisters()

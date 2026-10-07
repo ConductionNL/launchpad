@@ -309,6 +309,22 @@ export default {
 	background: var(--color-primary-element-hover);
 }
 
+/*
+ * The action is a link drawn as a button. A theme that colours every link
+ * with `!important` (thematiq's nldesign sheets: `a:not(#header a)...`,
+ * which carries an id in its specificity) painted its text the link blue on
+ * the blue button, so the button read as an empty bar (:8080, 7 October),
+ * and underlined it.
+ * The two `:not(#…)` raise this rule above that one, so the button keeps
+ * the text colour that belongs to its own background in every theme.
+ */
+.attention-widget__action.attention-widget__action:not(#attention-a):not(
+		#attention-b
+	) {
+	color: var(--color-primary-element-text) !important;
+	text-decoration: none !important;
+}
+
 .attention-widget__action:focus-visible {
 	outline: 2px solid var(--color-main-text);
 	outline-offset: 2px;

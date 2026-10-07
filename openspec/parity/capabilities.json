@@ -1030,7 +1030,10 @@
 				"state": "built",
 				"evidence": "src/modals/DashboardConfigModal.vue:75; src/modals/DashboardConfigModal.vue:87",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboards"
+				"spec": [
+					"openspec/specs/dashboards",
+					"openspec/specs/dashboard-icons"
+				]
 			},
 			"reachedOn": "Workspace page, dashboard menu, Dashboard configuration, General tab",
 			"provider": "launchpad",
@@ -1255,6 +1258,25 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/703640-using-and-organising-spaces-in-workspace-365 admins configure 'who owns the Shared space'; other facts such as department not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: create-dashboard for custom dashboard properties"
 			}
+		},
+		{
+			"id": "dash-starter-widgets",
+			"area": "dashboards",
+			"name": "A new personal dashboard starts with a useful set of widgets instead of an empty grid.",
+			"launchpad": "yes",
+			"workspace-365": "unchecked",
+			"microsoft-viva": "unchecked",
+			"nextcloud-dashboard": "unchecked",
+			"homarr": "unchecked",
+			"dashy": "unchecked",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Service/DashboardService.php:3085",
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/default-widget-bundle"
+			},
+			"reachedOn": "Workspace page, after creating a new personal dashboard",
+			"source": "spec-round-2026-10-07"
 		},
 		{
 			"id": "tile-pin",
@@ -5417,6 +5439,63 @@
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/296963",
 			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; Súdwest-Fryslân 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page."
+		},
+		{
+			"id": "w-attention",
+			"area": "widgets",
+			"name": "See what needs your attention today from all your apps in one ranked list.",
+			"launchpad": "yes",
+			"workspace-365": "unchecked",
+			"microsoft-viva": "unchecked",
+			"nextcloud-dashboard": "unchecked",
+			"homarr": "unchecked",
+			"dashy": "unchecked",
+			"built": {
+				"state": "built",
+				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176",
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/attention-feed"
+			},
+			"reachedOn": "Workspace page, Add widget, First today",
+			"source": "spec-round-2026-10-07"
+		},
+		{
+			"id": "w-menu",
+			"area": "widgets",
+			"name": "Put a navigation menu with nested links on a dashboard.",
+			"launchpad": "yes",
+			"workspace-365": "unchecked",
+			"microsoft-viva": "unchecked",
+			"nextcloud-dashboard": "unchecked",
+			"homarr": "unchecked",
+			"dashy": "unchecked",
+			"built": {
+				"state": "built",
+				"evidence": "lib/widget-types.json:28; src/components/WidgetRenderer.vue:10",
+				"owner": "ConductionNL/nextcloud-vue",
+				"change": "openspec/changes/archive/2026-05-03-menu-widget"
+			},
+			"reachedOn": "Workspace page, Add widget, Menu",
+			"source": "spec-round-2026-10-07"
+		},
+		{
+			"id": "w-quicklinks",
+			"area": "widgets",
+			"name": "Show a compact grid of icon shortcuts in one widget.",
+			"launchpad": "yes",
+			"workspace-365": "unchecked",
+			"microsoft-viva": "unchecked",
+			"nextcloud-dashboard": "unchecked",
+			"homarr": "unchecked",
+			"dashy": "unchecked",
+			"built": {
+				"state": "built",
+				"evidence": "lib/widget-types.json:33; src/components/WidgetRenderer.vue:9",
+				"owner": "ConductionNL/nextcloud-vue",
+				"change": "openspec/changes/archive/2026-05-03-quicklinks-widget"
+			},
+			"reachedOn": "Workspace page, Add widget, Quick links",
+			"source": "spec-round-2026-10-07"
 		},
 		{
 			"id": "d-public-start",

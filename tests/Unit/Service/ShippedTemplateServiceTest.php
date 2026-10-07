@@ -333,7 +333,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		// The control: the comparison would also pass if both sides were
 		// empty, so pin that the compulsory flags really crossed.
 		self::assertSame(
-			[1, 1, 0, 0, 0, 0, 0],
+			[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
 			array_column(self::definitionOf($onB)['widgets'], 'isCompulsory')
 		);
 	}
@@ -519,14 +519,25 @@ class ShippedTemplateServiceTest extends TestCase {
 				if ($widget['widgetId'] === 'nc-widget') {
 					self::assertContains($content['widgetId'], $itemsApiWidgets, 'this widget cannot paint without the legacy bridge');
 				}
-				if ($widget['widgetId'] !== 'object-list') {
+				if ($widget['widgetId'] !== 'object-list' && $widget['widgetId'] !== 'stat') {
 					continue;
 				}
 
+				// A list names its register at the top of its content and
+				// shows columns; a number (the app tiles of Mijn werkdag 4)
+				// names it under `source` and only filters.
+				$title = (string)($widget['customTitle'] ?? $content['label'] ?? $widget['widgetId']);
+				$named = [];
+				if ($widget['widgetId'] === 'stat') {
+					$content = array_merge($content, (array)$content['source']);
+				} else {
+					$named = array_column($content['columns'], 'key');
+					$named[] = $content['sort']['field'];
+				}
+
+				$widget['customTitle'] = $title;
 				$key = $content['register'] . '/' . $content['schema'];
 				self::assertArrayHasKey($key, $schemas, 'no field list for ' . $key . ': add tests/fixtures/registers');
-				$named = array_column($content['columns'], 'key');
-				$named[] = $content['sort']['field'];
 				foreach (array_keys($content['filter']) as $filterKey) {
 					// `deadline[lt]` names the field `deadline`.
 					$named[] = preg_replace('/\[.*$/', '', (string)$filterKey);
@@ -556,7 +567,7 @@ class ShippedTemplateServiceTest extends TestCase {
 			}
 		}
 
-		self::assertSame(4, $listsChecked, 'two dossiq lists, the pipelinq list and the decidiq list');
+		self::assertSame(3, $listsChecked, 'the dossiq, pipelinq and decidiq tiles');
 	}
 
 	/**

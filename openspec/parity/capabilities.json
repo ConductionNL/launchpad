@@ -604,9 +604,10 @@
 			"dashy": "no",
 			"built": {
 				"state": "built",
-				"evidence": "src/modals/WidgetMovePanel.vue:27; src/components/Widgets/WidgetContextMenu.vue:27",
+				"evidence": "nextcloud-vue CnDashboardGrid.vue:35-47 (main 0f1c0ffbb) makes every grid item in edit mode a focusable named group (role group, aria-label, tabindex 0 while keyboardRepositioning, default true) and turns Enter or Space into the contextmenu event a right-click sends; src/views/Views.vue:290 catches it on the placement and opens WidgetContextMenu; src/components/Widgets/WidgetContextMenu.vue:22-27 offers Move, which src/views/Views.vue:420 and :444 route to src/modals/WidgetMovePanel.vue; WidgetMovePanel.vue:286-310 moves with the arrow keys, resizes with Shift and the arrow keys, saves on Enter and cancels on Escape, through nudgePlacement (src/composables/useGridManager.js:248), the collision model the drag path uses; Views.vue:1964 handleMoveSave persists it. Tests: src/modals/__tests__/WidgetMovePanel.spec.js, tests/e2e/keyboard-widget-repositioning.spec.ts (drives the page with the keyboard only, checks the position after reload)",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/keyboard-accessible-widget-repositioning"
+				"change": "openspec/changes/keyboard-accessible-widget-repositioning",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "Workspace page, widget context menu, Move",
 			"provider": "launchpad",
@@ -620,7 +621,8 @@
 				"dashy": "source read at 4.7.0: searched src for keydown, arrow, move with keyboard: src/utils/ArrowKeyNavigation.js:1-6 only moves focus between tiles in search results; reordering is pointer drag only (src/directives/DragSort.js:24-35 forceFallback). Items can be copied or moved to another section through the context menu (src/assets/locales/en.json:320 'Copy or Move'), widgets and sections cannot",
 				"workspace-365": "not checked: W365 user guide and FAQ for keyboard move or resize of tiles, not found",
 				"microsoft-viva": "not checked: support.microsoft.com c4f573dd screen reader guide covers touch gestures to reorder cards only; no keyboard move or resize found"
-			}
+			},
+			"note": "Re-rated 2026-10-07 from code: built, yes, unchanged. The change keyboard-accessible-widget-repositioning still shows its 11 tasks unticked, but every one is delivered: tasks 1-3 (focusable, named grid item; Enter opens the menu) by nextcloud-vue CnDashboardGrid instead of the retired src/components/DashboardGrid.vue the tasks name, tasks 4-9 in launchpad, tasks 10-11 in the Playwright spec. The change is ready to tick and archive. Not checked live in a browser in this round."
 		},
 		{
 			"id": "build-columns",

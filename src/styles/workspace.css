@@ -166,3 +166,17 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
+/* =========================================================
+   The start page without the navigation panel (REQ-SHELL-009) reads as
+   one centred column, as LpStart draws it: 1214px of content between
+   even margins on a 1440px screen, instead of a grid that runs from edge
+   to edge. Only that page carries the hidden marker, so a dashboard with
+   the panel keeps its full width.
+   ========================================================= */
+.app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1214px;
+	margin-inline: auto;
+}

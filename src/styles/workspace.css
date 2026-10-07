@@ -144,3 +144,25 @@
 .vs__dropdown-menu {
 	--vs-dropdown-z-index: 10100;
 }
+
+/* =========================================================
+   A list widget on a dashboard keeps every column inside its card.
+   The case lists of "Mijn werkdag" are six columns wide and hold four
+   columns (number, case, status, deadline). Under the table's automatic
+   layout a long case number or title widened its column and pushed
+   Status and Termijn past the card edge, where they were cut off
+   (LpStart, :8080 07 Oct). A fixed layout shares the width between the
+   columns, and a value too long for its column ends in an ellipsis; the
+   whole value stays in the cell's title on the row's detail page.
+   ========================================================= */
+.launchpad-container .cn-object-list-widget table.cn-data-table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.launchpad-container .cn-object-list-widget table.cn-data-table td,
+.launchpad-container .cn-object-list-widget table.cn-data-table th {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

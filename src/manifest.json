@@ -16,17 +16,10 @@
         "display": "cards",
         "optionsSource": "datasets",
         "configKey": "demo_dataset",
+        "loadAction": "load-demo-data",
         "title": "Load example data?",
         "required": false,
-        "body": "Example data fills the lists, detail pages and dashboards so you can see the app working straight away. Pick \"None\" on a production install."
-      },
-      {
-        "id": "load-demo-data",
-        "type": "run-action",
-        "action": "load-demo-data",
-        "title": "Load the example data",
-        "required": false,
-        "body": "Loads what you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards."
+        "body": "Example data fills the lists, detail pages and dashboards so you can see the app working straight away. Each card has its own Load button. Pick \"None\" on a production install."
       },
       {
         "id": "done",
@@ -36,7 +29,13 @@
     ]
   },
   "version": "0.2.0",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "id": "openregister",
+      "required": false,
+      "name": "OpenRegister"
+    }
+  ],
   "observability": {
     "_note": "LaunchPad consumes the OpenRegister AppHost observability engine (ADR-040). These descriptors reproduce the output of the now-deleted hand-written HealthController + MetricsController. The /api/health and /api/metrics routes are aliased to the AppHost generic controllers in lib/AppInfo/Application.php, so the engine reads this block at request time. The Prometheus prefix is the runtime app id `launchpad`. Parity: implicit launchpad_info/launchpad_up plus launchpad_dashboards_total/widgets_total/tiles_total match the pre-adoption contract; documented intentional improvements are the now-public health endpoint and the added health `app`/`version` fields (ADR-006).",
     "health": {

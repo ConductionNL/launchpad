@@ -272,3 +272,10 @@
 	background: transparent;
 	padding: 0;
 }
+
+/* A section label starts at the card edge below it, as LpStart draws it. */
+.launchpad-container .launchpad-widget:has(.cn-label-widget) .cn-widget-wrapper__content,
+.launchpad-container .launchpad-widget:has(.cn-label-widget) .widget-renderer,
+.launchpad-container .cn-label-widget.cn-label-widget {
+	padding: 0;
+}

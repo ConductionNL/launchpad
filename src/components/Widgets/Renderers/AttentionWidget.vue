@@ -318,7 +318,9 @@ export default {
  * The two `:not(#…)` raise this rule above that one, so the button keeps
  * the text colour that belongs to its own background in every theme.
  */
-.attention-widget__action.attention-widget__action:not(#attention-a):not(#attention-b) {
+.attention-widget__action.attention-widget__action:not(#attention-a):not(
+		#attention-b
+	) {
 	color: var(--color-primary-element-text) !important;
 	text-decoration: none !important;
 }

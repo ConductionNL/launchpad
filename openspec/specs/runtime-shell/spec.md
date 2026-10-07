@@ -234,3 +234,26 @@ When the option is off, or the initial state does not carry the key, nothing cha
 - THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+### Requirement: REQ-SHELL-010 First-visit tour
+
+LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`, lines 470-525), and the shell MUST hand that manifest to the shared library's `CnAppRoot` (`src/App.vue:16-17`), which draws the tour with `CnWalkthrough`. The tour SHALL be `launchpad:getting-started`, titled "Getting started", triggered on a user's first visit, with three steps in this order: "Welcome to Launchpad" centred on the Workspace page, "Open Dashboards from the menu" pointing at the `dashboards` menu item, and a step pointing at the Flows menu item that the user may skip. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
+
+Written on 2026-10-07 after the fact, from the code on `development`; covers parity row `d-tour`. The tour does not visit the admin settings.
+
+@e2e exclude The tour is drawn by nextcloud-vue's CnWalkthrough from a manifest block; no LaunchPad Playwright spec drives it. Written after the fact.
+
+#### Scenario: A first visit starts the tour
+- GIVEN Pieter has never completed the LaunchPad tour
+- WHEN he opens LaunchPad
+- THEN the "Welcome to Launchpad" step MUST open in the centre of the Workspace page
+
+#### Scenario: Opening Dashboards advances the tour
+- GIVEN the tour shows the step "Open Dashboards from the menu"
+- WHEN Pieter clicks Dashboards in the menu and the Workspace route matches
+- THEN the tour MUST move on to the Flows step
+
+#### Scenario: A finished tour stays closed
+- GIVEN Pieter completed tour version 1
+- WHEN he opens LaunchPad again
+- THEN the tour MUST NOT start

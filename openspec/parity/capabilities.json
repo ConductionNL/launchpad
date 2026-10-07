@@ -545,7 +545,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/Views.vue:183",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/grid-layout"
 			},
 			"reachedOn": "Workspace page (/apps/launchpad/), after choosing Edit dashboard in the dashboard menu",
 			"evidence": {
@@ -574,7 +575,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/Views.vue:183",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/grid-layout"
 			},
 			"reachedOn": "Workspace page in edit mode, the same grid as build-drag",
 			"evidence": {
@@ -603,7 +605,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/modals/WidgetMovePanel.vue:27; src/components/Widgets/WidgetContextMenu.vue:27",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/keyboard-accessible-widget-repositioning"
 			},
 			"reachedOn": "Workspace page, widget context menu, Move",
 			"provider": "launchpad",
@@ -632,7 +635,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/AdminSettingsService.php:124; src/components/admin/AdminSettings.vue:96",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/admin-settings"
 			},
 			"reachedOn": "Admin settings (/settings/admin/launchpad), Default settings, Default grid columns",
 			"provider": "launchpad",
@@ -662,7 +666,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/Views.vue:650",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-responsive-grid-breakpoints"
 			},
 			"reachedOn": "Workspace page at any viewport width",
 			"evidence": {
@@ -691,7 +696,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/ContainerWidget.vue:52; src/constants/widgetRegistry.js:16",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-container-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Container",
 			"evidence": {
@@ -720,7 +726,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/Views.vue:309",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/widgets"
 			},
 			"reachedOn": "Workspace page, widget context menu, Edit",
 			"provider": "launchpad",
@@ -749,7 +756,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/modals/WidgetPickerModal.vue:21; src/views/Views.vue:273",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-unified-add-widget-flow"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Add widget",
 			"provider": "launchpad",
@@ -778,7 +786,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/WidgetService.php:86; src/constants/widgetRegistry.js:141",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy"
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget",
 			"evidence": {
@@ -807,7 +816,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/composables/useGridManager.js:221",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-widget-collision-placement"
 			},
 			"reachedOn": "Workspace page, any Add widget action",
 			"provider": "launchpad",
@@ -897,7 +907,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/ImportService.php:138; lib/Command/ImportCommand.php:36",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-export-import"
 			},
 			"reachedOn": "Admin settings, Operations tab, Export and import; and occ launchpad import",
 			"evidence": {
@@ -958,7 +969,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:224",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-dashboard-switcher-sidebar"
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar",
 			"evidence": {
@@ -987,7 +999,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardRowActions.vue:90",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-default-dashboard-flag"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Set as default",
 			"provider": "launchpad",
@@ -1016,7 +1029,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/modals/DashboardConfigModal.vue:75; src/modals/DashboardConfigModal.vue:87",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboards"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Dashboard configuration, General tab",
 			"provider": "launchpad",
@@ -1045,7 +1059,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/DashboardService.php:2190; src/views/Views.vue:2037",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-fork-current-as-personal"
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar, Add dashboard",
 			"provider": "launchpad",
@@ -1074,7 +1089,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/PageController.php:127; src/manifest.json:176",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-deeplinking"
 			},
 			"reachedOn": "/apps/launchpad/dashboards/{id} and /apps/launchpad/{path}",
 			"provider": "launchpad",
@@ -1103,7 +1119,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Workspace/DashboardSwitcherSidebar.vue:326",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-sharing"
 			},
 			"reachedOn": "Workspace page, Dashboards sidebar, Shared with you",
 			"evidence": {
@@ -1162,7 +1179,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:81",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/runtime-shell"
 			},
 			"reachedOn": "Workspace page with no dashboards",
 			"provider": "launchpad",
@@ -1251,7 +1269,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/modals/TileEditor.vue:71; src/modals/TileEditor.vue:111",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/tiles"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Add custom widget, tile editor",
 			"evidence": {
@@ -1280,7 +1299,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/modals/TileEditor.vue:123; lib/Service/HealthPingService.php:11",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-service-health-ping"
 			},
 			"reachedOn": "Workspace page, tile badge; switched on in the tile editor. Only hosts in healthping_allowed_hosts are pinged, set with occ",
 			"evidence": {
@@ -1309,7 +1329,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/SearchWidget.vue:157",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-tile-quick-search"
 			},
 			"reachedOn": "Workspace page, Search widget",
 			"evidence": {
@@ -1338,7 +1359,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Widgets/Renderers/SearchWidgetForm.vue:41",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-08-20-tile-search-widget"
 			},
 			"reachedOn": "Workspace page, Search widget, falls back to a configured https search template or Nextcloud unified search",
 			"evidence": {
@@ -1367,7 +1389,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/widget-types.json:24; lib/widget-types.json:31; package.json:38",
-				"owner": "ConductionNL/nextcloud-vue"
+				"owner": "ConductionNL/nextcloud-vue",
+				"change": "openspec/changes/archive/2026-05-03-links-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Links or Quick links",
 			"provider": "nextcloud-vue",
@@ -1594,7 +1617,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:20; lib/Service/OrgNavigationService.php:204",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-navigation-editor-org"
 			},
 			"reachedOn": "Workspace page, navigation panel; edited on Admin settings, Organisation navigation tab",
 			"provider": "launchpad",
@@ -1623,7 +1647,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/widget-types.json:37; package.json:38",
-				"owner": "ConductionNL/nextcloud-vue"
+				"owner": "ConductionNL/nextcloud-vue",
+				"change": "openspec/changes/archive/2026-06-14-text-display-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Text",
 			"provider": "nextcloud-vue",
@@ -1652,7 +1677,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/widget-types.json:21; lib/Controller/ResourceController.php:63",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-image-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Image",
 			"provider": "launchpad",
@@ -1681,7 +1707,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/widget-types.json:39; package.json:38",
-				"owner": "ConductionNL/nextcloud-vue"
+				"owner": "ConductionNL/nextcloud-vue",
+				"change": "openspec/changes/archive/2026-05-03-video-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Video",
 			"evidence": {
@@ -1710,7 +1737,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/IframeService.php:9; src/constants/widgetRegistry.js:206",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Embedded page; the allow-list is an app config value",
 			"evidence": {
@@ -1739,7 +1767,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/NewsWidgetService.php:133; src/constants/widgetRegistry.js:244",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-news-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, News",
 			"evidence": {
@@ -1768,7 +1797,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/WeatherService.php:208; src/constants/widgetRegistry.js:171",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-clock-weather-widgets"
 			},
 			"reachedOn": "Workspace page, Add widget, Weather",
 			"evidence": {
@@ -1797,7 +1827,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:156",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-clock-weather-widgets"
 			},
 			"reachedOn": "Workspace page, Add widget, Clock",
 			"evidence": {
@@ -1826,7 +1857,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/CalendarWidgetService.php:77; lib/widget-types.json:11",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-calendar-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Calendar",
 			"evidence": {
@@ -1855,7 +1887,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/FilesWidgetController.php:179; lib/widget-types.json:17",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-files-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Files",
 			"evidence": {
@@ -1884,7 +1917,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/PeopleWidgetService.php:8; lib/widget-types.json:30",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-people-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, People",
 			"evidence": {
@@ -1913,7 +1947,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/PeopleWidgetService.php:410",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/people-widget"
 			},
 			"reachedOn": "Workspace page, People widget",
 			"evidence": {
@@ -1942,7 +1977,12 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/widget-types.json:19; lib/widget-types.json:16; package.json:38",
-				"owner": "ConductionNL/nextcloud-vue"
+				"owner": "ConductionNL/nextcloud-vue",
+				"change": [
+					"openspec/changes/archive/2026-05-03-header-widget",
+					"openspec/changes/archive/2026-06-14-label-widget",
+					"openspec/changes/archive/2026-05-03-divider-widget"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, Header, Label or Divider",
 			"provider": "nextcloud-vue",
@@ -1971,7 +2011,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:14; lib/Controller/FileController.php:87",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-link-button-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Link button",
 			"provider": "launchpad",
@@ -2000,7 +2041,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/LiveTileService.php:22; src/constants/widgetRegistry.js:184",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-live-data-tile-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Live tile; only hosts in livetile_allowed_hosts are fetched, set with occ",
 			"evidence": {
@@ -2029,7 +2071,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/widget-types.json:12; src/services/graphqlClient.js:16",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"spec": "none"
 			},
 			"reachedOn": "Workspace page, Add widget, Chart, Stat or Table, only with OpenRegister installed",
 			"provider": "openregister",
@@ -2059,7 +2102,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/IframeService.php:9",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget"
 			},
 			"reachedOn": "Workspace page, Embedded page widget, when the report host is on the allow-list",
 			"evidence": {
@@ -2089,7 +2133,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/services/spendAnalytics.js:10; lib/widget-types.json:33",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"change": "openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics"
 			},
 			"reachedOn": "Workspace page, Add widget, Spend analytics, only with those apps installed",
 			"provider": "openregister",
@@ -2204,7 +2249,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:141",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy"
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, the Mail app's widget, with Nextcloud Mail installed",
 			"evidence": {
@@ -2233,7 +2279,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:141",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy"
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, Deck's task widget, with Deck installed",
 			"evidence": {
@@ -2350,7 +2397,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/RuleEvaluatorService.php:125; src/components/Widgets/WidgetContextMenu.vue:35",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/conditional-visibility"
 			},
 			"reachedOn": "Workspace page, widget context menu, Visibility rules",
 			"evidence": {
@@ -2379,7 +2427,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/RuleEvaluatorService.php:170; src/components/Widgets/VisibilityRuleRow.vue:56",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/conditional-visibility"
 			},
 			"reachedOn": "Workspace page, Visibility rules, time rule",
 			"provider": "launchpad",
@@ -2408,7 +2457,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/Widgets/VisibilityRuleRow.vue:111",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/conditional-visibility"
 			},
 			"reachedOn": "Workspace page, Visibility rules, date rule",
 			"provider": "launchpad",
@@ -2437,7 +2487,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/RuleEvaluatorService.php:238; lib/Service/UserAttributeResolver.php:36",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/conditional-visibility"
 			},
 			"reachedOn": "Workspace page, Visibility rules, attribute rule",
 			"evidence": {
@@ -2466,7 +2517,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/VisibilityPreviewController.php:102; src/components/Widgets/ConditionalVisibilityEditor.vue:240",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-conditional-visibility-editor"
 			},
 			"reachedOn": "Workspace page, Visibility rules editor",
 			"provider": "launchpad",
@@ -2495,7 +2547,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/tabs/VersioningAuditTab.vue:8",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-refactor-launchpad-ia-alignment"
 			},
 			"reachedOn": "Admin settings, Versioning and audit tab",
 			"provider": "launchpad",
@@ -2524,7 +2577,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/RoleFeaturePermissionService.php:612; src/components/admin/tabs/RolesPermissionsTab.vue:11",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/role-feature-permissions"
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab",
 			"provider": "launchpad",
@@ -2553,7 +2607,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/RoleFeaturePermissionService.php:694; src/components/admin/tabs/RolesPermissionsTab.vue:13",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/role-feature-permissions"
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab, layout defaults",
 			"evidence": {
@@ -2582,7 +2637,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/PermissionService.php:254; src/dialogs/RoleLayoutDefaultEditorDialog.vue:89",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/permissions"
 			},
 			"reachedOn": "Admin settings, Roles and permissions, layout default editor",
 			"evidence": {
@@ -2666,7 +2722,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/tabs/SharingTab.vue:10; lib/Service/DashboardResolver.php:47",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-group-priority-order"
 			},
 			"reachedOn": "Admin settings, Sharing tab, group order",
 			"provider": "launchpad",
@@ -2695,7 +2752,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/tabs/RolesPermissionsTab.vue:15; lib/Service/ActionAuthService.php:95",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "none"
 			},
 			"reachedOn": "Admin settings, Roles and permissions tab, action matrix",
 			"provider": "launchpad",
@@ -2724,7 +2782,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/AdminTemplateService.php:80; src/components/admin/AdminSettings.vue:289",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/admin-templates"
 			},
 			"reachedOn": "Admin settings, Templates tab",
 			"evidence": {
@@ -2753,7 +2812,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/PermissionService.php:245; src/components/admin/AdminSettings.vue:60",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/permissions"
 			},
 			"reachedOn": "Admin settings, Default permission level; per template in the template editor",
 			"evidence": {
@@ -2782,7 +2842,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/TemplateResyncService.php:247; src/components/admin/tabs/TemplatesPage.vue:70",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-23-admin-template-resync"
 			},
 			"reachedOn": "Admin settings, Templates tab, Resync",
 			"provider": "launchpad",
@@ -2811,7 +2872,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:245; lib/Controller/DashboardApiController.php:960",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboards"
 			},
 			"reachedOn": "Admin settings, Group dashboards tab; users see it in the Dashboards sidebar",
 			"evidence": {
@@ -2840,7 +2902,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:22; lib/Service/SetupWizardService.php:78",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-setup-wizard"
 			},
 			"reachedOn": "Admin settings, Run setup wizard banner",
 			"provider": "launchpad",
@@ -2869,7 +2932,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/DemoShowcasesService.php:314; src/components/admin/tabs/DemoDataTab.vue:8",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-demo-data-showcases"
 			},
 			"reachedOn": "Admin settings, Demo data tab; also occ launchpad demo-showcases install",
 			"provider": "launchpad",
@@ -2898,7 +2962,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Db/RoleAssignment.php:57; src/modals/SetupWizardModal.vue:131",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/admin-roles"
 			},
 			"reachedOn": "Admin settings, setup wizard, roles step",
 			"evidence": {
@@ -2928,7 +2993,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/BulkOperationService.php:169; src/components/admin/tabs/OperationsTab.vue:21",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-dashboard-bulk-operations"
 			},
 			"reachedOn": "Admin settings, Operations tab",
 			"provider": "launchpad",
@@ -2957,7 +3023,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/ExportService.php:93; src/components/admin/tabs/OperationsTab.vue:18; lib/Command/ExportCommand.php:40",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-02-dashboard-export-import"
 			},
 			"reachedOn": "Admin settings, Operations tab; and occ launchpad export and import",
 			"evidence": {
@@ -3013,7 +3080,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/ConfluenceImportService.php:94; src/components/admin/tabs/OperationsTab.vue:24",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-02-confluence-html-import"
 			},
 			"reachedOn": "Admin settings, Operations tab, Confluence import",
 			"provider": "launchpad",
@@ -3073,7 +3141,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/QuotaService.php:144; src/components/admin/AdminSettings.vue:112",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-dashboard-quota-limits"
 			},
 			"reachedOn": "Admin settings, Default settings, quota fields",
 			"provider": "launchpad",
@@ -3102,7 +3171,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:74",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-allow-personal-dashboards-flag"
 			},
 			"reachedOn": "Admin settings, Default settings",
 			"provider": "launchpad",
@@ -3131,7 +3201,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/DashboardShareService.php:105; src/modals/DashboardConfigModal.vue:141",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-sharing"
 			},
 			"reachedOn": "Workspace page, dashboard menu, Share",
 			"evidence": {
@@ -3160,7 +3231,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/PublicShareService.php:121; src/modals/DashboardConfigModal.vue:320",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share"
 			},
 			"reachedOn": "Dashboard configuration, Sharing tab, Public link; opened at /apps/launchpad/s/{token}",
 			"provider": "launchpad",
@@ -3189,7 +3261,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/modals/DashboardConfigModal.vue:306; src/modals/DashboardConfigModal.vue:312",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share"
 			},
 			"reachedOn": "Dashboard configuration, Sharing tab, Public link",
 			"provider": "launchpad",
@@ -3218,7 +3291,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/PublicShareController.php:37",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-dashboard-public-share"
 			},
 			"reachedOn": "/apps/launchpad/s/{token}/unlock",
 			"provider": "launchpad",
@@ -3247,7 +3321,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/DashboardShareService.php:497; lib/Notification/Notifier.php:135",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-sharing"
 			},
 			"reachedOn": "Nextcloud notifications bell",
 			"provider": "launchpad",
@@ -3338,7 +3413,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/tabs/SharingTab.vue:8",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-sharing"
 			},
 			"reachedOn": "Admin settings, Sharing tab",
 			"provider": "launchpad",
@@ -3367,7 +3443,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Listener/UserDeletedListener.php:8; lib/Service/DashboardShareService.php:342",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/dashboard-sharing"
 			},
 			"reachedOn": "automatic when a Nextcloud user is deleted",
 			"provider": "launchpad",
@@ -3454,7 +3531,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/AcknowledgementService.php:251; src/views/Views.vue:163",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-07-07-dashboard-acknowledgements"
 			},
 			"reachedOn": "Workspace page, Read receipts button",
 			"provider": "launchpad",
@@ -3713,7 +3791,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Search/LaunchPadSearchProvider.php:173",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-nc-unified-search-integration"
 			},
 			"reachedOn": "Nextcloud unified search in the header",
 			"provider": "launchpad",
@@ -3919,7 +3998,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/AnalyticsService.php:281; src/components/admin/tabs/VersioningAuditTab.vue:10",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics"
 			},
 			"reachedOn": "Admin settings, Versioning and audit tab",
 			"provider": "launchpad",
@@ -3948,7 +4028,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/AnalyticsService.php:140; lib/BackgroundJob/PurgeViewsJob.php:50",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-02-dashboard-view-analytics"
 			},
 			"reachedOn": "the purge runs as a background job; the opt-out is a user preference no page sets, since /api/preferences/{key} has no caller in src/",
 			"provider": "launchpad",
@@ -3977,7 +4058,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/admin/tabs/OperationsTab.vue:9; lib/Controller/HealthController.php:53",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "openspec/specs/prometheus-metrics"
 			},
 			"reachedOn": "Admin settings, Operations tab",
 			"provider": "launchpad",
@@ -4006,7 +4088,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/MetricsController.php:93; src/components/admin/tabs/OperationsTab.vue:12",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-03-21-prometheus-metrics"
 			},
 			"reachedOn": "/apps/launchpad/api/metrics; explained on Admin settings, Operations tab",
 			"provider": "launchpad",
@@ -4065,7 +4148,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Activity/ActivityPublisher.php:82; lib/Service/TemplateResyncService.php:867; Corrections round 8 (2026-09-28), launchpad#713: only 2 of the 14 event types declared at lib/Activity/Extension.php:80-93 are ever sent, dashboard_updated for bulk operations and template re-sync and dashboard_acknowledged; lib/Service/BulkOperationService.php:949, lib/Service/TemplateResyncService.php:867 and lib/Service/AcknowledgementService.php:532 are the only callers of ActivityPublisher::publish() at e74f421, so creating, deleting, publishing, sharing, commenting on or restoring a dashboard leaves no entry.",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"change": "openspec/changes/archive/2026-05-02-activity-feed-integration"
 			},
 			"reachedOn": "Nextcloud Activity app",
 			"provider": "nextcloud",
@@ -4095,7 +4179,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/BackgroundJob/OrphanedDataCleanupJob.php:111; lib/Listener/GroupDeletedListener.php:55",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-orphaned-data-cleanup"
 			},
 			"reachedOn": "background job and user or group deletion; occ launchpad cleanup scan and purge",
 			"provider": "launchpad",
@@ -4124,7 +4209,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Command/DashboardListCommand.php:38; lib/Command/ExportCommand.php:40",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-cli-commands"
 			},
 			"reachedOn": "occ launchpad commands",
 			"provider": "launchpad",
@@ -4153,7 +4239,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:100; lib/Service/FooterService.php:237",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-05-03-footer-customization"
 			},
 			"reachedOn": "the footer renders on the Workspace page; /api/admin/footer-settings has no caller in src/, so no screen edits it",
 			"provider": "launchpad",
@@ -4182,7 +4269,11 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/connections.json:43; lib/Service/IframeService.php:9",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": [
+					"openspec/changes/adopt-connection-registry",
+					"openspec/changes/archive/2026-07-23-iframe-embed-widget"
+				]
 			},
 			"reachedOn": "occ config:app:set only; no admin screen edits the host lists",
 			"provider": "launchpad",
@@ -4211,7 +4302,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/SvgSanitiser.php:166",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/archive/2026-06-14-svg-sanitisation"
 			},
 			"reachedOn": "every icon upload through /api/resources",
 			"provider": "launchpad",
@@ -4240,7 +4332,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/DashboardApiController.php:158",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"spec": "none"
 			},
 			"reachedOn": "Nextcloud login; every LaunchPad route runs behind the Nextcloud session",
 			"evidence": {
@@ -4297,7 +4390,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "appinfo/info.xml:56",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"spec": "none"
 			},
 			"reachedOn": "installed as a Nextcloud app on your own instance",
 			"evidence": {
@@ -4324,7 +4418,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:552",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"spec": "none"
 			},
 			"reachedOn": "every page; colours come from Nextcloud theming or the NL Design System app",
 			"evidence": {
@@ -4406,7 +4501,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "l10n/nl.json:2",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "none"
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
@@ -4435,7 +4531,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "appinfo/info.xml:75",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"spec": "none"
 			},
 			"reachedOn": "the app installs and boots with no OpenRegister; OpenRegister-backed widgets are feature-detected",
 			"provider": "launchpad",
@@ -4491,7 +4588,8 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "src/modals/WidgetPickerModal.vue:36; lib/Migration/PlacementTableBuilder.php:239"
+				"evidence": "src/modals/WidgetPickerModal.vue:36; lib/Migration/PlacementTableBuilder.php:239",
+				"spec": "openspec/specs/widgets"
 			},
 			"reachedOn": "Workspace page, Edit dashboard, Add widget: a widget already placed is only marked as placed and can be added again, each placement with its own settings",
 			"evidence": {
@@ -4614,7 +4712,8 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "src/components/WidgetRenderer.vue:442"
+				"evidence": "src/components/WidgetRenderer.vue:442",
+				"spec": "openspec/specs/widgets"
 			},
 			"reachedOn": "Workspace page, any Nextcloud widget that declares a reload interval, and live value tiles",
 			"evidence": {
@@ -4645,7 +4744,8 @@
 			"built": {
 				"state": "built",
 				"owner": "nextcloud/server",
-				"evidence": "lib/Service/RuleEvaluatorService.php:125"
+				"evidence": "lib/Service/RuleEvaluatorService.php:125",
+				"spec": "none"
 			},
 			"reachedOn": "every targeting rule and group dashboard; group membership itself comes from the Nextcloud login app",
 			"evidence": {
@@ -4676,7 +4776,8 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/nextcloud-vue",
-				"evidence": "src/manifest.json:475"
+				"evidence": "src/manifest.json:475",
+				"spec": "none"
 			},
 			"reachedOn": "Workspace page on first visit, 'Getting started' tour, and again from the help menu",
 			"evidence": {
@@ -4707,7 +4808,8 @@
 			"built": {
 				"state": "built",
 				"owner": "nextcloud/server",
-				"evidence": "src/views/WorkspaceApp.vue:480"
+				"evidence": "src/views/WorkspaceApp.vue:480",
+				"spec": "none"
 			},
 			"reachedOn": "any LaunchPad page, through the browser's install option",
 			"evidence": {
@@ -4770,7 +4872,8 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "lib/Service/LiveTileService.php:455"
+				"evidence": "lib/Service/LiveTileService.php:455",
+				"spec": "openspec/specs/background-job-feed-refresh"
 			},
 			"reachedOn": "every widget that fetches from outside: news, calendar feeds, live tiles, weather, health pings, iframe checks",
 			"evidence": {
@@ -5020,7 +5123,8 @@
 			"built": {
 				"state": "built",
 				"owner": "nextcloud/server",
-				"evidence": "src/views/WorkspaceApp.vue:480"
+				"evidence": "src/views/WorkspaceApp.vue:480",
+				"spec": "none"
 			},
 			"reachedOn": "every page",
 			"evidence": {

@@ -54,7 +54,8 @@
 				"customTitle": "Vandaag eerst",
 				"customIcon": null,
 				"content": {
-					"limit": 5
+					"limit": 5,
+					"showActions": false
 				},
 				"showTitle": 1,
 				"sortOrder": 1
@@ -71,7 +72,10 @@
 				"customTitle": null,
 				"customIcon": null,
 				"content": {
-					"text": "Mijn werk"
+					"text": "Mijn werk",
+					"textAlign": "left",
+					"fontSize": "18px",
+					"fontWeight": "700"
 				},
 				"showTitle": 0,
 				"sortOrder": 2
@@ -204,7 +208,8 @@
 					"internalCalendars": [
 						"personal"
 					],
-					"externalIcsUrls": []
+					"externalIcsUrls": [],
+					"showActions": false
 				},
 				"showTitle": 1,
 				"sortOrder": 6
@@ -223,7 +228,8 @@
 				"content": {
 					"title": "Verder waar u was",
 					"widgetId": "activity",
-					"displayMode": "vertical"
+					"displayMode": "vertical",
+					"showActions": false
 				},
 				"showTitle": 1,
 				"sortOrder": 7
@@ -240,7 +246,10 @@
 				"customTitle": null,
 				"customIcon": null,
 				"content": {
-					"text": "Alle apps"
+					"text": "Alle apps",
+					"textAlign": "left",
+					"fontSize": "18px",
+					"fontWeight": "700"
 				},
 				"showTitle": 0,
 				"sortOrder": 8
@@ -303,7 +312,8 @@
 								}
 							]
 						}
-					]
+					],
+					"showActions": false
 				},
 				"showTitle": 0,
 				"sortOrder": 9

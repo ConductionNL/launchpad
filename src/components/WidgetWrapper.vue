@@ -34,7 +34,8 @@
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
-			:showRequestFeature="false">
+			:showRequestFeature="false"
+			:showActions="showActionsMenu">
 			<WidgetRenderer :widget="widget" :placement="placement" />
 		</CnWidgetWrapper>
 
@@ -230,6 +231,18 @@ export default {
 		 */
 		rendersOwnHeader() {
 			return this.placement?.widgetId === 'nc-widget'
+		},
+
+		/**
+		 * Whether the card's overflow menu shows. On by default; a placement
+		 * whose content says `showActions: false` (Mijn werkdag 4, as LpStart
+		 * draws it) hides it outside edit mode. The cog stays for editing.
+		 *
+		 * @spec openspec/specs/widgets/spec.md
+		 * @return {boolean} false only for an opted-out placement in view mode.
+		 */
+		showActionsMenu() {
+			return this.editMode || this.placement?.content?.showActions !== false
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

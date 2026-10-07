@@ -2319,7 +2319,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23",
-				"owner": "ConductionNL/integriq"
+				"owner": "ConductionNL/integriq",
+				"change": "openspec/changes/adopt-connection-registry"
 			},
 			"reachedOn": "Integrations page (/apps/launchpad/settings/integrations), shown only when the integriq app is installed",
 			"provider": "integriq",
@@ -3041,7 +3042,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/Controller/StoreController.php:134; src/manifest.json:164",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"change": "openregister/store-over-federated-config"
 			},
 			"reachedOn": "Store page (/apps/launchpad/store), once an administrator sets a registry URL on the Sharing tab",
 			"provider": "openregister",
@@ -3801,7 +3803,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md:226",
-				"owner": "ConductionNL/launchpad"
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/mcp-tool-surface"
 			},
 			"reachedOn": "nothing: the overlay lists it as soon",
 			"provider": "launchpad",
@@ -4859,7 +4862,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/nextcloud-vue",
-				"evidence": "lib/widget-types.json:37"
+				"evidence": "lib/widget-types.json:37",
+				"change": "nextcloud-vue/dashboard-notepad-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Text, on a personal dashboard",
 			"evidence": {
@@ -5291,7 +5295,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/dossiq",
-				"evidence": "src/services/widgetBridge.js:29"
+				"evidence": "src/services/widgetBridge.js:29",
+				"change": "dossiq/widgets-my-open-cases-on-the-start-page"
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, a case app's own widget, with that app installed",
 			"evidence": {

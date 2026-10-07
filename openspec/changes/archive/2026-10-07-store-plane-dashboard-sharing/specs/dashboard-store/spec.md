@@ -27,7 +27,7 @@ provisions one instance. Faking the registry inside the suite would test the
 fake. `StoreServiceTest` covers the install path against the engine's real
 signatures.
 
-## NEW Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-STORE-001 The store routes MUST exist wherever the store page is declared
 

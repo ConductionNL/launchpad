@@ -455,7 +455,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		self::assertSame('mijn-werkdag', $listing[0]['id']);
 		self::assertSame('Mijn werkdag', $listing[0]['name']);
 		self::assertSame('nl', $listing[0]['language']);
-		self::assertSame(7, $listing[0]['widgetCount']);
+		self::assertSame(10, $listing[0]['widgetCount']);
 		self::assertSame(['dossiq', 'pipelinq', 'decidiq'], $listing[0]['registers']);
 		self::assertFalse($listing[0]['isInstalled']);
 		self::assertNull($listing[0]['installedVersion']);

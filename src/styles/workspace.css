@@ -190,12 +190,24 @@
 /* The greeting and the section labels sit on the page ground, not in a
    card: a theme that paints every element with "widget" in its class
    (thematiq's solid-background rule) made them white boxes. */
-.launchpad-container .launchpad-widget:has(.cn-header-widget--ground):not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-header-widget--ground) .cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-header-widget--ground) [class*='widget']:not([class*='widget__']):not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-label-widget):not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-label-widget) .cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-label-widget) [class*='widget']:not(#lp-ground-a):not(#lp-ground-b) {
+.launchpad-container
+	.launchpad-widget:has(.cn-header-widget--ground):not(#lp-ground-a):not(
+		#lp-ground-b
+	),
+.launchpad-container
+	.launchpad-widget:has(.cn-header-widget--ground)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-header-widget--ground)
+	[class*='widget']:not([class*='widget__']):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget)
+	[class*='widget']:not(#lp-ground-a):not(#lp-ground-b) {
 	background: transparent;
 	border: none;
 	box-shadow: none;
@@ -240,7 +252,9 @@
 	display: none;
 }
 
-.launchpad-container .cn-links-widget .cn-links-widget__link.cn-links-widget__link:not(#lp-chip-a) {
+.launchpad-container
+	.cn-links-widget
+	.cn-links-widget__link.cn-links-widget__link:not(#lp-chip-a) {
 	padding: 10px 18px;
 	border: 1px solid var(--color-border);
 	border-radius: var(--border-radius-pill, 999px);
@@ -250,9 +264,14 @@
 	text-decoration: none !important;
 }
 
-.launchpad-container .launchpad-widget:has(.cn-links-widget):not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-links-widget) .cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .launchpad-widget:has(.cn-links-widget) .cn-widget-wrapper__content:not(#lp-ground-a):not(#lp-ground-b) {
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget)
+	.cn-widget-wrapper__content:not(#lp-ground-a):not(#lp-ground-b) {
 	background: transparent;
 	border: none;
 	box-shadow: none;
@@ -262,19 +281,26 @@
 /* The app tiles: the number card fills its cell. The wrapper's and the
    renderer's 16px padding left a 64px card for an 81px tile, which cut
    the label and the caption off. */
-.launchpad-container .launchpad-widget:has(.cn-stat-widget) .cn-widget-wrapper__content,
+.launchpad-container
+	.launchpad-widget:has(.cn-stat-widget)
+	.cn-widget-wrapper__content,
 .launchpad-container .launchpad-widget:has(.cn-stat-widget) .widget-renderer {
 	padding: 0;
 }
 
-.launchpad-container .launchpad-widget:has(.cn-links-widget) .widget-renderer:not(#lp-ground-a):not(#lp-ground-b),
-.launchpad-container .cn-links-widget.cn-links-widget:not(#lp-ground-a):not(#lp-ground-b) {
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget)
+	.widget-renderer:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.cn-links-widget.cn-links-widget:not(#lp-ground-a):not(#lp-ground-b) {
 	background: transparent;
 	padding: 0;
 }
 
 /* A section label starts at the card edge below it, as LpStart draws it. */
-.launchpad-container .launchpad-widget:has(.cn-label-widget) .cn-widget-wrapper__content,
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget)
+	.cn-widget-wrapper__content,
 .launchpad-container .launchpad-widget:has(.cn-label-widget) .widget-renderer,
 .launchpad-container .cn-label-widget.cn-label-widget {
 	padding: 0;

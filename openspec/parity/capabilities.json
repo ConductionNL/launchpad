@@ -394,6 +394,408 @@
 			"name_nl": "Identiteit, apparaten en uiterlijk"
 		}
 	],
+	"features": [
+		{
+			"slug": "grid-layout",
+			"title": "Drag-and-drop grid",
+			"title_nl": "Sleep-en-neerzet raster",
+			"area": "building",
+			"overlay": "grid-layout",
+			"specs": [
+				"admin-settings",
+				"grid-layout",
+				"widgets"
+			]
+		},
+		{
+			"slug": "dashboard-versioning",
+			"title": "Versioning and rollback",
+			"title_nl": "Versiebeheer en terugdraaien",
+			"area": "building",
+			"overlay": "dashboard-versioning",
+			"specs": []
+		},
+		{
+			"slug": "permissions",
+			"title": "Permission tiers",
+			"title_nl": "Rechtenniveaus",
+			"area": "rollout",
+			"overlay": "permissions",
+			"specs": [
+				"permissions"
+			]
+		},
+		{
+			"slug": "dashboard-export-import",
+			"title": "Export and import",
+			"title_nl": "Exporteren en importeren",
+			"area": "rollout",
+			"overlay": "dashboard-export-import",
+			"specs": [
+				"dashboard-export-import"
+			]
+		},
+		{
+			"slug": "dashboard-switcher",
+			"title": "Multiple dashboards",
+			"title_nl": "Meerdere dashboards",
+			"area": "dashboards",
+			"overlay": "dashboard-switcher",
+			"specs": [
+				"dashboard-deeplinking",
+				"dashboard-icons",
+				"dashboards",
+				"default-widget-bundle",
+				"runtime-shell"
+			]
+		},
+		{
+			"slug": "tiles",
+			"title": "Shortcut tiles",
+			"title_nl": "Snelkoppelingstegels",
+			"area": "launcher",
+			"overlay": "tiles",
+			"specs": [
+				"launcher-bookmark-import",
+				"launcher-tile-internal-address",
+				"launcher-tile-open-behaviour",
+				"launcher-tile-sorting",
+				"tiles"
+			]
+		},
+		{
+			"slug": "app-catalogue-and-launch",
+			"title": "App catalogue and launching any kind of app",
+			"title_nl": "App-catalogus en elk soort app starten",
+			"area": "launcher",
+			"overlay": null,
+			"specs": [
+				"launcher-app-catalogue",
+				"launcher-discover-server-services",
+				"launcher-tile-launch-types",
+				"launcher-tile-sorting"
+			]
+		},
+		{
+			"slug": "organisation-navigation",
+			"title": "Organisation menu and footer",
+			"title_nl": "Organisatiemenu en voettekst",
+			"area": "launcher",
+			"overlay": null,
+			"specs": []
+		},
+		{
+			"slug": "nc-dashboard-widget-proxy",
+			"title": "Nextcloud widgets",
+			"title_nl": "Nextcloud-widgets",
+			"area": "widgets",
+			"overlay": "nc-dashboard-widget-proxy",
+			"specs": [
+				"attention-feed"
+			]
+		},
+		{
+			"slug": "content-widgets",
+			"title": "Content widgets for text, media, news and files",
+			"title_nl": "Inhoudswidgets voor tekst, media, nieuws en bestanden",
+			"area": "widgets",
+			"overlay": null,
+			"specs": [
+				"widgets"
+			]
+		},
+		{
+			"slug": "people-widget",
+			"title": "Colleagues, birthdays and expertise",
+			"title_nl": "Collega's, verjaardagen en expertise",
+			"area": "widgets",
+			"overlay": null,
+			"specs": [
+				"people-widget"
+			]
+		},
+		{
+			"slug": "iframe-embed-widget",
+			"title": "Embedded web pages and reports",
+			"title_nl": "Ingebedde webpagina's en rapporten",
+			"area": "widgets",
+			"overlay": null,
+			"specs": [
+				"adopt-connection-registry"
+			]
+		},
+		{
+			"slug": "runtime-or-consumption",
+			"title": "Live business data",
+			"title_nl": "Live bedrijfsdata",
+			"area": "integrations",
+			"overlay": "runtime-or-consumption",
+			"specs": [
+				"adopt-connection-registry",
+				"background-job-feed-refresh",
+				"integrations-live-tile-lists",
+				"integrations-office-tiles"
+			]
+		},
+		{
+			"slug": "kpi-cards",
+			"title": "KPI cards",
+			"title_nl": "KPI-kaarten",
+			"area": "widgets",
+			"overlay": "kpi-cards",
+			"specs": []
+		},
+		{
+			"slug": "launchpad-spend-analytics-widget",
+			"title": "Spend analytics card",
+			"title_nl": "Uitgavenanalyse-kaart",
+			"area": "widgets",
+			"overlay": "launchpad-spend-analytics-widget",
+			"specs": []
+		},
+		{
+			"slug": "conditional-visibility",
+			"title": "Conditional visibility",
+			"title_nl": "Voorwaardelijke zichtbaarheid",
+			"area": "targeting",
+			"overlay": "conditional-visibility",
+			"specs": [
+				"conditional-visibility"
+			]
+		},
+		{
+			"slug": "admin-roles",
+			"title": "Role delegation",
+			"title_nl": "Roldelegatie",
+			"area": "targeting",
+			"overlay": "admin-roles",
+			"specs": [
+				"action-authorization",
+				"admin-roles",
+				"role-feature-permissions"
+			]
+		},
+		{
+			"slug": "admin-templates",
+			"title": "Admin templates",
+			"title_nl": "Beheersjablonen",
+			"area": "rollout",
+			"overlay": "admin-templates",
+			"specs": [
+				"admin-templates",
+				"dashboards"
+			]
+		},
+		{
+			"slug": "setup-wizard",
+			"title": "Setup wizard, demo content and guided tour",
+			"title_nl": "Installatiewizard, demo-inhoud en rondleiding",
+			"area": "rollout",
+			"overlay": null,
+			"specs": [
+				"runtime-shell"
+			]
+		},
+		{
+			"slug": "dashboard-quota-limits",
+			"title": "Dashboard quotas",
+			"title_nl": "Dashboardquota",
+			"area": "rollout",
+			"overlay": "dashboard-quota-limits",
+			"specs": []
+		},
+		{
+			"slug": "confluence-html-import",
+			"title": "Confluence import",
+			"title_nl": "Confluence-import",
+			"area": "rollout",
+			"overlay": "confluence-html-import",
+			"specs": []
+		},
+		{
+			"slug": "dashboard-sharing",
+			"title": "Sharing dashboards with people and groups",
+			"title_nl": "Dashboards delen met personen en groepen",
+			"area": "sharing",
+			"overlay": null,
+			"specs": [
+				"dashboard-sharing"
+			]
+		},
+		{
+			"slug": "dashboard-public-share",
+			"title": "Public share links",
+			"title_nl": "Openbare deellinks",
+			"area": "sharing",
+			"overlay": "dashboard-public-share",
+			"specs": [
+				"sharing-public-start-page"
+			]
+		},
+		{
+			"slug": "dashboard-kiosk-mode",
+			"title": "Kiosk and signage mode",
+			"title_nl": "Kiosk- en narrowcastmodus",
+			"area": "sharing",
+			"overlay": "dashboard-kiosk-mode",
+			"specs": []
+		},
+		{
+			"slug": "news-and-announcements",
+			"title": "News and announcements",
+			"title_nl": "Nieuws en mededelingen",
+			"area": "engagement",
+			"overlay": null,
+			"specs": [
+				"engagement-activity-digest",
+				"engagement-announcements"
+			]
+		},
+		{
+			"slug": "acknowledgements-and-reactions",
+			"title": "Read confirmations, reactions and comments",
+			"title_nl": "Leesbevestigingen, reacties en opmerkingen",
+			"area": "engagement",
+			"overlay": null,
+			"specs": []
+		},
+		{
+			"slug": "communities-events-and-knowledge",
+			"title": "Communities, events and knowledge base",
+			"title_nl": "Community's, evenementen en kennisbank",
+			"area": "engagement",
+			"overlay": null,
+			"specs": [
+				"engagement-communities"
+			]
+		},
+		{
+			"slug": "activity-feed-integration",
+			"title": "Activity feed",
+			"title_nl": "Activiteitenoverzicht",
+			"area": "engagement",
+			"overlay": "activity-feed-integration",
+			"specs": []
+		},
+		{
+			"slug": "nc-unified-search-integration",
+			"title": "Unified search",
+			"title_nl": "Geintegreerd zoeken",
+			"area": "search-ai",
+			"overlay": "nc-unified-search-integration",
+			"specs": [
+				"search-ai-prefix-shortcuts"
+			]
+		},
+		{
+			"slug": "launchpad-ai-dashboard-assistant",
+			"title": "AI assistant",
+			"title_nl": "AI-assistent",
+			"area": "search-ai",
+			"overlay": "launchpad-ai-dashboard-assistant",
+			"specs": [
+				"mcp-tool-surface"
+			]
+		},
+		{
+			"slug": "dashboard-view-analytics",
+			"title": "Usage analytics",
+			"title_nl": "Gebruiksanalyse",
+			"area": "governance",
+			"overlay": null,
+			"specs": []
+		},
+		{
+			"slug": "prometheus-metrics",
+			"title": "Prometheus metrics",
+			"title_nl": "Prometheus-metrieken",
+			"area": "governance",
+			"overlay": "prometheus-metrics",
+			"specs": [
+				"prometheus-metrics"
+			]
+		},
+		{
+			"slug": "launchpad-compliance-audit-panel",
+			"title": "Audit panel",
+			"title_nl": "Auditpaneel",
+			"area": "governance",
+			"overlay": "launchpad-compliance-audit-panel",
+			"specs": []
+		},
+		{
+			"slug": "orphaned-data-cleanup",
+			"title": "Data cleanup",
+			"title_nl": "Data-opschoning",
+			"area": "sharing",
+			"overlay": "orphaned-data-cleanup",
+			"specs": [
+				"dashboard-sharing"
+			]
+		},
+		{
+			"slug": "admin-tooling",
+			"title": "Bulk changes, command line and REST API",
+			"title_nl": "Bulkwijzigingen, commandoregel en REST-API",
+			"area": "governance",
+			"overlay": null,
+			"specs": [
+				"governance-rest-api-reference"
+			]
+		},
+		{
+			"slug": "launchpad-enterprise-security-access",
+			"title": "SSO and access posture",
+			"title_nl": "SSO en toegangsstatus",
+			"area": "platform",
+			"overlay": "launchpad-enterprise-security-access",
+			"specs": []
+		},
+		{
+			"slug": "theming-and-languages",
+			"title": "House style, themes and languages",
+			"title_nl": "Huisstijl, thema's en talen",
+			"area": "platform",
+			"overlay": null,
+			"specs": [
+				"platform-dashboard-theme-and-css"
+			]
+		},
+		{
+			"slug": "launchpad-mobile-remote-access",
+			"title": "Mobile access",
+			"title_nl": "Mobiele toegang",
+			"area": "platform",
+			"overlay": "launchpad-mobile-remote-access",
+			"specs": []
+		},
+		{
+			"slug": "self-hosting",
+			"title": "Self-hosting on your own Nextcloud",
+			"title_nl": "Zelf hosten op je eigen Nextcloud",
+			"area": "platform",
+			"overlay": null,
+			"specs": [
+				"runtime-or-consumption"
+			]
+		},
+		{
+			"slug": "groupfolder-storage-backend",
+			"title": "GroupFolder storage (optional)",
+			"title_nl": "GroupFolder-opslag (optioneel)",
+			"area": "governance",
+			"overlay": "groupfolder-storage-backend",
+			"specs": []
+		},
+		{
+			"slug": "launchpad-meeting-calendar-actions",
+			"title": "Meeting actions",
+			"title_nl": "Vergaderacties",
+			"area": "widgets",
+			"overlay": "launchpad-meeting-calendar-actions",
+			"specs": []
+		}
+	],
 	"providers": [
 		{
 			"key": "launchpad",
@@ -438,7 +840,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "src/manifest.d/connection-registry.json shows the Integrations page only when appInstalled 'integriq'. If integriq's appinfo id has not moved from openconnector yet, the check matches nothing and the page silently never appears. Settle by reading integriq's info.xml id on development and loading the page.",
-			"seen": "src/manifest.d/connection-registry.json:16"
+			"seen": "src/manifest.d/connection-registry.json:16",
+			"feature": "runtime-or-consumption"
 		},
 		{
 			"id": "q-charts-live",
@@ -451,7 +854,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "The widgets call OpenRegister GraphQL. The repo shows the call, not that an installed OpenRegister answers it with the aggregations the widget expects. Drive it with OpenRegister installed.",
-			"seen": "src/services/graphqlClient.js:16"
+			"seen": "src/services/graphqlClient.js:16",
+			"feature": "kpi-cards"
 		},
 		{
 			"id": "q-registry-live",
@@ -464,7 +868,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "Discovery is OpenRegister's GenericStoreService and install is LaunchPad's ImportService. Neither half was run against a live registry.",
-			"seen": "lib/Controller/StoreController.php:134"
+			"seen": "lib/Controller/StoreController.php:134",
+			"feature": "dashboard-export-import"
 		},
 		{
 			"id": "q-groupfolder",
@@ -477,7 +882,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "openspec/features.overlay.json lists groupfolder-storage-backend as beta, while the open change retire-groupfolder-storage-backend says the migration command moved nothing and proposes retiring it. Decide whether this is a capability or decided-no.",
-			"seen": "openspec/changes/retire-groupfolder-storage-backend/proposal.md:33"
+			"seen": "openspec/changes/retire-groupfolder-storage-backend/proposal.md:33",
+			"feature": "groupfolder-storage-backend"
 		},
 		{
 			"id": "q-comments",
@@ -490,7 +896,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "lib/Notification/Notifier.php renders a mentioned_in_comment subject, but this reading found no comment screen and no code that raises the notification. Either a sibling or the platform comments app produces it, or the handler is dead.",
-			"seen": "lib/Notification/Notifier.php:119"
+			"seen": "lib/Notification/Notifier.php:119",
+			"feature": "acknowledgements-and-reactions"
 		},
 		{
 			"id": "q-sibling-widgets",
@@ -503,7 +910,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "competitor-parity-2026-09 names C-reporting-22 as covered by group dashboards plus role feature permissions, with dossiq contributing widgets. Whether any sibling registers a Nextcloud widget that the nc-widget proxy then scopes per role was not read.",
-			"seen": "openspec/changes/competitor-parity-2026-09/proposal.md:37"
+			"seen": "openspec/changes/competitor-parity-2026-09/proposal.md:37",
+			"feature": "nc-dashboard-widget-proxy"
 		},
 		{
 			"id": "q-person-activity",
@@ -516,7 +924,8 @@
 			"homarr": "unknown",
 			"dashy": "unknown",
 			"question": "Candidates C-reporting-13 and C-reporting-19 in the dashboards-and-who-may-see-them change. The change itself says it needs a stated purpose before it is a feature, because in a gemeente it is a works-council matter. Not a rating until that is decided.",
-			"seen": "openspec/changes/competitor-parity-2026-09/proposal.md:65"
+			"seen": "openspec/changes/competitor-parity-2026-09/proposal.md:65",
+			"feature": "launchpad-compliance-audit-panel"
 		},
 		{
 			"id": "q-drive-nc-dashboard",
@@ -528,7 +937,8 @@
 			"nextcloud-dashboard": "unknown",
 			"homarr": "unknown",
 			"dashy": "unknown",
-			"question": "The built-in Dashboard's column rests on 14 feature rows captured in April. It runs on every dev instance, so it is the cheapest column to drive: resize, outside feeds, background and per-group defaults can all be settled in one session."
+			"question": "The built-in Dashboard's column rests on 14 feature rows captured in April. It runs on every dev instance, so it is the cheapest column to drive: resize, outside feeds, background and per-group defaults can all be settled in one session.",
+			"feature": "grid-layout"
 		}
 	],
 	"capabilities": [
@@ -825,7 +1235,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:463 a newly ticked widget is appended to the end of the layout list, and the flex-wrap list (:587-596) cannot overlap cards by construction",
@@ -854,7 +1264,7 @@
 			"reachedOn": "nothing: /api/dashboards/{uuid}/lock has no caller anywhere in src/",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-locking",
+			"feature": "grid-layout",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"note": "The lock service and its four routes exist; no page acquires or shows a lock, so a user cannot reach it.",
@@ -1040,7 +1450,7 @@
 			"reachedOn": "Workspace page, dashboard menu, Dashboard configuration, General tab",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-icons",
+			"feature": "dashboard-switcher",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -1100,7 +1510,7 @@
 			"reachedOn": "/apps/launchpad/dashboards/{id} and /apps/launchpad/{path}",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-deeplinking",
+			"feature": "dashboard-switcher",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -1161,7 +1571,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-switcher",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Controller/DashboardController.php:52 single page, id-app-navigation null (:78) so no side navigation; searched apps/dashboard for parent, child, tree: none",
@@ -1220,8 +1630,8 @@
 			"reachedOn": "nothing: /api/dashboards/{uuid}/translations and /resolved have no caller in src/",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-language-content",
-			"featureConfidence": "medium",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:236-258 greetings and the widget titles from each app (e.g. apps/files/lib/Dashboard/FavoriteWidget.php:50) are translated with the reader's own language; apps/dashboard/l10n holds 56 languages. Note: there is no author-written dashboard content to translate",
@@ -1250,8 +1660,8 @@
 			"reachedOn": "nothing: the store actions fetchMetadataFields and updateDashboardMetadata have no component caller",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-metadata-fields",
-			"featureConfidence": "medium",
+			"feature": "dashboard-switcher",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/lib/Service/DashboardService.php:33-38 a dashboard is only a list of widget ids; searched apps/dashboard for owner, department, metadata: none",
@@ -1278,7 +1688,8 @@
 				"spec": "openspec/specs/default-widget-bundle"
 			},
 			"reachedOn": "Workspace page, after creating a new personal dashboard",
-			"source": "spec-round-2026-10-07"
+			"source": "spec-round-2026-10-07",
+			"feature": "dashboard-switcher"
 		},
 		{
 			"id": "tile-pin",
@@ -1397,7 +1808,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "tiles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code"
 		},
 		{
@@ -1420,7 +1831,7 @@
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
 			"feature": "tiles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard/src and lib for bookmark, link list: none; the Bookmarks app is not in core/shipped.json",
@@ -1449,8 +1860,8 @@
 			"reachedOn": "clicks are recorded from the Workspace page; nothing shows them: getAnalyticsTopTiles and the tile CSV export have no caller in src/",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "prometheus-metrics",
-			"featureConfidence": "low",
+			"feature": "dashboard-view-analytics",
+			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for click, track, count, analytics: none; the page records nothing but the layout (apps/dashboard/lib/Controller/DashboardApiController.php:202-206)",
@@ -1485,6 +1896,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass)."
 		},
@@ -1513,6 +1925,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
 		},
@@ -1541,6 +1954,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
 		},
@@ -1569,6 +1983,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
 		},
@@ -1597,6 +2012,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/launcher-app-catalogue (openspec pass)."
 		},
@@ -1625,6 +2041,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/launcher-discover-server-services (openspec pass)."
 		},
@@ -1647,7 +2064,7 @@
 			"reachedOn": "Workspace page, navigation panel; edited on Admin settings, Organisation navigation tab",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "navigation-editor-org",
+			"feature": "organisation-navigation",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -1677,7 +2094,7 @@
 			"reachedOn": "Workspace page, Add widget, Text",
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
-			"feature": "text-display-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -1707,8 +2124,8 @@
 			"reachedOn": "Workspace page, Add widget, Image",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "image-widget",
-			"featureConfidence": "medium",
+			"feature": "content-widgets",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for image widget, upload: none; the only image on the page is the theming background (apps/dashboard/src/DashboardApp.vue:569-575)",
@@ -1744,7 +2161,7 @@
 			},
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
-			"feature": "video-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -1804,7 +2221,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "news-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -1834,7 +2251,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "clock-weather-widgets",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -1864,7 +2281,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "clock-weather-widgets",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -1894,7 +2311,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "calendar-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -1924,7 +2341,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "files-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -1985,7 +2402,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "people-widget",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code"
 		},
 		{
@@ -2011,7 +2428,7 @@
 			"reachedOn": "Workspace page, Add widget, Header, Label or Divider",
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
-			"feature": "header-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -2041,7 +2458,7 @@
 			"reachedOn": "Workspace page, Add widget, Link button",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "link-button-widget",
+			"feature": "content-widgets",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -2078,7 +2495,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "live-data-tile-widget",
+			"feature": "runtime-or-consumption",
 			"featureConfidence": "high",
 			"origin": "own-code"
 		},
@@ -2103,7 +2520,7 @@
 			"provider": "openregister",
 			"providerHow": "read-from-code",
 			"feature": "kpi-cards",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"note": "The widgets read OpenRegister over GraphQL. LaunchPad is OR-free by ADR, so without OpenRegister these widgets have no data source; this reading did not run one against a live register.",
 			"evidence": {
@@ -2141,7 +2558,7 @@
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
 			"feature": "iframe-embed-widget",
-			"featureConfidence": "low",
+			"featureConfidence": "high",
 			"origin": "competitor",
 			"note": "Only as a generic embedded page; no report picker and no row-level security hand-off."
 		},
@@ -2165,7 +2582,7 @@
 			"provider": "openregister",
 			"providerHow": "read-from-code",
 			"feature": "launchpad-spend-analytics-widget",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"note": "Marked beta in openspec/features.overlay.json; depends on sibling apps holding the data in OpenRegister.",
 			"evidence": {
@@ -2202,8 +2619,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"feature": "live-data-tile-widget",
-			"featureConfidence": "low",
+			"feature": "runtime-or-consumption",
+			"featureConfidence": "high",
 			"origin": "competitor",
 			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes. Corrected 2026-09-27 (openspec pass): a connector mode exists; it calls Integriq's DashboardDatasourceService::resolve(), which applies the source's stored authentication (lib/Service/LiveTileService.php:380). What is missing is mapping more than one field and choosing how to show it. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass)."
 		},
@@ -2231,6 +2648,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "runtime-or-consumption",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (integrations). Reversible: reopen the row if demand appears."
 		},
@@ -2258,6 +2676,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "runtime-or-consumption",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (integrations). Reversible: reopen the row if demand appears."
 		},
@@ -2288,7 +2707,7 @@
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "nc-dashboard-widget-proxy",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code"
 		},
 		{
@@ -2318,7 +2737,7 @@
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "nc-dashboard-widget-proxy",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code"
 		},
 		{
@@ -2346,6 +2765,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "runtime-or-consumption",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/integrations-office-tiles (openspec pass)."
 		},
@@ -2375,6 +2795,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "runtime-or-consumption",
 			"origin": "competitor",
 			"note": "Corrected 2026-09-27 (openspec pass): the news widget reads RSS and Atom feeds from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames an allowed page (lib/Service/IframeService.php:9), the same half Homarr and Dashy are rated partial for; the other intranet's documents are missing. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass)."
 		},
@@ -2398,7 +2819,7 @@
 			"provider": "integriq",
 			"providerHow": "read-from-code",
 			"feature": "runtime-or-consumption",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"note": "LaunchPad declares its six connections; the list and its status are integriq app_connection objects, so without integriq nothing shows them. Set building 2026-09-27 (openspec pass, coordinator): the integriq lane covers it in ConductionNL/integriq openspec/changes/connection-registry.",
 			"evidence": {
@@ -2548,7 +2969,7 @@
 			"reachedOn": "Workspace page, Visibility rules editor",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "conditional-visibility-editor",
+			"feature": "conditional-visibility",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -2704,6 +3125,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "conditional-visibility",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (targeting). Reversible: reopen the row if demand appears."
 		},
@@ -2731,6 +3153,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "conditional-visibility",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (targeting). Reversible: reopen the row if demand appears."
 		},
@@ -2753,7 +3176,7 @@
 			"reachedOn": "Admin settings, Sharing tab, group order",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboards",
+			"feature": "admin-templates",
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
@@ -2910,8 +3333,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboards",
-			"featureConfidence": "high",
+			"feature": "admin-templates",
+			"featureConfidence": "medium",
 			"origin": "own-code"
 		},
 		{
@@ -2963,7 +3386,7 @@
 			"reachedOn": "Admin settings, Demo data tab; also occ launchpad demo-showcases install",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "demo-data-showcases",
+			"feature": "setup-wizard",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -3001,7 +3424,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "admin-roles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"note": "Roles are assigned in the setup wizard; this reading found no other screen that lists or edits them."
 		},
@@ -3024,7 +3447,7 @@
 			"reachedOn": "Admin settings, Operations tab",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-bulk-operations",
+			"feature": "admin-tooling",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -3089,6 +3512,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "confluence-html-import",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (rollout). Reversible: reopen the row if demand appears."
 		},
@@ -3142,7 +3566,7 @@
 			"provider": "openregister",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-export-import",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading. Specified in ConductionNL/openregister openspec/changes/store-over-federated-config (openregister lane, OpenSpec pass 2026-09-27).",
 			"evidence": {
@@ -3413,7 +3837,7 @@
 			"reachedOn": "nothing: the store actions publishDashboard and scheduleDashboard have no component caller",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboards",
+			"feature": "dashboard-kiosk-mode",
 			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
@@ -3475,7 +3899,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "orphaned-data-cleanup",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: lib/private/User/User.php:315 deleting a user removes all their user config, including the dashboard layout; there is nothing shared to hand over and no transfer (searched apps/dashboard for owner, transfer: none)",
@@ -3509,6 +3933,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "news-and-announcements",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Microsoft Viva Connections rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears."
 		},
@@ -3531,7 +3956,7 @@
 			"reachedOn": "the prompt renders on the Workspace page, but no form sets requiresAcknowledgement; only PUT /api/widgets/{placementId} does",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-acknowledgements",
+			"feature": "acknowledgements-and-reactions",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -3562,7 +3987,7 @@
 			"reachedOn": "Workspace page, Read receipts button",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-acknowledgements",
+			"feature": "acknowledgements-and-reactions",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -3592,7 +4017,7 @@
 			"reachedOn": "nothing: the store actions addReaction and fetchReactionsSummary have no component caller",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboard-reactions",
+			"feature": "acknowledgements-and-reactions",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -3629,6 +4054,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "news-and-announcements",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
 		},
@@ -3656,6 +4082,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "communities-events-and-knowledge",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears."
 		},
@@ -3683,6 +4110,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "communities-events-and-knowledge",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears."
 		},
@@ -3711,6 +4139,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "communities-events-and-knowledge",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/engagement-communities (openspec pass)."
 		},
@@ -3739,6 +4168,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "news-and-announcements",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/engagement-activity-digest (openspec pass)."
 		},
@@ -3768,7 +4198,7 @@
 			"provider": "nextcloud",
 			"providerHow": "research-then-code",
 			"feature": "activity-feed-integration",
-			"featureConfidence": "low",
+			"featureConfidence": "high",
 			"origin": "competitor",
 			"note": "LaunchPad writes its own events to the Nextcloud activity stream; gathering approvals and news from outside systems is not there. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: the personal activity stream is the Nextcloud activity app; LaunchPad already writes its events into it. Platform-provided, outside the fleet. Corrections round 8 (2026-09-28): LaunchPad writes only 2 of its 14 declared events into the activity stream, not all of them as the note above says, launchpad#713; rating kept because the row rates one personal stream of approvals, news and meetings from several systems, which the Nextcloud activity app provides and which this gap does not change."
 		},
@@ -3798,8 +4228,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
-			"feature": "conditional-visibility",
-			"featureConfidence": "low",
+			"feature": "news-and-announcements",
+			"featureConfidence": "medium",
 			"origin": "competitor",
 			"note": "Possible by hand with a date-limited text widget; there is no notice type. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
 		},
@@ -3859,7 +4289,7 @@
 			"provider": "nextcloud",
 			"providerHow": "research-then-code",
 			"feature": "nc-unified-search-integration",
-			"featureConfidence": "low",
+			"featureConfidence": "high",
 			"origin": "competitor",
 			"note": "Nextcloud unified search covers installed Nextcloud apps; outside systems appear only if an app provides a search provider. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: unified search across mail, files and connected systems is Nextcloud server's unified search; outside systems join it through their own search providers. Platform-provided, outside the fleet."
 		},
@@ -3891,7 +4321,7 @@
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
 			"feature": "launchpad-ai-dashboard-assistant",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "competitor"
 		},
 		{
@@ -3945,8 +4375,8 @@
 			"note": "corrections round 9 (2026-09-28): built.change names openspec/changes/mcp-tool-surface, open on development at 9d5535a with 0 of 28 tasks checked, whose proposal specifies a LaunchpadToolProvider with 14 read and 35 write MCP tools over dashboards, widgets, tiles and sharing; lib/Mcp does not exist yet, so the rating stays no; source: the corrections-9 list of specified rows that named no change.",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "mcp-tool-surface",
-			"featureConfidence": "medium",
+			"feature": "launchpad-ai-dashboard-assistant",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/openapi.json documents OCS endpoints to list widgets and read or set the layout (apps/dashboard/lib/Controller/DashboardApiController.php:137,188,202), usable by any client with an app password; there is no agent or MCP tool definition in apps/dashboard",
@@ -3980,6 +4410,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "launchpad-ai-dashboard-assistant",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears."
 		},
@@ -4007,6 +4438,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "launchpad-ai-dashboard-assistant",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears."
 		},
@@ -4155,8 +4587,8 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "research-then-code",
-			"feature": "activity-feed-integration",
-			"featureConfidence": "low",
+			"feature": "launchpad-compliance-audit-panel",
+			"featureConfidence": "medium",
 			"origin": "competitor",
 			"note": "Bulk operations, template resyncs and acknowledgements write activity events; that is an activity stream, not a compliance audit log. Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: the change log for review is Nextcloud's admin_audit app. Platform-provided, outside the fleet."
 		},
@@ -4180,7 +4612,7 @@
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "activity-feed-integration",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for activity, IManager publish: none; layout saves (apps/dashboard/lib/Controller/DashboardApiController.php:202-206) emit no activity",
@@ -4240,7 +4672,7 @@
 			"reachedOn": "occ launchpad commands",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "cli-commands",
+			"feature": "admin-tooling",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -4270,7 +4702,7 @@
 			"reachedOn": "the footer renders on the Workspace page; /api/admin/footer-settings has no caller in src/, so no screen edits it",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "footer-customization",
+			"feature": "organisation-navigation",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -4304,7 +4736,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "iframe-embed-widget",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: searched apps/dashboard for allowlist, domain, csp: the only policy is geolocation for self (apps/dashboard/lib/Controller/DashboardController.php:82-85); widgets are server-side app code, and weather data is fetched by the server (apps/dashboard/src/DashboardApp.vue:118)",
@@ -4333,7 +4765,7 @@
 			"reachedOn": "every icon upload through /api/resources",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "resource-uploads",
+			"feature": "tiles",
 			"featureConfidence": "high",
 			"origin": "own-code",
 			"evidence": {
@@ -4370,6 +4802,7 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
+			"feature": "launchpad-enterprise-security-access",
 			"origin": "own-code"
 		},
 		{
@@ -4428,6 +4861,7 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
+			"feature": "self-hosting",
 			"origin": "own-code"
 		},
 		{
@@ -4456,6 +4890,7 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
+			"feature": "theming-and-languages",
 			"origin": "own-code"
 		},
 		{
@@ -4483,6 +4918,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "theming-and-languages",
 			"origin": "competitor",
 			"note": "Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass)."
 		},
@@ -4510,6 +4946,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "theming-and-languages",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Nextcloud Dashboard (built-in) rated yes; no tender, feature request or roadmap row. Outside the core area (platform). Reversible: reopen the row if demand appears."
 		},
@@ -4539,8 +4976,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboards",
-			"featureConfidence": "low",
+			"feature": "theming-and-languages",
+			"featureConfidence": "medium",
 			"origin": "own-code"
 		},
 		{
@@ -4562,8 +4999,8 @@
 			"reachedOn": "the app installs and boots with no OpenRegister; OpenRegister-backed widgets are feature-detected",
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "runtime-or-consumption",
-			"featureConfidence": "high",
+			"feature": "self-hosting",
+			"featureConfidence": "medium",
 			"origin": "own-code",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: core/shipped.json lists dashboard in shippedApps and defaultEnabled; apps/dashboard/appinfo/info.xml:25 depends only on Nextcloud 35",
@@ -4597,6 +5034,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "research-then-code",
+			"feature": "self-hosting",
 			"origin": "competitor",
 			"note": "Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (platform). Reversible: reopen the row if demand appears."
 		},
@@ -4627,7 +5065,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/24658",
 			"note": "A placed widget stays clickable in the picker (WidgetPickerModal.vue:36, :165 isPlaced only styles it) and the placement table has no unique index on dashboard and widget (PlacementTableBuilder.php:239-248)."
@@ -4656,8 +5094,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "nc-dashboard-widget-proxy",
+			"featureConfidence": "medium",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/22897",
 			"note": "Searched src and lib for circles, teams and ITeamManager: only a 'People & teams' label in src/dialogs/CreateGroupDashboardModal.vue:152, which picks a group dashboard template. No widget shows Nextcloud Teams or their shared resources. Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); a feature request row but the rule needs demand plus one competitor yes. Outside the core area (widgets). Reversible: reopen the row if demand appears."
@@ -4687,7 +5125,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-export-import",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/57423",
 			"note": "Searched lib for IMigrator and UserMigration: LaunchPad registers no user_migration migrator, so a moved account arrives without its dashboards. Admin export and import of dashboards exists (row r-export), which is a different path. Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Homarr, Dashy partial); a feature request row but the rule needs demand plus one competitor yes. Outside the core area (rollout). Reversible: reopen the row if demand appears."
@@ -4719,7 +5157,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "tiles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/51332",
 			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778. Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass)."
@@ -4750,7 +5188,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "nc-dashboard-widget-proxy",
+			"feature": "content-widgets",
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/nextcloud/server/pull/62624",
@@ -4782,7 +5220,7 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
-			"feature": "conditional-visibility",
+			"feature": "launchpad-enterprise-security-access",
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.66.1",
@@ -4814,8 +5252,8 @@
 			},
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "setup-wizard",
+			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.64.0",
 			"note": "The manifest declares a first-visit walkthrough (manifest.json:471-500, trigger first-visit, per-user completion key) that the shared shell renders: nextcloud-vue CnAppRoot.vue:464 mounts CnWalkthrough from manifest.walkthrough (nextcloud-vue development d239cf54), and App.vue:16 mounts CnAppRoot."
@@ -4846,8 +5284,8 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "launchpad-mobile-remote-access",
+			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.61.0",
 			"note": "The web app manifest is Nextcloud's: nextcloud/server v35.0.1 apps/theming/lib/Controller/ThemingController.php:459-510 serves a per-app manifest with start_url and display standalone (route /apps/theming/manifest/{app}). LaunchPad adds nothing of its own; the cited LaunchPad line is its use of the theme variables the installed app inherits."
@@ -4878,8 +5316,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "admin-tooling",
+			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.50.0",
 			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0. Specified 2026-09-27 in openspec/changes/governance-rest-api-reference (openspec pass)."
@@ -4910,8 +5348,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "live-data-tile-widget",
-			"featureConfidence": "medium",
+			"feature": "runtime-or-consumption",
+			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.48.0",
 			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none."
@@ -4940,8 +5378,8 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "launchpad-enterprise-security-access",
+			"featureConfidence": "medium",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/homarr-labs/homarr/issues/5154",
 			"note": "not checked: single logout is the Nextcloud login app's job (user_oidc or user_saml), which was not read in this pass; LaunchPad has no logout code of its own (searched src and lib for logout and end_session). Decided no on 2026-09-27 (openspec pass): Owed to nextcloud/server: single logout is done by the Nextcloud login apps (user_oidc, user_saml), not by LaunchPad. Platform-provided, outside the fleet."
@@ -4972,7 +5410,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "tiles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/homarr-labs/homarr/issues/1014",
 			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export). Specified 2026-09-27 in openspec/changes/launcher-bookmark-import (openspec pass)."
@@ -5003,8 +5441,8 @@
 			},
 			"provider": "nextcloud-vue",
 			"providerHow": "read-from-code",
-			"feature": "text-display-widget",
-			"featureConfidence": "medium",
+			"feature": "content-widgets",
+			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/Lissy93/dashy/issues/636",
 			"note": "A text widget on your own dashboard can hold notes (widget-types.json:37, rendered by nextcloud-vue), but it is edited in dashboard edit mode, not a quick notepad you type into in place. Specified in ConductionNL/nextcloud-vue openspec/changes/dashboard-notepad-widget (nextcloud-vue lane, OpenSpec pass 2026-09-27)."
@@ -5035,7 +5473,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "tiles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.4.0",
 			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on. Specified 2026-09-27 in openspec/changes/launcher-tile-internal-address (openspec pass)."
@@ -5066,7 +5504,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "dashboards",
+			"feature": "theming-and-languages",
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.0.0",
@@ -5098,7 +5536,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "iframe-embed-widget",
+			"feature": "tiles",
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
@@ -5129,8 +5567,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "nc-unified-search-integration",
+			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
 			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none. Specified 2026-09-27 in openspec/changes/search-ai-prefix-shortcuts (openspec pass)."
@@ -5161,8 +5599,8 @@
 			},
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "theming-and-languages",
+			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
 			"note": "LaunchPad draws with Nextcloud's theme variables (WorkspaceApp.vue:480, :500), and Nextcloud's theming app switches them by the device's colour scheme through media-query themes (nextcloud/server v35.0.1 apps/theming/lib/Service/ThemeInjectionService.php:39-48). Also mined from https://www.microsoft.com/releasecommunications/api/v1/m365."
@@ -5193,7 +5631,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "tiles",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.6.0",
 			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120). Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass)."
@@ -5222,8 +5660,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "launchpad-ai-dashboard-assistant",
+			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/747342-release-notes-workspace-365-v4-45",
 			"note": "Searched src and lib for assistant, TextProcessing and ITaskProcessing: no writing help. LaunchPad has no announcement editor to attach one to (row e-announcements is no). Decided no 2026-09-28 (build-all decision pass): Single competitor, no demand: Workspace 365 rated yes; no tender, feature request or roadmap row. Outside the core area (search-ai). Reversible: reopen the row if demand appears."
@@ -5252,7 +5690,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "calendar-widget",
+			"feature": "launchpad-meeting-calendar-actions",
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/747342-release-notes-workspace-365-v4-45",
@@ -5285,7 +5723,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "people-widget",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/766599-release-notes-workspace-365-v4-46",
 			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass)."
@@ -5315,7 +5753,7 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": "news-widget",
+			"feature": "news-and-announcements",
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched",
@@ -5345,8 +5783,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "communities-events-and-knowledge",
+			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/4-planned",
 			"note": "LaunchPad runs no internal events (row e-events is no); the calendar widget only reads calendars. Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Nextcloud Dashboard (built-in), Homarr, Dashy partial); a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (engagement). Reversible: reopen the row if demand appears."
@@ -5375,8 +5813,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "communities-events-and-knowledge",
+			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/4-planned",
 			"note": "Searched src and lib for review reminders, owner reminders and content expiry: none. Dashboards have a publication status (DashboardTableBuilder.php:435) but nobody is reminded to review them. Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (governance). Reversible: reopen the row if demand appears."
@@ -5405,8 +5843,8 @@
 			},
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
-			"feature": null,
-			"featureConfidence": "low",
+			"feature": "kpi-cards",
+			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://www.microsoft.com/releasecommunications/api/v1/m365",
 			"note": "Charts are configured by hand over OpenRegister data (row w-charts); the AI dashboard assistant spec exists (openspec/specs/launchpad-ai-dashboard-assistant) but no page reaches it (row a-place-widget is no). Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Microsoft Viva Connections, Homarr partial); a roadmap row but the rule needs demand plus one competitor yes. Outside the core area (widgets). Reversible: reopen the row if demand appears."
@@ -5438,7 +5876,7 @@
 			"provider": "dossiq",
 			"providerHow": "read-from-code",
 			"feature": "nc-dashboard-widget-proxy",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/296963",
 			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; Súdwest-Fryslân 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page."
@@ -5460,7 +5898,8 @@
 				"spec": "openspec/specs/attention-feed"
 			},
 			"reachedOn": "Workspace page, Add widget, First today",
-			"source": "spec-round-2026-10-07"
+			"source": "spec-round-2026-10-07",
+			"feature": "nc-dashboard-widget-proxy"
 		},
 		{
 			"id": "w-menu",
@@ -5479,7 +5918,8 @@
 				"change": "openspec/changes/archive/2026-05-03-menu-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Menu",
-			"source": "spec-round-2026-10-07"
+			"source": "spec-round-2026-10-07",
+			"feature": "organisation-navigation"
 		},
 		{
 			"id": "w-quicklinks",
@@ -5498,7 +5938,8 @@
 				"change": "openspec/changes/archive/2026-05-03-quicklinks-widget"
 			},
 			"reachedOn": "Workspace page, Add widget, Quick links",
-			"source": "spec-round-2026-10-07"
+			"source": "spec-round-2026-10-07",
+			"feature": "tiles"
 		},
 		{
 			"id": "d-public-start",
@@ -5527,7 +5968,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "dashboard-public-share",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.publicprocurement.be/nl/publication-workspaces/204ca8ae-6191-43b9-ac3b-c943f91d1d2d",
 			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass)."
@@ -5559,7 +6000,7 @@
 			"provider": "launchpad",
 			"providerHow": "read-from-code",
 			"feature": "people-widget",
-			"featureConfidence": "medium",
+			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/418890",
 			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass)."

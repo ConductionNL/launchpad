@@ -404,7 +404,9 @@
 			"specs": [
 				"admin-settings",
 				"grid-layout",
-				"widgets"
+				"widgets",
+				"container-widget",
+				"dashboard-locking"
 			]
 		},
 		{
@@ -413,7 +415,9 @@
 			"title_nl": "Versiebeheer en terugdraaien",
 			"area": "building",
 			"overlay": "dashboard-versioning",
-			"specs": []
+			"specs": [
+				"dashboard-versioning"
+			]
 		},
 		{
 			"slug": "permissions",
@@ -432,7 +436,8 @@
 			"area": "rollout",
 			"overlay": "dashboard-export-import",
 			"specs": [
-				"dashboard-export-import"
+				"dashboard-export-import",
+				"dashboard-store"
 			]
 		},
 		{
@@ -446,7 +451,11 @@
 				"dashboard-icons",
 				"dashboards",
 				"default-widget-bundle",
-				"runtime-shell"
+				"runtime-shell",
+				"dashboard-language-content",
+				"dashboard-metadata-fields",
+				"dashboard-switcher",
+				"effective-default-marker"
 			]
 		},
 		{
@@ -460,7 +469,11 @@
 				"launcher-tile-internal-address",
 				"launcher-tile-open-behaviour",
 				"launcher-tile-sorting",
-				"tiles"
+				"tiles",
+				"links-widget",
+				"quicklinks-widget",
+				"service-health-ping",
+				"tile-quick-search"
 			]
 		},
 		{
@@ -482,7 +495,11 @@
 			"title_nl": "Organisatiemenu en voettekst",
 			"area": "launcher",
 			"overlay": null,
-			"specs": []
+			"specs": [
+				"footer-customization",
+				"menu-widget",
+				"navigation-editor-org"
+			]
 		},
 		{
 			"slug": "nc-dashboard-widget-proxy",
@@ -491,7 +508,9 @@
 			"area": "widgets",
 			"overlay": "nc-dashboard-widget-proxy",
 			"specs": [
-				"attention-feed"
+				"attention-feed",
+				"legacy-widget-bridge",
+				"nc-dashboard-widget-proxy"
 			]
 		},
 		{
@@ -501,7 +520,19 @@
 			"area": "widgets",
 			"overlay": null,
 			"specs": [
-				"widgets"
+				"widgets",
+				"calendar-widget",
+				"clock-weather-widgets",
+				"divider-widget",
+				"files-widget",
+				"header-widget",
+				"image-widget",
+				"label-widget",
+				"launchpad-file-access-widget",
+				"link-button-widget",
+				"news-widget",
+				"text-display-widget",
+				"video-widget"
 			]
 		},
 		{
@@ -521,7 +552,8 @@
 			"area": "widgets",
 			"overlay": null,
 			"specs": [
-				"adopt-connection-registry"
+				"adopt-connection-registry",
+				"iframe-embed-widget"
 			]
 		},
 		{
@@ -534,7 +566,8 @@
 				"adopt-connection-registry",
 				"background-job-feed-refresh",
 				"integrations-live-tile-lists",
-				"integrations-office-tiles"
+				"integrations-office-tiles",
+				"live-data-tile-widget"
 			]
 		},
 		{
@@ -551,7 +584,9 @@
 			"title_nl": "Uitgavenanalyse-kaart",
 			"area": "widgets",
 			"overlay": "launchpad-spend-analytics-widget",
-			"specs": []
+			"specs": [
+				"launchpad-spend-analytics-widget"
+			]
 		},
 		{
 			"slug": "conditional-visibility",
@@ -560,7 +595,8 @@
 			"area": "targeting",
 			"overlay": "conditional-visibility",
 			"specs": [
-				"conditional-visibility"
+				"conditional-visibility",
+				"conditional-visibility-editor"
 			]
 		},
 		{
@@ -593,7 +629,10 @@
 			"area": "rollout",
 			"overlay": null,
 			"specs": [
-				"runtime-shell"
+				"runtime-shell",
+				"demo-data-showcases",
+				"first-time-setup",
+				"setup-wizard"
 			]
 		},
 		{
@@ -602,7 +641,9 @@
 			"title_nl": "Dashboardquota",
 			"area": "rollout",
 			"overlay": "dashboard-quota-limits",
-			"specs": []
+			"specs": [
+				"dashboard-quota-limits"
+			]
 		},
 		{
 			"slug": "confluence-html-import",
@@ -610,7 +651,9 @@
 			"title_nl": "Confluence-import",
 			"area": "rollout",
 			"overlay": "confluence-html-import",
-			"specs": []
+			"specs": [
+				"confluence-html-import"
+			]
 		},
 		{
 			"slug": "dashboard-sharing",
@@ -629,7 +672,8 @@
 			"area": "sharing",
 			"overlay": "dashboard-public-share",
 			"specs": [
-				"sharing-public-start-page"
+				"sharing-public-start-page",
+				"dashboard-public-share"
 			]
 		},
 		{
@@ -638,7 +682,9 @@
 			"title_nl": "Kiosk- en narrowcastmodus",
 			"area": "sharing",
 			"overlay": "dashboard-kiosk-mode",
-			"specs": []
+			"specs": [
+				"dashboard-kiosk-mode"
+			]
 		},
 		{
 			"slug": "news-and-announcements",
@@ -657,7 +703,10 @@
 			"title_nl": "Leesbevestigingen, reacties en opmerkingen",
 			"area": "engagement",
 			"overlay": null,
-			"specs": []
+			"specs": [
+				"dashboard-acknowledgements",
+				"dashboard-reactions"
+			]
 		},
 		{
 			"slug": "communities-events-and-knowledge",
@@ -675,7 +724,9 @@
 			"title_nl": "Activiteitenoverzicht",
 			"area": "engagement",
 			"overlay": "activity-feed-integration",
-			"specs": []
+			"specs": [
+				"activity-feed-integration"
+			]
 		},
 		{
 			"slug": "nc-unified-search-integration",
@@ -684,7 +735,8 @@
 			"area": "search-ai",
 			"overlay": "nc-unified-search-integration",
 			"specs": [
-				"search-ai-prefix-shortcuts"
+				"search-ai-prefix-shortcuts",
+				"nc-unified-search-integration"
 			]
 		},
 		{
@@ -694,7 +746,8 @@
 			"area": "search-ai",
 			"overlay": "launchpad-ai-dashboard-assistant",
 			"specs": [
-				"mcp-tool-surface"
+				"mcp-tool-surface",
+				"launchpad-ai-dashboard-assistant"
 			]
 		},
 		{
@@ -703,7 +756,9 @@
 			"title_nl": "Gebruiksanalyse",
 			"area": "governance",
 			"overlay": null,
-			"specs": []
+			"specs": [
+				"dashboard-view-analytics"
+			]
 		},
 		{
 			"slug": "prometheus-metrics",
@@ -721,7 +776,9 @@
 			"title_nl": "Auditpaneel",
 			"area": "governance",
 			"overlay": "launchpad-compliance-audit-panel",
-			"specs": []
+			"specs": [
+				"launchpad-compliance-audit-panel"
+			]
 		},
 		{
 			"slug": "orphaned-data-cleanup",
@@ -730,7 +787,8 @@
 			"area": "sharing",
 			"overlay": "orphaned-data-cleanup",
 			"specs": [
-				"dashboard-sharing"
+				"dashboard-sharing",
+				"orphaned-data-cleanup"
 			]
 		},
 		{
@@ -740,7 +798,9 @@
 			"area": "governance",
 			"overlay": null,
 			"specs": [
-				"governance-rest-api-reference"
+				"governance-rest-api-reference",
+				"cli-commands",
+				"dashboard-bulk-operations"
 			]
 		},
 		{
@@ -749,7 +809,9 @@
 			"title_nl": "SSO en toegangsstatus",
 			"area": "platform",
 			"overlay": "launchpad-enterprise-security-access",
-			"specs": []
+			"specs": [
+				"launchpad-enterprise-security-access"
+			]
 		},
 		{
 			"slug": "theming-and-languages",
@@ -767,7 +829,9 @@
 			"title_nl": "Mobiele toegang",
 			"area": "platform",
 			"overlay": "launchpad-mobile-remote-access",
-			"specs": []
+			"specs": [
+				"launchpad-mobile-remote-access"
+			]
 		},
 		{
 			"slug": "self-hosting",
@@ -776,7 +840,8 @@
 			"area": "platform",
 			"overlay": null,
 			"specs": [
-				"runtime-or-consumption"
+				"runtime-or-consumption",
+				"launchpad-adopt-or-abstractions"
 			]
 		},
 		{
@@ -785,7 +850,9 @@
 			"title_nl": "GroupFolder-opslag (optioneel)",
 			"area": "governance",
 			"overlay": "groupfolder-storage-backend",
-			"specs": []
+			"specs": [
+				"groupfolder-storage-backend"
+			]
 		},
 		{
 			"slug": "launchpad-meeting-calendar-actions",
@@ -793,8 +860,18 @@
 			"title_nl": "Vergaderacties",
 			"area": "widgets",
 			"overlay": "launchpad-meeting-calendar-actions",
-			"specs": []
+			"specs": [
+				"launchpad-meeting-calendar-actions"
+			]
 		}
+	],
+	"internalSpecs": [
+		"beta-alignment",
+		"dashboard-cascade-events",
+		"infrastructure-helpers",
+		"initial-state-contract",
+		"license-header-consistency",
+		"resource-uploads"
 	],
 	"providers": [
 		{
@@ -970,7 +1047,11 @@
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
+			}
 		},
 		{
 			"id": "build-resize",
@@ -1000,7 +1081,11 @@
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
+			}
 		},
 		{
 			"id": "build-keyboard",
@@ -1032,7 +1117,11 @@
 				"workspace-365": "not checked: W365 user guide and FAQ for keyboard move or resize of tiles, not found",
 				"microsoft-viva": "not checked: support.microsoft.com c4f573dd screen reader guide covers touch gestures to reorder cards only; no keyboard move or resize found"
 			},
-			"note": "Re-rated 2026-10-07 from code: built, yes, unchanged. The change keyboard-accessible-widget-repositioning still shows its 11 tasks unticked, but every one is delivered: tasks 1-3 (focusable, named grid item; Enter opens the menu) by nextcloud-vue CnDashboardGrid instead of the retired src/components/DashboardGrid.vue the tasks name, tasks 4-9 in launchpad, tasks 10-11 in the Playwright spec. The change is ready to tick and archive. Not checked live in a browser in this round."
+			"note": "Re-rated 2026-10-07 from code: built, yes, unchanged. The change keyboard-accessible-widget-repositioning still shows its 11 tasks unticked, but every one is delivered: tasks 1-3 (focusable, named grid item; Enter opens the menu) by nextcloud-vue CnDashboardGrid instead of the retired src/components/DashboardGrid.vue the tasks name, tasks 4-9 in launchpad, tasks 10-11 in the Playwright spec. The change is ready to tick and archive. Not checked live in a browser in this round.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
+			}
 		},
 		{
 			"id": "build-columns",
@@ -1063,6 +1152,10 @@
 				"dashy": "source read at 4.7.0: src/utils/config/ConfigSchema.json:421-427 appConfig.colCount 1 to 8, applied in src/views/Home.vue:138 and :277-284; editable in the Edit App Config form (src/components/InteractiveEditor/EditAppConfig.vue:21 schema form) or the YAML editor",
 				"workspace-365": "https://support.workspace365.net/en/articles/175608-faq-for-admins admins can set shared tile group size to '2 columns (Enlarge) or 1 column (Shrink)'; a grid column count for the whole page is not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: create-dashboard and card designer pages for a column setting; cards are medium or large only"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
 			}
 		},
 		{
@@ -1093,7 +1186,11 @@
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpMobiel"
+			}
 		},
 		{
 			"id": "build-container",
@@ -1123,7 +1220,11 @@
 			"providerHow": "read-from-code",
 			"feature": "grid-layout",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpManagement"
+			}
 		},
 		{
 			"id": "build-style",
@@ -1153,6 +1254,10 @@
 				"dashy": "source read at 4.7.0: a widget has only a label (src/components/InteractiveEditor/EditWidget.vue:19-23); colour and custom CSS are set per section (ConfigSchema.json:954-963, applied src/components/LinkItems/Collapsable.vue:89-90) and per item (color, backgroundColor ConfigSchema.json:1401-1410), not per widget",
 				"workspace-365": "https://support.workspace365.net/en/articles/483000-shortcut-tile 'Choose an icon' and 'the default color, header color, primary color, or a custom color'; group titles renamable; borders not described (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard 'edit properties like the label, icon, image'; colours and borders per card not described (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetInstellen"
 			}
 		},
 		{
@@ -1183,6 +1288,10 @@
 				"dashy": "source read at 4.7.0: src/components/InteractiveEditor/EditWidget.vue:14-18 the widget type is a free-text input ('Widget Type', en.json:385); the registry in src/components/Widgets/WidgetBase.vue:53-148 is not offered as a list; ConfigSchema.json:1476-1480 type has no enum, so the YAML editor cannot complete it either",
 				"workspace-365": "https://support.workspace365.net/en/articles/175363-full-guide-for-user 'Click on Edit and then + Add tiles'; https://support.workspace365.net/en/articles/483000-shortcut-tile shortcut apps in the App store 'with searchable tags' (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards '+ Add a card' opens the dashboard toolbox with 'Suggested cards' and 'Add more cards'; a search box over the toolbox is not described (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetKiezen"
 			}
 		},
 		{
@@ -1213,7 +1322,11 @@
 			"providerHow": "read-from-code",
 			"feature": "nc-dashboard-widget-proxy",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetKiezen"
+			}
 		},
 		{
 			"id": "build-no-overlap",
@@ -1243,6 +1356,10 @@
 				"dashy": "source read at 4.7.0: sections flow in a CSS grid (src/views/Home.vue:287 grid-template-columns repeat(var(--col-count))) and widgets in a list (Section.vue:60-63); there is no free positioning, so a new section or widget always lands in the next free slot",
 				"workspace-365": "https://support.workspace365.net/en/articles/175608-faq-for-admins the system 'can automatically reorder tiles within shared groups to minimize gaps based on tile size' (read 2026-09-26)",
 				"microsoft-viva": "not checked: create-dashboard for placement rules; the targeting page only advises rearranging cards to avoid gaps"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
 			}
 		},
 		{
@@ -1274,6 +1391,10 @@
 				"dashy": "source read at 4.7.0: services/endpoints/save-config.js:36-90 writes conf.yml whole with only a timestamped backup; searched services for etag, if-match, lock, conflict: none. The last save wins",
 				"workspace-365": "not checked: W365 spaces and FAQ articles for concurrent edit locking",
 				"microsoft-viva": "not checked: create-dashboard and edit pages for co-authoring or locking of the dashboard"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
 			}
 		},
 		{
@@ -1304,7 +1425,11 @@
 			"providerHow": "read-from-code",
 			"feature": "permissions",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "build-config-file",
@@ -1335,7 +1460,11 @@
 			"feature": "dashboard-export-import",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "Import takes a ZIP of the JSON export. That moves a dashboard between servers; it is not a hand-authored configuration workflow."
+			"note": "Import takes a ZIP of the JSON export. That moves a dashboard between servers; it is not a hand-authored configuration workflow.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
+			}
 		},
 		{
 			"id": "build-rollback",
@@ -1366,6 +1495,10 @@
 				"dashy": "source read at 4.7.0: services/endpoints/save-config.js:61-75 every save copies the old conf.yml to user-data/config-backups/<name>-<timestamp>.backup.yml; searched src for backup restore: no UI lists or restores them, an admin copies a file back on the server",
 				"workspace-365": "not checked: W365 spaces, FAQ and audit logging articles for restoring a previous layout",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard 'The dashboard details contain settings for your dashboard, page versioning'; https://learn.microsoft.com/en-us/sharepoint/homesites/create-multilingual-dashboard 'view the version history of the default dashboard'; restoring a version is not described (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpVersies"
 			}
 		},
 		{
@@ -1396,7 +1529,11 @@
 			"providerHow": "read-from-code",
 			"feature": "dashboard-switcher",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "dash-default",
@@ -1426,6 +1563,13 @@
 				"dashy": "source read at 4.7.0: the root conf.yml always opens first; src/router.js:48-52 startingView picks the view (home, minimal, workspace) not a page; searched ConfigSchema.json pages for default: no flag, and users cannot choose their own",
 				"workspace-365": "https://support.workspace365.net/en/articles/703640-using-and-organising-spaces-in-workspace-365 admins can 'let users start on the Personal space or on a Shared space' by dragging it 'to the top position' (read 2026-09-26)",
 				"microsoft-viva": "https://www.microsoft.com/releasecommunications/api/v1/m365 item 567887 admins 'manage home site priority order' across multiple home sites; a user cannot pick their own default (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpWerkplek",
+					"LpDashboardInstellingen"
+				]
 			}
 		},
 		{
@@ -1459,6 +1603,10 @@
 				"dashy": "source read at 4.7.0: ConfigSchema.json:151-221 pageInfo title, description, logo, favicon per config file; src/components/InteractiveEditor/EditPageInfo.vue form ('Edit Page Info', en.json:339); per-page pageInfo merged at src/store.js:535-539",
 				"workspace-365": "not checked: W365 spaces article for space description or icon",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard Dashboard details: 'Change Thumbnail' and 'Description ... to be shown in search results'; https://learn.microsoft.com/en-us/sharepoint/homesites/create-multilingual-dashboard translated dashboard name (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDashboardInstellingen"
 			}
 		},
 		{
@@ -1489,6 +1637,10 @@
 				"dashy": "source read at 4.7.0: searched src and services for duplicate, clone, copy page: only item 'Copy or Move' (en.json:320) and section name duplicate checks (EditSection.vue:92); no way to copy a page",
 				"workspace-365": "not checked: W365 spaces and user guide for copying a space",
 				"microsoft-viva": "not checked: create-dashboard and user customise pages for copying a dashboard"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
 			}
 		},
 		{
@@ -1519,6 +1671,10 @@
 				"dashy": "source read at 4.7.0: src/router.js:55-67 canonical /home/:page and /home/:page/:section routes, also for minimal and workspace views; deep links resolve the page's config (src/store.js:500-505)",
 				"workspace-365": "not checked: W365 spaces article for deep links to a space",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-multilingual-dashboard 'Copy the link to the dashboard under Properties > Name' and 'Paste the link in a browser' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
 			}
 		},
 		{
@@ -1549,7 +1705,11 @@
 			"providerHow": "read-from-code",
 			"feature": "dashboard-sharing",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "dash-tree",
@@ -1579,6 +1739,13 @@
 				"dashy": "source read at 4.7.0: src/utils/config/ConfigHelpers.js:14-24 pages is root-owned and stripped from sub-pages, and EditModeSaveMenu.vue:49-55 disables Edit Pages on a sub-page, so pages are one flat list",
 				"workspace-365": "not checked: W365 spaces article for nested spaces",
 				"microsoft-viva": "not checked: overview and edit pages for parent and child dashboards"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpWerkplek",
+					"LpDashboardInstellingen"
+				]
 			}
 		},
 		{
@@ -1609,6 +1776,10 @@
 				"dashy": "source read at 4.7.0: src/views/Home.vue:40-49 an empty config shows 'No Data Configured' (en.json:9); no offer or wizard to create a first dashboard; the Add Section launcher only appears once in edit mode (Home.vue:37)",
 				"workspace-365": "not checked: W365 user guide for a first-dashboard prompt",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard 'You're asked to select your primary audience to generate a set of default dashboard cards' at first setup (editor, not end user) (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpEersteKeer"
 			}
 		},
 		{
@@ -1639,6 +1810,10 @@
 				"dashy": "source read at 4.7.0: 33 UI locales exist (src/assets/locales), but config text (section names, item titles, pageInfo) has no per-language variants: ConfigSchema.json:151-221 and :907-1115 single strings, additionalProperties false",
 				"workspace-365": "not checked: W365 FAQ and spaces for translated space content",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-multilingual-dashboard translators make per-language copies; 'The Dashboard web part will display in the users preferred language' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
 			}
 		},
 		{
@@ -1669,6 +1844,10 @@
 				"dashy": "source read at 4.7.0: ConfigSchema.json:151-221 pageInfo allows only title, description, navLinks, footer, logo, favicon, color with additionalProperties false; pages entries only name, path, displayData (:29-45)",
 				"workspace-365": "https://support.workspace365.net/en/articles/703640-using-and-organising-spaces-in-workspace-365 admins configure 'who owns the Shared space'; other facts such as department not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: create-dashboard for custom dashboard properties"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDashboardInstellingen"
 			}
 		},
 		{
@@ -1689,7 +1868,11 @@
 			},
 			"reachedOn": "Workspace page, after creating a new personal dashboard",
 			"source": "spec-round-2026-10-07",
-			"feature": "dashboard-switcher"
+			"feature": "dashboard-switcher",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpEersteKeer"
+			}
 		},
 		{
 			"id": "tile-pin",
@@ -1719,7 +1902,14 @@
 			"providerHow": "read-from-code",
 			"feature": "tiles",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpWerkplek",
+					"LpTegelBewerken"
+				]
+			}
 		},
 		{
 			"id": "tile-health",
@@ -1749,7 +1939,14 @@
 			"providerHow": "read-from-code",
 			"feature": "tiles",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpWerkplek",
+					"LpTegelBewerken"
+				]
+			}
 		},
 		{
 			"id": "tile-filter",
@@ -1779,7 +1976,11 @@
 			"providerHow": "read-from-code",
 			"feature": "tiles",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "tile-web-search",
@@ -1809,7 +2010,11 @@
 			"providerHow": "read-from-code",
 			"feature": "tiles",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "tile-bookmarks",
@@ -1839,6 +2044,10 @@
 				"dashy": "source read at 4.7.0: a section is a named group of link items (src/components/LinkItems/Section.vue:22-58); sub-item groups via ConfigSchema.json:1416 subItems (SubItemGroup.vue)",
 				"workspace-365": "https://support.workspace365.net/en/articles/175363-full-guide-for-user Documents tile offers 'Bookmarks' and tiles can be grouped in named tile groups; a dedicated grouped-link list is not described (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Quick links card 'Provide list of relevant links or files', up to 20 links; https://support.microsoft.com/office/3da30f39-684a-4bde-bb81-2e1407d59b52 users add their own Quick Links card (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
 			}
 		},
 		{
@@ -1869,6 +2078,10 @@
 				"dashy": "source read at 4.7.0: src/mixins/ItemMixin.js:385-387 click counts are kept only in each browser's localStorage for sorting; searched services for analytics, track, clicks: nothing is sent to the server or reported",
 				"workspace-365": "https://support.workspace365.net/en/articles/175636-analytics-of-a-workspace-365-environment 'Apps: usage per app'; not broken down per space (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-analytics 'Engaged users by dashboard card ... how often each user engages with a card', per experience (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAnalyse"
 			}
 		},
 		{
@@ -1898,7 +2111,11 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "tile-legacy-apps",
@@ -1927,7 +2144,11 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "tile-local-apps",
@@ -1956,7 +2177,11 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "tile-sso-app",
@@ -1985,7 +2210,11 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-tile-launch-types (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "tile-catalogue",
@@ -2014,7 +2243,11 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-app-catalogue (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-app-catalogue (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelToevoegen"
+			}
 		},
 		{
 			"id": "tile-discover-containers",
@@ -2043,7 +2276,11 @@
 			"providerHow": "research-then-code",
 			"feature": "app-catalogue-and-launch",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/launcher-discover-server-services (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/launcher-discover-server-services (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelToevoegen"
+			}
 		},
 		{
 			"id": "tile-org-nav",
@@ -2073,6 +2310,13 @@
 				"dashy": "source read at 4.7.0: ConfigSchema.json:164-198 pageInfo.navLinks (up to 6) shown in the header by src/components/PageStrcture/Nav.vue:14-31 beside the page links; root pageInfo is merged into every sub-page (src/store.js:161)",
 				"workspace-365": "https://support.workspace365.net/en/articles/175363-full-guide-for-user 'Through the navigation menu on the left side of you digital workplace, navigate easily'; the menu lists spaces and apps rather than curated org links (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/use-audience-targeting-sharepoint-app-in-teams 'Resources are the navigation links that display beneath the dashboard', audience targetable (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpWerkplek",
+					"LpBeheerNavigatie"
+				]
 			}
 		},
 		{
@@ -2103,6 +2347,10 @@
 				"dashy": "source read at 4.7.0: src/components/Widgets/EmbedWidget.vue:14-30 embed widget renders raw HTML, CSS and script from options (or htmlSrc); formatted text is possible only as hand-written HTML, there is no text editor",
 				"workspace-365": "https://support.workspace365.net/en/articles/480271-text-editor-text-content 'bold, italic, lists, tables, and hyperlinks' as a tile or a full space; headings not mentioned (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/use-card-designer templates 'Heading' and 'Description'; richer layout only by Adaptive Card JSON in a quick view (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
 			}
 		},
 		{
@@ -2133,6 +2381,10 @@
 				"dashy": "source read at 4.7.0: src/components/Widgets/ImageWidget.vue:18-43 image widget shows an image from imagePath with optional size and refresh; searched src for upload and type=file: none, so linked only",
 				"workspace-365": "not checked: W365 tile articles for an image tile",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/use-card-designer 'Image: Create a card with a heading and image', upload or pick from site or web (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
 			}
 		},
 		{
@@ -2163,7 +2415,11 @@
 			"providerHow": "read-from-code",
 			"feature": "content-widgets",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "w-embed",
@@ -2193,7 +2449,11 @@
 			"providerHow": "read-from-code",
 			"feature": "iframe-embed-widget",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "w-news",
@@ -2223,7 +2483,11 @@
 			"providerHow": "read-from-code",
 			"feature": "content-widgets",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "w-weather",
@@ -2253,7 +2517,11 @@
 			"providerHow": "read-from-code",
 			"feature": "content-widgets",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "w-clock",
@@ -2283,7 +2551,11 @@
 			"providerHow": "read-from-code",
 			"feature": "content-widgets",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "w-calendar",
@@ -2313,7 +2585,14 @@
 			"providerHow": "read-from-code",
 			"feature": "content-widgets",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpStart",
+					"LpWerkplek"
+				]
+			}
 		},
 		{
 			"id": "w-files",
@@ -2343,7 +2622,11 @@
 			"providerHow": "read-from-code",
 			"feature": "content-widgets",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "w-people",
@@ -2373,7 +2656,11 @@
 			"providerHow": "read-from-code",
 			"feature": "people-widget",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "w-birthdays",
@@ -2403,7 +2690,11 @@
 			"providerHow": "read-from-code",
 			"feature": "people-widget",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "w-structure",
@@ -2437,6 +2728,10 @@
 				"dashy": "source read at 4.7.0: every section has a name and icon shown as a heading (src/components/LinkItems/Section.vue:3-4 via Collapsable), sections can be collapsed; there is no free label or divider widget",
 				"workspace-365": "https://support.workspace365.net/en/articles/175363-full-guide-for-user 'Change the name of Personal tile group by clicking on the title'; group titles act as headings, no divider (read 2026-09-26)",
 				"microsoft-viva": "not checked: available-dashboard-cards for heading or divider cards"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
 			}
 		},
 		{
@@ -2467,6 +2762,10 @@
 				"dashy": "source read at 4.7.0: items only open or copy a URL (ConfigSchema.json:1293-1307); searched src for webhook, action button: none; open request #383 'Action Buttons to execute web hooks'",
 				"workspace-365": "https://support.workspace365.net/en/articles/483000-shortcut-tile 'call, send an email, or open an external website directly'; https://support.workspace365.net/en/articles/175363-full-guide-for-user email tile 'compose new emails from the live tile' (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards Assigned tasks card 'Add tasks' button; Approvals 'create new approvals'; https://learn.microsoft.com/en-us/sharepoint/homesites/use-card-designer primary and secondary buttons (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
 			}
 		},
 		{
@@ -2497,7 +2796,14 @@
 			"providerHow": "read-from-code",
 			"feature": "runtime-or-consumption",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpManagement",
+					"LpWidgetInstellen"
+				]
+			}
 		},
 		{
 			"id": "w-charts",
@@ -2529,6 +2835,10 @@
 				"dashy": "source read at 4.7.0: no store of your own data; custom-api (CustomApi.vue:1-14, list or block display :58-59) shows counts and values from any JSON endpoint but no charts or tables; charts exist only inside fixed widgets such as crypto-price-chart (src/components/Charts)",
 				"workspace-365": "not checked: W365 docs for charts over own data (Power BI aside)",
 				"microsoft-viva": "not checked: available-dashboard-cards for chart cards"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpManagement"
 			}
 		},
 		{
@@ -2560,7 +2870,11 @@
 			"feature": "iframe-embed-widget",
 			"featureConfidence": "high",
 			"origin": "competitor",
-			"note": "Only as a generic embedded page; no report picker and no row-level security hand-off."
+			"note": "Only as a generic embedded page; no report picker and no row-level security hand-off.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpManagement"
+			}
 		},
 		{
 			"id": "w-spend",
@@ -2591,6 +2905,10 @@
 				"dashy": "source read at 4.7.0: searched src/components/Widgets for finance, spend, budget, invoice: only crypto and wallet balance widgets (WalletBalance.vue), nothing over finance or case apps",
 				"workspace-365": "not checked: W365 integration list for finance figures",
 				"microsoft-viva": "not checked: available-dashboard-cards for finance cards"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpManagement"
 			}
 		},
 		{
@@ -2622,7 +2940,11 @@
 			"feature": "runtime-or-consumption",
 			"featureConfidence": "high",
 			"origin": "competitor",
-			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes. Corrected 2026-09-27 (openspec pass): a connector mode exists; it calls Integriq's DashboardDatasourceService::resolve(), which applies the source's stored authentication (lib/Service/LiveTileService.php:380). What is missing is mapping more than one field and choosing how to show it. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass)."
+			"note": "A live tile reads one value from a URL. There is no connector, authentication handling or data mapping as the competitor describes. Corrected 2026-09-27 (openspec pass): a connector mode exists; it calls Integriq's DashboardDatasourceService::resolve(), which applies the source's stored authentication (lib/Service/LiveTileService.php:380). What is missing is mapping more than one field and choosing how to show it. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetInstellen"
+			}
 		},
 		{
 			"id": "int-itsm",
@@ -2708,7 +3030,11 @@
 			"providerHow": "read-from-code",
 			"feature": "nc-dashboard-widget-proxy",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "int-tasks",
@@ -2738,7 +3064,11 @@
 			"providerHow": "read-from-code",
 			"feature": "nc-dashboard-widget-proxy",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpStart"
+			}
 		},
 		{
 			"id": "int-office-tiles",
@@ -2767,7 +3097,11 @@
 			"providerHow": "research-then-code",
 			"feature": "runtime-or-consumption",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/integrations-office-tiles (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/integrations-office-tiles (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelToevoegen"
+			}
 		},
 		{
 			"id": "int-intranet-content",
@@ -2797,7 +3131,11 @@
 			"providerHow": "research-then-code",
 			"feature": "runtime-or-consumption",
 			"origin": "competitor",
-			"note": "Corrected 2026-09-27 (openspec pass): the news widget reads RSS and Atom feeds from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames an allowed page (lib/Service/IframeService.php:9), the same half Homarr and Dashy are rated partial for; the other intranet's documents are missing. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass)."
+			"note": "Corrected 2026-09-27 (openspec pass): the news widget reads RSS and Atom feeds from any allowed host (lib/Service/NewsWidgetService.php:133) and the embed widget frames an allowed page (lib/Service/IframeService.php:9), the same half Homarr and Dashy are rated partial for; the other intranet's documents are missing. Specified 2026-09-27 in openspec/changes/integrations-live-tile-lists (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "int-connections-status",
@@ -2828,6 +3166,10 @@
 				"dashy": "source read at 4.7.0: each widget shows its own fetch error (WidgetBase.vue, ignoreErrors ConfigSchema.json:1511); searched src and services for connections overview, last success: no list of the outside sources the dashboard uses",
 				"workspace-365": "not checked: W365 integration builder guide for a connection health overview",
 				"microsoft-viva": "not checked: learn.microsoft.com dashboard pages for connection status"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpManagement"
 			}
 		},
 		{
@@ -2858,7 +3200,11 @@
 			"providerHow": "read-from-code",
 			"feature": "conditional-visibility",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpZichtbaarheid"
+			}
 		},
 		{
 			"id": "t-hours",
@@ -2888,6 +3234,10 @@
 				"dashy": "source read at 4.7.0: src/utils/IsVisibleToUser.js:79-83 checks only users, guests, groups and roles; searched src for hour, weekday, schedule: none",
 				"workspace-365": "not checked: W365 conditional access and app settings for time windows",
 				"microsoft-viva": "not checked: audience targeting page for time-of-day rules"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpZichtbaarheid"
 			}
 		},
 		{
@@ -2918,6 +3268,10 @@
 				"dashy": "source read at 4.7.0: src/utils/IsVisibleToUser.js:79-83 has no date rule; searched src for startDate, endDate, expires in displayData: none",
 				"workspace-365": "not checked: W365 tile settings for date windows (announcements have end dates, tiles not described)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/viva/connections/announcements-viva-connections announcements (not cards) 'schedule a future send date' and an end date 'up to two weeks from posting' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpZichtbaarheid"
 			}
 		},
 		{
@@ -2948,7 +3302,11 @@
 			"providerHow": "read-from-code",
 			"feature": "conditional-visibility",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpZichtbaarheid"
+			}
 		},
 		{
 			"id": "t-preview",
@@ -2978,6 +3336,10 @@
 				"dashy": "source read at 4.7.0: searched src for preview as, impersonate, view as: none; the only preview is of an edited config (en.json config-editor.preview-button)",
 				"workspace-365": "not checked: W365 permission and space articles for preview-as-user",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/use-audience-targeting-sharepoint-app-in-teams 'Open the Select audiences to preview as drop-down list' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpZichtbaarheid"
 			}
 		},
 		{
@@ -3008,6 +3370,10 @@
 				"dashy": "source read at 4.7.0: searched src/components for a list of visibility rules: none; rules live in each section's displayData in the YAML",
 				"workspace-365": "not checked: W365 admin articles for an overview of targeted tiles ('permissions viewer' is about users and groups)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/use-audience-targeting-sharepoint-app-in-teams 'An icon appears on the card indicating audience targeting is applied'; no central overview (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAnalyse"
 			}
 		},
 		{
@@ -3038,6 +3404,13 @@
 				"dashy": "source read at 4.7.0: src/store.js:224-248 permissions are three booleans (write to disk, save locally, view config); nothing limits widget types per group",
 				"workspace-365": "https://support.workspace365.net/en/articles/175398-understand-and-manage-user-permissions per-group permission 'Edit your own workplace, create personal tile groups and add tiles' (all or nothing, not per kind) (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/available-dashboard-cards partner cards need App Catalog Admin approval before they appear in the toolbox; tenant-wide, not per group (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpBeheerRollen",
+					"LpWidgetKiezen"
+				]
 			}
 		},
 		{
@@ -3068,7 +3441,11 @@
 			"providerHow": "read-from-code",
 			"feature": "admin-roles",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerRollen"
+			}
 		},
 		{
 			"id": "t-compulsory",
@@ -3099,7 +3476,11 @@
 			"feature": "permissions",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "The server refuses removal only on add-only dashboards; a user with full permission can remove a compulsory widget (PermissionService::canRemoveWidget returns true for full)."
+			"note": "The server refuses removal only on add-only dashboards; a user with full permission can remove a compulsory widget (PermissionService::canRemoveWidget returns true for full).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "t-device",
@@ -3185,6 +3566,10 @@
 				"dashy": "source read at 4.7.0: there is one shared config, not one per group; searched src for priority, precedence: none",
 				"workspace-365": "https://support.workspace365.net/en/articles/175398-understand-and-manage-user-permissions 'Allow combined with Deny results in Deny' for permissions; no priority among group spaces described (read 2026-09-26)",
 				"microsoft-viva": "https://www.microsoft.com/releasecommunications/api/v1/m365 roadmap 567887 admins 'configure audience targeting, manage home site priority order' across home sites (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerDelen"
 			}
 		},
 		{
@@ -3215,6 +3600,10 @@
 				"dashy": "source read at 4.7.0: src/store.js:224-248 only admin versus non-admin plus three global flags; no per-role action grid",
 				"workspace-365": "https://support.workspace365.net/en/articles/175398-understand-and-manage-user-permissions permissions set 'per group or to all users' via Default permissions and Group management (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/edit-sharepoint-app-in-teams fixed Owner, Member, Visitor table; no custom grid (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerRollen"
 			}
 		},
 		{
@@ -3245,7 +3634,11 @@
 			"providerHow": "read-from-code",
 			"feature": "admin-templates",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerSjablonen"
+			}
 		},
 		{
 			"id": "r-permission-levels",
@@ -3275,7 +3668,14 @@
 			"providerHow": "read-from-code",
 			"feature": "permissions",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpDelen",
+					"LpIntranet"
+				]
+			}
 		},
 		{
 			"id": "r-resync",
@@ -3305,6 +3705,10 @@
 				"dashy": "source read at 4.7.0: a personal 'Save Locally' copy replaces the shared sections (src/store.js:125-128) and never receives template changes; searched src for merge template, resync: none",
 				"workspace-365": "https://support.workspace365.net/en/articles/703640-using-and-organising-spaces-in-workspace-365 template can be pushed to current users but 'the order of tile groups may look different'; no merge choice (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard 'Any updates or changes to the dashboard by an owner ... will override the user's personal changes'; no merge choice (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerSjablonen"
 			}
 		},
 		{
@@ -3335,7 +3739,11 @@
 			"providerHow": "read-from-code",
 			"feature": "admin-templates",
 			"featureConfidence": "medium",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "r-wizard",
@@ -3365,6 +3773,10 @@
 				"dashy": "source read at 4.7.0: searched src/components and src/views for setup, wizard, onboard: none; first run shows the sample conf.yml",
 				"workspace-365": "not checked: W365 get-started collection for a guided in-product setup (setup is partner-led)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview 'quick guide to set up'; first edit asks for a primary audience to generate default cards (https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard) (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpInstellen"
 			}
 		},
 		{
@@ -3395,6 +3807,10 @@
 				"dashy": "source read at 4.7.0: user-data/conf.yml ships one sample page with 'Getting Started' links and an image widget; no installable set of example dashboards",
 				"workspace-365": "https://support.workspace365.net/en/articles/175367 'Creating a demo environment' for partners; example dashboards inside a customer environment not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: setup pages for demo dashboards"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpInstellen"
 			}
 		},
 		{
@@ -3426,7 +3842,11 @@
 			"feature": "admin-roles",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "Roles are assigned in the setup wizard; this reading found no other screen that lists or edits them."
+			"note": "Roles are assigned in the setup wizard; this reading found no other screen that lists or edits them.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerRollen"
+			}
 		},
 		{
 			"id": "r-bulk",
@@ -3456,6 +3876,10 @@
 				"dashy": "source read at 4.7.0: pages are edited one config file at a time (src/components/InteractiveEditor/EditMultiPages.vue); searched src for bulk, select all: none",
 				"workspace-365": "not checked: W365 admin articles for bulk actions on spaces",
 				"microsoft-viva": "not checked: dashboard pages for bulk actions"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
 			}
 		},
 		{
@@ -3486,7 +3910,11 @@
 			"providerHow": "read-from-code",
 			"feature": "dashboard-export-import",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
+			}
 		},
 		{
 			"id": "r-migrate-from",
@@ -3544,6 +3972,10 @@
 				"dashy": "source read at 4.7.0: searched src and services for confluence: none",
 				"workspace-365": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/5-ecosystem 'Confluence - Content Search' in global search; not as dashboard content (read 2026-09-26)",
 				"microsoft-viva": "not checked: available-dashboard-cards for Confluence"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
 			}
 		},
 		{
@@ -3575,6 +4007,13 @@
 				"dashy": "source read at 4.7.0: a config published at a URL can be previewed and applied with ?config=<url> (RemoteConfigLoader.vue:62-70, en.json:127-128 'Load Remote Config?') and a page path can be a remote URL (src/store.js:507); there is no shared registry to browse",
 				"workspace-365": "not checked: W365; 'Pre-built integrations store' is only planned on the productboard",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/edit-sharepoint-app-in-teams ACE solution gallery on AppSource offers cards; whole dashboards are not shared through it (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpStore",
+					"LpBeheerDelen"
+				]
 			}
 		},
 		{
@@ -3605,6 +4044,10 @@
 				"dashy": "source read at 4.7.0: ConfigSchema.json limits are fixed schema bounds (navLinks maxItems 6, :166); searched src for quota, per-user limit: none",
 				"workspace-365": "not checked: W365 admin articles for limits on spaces or tiles",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard 'You can set the maximum number of cards you want to display'; ~20 cards advised; no per-person dashboard quota (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAlgemeen"
 			}
 		},
 		{
@@ -3635,6 +4078,10 @@
 				"dashy": "source read at 4.7.0: ConfigSchema.json:829-846 preventLocalSave and disableConfigurationForNonAdmin switch off personal edits (src/store.js:233-247)",
 				"workspace-365": "https://support.workspace365.net/en/articles/703640-using-and-organising-spaces-in-workspace-365 admins 'prevent users from customizing their Personal space' via the permission 'Edit own workspace' (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard 'Disabling user customization resets all user dashboard views to what the organization created' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAlgemeen"
 			}
 		},
 		{
@@ -3665,7 +4112,11 @@
 			"providerHow": "read-from-code",
 			"feature": "dashboard-sharing",
 			"featureConfidence": "high",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDelen"
+			}
 		},
 		{
 			"id": "s-public",
@@ -3695,6 +4146,13 @@
 				"dashy": "source read at 4.7.0: without auth the whole instance is open, and with auth enableGuestAccess (ConfigSchema.json:606-611, src/utils/auth/Auth.js:120-123) gives read-only guest viewing, trimmed per page, section or item by hideForGuests (:64, :1033); this is instance-wide guest mode, not a link per dashboard",
 				"workspace-365": "not checked: W365 spaces articles for public links",
 				"microsoft-viva": "not checked: dashboard pages for anonymous links"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpDelen",
+					"LpPubliek"
+				]
 			}
 		},
 		{
@@ -3725,6 +4183,10 @@
 				"dashy": "source read at 4.7.0: searched src and services for link password, expiry: none; only instance-wide HTTP basic auth (ENABLE_HTTP_AUTH, services/app.js) with no end date",
 				"workspace-365": "not checked: W365 for password protected public links",
 				"microsoft-viva": "not checked: dashboard pages for protected links"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDelen"
 			}
 		},
 		{
@@ -3755,6 +4217,10 @@
 				"dashy": "source read at 4.7.0: src/utils/auth/Auth.js:138-176 checks built-in credentials in the browser; searched services for rate limit, throttle, lockout: none",
 				"workspace-365": "not checked: W365 security articles for public link throttling",
 				"microsoft-viva": "not checked: dashboard pages for link throttling"
+			},
+			"screen": {
+				"board": null,
+				"reason": "Het vertragen van geraden wachtwoorden gebeurt op de server; een bezoeker merkt alleen een trager antwoord."
 			}
 		},
 		{
@@ -3785,6 +4251,10 @@
 				"dashy": "source read at 4.7.0: searched src and services for notification of shares: none (only LocalConfigWarning.vue, a local-config notice)",
 				"workspace-365": "not checked: W365 activity feed for space-shared notifications",
 				"microsoft-viva": "not checked: news notifications page covers news, not dashboard shares"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
 			}
 		},
 		{
@@ -3816,7 +4286,11 @@
 			"feature": "dashboard-kiosk-mode",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "openspec/features.overlay.json advertises dashboard-kiosk-mode as stable (\"You rotate dashboards on a lobby screen unattended\")."
+			"note": "openspec/features.overlay.json advertises dashboard-kiosk-mode as stable (\"You rotate dashboards on a lobby screen unattended\").",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpKiosk"
+			}
 		},
 		{
 			"id": "s-schedule",
@@ -3847,7 +4321,11 @@
 				"workspace-365": "not checked: W365 spaces for scheduled go-live",
 				"microsoft-viva": "not checked: dashboard publish is manual; no schedule found"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request)."
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDelen"
+			}
 		},
 		{
 			"id": "s-policy",
@@ -3877,6 +4355,10 @@
 				"dashy": "source read at 4.7.0: no sharing exists to govern; permissions are three global flags (src/store.js:224-248)",
 				"workspace-365": "not checked: W365 permissions for a sharing policy",
 				"microsoft-viva": "not checked: dashboard pages for sharing policy"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerDelen"
 			}
 		},
 		{
@@ -3907,6 +4389,10 @@
 				"dashy": "source read at 4.7.0: dashboards are not owned by users; searched services for user deletion or transfer: none",
 				"workspace-365": "not checked: W365 user management for ownership transfer",
 				"microsoft-viva": "not checked: dashboard pages for ownership transfer"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
 			}
 		},
 		{
@@ -3966,7 +4452,14 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/175643-best-practices 'Must-read' items use 'the pop-up function'; https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched launched 'Read / unread hub items'; an explicit confirm button not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: announcements page offers 'Allow users to dismiss', no read confirmation found"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request)."
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpIntranet",
+					"LpAankondiging"
+				]
+			}
 		},
 		{
 			"id": "e-ack-report",
@@ -3996,6 +4489,10 @@
 				"dashy": "source read at 4.7.0: no acknowledgements exist (searched src and services for acknowledge, export csv of readers: none)",
 				"workspace-365": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched launched 'See who has read an announcement (insights)'; spreadsheet export not described for readers (read 2026-09-26)",
 				"microsoft-viva": "not checked: announcements and analytics pages for per-user read lists (analytics are aggregated)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpLeesbevestigingen"
 			}
 		},
 		{
@@ -4027,7 +4524,11 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/284826-create-announcements emoji reactions 'like, love, sad, celebrate, laugh, thanks' on announcements, not on a space (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-news-notifications 'Likes' on news posts; not on the dashboard (read 2026-09-26)"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request)."
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "e-announcements",
@@ -4056,7 +4557,14 @@
 			"providerHow": "research-then-code",
 			"feature": "news-and-announcements",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpIntranet",
+					"LpAankondiging"
+				]
+			}
 		},
 		{
 			"id": "e-events",
@@ -4141,7 +4649,11 @@
 			"providerHow": "research-then-code",
 			"feature": "communities-events-and-knowledge",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/engagement-communities (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-communities (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "e-digest",
@@ -4170,7 +4682,11 @@
 			"providerHow": "research-then-code",
 			"feature": "news-and-announcements",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/engagement-activity-digest (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/engagement-activity-digest (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpPersoonlijk"
+			}
 		},
 		{
 			"id": "e-activity-stream",
@@ -4231,7 +4747,14 @@
 			"feature": "news-and-announcements",
 			"featureConfidence": "medium",
 			"origin": "competitor",
-			"note": "Possible by hand with a date-limited text widget; there is no notice type. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
+			"note": "Possible by hand with a date-limited text widget; there is no notice type. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpIntranet",
+					"LpAankondiging"
+				]
+			}
 		},
 		{
 			"id": "a-find-dashboard",
@@ -4261,6 +4784,10 @@
 				"dashy": "source read at 4.7.0: Dashy is a standalone app with its own search over items (src/utils/Search.js:15-21), not pages; there is no Nextcloud search provider (no appinfo or PHP in the tree)",
 				"workspace-365": "not checked: W365 global search categories do not list spaces",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/create-dashboard dashboard thumbnail and description 'to be shown in search results' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
 			}
 		},
 		{
@@ -4322,7 +4849,11 @@
 			"providerHow": "research-then-code",
 			"feature": "launchpad-ai-dashboard-assistant",
 			"featureConfidence": "high",
-			"origin": "competitor"
+			"origin": "competitor",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "a-place-widget",
@@ -4353,7 +4884,11 @@
 				"workspace-365": "not checked: Kelly FAQ for placing tiles",
 				"microsoft-viva": "not checked: dashboard pages for AI card placement; roadmap 558441 'add webparts' by prompt is for SharePoint pages and In development"
 			},
-			"note": "Specified in openspec/changes/mcp-tool-surface (named 2026-09-27, openspec pass): the scenario \"Add the calendar widget to my dashboard\" resolves a plain request to launchpad.addWidget through hermiq. The features overlay entry (openspec/features.overlay.json:231) had pointed at the assistant widget spec, which places nothing."
+			"note": "Specified in openspec/changes/mcp-tool-surface (named 2026-09-27, openspec pass): the scenario \"Add the calendar widget to my dashboard\" resolves a plain request to launchpad.addWidget through hermiq. The features overlay entry (openspec/features.overlay.json:231) had pointed at the assistant widget spec, which places nothing.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetKiezen"
+			}
 		},
 		{
 			"id": "a-agent-tools",
@@ -4384,6 +4919,10 @@
 				"dashy": "source read at 4.7.0: services/endpoints/api/openapi.yml:75-330 opt-in REST API (ENABLE_API, API_TOKEN) to list, read, replace and patch configs, sections and items; no MCP or other agent tool interface (searched src, services, docs for mcp: none)",
 				"workspace-365": "not checked: W365 API docs for an agent tool interface",
 				"microsoft-viva": "not checked: dashboard pages for agent tools"
+			},
+			"screen": {
+				"board": null,
+				"reason": "Een koppelvlak voor AI-agenten (MCP), zonder eigen scherm."
 			}
 		},
 		{
@@ -4470,6 +5009,10 @@
 				"dashy": "source read at 4.7.0: searched services for view counts, analytics: none; usage counts stay in the browser (src/mixins/ItemMixin.js:385)",
 				"workspace-365": "https://support.workspace365.net/en/articles/175636-analytics-of-a-workspace-365-environment 'usage of the Hub', 'usage per app', 'active users'; per space and export not described (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-analytics total views, engaged users per card; 'Download report ... Excel spreadsheet' (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAnalyse"
 			}
 		},
 		{
@@ -4500,6 +5043,13 @@
 				"dashy": "source read at 4.7.0: there is no server-side view tracking to opt out of (searched services for track, analytics: none); only local click counts that can be reset by clearing site data",
 				"workspace-365": "not checked: W365 analytics article on opt-out or retention",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-analytics data 'aggregated and can't be tracked to an individual user'; tenant can disable analytics; no per-person opt-out (read 2026-09-26)"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpPersoonlijk",
+					"LpBeheerAnalyse"
+				]
 			}
 		},
 		{
@@ -4530,6 +5080,10 @@
 				"dashy": "source read at 4.7.0: services/app.js:229-235 GET healthz returns status, uptime, version; yarn health-check (services/healthcheck.js); the config menu has a hidden Debug Info tab with error log and environment (src/components/Configuration/ConfigContainer.vue:40, :76); no admin health page",
 				"workspace-365": "not checked: W365 admin articles for a health page",
 				"microsoft-viva": "not checked: dashboard pages for health checks"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
 			}
 		},
 		{
@@ -4560,6 +5114,10 @@
 				"dashy": "source read at 4.7.0: searched services and src for prometheus, metrics endpoint: none (UptimeKuma.vue:35 only reads another tool's metrics)",
 				"workspace-365": "not checked: W365 docs for Prometheus",
 				"microsoft-viva": "not checked: dashboard pages for Prometheus"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
 			}
 		},
 		{
@@ -4621,7 +5179,11 @@
 				"workspace-365": "not checked: W365 activity feed for space changes",
 				"microsoft-viva": "not checked: dashboard pages for change activity"
 			},
-			"note": "Own rating yes to partial (corrections round 8, 2026-09-28): only 2 of the 14 declared dashboard event types are ever published, so ordinary edits, shares and publishes never reach the activity stream, launchpad#713."
+			"note": "Own rating yes to partial (corrections round 8, 2026-09-28): only 2 of the 14 declared dashboard event types are ever published, so ordinary edits, shares and publishes never reach the activity stream, launchpad#713.",
+			"screen": {
+				"board": null,
+				"reason": "Wijzigingen verschijnen in de Activiteit-app van Nextcloud, niet op een scherm van Launchpad."
+			}
 		},
 		{
 			"id": "g-cleanup",
@@ -4651,6 +5213,10 @@
 				"dashy": "source read at 4.7.0: there is no per-user server data to clean; personal changes live in each browser (src/store.js:96-130); searched services for user deletion: none",
 				"workspace-365": "not checked: W365 user management for cleanup",
 				"microsoft-viva": "not checked: dashboard pages for cleanup"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerOnderhoud"
 			}
 		},
 		{
@@ -4681,6 +5247,10 @@
 				"dashy": "source read at 4.7.0: package.json scripts validate-config (services/utils/config-validator.js) and health-check; config files can be listed, read, replaced and deleted over the REST API with curl (openapi.yml:75-128); no dedicated dashboard CLI",
 				"workspace-365": "not checked: W365 'Create & Delete environment script' covers environments, not spaces",
 				"microsoft-viva": "not checked: PowerShell pages for dashboard commands (only analytics toggle found)"
+			},
+			"screen": {
+				"board": null,
+				"reason": "Commando's op de server (occ), zonder scherm."
 			}
 		},
 		{
@@ -4711,6 +5281,13 @@
 				"dashy": "source read at 4.7.0: ConfigSchema.json:199-203 pageInfo.footer with sanitised inline HTML, rendered on every page by src/components/PageStrcture/Footer.vue:2",
 				"workspace-365": "not checked: W365 branding for a footer",
 				"microsoft-viva": "not checked: edit page for a dashboard footer"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpWerkplek",
+					"LpBeheerNavigatie"
+				]
 			}
 		},
 		{
@@ -4744,6 +5321,10 @@
 				"dashy": "source read at 4.7.0: services/utils/request.js:14-52 the proxy only blocks cloud metadata hosts (escape hatch DANGEROUSLY_DISABLE_PROXY_RESTRICTIONS); the iframe and embed widgets load any site; no allow-list",
 				"workspace-365": "not checked: https://support.workspace365.net/en/articles/175489-content-security-policy-csp allow-list governs where Workspace itself may be embedded, not what tiles fetch",
 				"microsoft-viva": "not checked: dashboard pages for an allow-list"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAlgemeen"
 			}
 		},
 		{
@@ -4774,6 +5355,10 @@
 				"dashy": "source read at 4.7.0: there is no icon upload (searched src for upload, type=file: none); remote SVG icons are shown as img (src/components/LinkItems/ItemIcon.vue:110), which keeps scripts from running, but nothing cleans them",
 				"workspace-365": "not checked: W365 branding for icon sanitising",
 				"microsoft-viva": "not checked: dashboard pages for icon sanitising"
+			},
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
 			}
 		},
 		{
@@ -4803,7 +5388,11 @@
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "launchpad-enterprise-security-access",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"board": null,
+				"reason": "Aanmelden loopt via Nextcloud en de identiteitsprovider van de organisatie, niet via een scherm van Launchpad."
+			}
 		},
 		{
 			"id": "p-mobile-app",
@@ -4862,7 +5451,11 @@
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "self-hosting",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"board": null,
+				"reason": "Hosting op eigen servers, geen scherm."
+			}
 		},
 		{
 			"id": "p-theme",
@@ -4891,7 +5484,11 @@
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "theming-and-languages",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"board": null,
+				"reason": "De huisstijl komt uit Nextcloud en thematiq; elk Launchpad-scherm volgt die, er is geen eigen scherm voor."
+			}
 		},
 		{
 			"id": "p-custom-css",
@@ -4920,7 +5517,11 @@
 			"providerHow": "research-then-code",
 			"feature": "theming-and-languages",
 			"origin": "competitor",
-			"note": "Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass)."
+			"note": "Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBeheerAlgemeen"
+			}
 		},
 		{
 			"id": "p-background",
@@ -4978,7 +5579,11 @@
 			"providerHow": "read-from-code",
 			"feature": "theming-and-languages",
 			"featureConfidence": "medium",
-			"origin": "own-code"
+			"origin": "own-code",
+			"screen": {
+				"board": null,
+				"reason": "De taal komt uit de persoonlijke instellingen van Nextcloud; elk scherm volgt die."
+			}
 		},
 		{
 			"id": "p-standalone",
@@ -5008,6 +5613,10 @@
 				"dashy": "source read at 4.7.0: Dashy is its own Node and Vue app (server.js, Dockerfile); there is no Nextcloud app (no appinfo/info.xml or PHP in the tree), so it cannot be installed on Nextcloud",
 				"workspace-365": "https://support.workspace365.net/en/articles/175370-workspace-365-configuration-possibilities every version needs SharePoint and Exchange (cloud or on-premises) (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview 'built on the SharePoint home site technology' and Teams; cannot run without them (read 2026-09-26)"
+			},
+			"screen": {
+				"board": null,
+				"reason": "Installatie op een kale Nextcloud, geen scherm."
 			}
 		},
 		{
@@ -5068,7 +5677,11 @@
 			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/24658",
-			"note": "A placed widget stays clickable in the picker (WidgetPickerModal.vue:36, :165 isPlaced only styles it) and the placement table has no unique index on dashboard and widget (PlacementTableBuilder.php:239-248)."
+			"note": "A placed widget stays clickable in the picker (WidgetPickerModal.vue:36, :165 isPlaced only styles it) and the placement table has no unique index on dashboard and widget (PlacementTableBuilder.php:239-248).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpBewerken"
+			}
 		},
 		{
 			"id": "d-teams",
@@ -5160,7 +5773,11 @@
 			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/nextcloud/server/issues/51332",
-			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778. Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass)."
+			"note": "The target is fixed by link type: web-address tiles always open in a new tab and app tiles in the same tab (TileWidget.vue:41). Nobody can choose it per tile, per dashboard or per user. Also mined from https://github.com/homarr-labs/homarr/issues/3778. Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "d-auto-refresh",
@@ -5192,7 +5809,14 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/nextcloud/server/pull/62624",
-			"note": "Nextcloud widgets that declare reloadInterval are refreshed on a timer (WidgetRenderer.vue:442-447, :536 setupAutoRefresh); live value tiles refresh on their own interval (row w-live-value)."
+			"note": "Nextcloud widgets that declare reloadInterval are refreshed on a timer (WidgetRenderer.vue:442-447, :536 setupAutoRefresh); live value tiles refresh on their own interval (row w-live-value).",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpManagement",
+					"LpWidgetInstellen"
+				]
+			}
 		},
 		{
 			"id": "d-idp-groups",
@@ -5224,7 +5848,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.66.1",
-			"note": "LaunchPad targets Nextcloud groups (RuleEvaluatorService.php:125, the same path as row t-groups), and the Nextcloud login apps (user_oidc, user_saml) provision those groups from the identity provider's claims at sign-in. LaunchPad itself holds no group sync; the platform does."
+			"note": "LaunchPad targets Nextcloud groups (RuleEvaluatorService.php:125, the same path as row t-groups), and the Nextcloud login apps (user_oidc, user_saml) provision those groups from the identity provider's claims at sign-in. LaunchPad itself holds no group sync; the platform does.",
+			"screen": {
+				"board": null,
+				"reason": "Groepslidmaatschap komt bij het aanmelden van de identiteitsprovider, zonder scherm."
+			}
 		},
 		{
 			"id": "d-tour",
@@ -5256,7 +5884,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.64.0",
-			"note": "The manifest declares a first-visit walkthrough (manifest.json:471-500, trigger first-visit, per-user completion key) that the shared shell renders: nextcloud-vue CnAppRoot.vue:464 mounts CnWalkthrough from manifest.walkthrough (nextcloud-vue development d239cf54), and App.vue:16 mounts CnAppRoot."
+			"note": "The manifest declares a first-visit walkthrough (manifest.json:471-500, trigger first-visit, per-user completion key) that the shared shell renders: nextcloud-vue CnAppRoot.vue:464 mounts CnWalkthrough from manifest.walkthrough (nextcloud-vue development d239cf54), and App.vue:16 mounts CnAppRoot.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpEersteKeer"
+			}
 		},
 		{
 			"id": "d-pwa",
@@ -5288,7 +5920,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.61.0",
-			"note": "The web app manifest is Nextcloud's: nextcloud/server v35.0.1 apps/theming/lib/Controller/ThemingController.php:459-510 serves a per-app manifest with start_url and display standalone (route /apps/theming/manifest/{app}). LaunchPad adds nothing of its own; the cited LaunchPad line is its use of the theme variables the installed app inherits."
+			"note": "The web app manifest is Nextcloud's: nextcloud/server v35.0.1 apps/theming/lib/Controller/ThemingController.php:459-510 serves a per-app manifest with start_url and display standalone (route /apps/theming/manifest/{app}). LaunchPad adds nothing of its own; the cited LaunchPad line is its use of the theme variables the installed app inherits.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpMobiel"
+			}
 		},
 		{
 			"id": "d-rest-api",
@@ -5320,7 +5956,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.50.0",
-			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0. Specified 2026-09-27 in openspec/changes/governance-rest-api-reference (openspec pass)."
+			"note": "LaunchPad exposes about 180 JSON routes (appinfo/routes.php) that work with a Nextcloud app password, but ships no OpenAPI file or public API reference (searched the repo for openapi: only the OpenRegister register files). Usable, not documented. Also mined from https://github.com/Lissy93/dashy/releases/tag/4.4.0. Specified 2026-09-27 in openspec/changes/governance-rest-api-reference (openspec pass).",
+			"screen": {
+				"board": null,
+				"reason": "Een REST-API voor andere systemen, zonder scherm."
+			}
 		},
 		{
 			"id": "d-proxy",
@@ -5352,7 +5992,11 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.48.0",
-			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none."
+			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none.",
+			"screen": {
+				"board": null,
+				"reason": "Uitgaande verzoeken gebruiken de proxy-instelling van de server, zonder scherm."
+			}
 		},
 		{
 			"id": "d-single-logout",
@@ -5413,7 +6057,11 @@
 			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/homarr-labs/homarr/issues/1014",
-			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export). Specified 2026-09-27 in openspec/changes/launcher-bookmark-import (openspec pass)."
+			"note": "Searched src and lib for bookmark import, netscape and html import: no importer for browser bookmark files; tiles are made one at a time or arrive through dashboard import (row r-export). Specified 2026-09-27 in openspec/changes/launcher-bookmark-import (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelToevoegen"
+			}
 		},
 		{
 			"id": "d-notes",
@@ -5445,7 +6093,11 @@
 			"featureConfidence": "high",
 			"origin": "featureRequest",
 			"originUrl": "https://github.com/Lissy93/dashy/issues/636",
-			"note": "A text widget on your own dashboard can hold notes (widget-types.json:37, rendered by nextcloud-vue), but it is edited in dashboard edit mode, not a quick notepad you type into in place. Specified in ConductionNL/nextcloud-vue openspec/changes/dashboard-notepad-widget (nextcloud-vue lane, OpenSpec pass 2026-09-27)."
+			"note": "A text widget on your own dashboard can hold notes (widget-types.json:37, rendered by nextcloud-vue), but it is edited in dashboard edit mode, not a quick notepad you type into in place. Specified in ConductionNL/nextcloud-vue openspec/changes/dashboard-notepad-widget (nextcloud-vue lane, OpenSpec pass 2026-09-27).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "d-internal-url",
@@ -5476,7 +6128,11 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.4.0",
-			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on. Specified 2026-09-27 in openspec/changes/launcher-tile-internal-address (openspec pass)."
+			"note": "A tile holds one address (TileWidget.vue:41 and :158 split only Nextcloud-internal paths from external URLs); searched src and lib for internal, external and network-aware URLs: nothing picks an address by the network you are on. Specified 2026-09-27 in openspec/changes/launcher-tile-internal-address (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "d-theme-per-dashboard",
@@ -5508,7 +6164,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.0.0",
-			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255). Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass)."
+			"note": "Each dashboard carries its own grid_columns (DashboardTableBuilder.php:173) and has per-language content variants in the backend (lib/Db/DashboardTranslation.php:6, no page reaches them, row dash-languages), but there is no theme, colour or background per dashboard (dashboard columns at DashboardTableBuilder.php:75-255). Specified 2026-09-27 in openspec/changes/platform-dashboard-theme-and-css (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpDashboardInstellingen"
+			}
 		},
 		{
 			"id": "d-open-inside",
@@ -5540,7 +6200,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41). Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass)."
+			"note": "An embed widget shows another site inside the dashboard (IframeWidget.vue:38, host allow-list, row w-embed), but a tile cannot open its app in a side panel next to the tiles; tiles navigate away or open a new tab (TileWidget.vue:41). Specified 2026-09-27 in openspec/changes/launcher-tile-open-behaviour (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "d-search-prefix",
@@ -5571,7 +6235,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none. Specified 2026-09-27 in openspec/changes/search-ai-prefix-shortcuts (openspec pass)."
+			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none. Specified 2026-09-27 in openspec/changes/search-ai-prefix-shortcuts (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "d-dark-mode",
@@ -5603,7 +6271,11 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "LaunchPad draws with Nextcloud's theme variables (WorkspaceApp.vue:480, :500), and Nextcloud's theming app switches them by the device's colour scheme through media-query themes (nextcloud/server v35.0.1 apps/theming/lib/Service/ThemeInjectionService.php:39-48). Also mined from https://www.microsoft.com/releasecommunications/api/v1/m365."
+			"note": "LaunchPad draws with Nextcloud's theme variables (WorkspaceApp.vue:480, :500), and Nextcloud's theming app switches them by the device's colour scheme through media-query themes (nextcloud/server v35.0.1 apps/theming/lib/Service/ThemeInjectionService.php:39-48). Also mined from https://www.microsoft.com/releasecommunications/api/v1/m365.",
+			"screen": {
+				"board": null,
+				"reason": "Licht of donker volgt het apparaat en de Nextcloud-instelling; elk scherm volgt die."
+			}
 		},
 		{
 			"id": "d-tile-sort",
@@ -5634,7 +6306,11 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/4.6.0",
-			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120). Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass)."
+			"note": "Tiles sit where they were placed on the grid; searched TileWidget, the links and quick links widgets for sortBy, sortOrder and sortMode: none. Only the people widget has a sort (PeopleWidget.vue:120). Specified 2026-09-27 in openspec/changes/launcher-tile-sorting (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpTegelBewerken"
+			}
 		},
 		{
 			"id": "d-ai-write",
@@ -5726,7 +6402,11 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/766599-release-notes-workspace-365-v4-46",
-			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass)."
+			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "d-news-preview",
@@ -5757,7 +6437,11 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"originUrl": "https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched",
-			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass)."
+			"note": "LaunchPad reads outside news feeds (row w-news) and has no news authoring (row e-announcements is no), so there is nothing to preview before publishing. Specified 2026-09-27 in openspec/changes/engagement-announcements (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpAankondiging"
+			}
 		},
 		{
 			"id": "d-recurring-events",
@@ -5879,7 +6563,11 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/296963",
-			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; Súdwest-Fryslân 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page."
+			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; Súdwest-Fryslân 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page.",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpStart"
+			}
 		},
 		{
 			"id": "w-attention",
@@ -5899,7 +6587,11 @@
 			},
 			"reachedOn": "Workspace page, Add widget, First today",
 			"source": "spec-round-2026-10-07",
-			"feature": "nc-dashboard-widget-proxy"
+			"feature": "nc-dashboard-widget-proxy",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpStart"
+			}
 		},
 		{
 			"id": "w-menu",
@@ -5919,7 +6611,11 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Menu",
 			"source": "spec-round-2026-10-07",
-			"feature": "organisation-navigation"
+			"feature": "organisation-navigation",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		},
 		{
 			"id": "w-quicklinks",
@@ -5939,7 +6635,11 @@
 			},
 			"reachedOn": "Workspace page, Add widget, Quick links",
 			"source": "spec-round-2026-10-07",
-			"feature": "tiles"
+			"feature": "tiles",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWerkplek"
+			}
 		},
 		{
 			"id": "d-public-start",
@@ -5971,7 +6671,11 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.publicprocurement.be/nl/publication-workspaces/204ca8ae-6191-43b9-ac3b-c943f91d1d2d",
-			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass)."
+			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpPubliek"
+			}
 		},
 		{
 			"id": "d-find-expert",
@@ -6003,7 +6707,315 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/418890",
-			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass)."
+			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass).",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpIntranet"
+			}
 		}
-	]
+	],
+	"specScreens": {
+		"activity-feed-integration": {
+			"board": null,
+			"reason": "Gebeurtenissen verschijnen in de Activiteit-app van Nextcloud, niet op een scherm van Launchpad."
+		},
+		"beta-alignment": {
+			"board": null,
+			"reason": "Interne afstemming van app-informatie, manifest en documentatie."
+		},
+		"calendar-widget": {
+			"board": [
+				"LpStart",
+				"LpWerkplek"
+			]
+		},
+		"cli-commands": {
+			"board": null,
+			"reason": "Commando's op de server (occ), zonder scherm."
+		},
+		"clock-weather-widgets": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"conditional-visibility-editor": {
+			"board": [
+				"LpZichtbaarheid"
+			]
+		},
+		"confluence-html-import": {
+			"board": [
+				"LpBeheerOnderhoud"
+			]
+		},
+		"container-widget": {
+			"board": [
+				"LpManagement"
+			]
+		},
+		"dashboard-acknowledgements": {
+			"board": [
+				"LpIntranet",
+				"LpLeesbevestigingen"
+			]
+		},
+		"dashboard-bulk-operations": {
+			"board": [
+				"LpBeheerOnderhoud"
+			]
+		},
+		"dashboard-cascade-events": {
+			"board": null,
+			"reason": "Opruimen van afhankelijke gegevens bij het verwijderen van een dashboard gebeurt op de achtergrond."
+		},
+		"dashboard-kiosk-mode": {
+			"board": [
+				"LpKiosk"
+			]
+		},
+		"dashboard-language-content": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"dashboard-locking": {
+			"board": [
+				"LpBewerken"
+			]
+		},
+		"dashboard-metadata-fields": {
+			"board": [
+				"LpDashboardInstellingen"
+			]
+		},
+		"dashboard-public-share": {
+			"board": [
+				"LpDelen",
+				"LpPubliek"
+			]
+		},
+		"dashboard-quota-limits": {
+			"board": [
+				"LpBeheerAlgemeen"
+			]
+		},
+		"dashboard-reactions": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"dashboard-store": {
+			"board": [
+				"LpStore"
+			]
+		},
+		"dashboard-switcher": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"dashboard-versioning": {
+			"board": [
+				"LpVersies"
+			]
+		},
+		"dashboard-view-analytics": {
+			"board": [
+				"LpBeheerAnalyse"
+			]
+		},
+		"demo-data-showcases": {
+			"board": [
+				"LpInstellen"
+			]
+		},
+		"divider-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"effective-default-marker": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"files-widget": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"first-time-setup": {
+			"board": [
+				"LpInstellen"
+			]
+		},
+		"footer-customization": {
+			"board": [
+				"LpWerkplek",
+				"LpBeheerNavigatie"
+			]
+		},
+		"groupfolder-storage-backend": {
+			"board": null,
+			"reason": "Ingetrokken: deze opslag is nooit in de app aangesloten."
+		},
+		"header-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"iframe-embed-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"image-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"infrastructure-helpers": {
+			"board": null,
+			"reason": "Interne hulpklassen zonder scherm."
+		},
+		"initial-state-contract": {
+			"board": null,
+			"reason": "Interne afspraak over de gegevens die de server aan de pagina meegeeft."
+		},
+		"label-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"launchpad-adopt-or-abstractions": {
+			"board": null,
+			"reason": "Zorgt dat Launchpad zonder OpenRegister draait; een architectuurafspraak zonder eigen scherm."
+		},
+		"launchpad-ai-dashboard-assistant": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"launchpad-compliance-audit-panel": {
+			"board": [
+				"LpManagement"
+			]
+		},
+		"launchpad-enterprise-security-access": {
+			"board": [
+				"LpManagement"
+			]
+		},
+		"launchpad-file-access-widget": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"launchpad-meeting-calendar-actions": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"launchpad-mobile-remote-access": {
+			"board": [
+				"LpMobiel"
+			]
+		},
+		"launchpad-spend-analytics-widget": {
+			"board": [
+				"LpManagement"
+			]
+		},
+		"legacy-widget-bridge": {
+			"board": [
+				"LpWidgetKiezen",
+				"LpBeheerOnderhoud"
+			]
+		},
+		"license-header-consistency": {
+			"board": null,
+			"reason": "Licentiekoppen in de broncode, zonder scherm."
+		},
+		"link-button-widget": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"links-widget": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"live-data-tile-widget": {
+			"board": [
+				"LpManagement",
+				"LpWidgetInstellen"
+			]
+		},
+		"menu-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"navigation-editor-org": {
+			"board": [
+				"LpBeheerNavigatie"
+			]
+		},
+		"nc-dashboard-widget-proxy": {
+			"board": [
+				"LpWidgetKiezen"
+			]
+		},
+		"nc-unified-search-integration": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"news-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"orphaned-data-cleanup": {
+			"board": [
+				"LpBeheerOnderhoud"
+			]
+		},
+		"quicklinks-widget": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"resource-uploads": {
+			"board": null,
+			"reason": "Interne bestands-API voor pictogrammen en afbeeldingen; het uploaden zelf staat op de schermen van die widgets."
+		},
+		"service-health-ping": {
+			"board": [
+				"LpWerkplek",
+				"LpTegelBewerken"
+			]
+		},
+		"setup-wizard": {
+			"board": [
+				"LpInstellen"
+			]
+		},
+		"text-display-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		},
+		"tile-quick-search": {
+			"board": [
+				"LpWerkplek"
+			]
+		},
+		"video-widget": {
+			"board": [
+				"LpIntranet"
+			]
+		}
+	}
 }

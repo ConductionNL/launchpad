@@ -6768,6 +6768,12 @@
 			"board": null,
 			"reason": "Opruimen van afhankelijke gegevens bij het verwijderen van een dashboard gebeurt op de achtergrond."
 		},
+		"dashboard-icons": {
+			"board": [
+				"LpDashboardInstellingen",
+				"LpWerkplek"
+			]
+		},
 		"dashboard-kiosk-mode": {
 			"board": [
 				"LpKiosk"

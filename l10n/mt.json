@@ -1325,6 +1325,10 @@
         "Reports": "Reports",
         "Flows": "Flows",
         "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Ikkonfigura l-istanza ta' LaunchPad tiegħek bl-ordni tal-gruppi, id-data demo, ir-rwoli tal-amministratur, u s-settings tal-footer.",
-        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Ibda l-intranet tiegħek: ikkonfigura l-gruppi, installa d-data demo, u ssettja r-rwoli tal-amministratur."
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Ibda l-intranet tiegħek: ikkonfigura l-gruppi, installa d-data demo, u ssettja r-rwoli tal-amministratur.",
+        "A dashboard is shared with you": "Dashboard jinqasam miegħek",
+        "A dashboard for your group is published": "Dashboard għall-grupp tiegħek jiġi ppubblikat",
+        "A dashboard shared with you is updated": "Dashboard maqsum miegħek jiġi aġġornat",
+        "You acknowledge an announcement on a dashboard": "Tikkonferma avviż fuq dashboard"
     }
 }

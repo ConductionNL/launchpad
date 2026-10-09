@@ -1356,7 +1356,11 @@ OC.L10N.register(
     "Reports" : "Reports",
     "Flows" : "Flows",
     "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Sukonfigūruokite savo LaunchPad egzempliorių su grupių tvarka, demonstraciniais duomenimis, administratoriaus vaidmenimis ir poraštės nustatymais.",
-    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Pradėkite savo intranetą: sukonfigūruokite grupes, įdiekite demonstracinius duomenis ir nustatykite administratoriaus vaidmenis."
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Pradėkite savo intranetą: sukonfigūruokite grupes, įdiekite demonstracinius duomenis ir nustatykite administratoriaus vaidmenis.",
+    "A dashboard is shared with you" : "Su jumis bendrinamas skydelis",
+    "A dashboard for your group is published" : "Paskelbiamas skydelis jūsų grupei",
+    "A dashboard shared with you is updated" : "Su jumis bendrinamas skydelis atnaujinamas",
+    "You acknowledge an announcement on a dashboard" : "Patvirtinate pranešimą skydelyje"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

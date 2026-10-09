@@ -1356,7 +1356,11 @@ OC.L10N.register(
     "Reports" : "Reports",
     "Flows" : "Flows",
     "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Cumraigh do shampla LaunchPad le hordú grúpaí, sonraí taispeána, róil riaracháin, agus socruithe buntáisc.",
-    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Cuir tús le d'inlíon: cumraigh grúpaí, suiteáil sonraí taispeána, agus socraigh róil riaracháin."
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Cuir tús le d'inlíon: cumraigh grúpaí, suiteáil sonraí taispeána, agus socraigh róil riaracháin.",
+    "A dashboard is shared with you" : "Roinntear deais leat",
+    "A dashboard for your group is published" : "Foilsítear deais do do ghrúpa",
+    "A dashboard shared with you is updated" : "Nuashonraítear deais a roinneadh leat",
+    "You acknowledge an announcement on a dashboard" : "Admhaíonn tú fógra ar dheais"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

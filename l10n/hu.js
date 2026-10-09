@@ -1356,7 +1356,11 @@ OC.L10N.register(
     "Reports" : "Reports",
     "Flows" : "Flows",
     "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Állítsa be LaunchPad-példányát a csoportsorrenddel, demoadatokkal, rendszergazdai szerepekkel és lábléc-beállításokkal.",
-    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Indítsa el intranetét: állítsa be a csoportokat, telepítsen demoadatokat, és állítsa be a rendszergazdai szerepeket."
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Indítsa el intranetét: állítsa be a csoportokat, telepítsen demoadatokat, és állítsa be a rendszergazdai szerepeket.",
+    "A dashboard is shared with you" : "Megosztanak Önnel egy irányítópultot",
+    "A dashboard for your group is published" : "Közzétesznek egy irányítópultot a csoportjának",
+    "A dashboard shared with you is updated" : "Frissül egy Önnel megosztott irányítópult",
+    "You acknowledge an announcement on a dashboard" : "Ön nyugtáz egy közleményt egy irányítópulton"
 },
 "nplurals=2; plural=(n != 1);"
 );

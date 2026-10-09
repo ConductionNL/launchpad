@@ -1323,6 +1323,10 @@
         "Reports": "Reports",
         "Flows": "Flows",
         "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Konfiguréiert Är LaunchPad-Instanz mat Gruppeuerdnung, Demodaten, Administrateursrollen a Foussberäich-Astellungen.",
-        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Setzt Ären Intranet a Gang: konfiguréiert d'Gruppen, installéiert Demodaten a riicht Administrateursrollen in."
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Setzt Ären Intranet a Gang: konfiguréiert d'Gruppen, installéiert Demodaten a riicht Administrateursrollen in.",
+        "A dashboard is shared with you": "En Dashboard gëtt mat Iech gedeelt",
+        "A dashboard for your group is published": "En Dashboard fir Är Grupp gëtt publizéiert",
+        "A dashboard shared with you is updated": "En Dashboard, deen mat Iech gedeelt gouf, gëtt aktualiséiert",
+        "You acknowledge an announcement on a dashboard": "Dir bestätegt eng Matdeelung op engem Dashboard"
     }
 }

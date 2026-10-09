@@ -1323,6 +1323,10 @@
         "Reports": "Reports",
         "Flows": "Flows",
         "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Конфигурирайте вашата инстанция на LaunchPad с подреждане на групи, демонстрационни данни, администраторски роли и настройки на долния колонтитул.",
-        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Започнете с вашия интранет: конфигурирайте групи, инсталирайте демонстрационни данни и настройте администраторски роли."
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Започнете с вашия интранет: конфигурирайте групи, инсталирайте демонстрационни данни и настройте администраторски роли.",
+        "A dashboard is shared with you": "С вас е споделено табло",
+        "A dashboard for your group is published": "Публикувано е табло за вашата група",
+        "A dashboard shared with you is updated": "Табло, споделено с вас, е обновено",
+        "You acknowledge an announcement on a dashboard": "Потвърждавате съобщение на табло"
     }
 }

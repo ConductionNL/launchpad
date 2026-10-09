@@ -1356,7 +1356,11 @@ OC.L10N.register(
     "Reports" : "Reports",
     "Flows" : "Flows",
     "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Konfigurer din LaunchPad-instans med grupperækkefølge, demodata, administratorroller og footer-indstillinger.",
-    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Kom i gang med dit intranet: konfigurer grupper, installer demodata, og opsæt administratorroller."
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Kom i gang med dit intranet: konfigurer grupper, installer demodata, og opsæt administratorroller.",
+    "A dashboard is shared with you" : "Et dashboard er delt med dig",
+    "A dashboard for your group is published" : "Et dashboard til din gruppe er udgivet",
+    "A dashboard shared with you is updated" : "Et dashboard delt med dig er opdateret",
+    "You acknowledge an announcement on a dashboard" : "Du bekræfter en meddelelse på et dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

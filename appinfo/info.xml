@@ -176,6 +176,15 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	</settings>
 
 	<activity>
+		<!-- REQ-DIGE-001: one setting per digest-worthy event, in the
+		     "LaunchPad" group. Without a setting the activity app never
+		     queues a LaunchPad event for the email digest. -->
+		<settings>
+			<setting>OCA\LaunchPad\Activity\Settings\DashboardSharedSetting</setting>
+			<setting>OCA\LaunchPad\Activity\Settings\DashboardPublishedSetting</setting>
+			<setting>OCA\LaunchPad\Activity\Settings\DashboardUpdatedSetting</setting>
+			<setting>OCA\LaunchPad\Activity\Settings\DashboardAcknowledgedSetting</setting>
+		</settings>
 		<!-- REQ-ACT-001: register the LaunchPad Activity provider that
 		     surfaces the 13-event catalogue defined in
 		     OCA\LaunchPad\Activity\Extension. The <provider> entry must be

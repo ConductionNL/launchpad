@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Οδηγός εγκατάστασης LaunchPad",
     "Step {n} / {total}" : "Βήμα {n} / {total}",
     "Welcome" : "Καλώς ήρθατε",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Διαμορφώστε την εγκατάσταση LaunchPad σας με αποθήκευση, σειρά ομάδων, δεδομένα επίδειξης, ρόλους διαχειριστή και ρυθμίσεις υποσέλιδου.",
-    "Storage backend" : "Backend αποθήκευσης",
-    "Choose how LaunchPad stores dashboard content." : "Επιλέξτε πώς το LaunchPad αποθηκεύει το περιεχόμενο των πινάκων.",
-    "Database (default)" : "Βάση δεδομένων (προεπιλογή)",
-    "Store dashboard content in the LaunchPad database table." : "Αποθήκευση περιεχομένου πίνακα στον πίνακα βάσης δεδομένων του LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (συνιστάται για χρήση οργανισμού)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Αποθήκευση περιεχομένου πίνακα στα Nextcloud GroupFolders για συνεργατική πρόσβαση.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Η εφαρμογή GroupFolder δεν είναι εγκατεστημένη. Εγκαταστήστε το 'Nextcloud GroupFolders' για να χρησιμοποιήσετε αυτήν την επιλογή.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Επιλέξτε τη σειρά με την οποία εμφανίζονται οι ομάδες Nextcloud όταν το LaunchPad δρομολογεί χρήστες σε έναν χώρο εργασίας.",
     "Demo data" : "Δεδομένα επίδειξης",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Οι επιδείξεις δεδομένων επίδειξης θα εμφανιστούν εδώ μόλις κυκλοφορήσει η δυνατότητα demo-data-showcases. Προς το παρόν αυτό το βήμα είναι μόνο ενημερωτικό.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Τέλος",
     "Run setup wizard" : "Εκτέλεση οδηγού εγκατάστασης",
     "Run setup wizard again" : "Εκτέλεση οδηγού εγκατάστασης ξανά",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Ξεκινήστε το intranet σας: επιλέξτε αποθήκευση, διαμορφώστε ομάδες, εγκαταστήστε δεδομένα επίδειξης και ρυθμίστε ρόλους διαχειριστή.",
     "Container" : "Κοντέινερ",
     "Padding" : "Εσωτερικό περιθώριο",
     "Title (optional)" : "Τίτλος (προαιρετικό)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Διαμορφώστε το παράδειγμα του LaunchPad με σειρά ομάδων, δεδομένα επίδειξης, ρόλους διαχειριστή και ρυθμίσεις υποσέλιδου.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Ξεκινήστε το intranet σας: διαμορφώστε ομάδες, εγκαταστήστε δεδομένα επίδειξης και ρυθμίστε ρόλους διαχειριστή."
 },
 "nplurals=2; plural=(n != 1);"
 );

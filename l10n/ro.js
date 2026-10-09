@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Asistent de configurare LaunchPad",
     "Step {n} / {total}" : "Pasul {n} / {total}",
     "Welcome" : "Bine ați venit",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Configurați instanța dumneavoastră LaunchPad cu stocare, ordonarea grupurilor, date demonstrative, roluri de administrator și setări de subsol.",
-    "Storage backend" : "Backend de stocare",
-    "Choose how LaunchPad stores dashboard content." : "Alegeți modul în care LaunchPad stochează conținutul tablourilor de bord.",
-    "Database (default)" : "Bază de date (implicit)",
-    "Store dashboard content in the LaunchPad database table." : "Stocați conținutul tabloului de bord în tabelul de bază de date LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (recomandat pentru uz organizațional)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Stocați conținutul tabloului de bord în GroupFolders Nextcloud pentru acces colaborativ.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Aplicația GroupFolder nu este instalată. Instalați „Nextcloud GroupFolders” pentru a utiliza această opțiune.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Alegeți ordinea în care apar grupurile Nextcloud atunci când LaunchPad direcționează utilizatorii către un spațiu de lucru.",
     "Demo data" : "Date demonstrative",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Prezentările cu date demonstrative vor apărea aici odată ce capacitatea demo-data-showcases este livrată. Deocamdată, acest pas este doar informativ.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Finalizare",
     "Run setup wizard" : "Rulați asistentul de configurare",
     "Run setup wizard again" : "Rulați din nou asistentul de configurare",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Porniți intranetul dumneavoastră: alegeți stocarea, configurați grupurile, instalați date demonstrative și configurați rolurile de administrator.",
     "Container" : "Container",
     "Padding" : "Spațiere interioară",
     "Title (optional)" : "Titlu (opțional)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Configurați instanța dvs. LaunchPad cu ordonarea grupurilor, date demonstrative, roluri de administrator și setări de subsol.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Începeți cu intranetul dvs.: configurați grupurile, instalați date demonstrative și configurați rolurile de administrator."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -159,15 +159,6 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_SETUP_WIZARD_COMPLETE = AdminSettingKey::SETUP_WIZARD_COMPLETE->value;
 
 	/**
-	 * BC alias for AdminSettingKey::CONTENT_STORAGE.
-	 *
-	 * @var string
-	 *
-	 * @see AdminSettingKey::CONTENT_STORAGE
-	 */
-	public const KEY_CONTENT_STORAGE = AdminSettingKey::CONTENT_STORAGE->value;
-
-	/**
 	 * BC alias for AdminSettingKey::DEFAULT_SHARE_PERMISSION_LEVEL.
 	 *
 	 * @var string

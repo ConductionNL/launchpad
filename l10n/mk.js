@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad волшебник за поставување",
     "Step {n} / {total}" : "Чекор {n} / {total}",
     "Welcome" : "Добредојдовте",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Конфигурирајте ја вашата LaunchPad инстанца со складирање, подредување на групи, демо податоци, администраторски улоги и поставки на подножјето.",
-    "Storage backend" : "Позадински систем за складирање",
-    "Choose how LaunchPad stores dashboard content." : "Изберете како LaunchPad ја складира содржината на контролната табла.",
-    "Database (default)" : "База на податоци (стандардно)",
-    "Store dashboard content in the LaunchPad database table." : "Складирај ја содржината на контролната табла во табелата на базата на податоци на LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (препорачано за организациска употреба)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Складирај ја содржината на контролната табла во Nextcloud GroupFolders за колаборативен пристап.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Апликацијата GroupFolder не е инсталирана. Инсталирајте 'Nextcloud GroupFolders' за да ја користите оваа опција.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Изберете го редоследот по кој се појавуваат Nextcloud групите кога LaunchPad ги насочува корисниците кон работен простор.",
     "Demo data" : "Демо податоци",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Приказите на демо податоци ќе се појават овде штом ќе се испорача можноста demo-data-showcases. Засега овој чекор е само информативен.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Заврши",
     "Run setup wizard" : "Стартувај волшебник за поставување",
     "Run setup wizard again" : "Стартувај го волшебникот за поставување повторно",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Стартувајте го вашиот интранет: изберете складирање, конфигурирајте групи, инсталирајте демо податоци и поставете администраторски улоги.",
     "Container" : "Контејнер",
     "Padding" : "Внатрешно растојание",
     "Title (optional)" : "Наслов (изборно)",
@@ -1354,7 +1345,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Конфигурирајте ја вашата LaunchPad инстанца со подредување на групи, демо податоци, администраторски улоги и поставки на подножјето.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Стартувајте го вашиот интранет: конфигурирајте групи, инсталирајте демо податоци и поставете администраторски улоги."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

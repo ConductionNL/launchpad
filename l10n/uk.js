@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Майстер налаштування LaunchPad",
     "Step {n} / {total}" : "Крок {n} / {total}",
     "Welcome" : "Ласкаво просимо",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Налаштуйте свій екземпляр LaunchPad зі сховищем, упорядкуванням груп, демонстраційними даними, ролями адміністратора та налаштуваннями нижнього колонтитула.",
-    "Storage backend" : "Бекенд сховища",
-    "Choose how LaunchPad stores dashboard content." : "Виберіть, як LaunchPad зберігає вміст інформаційних панелей.",
-    "Database (default)" : "База даних (усталено)",
-    "Store dashboard content in the LaunchPad database table." : "Зберігати вміст інформаційних панелей у таблиці бази даних LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (рекомендовано для організаційного використання)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Зберігати вміст інформаційних панелей у GroupFolders Nextcloud для спільного доступу.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Застосунок GroupFolder не встановлено. Встановіть «Nextcloud GroupFolders», щоб скористатися цією опцією.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Виберіть порядок, у якому з'являються групи Nextcloud, коли LaunchPad спрямовує користувачів до робочого простору.",
     "Demo data" : "Демонстраційні дані",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Демонстраційні приклади даних з'являться тут, коли буде реалізовано можливість demo-data-showcases. Наразі цей крок є лише інформаційним.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Завершити",
     "Run setup wizard" : "Запустити майстер налаштування",
     "Run setup wizard again" : "Запустити майстер налаштування знову",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Розпочніть роботу свого інтранету: виберіть сховище, налаштуйте групи, встановіть демонстраційні дані та налаштуйте ролі адміністратора.",
     "Container" : "Контейнер",
     "Padding" : "Внутрішній відступ",
     "Title (optional)" : "Заголовок (необов'язково)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Налаштуйте свій екземпляр LaunchPad з упорядкуванням груп, демонстраційними даними, ролями адміністраторів і налаштуваннями нижнього колонтитула.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Розпочніть роботу свого інтранету: налаштуйте групи, установіть демонстраційні дані та налаштуйте ролі адміністраторів."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

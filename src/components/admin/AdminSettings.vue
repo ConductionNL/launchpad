@@ -24,7 +24,7 @@
 						{{
 							t(
 								'launchpad',
-								'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.',
+								'Get your intranet started: configure groups, install demo data, and set up admin roles.',
 							)
 						}}
 					</p>

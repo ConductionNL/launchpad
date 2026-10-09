@@ -927,14 +927,6 @@
         "LaunchPad setup wizard": "LaunchPad uppsetningarleiðsögn",
         "Step {n} / {total}": "Skref {n} / {total}",
         "Welcome": "Velkomin(n)",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Stilltu LaunchPad uppsetninguna þína með geymslu, hóparöðun, kynningargögnum, kerfisstjórahlutverkum og fótstillingum.",
-        "Storage backend": "Geymslubakendi",
-        "Choose how LaunchPad stores dashboard content.": "Veldu hvernig LaunchPad geymir mælaborðsefni.",
-        "Database (default)": "Gagnagrunnur (sjálfgefið)",
-        "Store dashboard content in the LaunchPad database table.": "Geyma mælaborðsefni í gagnagrunnstöflu LaunchPad.",
-        "GroupFolder (recommended for org use)": "GroupFolder (mælt með fyrir stofnananotkun)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Geyma mælaborðsefni í Nextcloud GroupFolders fyrir samvinnuaðgang.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "GroupFolder forritið er ekki uppsett. Settu upp 'Nextcloud GroupFolders' til að nota þennan valkost.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Veldu röðina sem Nextcloud hópar birtast í þegar LaunchPad beinir notendum á vinnusvæði.",
         "Demo data": "Kynningargögn",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Sýnishorn kynningargagna birtast hér þegar demo-data-showcases eiginleikinn kemur. Eins og er er þetta skref aðeins til upplýsinga.",
@@ -953,7 +945,6 @@
         "Finish": "Ljúka",
         "Run setup wizard": "Keyra uppsetningarleiðsögn",
         "Run setup wizard again": "Keyra uppsetningarleiðsögn aftur",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Komdu innranetinu þínu af stað: veldu geymslu, stilltu hópa, settu upp kynningargögn og settu upp kerfisstjórahlutverk.",
         "Container": "Ílát",
         "Padding": "Innfylling",
         "Title (optional)": "Titill (valfrjálst)",
@@ -1330,6 +1321,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Stilltu LaunchPad uppsetninguna þína með hóparöðun, kynningargögnum, kerfisstjórahlutverkum og fótstillingum.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Komdu innranetinu þínu af stað: stilltu hópa, settu upp kynningargögn og settu upp kerfisstjórahlutverk."
     }
 }

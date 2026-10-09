@@ -927,14 +927,6 @@
         "LaunchPad setup wizard": "Assistent d'installaziun da LaunchPad",
         "Step {n} / {total}": "Pass {n} / {total}",
         "Welcome": "Bainvegni",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Configurai vossa instanza da LaunchPad cun memorisaziun, urden da las gruppas, datas demo, rols dad administratur e parameters dal pe da pagina.",
-        "Storage backend": "Backend da memorisaziun",
-        "Choose how LaunchPad stores dashboard content.": "Tscherni co che LaunchPad memorisescha il cuntegn dal tabladi.",
-        "Database (default)": "Banca da datas (predefinì)",
-        "Store dashboard content in the LaunchPad database table.": "Memorisar il cuntegn dal tabladi en la tabella da la banca da datas da LaunchPad.",
-        "GroupFolder (recommended for org use)": "GroupFolder (recumandà per l'utilisaziun organisatorica)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Memorisar il cuntegn dal tabladi en ils GroupFolders da Nextcloud per in access collaborativ.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "L'applicaziun GroupFolder n'è betg installada. Installai 'Nextcloud GroupFolders' per utilisar questa opziun.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Tscherni l'urden en il qual las gruppas da Nextcloud cumparan cura che LaunchPad mussa als utilisaders ina zona da lavur.",
         "Demo data": "Datas demo",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Las demonstraziuns da datas demo cumparan qua uschespert che la funcziunalitad demo-data-showcases è disponibla. Per il mument è quest pass mo informativ.",
@@ -953,7 +945,6 @@
         "Finish": "Finir",
         "Run setup wizard": "Exequir l'assistent d'installaziun",
         "Run setup wizard again": "Exequir danovamain l'assistent d'installaziun",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Cumenzai voss intranet: tscherni la memorisaziun, configurai las gruppas, installai datas demo, e configurai ils rols dad administratur.",
         "Container": "Container",
         "Padding": "Spazi intern",
         "Title (optional)": "Titel (facultativ)",
@@ -1330,6 +1321,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Configurai vossa instanza da LaunchPad cun urden da las gruppas, datas demo, rols dad administratur e parameters dal pe da pagina.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Cumenzai voss intranet: configurai las gruppas, installai datas demo, e configurai ils rols dad administratur."
     }
 }

@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Kreator konfiguracji LaunchPad",
     "Step {n} / {total}" : "Krok {n} / {total}",
     "Welcome" : "Witamy",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Skonfiguruj swoją instancję LaunchPad z ustawieniami magazynu, kolejności grup, danych demonstracyjnych, ról administratorów i stopki.",
-    "Storage backend" : "Zaplecze magazynu",
-    "Choose how LaunchPad stores dashboard content." : "Wybierz, w jaki sposób LaunchPad przechowuje treść pulpitu.",
-    "Database (default)" : "Baza danych (domyślnie)",
-    "Store dashboard content in the LaunchPad database table." : "Przechowuj treść pulpitu w tabeli bazy danych LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (zalecane do użytku organizacyjnego)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Przechowuj treść pulpitu w folderach GroupFolders Nextcloud w celu wspólnego dostępu.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Aplikacja GroupFolder nie jest zainstalowana. Zainstaluj „Nextcloud GroupFolders”, aby skorzystać z tej opcji.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Wybierz kolejność, w jakiej grupy Nextcloud pojawiają się, gdy LaunchPad kieruje użytkowników do obszaru roboczego.",
     "Demo data" : "Dane demonstracyjne",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Prezentacje danych demonstracyjnych pojawią się tutaj, gdy zostanie wdrożona funkcja demo-data-showcases. Na razie ten krok ma charakter wyłącznie informacyjny.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Zakończ",
     "Run setup wizard" : "Uruchom kreatora konfiguracji",
     "Run setup wizard again" : "Uruchom kreatora konfiguracji ponownie",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Rozpocznij konfigurację swojego intranetu: wybierz magazyn, skonfiguruj grupy, zainstaluj dane demonstracyjne i skonfiguruj role administratorów.",
     "Container" : "Kontener",
     "Padding" : "Wypełnienie",
     "Title (optional)" : "Tytuł (opcjonalny)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Skonfiguruj swoją instancję LaunchPad, ustawiając kolejność grup, dane demonstracyjne, role administratora i ustawienia stopki.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Rozpocznij pracę z intranetem: skonfiguruj grupy, zainstaluj dane demonstracyjne i skonfiguruj role administratora."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

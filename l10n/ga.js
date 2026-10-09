@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Draoi socraithe LaunchPad",
     "Step {n} / {total}" : "Céim {n} / {total}",
     "Welcome" : "Fáilte",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Cumraigh do shampla LaunchPad le stóráil, ordú grúpaí, sonraí taispeána, róil riaracháin, agus socruithe buntáisc.",
-    "Storage backend" : "Inneall stórála",
-    "Choose how LaunchPad stores dashboard content." : "Roghnaigh conas a stórálann LaunchPad ábhar deaise.",
-    "Database (default)" : "Bunachar sonraí (réamhshocrú)",
-    "Store dashboard content in the LaunchPad database table." : "Stóráil ábhar deaise i dtábla bhunachar sonraí LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (molta d'úsáid eagraíochta)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Stóráil ábhar deaise i nGroupFolders Nextcloud le haghaidh rochtana comhoibríche.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Níl an aip GroupFolder suiteáilte. Suiteáil 'Nextcloud GroupFolders' chun an rogha seo a úsáid.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Roghnaigh an t-ord ina bhfeictear grúpaí Nextcloud nuair a threoraíonn LaunchPad úsáideoirí chuig spás oibre.",
     "Demo data" : "Sonraí taispeána",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Taispeánfar na taispeántais sonraí taispeána anseo a luaithe a sheoltar an cumas demo-data-showcases. Faoi láthair tá an chéim seo faisnéiseach amháin.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Críochnaigh",
     "Run setup wizard" : "Rith an draoi socraithe",
     "Run setup wizard again" : "Rith an draoi socraithe arís",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Cuir tús le d'inlíon: roghnaigh stóráil, cumraigh grúpaí, suiteáil sonraí taispeána, agus socraigh róil riaracháin.",
     "Container" : "Coimeádán",
     "Padding" : "Stuáil",
     "Title (optional)" : "Teideal (roghnach)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Cumraigh do shampla LaunchPad le hordú grúpaí, sonraí taispeána, róil riaracháin, agus socruithe buntáisc.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Cuir tús le d'inlíon: cumraigh grúpaí, suiteáil sonraí taispeána, agus socraigh róil riaracháin."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

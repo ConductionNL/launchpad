@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2
  *
  * Vitest unit tests for `SetupWizardModal.vue`. Covers REQ-WIZ-002
- * (multi-step shell), REQ-WIZ-003 (storage backend persistence on
- * Step 2 → Next), REQ-WIZ-008 (state load on mount), and REQ-WIZ-009
- * (Finish triggers `completeSetupWizard`).
+ * (six-step shell; the storage step was retired by decision 131),
+ * REQ-WIZ-008 (state load on mount), and REQ-WIZ-009 (Finish triggers
+ * `completeSetupWizard`).
  *
  * The `api` module is mocked at the import boundary so no HTTP traffic
  * is generated. The embedded `GroupPriorityOrder` is stubbed to avoid
@@ -20,7 +20,6 @@ import { api } from '../../services/api.js'
 vi.mock('../../services/api.js', () => ({
 	api: {
 		getSetupWizardState: vi.fn(),
-		setSetupWizardStorage: vi.fn(),
 		completeSetupWizard: vi.fn(),
 	},
 }))
@@ -51,14 +50,9 @@ beforeEach(() => {
 		data: {
 			complete: false,
 			currentRecommendedStep: 1,
-			contentStorage: 'database',
-			groupfolderAvailable: true,
 			stepStatuses: { 1: 'done', 2: 'pending' },
 		},
 	})
-	api.setSetupWizardStorage
-		.mockReset()
-		.mockResolvedValue({ data: { complete: false } })
 	api.completeSetupWizard
 		.mockReset()
 		.mockResolvedValue({ data: { complete: true } })
@@ -97,7 +91,7 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.find('[data-test="setup-wizard-counter"]').exists()).toBe(
 			true,
 		)
-		expect(wrapper.vm.totalSteps).toBe(7)
+		expect(wrapper.vm.totalSteps).toBe(6)
 	})
 
 	it('REQ-WIZ-002: Next advances; Back returns; counter updates', async () => {
@@ -112,30 +106,24 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.vm.currentStep).toBe(1)
 	})
 
-	it('REQ-WIZ-003: Step 2 Next persists the storage choice via the API', async () => {
+	it('decision 131: Step 2 is the group order and no storage step renders', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
-		// Advance to Step 2.
 		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
 		await flush()
 		expect(wrapper.vm.currentStep).toBe(2)
-
-		// Change selection then click Next.
-		wrapper.vm.storage = 'groupfolder'
-		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
-		await flush()
-
-		expect(api.setSetupWizardStorage).toHaveBeenCalledWith('groupfolder')
-		expect(wrapper.vm.currentStep).toBe(3)
+		expect(wrapper.find('.group-priority-stub').exists()).toBe(true)
+		expect(wrapper.find('[data-test="storage-database"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="storage-groupfolder"]').exists()).toBe(false)
 	})
 
-	it('REQ-WIZ-002: Step 7 Next is labelled Finish and calls completeSetupWizard', async () => {
+	it('REQ-WIZ-002: Step 6 Next is labelled Finish and calls completeSetupWizard', async () => {
 		const wrapper = mountWizard()
 		await flush()
 
-		// Jump straight to step 7 to keep the test focused.
-		wrapper.vm.currentStep = 7
+		// Jump straight to step 6 to keep the test focused.
+		wrapper.vm.currentStep = 6
 		await flush()
 
 		// The Vue mixin's t() stub returns the bare key; the component
@@ -150,27 +138,6 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.emitted('close')).toBeTruthy()
 	})
 
-	it('REQ-WIZ-003: GroupFolder radio is disabled when the app is missing', async () => {
-		api.getSetupWizardState.mockResolvedValueOnce({
-			data: {
-				complete: false,
-				currentRecommendedStep: 1,
-				contentStorage: 'database',
-				groupfolderAvailable: false,
-				stepStatuses: { 1: 'done' },
-			},
-		})
-		const wrapper = mountWizard()
-		await flush()
-
-		// Advance to step 2.
-		await wrapper.find('[data-test="setup-wizard-next"]').trigger('click')
-		await flush()
-
-		const radio = wrapper.find('[data-test="storage-groupfolder"]')
-		expect(radio.attributes('disabled')).toBeDefined()
-	})
-
 	it('REQ-WIZ-002: Skip advances without committing on optional steps', async () => {
 		const wrapper = mountWizard()
 		await flush()
@@ -179,6 +146,6 @@ describe('SetupWizardModal', () => {
 
 		await wrapper.find('[data-test="setup-wizard-skip"]').trigger('click')
 		expect(wrapper.vm.currentStep).toBe(5)
-		expect(api.setSetupWizardStorage).not.toHaveBeenCalled()
+		expect(api.completeSetupWizard).not.toHaveBeenCalled()
 	})
 })

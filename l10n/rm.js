@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Assistent da configuraziun da LaunchPad",
     "Step {n} / {total}" : "Pass {n} / {total}",
     "Welcome" : "Bainvegni",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Configurai Sia instanza da LaunchPad cun memorisaziun, urden da las gruppas, datas demo, rollas d'administratur e parameters dal pe da pagina.",
-    "Storage backend" : "Backend da memorisaziun",
-    "Choose how LaunchPad stores dashboard content." : "Tscherni co che LaunchPad memorisescha il cuntegn da las tablas da cumond.",
-    "Database (default)" : "Banca da datas (standard)",
-    "Store dashboard content in the LaunchPad database table." : "Memorisar il cuntegn da las tablas da cumond en la tabella da la banca da datas da LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (recumandà per l'utilisaziun en organisaziuns)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Memorisar il cuntegn da las tablas da cumond en ils GroupFolders da Nextcloud per access collaborativ.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "L'applicaziun GroupFolder n'è betg installada. Installai 'Nextcloud GroupFolders' per utilisar questa opziun.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Tscherni l'urden en il qual las gruppas da Nextcloud cumparan cura che LaunchPad maina ils utilisaders ad in spazi da lavur.",
     "Demo data" : "Datas demo",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Las demonstraziuns da datas demo cumparan qua uschespert ch'il capацitad demo-data-showcases vegn furnida. Per il mument è quest pass mo informativ.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Finir",
     "Run setup wizard" : "Exequir l'assistent da configuraziun",
     "Run setup wizard again" : "Exequir l'assistent da configuraziun anc ina giada",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Mettai en funcziun Sia intranet: tscherni la memorisaziun, configurai las gruppas, installai datas demo, e definì las rollas d'administratur.",
     "Container" : "Container",
     "Padding" : "Distanza interna",
     "Title (optional)" : "Titel (facultativ)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Configurai vossa instanza da LaunchPad cun urden da las gruppas, datas demo, rols dad administratur e parameters dal pe da pagina.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Cumenzai voss intranet: configurai las gruppas, installai datas demo, e configurai ils rols dad administratur."
 },
 "nplurals=2; plural=(n != 1);"
 );

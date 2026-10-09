@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Assistent de configuració de LaunchPad",
     "Step {n} / {total}" : "Pas {n} / {total}",
     "Welcome" : "Us donem la benvinguda",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Configureu la vostra instància de LaunchPad amb emmagatzematge, ordenació de grups, dades de demostració, rols d'administrador i configuració del peu de pàgina.",
-    "Storage backend" : "Servei d'emmagatzematge",
-    "Choose how LaunchPad stores dashboard content." : "Trieu com emmagatzema LaunchPad el contingut dels taulers.",
-    "Database (default)" : "Base de dades (predeterminat)",
-    "Store dashboard content in the LaunchPad database table." : "Emmagatzema el contingut dels taulers a la taula de base de dades de LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (recomanat per a ús organitzatiu)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Emmagatzema el contingut dels taulers a les GroupFolders de Nextcloud per a un accés col·laboratiu.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "L'aplicació GroupFolder no està instal·lada. Instal·leu «Nextcloud GroupFolders» per utilitzar aquesta opció.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Trieu l'ordre en què apareixen els grups de Nextcloud quan LaunchPad dirigeix els usuaris a un espai de treball.",
     "Demo data" : "Dades de demostració",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Les mostres de dades de demostració apareixeran aquí un cop s'enviï la funcionalitat demo-data-showcases. De moment, aquest pas només és informatiu.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Finalitza",
     "Run setup wizard" : "Executa l'assistent de configuració",
     "Run setup wizard again" : "Torna a executar l'assistent de configuració",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Poseu en marxa la vostra intranet: trieu l'emmagatzematge, configureu els grups, instal·leu dades de demostració i configureu els rols d'administrador.",
     "Container" : "Contenidor",
     "Padding" : "Encoixinat",
     "Title (optional)" : "Títol (opcional)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Configureu la vostra instància de LaunchPad amb ordenació de grups, dades de demostració, rols d'administrador i configuració del peu de pàgina.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Poseu en marxa la vostra intranet: configureu els grups, instal·leu dades de demostració i configureu els rols d'administrador."
 },
 "nplurals=2; plural=(n != 1);"
 );

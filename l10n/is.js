@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad-uppsetningarálfur",
     "Step {n} / {total}" : "Skref {n} / {total}",
     "Welcome" : "Velkomin",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Stillið LaunchPad-tilvik yðar með geymslu, hóparöðun, sýnigögnum, stjórnandahlutverkum og fótstillingum.",
-    "Storage backend" : "Geymslubakendi",
-    "Choose how LaunchPad stores dashboard content." : "Veljið hvernig LaunchPad geymir stjórnborðsefni.",
-    "Database (default)" : "Gagnagrunnur (sjálfgefið)",
-    "Store dashboard content in the LaunchPad database table." : "Geyma stjórnborðsefni í LaunchPad-gagnagrunnstöflunni.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (mælt með fyrir stofnananotkun)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Geyma stjórnborðsefni í Nextcloud GroupFolders fyrir samvinnuaðgang.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolder-forritið er ekki uppsett. Setjið upp „Nextcloud GroupFolders“ til að nota þennan valkost.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Veljið röðina sem Nextcloud-hópar birtast í þegar LaunchPad beinir notendum á vinnusvæði.",
     "Demo data" : "Sýnigögn",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Sýnigagnasýnishornin munu birtast hér þegar demo-data-showcases-geta verður afhent. Eins og er er þetta skref aðeins til upplýsinga.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Ljúka",
     "Run setup wizard" : "Keyra uppsetningarálf",
     "Run setup wizard again" : "Keyra uppsetningarálf aftur",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Komið innra netinu yðar af stað: veljið geymslu, stillið hópa, setjið upp sýnigögn og setjið upp stjórnandahlutverk.",
     "Container" : "Ílát",
     "Padding" : "Spássía",
     "Title (optional)" : "Titill (valfrjálst)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Stilltu LaunchPad uppsetninguna þína með hóparöðun, kynningargögnum, kerfisstjórahlutverkum og fótstillingum.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Komdu innranetinu þínu af stað: stilltu hópa, settu upp kynningargögn og settu upp kerfisstjórahlutverk."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

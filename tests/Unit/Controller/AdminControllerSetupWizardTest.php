@@ -3,9 +3,9 @@
 /**
  * AdminController Setup-Wizard Test
  *
- * Covers the `getWizardState`, `completeWizard`, and `setWizardStorage`
- * endpoints added by the `setup-wizard` change (REQ-WIZ-008, REQ-WIZ-009,
- * REQ-WIZ-003).
+ * Covers the `getWizardState` and `completeWizard` endpoints added by the
+ * `setup-wizard` change (REQ-WIZ-008, REQ-WIZ-009), and pins that the
+ * retired storage-step endpoint stays gone (decision 131).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Controller
@@ -136,52 +136,13 @@ class AdminControllerSetupWizardTest extends TestCase {
 		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 	}
 
-	public function testSetWizardStorageRejectsEmptyValue(): void {
-		$this->loginAsAdmin();
-		$this->wizardService->expects($this->never())->method('setContentStorage');
+	public function testTheStorageStepEndpointIsRetired(): void {
+		// Decision 131: the wizard no longer asks where content is stored.
+		$this->assertFalse(method_exists(AdminController::class, 'setWizardStorage'));
 
-		$response = $this->controller->setWizardStorage(storage: '');
-
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-	}
-
-	public function testSetWizardStorageRejectsGroupfolderWhenAppMissing(): void {
-		$this->loginAsAdmin();
-		$this->wizardService->method('hasGroupfolderApp')->willReturn(false);
-		$this->wizardService->expects($this->never())->method('setContentStorage');
-
-		$response = $this->controller->setWizardStorage(storage: 'groupfolder');
-
-		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
-	}
-
-	public function testSetWizardStorageWritesAndReturnsState(): void {
-		$this->loginAsAdmin();
-		$this->wizardService->method('hasGroupfolderApp')->willReturn(true);
-
-		$this->wizardService->expects($this->once())
-			->method('setContentStorage')
-			->with('groupfolder');
-
-		$payload = [
-			'complete' => false,
-			'currentRecommendedStep' => 3,
-			'stepStatuses' => ['2' => 'done'],
-		];
-		$this->wizardService->method('getWizardState')->willReturn($payload);
-
-		$response = $this->controller->setWizardStorage(storage: 'groupfolder');
-
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
-		$this->assertSame($payload, $response->getData());
-	}
-
-	public function testSetWizardStorageReturns401WhenLoggedOut(): void {
-		$this->userSession->method('getUser')->willReturn(null);
-		$this->wizardService->expects($this->never())->method('setContentStorage');
-
-		$response = $this->controller->setWizardStorage(storage: 'database');
-
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$routes = file_get_contents(__DIR__ . '/../../../appinfo/routes.php');
+		$this->assertIsString($routes);
+		$this->assertStringNotContainsString('setup-wizard/storage', $routes);
+		$this->assertStringNotContainsString('setWizardStorage', $routes);
 	}
 }

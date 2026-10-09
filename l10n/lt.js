@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad sąrankos vediklis",
     "Step {n} / {total}" : "Žingsnis {n} / {total}",
     "Welcome" : "Sveiki",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Sukonfigūruokite savo LaunchPad egzempliorių su saugykla, grupių tvarka, demonstraciniais duomenimis, administratorių vaidmenimis ir poraštės nustatymais.",
-    "Storage backend" : "Saugyklos posistemė",
-    "Choose how LaunchPad stores dashboard content." : "Pasirinkite, kaip LaunchPad saugo valdymo skydo turinį.",
-    "Database (default)" : "Duomenų bazė (numatytoji)",
-    "Store dashboard content in the LaunchPad database table." : "Saugoti valdymo skydo turinį LaunchPad duomenų bazės lentelėje.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (rekomenduojama organizaciniam naudojimui)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Saugoti valdymo skydo turinį Nextcloud GroupFolders bendradarbiavimo prieigai.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolder programa neįdiegta. Norėdami naudoti šią parinktį, įdiekite „Nextcloud GroupFolders“.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Pasirinkite tvarką, kuria Nextcloud grupės rodomos, kai LaunchPad nukreipia naudotojus į darbo sritį.",
     "Demo data" : "Demonstraciniai duomenys",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Demonstracinių duomenų pavyzdžiai čia atsiras, kai bus pristatyta demo-data-showcases galimybė. Kol kas šis žingsnis yra tik informacinis.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Baigti",
     "Run setup wizard" : "Paleisti sąrankos vediklį",
     "Run setup wizard again" : "Paleisti sąrankos vediklį dar kartą",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Pradėkite savo intranetą: pasirinkite saugyklą, sukonfigūruokite grupes, įdiekite demonstracinius duomenis ir nustatykite administratorių vaidmenis.",
     "Container" : "Konteineris",
     "Padding" : "Vidinis tarpas",
     "Title (optional)" : "Pavadinimas (neprivalomas)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Sukonfigūruokite savo LaunchPad egzempliorių su grupių tvarka, demonstraciniais duomenimis, administratoriaus vaidmenimis ir poraštės nustatymais.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Pradėkite savo intranetą: sukonfigūruokite grupes, įdiekite demonstracinius duomenis ir nustatykite administratoriaus vaidmenis."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

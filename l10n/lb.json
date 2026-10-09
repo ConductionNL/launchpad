@@ -927,14 +927,6 @@
         "LaunchPad setup wizard": "LaunchPad-Ariichtungsassistent",
         "Step {n} / {total}": "Schrëtt {n} / {total}",
         "Welcome": "Wëllkomm",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Konfiguréiert Är LaunchPad-Instanz mat Späicher, Gruppeuerdnung, Demodaten, Administrateursrollen a Foussberäich-Astellungen.",
-        "Storage backend": "Späicher-Backend",
-        "Choose how LaunchPad stores dashboard content.": "Wielt, wéi LaunchPad den Dashboard-Inhalt späichert.",
-        "Database (default)": "Datebank (Standard)",
-        "Store dashboard content in the LaunchPad database table.": "Späichert den Dashboard-Inhalt an der LaunchPad-Datebanktabell.",
-        "GroupFolder (recommended for org use)": "GroupFolder (empfohlen fir organisatoresche Gebrauch)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Späichert den Dashboard-Inhalt an Nextcloud-GroupFolders fir e kollaborativen Zougang.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "D'GroupFolder-Applikatioun ass net installéiert. Installéiert „Nextcloud GroupFolders“, fir dës Optioun ze benotzen.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Wielt d'Reiefolleg, an där d'Nextcloud-Gruppen erschéngen, wann LaunchPad d'Benotzer op en Aarbechtsberäich weiderleet.",
         "Demo data": "Demodaten",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "D'Demodaten-Presentatioune erschéngen hei, soubal d'Funktioun demo-data-showcases ausgeliwwert gëtt. Fir de Moment ass dëse Schrëtt nëmmen informativ.",
@@ -953,7 +945,6 @@
         "Finish": "Ofschléissen",
         "Run setup wizard": "Ariichtungsassistent ausféieren",
         "Run setup wizard again": "Ariichtungsassistent nach eemol ausféieren",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Setzt Ären Intranet a Gang: wielt de Späicher, konfiguréiert d'Gruppen, installéiert Demodaten a riicht Administrateursrollen in.",
         "Container": "Container",
         "Padding": "Ofstand",
         "Title (optional)": "Titel (optional)",
@@ -1330,6 +1321,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Konfiguréiert Är LaunchPad-Instanz mat Gruppeuerdnung, Demodaten, Administrateursrollen a Foussberäich-Astellungen.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Setzt Ären Intranet a Gang: konfiguréiert d'Gruppen, installéiert Demodaten a riicht Administrateursrollen in."
     }
 }

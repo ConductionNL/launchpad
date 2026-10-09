@@ -928,14 +928,6 @@
         "LaunchPad setup wizard": "Sprievodca nastavením LaunchPad",
         "Step {n} / {total}": "Krok {n} / {total}",
         "Welcome": "Vitajte",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Nakonfigurujte svoju inštanciu LaunchPad s úložiskom, usporiadaním skupín, demo údajmi, rolami administrátora a nastaveniami päty.",
-        "Storage backend": "Backend úložiska",
-        "Choose how LaunchPad stores dashboard content.": "Vyberte, ako LaunchPad ukladá obsah nástenky.",
-        "Database (default)": "Databáza (predvolené)",
-        "Store dashboard content in the LaunchPad database table.": "Ukladať obsah nástenky do databázovej tabuľky LaunchPad.",
-        "GroupFolder (recommended for org use)": "GroupFolder (odporúčané pre organizačné použitie)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Ukladať obsah nástenky v GroupFolders Nextcloud pre kolaboratívny prístup.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "Aplikácia GroupFolder nie je nainštalovaná. Na použitie tejto možnosti nainštalujte „Nextcloud GroupFolders“.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Vyberte poradie, v akom sa zobrazujú skupiny Nextcloud, keď LaunchPad smeruje používateľov do pracovného priestoru.",
         "Demo data": "Demo údaje",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Ukážky demo údajov sa tu zobrazia po vydaní funkcie demo-data-showcases. Zatiaľ je tento krok iba informačný.",
@@ -954,7 +946,6 @@
         "Finish": "Dokončiť",
         "Run setup wizard": "Spustiť sprievodcu nastavením",
         "Run setup wizard again": "Spustiť sprievodcu nastavením znova",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Spustite svoj intranet: vyberte úložisko, nakonfigurujte skupiny, nainštalujte demo údaje a nastavte roly administrátora.",
         "Container": "Kontajner",
         "Padding": "Vnútorné odsadenie",
         "Title (optional)": "Názov (voliteľné)",
@@ -1331,6 +1322,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Nakonfigurujte svoju inštanciu LaunchPad s usporiadaním skupín, demo údajmi, rolami administrátora a nastaveniami päty.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Spustite svoj intranet: nakonfigurujte skupiny, nainštalujte demo údaje a nastavte roly administrátora."
     }
 }

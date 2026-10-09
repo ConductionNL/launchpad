@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPadi seadistusviisard",
     "Step {n} / {total}" : "Samm {n} / {total}",
     "Welcome" : "Tere tulemast",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Seadistage oma LaunchPadi instants salvestusruumi, gruppide järjestuse, demoandmete, administraatori rollide ja jaluse seadetega.",
-    "Storage backend" : "Salvestamise taustsüsteem",
-    "Choose how LaunchPad stores dashboard content." : "Valige, kuidas LaunchPad töölaua sisu salvestab.",
-    "Database (default)" : "Andmebaas (vaikimisi)",
-    "Store dashboard content in the LaunchPad database table." : "Salvesta töölaua sisu LaunchPadi andmebaasi tabelisse.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (soovitatav organisatsiooni kasutuseks)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Salvesta töölaua sisu Nextcloudi GroupFolderitesse koostöös juurdepääsuks.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolderi rakendus pole paigaldatud. Selle valiku kasutamiseks paigaldage 'Nextcloud GroupFolders'.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Valige järjekord, milles Nextcloudi grupid kuvatakse, kui LaunchPad suunab kasutajaid tööruumi.",
     "Demo data" : "Demoandmed",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Demoandmete näidised ilmuvad siia, kui demo-data-showcases võimekus tarnitakse. Praegu on see samm ainult informatiivne.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Lõpeta",
     "Run setup wizard" : "Käivita seadistusviisard",
     "Run setup wizard again" : "Käivita seadistusviisard uuesti",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Alustage oma sisevõrku: valige salvestusruum, seadistage grupid, paigaldage demoandmed ja seadistage administraatori rollid.",
     "Container" : "Konteiner",
     "Padding" : "Polster",
     "Title (optional)" : "Pealkiri (valikuline)",
@@ -1363,7 +1354,9 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Seadista oma LaunchPadi eksemplar gruppide järjestuse, näidisandmete, administraatori rollide ja jaluse seadetega.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Käivita oma siseveeb: seadista grupid, paigalda näidisandmed ja seadista administraatori rollid."
 },
 "nplurals=2; plural=(n != 1);"
 );

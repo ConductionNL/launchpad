@@ -28,7 +28,6 @@ Settings are stored as key-value pairs:
 | `default_permission_level` | `defaultPermissionLevel` | string | `add_only` | Default permission level for user-created dashboards |
 | `default_grid_columns` | `defaultGridColumns` | integer | `12` | Default number of grid columns for new dashboards |
 | `link_create_file_extensions` | `linkCreateFileExtensions` | `string[]` | `["txt","md","docx","xlsx","csv","odt"]` | Extensions the link-button widget's "create file" action may create (REQ-LBN-004). An empty stored list resolves to the default. |
-| `content_storage` | `launchpad.content_storage` | string | `database` | Active content storage backend (REQ-GFSB-006). The response key is dotted, unlike the others. |
 | `default_share_permission_level` | `defaultSharePermissionLevel` | string | `add_only` | Org-wide default permission for a new share (dashboard-sharing spec) |
 | `forced_share_groups` | `forcedShareGroups` | `string[]` | `[]` | Groups every new dashboard is force-shared with (dashboard-sharing spec) |
 | `legacy_widget_bridge_enabled` | `legacyWidgetBridgeEnabled` | boolean | `false` | Whether the workspace reads Nextcloud's widget registry (legacy-widget-bridge spec) |
@@ -42,12 +41,12 @@ NOTE: The DB stores settings with snake_case keys, but the API response returns 
 ## Requirements
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
-Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the thirteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
+Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the twelve settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
-- THEN the system MUST return HTTP 200 with all thirteen settings at their default values:
+- THEN the system MUST return HTTP 200 with all twelve settings at their default values:
   ```json
   {
     "defaultPermissionLevel": "add_only",
@@ -55,7 +54,6 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
     "allowMultipleDashboards": true,
     "defaultGridColumns": 12,
     "linkCreateFileExtensions": ["txt", "md", "docx", "xlsx", "csv", "odt"],
-    "launchpad.content_storage": "database",
     "defaultSharePermissionLevel": "add_only",
     "forcedShareGroups": [],
     "legacyWidgetBridgeEnabled": false,
@@ -88,10 +86,16 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 #### Scenario: Settings response format consistency
 - GIVEN the admin has configured various settings at different times
 - WHEN GET /api/admin/settings is called
-- THEN the response MUST always return exactly the thirteen keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `launchpad.content_storage`, `defaultSharePermissionLevel`, `forcedShareGroups`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`, `startPageWithoutNavigation`
+- THEN the response MUST always return exactly the twelve keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`, `startPageWithoutNavigation`
 - AND no additional keys MUST be present in the response
 - NOTE: This scenario said "exactly four keys" long after the response had grown to twelve. The list above is taken from `AdminSettingsService::getSettings()`; a key added there MUST be added here and to the Defined Settings table.
 - AND the response MUST be a flat JSON object (no nesting)
+
+#### Scenario: The retired content storage key is not returned
+- GIVEN an instance that still holds a `content_storage` row written by the retired setup-wizard storage step
+- WHEN the admin sends GET /api/admin/settings
+- THEN the response MUST NOT contain `launchpad.content_storage`
+- AND the stored row MUST stay unread (decision 131)
 
 ### Requirement: Update Admin Settings (REQ-ASET-002)
 

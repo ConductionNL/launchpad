@@ -83,8 +83,6 @@ class AdminSettingsService {
 			$storedExt = self::DEFAULT_LINK_CREATE_FILE_EXTENSIONS;
 		}
 
-		$storageKey = AdminSetting::KEY_CONTENT_STORAGE;
-
 		$sharePermKey = AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL;
 		$forcedShareKey = AdminSetting::KEY_FORCED_SHARE_GROUPS;
 		$bridgeKey = AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED;
@@ -125,7 +123,6 @@ class AdminSettingsService {
 			'defaultGridColumns' => $settings[$gridKey] ?? 12,
 			'linkCreateFileExtensions' => $storedExt,
 			// REQ-GFSB-006: surface active storage backend in admin settings.
-			'launchpad.content_storage' => $settings[$storageKey] ?? 'database',
 			// Dashboard-sharing spec: org-wide share defaults surfaced in
 			// Beheer ▸ Sharing. Default permission level mirrors the
 			// dashboard default; forced-share groups default to none.
@@ -201,13 +198,6 @@ class AdminSettingsService {
 
 		return $int;
 	}//end clampQuota()
-
-	/**
-	 * Valid values for the `launchpad.content_storage` setting (REQ-GFSB-006).
-	 *
-	 * @var list<string>
-	 */
-	public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
 	/**
 	 * Tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
@@ -296,10 +286,6 @@ class AdminSettingsService {
 	 *                                       extension
 	 *                                       allow-list
 	 *                                       (REQ-LBN-004).
-	 * @param string|null $contentStorage Content storage backend
-	 *                                    (`database` or
-	 *                                    `groupfolder`).
-	 *                                    REQ-GFSB-006.
 	 * @param string|null $defaultSharePermissionLevel Org-wide default share
 	 *                                                 permission level
 	 *                                                 (dashboard-sharing spec).
@@ -340,8 +326,8 @@ class AdminSettingsService {
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When `$contentStorage`,
-	 *                                   `$defaultSharePermissionLevel`, or
+	 * @throws \InvalidArgumentException When
+	 *                                   `$defaultSharePermissionLevel` or
 	 *                                   `$quicksearchFallbackTarget` is not
 	 *                                   a valid value.
 	 *
@@ -353,7 +339,6 @@ class AdminSettingsService {
 		?bool $allowMultiDash = null,
 		?int $defaultGridCols = null,
 		?array $linkCreateFileExts = null,
-		?string $contentStorage = null,
 		?string $defaultSharePermissionLevel = null,
 		?array $forcedShareGroups = null,
 		?bool $legacyWidgetBridgeEnabled = null,
@@ -394,19 +379,6 @@ class AdminSettingsService {
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
 				value: $this->normaliseExtensions(input: $linkCreateFileExts)
-			);
-		}
-
-		if ($contentStorage !== null) {
-			if (in_array(needle: $contentStorage, haystack: self::VALID_CONTENT_STORAGE_VALUES, strict: true) === false) {
-				throw new InvalidArgumentException(
-					message: "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
-				);
-			}
-
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_CONTENT_STORAGE,
-				value: $contentStorage
 			);
 		}
 

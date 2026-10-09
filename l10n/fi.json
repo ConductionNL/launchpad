@@ -927,14 +927,6 @@
         "LaunchPad setup wizard": "LaunchPadin asennustoiminto",
         "Step {n} / {total}": "Vaihe {n} / {total}",
         "Welcome": "Tervetuloa",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Määritä LaunchPad-ilmentymäsi tallennustilan, ryhmäjärjestyksen, esittelytietojen, ylläpitäjän roolien ja alatunnisteasetusten avulla.",
-        "Storage backend": "Tallennustaustajärjestelmä",
-        "Choose how LaunchPad stores dashboard content.": "Valitse, miten LaunchPad tallentaa koontinäytön sisällön.",
-        "Database (default)": "Tietokanta (oletus)",
-        "Store dashboard content in the LaunchPad database table.": "Tallenna koontinäytön sisältö LaunchPadin tietokantatauluun.",
-        "GroupFolder (recommended for org use)": "GroupFolder (suositeltu organisaatiokäyttöön)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Tallenna koontinäytön sisältö Nextcloud GroupFolders -kansioihin yhteistyökäyttöä varten.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "GroupFolder-sovellusta ei ole asennettu. Asenna 'Nextcloud GroupFolders' käyttääksesi tätä vaihtoehtoa.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Valitse järjestys, jossa Nextcloud-ryhmät näkyvät, kun LaunchPad ohjaa käyttäjät työtilaan.",
         "Demo data": "Esittelytiedot",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Esittelytietojen esittelyt näkyvät tässä, kun demo-data-showcases-ominaisuus julkaistaan. Toistaiseksi tämä vaihe on vain tiedoksi.",
@@ -953,7 +945,6 @@
         "Finish": "Valmis",
         "Run setup wizard": "Suorita asennustoiminto",
         "Run setup wizard again": "Suorita asennustoiminto uudelleen",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Käynnistä intranetisi: valitse tallennustila, määritä ryhmät, asenna esittelytiedot ja määritä ylläpitäjän roolit.",
         "Container": "Säiliö",
         "Padding": "Täyte",
         "Title (optional)": "Otsikko (valinnainen)",
@@ -1330,6 +1321,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Määritä LaunchPad-ilmentymäsi ryhmäjärjestyksen, esittelytietojen, ylläpitäjän roolien ja alatunnisteasetusten avulla.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Käynnistä intranetisi: määritä ryhmät, asenna esittelytiedot ja määritä ylläpitäjän roolit."
     }
 }

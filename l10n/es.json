@@ -927,14 +927,6 @@
         "LaunchPad setup wizard": "Asistente de configuración de LaunchPad",
         "Step {n} / {total}": "Paso {n} / {total}",
         "Welcome": "Bienvenido",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Configure su instancia de LaunchPad con almacenamiento, ordenación de grupos, datos de demostración, roles de administrador y ajustes del pie de página.",
-        "Storage backend": "Backend de almacenamiento",
-        "Choose how LaunchPad stores dashboard content.": "Elija cómo almacena LaunchPad el contenido de los paneles.",
-        "Database (default)": "Base de datos (predeterminado)",
-        "Store dashboard content in the LaunchPad database table.": "Almacenar el contenido de los paneles en la tabla de base de datos de LaunchPad.",
-        "GroupFolder (recommended for org use)": "GroupFolder (recomendado para uso organizativo)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Almacenar el contenido de los paneles en GroupFolders de Nextcloud para el acceso colaborativo.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "La aplicación GroupFolder no está instalada. Instale «Nextcloud GroupFolders» para usar esta opción.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Elija el orden en que aparecen los grupos de Nextcloud cuando LaunchPad dirige a los usuarios a un espacio de trabajo.",
         "Demo data": "Datos de demostración",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Las muestras de datos de demostración aparecerán aquí una vez que se distribuya la funcionalidad demo-data-showcases. Por ahora, este paso es solo informativo.",
@@ -953,7 +945,6 @@
         "Finish": "Finalizar",
         "Run setup wizard": "Ejecutar el asistente de configuración",
         "Run setup wizard again": "Ejecutar de nuevo el asistente de configuración",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Ponga en marcha su intranet: elija el almacenamiento, configure grupos, instale datos de demostración y configure roles de administrador.",
         "Container": "Contenedor",
         "Padding": "Relleno",
         "Title (optional)": "Título (opcional)",
@@ -1330,6 +1321,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Configure su instancia de LaunchPad con ordenación de grupos, datos de demostración, roles de administrador y ajustes del pie de página.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Ponga en marcha su intranet: configure grupos, instale datos de demostración y configure roles de administrador."
     }
 }

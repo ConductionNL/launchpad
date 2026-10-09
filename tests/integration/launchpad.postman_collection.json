@@ -4819,48 +4819,6 @@
 					]
 				},
 				{
-					"name": "POST /api/admin/setup-wizard/storage",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"storage\":\"openregister\"}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/launchpad/api/admin/setup-wizard/storage",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"launchpad",
-								"api",
-								"admin",
-								"setup-wizard",
-								"storage"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('2xx or 4xx', () => pm.expect([200, 204, 400, 403]).to.include(pm.response.code));"
-								]
-							}
-						}
-					]
-				},
-				{
 					"name": "POST /api/admin/setup-wizard/complete",
 					"request": {
 						"method": "POST",

@@ -929,14 +929,6 @@
         "LaunchPad setup wizard": "Wizard tal-konfigurazzjoni ta' LaunchPad",
         "Step {n} / {total}": "Pass {n} / {total}",
         "Welcome": "Merħba",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Ikkonfigura l-istanza ta' LaunchPad tiegħek bil-ħażna, l-ordni tal-gruppi, id-data demo, ir-rwoli tal-amministratur, u s-settings tal-footer.",
-        "Storage backend": "Backend tal-ħażna",
-        "Choose how LaunchPad stores dashboard content.": "Agħżel kif LaunchPad jaħżen il-kontenut tad-dashboard.",
-        "Database (default)": "Database (prestabilit)",
-        "Store dashboard content in the LaunchPad database table.": "Aħżen il-kontenut tad-dashboard fit-tabella tad-database ta' LaunchPad.",
-        "GroupFolder (recommended for org use)": "GroupFolder (rakkomandat għal użu organizzattiv)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Aħżen il-kontenut tad-dashboard fil-GroupFolders ta' Nextcloud għal aċċess kollaborattiv.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "L-app GroupFolder mhix installata. Installa „Nextcloud GroupFolders“ biex tuża din l-għażla.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Agħżel l-ordni li bih jidhru l-gruppi ta' Nextcloud meta LaunchPad jindirizza l-utenti lejn spazju tax-xogħol.",
         "Demo data": "Data demo",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Il-wirjiet tad-data demo jidhru hawn ladarba tinħareġ il-kapaċità demo-data-showcases. Għalissa dan il-pass huwa informattiv biss.",
@@ -955,7 +947,6 @@
         "Finish": "Spiċċa",
         "Run setup wizard": "Mexxi l-wizard tal-konfigurazzjoni",
         "Run setup wizard again": "Mexxi l-wizard tal-konfigurazzjoni mill-ġdid",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Ibda l-intranet tiegħek: agħżel il-ħażna, ikkonfigura l-gruppi, installa d-data demo, u ssettja r-rwoli tal-amministratur.",
         "Container": "Kontenitur",
         "Padding": "Padding",
         "Title (optional)": "Titlu (mhux obbligatorju)",
@@ -1332,6 +1323,8 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Ikkonfigura l-istanza ta' LaunchPad tiegħek bl-ordni tal-gruppi, id-data demo, ir-rwoli tal-amministratur, u s-settings tal-footer.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Ibda l-intranet tiegħek: ikkonfigura l-gruppi, installa d-data demo, u ssettja r-rwoli tal-amministratur."
     }
 }

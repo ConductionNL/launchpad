@@ -177,7 +177,6 @@ class AdminControllerSettingsAliasTest extends TestCase {
 				$this->isNull(),
 				$this->isNull(),
 				$this->isNull(),
-				$this->isNull(),
 				$this->isTrue(),
 			);
 

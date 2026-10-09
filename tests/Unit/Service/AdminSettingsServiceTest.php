@@ -167,7 +167,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(13, $settings);
+		$this->assertCount(12, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

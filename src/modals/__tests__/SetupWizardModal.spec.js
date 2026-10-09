@@ -115,7 +115,9 @@ describe('SetupWizardModal', () => {
 		expect(wrapper.vm.currentStep).toBe(2)
 		expect(wrapper.find('.group-priority-stub').exists()).toBe(true)
 		expect(wrapper.find('[data-test="storage-database"]').exists()).toBe(false)
-		expect(wrapper.find('[data-test="storage-groupfolder"]').exists()).toBe(false)
+		expect(wrapper.find('[data-test="storage-groupfolder"]').exists()).toBe(
+			false,
+		)
 	})
 
 	it('REQ-WIZ-002: Step 6 Next is labelled Finish and calls completeSetupWizard', async () => {

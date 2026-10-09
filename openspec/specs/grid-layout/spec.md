@@ -217,50 +217,62 @@ Grid position changes MUST be communicated to the parent component for API persi
 - THEN each grid item's `id` MUST be matched to a placement's `id` via string comparison
 - AND the placement's gridX, gridY, gridWidth, gridHeight MUST be updated from the grid item's x, y, w, h values
 
-### Requirement: Widget Auto-Layout — collision placement algorithm (REQ-GRID-006)
+### Requirement: REQ-GRID-006 Widget Auto-Layout (bottom-append placement)
 
-When a new widget is added to an existing dashboard, the system MUST place it without overlapping any existing widget and without leaving it outside the visible grid region. The algorithm MUST be:
-@e2e exclude auto-layout collision algorithm tests composable internal math — Vitest unit scope; browser outcome covered by REQ-GRID-001 init test
+@e2e exclude bottom-append placement is composable math; Vitest unit scope (src/composables/__tests__/useGridManager.spec.js), browser outcome covered by REQ-GRID-001 init test
 
-1. **Try GridStack auto-position** — call `grid.addWidget({x: 0, y: 0, w: newW, h: newH, autoPosition: true, ...})`. GridStack scans for the first empty rectangle that fits and uses it.
-2. **Fallback: top-left with push-down** — if step 1 fails (GridStack returns no slot, or the picked slot is below `viewportRows`), place the new widget at `(x: 0, y: 0)` with size `(newW, newH)` AND for every existing widget whose rectangle overlaps `[0..newW] × [0..newH]`, set its `gridY` to `newH` (pushing it just below the new one). Existing widgets that do not overlap MUST NOT be moved.
+When a new widget is added to a dashboard, the system MUST place it in a fresh row directly below all existing widgets, without overlapping any existing widget and without moving any existing widget. The algorithm MUST be:
 
-Default size when the caller omits `w`/`h` MUST be `w=4, h=4`. Position writes MUST trigger the persistence path of REQ-GRID-005.
+1. **Compute the bottom edge** — for every existing placement compute `gridY + gridHeight`; the new widget's `y` MUST be the maximum of these values (the lowest occupied bottom edge). A placement missing `gridY` contributes `0`; a placement missing `gridHeight` contributes height `1`.
+2. **Anchor to the left** — the new widget's `x` MUST be `0`.
+3. **Empty dashboard** — when there are no existing placements, the new widget MUST be placed at `(x: 0, y: 0)`.
 
-#### Scenario: Auto-position into empty space
+Existing widgets MUST NOT be moved — there is no push-down — and the helper's `pushed` array MUST always be empty. Default size when the caller omits `w`/`h` MUST be `w=4, h=4`. Position writes MUST trigger the persistence path of REQ-GRID-005.
+
+This requirement deliberately replaces the former "GridStack auto-position + top-left/push-down fallback" rule, which reordered the user's existing layout on every add once the visible rows filled up. The shipped `placeNewWidget(spec, placements, options?)` helper implements bottom-append; this requirement is the authoritative description of that behaviour.
+
+#### Scenario: Append below the only existing widget
 
 - **GIVEN** a dashboard with one widget at `(x:0, y:0, w:6, h:4)`
 - **WHEN** a new 4×4 widget is added
-- **THEN** GridStack MUST place it at `(x:6, y:0)` (the empty right-half)
+- **THEN** it MUST be placed at `(x:0, y:4)` (a fresh row below the existing widget)
+- **AND** the existing widget MUST NOT be moved
+- **AND** the returned `pushed` array MUST be empty
+
+#### Scenario: Append below the lowest widget regardless of array order
+
+- **GIVEN** a dashboard with widgets at `(x:0, y:5, w:6, h:3)` (bottom edge `8`) and `(x:6, y:0, w:6, h:2)` (bottom edge `2`)
+- **WHEN** a new 6×3 widget is added
+- **THEN** it MUST be placed at `(x:0, y:8)` (below the lowest bottom edge, not below the last array entry)
 - **AND** no existing widget MUST be moved
 
-#### Scenario: Push-down fallback when grid is full at top
+#### Scenario: First widget on an empty dashboard
 
-- **GIVEN** a dashboard with widgets occupying the entire `[0..12] × [0..4]` region
+- **GIVEN** a dashboard with no widgets
 - **WHEN** a new 4×4 widget is added
-- **THEN** it MUST be placed at `(x:0, y:0, w:4, h:4)`
-- **AND** every previously-overlapping widget MUST have `gridY = 4` (just below the new one)
-- **AND** non-overlapping widgets (already at `y >= 4`) MUST NOT have their `gridY` changed
+- **THEN** it MUST be placed at `(x:0, y:0)`
+
+#### Scenario: Existing widgets are never pushed when the top region is full
+
+- **GIVEN** a dashboard whose `[0..12] × [0..4]` region is fully occupied
+- **WHEN** a new 4×4 widget is added
+- **THEN** it MUST be placed at `(x:0, y:4)`, below the occupied region
+- **AND** every existing widget MUST retain its original `gridX`, `gridY`, `gridWidth`, and `gridHeight`
+- **AND** the returned `pushed` array MUST be empty
 
 #### Scenario: Default size on omitted dimensions
 
 - **GIVEN** a caller invokes `placeNewWidget({type: 'text'})` with no `w` or `h`
 - **WHEN** the placement runs
 - **THEN** the placement MUST use `w=4, h=4`
+- **AND** the `y` coordinate MUST still be the lowest occupied bottom edge (`0` on an empty dashboard)
 
 #### Scenario: Persistence after placement
 
-- **GIVEN** a new widget has been placed (via either step 1 or step 2)
+- **GIVEN** a new widget has been placed
 - **WHEN** the placement completes
-- **THEN** the new widget AND any pushed-down widgets MUST be persisted via the standard placement-update API (REQ-WDG-008 batch update or per-placement PUT)
-- **AND** a single network round-trip SHOULD be used for the batch (debounce 300 ms per the design rule in `openspec/config.yaml`)
-
-#### Scenario: Pushed widgets remain within their column lane
-
-- **GIVEN** existing widget at `(x:8, y:0, w:4, h:2)` overlaps a new 6×3 widget being placed at top-left
-- **WHEN** the push-down fallback runs
-- **THEN** the existing widget's `gridX` and `gridW` MUST remain `8` and `4` respectively
-- **AND** only `gridY` MUST be increased to `3`
+- **THEN** the new widget MUST be persisted via the standard placement-update API (REQ-WDG-008 batch update or per-placement PUT)
+- **AND** because no existing widget is moved, only the new widget's position needs to be written
 
 #### Scenario: Add widget to partially filled grid (incremental render)
 - GIVEN the grid has widgets occupying rows 0-2 in columns 0-8
@@ -563,7 +575,7 @@ push behaviour.
 - REQ-GRID-003 (Resize by Edge Dragging): Resize controlled via `disableResize: !this.editMode`. Min sizes via `gs-min-w="2"`, `gs-min-h="2"`.
 - REQ-GRID-004 (View Mode vs Edit Mode): `editMode` prop controls grid state.
 - REQ-GRID-005 (Position Persistence): `handleGridChange()` emits `update:placements` on every change event.
-- REQ-GRID-006 (Widget Auto-Layout — collision placement algorithm): `placeNewWidget()` in `src/composables/useGridManager.js` computes the position via the autoPosition primary path and the top-left + push-down fallback; `syncGridItems()` then renders the new placement via `grid.makeWidget()`. Push-down side effects flow through the existing `updatePlacements` batch path.
+- REQ-GRID-006 (Widget Auto-Layout — collision placement algorithm): `placeNewWidget()` in `src/composables/useGridManager.js` appends the new widget at the bottom: `x = 0`, `y = max(gridY + gridHeight)` over the existing placements, `(0, 0)` on an empty dashboard, and no existing widget moves (`pushed` is always empty); `syncGridItems()` then renders the new placement via `grid.makeWidget()`.
 - REQ-GRID-009 (Tile vs Widget Rendering): `isTilePlacement()`, `getTileData()` handle rendering distinction.
 - REQ-GRID-010 (Grid Styling): CSS applied via scoped styles with deep selectors.
 - REQ-GRID-011 (Grid Synchronization): `placements` watcher triggers `syncGridItems()`.

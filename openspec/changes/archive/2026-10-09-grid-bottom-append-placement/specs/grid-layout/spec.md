@@ -62,3 +62,17 @@ This requirement deliberately replaces the former "GridStack auto-position + top
 - **WHEN** the placement completes
 - **THEN** the new widget MUST be persisted via the standard placement-update API (REQ-WDG-008 batch update or per-placement PUT)
 - **AND** because no existing widget is moved, only the new widget's position needs to be written
+
+#### Scenario: Add widget to partially filled grid (incremental render)
+- GIVEN the grid has widgets occupying rows 0-2 in columns 0-8
+- AND columns 8-11 in row 0 are empty
+- WHEN the user adds a new widget with gridWidth 4 and gridHeight 2
+- THEN `syncGridItems()` MUST detect the new placement and call `grid.makeWidget()` on the next tick
+- AND GridStack MUST render the widget at the position computed by `placeNewWidget` (auto-position or fallback)
+- NOTE: With `float: true`, auto-placement behavior may differ from non-float mode.
+
+#### Scenario: Remove widget syncs grid
+- GIVEN widget placement id 10 is removed from the placements array
+- WHEN the placements watcher triggers `syncGridItems()`
+- THEN `syncGridItems()` MUST find the orphaned grid node and call `grid.removeWidget()` with `removeDOM: false`
+- AND the grid MUST update its layout accordingly

@@ -70,7 +70,9 @@
   previously-English "Health"/"Healthy"/"Degraded" and "Visibility
   rules…" strings now render in Dutch. (not run: needs the live instance; the
   `nl` catalogue carries "Health", "Healthy", "Degraded" and "Visibility rules…")
-- [ ] Task 8: Re-run the Vitest suite (`npm run test`) — component tests
+- [x] Task 8: Re-run the Vitest suite (`npm run test`) — component tests
   that snapshot or assert on rendered English text for these components
   must still pass since the English fallback text is unchanged for the
   `en` locale; only non-English locales change behaviour.
+  9 Oct checkpoint run on build/openspecs-1 @7f5c6811: 119 files, 962 tests
+  passed, exit 0.

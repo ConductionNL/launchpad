@@ -7,4 +7,4 @@
 - [x] 5. `occ launchpad:template:install`, registered in `appinfo/info.xml`. Verify: `TemplateInstallCommandTest`.
 - [x] 6. `GET /api/admin/templates/shipped` and `POST /api/admin/templates/shipped/{id}/install`. Verify: `AdminShippedTemplateControllerTest`.
 - [x] 7. Templates page: ready-made templates section and a download per template, `en` and `nl` strings. Verify: `TemplatesPage.shipped.spec.js`.
-- [ ] 8. Live check in a browser on a running instance. Not done in this change's PR: see the PR body.
+- [ ] 8. Live check in a browser on a running instance. Not done in this change's PR: see the PR body. (live pass, decision 139)

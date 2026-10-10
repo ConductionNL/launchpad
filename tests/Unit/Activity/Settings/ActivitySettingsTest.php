@@ -72,7 +72,10 @@ class ActivitySettingsTest extends TestCase {
 	}
 
 	public function testInfoXmlRegistersEverySetting(): void {
-		$xml = simplexml_load_file(__DIR__ . '/../../../../appinfo/info.xml');
+		// Read the file ourselves: under the Nextcloud bootstrap (CI) the
+		// external entity loader is disabled, so simplexml_load_file() on a
+		// path returns false. Loading the string needs no entity loader.
+		$xml = simplexml_load_string((string)file_get_contents(__DIR__ . '/../../../../appinfo/info.xml'));
 		$this->assertNotFalse($xml);
 		$registered = [];
 		foreach ($xml->activity->settings->setting ?? [] as $node) {

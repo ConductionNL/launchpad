@@ -12,7 +12,14 @@
  */
 
 /** Widget types that render rows, so the filter field makes sense on them. */
-export const ROW_WIDGET_TYPES = ['table', 'object-list', 'people', 'news', 'files', 'attention']
+export const ROW_WIDGET_TYPES = [
+	'table',
+	'object-list',
+	'people',
+	'news',
+	'files',
+	'attention',
+]
 
 /** What counts as a row: table body rows, list items, and explicit rows. */
 export const ROW_SELECTOR = 'tbody tr, li, [data-row]'
@@ -47,13 +54,17 @@ export function applyRowFilter(root, term) {
 		return { total: 0, shown: 0 }
 	}
 
-	const needle = String(term ?? '').trim().toLocaleLowerCase()
-	const rows = [...root.querySelectorAll(ROW_SELECTOR)]
-		.filter((row) => row.querySelector(ROW_SELECTOR) === null)
+	const needle = String(term ?? '')
+		.trim()
+		.toLocaleLowerCase()
+	const rows = [...root.querySelectorAll(ROW_SELECTOR)].filter(
+		(row) => row.querySelector(ROW_SELECTOR) === null,
+	)
 
 	let shown = 0
 	for (const row of rows) {
-		const match = needle === '' || row.textContent.toLocaleLowerCase().includes(needle)
+		const match =
+			needle === '' || row.textContent.toLocaleLowerCase().includes(needle)
 		if (match) {
 			row.removeAttribute(FILTERED_ATTRIBUTE)
 			shown++

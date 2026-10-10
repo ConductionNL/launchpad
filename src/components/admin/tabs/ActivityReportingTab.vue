@@ -19,7 +19,7 @@
 				v-model="enabled"
 				type="switch"
 				data-testid="activity-reporting-enabled">
-				{{ t('launchpad', 'Allow reports on a named person\'s activity') }}
+				{{ t('launchpad', "Allow reports on a named person's activity") }}
 			</NcCheckboxRadioSwitch>
 			<label class="activity-reporting-tab__purpose">
 				{{ t('launchpad', 'Purpose') }}
@@ -30,13 +30,26 @@
 					aria-describedby="activity-reporting-purpose-hint"
 					data-testid="activity-reporting-purpose" />
 			</label>
-			<p id="activity-reporting-purpose-hint" class="activity-reporting-tab__hint">
-				{{ t('launchpad', 'Say why you report on a named person, for example workload balancing. Every report about somebody else shows it.') }}
+			<p
+				id="activity-reporting-purpose-hint"
+				class="activity-reporting-tab__hint">
+				{{
+					t(
+						'launchpad',
+						'Say why you report on a named person, for example workload balancing. Every report about somebody else shows it.',
+					)
+				}}
 			</p>
-			<NcNoteCard v-if="error" type="error" data-testid="activity-reporting-error">
+			<NcNoteCard
+				v-if="error"
+				type="error"
+				data-testid="activity-reporting-error">
 				{{ error }}
 			</NcNoteCard>
-			<NcButton type="submit" variant="primary" data-testid="activity-reporting-save">
+			<NcButton
+				type="submit"
+				variant="primary"
+				data-testid="activity-reporting-save">
 				{{ t('launchpad', 'Save') }}
 			</NcButton>
 		</form>
@@ -46,9 +59,16 @@
 </template>
 
 <script>
-import { NcButton, NcCheckboxRadioSwitch, NcNoteCard } from '@conduction/nextcloud-vue'
+import {
+	NcButton,
+	NcCheckboxRadioSwitch,
+	NcNoteCard,
+} from '@conduction/nextcloud-vue'
 import ActivityReport from '../../activity/ActivityReport.vue'
-import { getActivityPolicy, saveActivityPolicy } from '../../../services/activityReport.js'
+import {
+	getActivityPolicy,
+	saveActivityPolicy,
+} from '../../../services/activityReport.js'
 
 export default {
 	name: 'ActivityReportingTab',
@@ -85,7 +105,10 @@ export default {
 		async save() {
 			this.error = ''
 			if (this.enabled && this.purpose.trim() === '') {
-				this.error = this.t('launchpad', 'Write down a purpose before you turn this on.')
+				this.error = this.t(
+					'launchpad',
+					'Write down a purpose before you turn this on.',
+				)
 				return
 			}
 			try {
@@ -93,7 +116,10 @@ export default {
 				this.enabled = policy.enabled === true
 				this.purpose = policy.purpose || ''
 			} catch {
-				this.error = this.t('launchpad', 'Write down a purpose before you turn this on.')
+				this.error = this.t(
+					'launchpad',
+					'Write down a purpose before you turn this on.',
+				)
 			}
 		},
 	},

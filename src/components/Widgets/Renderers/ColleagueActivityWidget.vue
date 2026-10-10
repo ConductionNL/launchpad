@@ -26,7 +26,12 @@
 			v-else-if="state === 'unavailable'"
 			class="colleague-activity__state"
 			data-testid="colleague-activity-unavailable">
-			{{ t('launchpad', 'The activity app is not installed, so there is no activity to count.') }}
+			{{
+				t(
+					'launchpad',
+					'The activity app is not installed, so there is no activity to count.',
+				)
+			}}
 		</p>
 		<p
 			v-else-if="state === 'empty'"
@@ -35,10 +40,14 @@
 			{{ t('launchpad', 'No recent activity by colleagues.') }}
 		</p>
 		<template v-else>
-			<p class="colleague-activity__count" data-testid="colleague-activity-count">
+			<p
+				class="colleague-activity__count"
+				data-testid="colleague-activity-count">
 				{{ t('launchpad', '{count} recent items', { count: total }) }}
 			</p>
-			<ul class="colleague-activity__list" data-testid="colleague-activity-list">
+			<ul
+				class="colleague-activity__list"
+				data-testid="colleague-activity-list">
 				<li
 					v-for="item in items"
 					:key="item.id"
@@ -51,7 +60,9 @@
 						class="colleague-activity__object">
 						{{ item.object || item.app }}
 					</component>
-					<time class="colleague-activity__time" :datetime="iso(item.timestamp)">
+					<time
+						class="colleague-activity__time"
+						:datetime="iso(item.timestamp)">
 						{{ relative(item.timestamp) }}
 					</time>
 				</li>
@@ -87,7 +98,10 @@ export default {
 
 	/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
 	async mounted() {
-		const limit = Number(this.content?.limit) > 0 ? Number(this.content.limit) : DEFAULT_LIMIT
+		const limit =
+			Number(this.content?.limit) > 0
+				? Number(this.content.limit)
+				: DEFAULT_LIMIT
 		try {
 			const feed = await getColleagueActivity(limit)
 			this.items = feed.items || []
@@ -120,7 +134,10 @@ export default {
 		 * @return {string} A short local date and time.
 		 */
 		relative(timestamp) {
-			return new Date(timestamp * 1000).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
+			return new Date(timestamp * 1000).toLocaleString(undefined, {
+				dateStyle: 'short',
+				timeStyle: 'short',
+			})
 		},
 	},
 }

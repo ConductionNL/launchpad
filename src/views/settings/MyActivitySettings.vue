@@ -12,7 +12,12 @@
 <template>
 	<NcSettingsSection
 		:name="t('launchpad', 'My activity')"
-		:description="t('launchpad', 'What you did across your apps, counted per day. Counted as events, never as hours.')">
+		:description="
+			t(
+				'launchpad',
+				'What you did across your apps, counted per day. Counted as events, never as hours.',
+			)
+		">
 		<ActivityReport />
 	</NcSettingsSection>
 </template>

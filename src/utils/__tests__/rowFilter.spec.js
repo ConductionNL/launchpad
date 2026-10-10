@@ -36,9 +36,14 @@ describe('applyRowFilter', () => {
 		const counts = applyRowFilter(root, 'bouw')
 
 		expect(counts).toEqual({ total: 3, shown: 2 })
-		expect(visible(root)).toEqual(['Bouwvergunning Kerkstraat', 'Bouwvergunning Molenweg'])
+		expect(visible(root)).toEqual([
+			'Bouwvergunning Kerkstraat',
+			'Bouwvergunning Molenweg',
+		])
 		// The header row is not a data row and is never hidden.
-		expect(root.querySelector('thead tr').hasAttribute('data-lp-filtered-out')).toBe(false)
+		expect(
+			root.querySelector('thead tr').hasAttribute('data-lp-filtered-out'),
+		).toBe(false)
 	})
 
 	it('shows every row again when the term is cleared', () => {
@@ -51,7 +56,8 @@ describe('applyRowFilter', () => {
 
 	it('filters list items and only the innermost row of a nested list', () => {
 		const root = document.createElement('div')
-		root.innerHTML = '<ul><li>Team A<ul><li>Anna</li><li>Bram</li></ul></li><li>Carla</li></ul>'
+		root.innerHTML =
+			'<ul><li>Team A<ul><li>Anna</li><li>Bram</li></ul></li><li>Carla</li></ul>'
 
 		expect(applyRowFilter(root, 'bram')).toEqual({ total: 3, shown: 1 })
 		expect(root.querySelectorAll('[data-lp-filtered-out]')).toHaveLength(2)

@@ -16,7 +16,9 @@ import { generateUrl } from '@nextcloud/router'
  * @return {Promise<{enabled: boolean, purpose: string}>} The policy.
  */
 export async function getActivityPolicy() {
-	const { data } = await axios.get(generateUrl('/apps/launchpad/api/admin/activity-reporting'))
+	const { data } = await axios.get(
+		generateUrl('/apps/launchpad/api/admin/activity-reporting'),
+	)
 	return data
 }
 
@@ -29,7 +31,10 @@ export async function getActivityPolicy() {
  * @return {Promise<{enabled: boolean, purpose: string}>} The stored policy.
  */
 export async function saveActivityPolicy(enabled, purpose) {
-	const { data } = await axios.put(generateUrl('/apps/launchpad/api/admin/activity-reporting'), { enabled, purpose })
+	const { data } = await axios.put(
+		generateUrl('/apps/launchpad/api/admin/activity-reporting'),
+		{ enabled, purpose },
+	)
 	return data
 }
 
@@ -41,7 +46,10 @@ export async function saveActivityPolicy(enabled, purpose) {
  * @return {Promise<object>} The report.
  */
 export async function getActivityReport(query) {
-	const { data } = await axios.get(generateUrl('/apps/launchpad/api/activity-report'), { params: query })
+	const { data } = await axios.get(
+		generateUrl('/apps/launchpad/api/activity-report'),
+		{ params: query },
+	)
 	return data
 }
 
@@ -59,7 +67,11 @@ export function activityExportUrl(query) {
 			params.set(key, value)
 		}
 	}
-	return generateUrl('/apps/launchpad/api/activity-report/export') + '?' + params.toString()
+	return (
+		generateUrl('/apps/launchpad/api/activity-report/export')
+		+ '?'
+		+ params.toString()
+	)
 }
 
 /**
@@ -70,6 +82,9 @@ export function activityExportUrl(query) {
  * @return {Promise<{items: Array, total: number, available: boolean}>} The feed.
  */
 export async function getColleagueActivity(limit) {
-	const { data } = await axios.get(generateUrl('/apps/launchpad/api/colleague-activity'), { params: { limit } })
+	const { data } = await axios.get(
+		generateUrl('/apps/launchpad/api/colleague-activity'),
+		{ params: { limit } },
+	)
 	return data
 }

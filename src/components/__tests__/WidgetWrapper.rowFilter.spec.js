@@ -15,12 +15,16 @@ vi.mock('@conduction/nextcloud-vue', async (importOriginal) => ({
 	CnWidgetWrapper: { name: 'CnWidgetWrapper', template: '<div><slot /></div>' },
 	CnWidgetEditCog: { name: 'CnWidgetEditCog', template: '<div />' },
 	NcActions: { name: 'NcActions', template: '<div><slot /></div>' },
-	NcActionButton: { name: 'NcActionButton', template: '<button><slot /></button>' },
+	NcActionButton: {
+		name: 'NcActionButton',
+		template: '<button><slot /></button>',
+	},
 	NcTextField: {
 		name: 'NcTextField',
 		props: ['modelValue', 'label'],
 		emits: ['update:modelValue'],
-		template: '<input :value="modelValue" :aria-label="label" @input="$emit(\'update:modelValue\', $event.target.value)">',
+		template:
+			'<input :value="modelValue" :aria-label="label" @input="$emit(\'update:modelValue\', $event.target.value)">',
 	},
 }))
 
@@ -48,7 +52,11 @@ function mountWidget(props = {}) {
 	return mount(WidgetWrapper, {
 		props: { placement: placement(), ...props },
 		global: {
-			stubs: { WidgetRenderer: CaseRows, AcknowledgementPrompt: true, EyeOff: true },
+			stubs: {
+				WidgetRenderer: CaseRows,
+				AcknowledgementPrompt: true,
+				EyeOff: true,
+			},
 			mocks: { t: (_a, s) => s },
 		},
 		attachTo: document.body,
@@ -56,7 +64,8 @@ function mountWidget(props = {}) {
 }
 
 function shownRows(wrapper) {
-	return wrapper.findAll('tbody tr')
+	return wrapper
+		.findAll('tbody tr')
 		.filter((row) => !row.element.hasAttribute('data-lp-filtered-out'))
 		.map((row) => row.text())
 }
@@ -72,7 +81,13 @@ describe('WidgetWrapper in-widget filter', () => {
 		expect(shownRows(wrapper)).toEqual(['Bouwvergunning Molenweg'])
 		// The definition is untouched and nothing was emitted to save.
 		expect(props.placement).toEqual(before)
-		for (const name of ['remove', 'style', 'edit', 'acknowledged', 'hideForMe']) {
+		for (const name of [
+			'remove',
+			'style',
+			'edit',
+			'acknowledged',
+			'hideForMe',
+		]) {
 			expect(wrapper.emitted(name)).toBeUndefined()
 		}
 		wrapper.unmount()
@@ -84,7 +99,9 @@ describe('WidgetWrapper in-widget filter', () => {
 		await wrapper.find('[data-testid="widget-row-filter"]').setValue('sloop')
 
 		expect(shownRows(wrapper)).toEqual([])
-		expect(wrapper.find('[data-testid="widget-row-filter-empty"]').text()).toBe('No matches.')
+		expect(wrapper.find('[data-testid="widget-row-filter-empty"]').text()).toBe(
+			'No matches.',
+		)
 		wrapper.unmount()
 	})
 
@@ -96,16 +113,23 @@ describe('WidgetWrapper in-widget filter', () => {
 		// A reload mounts the widget again from the same placement.
 		const second = mountWidget()
 
-		expect(second.find('[data-testid="widget-row-filter"]').element.value).toBe('')
+		expect(second.find('[data-testid="widget-row-filter"]').element.value).toBe(
+			'',
+		)
 		expect(shownRows(second)).toHaveLength(3)
 		second.unmount()
 	})
 
 	it('is not offered in edit mode or on a widget without rows', () => {
-		expect(mountWidget({ editMode: true }).find('[data-testid="widget-row-filter"]').exists()).toBe(false)
+		expect(
+			mountWidget({ editMode: true })
+				.find('[data-testid="widget-row-filter"]')
+				.exists(),
+		).toBe(false)
 		expect(
 			mountWidget({ placement: { id: 3, widgetId: 'clock', isCompulsory: 0 } })
-				.find('[data-testid="widget-row-filter"]').exists(),
+				.find('[data-testid="widget-row-filter"]')
+				.exists(),
 		).toBe(false)
 	})
 })

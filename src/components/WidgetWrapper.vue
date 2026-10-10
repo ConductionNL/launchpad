@@ -50,7 +50,12 @@
 				<WidgetRenderer :widget="widget" :placement="placement" />
 			</div>
 			<p
-				v-if="showRowFilter && rowFilter.trim() !== '' && rowCounts.total > 0 && rowCounts.shown === 0"
+				v-if="
+					showRowFilter
+					&& rowFilter.trim() !== ''
+					&& rowCounts.total > 0
+					&& rowCounts.shown === 0
+				"
 				class="launchpad-widget__no-match"
 				data-testid="widget-row-filter-empty">
 				{{ t('launchpad', 'No matches.') }}
@@ -403,7 +408,10 @@ export default {
 					this.filterRows()
 				}
 			})
-			this.rowObserver.observe(this.$refs.rows, { childList: true, subtree: true })
+			this.rowObserver.observe(this.$refs.rows, {
+				childList: true,
+				subtree: true,
+			})
 		}
 	},
 
@@ -420,7 +428,10 @@ export default {
 		 */
 		filterRows() {
 			const counts = applyRowFilter(this.$refs.rows, this.rowFilter)
-			if (counts.total !== this.rowCounts.total || counts.shown !== this.rowCounts.shown) {
+			if (
+				counts.total !== this.rowCounts.total
+				|| counts.shown !== this.rowCounts.shown
+			) {
 				this.rowCounts = counts
 			}
 		},

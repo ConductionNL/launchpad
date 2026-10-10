@@ -6,7 +6,12 @@
 <template>
 	<div class="colleague-activity-form">
 		<p class="colleague-activity-form__hint">
-			{{ t('launchpad', 'Shows what colleagues did recently that you may see.') }}
+			{{
+				t(
+					'launchpad',
+					'Shows what colleagues did recently that you may see.',
+				)
+			}}
 		</p>
 
 		<NcSelect
@@ -51,7 +56,9 @@ export default {
 	emits: ['update:content'],
 
 	data() {
-		const initial = Number((this.editingWidget?.content || this.value || {}).limit)
+		const initial = Number(
+			(this.editingWidget?.content || this.value || {}).limit,
+		)
 		return {
 			limitOptions: LIMIT_OPTIONS,
 			limit: LIMIT_OPTIONS.includes(initial) ? initial : DEFAULT_LIMIT,
@@ -68,7 +75,9 @@ export default {
 		 * @param {number} limit Lines to show.
 		 */
 		updateLimit(limit) {
-			this.limit = LIMIT_OPTIONS.includes(Number(limit)) ? Number(limit) : DEFAULT_LIMIT
+			this.limit = LIMIT_OPTIONS.includes(Number(limit))
+				? Number(limit)
+				: DEFAULT_LIMIT
 			this.$emit('update:content', { limit: this.limit })
 		},
 	},

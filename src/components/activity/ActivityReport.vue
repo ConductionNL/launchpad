@@ -25,7 +25,7 @@
 					v-model="from"
 					type="date"
 					required
-					data-testid="activity-report-from">
+					data-testid="activity-report-from" />
 			</label>
 			<label class="activity-report__date">
 				{{ t('launchpad', 'Until') }}
@@ -33,20 +33,37 @@
 					v-model="until"
 					type="date"
 					required
-					data-testid="activity-report-until">
+					data-testid="activity-report-until" />
 			</label>
-			<NcButton type="submit" variant="primary" data-testid="activity-report-show">
+			<NcButton
+				type="submit"
+				variant="primary"
+				data-testid="activity-report-show">
 				{{ t('launchpad', 'Show activity') }}
 			</NcButton>
 		</form>
 
-		<NcNoteCard v-if="refusal === 'reporting_disabled'" type="info" data-testid="activity-report-off">
-			{{ t('launchpad', 'Reporting on a named person is off. An administrator can turn it on under Activity reporting, with a purpose.') }}
+		<NcNoteCard
+			v-if="refusal === 'reporting_disabled'"
+			type="info"
+			data-testid="activity-report-off">
+			{{
+				t(
+					'launchpad',
+					'Reporting on a named person is off. An administrator can turn it on under Activity reporting, with a purpose.',
+				)
+			}}
 		</NcNoteCard>
-		<NcNoteCard v-else-if="refusal === 'forbidden'" type="warning" data-testid="activity-report-forbidden">
-			{{ t('launchpad', 'You may not read this person\'s activity.') }}
+		<NcNoteCard
+			v-else-if="refusal === 'forbidden'"
+			type="warning"
+			data-testid="activity-report-forbidden">
+			{{ t('launchpad', "You may not read this person's activity.") }}
 		</NcNoteCard>
-		<NcNoteCard v-else-if="refusal" type="error" data-testid="activity-report-error">
+		<NcNoteCard
+			v-else-if="refusal"
+			type="error"
+			data-testid="activity-report-error">
 			{{ t('launchpad', 'This report could not be loaded.') }}
 		</NcNoteCard>
 
@@ -55,13 +72,22 @@
 				v-if="report.purpose"
 				class="activity-report__purpose"
 				data-testid="activity-report-purpose">
-				{{ t('launchpad', 'Purpose: {purpose}', { purpose: report.purpose }) }}
+				{{
+					t('launchpad', 'Purpose: {purpose}', { purpose: report.purpose })
+				}}
 			</p>
 			<p v-if="report.available === false" class="activity-report__note">
-				{{ t('launchpad', 'The activity app is not installed, so there is no activity to count.') }}
+				{{
+					t(
+						'launchpad',
+						'The activity app is not installed, so there is no activity to count.',
+					)
+				}}
 			</p>
 
-			<table class="activity-report__types" data-testid="activity-report-types">
+			<table
+				class="activity-report__types"
+				data-testid="activity-report-types">
 				<thead>
 					<tr>
 						<th scope="col">
@@ -90,14 +116,26 @@
 				</tfoot>
 			</table>
 
-			<ol class="activity-report__calendar" data-testid="activity-report-calendar">
+			<ol
+				class="activity-report__calendar"
+				data-testid="activity-report-calendar">
 				<li
 					v-for="day in report.days"
 					:key="day.date"
 					class="activity-report__day"
 					:class="`activity-report__day--level-${day.level}`"
-					:title="t('launchpad', '{count} events on {date}', { count: day.count, date: day.date })"
-					:aria-label="t('launchpad', '{count} events on {date}', { count: day.count, date: day.date })" />
+					:title="
+						t('launchpad', '{count} events on {date}', {
+							count: day.count,
+							date: day.date,
+						})
+					"
+					:aria-label="
+						t('launchpad', '{count} events on {date}', {
+							count: day.count,
+							date: day.date,
+						})
+					" />
 			</ol>
 
 			<a
@@ -113,7 +151,10 @@
 
 <script>
 import { NcButton, NcNoteCard, NcTextField } from '@conduction/nextcloud-vue'
-import { activityExportUrl, getActivityReport } from '../../services/activityReport.js'
+import {
+	activityExportUrl,
+	getActivityReport,
+} from '../../services/activityReport.js'
 
 /**
  * A Y-m-d string for a date.
@@ -220,7 +261,8 @@ export default {
 
 .activity-report__types th,
 .activity-report__types td {
-	padding: var(--default-grid-baseline) calc(var(--default-grid-baseline) * 3) var(--default-grid-baseline) 0;
+	padding: var(--default-grid-baseline) calc(var(--default-grid-baseline) * 3)
+		var(--default-grid-baseline) 0;
 	text-align: start;
 }
 
@@ -242,15 +284,27 @@ export default {
 }
 
 .activity-report__day--level-1 {
-	background: color-mix(in srgb, var(--color-primary-element) 25%, var(--color-main-background));
+	background: color-mix(
+		in srgb,
+		var(--color-primary-element) 25%,
+		var(--color-main-background)
+	);
 }
 
 .activity-report__day--level-2 {
-	background: color-mix(in srgb, var(--color-primary-element) 50%, var(--color-main-background));
+	background: color-mix(
+		in srgb,
+		var(--color-primary-element) 50%,
+		var(--color-main-background)
+	);
 }
 
 .activity-report__day--level-3 {
-	background: color-mix(in srgb, var(--color-primary-element) 75%, var(--color-main-background));
+	background: color-mix(
+		in srgb,
+		var(--color-primary-element) 75%,
+		var(--color-main-background)
+	);
 }
 
 .activity-report__day--level-4 {

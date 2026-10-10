@@ -27,25 +27,25 @@
 
 ## 4. Activity reporting
 
-- [ ] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty.
-- [ ] 4.2 Show the purpose on every screen reporting on a named person.
-- [ ] 4.3 Write an audit entry for every read of another person's activity.
-- [ ] 4.4 Let a person read their own without the setting and without a log entry.
-- [ ] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events.
-- [ ] 4.6 Export both as CSV, with totals equal to the screen.
-- [ ] 4.7 PHPUnit on the gate, the self-read exception and the audit entry.
+- [x] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty. `AdminSettingKey::ACTIVITY_REPORTING_*`, `ActivityReportService::setPolicy()`; admin tab `src/components/admin/tabs/ActivityReportingTab.vue`.
+- [x] 4.2 Show the purpose on every screen reporting on a named person. `ActivityReportService::report()` returns `purpose` for a report on somebody else; `src/components/activity/ActivityReport.vue` shows it.
+- [x] 4.3 Write an audit entry for every read of another person's activity. `CriticalActionPerformedEvent` (admin_audit), for reads and exports; retention is admin_audit's log configuration.
+- [x] 4.4 Let a person read their own without the setting and without a log entry. `ActivityReportService::refusal()`; own view on the personal settings page (`src/views/settings/MyActivitySettings.vue`).
+- [x] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events. `ActivityReportService::build()` over `lib/Db/ActivityEventReader.php`, per day in the reader's time zone, intensity 0 to 4.
+- [x] 4.6 Export both as CSV, with totals equal to the screen. `ActivityReportService::export()`, `GET /api/activity-report/export`.
+- [x] 4.7 PHPUnit on the gate, the self-read exception and the audit entry. `tests/Unit/Service/ActivityReportServiceTest.php`, `tests/Unit/Controller/ActivityReportControllerTest.php`.
 
 ## 5. Colleague activity
 
-- [ ] 5.1 Add the widget over the existing activity feed.
-- [ ] 5.2 Filter to what the reader may see, and exclude filtered entries from every count.
-- [ ] 5.3 PHPUnit on the permission filter, including its effect on the totals.
+- [x] 5.1 Add the widget over the existing activity feed. widget type `colleague-activity` (`src/components/Widgets/Renderers/ColleagueActivityWidget.vue`, `lib/widget-types.json`), `GET /api/colleague-activity`.
+- [x] 5.2 Filter to what the reader may see, and exclude filtered entries from every count. `lib/Service/ColleagueActivityService.php` rechecks LaunchPad dashboard events with `PermissionService::canViewDashboard()` and counts after the filter.
+- [x] 5.3 PHPUnit on the permission filter, including its effect on the totals. `tests/Unit/Service/ColleagueActivityServiceTest.php`.
 
 ## 6. In-widget search
 
-- [ ] 6.1 Add a filter field to widgets that render rows, in view state only.
-- [ ] 6.2 Assert it never writes to the placement or its saved search.
-- [ ] 6.3 Vitest on the component: filter, reload, unchanged definition.
+- [x] 6.1 Add a filter field to widgets that render rows, in view state only. `src/utils/rowFilter.js` wired into `src/components/WidgetWrapper.vue` for row widgets, outside edit mode.
+- [x] 6.2 Assert it never writes to the placement or its saved search. the filter only marks DOM rows; `WidgetWrapper.rowFilter.spec.js` asserts the placement is unchanged and nothing is emitted.
+- [x] 6.3 Vitest on the component: filter, reload, unchanged definition. `src/utils/__tests__/rowFilter.spec.js`, `src/components/__tests__/WidgetWrapper.rowFilter.spec.js`.
 
 ## 7. Geographic reporting
 
@@ -63,8 +63,8 @@
 
 ## 9. Handover
 
-- [ ] 9.1 Give the dossiq lane the consumer half: case widgets contributed to a launchpad dashboard, each declaring the roles that may see it.
-- [ ] 9.2 Agree with the openregister lane which aggregations a shipped report may rely on.
+- [ ] 9.1 Give the dossiq lane the consumer half: case widgets contributed to a launchpad dashboard, each declaring the roles that may see it. (asked in for-ruben/launchpad-sibling-asks.md, 10 Oct)
+- [ ] 9.2 Agree with the openregister lane which aggregations a shipped report may rely on. (asked in for-ruben/launchpad-sibling-asks.md, 10 Oct; waits on Q-launchpad-2)
 - [ ] 9.3 Tick this change in `competitor-parity-2026-09/tasks.md` when it archives.
 
 ## What shipped, and what has not
@@ -93,41 +93,33 @@ moved. A placement made compulsory after somebody hid it renders again, which
 is checked. The reset is `DELETE`, removes the whole row, and resetting twice
 is not an error.
 
-`pruneOrphans()` is the exception, and task 1.5 is open again because of it.
-The method drops entries for placements that no longer exist, and deletes the
-row when the sweep empties it. Nothing calls it. Two tests cover it and there
-is no call site in `lib/`, which is the same shape this branch just fixed for
-`withPersonalLayer()`: a method with a green suite and no caller reports the
-same green as one that runs.
-
-Wiring it is not a one-line call, which is why it is a task and not a fix
-here. A re-sync replaces the placements of one dashboard for everybody, and
-`pruneOrphans()` takes one user id. `PersonalLayerMapper` can find a layer by
-user and dashboard and delete it, and it cannot list the layers on a
-dashboard, so there is no query to sweep with. Eight places call
-`deleteByDashboardId()`, and each has to decide whether it is a re-sync that
-should prune or a deletion that should drop the layer outright.
-
-What it costs while it waits is bounded, and it is not a wrong number on
-screen. `applyTo()` walks the live placements and looks up overrides by id,
-so an entry for a placement that is gone is ignored at render time. Placement
-ids come from an autoincrement column and are never reused, so a stale entry
-cannot attach itself to a different widget later. The cost is stale keys in
-the layer row, one per placement ever removed from that dashboard.
+`pruneOrphans()` has its caller now (task 1.5): the Tier-A cleanup category
+`orphaned_personal_layer_entries` sweeps every layer against the placements its
+dashboard still has, once a day in `OrphanedDataCleanupJob`. One sweep covers
+every way a placement goes (a re-sync, a version restore, an owner removing a
+widget), where wiring each `deleteByDashboardId()` caller would miss the next.
+The user is not told: a stale entry was never rendered, so nothing they see
+changes.
 
 Three routes, all `#[NoAdminRequired]`, all reading the caller's own user id
 from the session. No route takes a user id from the request, so one person's
 layer is unreachable through another's.
 
-**Sections 2 to 8 are not built.** The report library, the status report,
-activity reporting and its purpose gate, colleague activity, in-widget search,
-geographic reporting and storage reporting are untouched, and their boxes are
-still open above. Section 6 needs Vitest, and an earlier draft of this file
-said Vitest could not run here because `npm ci` refused over a
-`package.json` and `package-lock.json` that were out of sync. That is not
-true on this tip. The two files agree on every dependency, and
-`npm run test` runs the suite: 748 tests across 69 files. So the reason
-section 6 is open is the plain one. Nobody built it.
+**Sections 4, 5 and 6 are built** (10 Oct, build/openspecs-2). Activity
+reporting reads the activity app's stream, counts events and never hours, is
+off until an administrator turns it on with a purpose, shows the purpose on
+every report about somebody else, and sends every such read or export to the
+platform audit trail. A person reads their own on the personal settings page.
+The colleague activity widget lists what reached the reader and rechecks
+dashboard visibility at read time. The in-widget filter marks rendered rows
+only. e2e specs are written and wait for the live pass (decision 139):
+`tests/e2e/api-direct/activity-reporting.api.spec.ts`,
+`tests/e2e/widget-row-filter.spec.ts`.
+
+**Sections 2, 3, 7 and 8 wait on product questions** (QUESTIONS.md
+Q-launchpad-2 to Q-launchpad-5): which reports ship first, what a "body of
+work" is, what a "rate" per area means, and what a "workspace" and "past
+retention" mean for storage.
 
 **Section 9, the handover.** 9.1 and 9.2 are unchanged: the dossiq and
 openregister halves have not been handed over, because sections 2 to 8 are what

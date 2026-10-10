@@ -262,6 +262,15 @@ return [
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
 
+		// Activity reporting with a declared purpose, and the colleague
+		// activity widget (dashboards-and-who-may-see-them REQ-DWMS-005..007).
+		// `/export` is registered before the plain report route.
+		['name' => 'activityReport#policy', 'url' => '/api/admin/activity-reporting', 'verb' => 'GET'],
+		['name' => 'activityReport#updatePolicy', 'url' => '/api/admin/activity-reporting', 'verb' => 'PUT'],
+		['name' => 'activityReport#export', 'url' => '/api/activity-report/export', 'verb' => 'GET'],
+		['name' => 'activityReport#report', 'url' => '/api/activity-report', 'verb' => 'GET'],
+		['name' => 'activityReport#colleagues', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
+
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
 		// plain report route so the `/csv` suffix is matched first, and both

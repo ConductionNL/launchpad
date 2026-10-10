@@ -36,7 +36,30 @@
 			:showRefresh="false"
 			:showRequestFeature="false"
 			:showActions="showActionsMenu">
-			<WidgetRenderer :widget="widget" :placement="placement" />
+			<!-- REQ-DWMS-008: a filter over the rows this widget rendered. View
+			     state only: it marks DOM rows and never writes to the placement
+			     or its saved search, and a reload clears it. -->
+			<div v-if="showRowFilter" class="launchpad-widget__filter">
+				<NcTextField
+					v-model="rowFilter"
+					type="search"
+					:label="t('launchpad', 'Filter')"
+					data-testid="widget-row-filter" />
+			</div>
+			<div ref="rows" class="launchpad-widget__rows">
+				<WidgetRenderer :widget="widget" :placement="placement" />
+			</div>
+			<p
+				v-if="
+					showRowFilter
+					&& rowFilter.trim() !== ''
+					&& rowCounts.total > 0
+					&& rowCounts.shown === 0
+				"
+				class="launchpad-widget__no-match"
+				data-testid="widget-row-filter-empty">
+				{{ t('launchpad', 'No matches.') }}
+			</p>
 		</CnWidgetWrapper>
 
 		<!-- REQ-ACK-002: forced-delivery read-gate. Overlays the widget with a
@@ -89,10 +112,12 @@ import {
 	CnWidgetWrapper,
 	NcActionButton,
 	NcActions,
+	NcTextField,
 } from '@conduction/nextcloud-vue'
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
+import { applyRowFilter, isRowWidget } from '../utils/rowFilter.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -104,6 +129,7 @@ export default {
 		EyeOff,
 		NcActionButton,
 		NcActions,
+		NcTextField,
 		WidgetRenderer,
 		AcknowledgementPrompt,
 	},
@@ -156,7 +182,27 @@ export default {
 
 	emits: ['remove', 'style', 'edit', 'acknowledged', 'hideForMe'],
 
+	data() {
+		return {
+			// REQ-DWMS-008: the in-widget filter term. Component state only,
+			// never persisted, never emitted.
+			rowFilter: '',
+			rowCounts: { total: 0, shown: 0 },
+		}
+	},
+
 	computed: {
+		/**
+		 * Whether the in-widget filter is offered: a widget that renders
+		 * rows, outside edit mode.
+		 *
+		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+		 * @return {boolean}
+		 */
+		showRowFilter() {
+			return !this.editMode && isRowWidget(this.placement)
+		},
+
 		/**
 		 * Whether "Hide for me" is offered: view mode, allowed by the host,
 		 * and not a compulsory widget.
@@ -332,6 +378,66 @@ export default {
 			return this.placement.styleConfig || {}
 		},
 	},
+
+	watch: {
+		/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
+		rowFilter() {
+			this.filterRows()
+		},
+
+		/**
+		 * Clear the filter when it stops being offered (edit mode).
+		 *
+		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+		 * @param {boolean} on Whether the filter is offered.
+		 */
+		showRowFilter(on) {
+			if (!on) {
+				this.rowFilter = ''
+			}
+		},
+	},
+
+	/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
+	mounted() {
+		// Rows arrive after mount (widgets fetch their own data) and are
+		// re-rendered on refresh, so the filter is applied again whenever
+		// the rendered content changes.
+		if (typeof MutationObserver !== 'undefined' && this.$refs.rows) {
+			this.rowObserver = new MutationObserver(() => {
+				if (this.rowFilter.trim() !== '') {
+					this.filterRows()
+				}
+			})
+			this.rowObserver.observe(this.$refs.rows, {
+				childList: true,
+				subtree: true,
+			})
+		}
+	},
+
+	/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
+	beforeUnmount() {
+		this.rowObserver?.disconnect()
+	},
+
+	methods: {
+		/**
+		 * Apply the filter term to the rendered rows.
+		 *
+		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+		 * @return {void}
+		 */
+		filterRows() {
+			const counts = applyRowFilter(this.$refs.rows, this.rowFilter)
+			if (
+				counts.total !== this.rowCounts.total
+				|| counts.shown !== this.rowCounts.shown
+			) {
+				this.rowCounts = counts
+			}
+		},
+	},
 }
 </script>
 
@@ -343,6 +449,24 @@ export default {
 
 .launchpad-widget__wrapper {
 	height: 100%;
+}
+
+/* REQ-DWMS-008: the rows wrapper must not change the renderer's layout. */
+.launchpad-widget__rows {
+	display: contents;
+}
+
+.launchpad-widget__rows :deep([data-lp-filtered-out]) {
+	display: none !important;
+}
+
+.launchpad-widget__filter {
+	padding: 0 var(--default-grid-baseline, 4px) var(--default-grid-baseline, 4px);
+}
+
+.launchpad-widget__no-match {
+	padding: calc(var(--default-grid-baseline, 4px) * 2);
+	color: var(--color-text-maxcontrast);
 }
 
 /* The shared cog overlays the wrapper's top-right (the header's action area

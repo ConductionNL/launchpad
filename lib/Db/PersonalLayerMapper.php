@@ -78,6 +78,25 @@ class PersonalLayerMapper extends QBMapper {
 	}//end findForUser()
 
 	/**
+	 * Every stored layer, for the cleanup sweep.
+	 *
+	 * Layers exist only where somebody rearranged a dashboard they do not
+	 * own, so the table stays small; the sweep reads it whole once a day.
+	 *
+	 * @return array<int, PersonalLayer>
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function findAllLayers(): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->orderBy('dashboard_id', 'ASC');
+
+		return $this->findEntities(query: $qb);
+	}//end findAllLayers()
+
+	/**
 	 * Remove one person's layer on one dashboard.
 	 *
 	 * @param string $userId The person.

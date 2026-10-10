@@ -8,4 +8,4 @@
 - [x] 6. Templates page: "Update to version N" and the confirmation dialog, `en` and `nl` strings. Verify: `TemplatesPage.shippedUpdate.spec.js`.
 - [x] 7. `getApplicableTemplate()` picks by one rule. Verify: `TemplateServiceApplicableTemplateTest`.
 - [x] 8. Live check of the command on a test instance, and of a member's page in a browser afterwards. See the PR body.
-- [ ] 9. Open the "Update to version N" button and its dialog in a browser. Not done in this change's PR: see the PR body.
+- [ ] 9. Open the "Update to version N" button and its dialog in a browser. Not done in this change's PR: see the PR body. (live pass, decision 139)

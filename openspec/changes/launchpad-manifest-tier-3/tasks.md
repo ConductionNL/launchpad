@@ -43,7 +43,7 @@
 - [x] `npm run build` compiles (webpack exit 0; the three warnings are the pre-existing bundle-size ones).
 - [x] `vitest` WorkspaceApp: 14 passed.
 - [x] `playwright test --list`: 9 tests collect.
-- [ ] The E2E leg on the `development` push run. It runs only there, so this is where routing is actually proven. (not run: the E2E job is `skipped` on every development push run, checked 9 Oct on Code Quality 37984033983 at f7b9192d; needs the live pass: open `/apps/launchpad/`, `/store`, `/reports`, `/features-roadmap`, `/flows` and `/dashboards/<id>` from a cold load on both `/apps/...` and `/index.php/apps/...`, each renders its page, and `tests/e2e/app-chrome.spec.ts` passes against the instance)
+- [ ] The E2E leg on the `development` push run. It runs only there, so this is where routing is actually proven. (not run: the E2E job is `skipped` on every development push run, checked 9 Oct on Code Quality 37984033983 at f7b9192d; needs the live pass: open `/apps/launchpad/`, `/store`, `/reports`, `/features-roadmap`, `/flows` and `/dashboards/<id>` from a cold load on both `/apps/...` and `/index.php/apps/...`, each renders its page, and `tests/e2e/app-chrome.spec.ts` passes against the instance) (live pass, decision 139)
 
 ## Follow-up (not tasks of this change)
 

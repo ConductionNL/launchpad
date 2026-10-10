@@ -6,4 +6,4 @@
 - [x] 4. `AttentionWidget.vue` and its form, registered as `attention`, added to `lib/widget-types.json`. Verify: Vitest for the four states (items, nothing, failed, none declared).
 - [x] 5. `en` and `nl` strings.
 - [x] 6. "Mijn werkdag" version 2 with the widget on top. Verify: `ShippedTemplateServiceTest`.
-- [ ] 7. Live check in a browser with at least one app carrying the file. Not done in this change's PR.
+- [ ] 7. Live check in a browser with at least one app carrying the file. Not done in this change's PR. (live pass, decision 139)

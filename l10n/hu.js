@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad beállítóvarázsló",
     "Step {n} / {total}" : "{n}. / {total}. lépés",
     "Welcome" : "Üdvözöljük",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Állítsa be a LaunchPad-példányát tárolóval, csoportsorrenddel, bemutató adatokkal, rendszergazdai szerepkörökkel és láblécbeállításokkal.",
-    "Storage backend" : "Tárolási háttérrendszer",
-    "Choose how LaunchPad stores dashboard content." : "Válassza ki, hogyan tárolja a LaunchPad az irányítópult-tartalmat.",
-    "Database (default)" : "Adatbázis (alapértelmezett)",
-    "Store dashboard content in the LaunchPad database table." : "Az irányítópult-tartalom tárolása a LaunchPad adatbázistáblájában.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (szervezeti használathoz ajánlott)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Az irányítópult-tartalom tárolása Nextcloud GroupFolders mappákban az együttműködéses hozzáférés érdekében.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "A GroupFolder alkalmazás nincs telepítve. Telepítse a „Nextcloud GroupFolders” alkalmazást ennek a beállításnak a használatához.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Válassza ki, milyen sorrendben jelenjenek meg a Nextcloud-csoportok, amikor a LaunchPad munkaterületre irányítja a felhasználókat.",
     "Demo data" : "Bemutató adatok",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "A bemutató adat-tárlatok itt jelennek meg, amint a demo-data-showcases képesség elérhetővé válik. Egyelőre ez a lépés csak tájékoztató jellegű.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Befejezés",
     "Run setup wizard" : "Beállítóvarázsló futtatása",
     "Run setup wizard again" : "Beállítóvarázsló újbóli futtatása",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Indítsa el az intranetjét: válasszon tárolót, állítson be csoportokat, telepítsen bemutató adatokat, és állítson be rendszergazdai szerepköröket.",
     "Container" : "Tároló",
     "Padding" : "Belső térköz",
     "Title (optional)" : "Cím (választható)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Állítsa be LaunchPad-példányát a csoportsorrenddel, demoadatokkal, rendszergazdai szerepekkel és lábléc-beállításokkal.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Indítsa el intranetét: állítsa be a csoportokat, telepítsen demoadatokat, és állítsa be a rendszergazdai szerepeket.",
+    "A dashboard is shared with you" : "Megosztanak Önnel egy irányítópultot",
+    "A dashboard for your group is published" : "Közzétesznek egy irányítópultot a csoportjának",
+    "A dashboard shared with you is updated" : "Frissül egy Önnel megosztott irányítópult",
+    "You acknowledge an announcement on a dashboard" : "Ön nyugtáz egy közleményt egy irányítópulton"
 },
 "nplurals=2; plural=(n != 1);"
 );

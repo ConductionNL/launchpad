@@ -4666,7 +4666,7 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "building",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/engagement-activity-digest"
 			},

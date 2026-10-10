@@ -860,14 +860,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad installatiewizard",
     "Step {n} / {total}" : "Stap {n} / {total}",
     "Welcome" : "Welkom",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Configureer je LaunchPad met opslag, groepvolgorde, demo-data, beheerdersrollen en voettekstinstellingen.",
-    "Storage backend" : "Opslag-backend",
-    "Choose how LaunchPad stores dashboard content." : "Kies hoe LaunchPad dashboardinhoud opslaat.",
-    "Database (default)" : "Database (standaard)",
-    "Store dashboard content in the LaunchPad database table." : "Sla dashboardinhoud op in de LaunchPad-databasetabel.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (aanbevolen voor organisaties)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Sla dashboardinhoud op in Nextcloud GroupFolders voor gedeelde toegang.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "De GroupFolder-app is niet geïnstalleerd. Installeer 'Nextcloud GroupFolders' om deze optie te gebruiken.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Kies de volgorde waarin Nextcloud-groepen verschijnen wanneer LaunchPad gebruikers naar een werkruimte stuurt.",
     "Demo data" : "Demo-data",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "De demo-showcases verschijnen hier zodra de demo-data-showcases-capability beschikbaar is. Deze stap is voorlopig alleen ter informatie.",
@@ -886,7 +878,6 @@ OC.L10N.register(
     "Finish" : "Voltooien",
     "Run setup wizard" : "Installatiewizard starten",
     "Run setup wizard again" : "Installatiewizard opnieuw starten",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Start je intranet: kies opslag, configureer groepen, installeer demo-data en stel beheerdersrollen in.",
     "Container" : "Container",
     "Padding" : "Opvulling",
     "Title (optional)" : "Titel (optioneel)",
@@ -1411,7 +1402,13 @@ OC.L10N.register(
     "Personal settings" : "Persoonlijke instellingen",
     "Store" : "Store",
     "Reports" : "Rapporten",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Configureer je LaunchPad met groepvolgorde, demo-data, beheerdersrollen en voettekstinstellingen.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Start je intranet: configureer groepen, installeer demo-data en stel beheerdersrollen in.",
+    "A dashboard is shared with you" : "Er wordt een dashboard met je gedeeld",
+    "A dashboard for your group is published" : "Er wordt een dashboard voor je groep gepubliceerd",
+    "A dashboard shared with you is updated" : "Een dashboard dat met je gedeeld is, wordt bijgewerkt",
+    "You acknowledge an announcement on a dashboard" : "Je bevestigt een mededeling op een dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -928,14 +928,6 @@
         "LaunchPad setup wizard": "Мастер настройки LaunchPad",
         "Step {n} / {total}": "Шаг {n} / {total}",
         "Welcome": "Добро пожаловать",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Настройте свой экземпляр LaunchPad с помощью параметров хранилища, порядка групп, демонстрационных данных, ролей администраторов и настроек нижнего колонтитула.",
-        "Storage backend": "Бэкенд хранилища",
-        "Choose how LaunchPad stores dashboard content.": "Выберите, как LaunchPad хранит содержимое дашбордов.",
-        "Database (default)": "База данных (по умолчанию)",
-        "Store dashboard content in the LaunchPad database table.": "Хранить содержимое дашбордов в таблице базы данных LaunchPad.",
-        "GroupFolder (recommended for org use)": "GroupFolder (рекомендуется для использования в организации)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Хранить содержимое дашбордов в Nextcloud GroupFolders для совместного доступа.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "Приложение GroupFolder не установлено. Установите «Nextcloud GroupFolders», чтобы использовать эту опцию.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Выберите порядок, в котором отображаются группы Nextcloud, когда LaunchPad направляет пользователей в рабочее пространство.",
         "Demo data": "Демонстрационные данные",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Демонстрационные примеры данных появятся здесь, как только будет выпущена возможность demo-data-showcases. Пока этот шаг носит только информационный характер.",
@@ -954,7 +946,6 @@
         "Finish": "Завершить",
         "Run setup wizard": "Запустить мастер настройки",
         "Run setup wizard again": "Запустить мастер настройки снова",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Запустите свой интранет: выберите хранилище, настройте группы, установите демонстрационные данные и настройте роли администраторов.",
         "Container": "Контейнер",
         "Padding": "Отступ",
         "Title (optional)": "Заголовок (необязательно)",
@@ -1331,6 +1322,12 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Настройте свой экземпляр LaunchPad с помощью порядка групп, демонстрационных данных, ролей администраторов и настроек нижнего колонтитула.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Запустите свой интранет: настройте группы, установите демонстрационные данные и настройте роли администраторов.",
+        "A dashboard is shared with you": "С вами поделились панелью",
+        "A dashboard for your group is published": "Опубликована панель для вашей группы",
+        "A dashboard shared with you is updated": "Обновлена панель, которой с вами поделились",
+        "You acknowledge an announcement on a dashboard": "Вы подтверждаете объявление на панели"
     }
 }

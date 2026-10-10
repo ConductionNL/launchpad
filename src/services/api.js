@@ -953,17 +953,6 @@ export const api = {
 	},
 
 	/**
-	 * Persist the setup wizard's content-storage choice (REQ-WIZ-003).
-	 *
-	 * @param {string} storage Backend to store widget content in —
-	 *   `database` or `groupfolder`.
-	 * @return {Promise} Axios response resolving to the updated wizard state.
-	 */
-	setSetupWizardStorage(storage) {
-		return axios.post(`${baseUrl}/api/admin/setup-wizard/storage`, { storage })
-	},
-
-	/**
 	 * Export dashboards as a downloadable archive (REQ-EXIM-002..004).
 	 * Requires Nextcloud-admin, gated server-side; the admin UI renders the
 	 * control behind the same check.

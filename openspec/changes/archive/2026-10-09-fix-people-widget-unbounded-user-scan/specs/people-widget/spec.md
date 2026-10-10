@@ -6,16 +6,19 @@ status: draft
 
 # People Widget — Bounded Candidate Resolution
 
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: REQ-PPL-007 Candidate resolution MUST be bounded by the requested page
+### Requirement: Candidate resolution is bounded by the requested page (REQ-PPL-013)
 
-`PeopleWidgetService::resolveCandidates()` MUST NOT materialize the full
-Nextcloud user directory when resolving candidates for a request that has
-no `group` filter. The number of `IUser` objects instantiated from
-`IUserManager` MUST scale with the requested `limit`/`offset` window
-(capped at `PeopleWidgetService::MAX_LIMIT`), not with the total number of
-accounts on the instance.
+@e2e exclude a server-side query bound, not visible in a browser; covered by tests/Unit/Service/PeopleWidgetServiceTest.php::testDisplayNameSortUsesBoundedSearchNotFullScan and the pagination tests in the same file
+
+`PeopleWidgetService::listUsers()` MUST NOT materialize the full Nextcloud
+user directory for a request that has no `group` filter and uses the default
+`displayName` sort. The number of `IUser` objects instantiated from
+`IUserManager` MUST scale with the requested `limit`/`offset` window (capped
+at `PeopleWidgetService::MAX_LIMIT`), not with the total number of accounts on
+the instance. Only the admin-selected `group` sort without a group filter
+reads the whole directory, because ordering by group membership needs it.
 
 #### Scenario: Unfiltered People widget on a large instance fetches a bounded set
 
@@ -23,7 +26,7 @@ accounts on the instance.
 - **AND** a People widget configured with no `group` filter and
   `limit=10`, `offset=0`
 - **WHEN** `GET /api/people?limit=10&offset=0` is called
-- **THEN** `IUserManager::search()` (or equivalent) MUST be invoked with a
+- **THEN** `IUserManager::searchDisplayName()` MUST be invoked with a
   bounded `$limit`/`$offset`, not an unbounded full-table search
 - **AND** the response MUST still contain the correct `users`, `total`,
   and `hasMore` fields

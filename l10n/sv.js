@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad-installationsguide",
     "Step {n} / {total}" : "Steg {n} / {total}",
     "Welcome" : "Välkommen",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Konfigurera din LaunchPad-instans med lagring, gruppordning, demonstrationsdata, administratörsroller och sidfotsinställningar.",
-    "Storage backend" : "Lagringsbackend",
-    "Choose how LaunchPad stores dashboard content." : "Välj hur LaunchPad lagrar instrumentpanelsinnehåll.",
-    "Database (default)" : "Databas (standard)",
-    "Store dashboard content in the LaunchPad database table." : "Lagra instrumentpanelsinnehåll i LaunchPad-databastabellen.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (rekommenderas för organisationsbruk)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Lagra instrumentpanelsinnehåll i Nextcloud GroupFolders för samarbetsåtkomst.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolder-appen är inte installerad. Installera 'Nextcloud GroupFolders' för att använda detta alternativ.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Välj i vilken ordning Nextcloud-grupper visas när LaunchPad dirigerar användare till en arbetsyta.",
     "Demo data" : "Demonstrationsdata",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Demonstrationsdataexemplen visas här när funktionen demo-data-showcases lanseras. Tills vidare är detta steg endast informativt.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Slutför",
     "Run setup wizard" : "Kör installationsguiden",
     "Run setup wizard again" : "Kör installationsguiden igen",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Kom igång med ditt intranät: välj lagring, konfigurera grupper, installera demonstrationsdata och ställ in administratörsroller.",
     "Container" : "Behållare",
     "Padding" : "Utfyllnad",
     "Title (optional)" : "Titel (valfritt)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Konfigurera din LaunchPad-instans med gruppordning, demodata, administratörsroller och sidfotsinställningar.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Kom igång med ditt intranät: konfigurera grupper, installera demodata och ställ in administratörsroller.",
+    "A dashboard is shared with you" : "En instrumentpanel delas med dig",
+    "A dashboard for your group is published" : "En instrumentpanel för din grupp publiceras",
+    "A dashboard shared with you is updated" : "En instrumentpanel som delats med dig uppdateras",
+    "You acknowledge an announcement on a dashboard" : "Du bekräftar ett meddelande på en instrumentpanel"
 },
 "nplurals=2; plural=(n != 1);"
 );

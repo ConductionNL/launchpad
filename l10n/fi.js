@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad-määritysopas",
     "Step {n} / {total}" : "Vaihe {n} / {total}",
     "Welcome" : "Tervetuloa",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Määritä LaunchPad-instanssisi tallennustilan, ryhmien järjestyksen, esittelydatan, ylläpitäjäroolien ja alatunnisteen asetusten kanssa.",
-    "Storage backend" : "Tallennuksen taustajärjestelmä",
-    "Choose how LaunchPad stores dashboard content." : "Valitse, miten LaunchPad tallentaa kojelautasisällön.",
-    "Database (default)" : "Tietokanta (oletus)",
-    "Store dashboard content in the LaunchPad database table." : "Tallenna kojelautasisältö LaunchPadin tietokantatauluun.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (suositeltu organisaatiokäyttöön)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Tallenna kojelautasisältö Nextcloud GroupFolders -kansioihin yhteistä käyttöä varten.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolder-sovellusta ei ole asennettu. Asenna 'Nextcloud GroupFolders' käyttääksesi tätä vaihtoehtoa.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Valitse järjestys, jossa Nextcloud-ryhmät näkyvät, kun LaunchPad ohjaa käyttäjiä työtilaan.",
     "Demo data" : "Esittelydata",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Esittelydatan näytteet ilmestyvät tähän, kun demo-data-showcases-ominaisuus julkaistaan. Toistaiseksi tämä vaihe on vain informatiivinen.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Valmis",
     "Run setup wizard" : "Suorita määritysopas",
     "Run setup wizard again" : "Suorita määritysopas uudelleen",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Käynnistä intranetisi: valitse tallennustila, määritä ryhmät, asenna esittelydata ja määritä ylläpitäjäroolit.",
     "Container" : "Säiliö",
     "Padding" : "Täyte",
     "Title (optional)" : "Otsikko (valinnainen)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Määritä LaunchPad-ilmentymäsi ryhmäjärjestyksen, esittelytietojen, ylläpitäjän roolien ja alatunnisteasetusten avulla.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Käynnistä intranetisi: määritä ryhmät, asenna esittelytiedot ja määritä ylläpitäjän roolit.",
+    "A dashboard is shared with you" : "Kanssasi jaetaan kojelauta",
+    "A dashboard for your group is published" : "Ryhmällesi julkaistaan kojelauta",
+    "A dashboard shared with you is updated" : "Kanssasi jaettua kojelautaa päivitetään",
+    "You acknowledge an announcement on a dashboard" : "Kuittaat kojelaudan tiedotteen"
 },
 "nplurals=2; plural=(n != 1);"
 );

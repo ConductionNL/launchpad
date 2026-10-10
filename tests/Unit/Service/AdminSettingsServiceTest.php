@@ -72,7 +72,6 @@ class AdminSettingsServiceTest extends TestCase {
 				'allowMultipleDashboards' => true,
 				'defaultGridColumns' => 12,
 				'linkCreateFileExtensions' => ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
-				'launchpad.content_storage' => 'database',
 				'defaultSharePermissionLevel' => 'add_only',
 				'forcedShareGroups' => [],
 				'legacyWidgetBridgeEnabled' => false,
@@ -155,8 +154,8 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('allowMultipleDashboards', $settings);
 		$this->assertArrayHasKey('defaultGridColumns', $settings);
 		$this->assertArrayHasKey('linkCreateFileExtensions', $settings);
-		// REQ-GFSB-006: content storage backend key added.
-		$this->assertArrayHasKey('launchpad.content_storage', $settings);
+		// Decision 131: the content storage key is retired.
+		$this->assertArrayNotHasKey('launchpad.content_storage', $settings);
 		// dashboard-sharing + legacy-widget-bridge spec keys.
 		$this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
 		$this->assertArrayHasKey('forcedShareGroups', $settings);
@@ -168,7 +167,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(13, $settings);
+		$this->assertCount(12, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

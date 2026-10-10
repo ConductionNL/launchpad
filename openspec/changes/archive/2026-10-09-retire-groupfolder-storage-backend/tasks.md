@@ -9,7 +9,11 @@
 - [x] Task 5: Remove the PHPUnit classes that covered the removed tree — `DashboardContentStorageFactoryTest`, `DashboardContentStorageExceptionTest`, `DbContentStorageTest`, `GroupFolderContentStorageTest`, `MigrateStorageToGroupFolderTest`
 - [x] Task 6: Mark `openspec/specs/groupfolder-storage-backend/spec.md` **withdrawn**, recording what was removed, what was deliberately kept, and why. This also retires the spec's 16 `@e2e exclude` markers, whose stated reasons cited `tests/Unit/Service/DashboardContentStorage/DbContentStorageTest.php` — a test file this change deletes, which would have left sixteen exemptions resting on a class that no longer exists
 - [x] Task 7: Correct the phantom `- [x]` on Task 5 of the archived change at `openspec/changes/archive/2026-06-14-groupfolder-storage-backend/tasks.md`, because the project record asserted a wiring that did not exist
-- [ ] Task 8: **Follow-up, tracked on launchpad#87 — NOT in this change.** Decide whether setup-wizard step 2 (`launchpad.content_storage`, `AdminSettingKey::CONTENT_STORAGE`, `SetupWizardService::{getContentStorage,setContentStorage,hasGroupfolderApp}`, `AdminController::setWizardStorage` and its route) also retires. It writes a setting nothing now reads. Note that `tools/spec-annotations-allowlist.txt` carries entries for those three `SetupWizardService` methods and for `AdminController::setWizardStorage`
+
+
+## Follow-up (not a task of this change)
+
+- **Follow-up, tracked on launchpad#87 — NOT in this change.** Decide whether setup-wizard step 2 (`launchpad.content_storage`, `AdminSettingKey::CONTENT_STORAGE`, `SetupWizardService::{getContentStorage,setContentStorage,hasGroupfolderApp}`, `AdminController::setWizardStorage` and its route) also retires. It writes a setting nothing now reads. Note that `tools/spec-annotations-allowlist.txt` carries entries for those three `SetupWizardService` methods and for `AdminController::setWizardStorage` Open as Q-launchpad-1 (2026-10-09).
 
 ## Verification
 

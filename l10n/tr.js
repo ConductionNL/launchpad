@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad kurulum sihirbazı",
     "Step {n} / {total}" : "Adım {n} / {total}",
     "Welcome" : "Hoş geldiniz",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "LaunchPad örneğinizi depolama, grup sıralaması, tanıtım verisi, yönetici rolleri ve alt bilgi ayarlarıyla yapılandırın.",
-    "Storage backend" : "Depolama arka ucu",
-    "Choose how LaunchPad stores dashboard content." : "LaunchPad uygulamasının pano içeriğini nasıl depolayacağını seçin.",
-    "Database (default)" : "Veritabanı (varsayılan)",
-    "Store dashboard content in the LaunchPad database table." : "Pano içeriğini LaunchPad veritabanı tablosunda depolayın.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (kuruluş kullanımı için önerilir)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "İşbirlikçi erişim için pano içeriğini Nextcloud GroupFolders içinde depolayın.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolder uygulaması kurulu değil. Bu seçeneği kullanmak için 'Nextcloud GroupFolders' uygulamasını kurun.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "LaunchPad kullanıcıları bir çalışma alanına yönlendirdiğinde Nextcloud gruplarının görüneceği sırayı seçin.",
     "Demo data" : "Tanıtım verisi",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Tanıtım verisi vitrinleri, demo-data-showcases yeteneği yayımlandığında burada görünür. Şimdilik bu adım yalnızca bilgilendirme amaçlıdır.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Bitir",
     "Run setup wizard" : "Kurulum sihirbazını çalıştır",
     "Run setup wizard again" : "Kurulum sihirbazını yeniden çalıştır",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "İç ağınızı başlatın: depolamayı seçin, grupları yapılandırın, tanıtım verisini kurun ve yönetici rollerini ayarlayın.",
     "Container" : "Kapsayıcı",
     "Padding" : "Dolgu",
     "Title (optional)" : "Başlık (isteğe bağlı)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "LaunchPad örneğinizi grup sıralaması, demo veri, yönetici rolleri ve alt bilgi ayarlarıyla yapılandırın.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Kurum içi ağınızı başlatın: grupları yapılandırın, demo veri kurun ve yönetici rollerini ayarlayın.",
+    "A dashboard is shared with you" : "Sizinle bir pano paylaşılır",
+    "A dashboard for your group is published" : "Grubunuz için bir pano yayımlanır",
+    "A dashboard shared with you is updated" : "Sizinle paylaşılan bir pano güncellenir",
+    "You acknowledge an announcement on a dashboard" : "Bir panodaki duyuruyu onaylarsınız"
 },
 "nplurals=2; plural=(n != 1);"
 );

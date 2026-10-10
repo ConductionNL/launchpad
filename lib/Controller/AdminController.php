@@ -430,10 +430,6 @@ class AdminController extends Controller {
 	 * @param array|null $linkCreateFileExts link-button-widget createFile
 	 *                                       extension allow-list
 	 *                                       (REQ-LBN-004).
-	 * @param string|null $launchpadContentStorage Content storage backend
-	 *                                             (`database` or
-	 *                                             `groupfolder`).
-	 *                                             REQ-GFSB-006.
 	 * @param string|null $defaultSharePermissionLevel Org-wide default share
 	 *                                                 permission level
 	 *                                                 (dashboard-sharing spec).
@@ -481,7 +477,6 @@ class AdminController extends Controller {
 		?bool $allowMultiDash = null,
 		?int $defaultGridCols = null,
 		?array $linkCreateFileExts = null,
-		?string $launchpadContentStorage = null,
 		?string $defaultSharePermissionLevel = null,
 		?array $forcedShareGroups = null,
 		?bool $legacyWidgetBridgeEnabled = null,
@@ -508,7 +503,6 @@ class AdminController extends Controller {
 				allowMultiDash: $allowMultiDash,
 				defaultGridCols: $defaultGridCols,
 				linkCreateFileExts: $linkCreateFileExts,
-				contentStorage: $launchpadContentStorage,
 				defaultSharePermissionLevel: $defaultSharePermissionLevel,
 				forcedShareGroups: $forcedShareGroups,
 				legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
@@ -1057,57 +1051,6 @@ class AdminController extends Controller {
 			data: $this->setupWizardService->markWizardComplete()
 		);
 	}//end completeWizard()
-
-	/**
-	 * Persist the storage backend choice from Step 2 (REQ-WIZ-003).
-	 *
-	 * Validates the selection and writes `launchpad.content_storage`. The
-	 * GroupFolder option is server-side gated by the `groupfolders` app
-	 * dependency — selecting it without the app installed returns 400.
-	 * Admin-only.
-	 *
-	 * @param string|null $storage The chosen backend.
-	 *
-	 * @return JSONResponse The post-write wizard state, or 400/401/403.
-	 *
-	 * @spec openspec/specs/admin-templates/spec.md
-	 */
-	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function setWizardStorage(?string $storage = null): JSONResponse {
-		$guard = $this->assertAdmin();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		if ($storage === null || $storage === '') {
-			return new JSONResponse(
-				data: ['error' => 'Field "storage" is required.'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		}
-
-		if ($storage === SetupWizardService::STORAGE_GROUPFOLDER
-			&& $this->setupWizardService->hasGroupfolderApp() === false
-		) {
-			return new JSONResponse(
-				data: ['error' => 'GroupFolder app is not installed.'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		}
-
-		try {
-			$this->setupWizardService->setContentStorage(value: $storage);
-		} catch (InvalidArgumentException) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported storage backend.'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		}
-
-		return ResponseHelper::success(
-			data: $this->setupWizardService->getWizardState()
-		);
-	}//end setWizardStorage()
 
 	/**
 	 * Build the update data array from nullable parameters.

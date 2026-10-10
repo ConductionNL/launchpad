@@ -928,14 +928,6 @@
         "LaunchPad setup wizard": "Čarobnjak za postavljanje aplikacije LaunchPad",
         "Step {n} / {total}": "Korak {n} / {total}",
         "Welcome": "Dobrodošli",
-        "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings.": "Konfigurirajte svoju LaunchPad instancu s pohranom, redoslijedom grupa, demo podacima, administratorskim ulogama i postavkama podnožja.",
-        "Storage backend": "Pozadinski sustav pohrane",
-        "Choose how LaunchPad stores dashboard content.": "Odaberite kako LaunchPad pohranjuje sadržaj nadzorne ploče.",
-        "Database (default)": "Baza podataka (zadano)",
-        "Store dashboard content in the LaunchPad database table.": "Pohrani sadržaj nadzorne ploče u LaunchPad tablicu baze podataka.",
-        "GroupFolder (recommended for org use)": "GroupFolder (preporučeno za organizacijsku upotrebu)",
-        "Store dashboard content in Nextcloud GroupFolders for collaborative access.": "Pohrani sadržaj nadzorne ploče u Nextcloud GroupFolders za suradnički pristup.",
-        "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option.": "Aplikacija GroupFolder nije instalirana. Instalirajte 'Nextcloud GroupFolders' da biste koristili ovu opciju.",
         "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace.": "Odaberite redoslijed kojim se Nextcloud grupe pojavljuju kada LaunchPad usmjerava korisnike u radni prostor.",
         "Demo data": "Demo podaci",
         "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only.": "Prikazi demo podataka pojavit će se ovdje kada se isporuči mogućnost demo-data-showcases. Za sada je ovaj korak samo informativan.",
@@ -954,7 +946,6 @@
         "Finish": "Završi",
         "Run setup wizard": "Pokreni čarobnjak za postavljanje",
         "Run setup wizard again": "Ponovno pokreni čarobnjak za postavljanje",
-        "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.": "Pokrenite svoj intranet: odaberite pohranu, konfigurirajte grupe, instalirajte demo podatke i postavite administratorske uloge.",
         "Container": "Spremnik",
         "Padding": "Razmak",
         "Title (optional)": "Naslov (neobavezno)",
@@ -1331,6 +1322,12 @@
         "Personal settings": "Personal settings",
         "Store": "Store",
         "Reports": "Reports",
-        "Flows": "Flows"
+        "Flows": "Flows",
+        "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Konfigurirajte svoju LaunchPad instancu s redoslijedom grupa, demo podacima, administratorskim ulogama i postavkama podnožja.",
+        "Get your intranet started: configure groups, install demo data, and set up admin roles.": "Pokrenite svoj intranet: konfigurirajte grupe, instalirajte demo podatke i postavite administratorske uloge.",
+        "A dashboard is shared with you": "S vama je podijeljena nadzorna ploča",
+        "A dashboard for your group is published": "Objavljena je nadzorna ploča za vašu grupu",
+        "A dashboard shared with you is updated": "Nadzorna ploča podijeljena s vama je ažurirana",
+        "You acknowledge an announcement on a dashboard": "Potvrđujete obavijest na nadzornoj ploči"
     }
 }

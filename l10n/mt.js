@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Wizard tas-setup ta' LaunchPad",
     "Step {n} / {total}" : "Pass {n} / {total}",
     "Welcome" : "Merħba",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Ikkonfigura l-istanza ta' LaunchPad tiegħek bil-ħżin, l-ordni tal-gruppi, id-data demo, ir-rwoli tal-amministratur, u s-settings tal-footer.",
-    "Storage backend" : "Backend tal-ħżin",
-    "Choose how LaunchPad stores dashboard content." : "Agħżel kif LaunchPad jaħżen il-kontenut tad-dashboard.",
-    "Database (default)" : "Database (prestabbilit)",
-    "Store dashboard content in the LaunchPad database table." : "Aħżen il-kontenut tad-dashboard fit-tabella tad-database ta' LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (rakkomandat għall-użu mill-organizzazzjoni)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Aħżen il-kontenut tad-dashboard fil-GroupFolders ta' Nextcloud għal aċċess kollaborattiv.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "L-app GroupFolder mhix installata. Installa 'Nextcloud GroupFolders' biex tuża din l-għażla.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Agħżel l-ordni li bih jidhru l-gruppi ta' Nextcloud meta LaunchPad jiggwida lill-utenti lejn spazju tax-xogħol.",
     "Demo data" : "Data demo",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Il-wirjiet ta' data demo jidhru hawn ladarba l-kapaċità demo-data-showcases tiġi mwassla. Għalissa dan il-pass huwa informattiv biss.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Temm",
     "Run setup wizard" : "Ħaddem il-wizard tas-setup",
     "Run setup wizard again" : "Ħaddem il-wizard tas-setup mill-ġdid",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Ibda l-intranet tiegħek: agħżel il-ħżin, ikkonfigura l-gruppi, installa d-data demo, u ssettja r-rwoli tal-amministratur.",
     "Container" : "Kontenitur",
     "Padding" : "Imbuttatura",
     "Title (optional)" : "Titlu (fakultattiv)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Ikkonfigura l-istanza ta' LaunchPad tiegħek bl-ordni tal-gruppi, id-data demo, ir-rwoli tal-amministratur, u s-settings tal-footer.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Ibda l-intranet tiegħek: ikkonfigura l-gruppi, installa d-data demo, u ssettja r-rwoli tal-amministratur.",
+    "A dashboard is shared with you" : "Dashboard jinqasam miegħek",
+    "A dashboard for your group is published" : "Dashboard għall-grupp tiegħek jiġi ppubblikat",
+    "A dashboard shared with you is updated" : "Dashboard maqsum miegħek jiġi aġġornat",
+    "You acknowledge an announcement on a dashboard" : "Tikkonferma avviż fuq dashboard"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

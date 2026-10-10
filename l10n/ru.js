@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "Мастер настройки LaunchPad",
     "Step {n} / {total}" : "Шаг {n} / {total}",
     "Welcome" : "Добро пожаловать",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Настройте свой экземпляр LaunchPad с хранилищем, порядком групп, демонстрационными данными, ролями администратора и настройками нижнего колонтитула.",
-    "Storage backend" : "Серверная часть хранилища",
-    "Choose how LaunchPad stores dashboard content." : "Выберите, как LaunchPad хранит содержимое панелей управления.",
-    "Database (default)" : "База данных (по умолчанию)",
-    "Store dashboard content in the LaunchPad database table." : "Хранить содержимое панелей управления в таблице базы данных LaunchPad.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (рекомендуется для использования в организации)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Хранить содержимое панелей управления в GroupFolders Nextcloud для совместного доступа.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "Приложение GroupFolder не установлено. Установите «Nextcloud GroupFolders», чтобы использовать эту опцию.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Выберите порядок, в котором появляются группы Nextcloud, когда LaunchPad направляет пользователей в рабочее пространство.",
     "Demo data" : "Демонстрационные данные",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Демонстрации демонстрационных данных появятся здесь, как только будет выпущена возможность demo-data-showcases. Пока этот шаг носит исключительно информационный характер.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Готово",
     "Run setup wizard" : "Запустить мастер настройки",
     "Run setup wizard again" : "Запустить мастер настройки снова",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Запустите свой интранет: выберите хранилище, настройте группы, установите демонстрационные данные и настройте роли администратора.",
     "Container" : "Контейнер",
     "Padding" : "Отступ",
     "Title (optional)" : "Заголовок (необязательно)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Настройте свой экземпляр LaunchPad с помощью порядка групп, демонстрационных данных, ролей администраторов и настроек нижнего колонтитула.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Запустите свой интранет: настройте группы, установите демонстрационные данные и настройте роли администраторов.",
+    "A dashboard is shared with you" : "С вами поделились панелью",
+    "A dashboard for your group is published" : "Опубликована панель для вашей группы",
+    "A dashboard shared with you is updated" : "Обновлена панель, которой с вами поделились",
+    "You acknowledge an announcement on a dashboard" : "Вы подтверждаете объявление на панели"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

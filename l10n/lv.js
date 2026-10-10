@@ -926,14 +926,6 @@ OC.L10N.register(
     "LaunchPad setup wizard" : "LaunchPad iestatīšanas vednis",
     "Step {n} / {total}" : "Solis {n} / {total}",
     "Welcome" : "Laipni lūdzam",
-    "Configure your LaunchPad instance with storage, group ordering, demo data, admin roles, and footer settings." : "Konfigurējiet savu LaunchPad instanci ar krātuvi, grupu kārtošanu, demonstrācijas datiem, administratora lomām un kājenes iestatījumiem.",
-    "Storage backend" : "Krātuves aizmugursistēma",
-    "Choose how LaunchPad stores dashboard content." : "Izvēlieties, kā LaunchPad glabā vadības paneļu saturu.",
-    "Database (default)" : "Datubāze (noklusējums)",
-    "Store dashboard content in the LaunchPad database table." : "Glabāt vadības paneļu saturu LaunchPad datubāzes tabulā.",
-    "GroupFolder (recommended for org use)" : "GroupFolder (ieteicams organizācijas lietošanai)",
-    "Store dashboard content in Nextcloud GroupFolders for collaborative access." : "Glabāt vadības paneļu saturu Nextcloud GroupFolders kopdarbam.",
-    "GroupFolder app is not installed. Install 'Nextcloud GroupFolders' to use this option." : "GroupFolder lietotne nav instalēta. Instalējiet 'Nextcloud GroupFolders', lai izmantotu šo opciju.",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Izvēlieties secību, kādā Nextcloud grupas parādās, kad LaunchPad novirza lietotājus uz darbvietu.",
     "Demo data" : "Demonstrācijas dati",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "Demonstrācijas datu prezentācijas parādīsies šeit, tiklīdz būs pieejama demo-data-showcases funkcija. Pagaidām šis solis ir tikai informatīvs.",
@@ -952,7 +944,6 @@ OC.L10N.register(
     "Finish" : "Pabeigt",
     "Run setup wizard" : "Palaist iestatīšanas vedni",
     "Run setup wizard again" : "Palaist iestatīšanas vedni vēlreiz",
-    "Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles." : "Uzsāciet sava intraneta darbu: izvēlieties krātuvi, konfigurējiet grupas, instalējiet demonstrācijas datus un iestatiet administratora lomas.",
     "Container" : "Konteiners",
     "Padding" : "Iekšējā atstarpe",
     "Title (optional)" : "Nosaukums (neobligāts)",
@@ -1363,7 +1354,13 @@ OC.L10N.register(
     "Personal settings" : "Personal settings",
     "Store" : "Store",
     "Reports" : "Reports",
-    "Flows" : "Flows"
+    "Flows" : "Flows",
+    "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings." : "Konfigurējiet savu LaunchPad instanci ar grupu kārtošanu, demonstrācijas datiem, administratora lomām un kājenes iestatījumiem.",
+    "Get your intranet started: configure groups, install demo data, and set up admin roles." : "Uzsāciet sava intraneta darbu: konfigurējiet grupas, instalējiet demonstrācijas datus un iestatiet administratora lomas.",
+    "A dashboard is shared with you" : "Ar jums tiek kopīgots informācijas panelis",
+    "A dashboard for your group is published" : "Jūsu grupai tiek publicēts informācijas panelis",
+    "A dashboard shared with you is updated" : "Ar jums kopīgotais informācijas panelis tiek atjaunināts",
+    "You acknowledge an announcement on a dashboard" : "Jūs apstiprināt paziņojumu informācijas panelī"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

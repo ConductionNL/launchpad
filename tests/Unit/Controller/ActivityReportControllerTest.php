@@ -95,6 +95,18 @@ class ActivityReportControllerTest extends TestCase {
 		$this->assertSame(['error' => 'purpose_required'], $response->getData());
 	}//end testTurningItOnWithoutAPurposeIsA400()
 
+	public function testColleagueActivityIsReadForTheCaller(): void {
+		$colleagues = $this->createMock(ColleagueActivityService::class);
+		$colleagues->expects($this->once())->method('recent')->with('anna', 5)->willReturn(['items' => [], 'total' => 0, 'available' => true]);
+		$groups = $this->createMock(IGroupManager::class);
+		$controller = new ActivityReportController($this->createMock(IRequest::class), $this->createMock(ActivityReportService::class), $colleagues, $groups, 'anna');
+
+		$response = $controller->colleagues(limit: 5);
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(0, $response->getData()['total']);
+	}//end testColleagueActivityIsReadForTheCaller()
+
 	/**
 	 * The controller with a fake admin check.
 	 *

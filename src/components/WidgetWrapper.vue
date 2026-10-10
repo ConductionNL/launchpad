@@ -398,6 +398,7 @@ export default {
 		},
 	},
 
+	/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
 	mounted() {
 		// Rows arrive after mount (widgets fetch their own data) and are
 		// re-rendered on refresh, so the filter is applied again whenever
@@ -415,6 +416,7 @@ export default {
 		}
 	},
 
+	/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
 	beforeUnmount() {
 		this.rowObserver?.disconnect()
 	},

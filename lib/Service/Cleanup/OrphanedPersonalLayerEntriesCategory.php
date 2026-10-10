@@ -89,6 +89,8 @@ class OrphanedPersonalLayerEntriesCategory implements CleanupCategoryInterface {
 	 *
 	 * @return bool True.
 	 *
+	 * @SuppressWarnings(PHPMD.BooleanGetMethodName) The name is CleanupCategoryInterface's.
+	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	public function getSafeToPurgeAutomatically(): bool {
@@ -126,6 +128,9 @@ class OrphanedPersonalLayerEntriesCategory implements CleanupCategoryInterface {
 	 * @param bool $dryRun True for dry-run.
 	 *
 	 * @return int The number of entries dropped.
+	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) The signature is CleanupCategoryInterface's.
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) Dry-run is the orchestrator's transaction, as for every category.
 	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */

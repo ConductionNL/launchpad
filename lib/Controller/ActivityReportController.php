@@ -88,6 +88,8 @@ class ActivityReportController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
+	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag) `enabled` is the request body's switch, not a mode of this method.
+	 *
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]

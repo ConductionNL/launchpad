@@ -35,6 +35,7 @@ namespace OCA\LaunchPad\Service;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\ActivityEventReader;
 use OCA\LaunchPad\Db\AdminSettingKey;
@@ -185,7 +186,7 @@ class ActivityReportService {
 
 		$csv = '';
 		foreach ($lines as $line) {
-			$csv .= implode(',', array_map([$this, 'csvField'], $line))."\n";
+			$csv .= implode(',', array_map(fn (string $field): string => $this->csvField(value: $field), $line))."\n";
 		}
 
 		return [
@@ -309,8 +310,18 @@ class ActivityReportService {
 	 * @throws InvalidArgumentException On anything but a real Y-m-d day.
 	 */
 	private function day(string $value, DateTimeZone $zone): DateTimeImmutable {
-		$parsed = DateTimeImmutable::createFromFormat('!Y-m-d', $value, $zone);
-		if ($parsed === false || $parsed->format('Y-m-d') !== $value) {
+		if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) !== 1) {
+			throw new InvalidArgumentException(message: 'period_invalid');
+		}
+
+		try {
+			$parsed = new DateTimeImmutable($value.' 00:00:00', $zone);
+		} catch (Exception) {
+			throw new InvalidArgumentException(message: 'period_invalid');
+		}
+
+		// A day that does not exist (30 February) rolls over; refuse it.
+		if ($parsed->format('Y-m-d') !== $value) {
 			throw new InvalidArgumentException(message: 'period_invalid');
 		}
 

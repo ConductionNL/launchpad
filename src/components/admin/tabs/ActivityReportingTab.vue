@@ -27,7 +27,7 @@
 					v-model="purpose"
 					rows="2"
 					maxlength="500"
-					:aria-describedby="'activity-reporting-purpose-hint'"
+					aria-describedby="activity-reporting-purpose-hint"
 					data-testid="activity-reporting-purpose" />
 			</label>
 			<p id="activity-reporting-purpose-hint" class="activity-reporting-tab__hint">

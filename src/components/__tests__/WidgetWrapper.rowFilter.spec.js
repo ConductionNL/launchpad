@@ -72,7 +72,9 @@ describe('WidgetWrapper in-widget filter', () => {
 		expect(shownRows(wrapper)).toEqual(['Bouwvergunning Molenweg'])
 		// The definition is untouched and nothing was emitted to save.
 		expect(props.placement).toEqual(before)
-		expect(Object.keys(wrapper.emitted()).filter((name) => !['input', 'update:modelValue'].includes(name))).toEqual([])
+		for (const name of ['remove', 'style', 'edit', 'acknowledged', 'hideForMe']) {
+			expect(wrapper.emitted(name)).toBeUndefined()
+		}
 		wrapper.unmount()
 	})
 

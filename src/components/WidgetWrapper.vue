@@ -112,8 +112,8 @@ import {
 import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
-import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 import { applyRowFilter, isRowWidget } from '../utils/rowFilter.js'
+import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
 	name: 'WidgetWrapper',
@@ -380,7 +380,12 @@ export default {
 			this.filterRows()
 		},
 
-		/** @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md */
+		/**
+		 * Clear the filter when it stops being offered (edit mode).
+		 *
+		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+		 * @param {boolean} on Whether the filter is offered.
+		 */
 		showRowFilter(on) {
 			if (!on) {
 				this.rowFilter = ''

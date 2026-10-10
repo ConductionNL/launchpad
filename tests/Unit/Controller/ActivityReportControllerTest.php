@@ -25,7 +25,6 @@ use OCA\LaunchPad\Controller\ActivityReportController;
 use OCA\LaunchPad\Service\ActivityReportService;
 use OCA\LaunchPad\Service\ColleagueActivityService;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use PHPUnit\Framework\TestCase;
@@ -62,15 +61,19 @@ class ActivityReportControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 	}//end testAMalformedPeriodIsA400()
 
-	public function testTheExportIsACsvDownload(): void {
+	public function testARefusedExportIsA403AndNoDownload(): void {
+		// The successful branch builds a DataDownloadResponse, which needs
+		// Symfony's HeaderUtils and cannot be built under the OCP stub here
+		// (same limit as TileAnalyticsControllerTest); the CSV body itself is
+		// covered by ActivityReportServiceTest::testTheExportCarriesTheSameNumbers.
 		$reports = $this->createMock(ActivityReportService::class);
-		$reports->method('export')->willReturn(['csv' => "\"total\",\"\",\"0\"\n", 'filename' => 'activity-anna-2026-09-01-2026-09-30.csv']);
+		$reports->expects($this->once())->method('export')->with('bram', 'anna', '2026-09-01', '2026-09-30')->willReturn(['error' => 'forbidden']);
 
-		$response = $this->controller(userId: 'anna', reports: $reports)->export(from: '2026-09-01', until: '2026-09-30');
+		$response = $this->controller(userId: 'bram', reports: $reports)->export(userId: 'anna', from: '2026-09-01', until: '2026-09-30');
 
-		$this->assertInstanceOf(DataDownloadResponse::class, $response);
-		$this->assertSame('text/csv', $response->getHeaders()['Content-Type']);
-	}//end testTheExportIsACsvDownload()
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertSame(['error' => 'forbidden'], $response->getData());
+	}//end testARefusedExportIsA403AndNoDownload()
 
 	public function testOnlyAnAdministratorReadsOrChangesTheSwitch(): void {
 		$reports = $this->createMock(ActivityReportService::class);

@@ -1,0 +1,323 @@
+{
+	"templateId": "mijn-werkdag",
+	"templateVersion": 4,
+	"language": "nl",
+	"dashboard": {
+		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
+		"name": "Mijn werkdag",
+		"description": "Startpagina voor medewerkers: wat vandaag eerst moet uit al uw apps, uw werk per app, uw agenda van vandaag, waar u gebleven was en al uw apps.",
+		"icon": null,
+		"type": "admin_template",
+		"userId": null,
+		"gridColumns": 12,
+		"permissionLevel": "add_only",
+		"targetGroups": [],
+		"slug": null,
+		"sortOrder": 0,
+		"publicationStatus": "published",
+		"templateCategory": "Werkplek",
+		"templateDescription": "Startpagina voor medewerkers van een gemeente. Begroet u met de datum, toont wat vandaag aandacht vraagt uit alle apps, uw werk per app (dossiq-zaken, pipelinq-vragen, decidiq-besluiten die op uw stem wachten), uw agenda van vandaag, waar u gebleven was en al uw apps. Een tegel van een app die hier niet is, wordt niet getoond. Werkt zonder extra instellingen.",
+		"widgets": [
+			{
+				"widgetId": "header",
+				"gridX": 0,
+				"gridY": 0,
+				"gridWidth": 12,
+				"gridHeight": 2,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"greeting": true,
+					"showDate": true,
+					"ground": true,
+					"cta": {
+						"label": "Startpagina aanpassen",
+						"url": "/index.php/apps/launchpad/?edit=1",
+						"style": "secondary"
+					}
+				},
+				"showTitle": 0,
+				"sortOrder": 0
+			},
+			{
+				"widgetId": "attention",
+				"gridX": 0,
+				"gridY": 2,
+				"gridWidth": 12,
+				"gridHeight": 4,
+				"isCompulsory": 1,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Vandaag eerst",
+				"customIcon": null,
+				"content": {
+					"limit": 5,
+					"showActions": false
+				},
+				"showTitle": 1,
+				"sortOrder": 1
+			},
+			{
+				"widgetId": "label",
+				"gridX": 0,
+				"gridY": 6,
+				"gridWidth": 12,
+				"gridHeight": 1,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"text": "Mijn werk",
+					"textAlign": "left",
+					"fontSize": "18px",
+					"fontWeight": "700"
+				},
+				"showTitle": 0,
+				"sortOrder": 2
+			},
+			{
+				"widgetId": "stat",
+				"gridX": 0,
+				"gridY": 7,
+				"gridWidth": 4,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"label": "dossiq · Zaken",
+					"caption": "open zaken",
+					"icon": "BriefcaseOutline",
+					"layout": "stacked",
+					"format": {
+						"style": "decimal",
+						"decimals": 0
+					},
+					"source": {
+						"register": "dossiq",
+						"schema": "case",
+						"metric": "count",
+						"filter": {
+							"assignee": "@me",
+							"isFinalStatus": false,
+							"statusHiddenInLists": false,
+							"isDraft": false
+						}
+					},
+					"link": "/index.php/apps/dossiq/",
+					"hideWhenUnavailable": true
+				},
+				"showTitle": 0,
+				"sortOrder": 3
+			},
+			{
+				"widgetId": "stat",
+				"gridX": 4,
+				"gridY": 7,
+				"gridWidth": 4,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"label": "pipelinq · Klantcontact",
+					"caption": "open vragen",
+					"icon": "MessageOutline",
+					"layout": "stacked",
+					"format": {
+						"style": "decimal",
+						"decimals": 0
+					},
+					"source": {
+						"register": "pipelinq",
+						"schema": "ticket",
+						"metric": "count",
+						"filter": {
+							"assignee": "@me",
+							"status": [
+								"new",
+								"in_progress",
+								"awaiting_customer"
+							]
+						}
+					},
+					"link": "/index.php/apps/pipelinq/",
+					"hideWhenUnavailable": true
+				},
+				"showTitle": 0,
+				"sortOrder": 4
+			},
+			{
+				"widgetId": "stat",
+				"gridX": 8,
+				"gridY": 7,
+				"gridWidth": 4,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"label": "decidiq · Besluitvorming",
+					"caption": "wachten op uw stem",
+					"icon": "Gavel",
+					"layout": "stacked",
+					"format": {
+						"style": "decimal",
+						"decimals": 0
+					},
+					"source": {
+						"register": "decidiq",
+						"schema": "decision",
+						"metric": "count",
+						"filter": {
+							"lifecycle": "voting"
+						}
+					},
+					"link": "/index.php/apps/decidiq/",
+					"hideWhenUnavailable": true
+				},
+				"showTitle": 0,
+				"sortOrder": 5
+			},
+			{
+				"widgetId": "calendar",
+				"gridX": 0,
+				"gridY": 9,
+				"gridWidth": 6,
+				"gridHeight": 5,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Agenda vandaag",
+				"customIcon": null,
+				"content": {
+					"title": "Agenda vandaag",
+					"viewMode": "agenda",
+					"daysAhead": 1,
+					"internalCalendars": [
+						"personal"
+					],
+					"externalIcsUrls": [],
+					"showActions": false
+				},
+				"showTitle": 1,
+				"sortOrder": 6
+			},
+			{
+				"widgetId": "nc-widget",
+				"gridX": 6,
+				"gridY": 9,
+				"gridWidth": 6,
+				"gridHeight": 5,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Verder waar u was",
+				"customIcon": null,
+				"content": {
+					"title": "Verder waar u was",
+					"widgetId": "activity",
+					"displayMode": "vertical",
+					"showActions": false
+				},
+				"showTitle": 1,
+				"sortOrder": 7
+			},
+			{
+				"widgetId": "label",
+				"gridX": 0,
+				"gridY": 14,
+				"gridWidth": 12,
+				"gridHeight": 1,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"text": "Alle apps",
+					"textAlign": "left",
+					"fontSize": "18px",
+					"fontWeight": "700"
+				},
+				"showTitle": 0,
+				"sortOrder": 8
+			},
+			{
+				"widgetId": "links",
+				"gridX": 0,
+				"gridY": 15,
+				"gridWidth": 12,
+				"gridHeight": 2,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": null,
+				"customIcon": null,
+				"content": {
+					"linkLayout": "inline",
+					"columns": 9,
+					"openInNewTab": false,
+					"showSectionTitles": false,
+					"sections": [
+						{
+							"title": "Alle apps",
+							"links": [
+								{
+									"label": "dossiq",
+									"url": "/index.php/apps/dossiq/"
+								},
+								{
+									"label": "pipelinq",
+									"url": "/index.php/apps/pipelinq/"
+								},
+								{
+									"label": "decidiq",
+									"url": "/index.php/apps/decidiq/"
+								},
+								{
+									"label": "learniq",
+									"url": "/index.php/apps/learniq/"
+								},
+								{
+									"label": "Bestanden",
+									"url": "/index.php/apps/files/"
+								},
+								{
+									"label": "Agenda",
+									"url": "/index.php/apps/calendar/"
+								},
+								{
+									"label": "Mail",
+									"url": "/index.php/apps/mail/"
+								},
+								{
+									"label": "Talk",
+									"url": "/index.php/apps/spreed/"
+								},
+								{
+									"label": "Contacten",
+									"url": "/index.php/apps/contacts/"
+								}
+							]
+						}
+					],
+					"showActions": false
+				},
+				"showTitle": 0,
+				"sortOrder": 9
+			}
+		]
+	}
+}

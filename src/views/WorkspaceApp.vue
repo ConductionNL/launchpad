@@ -72,6 +72,12 @@
 		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
 			<Views v-if="hasActiveDashboard" />
 			<div v-else class="workspace-shell__empty">
+				<!-- runtime-shell REQ-SHELL-009: without an active dashboard the
+				     grid's top-right controls are not mounted, so the start-page
+				     menu that stands in for the navigation panel is here. -->
+				<div class="workspace-shell__empty-menu">
+					<StartPageMenu />
+				</div>
 				<p class="workspace-shell__empty-title">
 					{{ t('launchpad', 'No dashboards available') }}
 				</p>
@@ -108,6 +114,7 @@ import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
@@ -148,6 +155,7 @@ export default {
 		DashboardFooter,
 		OrgNavigationPanel,
 		SidebarBackdrop,
+		StartPageMenu,
 	},
 
 	inject: {
@@ -564,6 +572,14 @@ export default {
 	min-height: 60vh;
 	text-align: center;
 	gap: 12px;
+}
+
+/* runtime-shell REQ-SHELL-009: the start-page menu sits where the grid's
+   top-right controls would be, so a member finds it in the same place with
+   or without a dashboard. Empty when the panel is there. */
+.workspace-shell__empty-menu {
+	align-self: flex-end;
+	margin-inline-end: 36px;
 }
 
 .workspace-shell__empty-title {

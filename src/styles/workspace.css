@@ -144,3 +144,164 @@
 .vs__dropdown-menu {
 	--vs-dropdown-z-index: 10100;
 }
+
+/* =========================================================
+   A list widget on a dashboard keeps every column inside its card.
+   The case lists of "Mijn werkdag" are six columns wide and hold four
+   columns (number, case, status, deadline). Under the table's automatic
+   layout a long case number or title widened its column and pushed
+   Status and Termijn past the card edge, where they were cut off
+   (LpStart, :8080 07 Oct). A fixed layout shares the width between the
+   columns, and a value too long for its column ends in an ellipsis; the
+   whole value stays in the cell's title on the row's detail page.
+   ========================================================= */
+.launchpad-container .cn-object-list-widget table.cn-data-table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.launchpad-container .cn-object-list-widget table.cn-data-table td,
+.launchpad-container .cn-object-list-widget table.cn-data-table th {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* =========================================================
+   The start page without the navigation panel (REQ-SHELL-009) reads as
+   one centred column, as LpStart draws it: 1214px of content between
+   even margins on a 1440px screen, instead of a grid that runs from edge
+   to edge. Only that page carries the hidden marker, so a dashboard with
+   the panel keeps its full width.
+   ========================================================= */
+.app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1214px;
+	margin-inline: auto;
+}
+
+/* =========================================================
+   Mijn werkdag 4 on the start page, as LpStart draws it. Each rule keys on
+   a widget the template declares, so a dashboard that declares none of
+   them looks as before.
+   ========================================================= */
+
+/* The greeting and the section labels sit on the page ground, not in a
+   card: a theme that paints every element with "widget" in its class
+   (thematiq's solid-background rule) made them white boxes. */
+.launchpad-container
+	.launchpad-widget:has(.cn-header-widget--ground):not(#lp-ground-a):not(
+		#lp-ground-b
+	),
+.launchpad-container
+	.launchpad-widget:has(.cn-header-widget--ground)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-header-widget--ground)
+	[class*='widget']:not([class*='widget__']):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget)
+	[class*='widget']:not(#lp-ground-a):not(#lp-ground-b) {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+/* "Startpagina aanpassen" at the right of the greeting row, as a plain
+   outlined button. */
+.launchpad-container .cn-header-widget--ground {
+	position: relative;
+}
+
+.launchpad-container .cn-header-widget--ground .cn-header-widget__cta {
+	position: absolute;
+	inset-inline-end: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	padding: 8px 16px;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius-element, 8px);
+	background: var(--color-main-background);
+	color: var(--color-main-text) !important;
+	font-weight: 600;
+	text-decoration: none !important;
+}
+
+/* A section label reads as a heading at the left edge. */
+.launchpad-container .cn-label-widget {
+	justify-content: flex-start !important;
+	align-items: flex-end !important;
+	padding-inline: 0;
+}
+
+/* "Alle apps": the links are chips in one row, without the placeholder
+   icon a link without an icon gets. */
+.launchpad-container .cn-links-widget .cn-links-widget__items {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.launchpad-container .cn-links-widget .cn-links-widget__icon-wrap {
+	display: none;
+}
+
+.launchpad-container
+	.cn-links-widget
+	.cn-links-widget__link.cn-links-widget__link:not(#lp-chip-a) {
+	padding: 10px 18px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-pill, 999px);
+	background: var(--color-main-background);
+	color: var(--color-main-text) !important;
+	font-weight: 600;
+	text-decoration: none !important;
+}
+
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget):not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget)
+	.cn-widget-wrapper:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget)
+	.cn-widget-wrapper__content:not(#lp-ground-a):not(#lp-ground-b) {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+/* The app tiles: the number card fills its cell. The wrapper's and the
+   renderer's 16px padding left a 64px card for an 81px tile, which cut
+   the label and the caption off. */
+.launchpad-container
+	.launchpad-widget:has(.cn-stat-widget)
+	.cn-widget-wrapper__content,
+.launchpad-container .launchpad-widget:has(.cn-stat-widget) .widget-renderer {
+	padding: 0;
+}
+
+.launchpad-container
+	.launchpad-widget:has(.cn-links-widget)
+	.widget-renderer:not(#lp-ground-a):not(#lp-ground-b),
+.launchpad-container
+	.cn-links-widget.cn-links-widget:not(#lp-ground-a):not(#lp-ground-b) {
+	background: transparent;
+	padding: 0;
+}
+
+/* A section label starts at the card edge below it, as LpStart draws it. */
+.launchpad-container
+	.launchpad-widget:has(.cn-label-widget)
+	.cn-widget-wrapper__content,
+.launchpad-container .launchpad-widget:has(.cn-label-widget) .widget-renderer,
+.launchpad-container .cn-label-widget.cn-label-widget {
+	padding: 0;
+}

@@ -25,12 +25,15 @@ namespace Unit\Service\Cleanup;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardLockMapper;
 use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Db\PersonalLayerMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCA\LaunchPad\Service\Cleanup\ExpiredLocksCategory;
 use OCA\LaunchPad\Service\Cleanup\OrphanedConditionalRulesCategory;
+use OCA\LaunchPad\Service\Cleanup\OrphanedPersonalLayerEntriesCategory;
 use OCA\LaunchPad\Service\Cleanup\OrphanedSharesCategory;
 use OCA\LaunchPad\Service\Cleanup\OrphanedWidgetPlacementsCategory;
+use OCA\LaunchPad\Service\PersonalLayerService;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -63,6 +66,13 @@ class CategoryRegistryServiceTest extends TestCase {
 			orphanedRules: new OrphanedConditionalRulesCategory(
 				ruleMapper: $this->createMock(originalClassName: ConditionalRuleMapper::class)
 			),
+			orphanedLayerEntries: new OrphanedPersonalLayerEntriesCategory(
+				layerMapper: $this->createMock(originalClassName: PersonalLayerMapper::class),
+				placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+				personalLayers: new PersonalLayerService(
+					layers: $this->createMock(originalClassName: PersonalLayerMapper::class)
+				)
+			),
 		);
 	}
 
@@ -77,6 +87,7 @@ class CategoryRegistryServiceTest extends TestCase {
 			expected: [
 				'expired_locks',
 				'expired_share_tokens',
+				'orphaned_personal_layer_entries',
 				'orphaned_widget_placements',
 				'orphaned_conditional_rules',
 			],
@@ -102,14 +113,14 @@ class CategoryRegistryServiceTest extends TestCase {
 	}
 
 	/**
-	 * The Tier-A filter MUST list exactly the two
+	 * The Tier-A filter MUST list exactly the three
 	 * "safeToPurgeAutomatically=true" categories in registration order.
 	 *
 	 * @return void
 	 */
 	public function testGetAutoSafeCategoryNamesReturnsTierAOnly(): void {
 		$this->assertSame(
-			expected: ['expired_locks', 'expired_share_tokens'],
+			expected: ['expired_locks', 'expired_share_tokens', 'orphaned_personal_layer_entries'],
 			actual: $this->registry->getAutoSafeCategoryNames()
 		);
 	}
@@ -123,7 +134,7 @@ class CategoryRegistryServiceTest extends TestCase {
 	public function testGetCategoriesReturnsKeyedMap(): void {
 		$categories = $this->registry->getCategories();
 
-		$this->assertCount(expectedCount: 4, haystack: $categories);
+		$this->assertCount(expectedCount: 5, haystack: $categories);
 		$this->assertArrayHasKey(key: 'expired_locks', array: $categories);
 		$this->assertArrayHasKey(key: 'orphaned_conditional_rules', array: $categories);
 	}

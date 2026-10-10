@@ -68,6 +68,10 @@ import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
+// `colleague-activity`: recent colleague activity the reader may see
+// (dashboards-and-who-may-see-them REQ-DWMS-007). LaunchPad-only.
+import ColleagueActivityWidget from '../components/Widgets/Renderers/ColleagueActivityWidget.vue'
+import ColleagueActivityWidgetForm from '../components/Widgets/Renderers/ColleagueActivityWidgetForm.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
@@ -181,6 +185,16 @@ registerDashboardWidget('attention', {
 	},
 	displayName: 'First today',
 	icon: 'AlertCircleOutline',
+})
+
+registerDashboardWidget('colleague-activity', {
+	renderer: ColleagueActivityWidget,
+	form: ColleagueActivityWidgetForm,
+	defaultContent: {
+		limit: 10,
+	},
+	displayName: 'Colleague activity',
+	icon: 'AccountMultipleOutline',
 })
 
 registerDashboardWidget('clock', {

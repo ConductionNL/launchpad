@@ -18,19 +18,20 @@ Orphaned data exists in multiple tables and file locations. This spec defines wh
 - **orphaned_metadata_values**: rows in `oc_launchpad_metadata_values` where `fieldId` does NOT exist in `oc_launchpad_metadata_fields`. Optional; available only on installs with the dashboard-metadata-fields feature.
 - **orphaned_widget_placements**: rows in `oc_launchpad_widget_placements` whose `dashboard_id` does NOT exist in `oc_launchpad_dashboards`.
 - **orphaned_conditional_rules**: rows in `oc_launchpad_conditional_rules` whose `widget_placement_id` does NOT exist in `oc_launchpad_widget_placements`.
+- **orphaned_personal_layer_entries**: entries inside a row of `oc_launchpad_personal_layers` (an override or a hidden id) whose placement no longer exists on that dashboard. A layer the sweep empties is deleted whole (dashboards-and-who-may-see-them, REQ-DWMS-001).
 - **orphaned_feed_tokens**: rows in `oc_launchpad_feed_tokens` where `userId` no longer exists in `oc_users`. Optional; available only on installs with the dashboard-rss-feeds feature.
 - **orphaned_role_assignments**: rows in `oc_launchpad_role_assignments` where `userId` (or `groupId`) no longer exists in `oc_users` (or `oc_groups`). Optional; available only on installs with the admin-roles feature.
 - **dangling_dashboard_translations**: rows in `oc_launchpad_dash_translations` where `dashboardUuid` no longer exists in `oc_launchpad_dashboards`. Optional; available only on installs with the dashboard-language-content feature.
 
-Categories that map to optional features MUST report `isAvailable() === false` on installs where the feature is not present, so the orchestrator can skip them cleanly (REQ-CLN-001 "Scan handles missing tables gracefully") without erroring on a missing-table SQL fault. The shipped four categories (expired_locks, expired_share_tokens, orphaned_widget_placements, orphaned_conditional_rules) are always available because their tables are part of the core schema.
+Categories that map to optional features MUST report `isAvailable() === false` on installs where the feature is not present, so the orchestrator can skip them cleanly (REQ-CLN-001 "Scan handles missing tables gracefully") without erroring on a missing-table SQL fault. The shipped five categories (expired_locks, expired_share_tokens, orphaned_personal_layer_entries, orphaned_widget_placements, orphaned_conditional_rules) are always available because their tables are part of the core schema.
 
 Cleanup is grouped into three safety tiers:
 
-1. **Tier-A (Auto-safe)**: expired_locks, expired_share_tokens — always safe to auto-purge (no user-visible impact)
+1. **Tier-A (Auto-safe)**: expired_locks, expired_share_tokens, orphaned_personal_layer_entries — always safe to auto-purge (no user-visible impact)
 2. **Tier-B (Manual-safe)**: orphaned_widget_assets, orphaned_metadata_values, orphaned_widget_placements, orphaned_conditional_rules, orphaned_feed_tokens, dangling_dashboard_translations — safe to purge manually but not auto (require data validation first)
 3. **Tier-C (Inspect-first)**: orphaned_role_assignments — purge only after inspection (role-based permissions at stake)
 
-Default auto-purge list: Tier-A (expired_locks, expired_share_tokens). Returned by `CategoryRegistryService::getAutoSafeCategoryNames()` and used as the default for both the daily background job and the admin settings UI.
+Default auto-purge list: Tier-A (expired_locks, expired_share_tokens, orphaned_personal_layer_entries). Returned by `CategoryRegistryService::getAutoSafeCategoryNames()` and used as the default for both the daily background job and the admin settings UI.
 
 ## Requirements
 

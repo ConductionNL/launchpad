@@ -272,6 +272,9 @@
 				<template #profile-fields>
 					<ProfileFieldsTab />
 				</template>
+				<template #activity-reporting>
+					<ActivityReportingTab />
+				</template>
 			</BeheerTabs>
 
 			<!-- Info -->
@@ -315,6 +318,7 @@ import KioskTab from './tabs/KioskTab.vue'
 import OperationsTab from './tabs/OperationsTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import ProfileFieldsTab from './tabs/ProfileFieldsTab.vue'
+import ActivityReportingTab from './tabs/ActivityReportingTab.vue'
 import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
@@ -341,6 +345,7 @@ export default {
 		MetadataFieldsSettings,
 		KioskTab,
 		ProfileFieldsTab,
+		ActivityReportingTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -439,6 +444,10 @@ export default {
 				{
 					slug: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
+				},
+				{
+					slug: 'activity-reporting',
+					label: this.t('launchpad', 'Activity reporting'),
 				},
 			]
 		},

@@ -188,14 +188,12 @@ class PersonalLayerService {
 	 * the sweep empties the layer the row goes too, so the person is back on
 	 * the owner's arrangement rather than on an empty personal one.
 	 *
-	 * NOTHING CALLS THIS YET. Read the two tests below as what they are:
-	 * proof that the sweep is right, not proof that anything runs it. Task
-	 * 1.5 in the change is open again for that reason, and it says what
-	 * wiring needs: a re-sync replaces one dashboard's placements for every
-	 * reader, this takes one user id, and `PersonalLayerMapper` has no query
-	 * that lists the layers on a dashboard. Eight callers of
-	 * `WidgetPlacementMapper::deleteByDashboardId()` each have to say whether
-	 * they are a re-sync that prunes or a deletion that drops the row.
+	 * The caller is `OrphanedPersonalLayerEntriesCategory`, a Tier-A cleanup
+	 * category, so the daily `OrphanedDataCleanupJob` sweeps every layer
+	 * against the placements its dashboard still has. One sweep covers every
+	 * way a placement can go (a re-sync, a version restore, an owner removing
+	 * a widget), where wiring each of the eight `deleteByDashboardId()`
+	 * callers would have missed the ninth.
 	 *
 	 * Nobody sees a wrong number while it waits. `applyTo()` walks the live
 	 * placements and reads overrides by id, so a stale entry is ignored, and
@@ -246,6 +244,37 @@ class PersonalLayerService {
 
 		return $dropped;
 	}//end pruneOrphans()
+
+	/**
+	 * How many layer entries point at placements that no longer exist.
+	 *
+	 * The read-only half of {@see self::pruneOrphans()}, for the cleanup
+	 * scan, which must count without writing.
+	 *
+	 * @param string $userId The person.
+	 * @param int $dashboardId The dashboard.
+	 * @param array<int, int> $liveIds The placement ids that still exist.
+	 *
+	 * @return int How many entries are stale.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function countOrphans(string $userId, int $dashboardId, array $liveIds): int {
+		$layer = $this->layerFor(userId: $userId, dashboardId: $dashboardId);
+		if ($layer === null) {
+			return 0;
+		}
+
+		$live = array_map('intval', $liveIds);
+		$stale = 0;
+		foreach (array_keys($layer->overridesArray()) as $placementId) {
+			if (in_array((int)$placementId, $live, true) === false) {
+				$stale++;
+			}
+		}
+
+		return ($stale + count(array_diff($layer->hiddenArray(), $live)));
+	}//end countOrphans()
 
 	/**
 	 * The person's layer, or null.

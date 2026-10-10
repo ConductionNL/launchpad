@@ -6,7 +6,7 @@
 - [x] 1.2 Apply the layer over a shared dashboard at render time, and only for its owner.
 - [x] 1.3 Refuse hiding a placement marked compulsory by `admin-templates`.
 - [x] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
-- [ ] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. `pruneOrphans()` is written and tested, and nothing calls it. The reason is below.
+- [x] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. The caller is the Tier-A cleanup category `lib/Service/Cleanup/OrphanedPersonalLayerEntriesCategory.php`, run by the daily `OrphanedDataCleanupJob`; tests `tests/Unit/Service/Cleanup/OrphanedPersonalLayerEntriesCategoryTest.php`.
 - [x] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
 - [x] 1.7 PHPUnit from the READER: a saved layer changes what `DashboardService` hands back, on the landing read and on the by-id read, and reaches nobody else.
 

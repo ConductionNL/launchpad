@@ -40,6 +40,13 @@ xxllnc-zaken).
 - **WHEN** a user tries to hide it
 - **THEN** the request is refused and names the placement as compulsory
 
+#### Scenario: Entries for a removed widget are swept
+
+- **GIVEN** a user whose layer hides one placement and resizes another on a shared dashboard
+- **WHEN** an administrator template re-sync removes both placements
+- **THEN** the daily cleanup drops both entries from the layer
+- **AND** a layer the sweep leaves empty is deleted, so the user sees the owner's arrangement
+
 ### Requirement: REQ-DWMS-002 One action puts the dashboard back
 
 A user with a personal layer MUST be able to remove it in one action. The

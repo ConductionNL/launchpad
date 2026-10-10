@@ -58,12 +58,14 @@ class CategoryRegistryService {
 	 * @param OrphanedSharesCategory $orphanedShares Tier-A.
 	 * @param OrphanedWidgetPlacementsCategory $orphanedPlacements Tier-B.
 	 * @param OrphanedConditionalRulesCategory $orphanedRules Tier-B.
+	 * @param OrphanedPersonalLayerEntriesCategory $orphanedLayerEntries Tier-A.
 	 */
 	public function __construct(
 		ExpiredLocksCategory $expiredLocks,
 		OrphanedSharesCategory $orphanedShares,
 		OrphanedWidgetPlacementsCategory $orphanedPlacements,
 		OrphanedConditionalRulesCategory $orphanedRules,
+		OrphanedPersonalLayerEntriesCategory $orphanedLayerEntries,
 	) {
 		// Order is significant: it determines the row order of the
 		// CLI scan table and the JSON object key order in API
@@ -72,6 +74,7 @@ class CategoryRegistryService {
 		$this->categories = [
 			$expiredLocks->getName() => $expiredLocks,
 			$orphanedShares->getName() => $orphanedShares,
+			$orphanedLayerEntries->getName() => $orphanedLayerEntries,
 			$orphanedPlacements->getName() => $orphanedPlacements,
 			$orphanedRules->getName() => $orphanedRules,
 		];

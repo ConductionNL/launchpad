@@ -1,3 +1,4 @@
 # Screens
 
-- No board found yet (decision 150)
+- LpStart https://identity.conduction.nl/screens/board?id=launchpad/LpStart
+- LpBeheerSjablonen https://identity.conduction.nl/screens/board?id=launchpad/LpBeheerSjablonen

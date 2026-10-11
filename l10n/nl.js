@@ -1408,7 +1408,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Er wordt een dashboard met je gedeeld",
     "A dashboard for your group is published" : "Er wordt een dashboard voor je groep gepubliceerd",
     "A dashboard shared with you is updated" : "Een dashboard dat met je gedeeld is, wordt bijgewerkt",
-    "You acknowledge an announcement on a dashboard" : "Je bevestigt een mededeling op een dashboard"
+    "You acknowledge an announcement on a dashboard" : "Je bevestigt een mededeling op een dashboard",
+    "Credentials" : "Inloggegevens",
+    "My profile" : "Mijn profiel",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Velden die je organisatie aan je profiel toevoegt. Collega’s zien ze in profielwidgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

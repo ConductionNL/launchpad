@@ -1327,6 +1327,9 @@
         "A dashboard is shared with you": "Et dashbord deles med deg",
         "A dashboard for your group is published": "Et dashbord for gruppen din publiseres",
         "A dashboard shared with you is updated": "Et dashbord som er delt med deg, oppdateres",
-        "You acknowledge an announcement on a dashboard": "Du bekrefter en kunngjøring på et dashbord"
+        "You acknowledge an announcement on a dashboard": "Du bekrefter en kunngjøring på et dashbord",
+        "Credentials": "Credentials",
+        "My profile": "My profile",
+        "Fields your organisation adds to your profile. Colleagues see them in profile widgets.": "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
     }
 }

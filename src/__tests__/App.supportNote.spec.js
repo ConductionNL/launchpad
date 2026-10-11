@@ -11,6 +11,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@conduction/nextcloud-vue', () => ({
 	CnAppRoot: { name: 'CnAppRoot', template: '<div />' },
+	// The user settings dialog's library sections (src/views/settings/UserSettings.vue).
+	CnCredentials: { name: 'CnCredentials', template: '<div />' },
+	CnNotificationPreferences: { name: 'CnNotificationPreferences', template: '<div />' },
 }))
 vi.mock('../customComponents.js', () => ({ default: {} }))
 vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [] }))

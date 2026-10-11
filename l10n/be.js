@@ -1351,6 +1351,9 @@ OC.L10N.register(
     "A dashboard is shared with you" : "З вамі падзяліліся дашбордам",
     "A dashboard for your group is published" : "Апублікаваны дашборд для вашай групы",
     "A dashboard shared with you is updated" : "Абноўлены дашборд, якім з вамі падзяліліся",
-    "You acknowledge an announcement on a dashboard" : "Вы пацвярджаеце аб'яву на дашбордзе"
+    "You acknowledge an announcement on a dashboard" : "Вы пацвярджаеце аб'яву на дашбордзе",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

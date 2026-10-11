@@ -1328,6 +1328,9 @@
         "A dashboard is shared with you": "S vama je podijeljena nadzorna ploča",
         "A dashboard for your group is published": "Objavljena je nadzorna ploča za vašu grupu",
         "A dashboard shared with you is updated": "Nadzorna ploča podijeljena s vama je ažurirana",
-        "You acknowledge an announcement on a dashboard": "Potvrđujete obavijest na nadzornoj ploči"
+        "You acknowledge an announcement on a dashboard": "Potvrđujete obavijest na nadzornoj ploči",
+        "Credentials": "Credentials",
+        "My profile": "My profile",
+        "Fields your organisation adds to your profile. Colleagues see them in profile widgets.": "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
     }
 }

@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Kanssasi jaetaan kojelauta",
     "A dashboard for your group is published" : "Ryhmällesi julkaistaan kojelauta",
     "A dashboard shared with you is updated" : "Kanssasi jaettua kojelautaa päivitetään",
-    "You acknowledge an announcement on a dashboard" : "Kuittaat kojelaudan tiedotteen"
+    "You acknowledge an announcement on a dashboard" : "Kuittaat kojelaudan tiedotteen",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

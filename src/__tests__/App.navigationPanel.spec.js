@@ -25,6 +25,9 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		template:
 			'<div><slot name="menu"><nav data-testid="cn-nav" /></slot><main /></div>',
 	},
+	// The user settings dialog's library sections (src/views/settings/UserSettings.vue).
+	CnCredentials: { name: 'CnCredentials', template: '<div />' },
+	CnNotificationPreferences: { name: 'CnNotificationPreferences', template: '<div />' },
 }))
 vi.mock('../customComponents.js', () => ({ default: {} }))
 vi.mock('../services/iconCatalogue.js', () => ({ ICON_CATALOGUE: [] }))

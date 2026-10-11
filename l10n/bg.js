@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "С вас е споделено табло",
     "A dashboard for your group is published" : "Публикувано е табло за вашата група",
     "A dashboard shared with you is updated" : "Табло, споделено с вас, е обновено",
-    "You acknowledge an announcement on a dashboard" : "Потвърждавате съобщение на табло"
+    "You acknowledge an announcement on a dashboard" : "Потвърждавате съобщение на табло",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

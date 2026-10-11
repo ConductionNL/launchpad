@@ -14,6 +14,7 @@
 
 <template>
 	<CnAppRoot
+		ref="appRoot"
 		:manifest="liveManifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
@@ -31,6 +32,20 @@
 		  own. The panel's destinations are in `StartPageMenu`, fed by the
 		  `launchpadChrome` provide below.
 		-->
+		<!--
+			The user settings dialog. Every per-person setting lives here;
+			LaunchPad adds nothing to Nextcloud's personal settings (Ruben,
+			11 Oct 2026). Filling this slot drops CnAppRoot's fallback sections,
+			so UserSettings repeats them and gets the walkthrough replay from
+			walkthroughSettings() below.
+		-->
+		<template #user-settings>
+			<UserSettings
+				:manifest="liveManifest"
+				:walkthrough="walkthroughSettings()"
+				@continueWalkthrough="appRoot() && appRoot().continueWalkthroughFromSettings()"
+				@restartWalkthrough="appRoot() && appRoot().restartWalkthroughFromSettings()" />
+		</template>
 		<template v-if="railSuppressed" #menu>
 			<span
 				class="launchpad-rail-suppressed"
@@ -43,6 +58,7 @@
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
 import { computed } from 'vue'
+import UserSettings from './views/settings/UserSettings.vue'
 import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { permits } from './utils/permissions.js'
@@ -111,6 +127,7 @@ export default {
 	name: 'App',
 	components: {
 		CnAppRoot,
+		UserSettings,
 	},
 
 	inject: {
@@ -364,6 +381,69 @@ export default {
 				]),
 
 				menu: byId([...(this.manifest.menu ?? []), ...(runtime.menu ?? [])]),
+			}
+		},
+	},
+
+	/** @spec openspec/specs/people-widget/spec.md */
+	mounted() {
+		window.addEventListener('hashchange', this.openUserSettingsFromHash)
+		this.openUserSettingsFromHash()
+	},
+
+	/** @spec openspec/specs/people-widget/spec.md */
+	beforeUnmount() {
+		window.removeEventListener('hashchange', this.openUserSettingsFromHash)
+	},
+
+	methods: {
+		/**
+		 * The mounted CnAppRoot, or null before it mounts.
+		 *
+		 * @return {object|null} The CnAppRoot instance.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		appRoot() {
+			return this.$refs.appRoot || null
+		},
+
+		/**
+		 * Open the user settings dialog when the location hash is
+		 * `#user-settings`, the deep link that replaces the old forms in
+		 * Nextcloud's personal settings.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		openUserSettingsFromHash() {
+			const root = this.appRoot()
+			if (root && window.location.hash === '#user-settings') {
+				root.userSettingsOpen = true
+			}
+		},
+
+		/**
+		 * The walkthrough replay section CnAppRoot draws in its own fallback,
+		 * which filling the #user-settings slot switches off. Reads CnAppRoot's
+		 * state and labels, so the wording and the behaviour stay the library's.
+		 *
+		 * @return {object|null} Section props for UserSettings, or null without a tour.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		walkthroughSettings() {
+			const root = this.appRoot()
+			if (!root || !root.walkthroughEnabled) {
+				return null
+			}
+			const inProgress = Boolean(root.walkthroughProgressValue)
+			return {
+				sectionName: root.restartWalkthroughSectionName,
+				hint: root.restartWalkthroughHint,
+				inProgress,
+				continueLabel: root.continueWalkthroughLabel,
+				restartLabel: inProgress
+					? root.startOverWalkthroughLabel
+					: root.restartWalkthroughLabel,
 			}
 		},
 	},

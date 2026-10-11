@@ -1327,6 +1327,12 @@
         "A dashboard is shared with you": "Ein Dashboard wird mit Ihnen geteilt",
         "A dashboard for your group is published": "Ein Dashboard für Ihre Gruppe wird veröffentlicht",
         "A dashboard shared with you is updated": "Ein mit Ihnen geteiltes Dashboard wird aktualisiert",
-        "You acknowledge an announcement on a dashboard": "Sie bestätigen eine Mitteilung auf einem Dashboard"
+        "You acknowledge an announcement on a dashboard": "Sie bestätigen eine Mitteilung auf einem Dashboard",
+        "House style of my groups": "House style of my groups",
+        "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from.": "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from.",
+        "Contrast: WCAG {level}": "Contrast: WCAG {level}",
+        "Contrast: below WCAG AA": "Contrast: below WCAG AA",
+        "Saved. Members of {group} see the new house style on their next page.": "Saved. Members of {group} see the new house style on their next page.",
+        "The house style could not be saved.": "The house style could not be saved."
     }
 }

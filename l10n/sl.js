@@ -1360,7 +1360,13 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Z vami je deljena nadzorna plošča",
     "A dashboard for your group is published" : "Objavljena je nadzorna plošča za vašo skupino",
     "A dashboard shared with you is updated" : "Nadzorna plošča, deljena z vami, je posodobljena",
-    "You acknowledge an announcement on a dashboard" : "Potrjujete obvestilo na nadzorni plošči"
+    "You acknowledge an announcement on a dashboard" : "Potrjujete obvestilo na nadzorni plošči",
+    "House style of my groups" : "House style of my groups",
+    "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from." : "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from.",
+    "Contrast: WCAG {level}" : "Contrast: WCAG {level}",
+    "Contrast: below WCAG AA" : "Contrast: below WCAG AA",
+    "Saved. Members of {group} see the new house style on their next page." : "Saved. Members of {group} see the new house style on their next page.",
+    "The house style could not be saved." : "The house style could not be saved."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

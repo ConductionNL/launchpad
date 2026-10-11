@@ -1360,7 +1360,13 @@ OC.L10N.register(
     "A dashboard is shared with you" : "З вами поділилися панеллю",
     "A dashboard for your group is published" : "Опубліковано панель для вашої групи",
     "A dashboard shared with you is updated" : "Оновлено панель, якою з вами поділилися",
-    "You acknowledge an announcement on a dashboard" : "Ви підтверджуєте оголошення на панелі"
+    "You acknowledge an announcement on a dashboard" : "Ви підтверджуєте оголошення на панелі",
+    "House style of my groups" : "House style of my groups",
+    "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from." : "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from.",
+    "Contrast: WCAG {level}" : "Contrast: WCAG {level}",
+    "Contrast: below WCAG AA" : "Contrast: below WCAG AA",
+    "Saved. Members of {group} see the new house style on their next page." : "Saved. Members of {group} see the new house style on their next page.",
+    "The house style could not be saved." : "The house style could not be saved."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

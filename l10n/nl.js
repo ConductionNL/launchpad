@@ -1408,7 +1408,13 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Er wordt een dashboard met je gedeeld",
     "A dashboard for your group is published" : "Er wordt een dashboard voor je groep gepubliceerd",
     "A dashboard shared with you is updated" : "Een dashboard dat met je gedeeld is, wordt bijgewerkt",
-    "You acknowledge an announcement on a dashboard" : "Je bevestigt een mededeling op een dashboard"
+    "You acknowledge an announcement on a dashboard" : "Je bevestigt een mededeling op een dashboard",
+    "House style of my groups" : "Huisstijl van mijn groepen",
+    "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from." : "Je beheert deze groepen. Kies de huisstijl die hun leden zien. Een beheerder bepaalt uit welke huisstijlen je kunt kiezen.",
+    "Contrast: WCAG {level}" : "Contrast: WCAG {level}",
+    "Contrast: below WCAG AA" : "Contrast: onder WCAG AA",
+    "Saved. Members of {group} see the new house style on their next page." : "Opgeslagen. Leden van {group} zien de nieuwe huisstijl op hun volgende pagina.",
+    "The house style could not be saved." : "De huisstijl kon niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

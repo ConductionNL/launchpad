@@ -1327,6 +1327,12 @@
         "A dashboard is shared with you": "С вас е споделено табло",
         "A dashboard for your group is published": "Публикувано е табло за вашата група",
         "A dashboard shared with you is updated": "Табло, споделено с вас, е обновено",
-        "You acknowledge an announcement on a dashboard": "Потвърждавате съобщение на табло"
+        "You acknowledge an announcement on a dashboard": "Потвърждавате съобщение на табло",
+        "House style of my groups": "House style of my groups",
+        "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from.": "You manage these groups. Choose the house style their members see. An administrator decides which house styles you can choose from.",
+        "Contrast: WCAG {level}": "Contrast: WCAG {level}",
+        "Contrast: below WCAG AA": "Contrast: below WCAG AA",
+        "Saved. Members of {group} see the new house style on their next page.": "Saved. Members of {group} see the new house style on their next page.",
+        "The house style could not be saved.": "The house style could not be saved."
     }
 }

@@ -11,12 +11,12 @@
 	<NcAppSettingsSection
 		v-if="loading || loadError || fields.length > 0"
 		id="launchpad-profile-fields"
-		:name="t('launchpad', 'LaunchPad profile')">
+		:name="t('launchpad', 'My profile')">
 		<p class="profile-fields__description">
 			{{
 				t(
 					'launchpad',
-					'Colleagues see these fields on your card in the people widget and can find you by them.',
+					'Fields your organisation adds to your profile. Colleagues see them in profile widgets.',
 				)
 			}}
 		</p>

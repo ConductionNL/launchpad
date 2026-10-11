@@ -8,10 +8,9 @@
   - Every per-person setting lives here. LaunchPad no longer adds a form to
   - Nextcloud's personal settings (Ruben, 11 Oct 2026: user configuration goes
   - into the user settings dialog, app configuration into the admin settings).
-  - The LaunchPad profile fields moved here from Nextcloud's personal info page,
-  - and the house style of the groups a person manages moved here from
-  - thematiq's personal settings. Each section stays out of the dialog when it
-  - has nothing to offer, as the old forms did.
+  - The LaunchPad profile fields moved here from Nextcloud's personal info page.
+  - The section stays out of the dialog while no field is defined, as the old
+  - form did.
   -
   - THE LIBRARY'S OWN SECTIONS ARE REPEATED HERE ON PURPOSE. Filling CnAppRoot's
   - #user-settings slot replaces its fallback content entirely, and nothing
@@ -20,22 +19,21 @@
   - walkthrough state CnAppRoot owns.
   -->
 <template>
+	<!-- Order follows board LpPersoonlijk: Mijn profiel, Inloggegevens. The
+	     library's notifications pane and the walkthrough replay come after. -->
 	<ProfileFieldsSettings />
 
-	<GroupHouseStyleSettings />
-
-	<CnNotificationPreferences />
-
-	<!-- The library's own label, as CnAppRoot draws it. -->
 	<NcAppSettingsSection
 		id="credentials"
-		:name="t('nextcloud-vue', 'Credentials')">
+		:name="t('launchpad', 'Credentials')">
 		<CnCredentials
 			scope="personal"
 			appId="launchpad"
 			:appName="(manifest && manifest.name) || 'LaunchPad'"
 			:appCredentials="(manifest && manifest.credentials) || []" />
 	</NcAppSettingsSection>
+
+	<CnNotificationPreferences />
 
 	<NcAppSettingsSection
 		v-if="walkthrough"
@@ -65,7 +63,6 @@
 <script>
 import { CnCredentials, CnNotificationPreferences } from '@conduction/nextcloud-vue'
 import { NcAppSettingsSection, NcButton } from '@nextcloud/vue'
-import GroupHouseStyleSettings from './GroupHouseStyleSettings.vue'
 import ProfileFieldsSettings from './ProfileFieldsSettings.vue'
 
 /**
@@ -79,7 +76,6 @@ export default {
 	components: {
 		CnCredentials,
 		CnNotificationPreferences,
-		GroupHouseStyleSettings,
 		NcAppSettingsSection,
 		NcButton,
 		ProfileFieldsSettings,

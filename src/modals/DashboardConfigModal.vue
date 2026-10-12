@@ -4,7 +4,12 @@
 -->
 
 <template>
-	<NcModal v-if="open" size="normal" :name="modalTitle" @close="$emit('close')">
+	<NcModal
+		v-if="open"
+		class="launchpad-modal"
+		size="normal"
+		:name="modalTitle"
+		@close="$emit('close')">
 		<div class="dashboard-config">
 			<h2 class="dashboard-config__title">
 				{{ modalTitle }}

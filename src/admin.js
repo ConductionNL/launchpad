@@ -27,6 +27,7 @@ import { widgetBridge } from './services/widgetBridge.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 
 import './publicPath.js'
+import './styles/modals.css'
 
 // Reference the imported singleton so its side-effecting construction is not
 // tree-shaken / flagged as an unused import.

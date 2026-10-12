@@ -172,7 +172,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
 	<settings>
 		<admin>OCA\LaunchPad\Settings\LaunchPadAdmin</admin>
 		<admin-section>OCA\LaunchPad\Settings\LaunchPadAdminSection</admin-section>
-		<personal>OCA\LaunchPad\Settings\LaunchPadPersonal</personal>
 	</settings>
 
 	<activity>

@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Z vami je deljena nadzorna plošča",
     "A dashboard for your group is published" : "Objavljena je nadzorna plošča za vašo skupino",
     "A dashboard shared with you is updated" : "Nadzorna plošča, deljena z vami, je posodobljena",
-    "You acknowledge an announcement on a dashboard" : "Potrjujete obvestilo na nadzorni plošči"
+    "You acknowledge an announcement on a dashboard" : "Potrjujete obvestilo na nadzorni plošči",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

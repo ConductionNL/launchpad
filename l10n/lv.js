@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Ar jums tiek kopīgots informācijas panelis",
     "A dashboard for your group is published" : "Jūsu grupai tiek publicēts informācijas panelis",
     "A dashboard shared with you is updated" : "Ar jums kopīgotais informācijas panelis tiek atjaunināts",
-    "You acknowledge an announcement on a dashboard" : "Jūs apstiprināt paziņojumu informācijas panelī"
+    "You acknowledge an announcement on a dashboard" : "Jūs apstiprināt paziņojumu informācijas panelī",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

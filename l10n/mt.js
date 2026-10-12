@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Dashboard jinqasam miegħek",
     "A dashboard for your group is published" : "Dashboard għall-grupp tiegħek jiġi ppubblikat",
     "A dashboard shared with you is updated" : "Dashboard maqsum miegħek jiġi aġġornat",
-    "You acknowledge an announcement on a dashboard" : "Tikkonferma avviż fuq dashboard"
+    "You acknowledge an announcement on a dashboard" : "Tikkonferma avviż fuq dashboard",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

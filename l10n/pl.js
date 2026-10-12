@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Udostępniono Ci pulpit",
     "A dashboard for your group is published" : "Opublikowano pulpit dla Twojej grupy",
     "A dashboard shared with you is updated" : "Zaktualizowano pulpit udostępniony Tobie",
-    "You acknowledge an announcement on a dashboard" : "Potwierdzasz ogłoszenie na pulpicie"
+    "You acknowledge an announcement on a dashboard" : "Potwierdzasz ogłoszenie na pulpicie",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

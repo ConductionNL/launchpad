@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Un tablou de bord este partajat cu dvs.",
     "A dashboard for your group is published" : "Un tablou de bord pentru grupul dvs. este publicat",
     "A dashboard shared with you is updated" : "Un tablou de bord partajat cu dvs. este actualizat",
-    "You acknowledge an announcement on a dashboard" : "Confirmați un anunț pe un tablou de bord"
+    "You acknowledge an announcement on a dashboard" : "Confirmați un anunț pe un tablou de bord",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

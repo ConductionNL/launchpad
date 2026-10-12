@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Një panel ndahet me ju",
     "A dashboard for your group is published" : "Publikohet një panel për grupin tuaj",
     "A dashboard shared with you is updated" : "Përditësohet një panel i ndarë me ju",
-    "You acknowledge an announcement on a dashboard" : "Konfirmoni një njoftim në një panel"
+    "You acknowledge an announcement on a dashboard" : "Konfirmoni një njoftim në një panel",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

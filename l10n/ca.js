@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "S'ha compartit un tauler amb vós",
     "A dashboard for your group is published" : "S'ha publicat un tauler per al vostre grup",
     "A dashboard shared with you is updated" : "S'ha actualitzat un tauler compartit amb vós",
-    "You acknowledge an announcement on a dashboard" : "Confirmeu un avís en un tauler"
+    "You acknowledge an announcement on a dashboard" : "Confirmeu un avís en un tauler",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

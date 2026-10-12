@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Mælaborði er deilt með þér",
     "A dashboard for your group is published" : "Mælaborð fyrir hópinn þinn er birt",
     "A dashboard shared with you is updated" : "Mælaborð sem deilt er með þér er uppfært",
-    "You acknowledge an announcement on a dashboard" : "Þú staðfestir tilkynningu á mælaborði"
+    "You acknowledge an announcement on a dashboard" : "Þú staðfestir tilkynningu á mælaborði",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Sizinle bir pano paylaşılır",
     "A dashboard for your group is published" : "Grubunuz için bir pano yayımlanır",
     "A dashboard shared with you is updated" : "Sizinle paylaşılan bir pano güncellenir",
-    "You acknowledge an announcement on a dashboard" : "Bir panodaki duyuruyu onaylarsınız"
+    "You acknowledge an announcement on a dashboard" : "Bir panodaki duyuruyu onaylarsınız",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

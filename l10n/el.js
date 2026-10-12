@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Ένας πίνακας ελέγχου κοινοποιείται σε εσάς",
     "A dashboard for your group is published" : "Δημοσιεύεται πίνακας ελέγχου για την ομάδα σας",
     "A dashboard shared with you is updated" : "Ενημερώνεται πίνακας ελέγχου που κοινοποιήθηκε σε εσάς",
-    "You acknowledge an announcement on a dashboard" : "Επιβεβαιώνετε μια ανακοίνωση σε πίνακα ελέγχου"
+    "You acknowledge an announcement on a dashboard" : "Επιβεβαιώνετε μια ανακοίνωση σε πίνακα ελέγχου",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=2; plural=(n != 1);"
 );

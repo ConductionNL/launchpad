@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "Roinntear deais leat",
     "A dashboard for your group is published" : "Foilsítear deais do do ghrúpa",
     "A dashboard shared with you is updated" : "Nuashonraítear deais a roinneadh leat",
-    "You acknowledge an announcement on a dashboard" : "Admhaíonn tú fógra ar dheais"
+    "You acknowledge an announcement on a dashboard" : "Admhaíonn tú fógra ar dheais",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

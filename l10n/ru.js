@@ -1360,7 +1360,10 @@ OC.L10N.register(
     "A dashboard is shared with you" : "С вами поделились панелью",
     "A dashboard for your group is published" : "Опубликована панель для вашей группы",
     "A dashboard shared with you is updated" : "Обновлена панель, которой с вами поделились",
-    "You acknowledge an announcement on a dashboard" : "Вы подтверждаете объявление на панели"
+    "You acknowledge an announcement on a dashboard" : "Вы подтверждаете объявление на панели",
+    "Credentials" : "Credentials",
+    "My profile" : "My profile",
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

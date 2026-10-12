@@ -87,6 +87,21 @@ class ReactionServiceTest extends TestCase {
 	}
 
 	/**
+	 * REQ-RXN-005: reactions are off until an administrator turns them on,
+	 * so the global toggle is read with a false default.
+	 *
+	 * @return void
+	 */
+	public function testReactionsAreOffByDefault(): void {
+		$this->appConfig->expects($this->once())
+			->method('getValueBool')
+			->with('launchpad', ReactionService::KEY_ENABLED_DEFAULT, false)
+			->willReturn(false);
+
+		$this->assertFalse(condition: $this->service->isReactionsEnabled(dashboard: $this->makeDashboard(perDashFlag: null)));
+	}
+
+	/**
 	 * REQ-RXN-007 scenario "Admin updates the allowed emoji list".
 	 */
 	public function testValidateEmojiRejectsNonWhitelisted(): void {

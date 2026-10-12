@@ -173,12 +173,14 @@
    even margins on a 1440px screen, instead of a grid that runs from edge
    to edge. Only that page carries the hidden marker, so a dashboard with
    the panel keeps its full width.
+   The container is also the page's scroller, so the column comes from
+   padding, not from a max-width: the scroller spans the whole window and
+   its scrollbar sits at the window edge instead of beside the column.
    ========================================================= */
 .app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container {
 	box-sizing: border-box;
 	width: 100%;
-	max-width: 1214px;
-	margin-inline: auto;
+	padding-inline: max(0px, calc((100% - 1214px) / 2));
 }
 
 /* =========================================================
@@ -219,6 +221,15 @@
 	position: relative;
 }
 
+/* A plain or ground greeting has no banner height of its own. The library
+   says so (`--plain` resets its 120px banner minimum), but the same scoped
+   rules arrive more than once on this page (other apps' bundles inject the
+   library CSS too), and a later copy of the 120px rule beat the reset. The
+   greeting then stood 120px tall in its 104px cell, and the cell scrolled. */
+.launchpad-container .cn-header-widget.cn-header-widget--plain {
+	min-height: 0;
+}
+
 .launchpad-container .cn-header-widget--ground .cn-header-widget__cta {
 	position: absolute;
 	inset-inline-end: 0;
@@ -231,6 +242,44 @@
 	color: var(--color-main-text) !important;
 	font-weight: 600;
 	text-decoration: none !important;
+}
+
+/* With the workspace controls docked in the greeting row
+   (headerActionsDock.js), the row is the greeting, then the actions at its
+   right, as LpStart draws it. "Startpagina aanpassen" stays at the right of
+   the greeting text, which now ends where the controls begin, so the two
+   never overlap. */
+.launchpad-container .cn-header-widget--ground:has(> .launchpad-header-actions) {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	position: static;
+}
+
+.launchpad-container
+	.cn-header-widget--ground:has(> .launchpad-header-actions)
+	> .cn-header-widget__content {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 0;
+	align-self: stretch;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+/* The library's 8px top margin would put the button 8px below the
+   controls' centre line. */
+.launchpad-container
+	.cn-header-widget--ground:has(> .launchpad-header-actions)
+	.cn-header-widget__cta {
+	margin-top: 0;
+}
+
+.launchpad-container .launchpad-header-actions {
+	flex: none;
+	display: flex;
+	align-items: center;
 }
 
 /* A section label reads as a heading at the left edge. */

@@ -76,8 +76,15 @@
 
 		     Both halves have to move for the ordering between them to mean
 		     anything. -->
-		<Teleport to="body">
-			<div class="launchpad-floating-controls">
+		<!-- On a dashboard with a greeting on the page ground, the controls
+		     dock into that row (headerActionsDock.js), right of "Startpagina
+		     aanpassen" as LpStart draws the page's actions. Floating there,
+		     they covered that button. -->
+		<Teleport :to="headerActionsTarget || 'body'">
+			<div
+				class="launchpad-floating-controls"
+				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
+				data-testid="launchpad-top-controls">
 				<!-- Active-dashboard cog: the same per-dashboard action menu that
 			     sits on every sidebar row (DashboardRowActions), but bound to
 			     the currently active dashboard so the user can Edit / Configure
@@ -522,6 +529,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { logger } from '../utils/logger.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -684,6 +692,11 @@ export default {
 	data() {
 		return {
 			isEditMode: false,
+			/**
+			 * The greeting row's actions element the top-right controls are
+			 * teleported into, or null while they float (headerActionsDock.js).
+			 */
+			headerActionsTarget: null,
 			/**
 			 * Sources (`register/schema`) OpenRegister said are not here,
 			 * keyed by source (REQ-TMPL-022).
@@ -1097,6 +1110,16 @@ export default {
 
 	watch: {
 		/**
+		 * Editing makes the greeting row a draggable grid item: the controls
+		 * float while editing and dock again after.
+		 *
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 */
+		isEditMode() {
+			this.$nextTick(() => this.dockHeaderActions())
+		},
+
+		/**
 		 * Ask, once per source, whether the registers the hideable lists read
 		 * are on this instance (REQ-TMPL-022).
 		 *
@@ -1258,6 +1281,16 @@ export default {
 
 		// Browser back / forward → re-resolve the URL and switch.
 		window.addEventListener('popstate', this.handleHistoryPopState)
+
+		// The greeting row mounts with the grid, after this view; watch the
+		// container so the controls dock once it is there, and move again
+		// when another dashboard (with or without a greeting) replaces it.
+		this.dockHeaderActions()
+		const container = document.querySelector('.launchpad-container')
+		if (container && typeof MutationObserver !== 'undefined') {
+			this.headerActionsObserver = new MutationObserver(() => this.dockHeaderActions())
+			this.headerActionsObserver.observe(container, { childList: true, subtree: true })
+		}
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -1267,11 +1300,27 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		this.headerActionsObserver?.disconnect()
+		this.headerActionsObserver = null
 		// Leaving the page while editing gives the lock back.
 		this.editLock.release()
 	},
 
 	methods: {
+		/**
+		 * Dock the top-right controls into the greeting row when the page
+		 * has one and is not being edited; float them otherwise.
+		 *
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 */
+		dockHeaderActions() {
+			const container = document.querySelector('.launchpad-container')
+			const target = resolveHeaderActionsTarget(container, this.isEditMode)
+			if (target !== this.headerActionsTarget) {
+				this.headerActionsTarget = target
+			}
+		},
+
 		/**
 		 * For every object-list that asked to be hidden when its source is
 		 * not here, ask OpenRegister once and remember a "not here"
@@ -2964,6 +3013,14 @@ export default {
 	 * `#app-content` no value here can beat a body-level sibling.
 	 */
 	z-index: 1460;
+}
+
+/* Docked in the greeting row (headerActionsDock.js): part of the row's
+   flow, so nothing floats over the page and the row scrolls with it. */
+.launchpad-floating-controls--docked {
+	position: static;
+	z-index: auto;
+	gap: 10px;
 }
 
 .launchpad-ack-indicator {

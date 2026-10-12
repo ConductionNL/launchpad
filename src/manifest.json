@@ -29,6 +29,7 @@
     ]
   },
   "version": "0.2.0",
+  "look": "board",
   "dependencies": [
     {
       "id": "openregister",

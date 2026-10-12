@@ -17,6 +17,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="large"
 		:name="t('launchpad', 'Read-receipt report')"
 		@close="$emit('close')">

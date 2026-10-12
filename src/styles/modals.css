@@ -1,0 +1,13 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * LaunchPad's modals draw their own title (an h2 in the body, as the boards
+ * do). NcModal also draws its `name` in a header bar over the backdrop, so
+ * the title showed twice, the second one floating over the top bar. The name
+ * stays on the modal for the accessible label; only its visible copy is
+ * hidden.
+ */
+.modal-mask.launchpad-modal .modal-header__name {
+	display: none;
+}

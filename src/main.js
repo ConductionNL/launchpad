@@ -59,6 +59,7 @@ import './publicPath.js'
 import './services/widgetBridge.js'
 import 'gridstack/dist/gridstack.min.css'
 import './styles/workspace.css'
+import './styles/modals.css'
 registerBuiltinDashboardWidgets()
 
 // The library's own strings ("Good afternoon, {name}" in the greeting header,

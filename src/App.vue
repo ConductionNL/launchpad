@@ -21,6 +21,7 @@
 		:customComponents="customComponents"
 		:permissions="permissions"
 		:supportDialog="supportNoteForThisAccount"
+		:userSettingsSections="userSettingsSections"
 		appId="launchpad">
 		<!--
 		  runtime-shell REQ-SHELL-009: the start page without the navigation
@@ -35,16 +36,14 @@
 		<!--
 			The user settings dialog. Every per-person setting lives here;
 			LaunchPad adds nothing to Nextcloud's personal settings (Ruben,
-			11 Oct 2026). Filling this slot drops CnAppRoot's fallback sections,
-			so UserSettings repeats them and gets the walkthrough replay from
-			walkthroughSettings() below.
+			11 Oct 2026). The app's own section (My profile) goes in
+			#user-settings-sections; the library keeps drawing credentials,
+			notifications, the walkthrough replay and integrations, in the order
+			of the userSettingsSections prop (board LpPersoonlijk: Mijn profiel,
+			Inloggegevens first).
 		-->
-		<template #user-settings>
-			<UserSettings
-				:manifest="liveManifest"
-				:walkthrough="walkthroughSettings()"
-				@continueWalkthrough="appRoot() && appRoot().continueWalkthroughFromSettings()"
-				@restartWalkthrough="appRoot() && appRoot().restartWalkthroughFromSettings()" />
+		<template #user-settings-sections>
+			<ProfileFieldsSettings />
 		</template>
 		<template v-if="railSuppressed" #menu>
 			<span
@@ -58,7 +57,7 @@
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
 import { computed } from 'vue'
-import UserSettings from './views/settings/UserSettings.vue'
+import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { permits } from './utils/permissions.js'
@@ -127,7 +126,7 @@ export default {
 	name: 'App',
 	components: {
 		CnAppRoot,
-		UserSettings,
+		ProfileFieldsSettings,
 	},
 
 	inject: {
@@ -254,6 +253,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The sections of the user settings dialog, in board LpPersoonlijk's
+		 * order: the app's own (My profile), then the credentials, and the
+		 * library's notifications, walkthrough replay and integrations.
+		 *
+		 * @return {string[]} Section keys for CnAppRoot.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		userSettingsSections() {
+			return ['app', 'credentials', 'notifications', 'walkthrough', 'integrations']
+		},
+
 		/**
 		 * Whether the navigation panel is left out of this route: the admin
 		 * option is on AND the route is the dashboard view (`/` or
@@ -419,31 +430,6 @@ export default {
 			const root = this.appRoot()
 			if (root && window.location.hash === '#user-settings') {
 				root.userSettingsOpen = true
-			}
-		},
-
-		/**
-		 * The walkthrough replay section CnAppRoot draws in its own fallback,
-		 * which filling the #user-settings slot switches off. Reads CnAppRoot's
-		 * state and labels, so the wording and the behaviour stay the library's.
-		 *
-		 * @return {object|null} Section props for UserSettings, or null without a tour.
-		 * @spec openspec/specs/people-widget/spec.md
-		 */
-		walkthroughSettings() {
-			const root = this.appRoot()
-			if (!root || !root.walkthroughEnabled) {
-				return null
-			}
-			const inProgress = Boolean(root.walkthroughProgressValue)
-			return {
-				sectionName: root.restartWalkthroughSectionName,
-				hint: root.restartWalkthroughHint,
-				inProgress,
-				continueLabel: root.continueWalkthroughLabel,
-				restartLabel: inProgress
-					? root.startOverWalkthroughLabel
-					: root.restartWalkthroughLabel,
 			}
 		},
 	},

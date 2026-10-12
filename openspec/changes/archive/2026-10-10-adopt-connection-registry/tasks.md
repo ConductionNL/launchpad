@@ -29,4 +29,4 @@
 
 ## 5. After an instance runs both apps
 
-- [ ] 5.1 Run the e2e spec against an instance with launchpad and integriq, then archive this change.
+- [ ] 5.1 Run the e2e spec against an instance with launchpad and integriq, then archive this change. (live pass, decision 139)

@@ -244,6 +244,44 @@
 	text-decoration: none !important;
 }
 
+/* With the workspace controls docked in the greeting row
+   (headerActionsDock.js), the row is the greeting, then the actions at its
+   right, as LpStart draws it. "Startpagina aanpassen" stays at the right of
+   the greeting text, which now ends where the controls begin, so the two
+   never overlap. */
+.launchpad-container .cn-header-widget--ground:has(> .launchpad-header-actions) {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	position: static;
+}
+
+.launchpad-container
+	.cn-header-widget--ground:has(> .launchpad-header-actions)
+	> .cn-header-widget__content {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 0;
+	align-self: stretch;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+/* The library's 8px top margin would put the button 8px below the
+   controls' centre line. */
+.launchpad-container
+	.cn-header-widget--ground:has(> .launchpad-header-actions)
+	.cn-header-widget__cta {
+	margin-top: 0;
+}
+
+.launchpad-container .launchpad-header-actions {
+	flex: none;
+	display: flex;
+	align-items: center;
+}
+
 /* A section label reads as a heading at the left edge. */
 .launchpad-container .cn-label-widget {
 	justify-content: flex-start !important;

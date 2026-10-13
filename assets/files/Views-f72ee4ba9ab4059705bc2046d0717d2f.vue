@@ -233,6 +233,7 @@
 		<VersionHistoryModal
 			:open="versionHistoryOpen"
 			:dashboardUuid="activeDashboard?.uuid ?? ''"
+			:dashboardName="activeDashboard?.name ?? ''"
 			@close="versionHistoryOpen = false"
 			@restored="onVersionRestored" />
 

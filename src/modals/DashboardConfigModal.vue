@@ -53,6 +53,12 @@
 						@click="currentTab = tab.id">
 						<component :is="tab.icon" v-if="tab.icon" :size="16" />
 						<span>{{ tab.label }}</span>
+						<span
+							v-if="tab.count"
+							class="dashboard-config__tab-count"
+							:data-test="`config-tab-count-${tab.id}`">
+							{{ tab.count }}
+						</span>
 					</button>
 				</li>
 			</ul>
@@ -138,21 +144,9 @@
 						:uploadFn="iconUploadFn"
 						@input="form.icon = $event" />
 				</div>
-			</div>
-			<!-- /general panel -->
-
-			<!--
-				Wave3.8 — explicit "default dashboard" pin. Lives in its own
-				Default tab now (dashboard-sharing spec tab split). Wrapped in
-				`v-if="!isCreate"` because pinning a not-yet-saved dashboard is
-				meaningless.
-			-->
-			<div
-				v-show="!isCreate && currentTab === 'default'"
-				id="config-panel-default"
-				role="tabpanel"
-				data-test="config-panel-default"
-				class="dashboard-config__panel">
+				<!-- The default switch and the detail fields live under Details,
+				     as board LpDashboardInstellingen draws them (three tabs:
+				     Details, Talen, Delen). -->
 				<div
 					v-if="!isCreate"
 					class="dashboard-config__field dashboard-config__field--toggle">
@@ -171,8 +165,12 @@
 						</span>
 					</NcCheckboxRadioSwitch>
 				</div>
+				<DetailsTab
+					v-if="!isCreate && canManageShares && dashboard?.uuid"
+					:dashboardUuid="dashboard.uuid" />
 			</div>
-			<!-- /default panel -->
+			<!-- /general panel -->
+
 
 			<div
 				v-if="!isCreate && currentTab === 'languages' && dashboard?.uuid"
@@ -183,14 +181,6 @@
 				<LanguagesTab :dashboardUuid="dashboard.uuid" />
 			</div>
 
-			<div
-				v-if="!isCreate && currentTab === 'details' && dashboard?.uuid"
-				id="config-panel-details"
-				role="tabpanel"
-				data-test="config-panel-details"
-				class="dashboard-config__panel">
-				<DetailsTab :dashboardUuid="dashboard.uuid" />
-			</div>
 
 			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
 			     per-share permission rows are reachable ONLY from this tab. -->
@@ -448,9 +438,7 @@ import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue
 import Lock from 'vue-material-design-icons/Lock.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
-import StarOutline from 'vue-material-design-icons/StarOutline.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
-import Tune from 'vue-material-design-icons/Tune.vue'
 import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
 import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
 import { api } from '../services/api.js'
@@ -482,9 +470,7 @@ export default {
 		Close,
 		Account,
 		AccountGroup,
-		Tune,
 		ShareVariant,
-		StarOutline,
 		ContentCopy,
 		Check,
 		Lock,
@@ -556,7 +542,9 @@ export default {
 
 	data() {
 		return {
-			currentTab: this.initialTab || 'general',
+			currentTab:
+				this.initialTab === 'default' ? 'general' : this.initialTab || 'general',
+
 			form: {
 				name: '',
 				description: '',
@@ -657,36 +645,29 @@ export default {
 		 */
 		tabs() {
 			const list = [
-				{ id: 'general', label: t('launchpad', 'General'), icon: Tune },
+				{
+					id: 'general',
+					label: t('launchpad', 'Details'),
+					icon: FormatListBulleted,
+				},
 			]
+			// dashboard-language-and-details-tabs: language versions, for the
+			// owner (a dashboard needs a uuid first, so the strip is hidden
+			// while creating).
+			if (this.canManageShares && this.dashboard?.uuid) {
+				list.push({
+					id: 'languages',
+					label: t('launchpad', 'Languages'),
+					icon: Translate,
+				})
+			}
 			if (this.canManageShares) {
 				list.push({
 					id: 'sharing',
 					label: t('launchpad', 'Sharing'),
 					icon: ShareVariant,
+					count: this.localShares.length,
 				})
-			}
-			list.push({
-				id: 'default',
-				label: t('launchpad', 'Default'),
-				icon: StarOutline,
-			})
-			// dashboard-language-and-details-tabs: language versions and
-			// detail fields, for the owner (a dashboard needs a uuid first,
-			// so the strip is hidden while creating).
-			if (this.canManageShares && this.dashboard?.uuid) {
-				list.push(
-					{
-						id: 'languages',
-						label: t('launchpad', 'Languages'),
-						icon: Translate,
-					},
-					{
-						id: 'details',
-						label: t('launchpad', 'Details'),
-						icon: FormatListBulleted,
-					},
-				)
 			}
 			return list
 		},
@@ -783,7 +764,9 @@ export default {
 				// top-bar share action opens directly on Sharing). Fall back
 				// to General if the requested tab is the share tab but the
 				// user cannot manage shares.
-				const wanted = this.initialTab || 'general'
+				// `default` was its own tab; the switch now sits under Details.
+				const wanted
+					= this.initialTab === 'default' ? 'general' : this.initialTab || 'general'
 				this.currentTab =
 					wanted === 'sharing' && !this.canManageShares
 						? 'general'
@@ -1456,5 +1439,17 @@ export default {
 
 .dashboard-config__error {
 	color: var(--color-error-text);
+}
+
+/* The count on the Delen tab (board LpDashboardInstellingen). */
+.dashboard-config__tab-count {
+	min-width: 20px;
+	padding: 0 6px;
+	border-radius: var(--border-radius-pill);
+	background: var(--color-background-dark);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 20px;
+	text-align: center;
 }
 </style>

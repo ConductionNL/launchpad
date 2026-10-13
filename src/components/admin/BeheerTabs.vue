@@ -200,23 +200,31 @@ export default {
 </script>
 
 <style scoped>
+/* Board LpBeheerAlgemeen: 44px tabs, a 3px underline, bold when active. */
 .beheer-tabs__strip {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 	border-bottom: 1px solid var(--color-border);
-	margin-bottom: 24px;
+	margin-bottom: 20px;
 }
 
 .beheer-tabs__tab {
+	display: inline-flex;
+	align-items: center;
+	height: 44px;
+	min-height: 44px;
 	background: transparent;
 	border: 0;
-	border-bottom: 2px solid transparent;
-	padding: 10px 16px;
+	border-bottom: 3px solid transparent;
+	padding: 0 9px;
 	cursor: pointer;
 	font: inherit;
-	color: var(--color-text-maxcontrast);
-	border-radius: var(--border-radius) var(--border-radius) 0 0;
+	font-size: 14px;
+	font-weight: 500;
+	white-space: nowrap;
+	color: var(--color-main-text);
+	border-radius: 0;
 }
 
 .beheer-tabs__tab:hover,
@@ -229,7 +237,7 @@ export default {
 .beheer-tabs__tab--active {
 	color: var(--color-main-text);
 	border-bottom-color: var(--color-primary-element);
-	font-weight: 600;
+	font-weight: 700;
 }
 
 .beheer-tabs__panel {

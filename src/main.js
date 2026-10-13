@@ -58,6 +58,9 @@ import { currentPermissions } from './utils/permissions.js'
 import './publicPath.js'
 import './services/widgetBridge.js'
 import 'gridstack/dist/gridstack.min.css'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
 import './styles/workspace.css'
 import './styles/modals.css'
 registerBuiltinDashboardWidgets()

@@ -27,6 +27,9 @@ import { widgetBridge } from './services/widgetBridge.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 
 import './publicPath.js'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
 import './styles/modals.css'
 
 // Reference the imported singleton so its side-effecting construction is not

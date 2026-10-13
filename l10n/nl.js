@@ -1625,7 +1625,9 @@ OC.L10N.register(
     "Operation failed" : "De bewerking is mislukt",
     "Continue to the administration settings" : "Verder naar de beheerinstellingen",
     "Opening the administration settings…" : "Beheerinstellingen openen…",
-    "Versions of {name}" : "Versies van {name}"
+    "Versions of {name}" : "Versies van {name}",
+    "Launchpad administration: {tab}" : "Launchpad-beheer: {tab}",
+    "applies to the whole organisation" : "geldt voor de hele organisatie"
 },
 "nplurals=2; plural=(n != 1);"
 );

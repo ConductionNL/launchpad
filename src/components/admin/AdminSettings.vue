@@ -5,294 +5,295 @@
 
 <template>
 	<div class="launchpad-admin">
-		<CnSettingsSection
-			:name="t('launchpad', 'LaunchPad settings')"
-			:description="
-				t('launchpad', 'Configure dashboard permissions and defaults')
-			"
-			docUrl="https://launchpad.conduction.nl/docs/intro">
-			<!-- Beheer tabs — the IA's discrete admin areas. Each tab's
-			     content only renders when active (admin-settings spec). -->
-			<BeheerTabs
-				:tabs="beheerTabs"
-				defaultTab="general"
-				@change="onTabChange">
-				<!-- Algemeen (board LpBeheerAlgemeen): the setup banner, the
-				     organisation-wide defaults, group-shared dashboards and the
-				     default-app note, as cards. They used to sit above the tab
-				     strip on every tab. -->
-				<template #general>
-					<div class="launchpad-admin__general">
-					<!-- Setup wizard banner (REQ-WIZ-001). First on the Algemeen tab,
-					     the tab the page opens on. -->
-					<div
-						v-if="wizardState && !wizardState.complete"
-						class="launchpad-admin__wizard-banner"
-						data-test="setup-wizard-banner">
-						<div>
-							<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
-							<p>
-								{{
-									t(
-										'launchpad',
-										'Get your intranet started: configure groups, install demo data, and set up admin roles.',
-									)
-								}}
-							</p>
-						</div>
-						<NcButton
-							variant="secondary"
-							data-test="setup-wizard-open"
-							@click="openWizard">
-							{{ t('launchpad', 'Run setup wizard') }}
-						</NcButton>
-					</div>
-					<div
-						v-else-if="wizardState && wizardState.complete"
-						class="launchpad-admin__wizard-rerun"
-						data-test="setup-wizard-rerun">
-						<NcButton
-							variant="tertiary"
-							data-test="setup-wizard-rerun-open"
-							@click="openWizard">
-							{{ t('launchpad', 'Run setup wizard again') }}
-						</NcButton>
-					</div>
-
-					<!-- Global Settings — always visible above the tab strip. -->
-					<div
-						class="launchpad-admin__section"
-						data-testid="admin-default-settings">
-						<h3>{{ t('launchpad', 'Default settings') }}</h3>
-
-						<div class="launchpad-admin__field">
-							<NcSelect
-								v-model="settings.defaultPermissionLevel"
-								:inputLabel="t('launchpad', 'Default permission level')"
-								:options="permissionOptions"
-								label="label"
-								trackBy="id"
-								:clearable="false"
-								@update:modelValue="saveSettings" />
-						</div>
-
-						<NcCheckboxRadioSwitch
-							:modelValue="settings.allowUserDashboards"
-							data-testid="admin-allow-user-dashboards"
-							@update:modelValue="
-								updateSetting('allowUserDashboards', $event)
-							">
-							{{ t('launchpad', 'Allow users to create custom dashboards') }}
-						</NcCheckboxRadioSwitch>
-						<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-							{{
-								t(
-									'launchpad',
-									'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.',
-								)
-							}}
-						</p>
-
-						<NcCheckboxRadioSwitch
-							:modelValue="settings.allowMultipleDashboards"
-							@update:modelValue="
-								updateSetting('allowMultipleDashboards', $event)
-							">
-							{{ t('launchpad', 'Allow users to have multiple dashboards') }}
-						</NcCheckboxRadioSwitch>
-
-						<!-- runtime-shell REQ-SHELL-009: off by default so an existing
-						     instance keeps its navigation panel. -->
-						<NcCheckboxRadioSwitch
-							:modelValue="settings.startPageWithoutNavigation"
-							data-testid="admin-start-page-without-navigation"
-							@update:modelValue="
-								updateSetting('startPageWithoutNavigation', $event)
-							">
-							{{ t('launchpad', 'Start page without navigation panel') }}
-						</NcCheckboxRadioSwitch>
-						<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-							{{
-								t(
-									'launchpad',
-									'When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.',
-								)
-							}}
-						</p>
-
-						<div class="launchpad-admin__field">
-							<NcSelect
-								v-model="settings.defaultGridColumns"
-								:inputLabel="t('launchpad', 'Default grid columns')"
-								:options="gridColumnOptions"
-								:clearable="false"
-								@update:modelValue="saveSettings" />
-						</div>
-
-						<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
-						     quotas. `0` = unlimited (no enforcement). -->
+		<!-- The board look: the shell draws the h1, the path line and the
+		     Documentatie button, and lays its sections out as cards in two
+		     columns (board LpBeheerAlgemeen). This page has no CnAppRoot, so
+		     the shell's own `look` switches the board look on. -->
+		<CnAdminSettingsShell
+			appId="launchpad"
+			appName="Launchpad"
+			look="board"
+			:title="pageTitle"
+			docUrl="https://launchpad.conduction.nl/docs/intro"
+			:breadcrumbs="breadcrumbs"
+			:breadcrumbNote="breadcrumbNote"
+			:showVersionCard="false">
+			<!-- The tab strip spans the grid: the shell gives every child that is
+			     not a settings section the full width, without a card. On Algemeen
+			     it carries the setup banner; every other tab draws its own content. -->
+			<div class="launchpad-admin__tabs">
+				<BeheerTabs
+					:tabs="beheerTabs"
+					defaultTab="general"
+					@change="onTabChange">
+					<template #general>
+						<!-- Setup wizard banner (REQ-WIZ-001). First on the Algemeen tab,
+						     the tab the page opens on. -->
 						<div
-							class="launchpad-admin__field"
-							data-testid="admin-quota-dashboards">
-							<NcTextField
-								v-model="settings.maxDashboardsPerUser"
-								type="number"
-								min="0"
-								max="10000"
-								:label="t('launchpad', 'Maximum dashboards per user')"
-								@update:modelValue="
-									onQuotaInput('maxDashboardsPerUser', $event)
-								" />
-							<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-								{{
-									t(
-										'launchpad',
-										'0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.',
-									)
-								}}
-							</p>
-						</div>
-
-						<div
-							class="launchpad-admin__field"
-							data-testid="admin-quota-widgets">
-							<NcTextField
-								v-model="settings.maxWidgetsPerDashboard"
-								type="number"
-								min="0"
-								max="10000"
-								:label="t('launchpad', 'Maximum widgets per dashboard')"
-								@update:modelValue="
-									onQuotaInput('maxWidgetsPerDashboard', $event)
-								" />
-							<p class="launchpad-admin__hint launchpad-admin__hint--inline">
-								{{
-									t(
-										'launchpad',
-										'0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.',
-									)
-								}}
-							</p>
-						</div>
-					</div>
-
-					<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
-					     tabs because it owns the `set-group-default` /
-					     `group-default-badge` data-test hooks (task 12.2). -->
-					<div class="launchpad-admin__section">
-						<div class="launchpad-admin__section-header">
-							<h3>{{ t('launchpad', 'Group-shared dashboards') }}</h3>
-						</div>
-
-						<p class="launchpad-admin__hint">
-							{{
-								t(
-									'launchpad',
-									'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.',
-								)
-							}}
-						</p>
-
-						<div v-if="loadingGroupDashboards" class="launchpad-admin__hint">
-							{{ t('launchpad', 'Loading group dashboards…') }}
-						</div>
-
-						<div
-							v-for="(rows, groupId) in groupSharedDashboards"
-							:key="groupId"
-							class="launchpad-admin__group">
-							<h4 class="launchpad-admin__group-title">
-								{{ groupId }}
-							</h4>
-							<div v-if="rows.length === 0" class="launchpad-admin__hint">
-								{{
-									t(
-										'launchpad',
-										'No group-shared dashboards in this group yet.',
-									)
-								}}
+							v-if="wizardState && !wizardState.complete"
+							class="launchpad-admin__wizard-banner"
+							data-test="setup-wizard-banner">
+							<div>
+								<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
+								<p>
+									{{
+										t(
+											'launchpad',
+											'Get your intranet started: configure groups, install demo data, and set up admin roles.',
+										)
+									}}
+								</p>
 							</div>
-							<div v-else class="launchpad-admin__templates">
-								<div
-									v-for="dash in rows"
-									:key="dash.uuid"
-									class="launchpad-admin__template">
-									<div class="launchpad-admin__template-info">
-										<CnDashboardIcon :name="dash.icon" :size="20" />
-										<strong>{{ dash.name }}</strong>
-										<span
-											v-if="dash.isDefault === 1"
-											class="launchpad-admin__badge"
-											data-test="group-default-badge">
-											{{ t('launchpad', 'Default') }}
-										</span>
-									</div>
-									<div class="launchpad-admin__template-actions">
-										<NcButton
-											v-if="dash.isDefault !== 1"
-											variant="secondary"
-											data-test="set-group-default"
-											:disabled="settingGroupDefault === dash.uuid"
-											@click="setGroupDefault(groupId, dash.uuid)">
-											{{ t('launchpad', 'Set as default') }}
-										</NcButton>
-									</div>
-								</div>
+							<NcButton
+								variant="secondary"
+								data-test="setup-wizard-open"
+								@click="openWizard">
+								{{ t('launchpad', 'Run setup wizard') }}
+							</NcButton>
+						</div>
+						<div
+							v-else-if="wizardState && wizardState.complete"
+							class="launchpad-admin__wizard-rerun"
+							data-test="setup-wizard-rerun">
+							<NcButton
+								variant="tertiary"
+								data-test="setup-wizard-rerun-open"
+								@click="openWizard">
+								{{ t('launchpad', 'Run setup wizard again') }}
+							</NcButton>
+						</div>
+					</template>
+					<template #templates>
+						<TemplatesPage />
+					</template>
+					<template #operations>
+						<OperationsTab />
+					</template>
+					<template #roles-permissions>
+						<RolesPermissionsTab />
+					</template>
+					<template #versioning-audit>
+						<VersioningAuditTab />
+					</template>
+					<template #sharing>
+						<SharingTab
+							:groups="injectedAllGroups"
+							:configuredGroups="configuredGroups" />
+					</template>
+					<template #kiosk>
+						<KioskTab />
+					</template>
+					<template #org-navigation>
+						<OrgNavigationTab :groups="injectedAllGroups" />
+					</template>
+					<template #demo-data>
+						<DemoDataTab />
+					</template>
+					<template #group-dashboards>
+						<GroupDashboardsTab />
+					</template>
+					<template #detail-fields>
+						<MetadataFieldsSettings />
+					</template>
+					<template #profile-fields>
+						<ProfileFieldsTab />
+					</template>
+				</BeheerTabs>
+			</div>
+
+			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
+			     defaults, group-shared dashboards and the default-app note,
+			     each a card of the shell's grid. -->
+			<template v-if="activeTab === 'general'">
+				<CnSettingsSection
+					:name="t('launchpad', 'Default settings')"
+					data-testid="admin-default-settings">
+
+				<div class="launchpad-admin__field">
+					<NcSelect
+						v-model="settings.defaultPermissionLevel"
+						:inputLabel="t('launchpad', 'Default permission level')"
+						:options="permissionOptions"
+						label="label"
+						trackBy="id"
+						:clearable="false"
+						@update:modelValue="saveSettings" />
+				</div>
+
+				<NcCheckboxRadioSwitch
+					:modelValue="settings.allowUserDashboards"
+					data-testid="admin-allow-user-dashboards"
+					@update:modelValue="
+						updateSetting('allowUserDashboards', $event)
+					">
+					{{ t('launchpad', 'Allow users to create custom dashboards') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'Disabling this only blocks creating new personal dashboards. Existing personal dashboards remain visible and editable.',
+						)
+					}}
+				</p>
+
+				<NcCheckboxRadioSwitch
+					:modelValue="settings.allowMultipleDashboards"
+					@update:modelValue="
+						updateSetting('allowMultipleDashboards', $event)
+					">
+					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
+				</NcCheckboxRadioSwitch>
+
+				<!-- runtime-shell REQ-SHELL-009: off by default so an existing
+				     instance keeps its navigation panel. -->
+				<NcCheckboxRadioSwitch
+					:modelValue="settings.startPageWithoutNavigation"
+					data-testid="admin-start-page-without-navigation"
+					@update:modelValue="
+						updateSetting('startPageWithoutNavigation', $event)
+					">
+					{{ t('launchpad', 'Start page without navigation panel') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.',
+						)
+					}}
+				</p>
+
+				<div class="launchpad-admin__field">
+					<NcSelect
+						v-model="settings.defaultGridColumns"
+						:inputLabel="t('launchpad', 'Default grid columns')"
+						:options="gridColumnOptions"
+						:clearable="false"
+						@update:modelValue="saveSettings" />
+				</div>
+
+				<!-- dashboard-quota-limits REQ-QUOTA-001: numeric governance
+				     quotas. `0` = unlimited (no enforcement). -->
+				<div
+					class="launchpad-admin__field"
+					data-testid="admin-quota-dashboards">
+					<NcTextField
+						v-model="settings.maxDashboardsPerUser"
+						type="number"
+						min="0"
+						max="10000"
+						:label="t('launchpad', 'Maximum dashboards per user')"
+						@update:modelValue="
+							onQuotaInput('maxDashboardsPerUser', $event)
+						" />
+					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+						{{
+							t(
+								'launchpad',
+								'0 = unlimited. Lowering a limit never deletes existing dashboards; it only blocks new ones until users are back under the limit.',
+							)
+						}}
+					</p>
+				</div>
+
+				<div
+					class="launchpad-admin__field"
+					data-testid="admin-quota-widgets">
+					<NcTextField
+						v-model="settings.maxWidgetsPerDashboard"
+						type="number"
+						min="0"
+						max="10000"
+						:label="t('launchpad', 'Maximum widgets per dashboard')"
+						@update:modelValue="
+							onQuotaInput('maxWidgetsPerDashboard', $event)
+						" />
+					<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+						{{
+							t(
+								'launchpad',
+								'0 = unlimited. Counts placements on a single dashboard. Admin template rollout and compulsory widgets are exempt.',
+							)
+						}}
+					</p>
+				</div>
+				</CnSettingsSection>
+
+				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
+				     `set-group-default` / `group-default-badge` data-test hooks. -->
+				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
+
+				<p class="launchpad-admin__hint">
+					{{
+						t(
+							'launchpad',
+							'Promote a single dashboard per group as the default. Members of the group will land on it when they have no personal preference yet.',
+						)
+					}}
+				</p>
+
+				<div v-if="loadingGroupDashboards" class="launchpad-admin__hint">
+					{{ t('launchpad', 'Loading group dashboards…') }}
+				</div>
+
+				<div
+					v-for="(rows, groupId) in groupSharedDashboards"
+					:key="groupId"
+					class="launchpad-admin__group">
+					<h4 class="launchpad-admin__group-title">
+						{{ groupId }}
+					</h4>
+					<div v-if="rows.length === 0" class="launchpad-admin__hint">
+						{{
+							t(
+								'launchpad',
+								'No group-shared dashboards in this group yet.',
+							)
+						}}
+					</div>
+					<div v-else class="launchpad-admin__templates">
+						<div
+							v-for="dash in rows"
+							:key="dash.uuid"
+							class="launchpad-admin__template">
+							<div class="launchpad-admin__template-info">
+								<CnDashboardIcon :name="dash.icon" :size="20" />
+								<strong>{{ dash.name }}</strong>
+								<span
+									v-if="dash.isDefault === 1"
+									class="launchpad-admin__badge"
+									data-test="group-default-badge">
+									{{ t('launchpad', 'Default') }}
+								</span>
+							</div>
+							<div class="launchpad-admin__template-actions">
+								<NcButton
+									v-if="dash.isDefault !== 1"
+									variant="secondary"
+									data-test="set-group-default"
+									:disabled="settingGroupDefault === dash.uuid"
+									@click="setGroupDefault(groupId, dash.uuid)">
+									{{ t('launchpad', 'Set as default') }}
+								</NcButton>
 							</div>
 						</div>
 					</div>
-					<!-- Info -->
-					<div class="launchpad-admin__section">
-						<h3>{{ t('launchpad', 'Setting as default app') }}</h3>
-						<p>
-							{{
-								t(
-									'launchpad',
-									'To make LaunchPad the default app for users, go to Settings > Administration > Theming and select LaunchPad as the default app.',
-								)
-							}}
-						</p>
-					</div>
-					</div>
-				</template>
-				<template #templates>
-					<TemplatesPage />
-				</template>
-				<template #operations>
-					<OperationsTab />
-				</template>
-				<template #roles-permissions>
-					<RolesPermissionsTab />
-				</template>
-				<template #versioning-audit>
-					<VersioningAuditTab />
-				</template>
-				<template #sharing>
-					<SharingTab
-						:groups="injectedAllGroups"
-						:configuredGroups="configuredGroups" />
-				</template>
-				<template #kiosk>
-					<KioskTab />
-				</template>
-				<template #org-navigation>
-					<OrgNavigationTab :groups="injectedAllGroups" />
-				</template>
-				<template #demo-data>
-					<DemoDataTab />
-				</template>
-				<template #group-dashboards>
-					<GroupDashboardsTab />
-				</template>
-				<template #detail-fields>
-					<MetadataFieldsSettings />
-				</template>
-				<template #profile-fields>
-					<ProfileFieldsTab />
-				</template>
-			</BeheerTabs>
+				</div>
+				</CnSettingsSection>
 
-		</CnSettingsSection>
+				<CnSettingsSection :name="t('launchpad', 'Setting as default app')">
+				<p>
+					{{
+						t(
+							'launchpad',
+							'To make LaunchPad the default app for users, go to Settings > Administration > Theming and select LaunchPad as the default app.',
+						)
+					}}
+				</p>
+				</CnSettingsSection>
+			</template>
+		</CnAdminSettingsShell>
 
 		<!-- Setup wizard modal (REQ-WIZ-002). -->
 		<SetupWizardModal
@@ -305,6 +306,7 @@
 
 <script>
 import {
+	CnAdminSettingsShell,
 	CnDashboardIcon,
 	CnSettingsSection,
 	NcButton,
@@ -325,6 +327,7 @@ import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
+import { generateUrl } from '@nextcloud/router'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
@@ -332,6 +335,7 @@ export default {
 	name: 'AdminSettings',
 
 	components: {
+		CnAdminSettingsShell,
 		CnSettingsSection,
 		NcButton,
 		NcSelect,
@@ -408,6 +412,54 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The page title names the open tab, as the boards do
+		 * ("Launchpad-beheer: algemeen").
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {string}
+		 */
+		pageTitle() {
+			const tab = this.beheerTabs.find((entry) => entry.slug === this.activeTab)
+			const label = tab ? tab.label.toLocaleLowerCase() : ''
+			return this.t('launchpad', 'Launchpad administration: {tab}', { tab: label })
+		},
+
+		/**
+		 * The path line under the title: the Nextcloud administration
+		 * settings, the app, then the open tab.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {Array<{label: string, href?: string}>}
+		 */
+		breadcrumbs() {
+			const tab = this.beheerTabs.find((entry) => entry.slug === this.activeTab)
+			const crumbs = [
+				{
+					label: this.t('launchpad', 'Admin settings'),
+					href: generateUrl('/settings/admin'),
+				},
+				{ label: 'Launchpad' },
+			]
+			if (tab) {
+				crumbs.push({ label: tab.label })
+			}
+			return crumbs
+		},
+
+		/**
+		 * The note after the path. Only Algemeen has one: its settings hold
+		 * for the whole organisation.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {string}
+		 */
+		breadcrumbNote() {
+			return this.activeTab === 'general'
+				? this.t('launchpad', 'applies to the whole organisation')
+				: ''
+		},
+
 		/**
 		 * Ordered Beheer tab descriptors. Labels live here so they stay
 		 * translatable in one place; the slugs match the named slots.
@@ -694,47 +746,6 @@ export default {
 </script>
 
 <style scoped>
-.launchpad-admin {
-	max-width: 1240px;
-}
-
-/* Algemeen: cards in two columns that fold to one, as board
-   LpBeheerAlgemeen draws them. */
-.launchpad-admin__general {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-	gap: 20px;
-	align-items: start;
-}
-
-.launchpad-admin__general > .launchpad-admin__wizard-banner,
-.launchpad-admin__general > .launchpad-admin__wizard-rerun {
-	grid-column: 1 / -1;
-	margin-bottom: 0;
-}
-
-.launchpad-admin__section {
-	padding: 22px 24px;
-	background: var(--color-main-background);
-	border: 1px solid var(--color-border);
-	border-radius: 12px;
-}
-
-.launchpad-admin__section h3 {
-	margin: 0 0 16px;
-}
-
-.launchpad-admin__section-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 16px;
-}
-
-.launchpad-admin__section-header h3 {
-	margin: 0;
-}
-
 .launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
@@ -804,7 +815,6 @@ export default {
 	justify-content: space-between;
 	gap: 16px;
 	padding: 16px 20px;
-	margin-bottom: 24px;
 	background: var(--color-primary-element-light);
 	border-radius: 12px;
 }
@@ -816,7 +826,6 @@ export default {
 }
 
 .launchpad-admin__wizard-rerun {
-	margin-bottom: 16px;
 	display: flex;
 	justify-content: flex-end;
 }

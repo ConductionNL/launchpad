@@ -1354,6 +1354,8 @@ OC.L10N.register(
     "You acknowledge an announcement on a dashboard" : "Потврђујете обавештење на контролној табли",
     "Credentials" : "Credentials",
     "My profile" : "My profile",
-    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
+    "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
+    "applies to the whole organisation" : "applies to the whole organisation"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

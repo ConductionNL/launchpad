@@ -1363,7 +1363,9 @@ OC.L10N.register(
     "You acknowledge an announcement on a dashboard" : "Vous confirmez une annonce sur un tableau de bord",
     "Credentials" : "Credentials",
     "My profile" : "My profile",
-    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
+    "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
+    "applies to the whole organisation" : "applies to the whole organisation"
 },
 "nplurals=2; plural=(n > 1);"
 );

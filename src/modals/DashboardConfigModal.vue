@@ -6,14 +6,22 @@
 <template>
 	<NcModal
 		v-if="open"
-		class="launchpad-modal"
+		class="launchpad-modal launchpad-modal--wide"
 		size="normal"
 		:name="modalTitle"
 		@close="$emit('close')">
 		<div class="dashboard-config">
-			<h2 class="dashboard-config__title">
-				{{ modalTitle }}
-			</h2>
+			<header class="dashboard-config__head">
+				<p
+					v-if="!isCreate && dashboard?.name"
+					class="launchpad-modal__kicker"
+					data-testid="dashboard-config-kicker">
+					{{ dashboard.name }}
+				</p>
+				<h2 class="dashboard-config__title launchpad-modal__title">
+					{{ modalTitle }}
+				</h2>
+			</header>
 
 			<!-- Tab strip (dashboard-sharing spec). Sharing is no longer a
 			     free-floating field set in the modal body — it lives in its

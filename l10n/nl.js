@@ -1411,7 +1411,8 @@ OC.L10N.register(
     "You acknowledge an announcement on a dashboard" : "Je bevestigt een mededeling op een dashboard",
     "Credentials" : "Inloggegevens",
     "My profile" : "Mijn profiel",
-    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Velden die je organisatie aan je profiel toevoegt. Collega’s zien ze in profielwidgets."
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Velden die je organisatie aan je profiel toevoegt. Collega’s zien ze in profielwidgets.",
+    "Versions of {name}" : "Versies van {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

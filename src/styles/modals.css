@@ -11,3 +11,25 @@
 .modal-mask.launchpad-modal .modal-header__name {
 	display: none;
 }
+
+/*
+ * The board dialog frame (LpDashboardInstellingen, LpVersies): 720px wide,
+ * the dashboard's name as a small line over a 20px title.
+ */
+.modal-mask.launchpad-modal--wide .modal-wrapper--normal > .modal-container {
+	width: 720px;
+}
+
+.modal-mask.launchpad-modal .launchpad-modal__kicker {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--color-text-maxcontrast);
+}
+
+.modal-mask.launchpad-modal h2.launchpad-modal__title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1.3;
+}

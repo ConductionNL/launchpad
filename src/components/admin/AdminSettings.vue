@@ -10,8 +10,7 @@
 			:description="
 				t('launchpad', 'Configure dashboard permissions and defaults')
 			"
-			docUrl="https://launchpad.conduction.nl/docs/intro"
-			wide>
+			docUrl="https://launchpad.conduction.nl/docs/intro">
 			<!-- Beheer tabs — the IA's discrete admin areas. Each tab's
 			     content only renders when active (admin-settings spec). -->
 			<BeheerTabs

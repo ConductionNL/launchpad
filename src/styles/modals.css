@@ -20,16 +20,22 @@
 	width: 720px;
 }
 
+/*
+ * The house style (thematiq) sets heading and paragraph type with
+ * !important on bare `h2` and `p`, which beats any class here. The frame's
+ * two lines need their board sizes, so they answer with !important too and
+ * win on specificity.
+ */
 .modal-mask.launchpad-modal .launchpad-modal__kicker {
 	margin: 0;
-	font-size: 13px;
-	font-weight: 600;
+	font-size: 13px !important;
+	font-weight: 600 !important;
 	color: var(--color-text-maxcontrast);
 }
 
 .modal-mask.launchpad-modal h2.launchpad-modal__title {
 	margin: 0;
-	font-size: 20px;
-	font-weight: 700;
+	font-size: 20px !important;
+	font-weight: 700 !important;
 	line-height: 1.3;
 }

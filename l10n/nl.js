@@ -1639,7 +1639,8 @@ OC.L10N.register(
     "Search widgets…" : "Widgets zoeken…",
     "Operation failed" : "De bewerking is mislukt",
     "Continue to the administration settings" : "Verder naar de beheerinstellingen",
-    "Opening the administration settings…" : "Beheerinstellingen openen…"
+    "Opening the administration settings…" : "Beheerinstellingen openen…",
+    "Versions of {name}" : "Versies van {name}"
 },
 "nplurals=2; plural=(n != 1);"
 );

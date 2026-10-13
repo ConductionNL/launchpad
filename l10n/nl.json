@@ -1641,6 +1641,7 @@
         "Failed to load groups": "De groepen konden niet worden geladen",
         "Last dashboard cannot be deleted": "Het laatste dashboard kun je niet verwijderen",
         "Continue to the administration settings": "Verder naar de beheerinstellingen",
-        "Opening the administration settings…": "Beheerinstellingen openen…"
+        "Opening the administration settings…": "Beheerinstellingen openen…",
+        "Versions of {name}": "Versies van {name}"
     }
 }

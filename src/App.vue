@@ -22,6 +22,7 @@
 		:permissions="permissions"
 		:supportDialog="supportNoteForThisAccount"
 		:userSettingsSections="userSettingsSections"
+		:translate="translateForApp"
 		appId="launchpad">
 		<!--
 		  runtime-shell REQ-SHELL-009: the start page without the navigation
@@ -56,6 +57,7 @@
 
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
+import { translate as ncTranslate } from '@nextcloud/l10n'
 import { computed } from 'vue'
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import customComponents from './customComponents.js'
@@ -408,6 +410,22 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Translate a string the manifest carries (menu labels, page titles
+		 * and descriptions, setup and walkthrough copy) in LaunchPad's own
+		 * catalogue. `CnAppRoot` never imports an app's `t()`; without this
+		 * its default is the identity, and every manifest string stayed
+		 * English for a Dutch reader although `l10n/nl.js` has them all.
+		 *
+		 * @param {string} key The text as the manifest writes it.
+		 * @param {object} [vars] Placeholder values.
+		 * @return {string} The translation, or the key when there is none.
+		 * @spec exclude wiring only: hands the library the app's translator. Which strings exist and what they say is specified where the manifest declares them.
+		 */
+		translateForApp(key, vars) {
+			return ncTranslate('launchpad', key, vars)
+		},
+
 		/**
 		 * The mounted CnAppRoot, or null before it mounts.
 		 *

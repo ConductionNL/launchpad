@@ -240,7 +240,9 @@ export default {
 	font-weight: 700;
 }
 
+/* The panel takes its tab's height and draws no surface of its own: on
+   Algemeen it holds only the setup banner, above the shell's cards. */
 .beheer-tabs__panel {
-	min-height: 120px;
+	background: transparent;
 }
 </style>

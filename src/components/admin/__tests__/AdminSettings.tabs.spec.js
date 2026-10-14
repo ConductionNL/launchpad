@@ -12,12 +12,22 @@ import { join } from 'path'
 import { describe, expect, it, vi } from 'vitest'
 import AdminSettings from '../AdminSettings.vue'
 
-vi.mock('@nextcloud/router', () => ({
+vi.mock('@nextcloud/router', async (importOriginal) => ({
+	...(await importOriginal()),
 	generateUrl: (path) => `/index.php${path}`,
 }))
 
-const t = (_app, text, vars = {}) =>
-	text.replace(/{(\w+)}/g, (_match, key) => vars[key] ?? `{${key}}`)
+/**
+ * A stand-in for `t()` that fills `{placeholders}`.
+ *
+ * @param {string} _app the app id (unused)
+ * @param {string} text the English source string
+ * @param {object} vars the placeholder values
+ * @return {string} the filled string
+ */
+function t(_app, text, vars = {}) {
+	return text.replace(/{(\w+)}/g, (_match, key) => vars[key] ?? `{${key}}`)
+}
 
 /**
  * Build a `this` for the computed properties, on one active tab.

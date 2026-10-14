@@ -121,6 +121,7 @@
 				</div>
 
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
 					@update:modelValue="
@@ -138,6 +139,7 @@
 				</p>
 
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.allowMultipleDashboards"
 					@update:modelValue="
 						updateSetting('allowMultipleDashboards', $event)
@@ -148,6 +150,7 @@
 				<!-- runtime-shell REQ-SHELL-009: off by default so an existing
 				     instance keeps its navigation panel. -->
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.startPageWithoutNavigation"
 					data-testid="admin-start-page-without-navigation"
 					@update:modelValue="
@@ -314,6 +317,7 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import BeheerTabs from './BeheerTabs.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
@@ -327,7 +331,6 @@ import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
-import { generateUrl } from '@nextcloud/router'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 

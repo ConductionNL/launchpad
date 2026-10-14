@@ -860,7 +860,7 @@ OC.L10N.register(
     "Step {n} / {total}" : "Stap {n} / {total}",
     "Welcome" : "Welkom",
     "Pick the order Nextcloud groups appear when LaunchPad routes users to a workspace." : "Kies de volgorde waarin Nextcloud-groepen verschijnen wanneer LaunchPad gebruikers naar een werkruimte stuurt.",
-    "Demo data" : "Demo-data",
+    "Demo data" : "Demogegevens",
     "The demo data showcases will appear here once the demo-data-showcases capability ships. For now this step is informational only." : "De demo-showcases verschijnen hier zodra de demo-data-showcases-capability beschikbaar is. Deze stap is voorlopig alleen ter informatie.",
     "Skip this step for now — demo packages can be installed later from the admin section." : "Sla deze stap voor nu over — demo-pakketten kunnen later vanuit het beheerdergedeelte worden geïnstalleerd.",
     "Admin roles" : "Beheerdersrollen",
@@ -928,11 +928,11 @@ OC.L10N.register(
     "Delete role permission for group \"{group}\"?" : "Rolrecht voor groep \"{group}\" verwijderen?",
     "Administration areas" : "Beheergebieden",
     "Templates" : "Sjablonen",
-    "Operations" : "Beheer",
+    "Operations" : "Bediening",
     "Roles & Permissions" : "Rollen en rechten",
-    "Versioning & Audit" : "Versiebeheer en audit",
+    "Versioning & Audit" : "Versies en analyse",
     "Sharing" : "Delen",
-    "Org navigation" : "Organisatienavigatie",
+    "Org navigation" : "Organisatiemenu",
     "Widgets with visibility rules" : "Widgets met zichtbaarheidsregels",
     "Every widget placement that has at least one conditional visibility rule, across all dashboards." : "Elke widgetplaatsing met ten minste één voorwaardelijke zichtbaarheidsregel, op alle dashboards.",
     "No visibility rules yet" : "Nog geen zichtbaarheidsregels",
@@ -1625,7 +1625,9 @@ OC.L10N.register(
     "Operation failed" : "De bewerking is mislukt",
     "Continue to the administration settings" : "Verder naar de beheerinstellingen",
     "Opening the administration settings…" : "Beheerinstellingen openen…",
-    "Versions of {name}" : "Versies van {name}"
+    "Versions of {name}" : "Versies van {name}",
+    "Launchpad administration: {tab}" : "Launchpad-beheer: {tab}",
+    "applies to the whole organisation" : "geldt voor de hele organisatie"
 },
 "nplurals=2; plural=(n != 1);"
 );

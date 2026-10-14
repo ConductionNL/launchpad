@@ -1363,7 +1363,9 @@ OC.L10N.register(
     "You acknowledge an announcement on a dashboard" : "Admhaíonn tú fógra ar dheais",
     "Credentials" : "Credentials",
     "My profile" : "My profile",
-    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets."
+    "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
+    "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
+    "applies to the whole organisation" : "applies to the whole organisation"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

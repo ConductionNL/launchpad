@@ -11,6 +11,7 @@
  * Provided values are plain (non-reactive) snapshots (REQ-INIT-005).
  */
 
+import { registerTranslations } from '@conduction/nextcloud-vue'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { createPinia } from 'pinia'
 import { createApp, h } from 'vue'
@@ -36,6 +37,10 @@ import './styles/modals.css'
 // tree-shaken / flagged as an unused import.
 
 void widgetBridge
+
+// The library's own catalogue (admin shell chrome). main.js registers it for
+// the app pages; this entry is a separate bundle.
+registerTranslations()
 
 // Vue 3 has no global Vue constructor — t/n are installed as an app-level
 // mixin on the instance created below.

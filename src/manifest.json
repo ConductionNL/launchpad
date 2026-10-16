@@ -260,7 +260,7 @@
               "label": "Dashboards",
               "icon": "ViewDashboardOutline",
               "route": {
-                "name": "dashboards"
+                "name": "Workspace"
               },
               "format": {
                 "style": "decimal",
@@ -281,7 +281,7 @@
               "label": "Personal",
               "icon": "ViewDashboardOutline",
               "route": {
-                "name": "dashboards"
+                "name": "Workspace"
               },
               "format": {
                 "style": "decimal",
@@ -305,7 +305,7 @@
               "label": "Shared with a group",
               "icon": "Sitemap",
               "route": {
-                "name": "dashboards"
+                "name": "Workspace"
               },
               "format": {
                 "style": "decimal",
@@ -329,7 +329,7 @@
               "label": "Admin templates",
               "icon": "FileReplaceOutline",
               "route": {
-                "name": "admin-templates"
+                "name": "admin-templates-index"
               },
               "format": {
                 "style": "decimal",
@@ -379,7 +379,7 @@
               "hideHeader": true,
               "emptyText": "No dashboards yet",
               "viewAllRoute": {
-                "name": "dashboards"
+                "name": "Workspace"
               },
               "viewAllLabel": "Open a dashboard",
               "columns": [

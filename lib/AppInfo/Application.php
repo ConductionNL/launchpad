@@ -27,6 +27,7 @@ use OCA\LaunchPad\Listener\DashboardSharesListener;
 use OCA\LaunchPad\Listener\GroupDeletedListener;
 use OCA\LaunchPad\Listener\LocksListener;
 use OCA\LaunchPad\Listener\MetadataValuesListener;
+use OCA\LaunchPad\Listener\ProfileFieldsListener;
 use OCA\LaunchPad\Listener\PublicSharesListener;
 use OCA\LaunchPad\Listener\ReactionsListener;
 use OCA\LaunchPad\Listener\TranslationsListener;
@@ -41,6 +42,7 @@ use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\StoreService;
+use OCP\Accounts\UserUpdatedEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -48,6 +50,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use OCP\User\Events\UserDeletedEvent;
+use OCP\User\Events\UserLoggedInEvent;
 
 /**
  * Application bootstrap.
@@ -124,6 +127,22 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: UserDeletedEvent::class,
 			listener: UserDeletedListener::class
+		);
+
+		// Custom profile fields (REQ-PEX-001, REQ-PEX-004): LDAP sync and the
+		// standard-field mirror on sign-in and profile edits; values go with
+		// the user.
+		$context->registerEventListener(
+			event: UserLoggedInEvent::class,
+			listener: ProfileFieldsListener::class
+		);
+		$context->registerEventListener(
+			event: UserUpdatedEvent::class,
+			listener: ProfileFieldsListener::class
+		);
+		$context->registerEventListener(
+			event: UserDeletedEvent::class,
+			listener: ProfileFieldsListener::class
 		);
 	}//end registerUserLifecycle()
 

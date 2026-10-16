@@ -5,16 +5,15 @@
  * End-to-end coverage for the admin Beheer ▸ Templates page
  * (`src/components/admin/tabs/TemplatesPage.vue`, admin-templates spec).
  *
- * This is the ONLY place dashboard templates can be managed, and it is a
- * default-mounted tab: `AdminSettings.vue` passes `default-tab="templates"`
- * to `BeheerTabs`, which renders exactly one panel at a time. So the page is
- * what an admin sees on arrival at `/settings/admin/launchpad`, and if it
- * fails to mount the admin area opens on an empty panel with no error.
+ * This is the ONLY place dashboard templates can be managed. It is the
+ * Templates tab of the admin shell, opened here through `?tab=templates`, and
+ * `AdminSettings.vue` mounts a tab's content only while that tab is open. If
+ * the page fails to mount, the tab opens on an empty panel with no error.
  *
  * What is asserted, and why each one is here rather than a screenshot:
  *
- *   1. The page mounts as the default panel — `[data-test="panel-templates"]`
- *      AND the component's own root `[data-test="templates-page"]`. The panel
+ *   1. The page mounts in its panel — `[data-tab="templates"]` AND the
+ *      component's own root `[data-test="templates-page"]`. The panel
  *      alone would still be present if the slot rendered nothing.
  *   2. Its two structural affordances are live: the section heading and the
  *      Create-template CTA.
@@ -22,7 +21,7 @@
  *      open in the editor (ADR-004 modal isolation), so this crossing is the
  *      page's own behaviour, not the modal's.
  *   4. Leaving the tab UNMOUNTS the page and returning re-mounts it. That is
- *      the contract `BeheerTabs` provides ("content only renders when
+ *      the contract `AdminSettings.vue` keeps ("content only renders when
  *      active"), and it is the one that makes the page's `created()` list
  *      fetch re-run — a panel that stayed mounted would silently serve stale
  *      templates after a change made elsewhere.
@@ -32,6 +31,7 @@
  */
 
 import { expect, test } from '@playwright/test'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
@@ -39,7 +39,7 @@ const ADMIN = {
 	pass: process.env.NC_ADMIN_PASS ?? 'admin',
 }
 
-const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad`
+const SETTINGS_URL = `${BASE}/index.php/settings/admin/launchpad?tab=templates`
 
 // The component under test, named after the file it covers. The selector is
 // unchanged — this only makes the link between spec and component readable in
@@ -57,14 +57,14 @@ test.describe('admin-templates — Templates page', () => {
 			.setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 	})
 
-	test('renders as the default Beheer panel with its create affordance', async ({
+	test('renders in the Templates panel with its create affordance', async ({
 		page,
 	}) => {
 		await page.goto(SETTINGS_URL)
 
 		// The panel is the tab host; the inner root is TemplatesPage itself.
 		// Both, because an empty slot still renders the panel.
-		await expect(page.locator('[data-test="panel-templates"]')).toBeVisible({
+		await expect(page.locator('[data-tab="templates"]')).toBeVisible({
 			timeout: 20_000,
 		})
 		const templatesPage = page.locator(TemplatesPage)
@@ -104,15 +104,15 @@ test.describe('admin-templates — Templates page', () => {
 			timeout: 20_000,
 		})
 
-		// BeheerTabs renders only the active panel, so switching tabs must
+		// The admin page mounts only the open tab's content, so switching tabs must
 		// remove TemplatesPage from the DOM entirely — that unmount is what
 		// makes its created() hook re-fetch the template list on return.
-		await page.locator('[data-test="tab-group-dashboards"]').click()
+		await adminTab(page, 'group-dashboards').click()
 		await expect(page.locator(TemplatesPage)).toBeHidden({
 			timeout: 10_000,
 		})
 
-		await page.locator('[data-test="tab-templates"]').click()
+		await adminTab(page, 'templates').click()
 		await expect(page.locator(TemplatesPage)).toBeVisible({
 			timeout: 10_000,
 		})

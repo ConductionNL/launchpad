@@ -83,8 +83,6 @@ class AdminSettingsService {
 			$storedExt = self::DEFAULT_LINK_CREATE_FILE_EXTENSIONS;
 		}
 
-		$storageKey = AdminSetting::KEY_CONTENT_STORAGE;
-
 		$sharePermKey = AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL;
 		$forcedShareKey = AdminSetting::KEY_FORCED_SHARE_GROUPS;
 		$bridgeKey = AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED;
@@ -107,6 +105,7 @@ class AdminSettingsService {
 		// a value the frontend can't safely act on.
 		$fallbackKey = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
 		$storedFallbackTarget = $settings[$fallbackKey] ?? null;
+		$noRailKey = AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION;
 
 		$quicksearchFallbackTarget = self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
 		if (is_string($storedFallbackTarget) === true
@@ -124,7 +123,6 @@ class AdminSettingsService {
 			'defaultGridColumns' => $settings[$gridKey] ?? 12,
 			'linkCreateFileExtensions' => $storedExt,
 			// REQ-GFSB-006: surface active storage backend in admin settings.
-			'launchpad.content_storage' => $settings[$storageKey] ?? 'database',
 			// Dashboard-sharing spec: org-wide share defaults surfaced in
 			// Beheer ▸ Sharing. Default permission level mirrors the
 			// dashboard default; forced-share groups default to none.
@@ -146,6 +144,10 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
+			// Runtime-shell REQ-SHELL-009: the dashboard view without the left
+			// navigation panel. Off by default so an existing instance keeps its
+			// rail; a stored value that is not a boolean reads as off.
+			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
 		];
 	}//end getSettings()
 
@@ -196,13 +198,6 @@ class AdminSettingsService {
 
 		return $int;
 	}//end clampQuota()
-
-	/**
-	 * Valid values for the `launchpad.content_storage` setting (REQ-GFSB-006).
-	 *
-	 * @var list<string>
-	 */
-	public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
 	/**
 	 * Tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
@@ -291,10 +286,6 @@ class AdminSettingsService {
 	 *                                       extension
 	 *                                       allow-list
 	 *                                       (REQ-LBN-004).
-	 * @param string|null $contentStorage Content storage backend
-	 *                                    (`database` or
-	 *                                    `groupfolder`).
-	 *                                    REQ-GFSB-006.
 	 * @param string|null $defaultSharePermissionLevel Org-wide default share
 	 *                                                 permission level
 	 *                                                 (dashboard-sharing spec).
@@ -327,11 +318,16 @@ class AdminSettingsService {
 	 *                                               `{query}`.
 	 *                                               tile-quick-search
 	 *                                               REQ-QSEARCH-004.
+	 * @param bool|null $startPageWithoutNavigation Render the dashboard
+	 *                                              view without the left
+	 *                                              navigation panel
+	 *                                              (runtime-shell
+	 *                                              REQ-SHELL-009).
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When `$contentStorage`,
-	 *                                   `$defaultSharePermissionLevel`, or
+	 * @throws \InvalidArgumentException When
+	 *                                   `$defaultSharePermissionLevel` or
 	 *                                   `$quicksearchFallbackTarget` is not
 	 *                                   a valid value.
 	 *
@@ -343,13 +339,13 @@ class AdminSettingsService {
 		?bool $allowMultiDash = null,
 		?int $defaultGridCols = null,
 		?array $linkCreateFileExts = null,
-		?string $contentStorage = null,
 		?string $defaultSharePermissionLevel = null,
 		?array $forcedShareGroups = null,
 		?bool $legacyWidgetBridgeEnabled = null,
 		?int $maxDashboardsPerUser = null,
 		?int $maxWidgetsPerDashboard = null,
 		?string $quicksearchFallbackTarget = null,
+		?bool $startPageWithoutNavigation = null,
 	): void {
 		if ($defaultPermLevel !== null) {
 			$this->settingMapper->setSetting(
@@ -386,19 +382,6 @@ class AdminSettingsService {
 			);
 		}
 
-		if ($contentStorage !== null) {
-			if (in_array(needle: $contentStorage, haystack: self::VALID_CONTENT_STORAGE_VALUES, strict: true) === false) {
-				throw new InvalidArgumentException(
-					message: "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
-				);
-			}
-
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_CONTENT_STORAGE,
-				value: $contentStorage
-			);
-		}
-
 		$this->persistQuotaAndQuicksearchSettings(
 			maxDashboardsPerUser: $maxDashboardsPerUser,
 			maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
@@ -410,6 +393,13 @@ class AdminSettingsService {
 			forcedShareGroups: $forcedShareGroups,
 			legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
 		);
+
+		if ($startPageWithoutNavigation !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION,
+				value: $startPageWithoutNavigation
+			);
+		}
 	}//end updateSettings()
 
 	/**

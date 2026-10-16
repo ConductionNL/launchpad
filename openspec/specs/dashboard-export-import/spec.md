@@ -152,7 +152,9 @@ An admin MUST be able to export all dashboards in the instance in a single opera
 
 An admin MUST be able to import a previously exported ZIP archive into the same or a different LaunchPad instance. The import process MUST validate the ZIP structure, create or update dashboards, handle collisions, and return a summary of imported/skipped records.
 
-Each imported widget MUST arrive as it was exported, apart from what names the exporting instance. Its `content` (a text widget's text, the register an object-list reads, the widget an nc-widget proxies), its `customTitle`, `customIcon`, `styleConfig`, grid position, and for a tile its `tileType` and every tile field MUST be carried. Fields that point at a row or a workflow on the exporting instance MUST NOT be carried: `id`, `dashboardId`, `templatePlacementId`, `isCompulsory`, the `acknowledgement*` fields and `announcementKey`. One builder (`PlacementPayloadHydrator`) does this for every path that reads an archive: this import, the store install that feeds it, and the bundled showcase installer.
+Each imported widget MUST arrive as it was exported, apart from what names the exporting instance. Its `content` (a text widget's text, the register an object-list reads, the widget an nc-widget proxies), its `customTitle`, `customIcon`, `styleConfig`, grid position, and for a tile its `tileType` and every tile field MUST be carried. Fields that point at a row or a workflow on the exporting instance MUST NOT be carried: `id`, `dashboardId`, `templatePlacementId`, `isCompulsory` (with one exception, an admin template: REQ-EXIM-012), the `acknowledgement*` fields and `announcementKey`. One builder (`PlacementPayloadHydrator`) does this for every path that reads an archive: this import, the store install that feeds it, and the bundled showcase installer.
+
+The import result MUST name each dashboard it created: `dashboards` is a list of `{sourceUuid, uuid, id}`, where `sourceUuid` is the UUID in the archive. The HTTP response keeps its three fields.
 
 An imported dashboard and each imported placement MUST be written with `created_at` and `updated_at` set to the time of the import. Both columns are NOT NULL on both tables.
 
@@ -461,4 +463,33 @@ Each dashboard import MUST be wrapped in a database transaction to ensure consis
 - AND the manifest and all dashboard files MUST be intact
 
 @e2e exclude Needs 500 dashboards. That the streamed archive arrives valid and extractable, with its manifest and every dashboard file intact, is asserted at this instance's size by tests/e2e/dashboard-site-export.spec.ts.
+
+### Requirement: REQ-EXIM-012 An admin template travels with its definition
+
+When the imported dashboard has `type: "admin_template"`, the import MUST carry what makes it that template:
+
+- each widget's `isCompulsory` flag. On a template the flag is part of the definition every copy is made from. On any other dashboard it stays an administrator's push on one instance and MUST NOT be carried (REQ-EXIM-004).
+- `templateCategory` and `templateDescription`.
+- no owner: `userId` MUST be null, as for a template made on the Templates page. It MUST NOT become the user who ran the import.
+
+`targetGroups` and `permissionLevel` already travel (REQ-EXIM-004). `isDefault` MUST still be imported as 0: making a template the default for everyone stays an explicit act on the receiving instance. `templatePreviewImage` is not carried, because asset import is not built (REQ-EXIM-007).
+
+**Why this was written down.** A template exported from one instance and imported on another arrived with every compulsory widget made optional, without its category and description, and owned by the importing administrator. Nothing reported it. For a template whose point is its compulsory widgets, the import produced a different template.
+
+#### Scenario: A template exported and imported again is the same template
+- GIVEN an admin template with eight widgets, two of them compulsory, a category and a description
+- WHEN an administrator exports it with `launchpad:export --scope=dashboard` and imports the archive on another instance with `launchpad:import`
+- THEN the imported dashboard MUST be an admin template with no owner
+- AND its name, description, grid columns, permission level, target groups, category and template description MUST equal the exported ones
+- AND each of its widgets MUST equal the exported widget in type, position, size, title, style, content and `isCompulsory`
+- AND it MUST NOT be the default template
+
+@e2e exclude Needs two instances, which neither CI nor the dev environment has. Pinned by ShippedTemplateServiceTest::testTheShippedTemplateSurvivesExportAndImport, which runs the real exporter and the real importer on a real archive.
+
+#### Scenario: A compulsory flag on a personal dashboard stays behind
+- GIVEN a personal dashboard with a widget an administrator made compulsory
+- WHEN it is exported and imported
+- THEN the imported widget MUST NOT be compulsory
+
+@e2e exclude Pinned by ImportServiceTest::testCompulsoryIsCarriedForATemplateOnly.
 

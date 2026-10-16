@@ -21,11 +21,12 @@
 			:tabs="beheerTabs"
 			tabsVariant="underline"
 			tabStorageKey="launchpad.admin.activeTab"
+			lazyTabs
 			@tabChange="onTabChange">
 			<!-- Each tab draws its own content in the shell's `tab-<id>` slot.
-			     The shell keeps every panel in the page, so a tab's content
-			     mounts only while it is open: it fetches fresh on each visit,
-			     and the page does not load all tabs at once. Algemeen's panel
+			     With `lazyTabs` the shell mounts only the open tab's slot: it
+			     fetches fresh on each visit, and the page does not load all
+			     tabs at once. Algemeen's panel
 			     holds the setup wizard banner (REQ-WIZ-001); its cards are the
 			     shell's default slot, which shows on the first tab only. -->
 			<template #tab-general>
@@ -64,42 +65,39 @@
 				</div>
 			</template>
 			<template #tab-templates>
-				<TemplatesPage v-if="activeTab === 'templates'" />
+				<TemplatesPage />
 			</template>
 			<template #tab-operations>
-				<OperationsTab v-if="activeTab === 'operations'" />
+				<OperationsTab />
 			</template>
 			<template #tab-roles-permissions>
-				<RolesPermissionsTab v-if="activeTab === 'roles-permissions'" />
+				<RolesPermissionsTab />
 			</template>
 			<template #tab-versioning-audit>
-				<VersioningAuditTab v-if="activeTab === 'versioning-audit'" />
+				<VersioningAuditTab />
 			</template>
 			<template #tab-sharing>
 				<SharingTab
-					v-if="activeTab === 'sharing'"
 					:groups="injectedAllGroups"
 					:configuredGroups="configuredGroups" />
 			</template>
 			<template #tab-kiosk>
-				<KioskTab v-if="activeTab === 'kiosk'" />
+				<KioskTab />
 			</template>
 			<template #tab-org-navigation>
-				<OrgNavigationTab
-					v-if="activeTab === 'org-navigation'"
-					:groups="injectedAllGroups" />
+				<OrgNavigationTab :groups="injectedAllGroups" />
 			</template>
 			<template #tab-demo-data>
-				<DemoDataTab v-if="activeTab === 'demo-data'" />
+				<DemoDataTab />
 			</template>
 			<template #tab-group-dashboards>
-				<GroupDashboardsTab v-if="activeTab === 'group-dashboards'" />
+				<GroupDashboardsTab />
 			</template>
 			<template #tab-detail-fields>
-				<MetadataFieldsSettings v-if="activeTab === 'detail-fields'" />
+				<MetadataFieldsSettings />
 			</template>
 			<template #tab-profile-fields>
-				<ProfileFieldsTab v-if="activeTab === 'profile-fields'" />
+				<ProfileFieldsTab />
 			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide

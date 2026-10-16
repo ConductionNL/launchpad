@@ -85,12 +85,13 @@ describe('AdminSettings tabs', () => {
 		}
 	})
 
-	it('mounts a tab\'s content only while that tab is open', () => {
+	it('lets the shell mount a tab\'s content only while that tab is open', () => {
+		expect(render).toContain('lazyTabs: ""')
 		for (const tab of tabs.slice(1)) {
-			const slot = new RegExp(
-				`<template #tab-${tab.id}>\\s*<\\w+\\s+v-if="activeTab === '${tab.id}'"`,
-			)
-			expect(source).toMatch(slot)
+			const slot = new RegExp(`<template #tab-${tab.id}>\\s*<\\w+[^>]*>`)
+			const panel = source.match(slot)
+			expect(panel).not.toBeNull()
+			expect(panel[0]).not.toContain('v-if')
 		}
 	})
 

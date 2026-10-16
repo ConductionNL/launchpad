@@ -44,15 +44,70 @@ function context(activeTab) {
 const source = readFileSync(join(__dirname, '../AdminSettings.vue'), 'utf8')
 
 describe('AdminSettings tabs', () => {
-	it('puts General first', () => {
-		const tabs = AdminSettings.computed.beheerTabs.call({ t })
-		expect(tabs[0]).toEqual({ slug: 'general', label: 'General' })
-		expect(tabs[1].slug).toBe('templates')
+	const tabs = AdminSettings.computed.beheerTabs.call({ t })
+	const render = AdminSettings.render?.toString() ?? ''
+
+	it('puts General first, the tab the shell opens on', () => {
+		expect(tabs[0]).toEqual({ id: 'general', label: 'General' })
+		expect(tabs[1].id).toBe('templates')
 	})
 
-	it('opens on General', () => {
-		const render = AdminSettings.render?.toString() ?? ''
-		expect(render).toContain('defaultTab: "general"')
+	it('hands the twelve tabs to the admin shell as an underline strip', () => {
+		expect(tabs.map((tab) => tab.id)).toEqual([
+			'general',
+			'templates',
+			'operations',
+			'roles-permissions',
+			'versioning-audit',
+			'sharing',
+			'kiosk',
+			'org-navigation',
+			'demo-data',
+			'group-dashboards',
+			'detail-fields',
+			'profile-fields',
+		])
+		expect(source).toContain(':tabs="beheerTabs"')
+		expect(render).toContain('tabsVariant: "underline"')
+	})
+
+	it('remembers the last tab under the key the page used before', () => {
+		expect(render).toContain('tabStorageKey: "launchpad.admin.activeTab"')
+	})
+
+	it('opens the tab named by ?tab=, the shell default query key', () => {
+		expect(source).not.toContain('tabQueryKey')
+	})
+
+	it('gives every tab its own slot', () => {
+		for (const tab of tabs) {
+			expect(source).toContain(`<template #tab-${tab.id}>`)
+		}
+	})
+
+	it('mounts a tab\'s content only while that tab is open', () => {
+		for (const tab of tabs.slice(1)) {
+			const slot = new RegExp(
+				`<template #tab-${tab.id}>\\s*<\\w+\\s+v-if="activeTab === '${tab.id}'"`,
+			)
+			expect(source).toMatch(slot)
+		}
+	})
+
+	it('follows the tab the shell reports', () => {
+		expect(source).toContain('@tabChange="onTabChange"')
+		const ctx = { activeTab: 'general' }
+		AdminSettings.methods.onTabChange.call(ctx, 'sharing')
+		expect(ctx.activeTab).toBe('sharing')
+	})
+
+	it('shows the setup wizard banner in the General panel', () => {
+		const general = source.indexOf('<template #tab-general>')
+		const banner = source.indexOf('data-test="setup-wizard-banner"')
+		const templates = source.indexOf('<template #tab-templates>')
+		expect(general).toBeGreaterThan(-1)
+		expect(banner).toBeGreaterThan(general)
+		expect(banner).toBeLessThan(templates)
 	})
 
 	it('draws the defaults as a card of General only', () => {

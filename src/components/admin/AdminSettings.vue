@@ -17,89 +17,90 @@
 			docUrl="https://launchpad.conduction.nl/docs/intro"
 			:breadcrumbs="breadcrumbs"
 			:breadcrumbNote="breadcrumbNote"
-			:showVersionCard="false">
-			<!-- The tab strip spans the grid: the shell gives every child that is
-			     not a settings section the full width, without a card. On Algemeen
-			     it carries the setup banner; every other tab draws its own content. -->
-			<div class="launchpad-admin__tabs">
-				<BeheerTabs
-					:tabs="beheerTabs"
-					defaultTab="general"
-					@change="onTabChange">
-					<template #general>
-						<!-- Setup wizard banner (REQ-WIZ-001). First on the Algemeen tab,
-						     the tab the page opens on. -->
-						<div
-							v-if="wizardState && !wizardState.complete"
-							class="launchpad-admin__wizard-banner"
-							data-test="setup-wizard-banner">
-							<div>
-								<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
-								<p>
-									{{
-										t(
-											'launchpad',
-											'Get your intranet started: configure groups, install demo data, and set up admin roles.',
-										)
-									}}
-								</p>
-							</div>
-							<NcButton
-								variant="secondary"
-								data-test="setup-wizard-open"
-								@click="openWizard">
-								{{ t('launchpad', 'Run setup wizard') }}
-							</NcButton>
-						</div>
-						<div
-							v-else-if="wizardState && wizardState.complete"
-							class="launchpad-admin__wizard-rerun"
-							data-test="setup-wizard-rerun">
-							<NcButton
-								variant="tertiary"
-								data-test="setup-wizard-rerun-open"
-								@click="openWizard">
-								{{ t('launchpad', 'Run setup wizard again') }}
-							</NcButton>
-						</div>
-					</template>
-					<template #templates>
-						<TemplatesPage />
-					</template>
-					<template #operations>
-						<OperationsTab />
-					</template>
-					<template #roles-permissions>
-						<RolesPermissionsTab />
-					</template>
-					<template #versioning-audit>
-						<VersioningAuditTab />
-					</template>
-					<template #sharing>
-						<SharingTab
-							:groups="injectedAllGroups"
-							:configuredGroups="configuredGroups" />
-					</template>
-					<template #kiosk>
-						<KioskTab />
-					</template>
-					<template #org-navigation>
-						<OrgNavigationTab :groups="injectedAllGroups" />
-					</template>
-					<template #demo-data>
-						<DemoDataTab />
-					</template>
-					<template #group-dashboards>
-						<GroupDashboardsTab />
-					</template>
-					<template #detail-fields>
-						<MetadataFieldsSettings />
-					</template>
-					<template #profile-fields>
-						<ProfileFieldsTab />
-					</template>
-				</BeheerTabs>
-			</div>
+			:showVersionCard="false"
+			:tabs="beheerTabs"
+			tabsVariant="underline"
+			tabStorageKey="launchpad.admin.activeTab"
+			@tabChange="onTabChange">
+			<!-- Each tab draws its own content in the shell's `tab-<id>` slot.
+			     The shell keeps every panel in the page, so a tab's content
+			     mounts only while it is open: it fetches fresh on each visit,
+			     and the page does not load all tabs at once. Algemeen's panel
+			     holds the setup wizard banner (REQ-WIZ-001); its cards are the
+			     shell's default slot, which shows on the first tab only. -->
+			<template #tab-general>
+				<div
+					v-if="wizardState && !wizardState.complete"
+					class="launchpad-admin__wizard-banner"
+					data-test="setup-wizard-banner">
+					<div>
+						<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
+						<p>
+							{{
+								t(
+									'launchpad',
+									'Get your intranet started: configure groups, install demo data, and set up admin roles.',
+								)
+							}}
+						</p>
+					</div>
+					<NcButton
+						variant="secondary"
+						data-test="setup-wizard-open"
+						@click="openWizard">
+						{{ t('launchpad', 'Run setup wizard') }}
+					</NcButton>
+				</div>
+				<div
+					v-else-if="wizardState && wizardState.complete"
+					class="launchpad-admin__wizard-rerun"
+					data-test="setup-wizard-rerun">
+					<NcButton
+						variant="tertiary"
+						data-test="setup-wizard-rerun-open"
+						@click="openWizard">
+						{{ t('launchpad', 'Run setup wizard again') }}
+					</NcButton>
+				</div>
+			</template>
+			<template #tab-templates>
+				<TemplatesPage v-if="activeTab === 'templates'" />
+			</template>
+			<template #tab-operations>
+				<OperationsTab v-if="activeTab === 'operations'" />
+			</template>
+			<template #tab-roles-permissions>
+				<RolesPermissionsTab v-if="activeTab === 'roles-permissions'" />
+			</template>
+			<template #tab-versioning-audit>
+				<VersioningAuditTab v-if="activeTab === 'versioning-audit'" />
+			</template>
+			<template #tab-sharing>
+				<SharingTab
+					v-if="activeTab === 'sharing'"
+					:groups="injectedAllGroups"
+					:configuredGroups="configuredGroups" />
+			</template>
+			<template #tab-kiosk>
+				<KioskTab v-if="activeTab === 'kiosk'" />
+			</template>
+			<template #tab-org-navigation>
+				<OrgNavigationTab
+					v-if="activeTab === 'org-navigation'"
+					:groups="injectedAllGroups" />
+			</template>
+			<template #tab-demo-data>
+				<DemoDataTab v-if="activeTab === 'demo-data'" />
+			</template>
+			<template #tab-group-dashboards>
+				<GroupDashboardsTab v-if="activeTab === 'group-dashboards'" />
+			</template>
+			<template #tab-detail-fields>
+				<MetadataFieldsSettings v-if="activeTab === 'detail-fields'" />
+			</template>
+			<template #tab-profile-fields>
+				<ProfileFieldsTab v-if="activeTab === 'profile-fields'" />
+			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
 			     defaults, group-shared dashboards and the default-app note,
@@ -319,7 +320,6 @@ import {
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
-import BeheerTabs from './BeheerTabs.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
@@ -346,7 +346,6 @@ export default {
 		NcTextField,
 		CnDashboardIcon,
 		SetupWizardModal,
-		BeheerTabs,
 		TemplatesPage,
 		OperationsTab,
 		RolesPermissionsTab,
@@ -423,7 +422,7 @@ export default {
 		 * @return {string}
 		 */
 		pageTitle() {
-			const tab = this.beheerTabs.find((entry) => entry.slug === this.activeTab)
+			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
 			const label = tab ? tab.label.toLocaleLowerCase() : ''
 			return this.t('launchpad', 'Launchpad administration: {tab}', { tab: label })
 		},
@@ -436,7 +435,7 @@ export default {
 		 * @return {Array<{label: string, href?: string}>}
 		 */
 		breadcrumbs() {
-			const tab = this.beheerTabs.find((entry) => entry.slug === this.activeTab)
+			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
 			const crumbs = [
 				{
 					label: this.t('launchpad', 'Admin settings'),
@@ -465,41 +464,42 @@ export default {
 
 		/**
 		 * Ordered Beheer tab descriptors. Labels live here so they stay
-		 * translatable in one place; the slugs match the named slots.
+		 * translatable in one place; each `id` after the first names the shell slot
+		 * `tab-<id>`; the first tab is the default slot.
 		 *
 		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
-		 * @return {Array<{slug: string, label: string}>}
+		 * @return {Array<{id: string, label: string}>}
 		 */
 		beheerTabs() {
 			return [
-				{ slug: 'general', label: this.t('launchpad', 'General') },
-				{ slug: 'templates', label: this.t('launchpad', 'Templates') },
-				{ slug: 'operations', label: this.t('launchpad', 'Operations') },
+				{ id: 'general', label: this.t('launchpad', 'General') },
+				{ id: 'templates', label: this.t('launchpad', 'Templates') },
+				{ id: 'operations', label: this.t('launchpad', 'Operations') },
 				{
-					slug: 'roles-permissions',
+					id: 'roles-permissions',
 					label: this.t('launchpad', 'Roles & Permissions'),
 				},
 				{
-					slug: 'versioning-audit',
+					id: 'versioning-audit',
 					label: this.t('launchpad', 'Versioning & Audit'),
 				},
-				{ slug: 'sharing', label: this.t('launchpad', 'Sharing') },
-				{ slug: 'kiosk', label: this.t('launchpad', 'Kiosk') },
+				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
+				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
 				{
-					slug: 'org-navigation',
+					id: 'org-navigation',
 					label: this.t('launchpad', 'Org navigation'),
 				},
-				{ slug: 'demo-data', label: this.t('launchpad', 'Demo data') },
+				{ id: 'demo-data', label: this.t('launchpad', 'Demo data') },
 				{
-					slug: 'group-dashboards',
+					id: 'group-dashboards',
 					label: this.t('launchpad', 'Group dashboards'),
 				},
 				{
-					slug: 'detail-fields',
+					id: 'detail-fields',
 					label: this.t('launchpad', 'Detail fields'),
 				},
 				{
-					slug: 'profile-fields',
+					id: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
 				},
 			]
@@ -517,11 +517,11 @@ export default {
 		/**
 		 * Switch the active admin tab.
 		 *
-		 * @param {string} slug Slug of the newly selected tab.
+		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		onTabChange(slug) {
-			this.activeTab = slug
+		onTabChange(id) {
+			this.activeTab = id
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */

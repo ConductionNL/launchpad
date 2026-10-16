@@ -25,6 +25,7 @@
 import type { APIRequestContext, Page, request } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 import { buildZip, dashboardPayload, manifest } from './support/zipArchive.ts'
 
@@ -59,7 +60,7 @@ async function openOperationsTab(page: Page): Promise<void> {
 		waitUntil: 'domcontentloaded',
 		timeout: 60_000,
 	})
-	await page.locator('[data-test="tab-operations"]').click({ timeout: 30_000 })
+	await adminTab(page, 'operations').click({ timeout: 30_000 })
 	await expect(page.locator('[data-test="import-file-input"]')).toBeVisible({
 		timeout: 20_000,
 	})

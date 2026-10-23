@@ -15,7 +15,7 @@
  *  - Comments:             COMMENTS_ENABLED_DEFAULT
  *  - Footer:               FOOTER_ENABLED, FOOTER_HTML, FOOTER_CONFIG,
  *                          FOOTER_BACKGROUND_COLOR, FOOTER_TEXT_COLOR
- *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
+ *  - Setup wizard:         SETUP_WIZARD_COMPLETE
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
  *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
  *
@@ -56,7 +56,6 @@ enum AdminSettingKey: string {
 	case FOOTER_BACKGROUND_COLOR = 'footer_background_color';
 	case FOOTER_TEXT_COLOR = 'footer_text_color';
 	case SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
-	case CONTENT_STORAGE = 'content_storage';
 	case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
 	case FORCED_SHARE_GROUPS = 'forced_share_groups';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
@@ -64,4 +63,5 @@ enum AdminSettingKey: string {
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
 	case SEARCH_SHORTCUTS = 'search_shortcuts';
+	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 }//end enum

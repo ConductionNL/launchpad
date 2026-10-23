@@ -6,6 +6,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="normal"
 		:name="t('launchpad', 'Add widget')"
 		@close="$emit('close')">
@@ -64,8 +65,41 @@
 						class="widget-picker__widget-action widget-picker__widget-action--check" />
 				</button>
 
+				<section
+					v-if="filteredApps.length > 0"
+					class="widget-picker__section"
+					data-testid="widget-picker-discovered">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'Discovered on this server') }}
+					</h3>
+					<p class="widget-picker__section-description">
+						{{ t('launchpad', 'Apps this server runs for you. One click places one as a tile.') }}
+					</p>
+					<button
+						v-for="app in filteredApps"
+						:key="app.appId"
+						type="button"
+						class="widget-picker__widget"
+						@click="$emit('addApp', app)">
+						<img
+							v-if="app.icon"
+							:src="app.icon"
+							alt=""
+							class="widget-picker__widget-icon widget-picker__app-icon">
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ app.name }}</span>
+							<span
+								v-if="placedAppIds.includes(app.appId)"
+								class="widget-picker__widget-badge">
+								{{ t('launchpad', 'On this dashboard') }}
+							</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0"
+					v-if="filteredWidgets.length === 0 && filteredApps.length === 0"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
@@ -110,9 +144,24 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+
+		/**
+		 * The apps this server runs for the user (`GET /api/tiles/discover`):
+		 * `[{ appId, name, href, icon }]`.
+		 */
+		discoveredApps: {
+			type: Array,
+			default: () => [],
+		},
+
+		/** The discovered app ids already on the dashboard. */
+		placedAppIds: {
+			type: Array,
+			default: () => [],
+		},
 	},
 
-	emits: ['close', 'add'],
+	emits: ['close', 'add', 'addApp'],
 
 	data() {
 		return {
@@ -130,6 +179,12 @@ export default {
 			return this.sortedWidgets.filter((w) =>
 				w.title.toLowerCase().includes(query),
 			)
+		},
+
+		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001 */
+		filteredApps() {
+			const query = this.searchQuery.toLowerCase()
+			return this.discoveredApps.filter((app) => !query || String(app.name).toLowerCase().includes(query))
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -250,6 +305,26 @@ export default {
 .widget-picker__widget-badge {
 	display: block;
 	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+}
+
+.widget-picker__section {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--color-border);
+}
+
+.widget-picker__section-title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.widget-picker__section-description {
+	margin: 0 0 4px;
 	color: var(--color-text-maxcontrast);
 }
 

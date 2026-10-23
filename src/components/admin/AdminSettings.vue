@@ -99,6 +99,9 @@
 			<template #tab-profile-fields>
 				<ProfileFieldsTab />
 			</template>
+			<template #tab-search-shortcuts>
+				<SearchShortcutsTab />
+			</template>
 
 			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
 			     defaults, group-shared dashboards and the default-app note,
@@ -326,6 +329,7 @@ import OperationsTab from './tabs/OperationsTab.vue'
 import OrgNavigationTab from './tabs/OrgNavigationTab.vue'
 import ProfileFieldsTab from './tabs/ProfileFieldsTab.vue'
 import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
+import SearchShortcutsTab from './tabs/SearchShortcutsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
@@ -351,6 +355,7 @@ export default {
 		MetadataFieldsSettings,
 		KioskTab,
 		ProfileFieldsTab,
+		SearchShortcutsTab,
 		SharingTab,
 		OrgNavigationTab,
 		DemoDataTab,
@@ -499,6 +504,10 @@ export default {
 				{
 					id: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
+				},
+				{
+					id: 'search-shortcuts',
+					label: this.t('launchpad', 'Search shortcuts'),
 				},
 			]
 		},

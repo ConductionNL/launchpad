@@ -64,6 +64,7 @@ class PageControllerBridgedWidgetsTest extends TestCase {
 			treeService: $this->createMock(DashboardTreeService::class),
 			logger: $this->createMock(LoggerInterface::class),
 			adminSettingsService: $this->createMock(AdminSettingsService::class),
+			searchShortcuts: $this->createMock(\OCA\LaunchPad\Service\SearchShortcutService::class),
 		);
 	}//end makeController()
 

@@ -4,7 +4,6 @@
  */
 
 const webpackConfig = require('@nextcloud/webpack-vue-config')
-const fs = require('fs')
 const path = require('path')
 
 webpackConfig.entry = {
@@ -15,7 +14,6 @@ webpackConfig.entry = {
 	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
 	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
 	// Personal settings: the person's own profile fields (REQ-PEX-002).
-	personal: path.join(__dirname, 'src', 'personal.js'),
 }
 
 webpackConfig.output = {
@@ -24,17 +22,19 @@ webpackConfig.output = {
 	chunkFilename: 'launchpad-[name].js?v=[contenthash]',
 }
 
-// Use local source when available (monorepo dev), otherwise fall back to npm package
-const localLib = path.resolve(__dirname, '../nextcloud-vue/src')
-const useLocalLib = fs.existsSync(localLib)
-
+// @conduction/nextcloud-vue resolves from node_modules, at the version
+// package.json pins. The build used to switch silently to the source of any
+// ../nextcloud-vue checkout next to this app, whatever branch it was on: on
+// 11 Oct 2026 that was a 2.54-era branch, so the start page lost its
+// greeting and date line while package.json asked for ^2.67.0. To build
+// against a local checkout on purpose, `npm i ../nextcloud-vue/` and build
+// the library there (the same convention as pipelinq).
 webpackConfig.resolve = {
 	...(webpackConfig.resolve || {}),
 	alias: {
 		...(webpackConfig.resolve?.alias || {}),
-		...(useLocalLib ? { '@conduction/nextcloud-vue': localLib } : {}),
-		// Deduplicate shared packages so the aliased library source uses
-		// the same instances as the app (prevents dual-Pinia / dual-Vue bugs).
+		// Deduplicate shared packages so the library uses the same
+		// instances as the app (prevents dual-Pinia / dual-Vue bugs).
 		vue$: path.resolve(__dirname, 'node_modules/vue'),
 		// pinia 4 JOINED THE ESM-ONLY CATEGORY DESCRIBED JUST BELOW. 2.1.7
 		// declared `main: index.js` and `module: dist/pinia.mjs`, so a

@@ -11,6 +11,7 @@
 	     renders empty and never writes back. Use `v-model` throughout. -->
 	<NcModal
 		v-model:show="isOpen"
+		class="launchpad-modal"
 		:name="tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile')"
 		size="normal"
 		@close="$emit('close')">

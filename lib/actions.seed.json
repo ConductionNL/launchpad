@@ -81,6 +81,7 @@
     "rule.delete-rule": ["admin"],
     "template.gallery": ["admin", "@all"],
     "tile.index": ["admin", "@all"],
+    "tile.discover": ["admin", "@all"],
     "tile.create": ["admin"],
     "tile.update": ["admin"],
     "tile.destroy": ["admin"],

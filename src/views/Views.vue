@@ -76,8 +76,15 @@
 
 		     Both halves have to move for the ordering between them to mean
 		     anything. -->
-		<Teleport to="body">
-			<div class="launchpad-floating-controls">
+		<!-- On a dashboard with a greeting on the page ground, the controls
+		     dock into that row (headerActionsDock.js), right of "Startpagina
+		     aanpassen" as LpStart draws the page's actions. Floating there,
+		     they covered that button. -->
+		<Teleport :to="headerActionsTarget || 'body'">
+			<div
+				class="launchpad-floating-controls"
+				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
+				data-testid="launchpad-top-controls">
 				<!-- Active-dashboard cog: the same per-dashboard action menu that
 			     sits on every sidebar row (DashboardRowActions), but bound to
 			     the currently active dashboard so the user can Edit / Configure
@@ -133,6 +140,12 @@
 						<MenuIcon :size="20" />
 					</template>
 				</NcButton>
+				<!-- runtime-shell REQ-SHELL-009: when the start page renders
+				     without the left navigation panel, the panel's destinations
+				     (Documentation, Store, Reports, Features & roadmap, the
+				     settings entries) are in this menu, beside the dashboard
+				     switcher above. Renders nothing while the panel is there. -->
+				<StartPageMenu />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -222,6 +235,7 @@
 		<VersionHistoryModal
 			:open="versionHistoryOpen"
 			:dashboardUuid="activeDashboard?.uuid ?? ''"
+			:dashboardName="activeDashboard?.name ?? ''"
 			@close="versionHistoryOpen = false"
 			@restored="onVersionRestored" />
 
@@ -258,7 +272,7 @@
 				@takeOver="forceReleaseDialogOpen = true" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
-				:layout="widgetPlacements"
+				:layout="shownPlacements"
 				:editable="isEditMode"
 				:columns="activeDashboard.gridColumns || 12"
 				:cellHeight="60"
@@ -362,8 +376,11 @@
 			:open="isWidgetModalOpen"
 			:widgets="availableWidgets"
 			:placedWidgetIds="placedWidgetIds"
+			:discoveredApps="discoveredApps"
+			:placedAppIds="placedDiscoveredAppIds"
 			@close="closeWidgetModal"
-			@add="addWidget" />
+			@add="addWidget"
+			@addApp="addDiscoveredApp" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
@@ -499,6 +516,7 @@ import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherS
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
+import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import BookmarkImportDialog from '../dialogs/BookmarkImportDialog.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
@@ -517,12 +535,19 @@ import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
 import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
+import {
+	hidesWhenUnavailable,
+	isSourceAvailable,
+	sourceKey,
+} from '../services/sourceAvailability.js'
 // Stores
 import { useDashboardStore } from '../stores/dashboard.js'
 import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
+import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { logger } from '../utils/logger.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
@@ -554,6 +579,7 @@ export default {
 		DashboardSwitcherSidebar,
 		DashboardRowActions,
 		SidebarBackdrop,
+		StartPageMenu,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
@@ -685,7 +711,18 @@ export default {
 	data() {
 		return {
 			isEditMode: false,
+			/**
+			 * The greeting row's actions element the top-right controls are
+			 * teleported into, or null while they float (headerActionsDock.js).
+			 */
+			headerActionsTarget: null,
+			/**
+			 * Sources (`register/schema`) OpenRegister said are not here,
+			 * keyed by source (REQ-TMPL-022).
+			 */
+			unavailableSources: {},
 			isWidgetModalOpen: false,
+			discoveredApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
 			// Tab the config drawer lands on when opened (dashboard-sharing
@@ -769,6 +806,27 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The placements the grid shows: every placement in edit mode, and
+		 * outside it every placement but an object-list that asked to be
+		 * hidden when its register is not on this instance (REQ-TMPL-022).
+		 * In edit mode the list stays, so whoever edits sees it is there.
+		 *
+		 * @return {object[]} the placements to lay out.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 */
+		shownPlacements() {
+			const all = this.widgetPlacements || []
+			if (this.isEditMode) {
+				return all
+			}
+			return all.filter(
+				(p) =>
+					!hidesWhenUnavailable(p)
+					|| this.unavailableSources[sourceKey(p.content)] !== true,
+			)
+		},
+
 		/**
 		 * tile-quick-search REQ-QSEARCH-002 — whether a given placement is
 		 * currently de-emphasised by an active quick-search query.
@@ -982,6 +1040,11 @@ export default {
 			return this.widgetPlacements.map((p) => p.widgetId)
 		},
 
+		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
+		placedDiscoveredAppIds() {
+			return discoveredAppIdsOnDashboard(this.widgetPlacements, this.discoveredApps)
+		},
+
 		/**
 		 * Combined input for the sidebar's `groupDashboards` prop —
 		 * primary-group + default-group + shared-with-me rows, each carrying
@@ -1073,6 +1136,32 @@ export default {
 
 	watch: {
 		/**
+		 * Editing makes the greeting row a draggable grid item: the controls
+		 * float while editing and dock again after.
+		 *
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 */
+		isEditMode() {
+			this.$nextTick(() => this.dockHeaderActions())
+		},
+
+		/**
+		 * Ask, once per source, whether the registers the hideable lists read
+		 * are on this instance (REQ-TMPL-022).
+		 *
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 */
+		widgetPlacements: {
+			immediate: true,
+			/**
+			 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+			 */
+			handler() {
+				this.probeHideableSources()
+			},
+		},
+
+		/**
 		 * Read this person's layer whenever another shared dashboard
 		 * becomes active, so "Hidden (n)" is right from the start.
 		 *
@@ -1158,6 +1247,13 @@ export default {
 		// instantiated in `setup()` which has no access to `this`.
 		this.grid._host = this
 
+		// `?edit=1` opens the start page in edit mode: the "Startpagina
+		// aanpassen" button of Mijn werkdag (LpStart) is a link in the
+		// greeting, and a link can only carry its wish in the address.
+		// Read now, because mounted() rewrites the address.
+		const editFromAddress =
+			new URLSearchParams(window.location.search).get('edit') === '1'
+
 		const dashboardStore = useDashboardStore()
 		const widgetStore = useWidgetStore()
 		const tileStore = useTileStore()
@@ -1187,6 +1283,10 @@ export default {
 				error,
 			)
 		}
+
+		if (editFromAddress && this.canEdit) {
+			await this.enterEditMode()
+		}
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -1207,6 +1307,16 @@ export default {
 
 		// Browser back / forward → re-resolve the URL and switch.
 		window.addEventListener('popstate', this.handleHistoryPopState)
+
+		// The greeting row mounts with the grid, after this view; watch the
+		// container so the controls dock once it is there, and move again
+		// when another dashboard (with or without a greeting) replaces it.
+		this.dockHeaderActions()
+		const container = document.querySelector('.launchpad-container')
+		if (container && typeof MutationObserver !== 'undefined') {
+			this.headerActionsObserver = new MutationObserver(() => this.dockHeaderActions())
+			this.headerActionsObserver.observe(container, { childList: true, subtree: true })
+		}
 	},
 
 	/** @spec openspec/specs/dashboards/spec.md */
@@ -1216,11 +1326,57 @@ export default {
 		this.grid._host = null
 
 		window.removeEventListener('popstate', this.handleHistoryPopState)
+		this.headerActionsObserver?.disconnect()
+		this.headerActionsObserver = null
 		// Leaving the page while editing gives the lock back.
 		this.editLock.release()
 	},
 
 	methods: {
+		/**
+		 * Dock the top-right controls into the greeting row when the page
+		 * has one and is not being edited; float them otherwise.
+		 *
+		 * @spec openspec/specs/runtime-shell/spec.md#requirement-req-shell-009-start-page-without-navigation-panel
+		 */
+		dockHeaderActions() {
+			const container = document.querySelector('.launchpad-container')
+			const target = resolveHeaderActionsTarget(container, this.isEditMode)
+			if (target !== this.headerActionsTarget) {
+				this.headerActionsTarget = target
+			}
+		},
+
+		/**
+		 * For every object-list that asked to be hidden when its source is
+		 * not here, ask OpenRegister once and remember a "not here"
+		 * (REQ-TMPL-022). A source that is there, or that could not be
+		 * asked, is left alone: the list renders.
+		 *
+		 * @return {Promise<void>} resolves when every source was asked.
+		 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+		 */
+		async probeHideableSources() {
+			const keys = new Set()
+			for (const placement of this.widgetPlacements || []) {
+				if (hidesWhenUnavailable(placement)) {
+					keys.add(sourceKey(placement.content))
+				}
+			}
+			await Promise.all(
+				[...keys].map(async (key) => {
+					const [register, schema] = key.split('/')
+					const available = await isSourceAvailable(register, schema)
+					if (available === false) {
+						this.unavailableSources = {
+							...this.unavailableSources,
+							[key]: true,
+						}
+					}
+				}),
+			)
+		},
+
 		t,
 
 		/**
@@ -1924,6 +2080,38 @@ export default {
 				return
 			}
 			this.isWidgetModalOpen = true
+			this.loadDiscoveredApps()
+		},
+
+		/**
+		 * Read the apps this server runs for the user, for the picker's
+		 * "Discovered on this server" section. A failure leaves the section
+		 * out; the rest of the picker works as before.
+		 *
+		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+		 */
+		async loadDiscoveredApps() {
+			try {
+				const response = await api.discoverApps()
+				this.discoveredApps = Array.isArray(response?.data?.apps) ? response.data.apps : []
+			} catch (error) {
+				this.discoveredApps = []
+				logger.warn('[Views] Could not discover the server apps:', error)
+			}
+		},
+
+		/**
+		 * Place a discovered app as a tile through the normal tile path.
+		 *
+		 * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
+		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+		 */
+		async addDiscoveredApp(app) {
+			try {
+				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+			} catch (error) {
+				logger.error('[Views] Failed to place a discovered app:', error)
+			}
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -2126,6 +2314,29 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async removeWidget(placementId) {
+			// A compulsory widget cannot be removed from a copy made from an
+			// admin template unless the template allows everything; the
+			// server answers 403 and the store does not even ask it. Say so
+			// instead of doing nothing (#780, REQ-TMPL-023).
+			const placement = (this.widgetPlacements || []).find(
+				(p) => p.id === placementId,
+			)
+			if (
+				Number(placement?.isCompulsory) === 1
+				&& this.permissionLevel !== 'full'
+			) {
+				showError(
+					t(
+						'launchpad',
+						'"{title}" is part of the start page your administrator set for your group and cannot be removed.',
+						{
+							title:
+								placement?.customTitle || placement?.widgetId || '',
+						},
+					),
+				)
+				return
+			}
 			await this.removeWidgetFromDashboard(placementId)
 		},
 
@@ -2882,6 +3093,14 @@ export default {
 	 * `#app-content` no value here can beat a body-level sibling.
 	 */
 	z-index: 1460;
+}
+
+/* Docked in the greeting row (headerActionsDock.js): part of the row's
+   flow, so nothing floats over the page and the row scrolls with it. */
+.launchpad-floating-controls--docked {
+	position: static;
+	z-index: auto;
+	gap: 10px;
 }
 
 .launchpad-ack-indicator {

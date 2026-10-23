@@ -71,6 +71,10 @@ const PAGE_KEYS = {
 		// comes from an office network, so tiles open their internal
 		// address. Optional key; false keeps every tile on its normal address.
 		onOfficeNetwork: false,
+		// runtime-shell REQ-SHELL-009: the dashboard view without the left
+		// navigation panel. Optional key, same rationale as `deepLinkPath`:
+		// a server without the setter keeps the panel.
+		startPageWithoutNavigation: false,
 	},
 	admin: {
 		allGroups: [],

@@ -125,7 +125,9 @@ class ReactionService {
 	}//end isReactionsEnabled()
 
 	/**
-	 * Read the admin global on/off toggle. Default: true.
+	 * Read the admin global on/off toggle. Default: false, so a dashboard
+	 * shows no reactions row until an administrator turns reactions on
+	 * (globally, or per dashboard with reactionsEnabled = 1).
 	 *
 	 * @return bool True when the global default is on.
 	 *
@@ -135,7 +137,7 @@ class ReactionService {
 		return $this->appConfig->getValueBool(
 			app: Application::APP_ID,
 			key: self::KEY_ENABLED_DEFAULT,
-			default: true
+			default: false
 		);
 	}//end isReactionsEnabledByDefault()
 

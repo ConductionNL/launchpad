@@ -27,6 +27,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ServiceDiscoveryService;
 use OCA\LaunchPad\Service\TileService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -59,6 +60,7 @@ class TileApiController extends Controller {
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
 	 * @param IUserSession $userSession User session (IUser resolution).
 	 * @param IL10N $l10n The localisation helper.
+	 * @param ServiceDiscoveryService $discovery The apps in the user's app menu.
 	 * @param string|null $userId The user ID.
 	 */
 	public function __construct(
@@ -67,6 +69,7 @@ class TileApiController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 		private readonly IL10N $l10n,
+		private readonly ServiceDiscoveryService $discovery,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(
@@ -111,6 +114,34 @@ class TileApiController extends Controller {
 			data: ResponseHelper::serializeList(entities: $tiles)
 		);
 	}//end index()
+
+	/**
+	 * The apps this server runs for the caller, to place as tiles.
+	 *
+	 * Answers only the caller's own app menu: there is no id parameter, so
+	 * nothing to point at someone else (REQ-DISC-001). Placing a tile still
+	 * goes through the dashboard's own add-tile check.
+	 *
+	 * @return JSONResponse `{apps: [{appId, name, href, icon}]}`.
+	 *
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function discover(): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($this->userId === null || $user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		try {
+			$this->actionAuth->requireAction($user, 'tile.discover');
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
+
+		return new JSONResponse(['apps' => $this->discovery->discover()]);
+	}//end discover()
 
 	/**
 	 * Create a new tile.

@@ -6,6 +6,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="small"
 		:name="t('launchpad', 'Move widget')"
 		@close="onCancel">

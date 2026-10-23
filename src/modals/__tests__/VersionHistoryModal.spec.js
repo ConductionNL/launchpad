@@ -169,4 +169,32 @@ describe('VersionHistoryModal', () => {
 		await flushPromises()
 		expect(wrapper.find('[data-testid="version-error"]').exists()).toBe(true)
 	})
+
+	it('names the dashboard over a "Versions of" title (board LpVersies)', async () => {
+		api.listVersions.mockResolvedValue({
+			data: { versions: [], modeSupported: true },
+		})
+		const wrapper = mount(VersionHistoryModal, {
+			props: {
+				open: true,
+				dashboardUuid: 'dash-uuid',
+				dashboardName: 'Intranet Zuiddrecht',
+			},
+		})
+		await flushPromises()
+		expect(wrapper.find('[data-testid="version-kicker"]').text()).toBe(
+			'Intranet Zuiddrecht',
+		)
+		expect(wrapper.find('h2').text()).toBe('Versions of Intranet Zuiddrecht')
+	})
+
+	it('keeps the plain title without a name', async () => {
+		api.listVersions.mockResolvedValue({
+			data: { versions: [], modeSupported: true },
+		})
+		const wrapper = mountModal()
+		await flushPromises()
+		expect(wrapper.find('[data-testid="version-kicker"]').exists()).toBe(false)
+		expect(wrapper.find('h2').text()).toBe('Version history')
+	})
 })

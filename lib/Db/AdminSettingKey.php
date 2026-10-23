@@ -15,7 +15,7 @@
  *  - Comments:             COMMENTS_ENABLED_DEFAULT
  *  - Footer:               FOOTER_ENABLED, FOOTER_HTML, FOOTER_CONFIG,
  *                          FOOTER_BACKGROUND_COLOR, FOOTER_TEXT_COLOR
- *  - Setup wizard:         SETUP_WIZARD_COMPLETE, CONTENT_STORAGE
+ *  - Setup wizard:         SETUP_WIZARD_COMPLETE
  *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search),
  *                          SEARCH_SHORTCUTS (search-ai-prefix-shortcuts)
  *  - Tiles:                OFFICE_NETWORKS (launcher-tile-internal-address)
@@ -58,7 +58,6 @@ enum AdminSettingKey: string {
 	case FOOTER_BACKGROUND_COLOR = 'footer_background_color';
 	case FOOTER_TEXT_COLOR = 'footer_text_color';
 	case SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
-	case CONTENT_STORAGE = 'content_storage';
 	case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
 	case FORCED_SHARE_GROUPS = 'forced_share_groups';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
@@ -68,4 +67,5 @@ enum AdminSettingKey: string {
 	case SEARCH_SHORTCUTS = 'search_shortcuts';
 	case OFFICE_NETWORKS = 'office_networks';
 	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
+	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 }//end enum

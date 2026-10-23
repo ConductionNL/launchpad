@@ -239,6 +239,7 @@ class PageController extends Controller {
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setSearchShortcuts($this->searchShortcuts->getShortcuts())
 			->setOnOfficeNetwork($this->officeNetworks->isOfficeRequest())
+			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
 			->apply();
 
 		return $this->workspaceResponse();

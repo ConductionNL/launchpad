@@ -63,6 +63,14 @@ const PAGE_KEYS = {
 		// PHP side yet simply omits it, and 'none' is the safe default
 		// (no navigation on no-match Enter).
 		quicksearchFallbackTarget: 'none',
+		// search-ai-prefix-shortcuts REQ-SPX-002: the admin's search
+		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
+		// list keeps every search box as it was.
+		searchShortcuts: [],
+		// launcher-tile-internal-address REQ-TIA-003: whether this request
+		// comes from an office network, so tiles open their internal
+		// address. Optional key; false keeps every tile on its normal address.
+		onOfficeNetwork: false,
 		// runtime-shell REQ-SHELL-009: the dashboard view without the left
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.

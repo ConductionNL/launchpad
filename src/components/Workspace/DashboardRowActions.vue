@@ -78,6 +78,16 @@
 			{{ t('launchpad', 'Add custom widget…') }}
 		</NcActionButton>
 		<NcActionButton
+			v-if="canEdit && canImportBookmarks"
+			:closeAfterClick="true"
+			data-testid="cog-import-bookmarks"
+			@click="$emit('importBookmarks')">
+			<template #icon>
+				<BookmarkMultipleOutline :size="20" />
+			</template>
+			{{ t('launchpad', 'Import bookmarks…') }}
+		</NcActionButton>
+		<NcActionButton
 			:closeAfterClick="true"
 			data-testid="cog-set-default"
 			@click="$emit('setDefault')">
@@ -158,6 +168,7 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { NcActionButton, NcActions } from '@nextcloud/vue'
+import BookmarkMultipleOutline from 'vue-material-design-icons/BookmarkMultipleOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import Cog from 'vue-material-design-icons/Cog.vue'
 import ContentSave from 'vue-material-design-icons/ContentSave.vue'
@@ -176,6 +187,7 @@ export default {
 	name: 'DashboardRowActions',
 
 	components: {
+		BookmarkMultipleOutline,
 		NcActions,
 		NcActionButton,
 		Cog,
@@ -274,6 +286,16 @@ export default {
 		},
 
 		/*
+		 * launcher-bookmark-import: offer "Import bookmarks…". Only the
+		 * active-dashboard menu sets it; with `canEdit` it hides the entry
+		 * on view-only dashboards (REQ-BMI-001).
+		 */
+		canImportBookmarks: {
+			type: Boolean,
+			default: false,
+		},
+
+		/*
 		 * NcActions toggle button style. Defaults to the subtle
 		 * `tertiary-no-background` used at the edge of each sidebar row;
 		 * the top-right active cog passes `secondary` so it matches the
@@ -306,6 +328,7 @@ export default {
 		'schedule',
 		'versionHistory',
 		'menuOpen',
+		'importBookmarks',
 	],
 
 	computed: {

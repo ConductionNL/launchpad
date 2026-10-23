@@ -9,6 +9,7 @@
 			:items="searchableTiles"
 			:placeholder="content.placeholder || ''"
 			:fallbackTarget="effectiveFallbackTarget"
+			:shortcuts="injectedSearchShortcuts"
 			@open="onSearchOpen"
 			@filter="onSearchFilter"
 			@fallback="onSearchFallback"
@@ -63,6 +64,15 @@ export default {
 		injectedQuicksearchFallbackTarget: {
 			from: 'quicksearchFallbackTarget',
 			default: 'none',
+		},
+
+		/**
+		 * The admin's search shortcuts (REQ-SPX-002). An empty list keeps
+		 * the box as it was.
+		 */
+		injectedSearchShortcuts: {
+			from: 'searchShortcuts',
+			default: () => [],
 		},
 	},
 

@@ -17,6 +17,8 @@ use RuntimeException;
  * presentable as success, so each one must THROW rather than return empty.
  */
 class DemoDataServiceTest extends TestCase {
+	use \Unit\Support\AnnouncementWorld;
+
 	private string $appPath;
 	private IAppManager $appManager;
 	private ContainerInterface $container;
@@ -159,6 +161,37 @@ class DemoDataServiceTest extends TestCase {
 		$this->expectExceptionMessageMatches('/OpenRegister/');
 
 		$this->service()->install();
+	}
+
+	/**
+	 * engagement-announcements task 11: a demo install writes the three demo
+	 * announcements through the real AnnouncementService, once.
+	 */
+	public function testInstallSeedsTheThreeDemoAnnouncementsOnce(): void {
+		file_put_contents($this->descriptor(), json_encode(['components' => ['objects' => []]]));
+		$importer = new class {
+			public function importFromApp(string $appId, array $data, string $version, bool $force): array {
+				return [];
+			}
+		};
+		$this->container->method('get')->willReturn($importer);
+		$announcements = $this->buildAnnouncementWorld();
+
+		$demo = new DemoDataService(
+			$this->appManager,
+			$this->container,
+			$this->createMock(LoggerInterface::class),
+			$this->profileFields,
+			$announcements
+		);
+		$demo->install();
+		$demo->install();
+
+		$titles = array_map(static fn ($row): string => $row->getTitle(), array_values($this->rows->rows));
+		sort($titles);
+		$this->assertSame(['Inloopspreekuur privacy', 'Nieuwe werkplekken op de 3e verdieping', 'Onderhoud zaaksysteem zaterdag 08:00 tot 12:00'], $titles);
+		$this->assertSame(['Onderhoud zaaksysteem zaterdag 08:00 tot 12:00'], array_column($announcements->listVisible(userId: 'pieter', kind: 'notice'), 'title'), 'the notice is live with an end time');
+		$this->assertSame([], $this->sent, 'demo items notify nobody');
 	}
 
 	public function testInstallCountsTheObjectsInTheFileNotTheImportersReply(): void {

@@ -8,16 +8,27 @@
 		<h4 v-if="hasTitle" class="container-widget__title">
 			{{ titleText }}
 		</h4>
+		<button
+			v-if="canForget"
+			type="button"
+			class="container-widget__forget"
+			@click="forgetUsage">
+			{{ t('launchpad', 'Forget my usage') }}
+		</button>
 
-		<div ref="innerGrid" class="grid-stack launchpad-container-grid">
+		<div
+			ref="innerGrid"
+			class="grid-stack launchpad-container-grid"
+			:aria-description="sortDescription || undefined">
 			<div
-				v-for="(child, index) in children"
+				v-for="(child, index) in displayChildren"
 				:key="childKey(child, index)"
 				class="grid-stack-item container-widget__child"
 				:gs-x="child.gridX || 0"
 				:gs-y="child.gridY || 0"
 				:gs-w="child.gridWidth || 2"
-				:gs-h="child.gridHeight || 2">
+				:gs-h="child.gridHeight || 2"
+				:data-use-key="useKey(child)">
 				<div class="grid-stack-item-content">
 					<ContainerChild :placement="child" :editMode="editMode" />
 				</div>
@@ -30,8 +41,21 @@
 import ContainerChild from './ContainerChild.vue'
 import {
 	getNestedGridOptions,
+	NESTED_COLUMNS,
 	useNestedGridManager,
 } from '../../../composables/useNestedGridManager.js'
+import {
+	forgetLocalTileUse,
+	randomRankFor,
+	readLocalTileUse,
+	recordLocalTileUse,
+} from '../../../composables/useTileClickTracking.js'
+import {
+	childTitle,
+	orderChildren,
+	reflowChildren,
+	SORT_MODES,
+} from '../../../utils/sortContainerTiles.js'
 
 const PADDING_TOKENS = Object.freeze({
 	none: '0',
@@ -81,6 +105,8 @@ export default {
 	data() {
 		return {
 			gridInstance: null,
+			// The viewer's own tile use, read once per page load (REQ-TSO-002).
+			use: readLocalTileUse(),
 		}
 	},
 
@@ -89,6 +115,77 @@ export default {
 		children() {
 			const list = this.content?.placements
 			return Array.isArray(list) ? list : []
+		},
+
+		/** @spec openspec/specs/container-widget/spec.md */
+		sortBy() {
+			const value = this.content?.sortBy
+			return SORT_MODES.includes(value) ? value : 'manual'
+		},
+
+		/**
+		 * The children as shown: the stored layout in edit mode or by hand,
+		 * otherwise ordered and reflowed at view time (REQ-TSO-001).
+		 *
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
+		displayChildren() {
+			if (this.editMode || this.sortBy === 'manual') {
+				return this.children
+			}
+			// REQ-TSO-002: without browser storage there is no use to sort by.
+			if (
+				this.use === null
+				&& ['most-used', 'last-used'].includes(this.sortBy)
+			) {
+				return this.children
+			}
+			const ordered = orderChildren(this.children, this.sortBy, {
+				use: this.use || {},
+				keyOf: this.useKey,
+				rankOf: randomRankFor,
+				collator: new Intl.Collator(undefined, {
+					sensitivity: 'base',
+					numeric: true,
+				}),
+			})
+			return reflowChildren(ordered, NESTED_COLUMNS)
+		},
+
+		/** @spec openspec/specs/container-widget/spec.md */
+		sortDescription() {
+			const labels = {
+				alphabetical: t('launchpad', 'Sorted alphabetically'),
+				'most-used': t('launchpad', 'Sorted by most used'),
+				'last-used': t('launchpad', 'Sorted by last used'),
+				random: t('launchpad', 'Sorted at random'),
+			}
+			return this.editMode ? '' : labels[this.sortBy] || ''
+		},
+
+		/**
+		 * Offer "Forget my usage" when the order reads the viewer's use and
+		 * there is use to forget (REQ-TSO-003).
+		 *
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
+		canForget() {
+			if (this.editMode || !['most-used', 'last-used'].includes(this.sortBy)) {
+				return false
+			}
+			return (
+				this.use !== null
+				&& this.children.some((child) => this.use[this.useKey(child)])
+			)
+		},
+
+		/** @spec openspec/specs/container-widget/spec.md */
+		layoutSignature() {
+			return this.displayChildren
+				.map(
+					(child) => `${this.useKey(child)}@${child.gridX},${child.gridY}`,
+				)
+				.join('|')
 		},
 
 		/** @spec openspec/specs/container-widget/spec.md */
@@ -137,15 +234,83 @@ export default {
 		},
 	},
 
+	watch: {
+		/**
+		 * A new view-time layout (after "Forget my usage") rebuilds the
+		 * inner grid, which reads positions only when it starts.
+		 *
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
+		layoutSignature() {
+			if (this.editMode || !this.gridInstance) {
+				return
+			}
+			this.destroyInnerGrid()
+			this.$nextTick(() => this.initInnerGrid())
+		},
+	},
+
+	/** @spec openspec/specs/container-widget/spec.md */
 	mounted() {
+		// REQ-TSO-002: one delegated listener counts clicks on the tiles'
+		// own links and buttons; the wrapper itself is not a control.
+		this.$refs.innerGrid?.addEventListener('click', this.onGridClick)
 		this.initInnerGrid()
 	},
 
+	/** @spec openspec/specs/container-widget/spec.md */
 	beforeUnmount() {
+		this.$refs.innerGrid?.removeEventListener('click', this.onGridClick)
 		this.destroyInnerGrid()
 	},
 
 	methods: {
+		/**
+		 * The key a child's use is stored under: its placement id, else its
+		 * uuid, else its title.
+		 *
+		 * @param {object} child The child placement.
+		 * @return {string} The key.
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
+		useKey(child) {
+			if (child?.id !== undefined && child?.id !== null) {
+				return String(child.id)
+			}
+			if (typeof child?.uuid === 'string' && child.uuid !== '') {
+				return child.uuid
+			}
+			return `title:${childTitle(child)}`
+		},
+
+		/**
+		 * Count a click on a tile in this browser (REQ-TSO-002). The order
+		 * does not change until the next page load, so tiles never jump
+		 * under the pointer.
+		 *
+		 * @param {MouseEvent} event The click inside the grid.
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
+		onGridClick(event) {
+			if (this.editMode) {
+				return
+			}
+			const item = event?.target?.closest?.('[data-use-key]')
+			if (item) {
+				recordLocalTileUse(item.dataset.useKey)
+			}
+		},
+
+		/**
+		 * Forget this browser's use of this container's tiles (REQ-TSO-003).
+		 *
+		 * @spec openspec/specs/container-widget/spec.md
+		 */
+		forgetUsage() {
+			forgetLocalTileUse(this.children.map((child) => this.useKey(child)))
+			this.use = readLocalTileUse()
+		},
+
 		/**
 		 * Stable key for v-for over child placements. Falls back to the
 		 * loop index when a child has neither id nor uuid, which keeps
@@ -222,7 +387,8 @@ export default {
 		 * @spec openspec/specs/container-widget/spec.md
 		 */
 		onGridChange(_event, nodes) {
-			if (!Array.isArray(nodes) || nodes.length === 0) {
+			// A view-time reflow is never written back (REQ-TSO-001).
+			if (!this.editMode || !Array.isArray(nodes) || nodes.length === 0) {
 				return
 			}
 			const byKey = new Map()
@@ -307,6 +473,18 @@ export default {
 .launchpad-container-grid {
 	flex: 1;
 	min-height: 0;
+}
+
+.container-widget__forget {
+	align-self: flex-start;
+	padding: 2px 8px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
+	font-size: 12px;
+	cursor: pointer;
+	pointer-events: auto;
 }
 
 .container-widget__child {

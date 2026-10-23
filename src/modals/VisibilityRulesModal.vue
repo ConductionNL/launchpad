@@ -6,6 +6,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="normal"
 		:name="t('launchpad', 'Visibility rules')"
 		@close="$emit('close')">

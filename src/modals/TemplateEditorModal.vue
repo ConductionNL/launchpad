@@ -18,6 +18,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		:name="
 			isEdit
 				? t('launchpad', 'Edit template')

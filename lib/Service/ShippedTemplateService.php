@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
@@ -48,6 +49,10 @@ use ZipArchive;
 
 /**
  * List and install the templates shipped in `data/templates`.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *      Wires the importer, the template service, the mapper and four
+ *      Nextcloud services for one job; each is used once.
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
@@ -149,7 +154,10 @@ class ShippedTemplateService {
 				'isInstalled' => $installedUuid !== '',
 				'installedUuid' => $installedUuid,
 				'installedVersion' => $installedVersion,
+				// REQ-TMPL-020: a newer version ships than the one installed.
+				'updateAvailable' => $installedUuid !== '' && $installedVersion < (int)$definition['templateVersion'],
 				'missingWidgets' => $this->findMissingWidgets(widgets: $dashboard['widgets']),
+				'registers' => $this->findRegisters(widgets: $dashboard['widgets']),
 			];
 		}//end foreach
 
@@ -172,7 +180,8 @@ class ShippedTemplateService {
 	 * @param string             $userId       Who runs the install (for the archive).
 	 *
 	 * @return array{templateId:string, uuid:string, id:int, version:int, alreadyInstalled:bool,
-	 *               targetGroups:array<int,string>, isDefault:bool, missingWidgets:array<int,string>}
+	 *               targetGroups:array<int,string>, isDefault:bool, missingWidgets:array<int,string>,
+	 *               registers:array<int,string>}
 	 *
 	 * @throws InvalidArgumentException When the id or a group is unknown.
 	 * @throws RuntimeException When the definition or the import fails.
@@ -240,8 +249,28 @@ class ShippedTemplateService {
 			'targetGroups' => $template->getTargetGroupsArray(),
 			'isDefault' => $template->getIsDefault() === 1,
 			'missingWidgets' => $this->findMissingWidgets(widgets: $definition['dashboard']['widgets']),
+			'registers' => $this->findRegisters(widgets: $definition['dashboard']['widgets']),
 		];
 	}//end install()
+
+	/**
+	 * The installed template of a shipped id, or null when it is not
+	 * installed (or the installed one was deleted).
+	 *
+	 * @param string $templateId The shipped template id.
+	 *
+	 * @return Dashboard|null The installed admin template.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	public function findInstalled(string $templateId): ?Dashboard {
+		$uuid = $this->findInstalledUuid(templateId: $templateId);
+		if ($uuid === '') {
+			return null;
+		}
+
+		return $this->dashboardMapper->findByUuid(uuid: $uuid);
+	}//end findInstalled()
 
 	/**
 	 * Read and check one shipped definition.
@@ -354,6 +383,41 @@ class ShippedTemplateService {
 
 		return $missing;
 	}//end findMissingWidgets()
+
+	/**
+	 * The registers the template's lists read, in the order they first
+	 * appear. LaunchPad does not know which of them are on this instance:
+	 * a list that asked to be hidden when its register is not here hides
+	 * itself on the page (REQ-TMPL-022). The administrator reads the
+	 * names and knows which apps the template expects.
+	 *
+	 * @param array<int, mixed> $widgets The definition's widgets.
+	 *
+	 * @return array<int, string> Register slugs, each once.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-022
+	 */
+	private function findRegisters(array $widgets): array {
+		$registers = [];
+		foreach ($widgets as $widget) {
+			if (is_array($widget) === false) {
+				continue;
+			}
+
+			// A list names its register at the top of its content, a number
+			// (the app tiles of Mijn werkdag 4) under `source`.
+			$content = (array)($widget['content'] ?? []);
+			if (($widget['widgetId'] ?? '') === 'object-list') {
+				$registers[] = (string)($content['register'] ?? '');
+			}
+
+			if (($widget['widgetId'] ?? '') === 'stat') {
+				$registers[] = (string)(((array)($content['source'] ?? []))['register'] ?? '');
+			}
+		}
+
+		return array_values(array: array_unique(array: array_filter($registers)));
+	}//end findRegisters()
 
 	/**
 	 * Wrap the definition in an export archive and import it.

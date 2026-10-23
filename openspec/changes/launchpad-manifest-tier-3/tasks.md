@@ -43,9 +43,9 @@
 - [x] `npm run build` compiles (webpack exit 0; the three warnings are the pre-existing bundle-size ones).
 - [x] `vitest` WorkspaceApp: 14 passed.
 - [x] `playwright test --list`: 9 tests collect.
-- [ ] The E2E leg on the `development` push run. It runs only there, so this is where routing is actually proven.
+- [ ] The E2E leg on the `development` push run. It runs only there, so this is where routing is actually proven. (not run: the E2E job is `skipped` on every development push run, checked 9 Oct on Code Quality 37984033983 at f7b9192d; needs the live pass: open `/apps/launchpad/`, `/store`, `/reports`, `/features-roadmap`, `/flows` and `/dashboards/<id>` from a cold load on both `/apps/...` and `/index.php/apps/...`, each renders its page, and `tests/e2e/app-chrome.spec.ts` passes against the instance)
 
-## Left for later, deliberately
+## Follow-up (not tasks of this change)
 
-- [ ] The org rail renders only inside `WorkspaceApp`, so it appears on the dashboard routes and not on `/store`, `/reports` or `/features-roadmap`. That matches today's behaviour exactly (there were no other routes), but it is now a visible inconsistency. Lifting it to the shell is its own change.
-- [ ] `DashboardsReport` is `type: dashboard` — a declarative page over LaunchPad's own register. It was unroutable before, so it has never rendered; whether its widgets resolve is unproven until the E2E runs.
+- The org rail renders only inside `WorkspaceApp`, so it appears on the dashboard routes and not on `/store`, `/reports` or `/features-roadmap`. That matches today's behaviour exactly (there were no other routes), but it is now a visible inconsistency. Lifting it to the shell is its own change.
+- `DashboardsReport` is `type: dashboard` — a declarative page over LaunchPad's own register. It was unroutable before, so it has never rendered; whether its widgets resolve is unproven until the E2E runs.

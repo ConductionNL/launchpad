@@ -5,54 +5,114 @@
 
 <template>
 	<div class="launchpad-admin">
-		<CnSettingsSection
-			:name="t('launchpad', 'LaunchPad settings')"
-			:description="
-				t('launchpad', 'Configure dashboard permissions and defaults')
-			"
-			docUrl="https://launchpad.conduction.nl/docs/intro">
-			<!-- Setup wizard banner (REQ-WIZ-001). Stays at the top of the
-			     page, above the Beheer tabs, so the call-to-action is always
-			     the first thing the admin sees regardless of active tab. -->
-			<div
-				v-if="wizardState && !wizardState.complete"
-				class="launchpad-admin__wizard-banner"
-				data-test="setup-wizard-banner">
-				<div>
-					<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
-					<p>
-						{{
-							t(
-								'launchpad',
-								'Get your intranet started: choose storage, configure groups, install demo data, and set up admin roles.',
-							)
-						}}
-					</p>
+		<!-- The board look: the shell draws the h1, the path line and the
+		     Documentatie button, and lays its sections out as cards in two
+		     columns (board LpBeheerAlgemeen). This page has no CnAppRoot, so
+		     the shell's own `look` switches the board look on. -->
+		<CnAdminSettingsShell
+			appId="launchpad"
+			appName="Launchpad"
+			look="board"
+			:title="pageTitle"
+			docUrl="https://launchpad.conduction.nl/docs/intro"
+			:breadcrumbs="breadcrumbs"
+			:breadcrumbNote="breadcrumbNote"
+			:showVersionCard="false"
+			:tabs="beheerTabs"
+			tabsVariant="underline"
+			tabStorageKey="launchpad.admin.activeTab"
+			lazyTabs
+			@tabChange="onTabChange">
+			<!-- Each tab draws its own content in the shell's `tab-<id>` slot.
+			     With `lazyTabs` the shell mounts only the open tab's slot: it
+			     fetches fresh on each visit, and the page does not load all
+			     tabs at once. Algemeen's panel
+			     holds the setup wizard banner (REQ-WIZ-001); its cards are the
+			     shell's default slot, which shows on the first tab only. -->
+			<template #tab-general>
+				<div
+					v-if="wizardState && !wizardState.complete"
+					class="launchpad-admin__wizard-banner"
+					data-test="setup-wizard-banner">
+					<div>
+						<strong>{{ t('launchpad', 'Run setup wizard') }}</strong>
+						<p>
+							{{
+								t(
+									'launchpad',
+									'Get your intranet started: configure groups, install demo data, and set up admin roles.',
+								)
+							}}
+						</p>
+					</div>
+					<NcButton
+						variant="secondary"
+						data-test="setup-wizard-open"
+						@click="openWizard">
+						{{ t('launchpad', 'Run setup wizard') }}
+					</NcButton>
 				</div>
-				<NcButton
-					variant="primary"
-					data-test="setup-wizard-open"
-					@click="openWizard">
-					{{ t('launchpad', 'Run setup wizard') }}
-				</NcButton>
-			</div>
-			<div
-				v-else-if="wizardState && wizardState.complete"
-				class="launchpad-admin__wizard-rerun"
-				data-test="setup-wizard-rerun">
-				<NcButton
-					variant="tertiary"
-					data-test="setup-wizard-rerun-open"
-					@click="openWizard">
-					{{ t('launchpad', 'Run setup wizard again') }}
-				</NcButton>
-			</div>
+				<div
+					v-else-if="wizardState && wizardState.complete"
+					class="launchpad-admin__wizard-rerun"
+					data-test="setup-wizard-rerun">
+					<NcButton
+						variant="tertiary"
+						data-test="setup-wizard-rerun-open"
+						@click="openWizard">
+						{{ t('launchpad', 'Run setup wizard again') }}
+					</NcButton>
+				</div>
+			</template>
+			<template #tab-templates>
+				<TemplatesPage />
+			</template>
+			<template #tab-operations>
+				<OperationsTab />
+			</template>
+			<template #tab-roles-permissions>
+				<RolesPermissionsTab />
+			</template>
+			<template #tab-versioning-audit>
+				<VersioningAuditTab />
+			</template>
+			<template #tab-sharing>
+				<SharingTab
+					:groups="injectedAllGroups"
+					:configuredGroups="configuredGroups" />
+			</template>
+			<template #tab-kiosk>
+				<KioskTab />
+			</template>
+			<template #tab-org-navigation>
+				<OrgNavigationTab :groups="injectedAllGroups" />
+			</template>
+			<template #tab-demo-data>
+				<DemoDataTab />
+			</template>
+			<template #tab-group-dashboards>
+				<GroupDashboardsTab />
+			</template>
+			<template #tab-detail-fields>
+				<MetadataFieldsSettings />
+			</template>
+			<template #tab-profile-fields>
+				<ProfileFieldsTab />
+			</template>
+			<template #tab-search-shortcuts>
+				<SearchShortcutsTab />
+			</template>
+			<template #tab-office-networks>
+				<OfficeNetworksTab />
+			</template>
 
-			<!-- Global Settings — always visible above the tab strip. -->
-			<div
-				class="launchpad-admin__section"
-				data-testid="admin-default-settings">
-				<h3>{{ t('launchpad', 'Default settings') }}</h3>
+			<!-- Algemeen (board LpBeheerAlgemeen): the organisation-wide
+			     defaults, group-shared dashboards and the default-app note,
+			     each a card of the shell's grid. -->
+			<template v-if="activeTab === 'general'">
+				<CnSettingsSection
+					:name="t('launchpad', 'Default settings')"
+					data-testid="admin-default-settings">
 
 				<div class="launchpad-admin__field">
 					<NcSelect
@@ -66,6 +126,7 @@
 				</div>
 
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.allowUserDashboards"
 					data-testid="admin-allow-user-dashboards"
 					@update:modelValue="
@@ -83,12 +144,33 @@
 				</p>
 
 				<NcCheckboxRadioSwitch
+					type="switch"
 					:modelValue="settings.allowMultipleDashboards"
 					@update:modelValue="
 						updateSetting('allowMultipleDashboards', $event)
 					">
 					{{ t('launchpad', 'Allow users to have multiple dashboards') }}
 				</NcCheckboxRadioSwitch>
+
+				<!-- runtime-shell REQ-SHELL-009: off by default so an existing
+				     instance keeps its navigation panel. -->
+				<NcCheckboxRadioSwitch
+					type="switch"
+					:modelValue="settings.startPageWithoutNavigation"
+					data-testid="admin-start-page-without-navigation"
+					@update:modelValue="
+						updateSetting('startPageWithoutNavigation', $event)
+					">
+					{{ t('launchpad', 'Start page without navigation panel') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.',
+						)
+					}}
+				</p>
 
 				<div class="launchpad-admin__field">
 					<NcSelect
@@ -144,15 +226,11 @@
 						}}
 					</p>
 				</div>
-			</div>
+				</CnSettingsSection>
 
-			<!-- Group-shared dashboards (REQ-DASH-015..017). Kept above the
-			     tabs because it owns the `set-group-default` /
-			     `group-default-badge` data-test hooks (task 12.2). -->
-			<div class="launchpad-admin__section">
-				<div class="launchpad-admin__section-header">
-					<h3>{{ t('launchpad', 'Group-shared dashboards') }}</h3>
-				</div>
+				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
+				     `set-group-default` / `group-default-badge` data-test hooks. -->
+				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
 
 				<p class="launchpad-admin__hint">
 					{{
@@ -210,60 +288,9 @@
 						</div>
 					</div>
 				</div>
-			</div>
+				</CnSettingsSection>
 
-			<!-- Beheer tabs — the IA's discrete admin areas. Each tab's
-			     content only renders when active (admin-settings spec). -->
-			<BeheerTabs
-				:tabs="beheerTabs"
-				defaultTab="templates"
-				@change="onTabChange">
-				<template #templates>
-					<TemplatesPage />
-				</template>
-				<template #operations>
-					<OperationsTab />
-				</template>
-				<template #roles-permissions>
-					<RolesPermissionsTab />
-				</template>
-				<template #versioning-audit>
-					<VersioningAuditTab />
-				</template>
-				<template #sharing>
-					<SharingTab
-						:groups="injectedAllGroups"
-						:configuredGroups="configuredGroups" />
-				</template>
-				<template #kiosk>
-					<KioskTab />
-				</template>
-				<template #org-navigation>
-					<OrgNavigationTab :groups="injectedAllGroups" />
-				</template>
-				<template #demo-data>
-					<DemoDataTab />
-				</template>
-				<template #group-dashboards>
-					<GroupDashboardsTab />
-				</template>
-				<template #detail-fields>
-					<MetadataFieldsSettings />
-				</template>
-				<template #profile-fields>
-					<ProfileFieldsTab />
-				</template>
-				<template #search-shortcuts>
-					<SearchShortcutsTab />
-				</template>
-				<template #office-networks>
-					<OfficeNetworksTab />
-				</template>
-			</BeheerTabs>
-
-			<!-- Info -->
-			<div class="launchpad-admin__section">
-				<h3>{{ t('launchpad', 'Setting as default app') }}</h3>
+				<CnSettingsSection :name="t('launchpad', 'Setting as default app')">
 				<p>
 					{{
 						t(
@@ -272,8 +299,9 @@
 						)
 					}}
 				</p>
-			</div>
-		</CnSettingsSection>
+				</CnSettingsSection>
+			</template>
+		</CnAdminSettingsShell>
 
 		<!-- Setup wizard modal (REQ-WIZ-002). -->
 		<SetupWizardModal
@@ -286,6 +314,7 @@
 
 <script>
 import {
+	CnAdminSettingsShell,
 	CnDashboardIcon,
 	CnSettingsSection,
 	NcButton,
@@ -293,8 +322,8 @@ import {
 	NcSelect,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
-import BeheerTabs from './BeheerTabs.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
@@ -315,6 +344,7 @@ export default {
 	name: 'AdminSettings',
 
 	components: {
+		CnAdminSettingsShell,
 		CnSettingsSection,
 		NcButton,
 		NcSelect,
@@ -322,7 +352,6 @@ export default {
 		NcTextField,
 		CnDashboardIcon,
 		SetupWizardModal,
-		BeheerTabs,
 		TemplatesPage,
 		OperationsTab,
 		RolesPermissionsTab,
@@ -366,6 +395,8 @@ export default {
 
 				allowUserDashboards: this.allowUserDashboards ?? false,
 				allowMultipleDashboards: true,
+				// runtime-shell REQ-SHELL-009: off by default.
+				startPageWithoutNavigation: false,
 				defaultGridColumns: 12,
 				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
 				maxDashboardsPerUser: 0,
@@ -386,55 +417,105 @@ export default {
 			// Setup wizard banner state (REQ-WIZ-001).
 			wizardState: null,
 			showWizard: false,
-			activeTab: 'templates',
+			activeTab: 'general',
 		}
 	},
 
 	computed: {
 		/**
+		 * The page title names the open tab, as the boards do
+		 * ("Launchpad-beheer: algemeen").
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {string}
+		 */
+		pageTitle() {
+			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
+			const label = tab ? tab.label.toLocaleLowerCase() : ''
+			return this.t('launchpad', 'Launchpad administration: {tab}', { tab: label })
+		},
+
+		/**
+		 * The path line under the title: the Nextcloud administration
+		 * settings, the app, then the open tab.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {Array<{label: string, href?: string}>}
+		 */
+		breadcrumbs() {
+			const tab = this.beheerTabs.find((entry) => entry.id === this.activeTab)
+			const crumbs = [
+				{
+					label: this.t('launchpad', 'Admin settings'),
+					href: generateUrl('/settings/admin'),
+				},
+				{ label: 'Launchpad' },
+			]
+			if (tab) {
+				crumbs.push({ label: tab.label })
+			}
+			return crumbs
+		},
+
+		/**
+		 * The note after the path. Only Algemeen has one: its settings hold
+		 * for the whole organisation.
+		 *
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @return {string}
+		 */
+		breadcrumbNote() {
+			return this.activeTab === 'general'
+				? this.t('launchpad', 'applies to the whole organisation')
+				: ''
+		},
+
+		/**
 		 * Ordered Beheer tab descriptors. Labels live here so they stay
-		 * translatable in one place; the slugs match the named slots.
+		 * translatable in one place; each `id` after the first names the shell slot
+		 * `tab-<id>`; the first tab is the default slot.
 		 *
 		 * @spec openspec/changes/admin-group-management/tasks.md#task-1
-		 * @return {Array<{slug: string, label: string}>}
+		 * @return {Array<{id: string, label: string}>}
 		 */
 		beheerTabs() {
 			return [
-				{ slug: 'templates', label: this.t('launchpad', 'Templates') },
-				{ slug: 'operations', label: this.t('launchpad', 'Operations') },
+				{ id: 'general', label: this.t('launchpad', 'General') },
+				{ id: 'templates', label: this.t('launchpad', 'Templates') },
+				{ id: 'operations', label: this.t('launchpad', 'Operations') },
 				{
-					slug: 'roles-permissions',
+					id: 'roles-permissions',
 					label: this.t('launchpad', 'Roles & Permissions'),
 				},
 				{
-					slug: 'versioning-audit',
+					id: 'versioning-audit',
 					label: this.t('launchpad', 'Versioning & Audit'),
 				},
-				{ slug: 'sharing', label: this.t('launchpad', 'Sharing') },
-				{ slug: 'kiosk', label: this.t('launchpad', 'Kiosk') },
+				{ id: 'sharing', label: this.t('launchpad', 'Sharing') },
+				{ id: 'kiosk', label: this.t('launchpad', 'Kiosk') },
 				{
-					slug: 'org-navigation',
+					id: 'org-navigation',
 					label: this.t('launchpad', 'Org navigation'),
 				},
-				{ slug: 'demo-data', label: this.t('launchpad', 'Demo data') },
+				{ id: 'demo-data', label: this.t('launchpad', 'Demo data') },
 				{
-					slug: 'group-dashboards',
+					id: 'group-dashboards',
 					label: this.t('launchpad', 'Group dashboards'),
 				},
 				{
-					slug: 'detail-fields',
+					id: 'detail-fields',
 					label: this.t('launchpad', 'Detail fields'),
 				},
 				{
-					slug: 'profile-fields',
+					id: 'profile-fields',
 					label: this.t('launchpad', 'Profile fields'),
 				},
 				{
-					slug: 'search-shortcuts',
+					id: 'search-shortcuts',
 					label: this.t('launchpad', 'Search shortcuts'),
 				},
 				{
-					slug: 'office-networks',
+					id: 'office-networks',
 					label: this.t('launchpad', 'Office networks'),
 				},
 			]
@@ -452,11 +533,11 @@ export default {
 		/**
 		 * Switch the active admin tab.
 		 *
-		 * @param {string} slug Slug of the newly selected tab.
+		 * @param {string} id The id of the newly opened tab.
 		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		onTabChange(slug) {
-			this.activeTab = slug
+		onTabChange(id) {
+			this.activeTab = id
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */
@@ -489,6 +570,8 @@ export default {
 					defaultPermLevel: this.settings.defaultPermissionLevel?.id,
 					allowUserDash: this.settings.allowUserDashboards,
 					allowMultiDash: this.settings.allowMultipleDashboards,
+					startPageWithoutNavigation:
+						this.settings.startPageWithoutNavigation === true,
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].
@@ -682,31 +765,6 @@ export default {
 </script>
 
 <style scoped>
-.launchpad-admin {
-	max-width: 900px;
-}
-
-.launchpad-admin__section {
-	margin-bottom: 32px;
-	padding-bottom: 32px;
-	border-bottom: 1px solid var(--color-border);
-}
-
-.launchpad-admin__section h3 {
-	margin: 0 0 16px;
-}
-
-.launchpad-admin__section-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 16px;
-}
-
-.launchpad-admin__section-header h3 {
-	margin: 0;
-}
-
 .launchpad-admin__hint {
 	color: var(--color-text-maxcontrast);
 	margin-bottom: 16px;
@@ -776,10 +834,8 @@ export default {
 	justify-content: space-between;
 	gap: 16px;
 	padding: 16px 20px;
-	margin-bottom: 24px;
 	background: var(--color-primary-element-light);
-	border: 1px solid var(--color-primary-element);
-	border-radius: var(--border-radius);
+	border-radius: 12px;
 }
 
 .launchpad-admin__wizard-banner p {
@@ -789,7 +845,6 @@ export default {
 }
 
 .launchpad-admin__wizard-rerun {
-	margin-bottom: 16px;
 	display: flex;
 	justify-content: flex-end;
 }

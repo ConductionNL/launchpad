@@ -333,7 +333,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		// The control: the comparison would also pass if both sides were
 		// empty, so pin that the compulsory flags really crossed.
 		self::assertSame(
-			[1, 1, 0, 0, 0],
+			[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
 			array_column(self::definitionOf($onB)['widgets'], 'isCompulsory')
 		);
 	}
@@ -455,10 +455,29 @@ class ShippedTemplateServiceTest extends TestCase {
 		self::assertSame('mijn-werkdag', $listing[0]['id']);
 		self::assertSame('Mijn werkdag', $listing[0]['name']);
 		self::assertSame('nl', $listing[0]['language']);
-		self::assertSame(5, $listing[0]['widgetCount']);
+		self::assertSame(10, $listing[0]['widgetCount']);
+		self::assertSame(['dossiq', 'pipelinq', 'decidiq'], $listing[0]['registers']);
 		self::assertFalse($listing[0]['isInstalled']);
 		self::assertNull($listing[0]['installedVersion']);
 		self::assertSame(['activity'], $listing[0]['missingWidgets']);
+	}
+
+	/**
+	 * REQ-TMPL-020: the listing says when a newer version ships than the
+	 * one installed, and only then.
+	 */
+	public function testTheListingSaysWhenAnUpdateIsAvailable(): void {
+		$service = $this->makeService($this->makeInstance());
+		self::assertFalse($service->listTemplates()[0]['updateAvailable'], 'not installed: nothing to update');
+
+		$service->install(templateId: 'mijn-werkdag');
+		self::assertFalse($service->listTemplates()[0]['updateAvailable']);
+
+		$this->config['shipped_template_version_mijn-werkdag'] = 1;
+		$listing = $service->listTemplates()[0];
+		self::assertTrue($listing['updateAvailable']);
+		self::assertSame(1, $listing['installedVersion']);
+		self::assertNotNull($service->findInstalled(templateId: 'mijn-werkdag'));
 	}
 
 	/**
@@ -483,11 +502,15 @@ class ShippedTemplateServiceTest extends TestCase {
 		// (`item_api_versions` not empty). Add one only after measuring it.
 		$itemsApiWidgets = ['activity', 'recommendations', 'files-favorites', 'user_status'];
 		$schemas = [];
+		$enums = [];
 		foreach (glob(dirname(__DIR__, 2) . '/fixtures/registers/*.json') ?: [] as $file) {
 			$fixture = json_decode((string)file_get_contents($file), true);
 			$schemas[$fixture['register'] . '/' . $fixture['schema']] = $fixture['properties'];
+			$enums[$fixture['register'] . '/' . $fixture['schema']] = ($fixture['enums'] ?? []);
 		}
 		self::assertArrayHasKey('dossiq/case', $schemas);
+		self::assertArrayHasKey('pipelinq/ticket', $schemas);
+		self::assertArrayHasKey('decidiq/decision', $schemas);
 
 		$listsChecked = 0;
 		foreach (ShippedTemplateService::SHIPPED_IDS as $id) {
@@ -496,14 +519,25 @@ class ShippedTemplateServiceTest extends TestCase {
 				if ($widget['widgetId'] === 'nc-widget') {
 					self::assertContains($content['widgetId'], $itemsApiWidgets, 'this widget cannot paint without the legacy bridge');
 				}
-				if ($widget['widgetId'] !== 'object-list') {
+				if ($widget['widgetId'] !== 'object-list' && $widget['widgetId'] !== 'stat') {
 					continue;
 				}
 
+				// A list names its register at the top of its content and
+				// shows columns; a number (the app tiles of Mijn werkdag 4)
+				// names it under `source` and only filters.
+				$title = (string)($widget['customTitle'] ?? $content['label'] ?? $widget['widgetId']);
+				$named = [];
+				if ($widget['widgetId'] === 'stat') {
+					$content = array_merge($content, (array)$content['source']);
+				} else {
+					$named = array_column($content['columns'], 'key');
+					$named[] = $content['sort']['field'];
+				}
+
+				$widget['customTitle'] = $title;
 				$key = $content['register'] . '/' . $content['schema'];
 				self::assertArrayHasKey($key, $schemas, 'no field list for ' . $key . ': add tests/fixtures/registers');
-				$named = array_column($content['columns'], 'key');
-				$named[] = $content['sort']['field'];
 				foreach (array_keys($content['filter']) as $filterKey) {
 					// `deadline[lt]` names the field `deadline`.
 					$named[] = preg_replace('/\[.*$/', '', (string)$filterKey);
@@ -511,14 +545,29 @@ class ShippedTemplateServiceTest extends TestCase {
 				foreach ($named as $field) {
 					self::assertContains($field, $schemas[$key], $widget['customTitle'] . ' names a field ' . $key . ' does not have');
 				}
-				foreach ($content['filter'] as $value) {
-					self::assertIsNotArray($value, 'an operator goes in the key, as in "deadline[lt]"');
+				foreach ($content['filter'] as $filterKey => $value) {
+					// A list of values is "any of these" and travels as
+					// `status[0]=..&status[1]=..`, which OpenRegister honours
+					// (measured 5 October 2026). An operator goes in the key.
+					if (is_array($value) === true) {
+						self::assertTrue(array_is_list($value), 'an operator goes in the key, as in "deadline[lt]"');
+					}
+					$values = (is_array($value) === true ? $value : [$value]);
+					$field = preg_replace('/\[.*$/', '', (string)$filterKey);
+					if (isset($enums[$key][$field]) === true) {
+						foreach ($values as $one) {
+							self::assertContains($one, $enums[$key][$field], $widget['customTitle'] . ' filters ' . $field . ' on a value the schema does not know');
+						}
+					}
 				}
+				// REQ-TMPL-022: a list of another app is hidden where that app
+				// is not installed, instead of showing an error line.
+				self::assertTrue($content['hideWhenUnavailable'] ?? false, $widget['customTitle'] . ' must hide when its register is not here');
 				$listsChecked++;
 			}
 		}
 
-		self::assertGreaterThanOrEqual(2, $listsChecked);
+		self::assertSame(3, $listsChecked, 'the dossiq, pipelinq and decidiq tiles');
 	}
 
 	/**

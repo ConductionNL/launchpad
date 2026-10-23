@@ -19,14 +19,18 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IAppConfig;
 
 /**
  * Service for managing admin dashboard templates.
+ *
+ * @spec openspec/specs/admin-templates/spec.md
  */
 class TemplateService {
 	/**
@@ -39,22 +43,32 @@ class TemplateService {
 	 *                                                   for
 	 *                                                   `IGroupManager::getUserGroupIds`
 	 *                                                   (REQ-TMPL-013).
+	 * @param IAppConfig $appConfig Says which template is the installed
+	 *                              copy of a shipped one (REQ-TMPL-021).
 	 */
 	public function __construct(
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly AdminTemplateService $adminTemplateService,
+		private readonly IAppConfig $appConfig,
 	) {
 	}//end __construct()
 
 	/**
 	 * Get the applicable admin template for a user.
 	 *
+	 * A template that targets one of the user's groups goes before the
+	 * default template. When several target the user's groups, one rule
+	 * picks, the same on every instance and every visit (REQ-TMPL-021):
+	 * the installed copy of a shipped template first, the newest shipped
+	 * version first among those, then the lowest id.
+	 *
 	 * @param string $userId The user ID.
 	 *
 	 * @return Dashboard|null The applicable template or null.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-7
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-021
 	 */
 	public function getApplicableTemplate(string $userId): ?Dashboard {
 		$templates = $this->dashboardMapper->findAdminTemplates();
@@ -62,27 +76,34 @@ class TemplateService {
 		// Group memberships are read through the routing resolver so the
 		// single-source-of-truth invariant (REQ-TMPL-013) holds. An empty
 		// result means either an unknown user OR a known user with no
-		// group memberships — in both cases we skip the per-template
-		// intersection scan and fall through to the default template
-		// lookup at the end of the method (preserving legacy behaviour).
+		// group memberships — in both cases no template can match and the
+		// default template lookup at the end decides.
 		$userGroups = $this->adminTemplateService->getUserGroupIdsFor(
 			userId: $userId
 		);
 
-		// Find template that matches user's groups.
+		$shippedVersions = $this->shippedVersionsByUuid();
+		$best = null;
+		$bestVersion = 0;
 		foreach ($templates as $template) {
-			$targetGroups = $template->getTargetGroupsArray();
-
-			// Empty target groups means applies to all users.
-			if (empty($targetGroups) === true) {
+			// A template without target groups is not group-targeted; only
+			// the default flag can hand it out.
+			if (empty(array_intersect($userGroups, $template->getTargetGroupsArray())) === true) {
 				continue;
-				// Check for more specific templates first.
 			}
 
-			// Check if user is in any target group.
-			if (empty(array_intersect($userGroups, $targetGroups)) === false) {
-				return $template;
+			$version = ($shippedVersions[(string)$template->getUuid()] ?? 0);
+			if ($best === null
+				|| $version > $bestVersion
+				|| ($version === $bestVersion && $template->getId() < $best->getId())
+			) {
+				$best = $template;
+				$bestVersion = $version;
 			}
+		}
+
+		if ($best !== null) {
+			return $best;
 		}
 
 		// Return default template if exists.
@@ -92,6 +113,40 @@ class TemplateService {
 			return null;
 		}
 	}//end getApplicableTemplate()
+
+	/**
+	 * The shipped version each installed shipped template carries, by the
+	 * template's UUID. A template an administrator made by hand, and an
+	 * earlier copy a forced install left behind, are not in the list.
+	 *
+	 * @return array<string, int> Template UUID to shipped version.
+	 */
+	private function shippedVersionsByUuid(): array {
+		$versions = [];
+		foreach (ShippedTemplateService::SHIPPED_IDS as $id) {
+			$uuid = $this->appConfig->getValueString(
+				Application::APP_ID,
+				ShippedTemplateService::CONFIG_PREFIX . $id,
+				''
+			);
+			if ($uuid === '') {
+				continue;
+			}
+
+			// At least 1: a recorded install without a recorded version is
+			// still the shipped one.
+			$versions[$uuid] = max(
+				1,
+				$this->appConfig->getValueInt(
+					Application::APP_ID,
+					ShippedTemplateService::CONFIG_VERSION_PREFIX . $id,
+					0
+				)
+			);
+		}
+
+		return $versions;
+	}//end shippedVersionsByUuid()
 
 	/**
 	 * Create a user dashboard based on an admin template.

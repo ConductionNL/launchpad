@@ -67,6 +67,10 @@ const PAGE_KEYS = {
 		// shortcuts `{prefix, name, urlTemplate}`. Optional key; an empty
 		// list keeps every search box as it was.
 		searchShortcuts: [],
+		// runtime-shell REQ-SHELL-009: the dashboard view without the left
+		// navigation panel. Optional key, same rationale as `deepLinkPath`:
+		// a server without the setter keeps the panel.
+		startPageWithoutNavigation: false,
 	},
 	admin: {
 		allGroups: [],

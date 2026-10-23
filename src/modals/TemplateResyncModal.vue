@@ -19,6 +19,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="large"
 		:name="t('launchpad', 'Re-sync to existing copies')"
 		@close="handleClose">

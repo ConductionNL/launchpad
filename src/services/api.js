@@ -661,6 +661,16 @@ export const api = {
 	},
 
 	/**
+	 * The apps this server runs for the current user, to place as tiles.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 */
+	discoverApps() {
+		return axios.get(`${baseUrl}/api/tiles/discover`)
+	},
+
+	/**
 	 * Update an existing widget placement.
 	 *
 	 * @param {number|string} placementId Id of the placement to update.
@@ -788,6 +798,23 @@ export const api = {
 	 */
 	installShippedTemplate(id) {
 		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/install`)
+	},
+
+	/**
+	 * Update an installed shipped template to the version LaunchPad ships
+	 * now, in place. With `dryRun` the server only reports what would change.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @param {object} [options] Call options.
+	 * @param {boolean} [options.dryRun] Report the changes, write nothing.
+	 * @return {Promise} Axios response resolving to the widgets added,
+	 *   removed and changed.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	updateShippedTemplate(id, { dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/update`, {
+			dryRun,
+		})
 	},
 
 	/**
@@ -933,17 +960,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	completeSetupWizard() {
 		return axios.post(`${baseUrl}/api/admin/setup-wizard/complete`)
-	},
-
-	/**
-	 * Persist the setup wizard's content-storage choice (REQ-WIZ-003).
-	 *
-	 * @param {string} storage Backend to store widget content in —
-	 *   `database` or `groupfolder`.
-	 * @return {Promise} Axios response resolving to the updated wizard state.
-	 */
-	setSetupWizardStorage(storage) {
-		return axios.post(`${baseUrl}/api/admin/setup-wizard/storage`, { storage })
 	},
 
 	/**

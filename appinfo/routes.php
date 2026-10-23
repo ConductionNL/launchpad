@@ -320,6 +320,8 @@ return [
 
 		// Tile endpoints
 		['name' => 'tileApi#index', 'url' => '/api/tiles', 'verb' => 'GET'],
+		// REQ-DISC-001: the apps in the caller's own app menu, to place as tiles.
+		['name' => 'tileApi#discover', 'url' => '/api/tiles/discover', 'verb' => 'GET'],
 		['name' => 'tileApi#create', 'url' => '/api/tiles', 'verb' => 'POST'],
 		['name' => 'tileApi#update', 'url' => '/api/tiles/{id}', 'verb' => 'PUT'],
 		['name' => 'tileApi#destroy', 'url' => '/api/tiles/{id}', 'verb' => 'DELETE'],
@@ -409,6 +411,10 @@ return [
 		['name' => 'adminShippedTemplate#install',
 		 'url' => '/api/admin/templates/shipped/{id}/install', 'verb' => 'POST',
 		 'requirements' => ['id' => '[a-z0-9\\-]+']],
+		// Update an installed shipped template in place (REQ-TMPL-020).
+		['name' => 'adminShippedTemplate#update',
+		 'url' => '/api/admin/templates/shipped/{id}/update', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],
 		// Preview-image upload — REQ-TMPL-017. Registered BEFORE the
@@ -480,7 +486,6 @@ return [
 		// Step 2 choice immediately on `Next`.
 		['name' => 'admin#getWizardState', 'url' => '/api/admin/setup-wizard/state', 'verb' => 'GET'],
 		['name' => 'admin#completeWizard', 'url' => '/api/admin/setup-wizard/complete', 'verb' => 'POST'],
-		['name' => 'admin#setWizardStorage', 'url' => '/api/admin/setup-wizard/storage', 'verb' => 'POST'],
 
 		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the

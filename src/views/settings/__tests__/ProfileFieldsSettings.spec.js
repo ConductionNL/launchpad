@@ -48,7 +48,7 @@ const FIELDS = [
 ]
 
 const stubs = {
-	NcSettingsSection: { template: '<section><slot /></section>' },
+	NcAppSettingsSection: { template: '<section><slot /></section>' },
 	NcNoteCard: { template: '<div class="note"><slot /></div>' },
 	NcButton: { template: '<button type="submit"><slot /></button>' },
 	NcSelect: {

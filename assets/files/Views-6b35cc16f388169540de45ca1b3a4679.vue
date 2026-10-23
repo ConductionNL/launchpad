@@ -364,8 +364,11 @@
 			:open="isWidgetModalOpen"
 			:widgets="availableWidgets"
 			:placedWidgetIds="placedWidgetIds"
+			:discoveredApps="discoveredApps"
+			:placedAppIds="placedDiscoveredAppIds"
 			@close="closeWidgetModal"
-			@add="addWidget" />
+			@add="addWidget"
+			@addApp="addDiscoveredApp" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
@@ -530,6 +533,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { logger } from '../utils/logger.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
@@ -704,6 +708,7 @@ export default {
 			 */
 			unavailableSources: {},
 			isWidgetModalOpen: false,
+			discoveredApps: [],
 			isConfigModalOpen: false,
 			configModalMode: 'edit',
 			// Tab the config drawer lands on when opened (dashboard-sharing
@@ -1018,6 +1023,11 @@ export default {
 		/** @spec openspec/specs/dashboards/spec.md */
 		placedWidgetIds() {
 			return this.widgetPlacements.map((p) => p.widgetId)
+		},
+
+		/** @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002 */
+		placedDiscoveredAppIds() {
+			return discoveredAppIdsOnDashboard(this.widgetPlacements, this.discoveredApps)
 		},
 
 		/**
@@ -2055,6 +2065,38 @@ export default {
 				return
 			}
 			this.isWidgetModalOpen = true
+			this.loadDiscoveredApps()
+		},
+
+		/**
+		 * Read the apps this server runs for the user, for the picker's
+		 * "Discovered on this server" section. A failure leaves the section
+		 * out; the rest of the picker works as before.
+		 *
+		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+		 */
+		async loadDiscoveredApps() {
+			try {
+				const response = await api.discoverApps()
+				this.discoveredApps = Array.isArray(response?.data?.apps) ? response.data.apps : []
+			} catch (error) {
+				this.discoveredApps = []
+				logger.warn('[Views] Could not discover the server apps:', error)
+			}
+		},
+
+		/**
+		 * Place a discovered app as a tile through the normal tile path.
+		 *
+		 * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
+		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
+		 */
+		async addDiscoveredApp(app) {
+			try {
+				await this.addTileToDashboard(tileFromDiscoveredApp(app))
+			} catch (error) {
+				logger.error('[Views] Failed to place a discovered app:', error)
+			}
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */

@@ -1365,7 +1365,10 @@ OC.L10N.register(
     "My profile" : "My profile",
     "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
     "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
-    "applies to the whole organisation" : "applies to the whole organisation"
+    "applies to the whole organisation" : "applies to the whole organisation",
+    "Discovered on this server" : "Ezen a szerveren található",
+    "Apps this server runs for you. One click places one as a tile." : "Alkalmazások, amelyeket ez a szerver futtat Önnek. Egy kattintással csempe lesz belőlük.",
+    "On this dashboard" : "Ezen az irányítópulton"
 },
 "nplurals=2; plural=(n != 1);"
 );

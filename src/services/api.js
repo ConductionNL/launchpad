@@ -661,6 +661,16 @@ export const api = {
 	},
 
 	/**
+	 * The apps this server runs for the current user, to place as tiles.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 */
+	discoverApps() {
+		return axios.get(`${baseUrl}/api/tiles/discover`)
+	},
+
+	/**
 	 * Update an existing widget placement.
 	 *
 	 * @param {number|string} placementId Id of the placement to update.

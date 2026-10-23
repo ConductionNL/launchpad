@@ -1356,7 +1356,10 @@ OC.L10N.register(
     "My profile" : "My profile",
     "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
     "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
-    "applies to the whole organisation" : "applies to the whole organisation"
+    "applies to the whole organisation" : "applies to the whole organisation",
+    "Discovered on this server" : "Пронајдено на овој сервер",
+    "Apps this server runs for you. One click places one as a tile." : "Апликации што овој сервер ги извршува за вас. Еден клик ги прави плочка.",
+    "On this dashboard" : "На оваа контролна табла"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

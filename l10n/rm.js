@@ -1365,7 +1365,10 @@ OC.L10N.register(
     "My profile" : "My profile",
     "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
     "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
-    "applies to the whole organisation" : "applies to the whole organisation"
+    "applies to the whole organisation" : "applies to the whole organisation",
+    "Discovered on this server" : "Chattà sin quest server",
+    "Apps this server runs for you. One click places one as a tile." : "Apps che quest server exequescha per Vus. In clic fa ina plattina.",
+    "On this dashboard" : "Sin quest dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

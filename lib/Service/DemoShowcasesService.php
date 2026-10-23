@@ -99,6 +99,8 @@ class DemoShowcasesService {
 		'gemeente-duin',
 		'horizon-labs',
 		'van-der-berg',
+		'zuiddrecht-intranet',
+		'zuiddrecht-management',
 	];
 
 	/**

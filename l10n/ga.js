@@ -1365,7 +1365,10 @@ OC.L10N.register(
     "My profile" : "My profile",
     "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
     "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
-    "applies to the whole organisation" : "applies to the whole organisation"
+    "applies to the whole organisation" : "applies to the whole organisation",
+    "Discovered on this server" : "Aimsithe ar an bhfreastalaí seo",
+    "Apps this server runs for you. One click places one as a tile." : "Aipeanna a ritheann an freastalaí seo duit. Cuireann cliceáil amháin ina tíl iad.",
+    "On this dashboard" : "Ar an deais seo"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

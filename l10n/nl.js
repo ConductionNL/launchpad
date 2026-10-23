@@ -1627,7 +1627,10 @@ OC.L10N.register(
     "Opening the administration settings…" : "Beheerinstellingen openen…",
     "Versions of {name}" : "Versies van {name}",
     "Launchpad administration: {tab}" : "Launchpad-beheer: {tab}",
-    "applies to the whole organisation" : "geldt voor de hele organisatie"
+    "applies to the whole organisation" : "geldt voor de hele organisatie",
+    "Discovered on this server" : "Gevonden op deze server",
+    "Apps this server runs for you. One click places one as a tile." : "Apps die deze server voor u draait. Met één klik wordt er een tegel van.",
+    "On this dashboard" : "Op dit dashboard"
 },
 "nplurals=2; plural=(n != 1);"
 );

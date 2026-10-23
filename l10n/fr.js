@@ -1365,7 +1365,10 @@ OC.L10N.register(
     "My profile" : "My profile",
     "Fields your organisation adds to your profile. Colleagues see them in profile widgets." : "Fields your organisation adds to your profile. Colleagues see them in profile widgets.",
     "Launchpad administration: {tab}" : "Launchpad administration: {tab}",
-    "applies to the whole organisation" : "applies to the whole organisation"
+    "applies to the whole organisation" : "applies to the whole organisation",
+    "Discovered on this server" : "Trouvé sur ce serveur",
+    "Apps this server runs for you. One click places one as a tile." : "Les applications que ce serveur exécute pour vous. Un clic en fait une tuile.",
+    "On this dashboard" : "Sur ce tableau de bord"
 },
 "nplurals=2; plural=(n > 1);"
 );

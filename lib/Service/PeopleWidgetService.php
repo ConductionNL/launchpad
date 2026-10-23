@@ -10,10 +10,10 @@
  * the single contact point between the {@see PeopleWidgetController} HTTP
  * layer and Nextcloud's user / group / account managers.
  *
- * Visibility model (REQ-PPL-004): v1 returns every non-empty profile field
- * unconditionally — scope-based (`$prop->getScope()`) filtering is a
- * documented follow-up. Empty / null values are still omitted from the
- * response, never returned as `null` keys.
+ * Visibility model (REQ-PPL-004, REQ-PEX-004): a standard profile field
+ * whose Nextcloud scope is private shows to its owner only; custom fields
+ * follow their definition's audience. Empty / null values are omitted from
+ * the response, never returned as `null` keys.
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\IGroupManager;
 use OCP\IURLGenerator;
@@ -88,6 +89,28 @@ class PeopleWidgetService {
 	 *
 	 * @var string[]
 	 */
+	/**
+	 * Most name and email matches one search reads (REQ-PEX-003).
+	 *
+	 * @var int
+	 */
+	public const SEARCH_CANDIDATE_CAP = 500;
+
+	/**
+	 * Shortest query that asks the server (REQ-PEX-003).
+	 *
+	 * @var int
+	 */
+	public const MIN_QUERY_LENGTH = 2;
+
+	/**
+	 * The user the current listing is for; decides which fields they may
+	 * see and match (REQ-PEX-004). Set at the start of every listUsers() call.
+	 *
+	 * @var string|null
+	 */
+	private ?string $viewerId = null;
+
 	private const STANDARD_PROPERTIES = [
 		IAccountManager::PROPERTY_PHONE,
 		IAccountManager::PROPERTY_ADDRESS,
@@ -112,6 +135,7 @@ class PeopleWidgetService {
 	 * @param AdminTemplateService $adminTemplateService Single-source-of-truth wrapper around
 	 *                                                   `IGroupManager::getUserGroupIds`
 	 *                                                   (REQ-TMPL-013 grep guard).
+	 * @param ProfileFieldService $profileFields Custom profile fields and their visibility.
 	 */
 	public function __construct(
 		private readonly IUserManager $userManager,
@@ -119,6 +143,7 @@ class PeopleWidgetService {
 		private readonly IAccountManager $accountManager,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly AdminTemplateService $adminTemplateService,
+		private readonly ProfileFieldService $profileFields,
 	) {
 	}//end __construct()
 
@@ -142,12 +167,18 @@ class PeopleWidgetService {
 	 *                       `group`, or `recent-activity`.
 	 * @param int $limit Page size (1..MAX_LIMIT).
 	 * @param int $offset Page offset (>=0).
+	 * @param string|null $query Search text; 2 or more characters search the
+	 *                           whole directory by name, email and profile
+	 *                           fields (REQ-PEX-003).
+	 * @param string|null $viewerId The signed-in user the list is for; decides
+	 *                              which fields show and match (REQ-PEX-004).
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 *
 	 * @throws InvalidArgumentException When `limit` exceeds MAX_LIMIT, is
 	 *                                  non-positive, or `offset` is negative;
-	 *                                  or when `sortBy` is `recent-activity`.
+	 *                                  when `sortBy` is `recent-activity`; or
+	 *                                  when the query is shorter than 2 characters.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
@@ -158,7 +189,11 @@ class PeopleWidgetService {
 		string $sortBy = 'displayName',
 		int $limit = self::DEFAULT_LIMIT,
 		int $offset = 0,
+		?string $query = null,
+		?string $viewerId = null,
 	): array {
+		$this->viewerId = $viewerId;
+
 		if ($limit < 1 || $limit > self::MAX_LIMIT) {
 			throw new InvalidArgumentException(
 				message: 'limit must be between 1 and ' . self::MAX_LIMIT
@@ -176,6 +211,22 @@ class PeopleWidgetService {
 		}
 
 		$groupFilter = $this->extractGroupFilter(filters: $filters);
+
+		$query = trim(string: (string)$query);
+		if ($query !== '') {
+			if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
+				throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
+			}
+
+			return $this->paginateCandidates(
+				candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
+				excludeDisabled: $excludeDisabled,
+				showBirthdays: $showBirthdays,
+				sortBy: 'displayName',
+				limit: $limit,
+				offset: $offset
+			);
+		}
 
 		// No `group` filter AND the default `displayName` sort: page
 		// directly from the backend in display-name order so we never
@@ -253,7 +304,7 @@ class PeopleWidgetService {
 		}
 
 		return [
-			'users' => $users,
+			'users' => $this->attachCustomFields(users: $users),
 			'total' => $total,
 			'hasMore' => ($offset + count(value: $page)) < $total,
 		];
@@ -397,11 +448,72 @@ class PeopleWidgetService {
 		}
 
 		return [
-			'users' => $users,
+			'users' => $this->attachCustomFields(users: $users),
 			'total' => $total,
 			'hasMore' => ($offset + count(value: $page)) < $total,
 		];
 	}//end paginateCandidates()
+
+	/**
+	 * Name, email and profile-field matches for a search (REQ-PEX-003),
+	 * bounded to the configured groups when the widget has a group filter.
+	 *
+	 * @param string $query The search text.
+	 * @param array|null $groupFilter The widget's group filter, or null.
+	 *
+	 * @return IUser[] Matching users, unsorted.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function searchCandidates(string $query, ?array $groupFilter): array {
+		$byUid = [];
+		foreach ($this->userManager->search(pattern: $query, limit: self::SEARCH_CANDIDATE_CAP) as $user) {
+			$byUid[$user->getUID()] = $user;
+		}
+
+		$fieldMatches = $this->profileFields->findMatchingUserIds(viewerId: $this->viewerId, query: $query);
+		foreach ($fieldMatches as $uid) {
+			if (isset($byUid[$uid]) === true) {
+				continue;
+			}
+
+			$user = $this->userManager->get(uid: $uid);
+			if ($user !== null) {
+				$byUid[$uid] = $user;
+			}
+		}
+
+		if ($groupFilter === null) {
+			return array_values(array: $byUid);
+		}
+
+		$members = [];
+		foreach ($this->collectGroupMembers(groupIds: (array)($groupFilter['values'] ?? [])) as $member) {
+			$members[$member->getUID()] = true;
+		}
+
+		return array_values(array: array_intersect_key($byUid, $members));
+	}//end searchCandidates()
+
+	/**
+	 * Add the custom fields the viewer may see to every profile on the page (REQ-PEX-004).
+	 *
+	 * @param array $users Projected profiles.
+	 *
+	 * @return array The profiles with `customFields`.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function attachCustomFields(array $users): array {
+		$uids = array_map(callback: static fn (array $user): string => $user['uid'], array: $users);
+		$fields = $this->profileFields->visibleFieldsFor(viewerId: $this->viewerId, userIds: $uids);
+
+		foreach ($users as $index => $user) {
+			$users[$index]['customFields'] = $fields[$user['uid']] ?? [];
+		}
+
+		return $users;
+	}//end attachCustomFields()
 
 	/**
 	 * Compute the number of days between today (UTC) and the user's next
@@ -670,14 +782,8 @@ class PeopleWidgetService {
 				continue;
 			}
 
-			try {
-				$prop = $account->getProperty(property: $property);
-				$value = $prop->getValue();
-			} catch (Exception $e) {
-				continue;
-			}
-
-			if ($value === '') {
+			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID());
+			if ($value === null || $value === '') {
 				continue;
 			}
 
@@ -696,6 +802,32 @@ class PeopleWidgetService {
 
 		return $fields;
 	}//end buildAccountFields()
+
+	/**
+	 * A standard property's value when the viewer may see it (REQ-PEX-004:
+	 * a private field shows to its owner only), else null.
+	 *
+	 * @param IAccount $account The owner's account.
+	 * @param string $property The property name.
+	 * @param string $ownerId The owner's user id.
+	 *
+	 * @return string|null The value, or null when unreadable or hidden.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function visibleValue(IAccount $account, string $property, string $ownerId): ?string {
+		try {
+			$prop = $account->getProperty(property: $property);
+		} catch (Exception) {
+			return null;
+		}
+
+		if ($this->profileFields->scopeAllows(scope: $prop->getScope(), viewerId: $this->viewerId, ownerId: $ownerId) === false) {
+			return null;
+		}
+
+		return $prop->getValue();
+	}//end visibleValue()
 
 	/**
 	 * Build an absolute avatar URL pointing at the standard NC route.

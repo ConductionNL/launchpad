@@ -11,7 +11,9 @@
 				type="search"
 				class="people-widget__search"
 				:aria-label="t('launchpad', 'Search people')"
-				:placeholder="t('launchpad', 'Search by name or email…')" />
+				:placeholder="
+					t('launchpad', 'Search by name, email or expertise…')
+				" />
 			<button
 				type="button"
 				class="people-widget__refresh"
@@ -22,7 +24,9 @@
 			</button>
 		</header>
 
-		<div v-if="loading && users.length === 0" class="people-widget__state">
+		<div
+			v-if="loading && filteredUsers.length === 0"
+			class="people-widget__state">
 			{{ t('launchpad', 'Loading…') }}
 		</div>
 
@@ -44,55 +48,90 @@
 		</div>
 
 		<div v-else class="people-widget__items" :style="gridStyle" role="list">
-			<a
+			<div
 				v-for="user in filteredUsers"
 				:key="user.uid"
-				:href="profileUrl(user.uid)"
 				class="people-widget__item"
 				role="listitem">
-				<img
-					:src="user.avatarUrl"
-					:width="avatarSize"
-					:height="avatarSize"
-					:alt="
-						t('launchpad', 'Avatar of {name}', {
-							name: user.displayName,
-						})
-					"
-					class="people-widget__avatar" />
-
-				<div class="people-widget__meta">
-					<strong class="people-widget__name">{{
-						user.displayName
-					}}</strong>
-					<span
-						v-if="layout !== 'grid' && user.role"
-						class="people-widget__role">
-						{{ user.role }}
-					</span>
-					<span
-						v-if="
-							layout !== 'grid'
-							&& (user.organisation || user.department)
+				<a :href="profileUrl(user.uid)" class="people-widget__link">
+					<img
+						:src="user.avatarUrl"
+						:width="avatarSize"
+						:height="avatarSize"
+						:alt="
+							t('launchpad', 'Avatar of {name}', {
+								name: user.displayName,
+							})
 						"
-						class="people-widget__org">
-						{{ user.organisation || user.department }}
-					</span>
-					<span
-						v-if="layout !== 'grid' && user.email"
-						class="people-widget__email">
-						{{ user.email }}
-					</span>
-					<span
-						v-if="showBirthdayBadge(user)"
-						class="people-widget__birthday">
-						{{ formatBirthdayBadge(user) }}
-					</span>
+						class="people-widget__avatar" />
+
+					<div class="people-widget__meta">
+						<strong class="people-widget__name">{{
+							user.displayName
+						}}</strong>
+						<span
+							v-if="layout !== 'grid' && user.role"
+							class="people-widget__role">
+							{{ user.role }}
+						</span>
+						<span
+							v-if="
+								layout !== 'grid'
+								&& (user.organisation || user.department)
+							"
+							class="people-widget__org">
+							{{ user.organisation || user.department }}
+						</span>
+						<span
+							v-if="layout !== 'grid' && user.email"
+							class="people-widget__email">
+							{{ user.email }}
+						</span>
+						<span
+							v-if="showBirthdayBadge(user)"
+							class="people-widget__birthday">
+							{{ formatBirthdayBadge(user) }}
+						</span>
+					</div>
+				</a>
+				<div
+					v-if="layout !== 'grid' && hasCustomFields(user)"
+					class="people-widget__fields">
+					<template v-for="field in user.customFields" :key="field.key">
+						<span
+							v-if="field.type !== 'tags'"
+							class="people-widget__field">
+							{{ field.label }}: {{ field.values.join(', ') }}
+						</span>
+						<ul
+							v-else
+							class="people-widget__tags"
+							:aria-label="field.label">
+							<li v-for="tag in field.values" :key="tag">
+								<button
+									type="button"
+									class="people-widget__tag"
+									:class="{
+										'people-widget__tag--match': tagMatches(tag),
+									}"
+									:aria-label="
+										t(
+											'launchpad',
+											'Find everyone tagged {tag}',
+											{ tag },
+										)
+									"
+									@click="searchTag(tag)">
+									{{ tag }}
+								</button>
+							</li>
+						</ul>
+					</template>
 				</div>
-			</a>
+			</div>
 		</div>
 
-		<footer v-if="hasMore && !error" class="people-widget__footer">
+		<footer v-if="canLoadMore && !error" class="people-widget__footer">
 			<button
 				type="button"
 				class="people-widget__load-more"
@@ -110,6 +149,9 @@
 
 <script>
 const CACHE_TTL_MS = 60 * 1000
+const PAGE_SIZE = 50
+const MIN_SERVER_QUERY = 2
+const SEARCH_DEBOUNCE_MS = 300
 
 const DEFAULT_CONTENT = Object.freeze({
 	layout: 'grid',
@@ -126,8 +168,11 @@ const DEFAULT_CONTENT = Object.freeze({
  * (capability `people-widget`, REQ-PPL-001..012).
  *
  * Three layout modes (`card`, `grid`, `list`) backed by the same item
- * markup; CSS modifiers tune avatar size and column count. Search is a
- * client-side substring filter on the current page (REQ-PPL-011).
+ * markup; CSS modifiers tune avatar size and column count. A query of 2 or
+ * more characters asks the server, which searches the whole directory by
+ * name, email and profile fields (REQ-PEX-003); a shorter one filters the
+ * current page (REQ-PPL-011). Search results are never cached (REQ-PEX-004).
+ * Tags show as buttons; pressing one searches for it.
  *
  * Pagination is offset-based and matches the backend service contract
  * (REQ-PPL-003): each "Load more" tap appends one page of size
@@ -162,6 +207,10 @@ export default {
 			loading: false,
 			error: null,
 			search: '',
+			searchResults: [],
+			searchHasMore: false,
+			searchTimer: null,
+			searchSeq: 0,
 			cacheKey: '',
 			cacheStoredAt: 0,
 		}
@@ -227,8 +276,26 @@ export default {
 			return DEFAULT_CONTENT.birthdayWindowDays
 		},
 
+		/**
+		 * The trimmed query when it is long enough to ask the server, else ''.
+		 *
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		serverQuery() {
+			const query = (this.search || '').trim()
+			return query.length >= MIN_SERVER_QUERY ? query : ''
+		},
+
+		/** @spec openspec/specs/people-widget/spec.md */
+		canLoadMore() {
+			return this.serverQuery ? this.searchHasMore : this.hasMore
+		},
+
 		/** @spec openspec/specs/people-widget/spec.md */
 		filteredUsers() {
+			if (this.serverQuery) {
+				return this.searchResults
+			}
 			if (!this.search) {
 				return this.users
 			}
@@ -255,6 +322,25 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Debounce a server search for the new query; a short query drops the results.
+		 *
+		 * @param {string} query The new server query, or ''.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		serverQuery(query) {
+			clearTimeout(this.searchTimer)
+			this.searchResults = []
+			this.searchHasMore = false
+			if (!query) {
+				return
+			}
+			this.searchTimer = setTimeout(
+				() => this.fetchSearch(0),
+				SEARCH_DEBOUNCE_MS,
+			)
+		},
+
 		queryParams: {
 			/** @spec openspec/specs/people-widget/spec.md */
 			handler() {
@@ -272,6 +358,10 @@ export default {
 
 	mounted() {
 		this.fetchPage(0)
+	},
+
+	beforeUnmount() {
+		clearTimeout(this.searchTimer)
 	},
 
 	methods: {
@@ -354,10 +444,114 @@ export default {
 
 		/** @spec openspec/specs/people-widget/spec.md */
 		async loadMore() {
-			if (this.loading || !this.hasMore) {
+			if (this.loading || !this.canLoadMore) {
+				return
+			}
+			if (this.serverQuery) {
+				await this.fetchSearch(this.searchResults.length)
 				return
 			}
 			await this.fetchPage(this.users.length)
+		},
+
+		/**
+		 * Whether a profile carries custom fields to show.
+		 *
+		 * @param {object} user The user record.
+		 * @return {boolean} True when there is at least one field.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		hasCustomFields(user) {
+			return Array.isArray(user.customFields) && user.customFields.length > 0
+		},
+
+		/**
+		 * Whether a tag contains the current server query, for highlighting.
+		 *
+		 * @param {string} tag The tag.
+		 * @return {boolean} True when it matches.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		tagMatches(tag) {
+			return (
+				this.serverQuery !== ''
+				&& String(tag).toLowerCase().includes(this.serverQuery.toLowerCase())
+			)
+		},
+
+		/**
+		 * Search for everyone with this tag (REQ-PEX-003).
+		 *
+		 * @param {string} tag The tag.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		searchTag(tag) {
+			this.search = tag
+		},
+
+		/**
+		 * One page of server search results. Never cached (REQ-PEX-004); a
+		 * late answer to an older query is dropped.
+		 *
+		 * @param {number} offset Zero-based index of the first match.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		async fetchSearch(offset) {
+			const query = this.serverQuery
+			if (!query) {
+				return
+			}
+			const seq = ++this.searchSeq
+			this.loading = true
+			this.error = null
+			try {
+				const data = await this.requestPage({ q: query, offset })
+				if (seq !== this.searchSeq) {
+					return
+				}
+				const incoming = Array.isArray(data.users) ? data.users : []
+				this.searchResults =
+					offset === 0 ? incoming : this.searchResults.concat(incoming)
+				this.searchHasMore = data.hasMore === true
+			} catch (err) {
+				if (seq === this.searchSeq) {
+					this.error = err
+				}
+			} finally {
+				if (seq === this.searchSeq) {
+					this.loading = false
+				}
+			}
+		},
+
+		/**
+		 * GET one page of `/api/people` with the widget's parameters.
+		 *
+		 * @param {object} extra Extra parameters (`offset`, optional `q`).
+		 * @return {Promise<object>} The response body.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		async requestPage(extra) {
+			const params = new URLSearchParams()
+			Object.entries({
+				...this.queryParams,
+				limit: PAGE_SIZE,
+				...extra,
+			}).forEach(([key, value]) => {
+				params.append(key, String(value))
+			})
+
+			// Lazy import @nextcloud/* helpers — keeps the renderer
+			// out of the vitest css-no-op transform path for the
+			// majority of tests that don't exercise the network call.
+			const [{ default: axios }, { generateUrl }] = await Promise.all([
+				import('@nextcloud/axios'),
+				import('@nextcloud/router'),
+			])
+
+			const url = `${generateUrl('/apps/launchpad/api/people')}?${params.toString()}`
+			const response = await axios.get(url)
+			return response?.data || {}
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */
@@ -390,24 +584,7 @@ export default {
 			this.loading = true
 			this.error = null
 			try {
-				const params = new URLSearchParams()
-				Object.entries(this.queryParams).forEach(([key, value]) => {
-					params.append(key, String(value))
-				})
-				params.append('limit', '50')
-				params.append('offset', String(offset))
-
-				// Lazy import @nextcloud/* helpers — keeps the renderer
-				// out of the vitest css-no-op transform path for the
-				// majority of tests that don't exercise the network call.
-				const [{ default: axios }, { generateUrl }] = await Promise.all([
-					import('@nextcloud/axios'),
-					import('@nextcloud/router'),
-				])
-
-				const url = `${generateUrl('/apps/launchpad/api/people')}?${params.toString()}`
-				const response = await axios.get(url)
-				const data = response?.data || {}
+				const data = await this.requestPage({ offset })
 
 				const incoming = Array.isArray(data.users) ? data.users : []
 				if (offset === 0) {
@@ -480,26 +657,71 @@ export default {
 
 .people-widget__item {
 	display: flex;
-	gap: 8px;
-	align-items: center;
+	flex-direction: column;
+	gap: 4px;
 	padding: 6px;
 	border-radius: var(--border-radius);
-	color: var(--color-main-text);
-	text-decoration: none;
 	border: 1px solid transparent;
 }
 
+.people-widget__link {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	color: var(--color-main-text);
+	text-decoration: none;
+	min-width: 0;
+}
+
 .people-widget--card .people-widget__item {
-	flex-direction: column;
 	text-align: center;
 	border: 1px solid var(--color-border);
 	background: var(--color-main-background);
 	min-height: 200px;
 }
 
-.people-widget--grid .people-widget__item {
+.people-widget--card .people-widget__link,
+.people-widget--grid .people-widget__link {
 	flex-direction: column;
 	text-align: center;
+}
+
+.people-widget__fields {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+}
+
+.people-widget__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.people-widget--card .people-widget__tags {
+	justify-content: center;
+}
+
+.people-widget__tag {
+	padding: 2px 8px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-pill, 12px);
+	background: var(--color-background-hover);
+	color: var(--color-main-text);
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.people-widget__tag--match {
+	border-color: var(--color-primary-element);
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text);
+	font-weight: 600;
 }
 
 .people-widget__item:hover {

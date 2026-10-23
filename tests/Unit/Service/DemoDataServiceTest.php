@@ -20,6 +20,7 @@ class DemoDataServiceTest extends TestCase {
 	private string $appPath;
 	private IAppManager $appManager;
 	private ContainerInterface $container;
+	private $profileFields;
 
 	protected function setUp(): void {
 		$this->appPath = sys_get_temp_dir() . '/or-demo-' . uniqid();
@@ -31,6 +32,7 @@ class DemoDataServiceTest extends TestCase {
 		$this->appManager->method('getInstalledApps')->willReturn(['openregister']);
 
 		$this->container = $this->createMock(ContainerInterface::class);
+		$this->profileFields = $this->createMock(\OCA\LaunchPad\Service\ProfileFieldService::class);
 	}
 
 	protected function tearDown(): void {
@@ -52,7 +54,8 @@ class DemoDataServiceTest extends TestCase {
 		return new DemoDataService(
 			$this->appManager,
 			$this->container,
-			$this->createMock(LoggerInterface::class)
+			$this->createMock(LoggerInterface::class),
+			$this->profileFields
 		);
 	}
 
@@ -180,6 +183,9 @@ class DemoDataServiceTest extends TestCase {
 			}
 		};
 		$this->container->method('get')->willReturn($importer);
+
+		// widgets-people-expertise-and-fields: the demo profile fields come with it.
+		$this->profileFields->expects($this->once())->method('seedDemoDefinitions')->willReturn(true);
 
 		$result = $this->service()->install();
 

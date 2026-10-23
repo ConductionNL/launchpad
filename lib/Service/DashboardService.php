@@ -626,6 +626,15 @@ class DashboardService {
 	 * @spec openspec/specs/role-feature-permissions/spec.md#req-rfp-002-role-based-default-dashboard-layout
 	 */
 	private function resolveRoleLayoutOrDefaultGroupDashboard(string $userId): ?array {
+		// REQ-TMPL-019: a member who owns nothing yet gets the template meant
+		// for them, ahead of the dashboard everyone shares. Whoever owns a
+		// personal dashboard left the chain two steps earlier. The page shell
+		// takes the same rung at the same place (resolveTemplateOrGroupShared).
+		$fromTemplate = $this->resolveTemplateRung(userId: $userId);
+		if ($fromTemplate !== null) {
+			return $this->describeTemplateRung(rung: $fromTemplate);
+		}
+
 		// 🔴 ROLE DEFAULTS MUST BEAT THE INSTANCE-WIDE DEFAULT DASHBOARD.
 		// REQ-RFP-002 says a new user is seeded from their group's
 		// RoleLayoutDefault rows. Since #361 seeds one `default`
@@ -1748,7 +1757,10 @@ class DashboardService {
 
 		// Steps 2-3: group-shared with isDefault = 1.
 		// Steps 4-5: first group-shared (sortOrder ASC, createdAt ASC).
-		$groupShared = $this->resolveGroupSharedDashboard(
+		// Step 1b (REQ-TMPL-019) sits in front of them: the admin template
+		// meant for a user who owns no dashboard yet.
+		$groupShared = $this->resolveTemplateOrGroupShared(
+			userId: $userId,
 			visible: $visible,
 			groupId: $groupId
 		);
@@ -1829,6 +1841,144 @@ class DashboardService {
 
 		return null;
 	}//end resolvePreferredDashboard()
+
+	/**
+	 * Step 1b, then steps 2-5, of the page shell's chain.
+	 *
+	 * Without step 1b the page never looked at templates at all: a group
+	 * dashboard for everyone (one is seeded on install) always won, and with
+	 * none the page said "No dashboards available" while `GET /api/dashboard`
+	 * held the template.
+	 *
+	 * @param string $userId The user.
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible set.
+	 * @param string $groupId The normalised primary group.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|NULL The hit, or NULL to fall through.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
+	 */
+	private function resolveTemplateOrGroupShared(string $userId, array $visible, string $groupId): ?array {
+		$fromTemplate = $this->resolveTemplateRung(userId: $userId);
+		if ($fromTemplate === null) {
+			return $this->resolveGroupSharedDashboard(visible: $visible, groupId: $groupId);
+		}
+
+		$source = Dashboard::SOURCE_USER;
+		if ($fromTemplate['viewOnly'] === true) {
+			$source = Dashboard::SOURCE_GROUP;
+		}
+
+		return ['dashboard' => $fromTemplate['dashboard'], 'source' => $source];
+	}//end resolveTemplateOrGroupShared()
+
+	/**
+	 * The template rung of both resolution chains (REQ-TMPL-019).
+	 *
+	 * Answers for a user who owns no personal dashboard and has no saved
+	 * choice the caller could honour. Such a user gets the admin template
+	 * that applies to them: one that targets a group of theirs, else the
+	 * default template.
+	 *
+	 * A template that targets the user's group outranks every group
+	 * dashboard. The default template outranks the dashboards of the
+	 * `default` group (everyone), and steps aside for a default dashboard of
+	 * the user's own primary group, which is the more specific of the two.
+	 *
+	 * With personal dashboards allowed the user receives a copy, once, and it
+	 * becomes their saved choice, so every later visit resolves it through
+	 * the preference step and this rung stays silent (it only fires for a
+	 * user who owns nothing). With personal dashboards off no copy may be
+	 * made (REQ-ASET-003), and the template itself is shown, view only.
+	 *
+	 * @param string $userId The user.
+	 *
+	 * @return array{dashboard: Dashboard, viewOnly: bool}|null The dashboard to show, or null to fall through.
+	 *
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
+	 */
+	private function resolveTemplateRung(string $userId): ?array {
+		$template = $this->templateService->getApplicableTemplate(userId: $userId);
+		if ($template === null) {
+			return null;
+		}
+
+		// "First time" means: owns nothing yet. Whoever has a personal
+		// dashboard already made, or was given, their start.
+		if ($this->dashboardMapper->findByUserId(userId: $userId) !== []) {
+			return null;
+		}
+
+		if ($template->getTargetGroupsArray() === []
+			&& $this->hasPrimaryGroupDefault(userId: $userId) === true
+		) {
+			return null;
+		}
+
+		if ($this->getAllowUserDashboards() === false) {
+			return ['dashboard' => $template, 'viewOnly' => true];
+		}
+
+		$copy = $this->templateService->createDashboardFromTemplate(
+			userId: $userId,
+			template: $template
+		);
+		$this->config->setUserValue(
+			userId: $userId,
+			appName: Application::APP_ID,
+			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
+			value: (string)$copy->getUuid()
+		);
+
+		return ['dashboard' => $copy, 'viewOnly' => false];
+	}//end resolveTemplateRung()
+
+	/**
+	 * Whether the user's primary group has a default group dashboard.
+	 *
+	 * @param string $userId The user.
+	 *
+	 * @return bool True when one exists.
+	 */
+	private function hasPrimaryGroupDefault(string $userId): bool {
+		$groupId = $this->adminTemplateService->resolvePrimaryGroup(userId: $userId);
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+			return false;
+		}
+
+		return $this->findFirstGroupSharedWhere(
+			visible: $this->getVisibleToUser(userId: $userId),
+			groupId: $groupId,
+			source: Dashboard::SOURCE_GROUP,
+			requireDefault: true
+		) !== null;
+	}//end hasPrimaryGroupDefault()
+
+	/**
+	 * Shape the template rung's answer for `GET /api/dashboard`.
+	 *
+	 * @param array{dashboard: Dashboard, viewOnly: bool} $rung The rung's answer.
+	 *
+	 * @return array The dashboard result.
+	 */
+	private function describeTemplateRung(array $rung): array {
+		$placements = $this->placementMapper->findByDashboardId(
+			dashboardId: $rung['dashboard']->getId()
+		);
+
+		if ($rung['viewOnly'] === true) {
+			return [
+				'dashboard' => $rung['dashboard'],
+				'placements' => $placements,
+				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
+			];
+		}
+
+		return $this->dashResolver->buildResult(
+			dashboard: $rung['dashboard'],
+			placements: $placements
+		);
+	}//end describeTemplateRung()
 
 	/**
 	 * Resolve steps 2-5 of the active-dashboard ladder: the group-shared

@@ -24,6 +24,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\TileApiController;
 use OCA\LaunchPad\Db\Tile;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\ServiceDiscoveryService;
 use OCA\LaunchPad\Service\TileService;
 use OCP\AppFramework\Http;
 use OCP\IL10N;
@@ -44,6 +45,8 @@ class TileApiControllerTest extends TestCase {
 	private ActionAuthService $actionAuth;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var ServiceDiscoveryService&MockObject */
+	private ServiceDiscoveryService $discovery;
 
 	protected function setUp(): void {
 		$this->tileService = $this->createMock(TileService::class);
@@ -51,6 +54,7 @@ class TileApiControllerTest extends TestCase {
 		$this->l10n = $this->createMock(IL10N::class);
 		$this->actionAuth = $this->createMock(ActionAuthService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
+		$this->discovery = $this->createMock(ServiceDiscoveryService::class);
 		$this->l10n->method('t')->willReturnArgument(0);
 	}
 
@@ -69,8 +73,54 @@ class TileApiControllerTest extends TestCase {
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
 			l10n: $this->l10n,
+			discovery: $this->discovery,
 			userId: $userId,
 		);
+	}
+
+	/**
+	 * REQ-DISC-001: the caller's own discovered apps, behind tile.discover.
+	 *
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+	 */
+	public function testDiscoverAnswersTheCallersApps(): void {
+		$apps = [['appId' => 'deck', 'name' => 'Deck', 'href' => '/apps/deck/', 'icon' => '/apps/deck/img/deck.svg']];
+		$this->discovery->method('discover')->willReturn($apps);
+		$this->actionAuth->expects($this->once())->method('requireAction')
+			->with($this->isInstanceOf(IUser::class), 'tile.discover');
+
+		$response = $this->makeController()->discover();
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(['apps' => $apps], $response->getData());
+	}
+
+	/**
+	 * Without the tile.discover action the endpoint refuses before discovering.
+	 *
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+	 */
+	public function testDiscoverRefusesWithoutTheAction(): void {
+		$this->actionAuth->method('requireAction')
+			->willThrowException(new \OCP\AppFramework\OCS\OCSForbiddenException());
+		$this->discovery->expects($this->never())->method('discover');
+
+		$response = $this->makeController()->discover();
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
+
+	/**
+	 * An anonymous caller is refused.
+	 *
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md
+	 */
+	public function testDiscoverRefusesAnonymous(): void {
+		$this->discovery->expects($this->never())->method('discover');
+
+		$response = $this->makeController(userId: null)->discover();
+
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 	}
 
 	public function testCreateReturns410GoneEnvelope(): void {

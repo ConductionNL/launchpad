@@ -1,11 +1,11 @@
 {
 	"templateId": "mijn-werkdag",
-	"templateVersion": 4,
+	"templateVersion": 5,
 	"language": "nl",
 	"dashboard": {
 		"uuid": "6f0d1c1e-5b0a-4c56-9d55-0a1e6d2f7c01",
 		"name": "Mijn werkdag",
-		"description": "Startpagina voor medewerkers: wat vandaag eerst moet uit al uw apps, uw werk per app, uw agenda van vandaag, waar u gebleven was en al uw apps.",
+		"description": "Startpagina voor medewerkers in één scherm: wat vandaag eerst moet uit al uw apps, uw werk per app, al uw apps als tegels, uw agenda van vandaag en waar u gebleven was.",
 		"icon": null,
 		"type": "admin_template",
 		"userId": null,
@@ -16,23 +16,29 @@
 		"sortOrder": 0,
 		"publicationStatus": "published",
 		"templateCategory": "Werkplek",
-		"templateDescription": "Startpagina voor medewerkers van een gemeente. Begroet u met de datum, toont wat vandaag aandacht vraagt uit alle apps, uw werk per app (dossiq-zaken, pipelinq-vragen, decidiq-besluiten die op uw stem wachten), uw agenda van vandaag, waar u gebleven was en al uw apps. Een tegel van een app die hier niet is, wordt niet getoond. Werkt zonder extra instellingen.",
+		"templateDescription": "Startpagina voor medewerkers van een gemeente, in één scherm zonder te scrollen. Begroet u met de datum en de week, toont wat vandaag aandacht vraagt uit alle apps, uw werk per app (dossiq-zaken, pipelinq-vragen, decidiq-besluiten die op uw stem wachten), al uw apps als tegels met een filter, uw agenda van vandaag en waar u gebleven was. Werkt zonder extra instellingen.",
 		"widgets": [
 			{
 				"widgetId": "header",
 				"gridX": 0,
 				"gridY": 0,
 				"gridWidth": 12,
-				"gridHeight": 2,
+				"gridHeight": 3,
 				"isCompulsory": 1,
 				"isVisible": 1,
 				"styleConfig": {},
 				"customTitle": null,
 				"customIcon": null,
 				"content": {
+					"title": "Vandaag",
 					"greeting": true,
 					"showDate": true,
+					"showWeek": true,
+					"greetingLine": true,
+					"emblem": true,
 					"ground": true,
+					"fillHeight": true,
+					"fitRows": true,
 					"cta": {
 						"label": "Startpagina aanpassen",
 						"url": "/index.php/apps/launchpad/?edit=1",
@@ -45,45 +51,29 @@
 			{
 				"widgetId": "attention",
 				"gridX": 0,
-				"gridY": 2,
+				"gridY": 3,
 				"gridWidth": 12,
-				"gridHeight": 4,
+				"gridHeight": 3,
 				"isCompulsory": 1,
 				"isVisible": 1,
 				"styleConfig": {},
 				"customTitle": "Vandaag eerst",
 				"customIcon": null,
 				"content": {
-					"limit": 5,
+					"title": "Vandaag eerst",
+					"layout": "columns",
+					"columns": 3,
+					"limit": 3,
+					"fitRows": true,
 					"showActions": false
 				},
-				"showTitle": 1,
-				"sortOrder": 1
-			},
-			{
-				"widgetId": "label",
-				"gridX": 0,
-				"gridY": 6,
-				"gridWidth": 12,
-				"gridHeight": 1,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": null,
-				"customIcon": null,
-				"content": {
-					"text": "Mijn werk",
-					"textAlign": "left",
-					"fontSize": "18px",
-					"fontWeight": "700"
-				},
 				"showTitle": 0,
-				"sortOrder": 2
+				"sortOrder": 1
 			},
 			{
 				"widgetId": "stat",
 				"gridX": 0,
-				"gridY": 7,
+				"gridY": 6,
 				"gridWidth": 4,
 				"gridHeight": 2,
 				"isCompulsory": 0,
@@ -95,7 +85,7 @@
 					"label": "dossiq · Zaken",
 					"caption": "open zaken",
 					"icon": "BriefcaseOutline",
-					"layout": "stacked",
+					"layout": "horizontal",
 					"format": {
 						"style": "decimal",
 						"decimals": 0
@@ -112,15 +102,16 @@
 						}
 					},
 					"link": "/index.php/apps/dossiq/",
-					"hideWhenUnavailable": true
+					"hideWhenUnavailable": true,
+					"fitRows": true
 				},
 				"showTitle": 0,
-				"sortOrder": 3
+				"sortOrder": 2
 			},
 			{
 				"widgetId": "stat",
 				"gridX": 4,
-				"gridY": 7,
+				"gridY": 6,
 				"gridWidth": 4,
 				"gridHeight": 2,
 				"isCompulsory": 0,
@@ -132,7 +123,7 @@
 					"label": "pipelinq · Klantcontact",
 					"caption": "open vragen",
 					"icon": "MessageOutline",
-					"layout": "stacked",
+					"layout": "horizontal",
 					"format": {
 						"style": "decimal",
 						"decimals": 0
@@ -151,15 +142,16 @@
 						}
 					},
 					"link": "/index.php/apps/pipelinq/",
-					"hideWhenUnavailable": true
+					"hideWhenUnavailable": true,
+					"fitRows": true
 				},
 				"showTitle": 0,
-				"sortOrder": 4
+				"sortOrder": 3
 			},
 			{
 				"widgetId": "stat",
 				"gridX": 8,
-				"gridY": 7,
+				"gridY": 6,
 				"gridWidth": 4,
 				"gridHeight": 2,
 				"isCompulsory": 0,
@@ -171,7 +163,7 @@
 					"label": "decidiq · Besluitvorming",
 					"caption": "wachten op uw stem",
 					"icon": "Gavel",
-					"layout": "stacked",
+					"layout": "horizontal",
 					"format": {
 						"style": "decimal",
 						"decimals": 0
@@ -185,17 +177,43 @@
 						}
 					},
 					"link": "/index.php/apps/decidiq/",
-					"hideWhenUnavailable": true
+					"hideWhenUnavailable": true,
+					"fitRows": true
+				},
+				"showTitle": 0,
+				"sortOrder": 4
+			},
+			{
+				"widgetId": "app-tiles",
+				"gridX": 0,
+				"gridY": 8,
+				"gridWidth": 8,
+				"gridHeight": 8,
+				"isCompulsory": 0,
+				"isVisible": 1,
+				"styleConfig": {},
+				"customTitle": "Apps",
+				"customIcon": null,
+				"content": {
+					"title": "Apps",
+					"pinned": [],
+					"exclude": [
+						"launchpad"
+					],
+					"showFilter": true,
+					"showMostUsed": true,
+					"mostUsedLimit": 4,
+					"showActions": false
 				},
 				"showTitle": 0,
 				"sortOrder": 5
 			},
 			{
 				"widgetId": "calendar",
-				"gridX": 0,
-				"gridY": 9,
-				"gridWidth": 6,
-				"gridHeight": 5,
+				"gridX": 8,
+				"gridY": 8,
+				"gridWidth": 4,
+				"gridHeight": 4,
 				"isCompulsory": 0,
 				"isVisible": 1,
 				"styleConfig": {},
@@ -209,17 +227,23 @@
 						"personal"
 					],
 					"externalIcsUrls": [],
-					"showActions": false
+					"showActions": false,
+					"showTitle": false,
+					"showViewModes": false,
+					"headerLink": {
+						"label": "Open agenda",
+						"href": "/index.php/apps/calendar/"
+					}
 				},
 				"showTitle": 1,
 				"sortOrder": 6
 			},
 			{
 				"widgetId": "nc-widget",
-				"gridX": 6,
-				"gridY": 9,
-				"gridWidth": 6,
-				"gridHeight": 5,
+				"gridX": 8,
+				"gridY": 12,
+				"gridWidth": 4,
+				"gridHeight": 4,
 				"isCompulsory": 0,
 				"isVisible": 1,
 				"styleConfig": {},
@@ -229,94 +253,11 @@
 					"title": "Verder waar u was",
 					"widgetId": "activity",
 					"displayMode": "vertical",
-					"showActions": false
+					"showActions": false,
+					"showHeader": false
 				},
 				"showTitle": 1,
 				"sortOrder": 7
-			},
-			{
-				"widgetId": "label",
-				"gridX": 0,
-				"gridY": 14,
-				"gridWidth": 12,
-				"gridHeight": 1,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": null,
-				"customIcon": null,
-				"content": {
-					"text": "Alle apps",
-					"textAlign": "left",
-					"fontSize": "18px",
-					"fontWeight": "700"
-				},
-				"showTitle": 0,
-				"sortOrder": 8
-			},
-			{
-				"widgetId": "links",
-				"gridX": 0,
-				"gridY": 15,
-				"gridWidth": 12,
-				"gridHeight": 2,
-				"isCompulsory": 0,
-				"isVisible": 1,
-				"styleConfig": {},
-				"customTitle": null,
-				"customIcon": null,
-				"content": {
-					"linkLayout": "inline",
-					"columns": 9,
-					"openInNewTab": false,
-					"showSectionTitles": false,
-					"sections": [
-						{
-							"title": "Alle apps",
-							"links": [
-								{
-									"label": "dossiq",
-									"url": "/index.php/apps/dossiq/"
-								},
-								{
-									"label": "pipelinq",
-									"url": "/index.php/apps/pipelinq/"
-								},
-								{
-									"label": "decidiq",
-									"url": "/index.php/apps/decidiq/"
-								},
-								{
-									"label": "learniq",
-									"url": "/index.php/apps/learniq/"
-								},
-								{
-									"label": "Bestanden",
-									"url": "/index.php/apps/files/"
-								},
-								{
-									"label": "Agenda",
-									"url": "/index.php/apps/calendar/"
-								},
-								{
-									"label": "Mail",
-									"url": "/index.php/apps/mail/"
-								},
-								{
-									"label": "Talk",
-									"url": "/index.php/apps/spreed/"
-								},
-								{
-									"label": "Contacten",
-									"url": "/index.php/apps/contacts/"
-								}
-							]
-						}
-					],
-					"showActions": false
-				},
-				"showTitle": 0,
-				"sortOrder": 9
 			}
 		]
 	}

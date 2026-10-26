@@ -267,6 +267,9 @@ export const CnDashTileWidgetForm = stub('CnDashTileWidgetForm')
 export const CnSpendAnalyticsWidgetForm = stub('CnSpendAnalyticsWidgetForm')
 // Analytics widgets (OpenBuild parity) — renderers + config forms.
 export const CnStatWidget = stub('CnStatWidget')
+export const CnAppTilesWidget = stub('CnAppTilesWidget')
+export const CnAppTilesWidgetForm = stub('CnAppTilesWidgetForm')
+export const CnGroupedMenu = stub('CnGroupedMenu')
 export const CnStatWidgetForm = stub('CnStatWidgetForm')
 export const CnDeltaWidget = stub('CnDeltaWidget')
 export const CnDeltaWidgetForm = stub('CnDeltaWidgetForm')
@@ -379,6 +382,11 @@ const _DASH = {
 		defaultContent: { folderPath: '/' },
 	},
 	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
+	'app-tiles': {
+		renderer: CnAppTilesWidget,
+		form: CnAppTilesWidgetForm,
+		defaultContent: {},
+	},
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
 	'object-list': {
@@ -495,6 +503,9 @@ export default {
 	CnSpendAnalyticsWidgetForm,
 	CnStatWidget,
 	CnStatWidgetForm,
+	CnAppTilesWidget,
+	CnAppTilesWidgetForm,
+	CnGroupedMenu,
 	CnDeltaWidget,
 	CnDeltaWidgetForm,
 	CnGaugeWidget,

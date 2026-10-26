@@ -31,6 +31,7 @@
 			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
 			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
+			:headerLink="headerLink"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
@@ -94,6 +95,23 @@ import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
+
+/**
+ * Whether two links lead to the same page, ignoring the host, `/index.php`
+ * and a trailing slash.
+ *
+ * @param {string} a A link.
+ * @param {string} b Another link.
+ * @return {boolean}
+ */
+export function sameDestination(a, b) {
+	const path = (link) =>
+		String(link ?? '')
+			.replace(/^[a-z]+:\/\/[^/]+/i, '')
+			.replace(/^\/index\.php/, '')
+			.replace(/\/+$/, '')
+	return a !== undefined && a !== null && path(a) === path(b)
+}
 
 export default {
 	name: 'WidgetWrapper',
@@ -230,7 +248,10 @@ export default {
 		 * @return {boolean} true when the renderer owns the header.
 		 */
 		rendersOwnHeader() {
-			return this.placement?.widgetId === 'nc-widget'
+			return (
+				this.placement?.widgetId === 'nc-widget'
+				&& this.placement?.content?.showHeader !== false
+			)
 		},
 
 		/**
@@ -308,7 +329,36 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetButtons() {
-			return this.widget?.buttons || []
+			const buttons = this.widget?.buttons || []
+			const headerHref = this.headerLink?.href
+			if (!headerHref) {
+				return buttons
+			}
+			return buttons.filter(
+				(button) => !sameDestination(button?.link, headerHref),
+			)
+		},
+
+		/**
+		 * The text link in the card's header (`content.headerLink`,
+		 * `{ label, href }`), as LpVandaag's "Open agenda". Null without a
+		 * label and a link.
+		 *
+		 * @return {{label: string, href: string}|null}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		headerLink() {
+			const link = this.placement?.content?.headerLink
+			if (
+				!link
+				|| typeof link.label !== 'string'
+				|| link.label === ''
+				|| typeof link.href !== 'string'
+				|| link.href === ''
+			) {
+				return null
+			}
+			return { label: link.label, href: link.href }
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

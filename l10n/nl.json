@@ -1644,6 +1644,18 @@
         "applies to the whole organisation": "geldt voor de hele organisatie",
         "Discovered on this server": "Gevonden op deze server",
         "Apps this server runs for you. One click places one as a tile.": "Apps die deze server voor u draait. Met één klik wordt er een tegel van.",
-        "On this dashboard": "Op dit dashboard"
+        "On this dashboard": "Op dit dashboard",
+        "More": "Meer",
+        "Versions": "Versies",
+        "All dashboards": "Alle dashboards",
+        "This dashboard": "Dit dashboard",
+        "Launchpad": "Launchpad",
+        "default": "standaard",
+        "shared": "gedeeld",
+        "group": "groep",
+        "_%n thing from all your apps that needs attention today_::_%n things from all your apps that need attention today_": [
+            "%n ding uit al uw apps dat vandaag aandacht vraagt",
+            "%n dingen uit al uw apps die vandaag aandacht vragen"
+        ]
     }
 }

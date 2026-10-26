@@ -1,5 +1,5 @@
 <template>
-	<div id="launchpad-app">
+	<div id="launchpad-app" :class="{ 'launchpad-app--fill': fillsHeight }">
 		<!-- Slide-in sidebar (REQ-SWITCH-001..007). The sidebar keeps the
 		     `isOpen` prop / `update:open` event pair mandated by the spec.
 		     Vue 3 removed the component-level `model: { prop, event }`
@@ -53,13 +53,8 @@
 			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
 		</Teleport>
 
-		<!-- Floating controls in top right.
-		     Wave3.3 removed the floating `DashboardConfigMenu` (cog) — its
-		     entries (Edit / Configure / Add widget / Delete) now live in
-		     the left sidebar's header NcActions menu so the per-dashboard
-		     destructive + edit actions sit alongside switching. The
-		     hamburger keeps its place (top-right entry point when the
-		     sidebar is closed). -->
+		<!-- The page's top-right controls: the "Meer" menu, and the
+		     acknowledgement count and hidden-widgets control when they apply. -->
 		<!-- TELEPORTED FOR THE SAME REASON AS THE SIDEBAR, and specifically
 		     because of it. These controls are `position: fixed` with
 		     `z-index: 1000`, chosen to sit just above the backdrop's original
@@ -85,65 +80,36 @@
 				class="launchpad-floating-controls"
 				:class="{ 'launchpad-floating-controls--docked': headerActionsTarget !== null }"
 				data-testid="launchpad-top-controls">
-				<!-- Active-dashboard cog: the same per-dashboard action menu that
-			     sits on every sidebar row (DashboardRowActions), but bound to
-			     the currently active dashboard so the user can Edit / Configure
-			     / Add widget / Set default / Delete it directly from the
-			     top-right cluster without opening the sidebar first. Reuses the
-			     existing onRow* handlers; `maybeSwitchTo` is a no-op because the
-			     target is already active. -->
-				<!-- Active-dashboard cog. Styled `secondary` with a 20px icon so
-			     it matches the adjacent dashboards (hamburger) button, and
-			     carries the Share action (dashboard-sharing spec) in-menu
-			     rather than as a standalone top-bar button. -->
-				<DashboardRowActions
-					v-if="activeDashboard"
+				<!-- LpVandaag: one "Meer" menu holds the dashboard switcher, the
+				     active dashboard's actions, the start page's destinations
+				     and Share, beside "Startpagina aanpassen". -->
+				<DashboardMoreMenu
 					:dashboard="activeDashboard"
 					:source="activeDashboardSource"
+					:userDashboards="sidebarUserDashboards"
+					:groupDashboards="sidebarGroupDashboards"
+					:sharedDashboards="sharedWithMeDashboards"
+					:defaultUuid="defaultDashboardUuid"
 					:canEdit="canEdit"
 					:canShare="canShareActiveDashboard"
 					:canManagePublication="canManagePublication"
 					:canViewHistory="canViewVersionHistory"
-					:defaultUuid="defaultDashboardUuid"
+					:canViewReadReceipts="canEdit && acknowledgementAnnouncementKeys.length > 0"
 					:isEditMode="isEditMode"
-					:activeDashboardId="activeDashboard.id"
-					buttonType="secondary"
-					:iconSize="20"
-					class="launchpad-active-dashboard-cog"
-					@toggleEdit="
-						onRowToggleEdit(activeDashboard, activeDashboardSource)
-					"
-					@openConfig="
-						onRowOpenConfig(activeDashboard, activeDashboardSource)
-					"
-					@addCustomWidget="
-						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
-					"
-					@setDefault="
-						onRowSetDefault(activeDashboard, activeDashboardSource)
-					"
+					@switch="onSidebarSwitch"
+					@openAll="sidebarOpen = true"
+					@toggleEdit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
+					@openConfig="onRowOpenConfig(activeDashboard, activeDashboardSource)"
+					@addCustomWidget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
+					@setDefault="onRowSetDefault(activeDashboard, activeDashboardSource)"
 					@share="openShareDrawer"
 					@publish="onPublishActive"
 					@unpublish="onUnpublishActive"
 					@schedule="scheduleDialogOpen = true"
 					@versionHistory="versionHistoryOpen = true"
+					@readReceipts="openAcknowledgementReport(acknowledgementAnnouncementKeys[0])"
 					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
-				<NcButton
-					variant="secondary"
-					:aria-label="t('launchpad', 'Dashboards')"
-					class="launchpad-sidebar-toggle"
-					@click="sidebarOpen = !sidebarOpen">
-					<template #icon>
-						<MenuIcon :size="20" />
-					</template>
-				</NcButton>
-				<!-- runtime-shell REQ-SHELL-009: when the start page renders
-				     without the left navigation panel, the panel's destinations
-				     (Documentation, Store, Reports, Features & roadmap, the
-				     settings entries) are in this menu, beside the dashboard
-				     switcher above. Renders nothing while the panel is there. -->
-				<StartPageMenu />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
 			     of the user's outstanding mandatory-read items. Hidden entirely
 			     when zero so dashboards without acknowledgement requirements are
@@ -164,9 +130,6 @@
 						)
 					}}
 				</span>
-				<!-- dashboard-acknowledgements REQ-ACK-004: admin read-receipt
-			     report opener. Only shown to an editor when the active
-			     dashboard carries at least one acknowledgement requirement. -->
 				<!-- dashboards-personal-hide-ui REQ-PERSUI-002: what this
 				     person hid, with Show again and Reset my view. -->
 				<HiddenWidgetsControl
@@ -175,28 +138,6 @@
 					:availableWidgets="availableWidgets"
 					@showAgain="onShowAgain"
 					@reset="onResetPersonalView" />
-				<NcButton
-					v-if="canShareActiveDashboard"
-					variant="tertiary"
-					:aria-label="t('launchpad', 'Share')"
-					class="mydash-share-action"
-					data-test="dashboard-share-action"
-					@click="openShareDrawer">
-					<template #icon>
-						<ShareVariant :size="20" />
-					</template>
-					{{ t('launchpad', 'Share') }}
-				</NcButton>
-				<NcButton
-					v-if="canEdit && acknowledgementAnnouncementKeys.length > 0"
-					variant="secondary"
-					:aria-label="t('launchpad', 'Read receipts')"
-					data-testid="open-acknowledgement-report"
-					@click="
-						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
-					">
-					{{ t('launchpad', 'Read receipts') }}
-				</NcButton>
 			</div>
 		</Teleport>
 
@@ -246,7 +187,7 @@
 		<!-- Main dashboard grid -->
 		<div
 			class="launchpad-container"
-			:class="{ 'launchpad-edit-mode': isEditMode }">
+			:class="{ 'launchpad-edit-mode': isEditMode, 'launchpad-container--fill': fillsHeight }">
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
@@ -270,8 +211,9 @@
 				@takeOver="forceReleaseDialogOpen = true" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
-				:layout="shownPlacements"
+				:layout="gridLayout"
 				:editable="isEditMode"
+				:fillHeight="fillsHeight"
 				:columns="activeDashboard.gridColumns || 12"
 				:cellHeight="60"
 				:margin="8"
@@ -488,8 +430,6 @@ import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
 import { computed, provide, reactive } from 'vue'
-import MenuIcon from 'vue-material-design-icons/Menu.vue'
-import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 // Icons
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
 import TileWidget from '../components/TileWidget.vue'
@@ -498,13 +438,12 @@ import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 import WidgetWrapper from '../components/WidgetWrapper.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
+import DashboardMoreMenu from '../components/Workspace/DashboardMoreMenu.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
-import DashboardRowActions from '../components/Workspace/DashboardRowActions.vue'
 import DashboardSwitcherSidebar from '../components/Workspace/DashboardSwitcherSidebar.vue'
 import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
-import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
@@ -548,8 +487,6 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		ViewDashboard,
-		MenuIcon,
-		ShareVariant,
 		CnDashboardGrid,
 		WidgetWrapper,
 		AcknowledgementReportModal,
@@ -563,9 +500,8 @@ export default {
 		WidgetMovePanel,
 		VisibilityRulesModal,
 		DashboardSwitcherSidebar,
-		DashboardRowActions,
+		DashboardMoreMenu,
 		SidebarBackdrop,
-		StartPageMenu,
 		DashboardReactions,
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
@@ -813,6 +749,34 @@ export default {
 		},
 
 		/**
+		 * Whether the dashboard fills the height below the top bar instead
+		 * of scrolling (LpVandaag): a placement asks for it with
+		 * `content.fillHeight: true`. The grid then divides its height over
+		 * the rows, and long widgets scroll inside their card.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		fillsHeight() {
+			return this.shownPlacements.some((p) => p?.content?.fillHeight === true)
+		},
+
+		/**
+		 * The layout the grid draws: the shown placements, and outside edit
+		 * mode a placement with `content.fitRows: true` marked so its rows
+		 * take its content's height on a filled grid.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		gridLayout() {
+			if (this.isEditMode || !this.fillsHeight) {
+				return this.shownPlacements
+			}
+			return this.shownPlacements.map((p) => (p?.content?.fitRows === true ? { ...p, fitRows: true } : p))
+		},
+
+		/**
 		 * tile-quick-search REQ-QSEARCH-002 — whether a given placement is
 		 * currently de-emphasised by an active quick-search query.
 		 *
@@ -1053,7 +1017,7 @@ export default {
 
 		/**
 		 * Section discriminator for the currently active dashboard, so the
-		 * top-right active-dashboard cog (DashboardRowActions) gates its
+		 * start page's "Meer" menu (DashboardMoreMenu) gates its
 		 * owner-only entries (Configure / Delete) exactly like the matching
 		 * sidebar row. Resolved by locating the active id in the same buckets
 		 * the sidebar renders; falls back to the dashboard's own `isOwner`
@@ -2978,6 +2942,27 @@ export default {
 	background: transparent;
 }
 
+/* A dashboard that fills the height (LpVandaag): the page keeps the height
+   below the top bar and the grid divides it, so nothing here scrolls. */
+#launchpad-app.launchpad-app--fill {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.launchpad-container.launchpad-container--fill {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.launchpad-container--fill > .cn-dashboard-grid {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
 /* Nextcloud insets the content area horizontally but not at the top, so the
    grid sat flush under the navbar (8px top gap from the grid margin vs 16px
    on the sides). Add a matching top inset so the dashboard breathes evenly.
@@ -3077,12 +3062,6 @@ export default {
 	font-size: 0.8em;
 	font-weight: 600;
 	white-space: nowrap;
-}
-
-.launchpad-sidebar-toggle {
-	/* Hint that the sidebar opens from the left even though the toggle
-	   itself lives in the top-right cluster. */
-	margin-right: auto;
 }
 
 /* Strip the visible text on the menu trigger button — we want icon-only.

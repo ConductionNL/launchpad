@@ -91,3 +91,22 @@ describe('WidgetWrapper — edit cog', () => {
 		).toBe(true)
 	})
 })
+
+describe('WidgetWrapper — header link (LpVandaag "Open agenda")', () => {
+	it('hands content.headerLink to the card', () => {
+		const wrapper = mountWrapper({
+			id: 2,
+			widgetId: 'calendar',
+			showTitle: true,
+			content: { headerLink: { label: 'Open agenda', href: '/index.php/apps/calendar/' } },
+		})
+		expect(wrapper.vm.headerLink).toEqual({ label: 'Open agenda', href: '/index.php/apps/calendar/' })
+	})
+
+	it('hands none without a label or a link', () => {
+		for (const headerLink of [undefined, { label: 'Open agenda' }, { href: '/x' }, { label: '', href: '/x' }]) {
+			const wrapper = mountWrapper({ id: 3, widgetId: 'calendar', showTitle: true, content: { headerLink } })
+			expect(wrapper.vm.headerLink).toBeNull()
+		}
+	})
+})

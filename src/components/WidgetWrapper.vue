@@ -31,6 +31,7 @@
 			:iconClass="widget && widget.iconClass ? widget.iconClass : null"
 			:styleConfig="styleConfig"
 			:buttons="widgetButtons"
+			:headerLink="headerLink"
 			:borderless="isChromelessFrame"
 			:flush="isChromelessFrame || rendersOwnHeader"
 			:showRefresh="false"
@@ -309,6 +310,22 @@ export default {
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetButtons() {
 			return this.widget?.buttons || []
+		},
+
+		/**
+		 * The text link in the card's header (`content.headerLink`,
+		 * `{ label, href }`), as LpVandaag's "Open agenda". Null without a
+		 * label and a link.
+		 *
+		 * @return {{label: string, href: string}|null}
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-the-start-page-fits-the-screen
+		 */
+		headerLink() {
+			const link = this.placement?.content?.headerLink
+			if (!link || typeof link.label !== 'string' || link.label === '' || typeof link.href !== 'string' || link.href === '') {
+				return null
+			}
+			return { label: link.label, href: link.href }
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */

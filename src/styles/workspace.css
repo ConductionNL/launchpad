@@ -183,6 +183,12 @@
 	padding-inline: max(0px, calc((100% - 1214px) / 2));
 }
 
+/* A start page that fills the height (LpVandaag) runs from edge to edge, 28px
+   in from the window with the grid's own 8px item margin. */
+.app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container.launchpad-container--fill {
+	padding-inline: 20px;
+}
+
 /* =========================================================
    Mijn werkdag 4 on the start page, as LpStart draws it. Each rule keys on
    a widget the template declares, so a dashboard that declares none of
@@ -280,6 +286,38 @@
 	flex: none;
 	display: flex;
 	align-items: center;
+}
+
+/* On a phone the greeting takes the row, and "Startpagina aanpassen" wraps
+   under it with the controls at its right, instead of covering the heading
+   (LpVandaag at 390px). */
+@media (max-width: 640px) {
+	.launchpad-container .cn-header-widget--ground:has(> .launchpad-header-actions) {
+		flex-wrap: wrap;
+	}
+
+	.launchpad-container
+		.cn-header-widget--ground:has(> .launchpad-header-actions)
+		> .cn-header-widget__content {
+		flex-basis: 100%;
+	}
+
+	.launchpad-container
+		.cn-header-widget--ground:has(> .launchpad-header-actions)
+		.cn-header-widget__cta {
+		position: static;
+		align-self: flex-start;
+		margin-top: 8px;
+		transform: none;
+	}
+
+	.launchpad-container
+		.cn-header-widget--ground
+		> .launchpad-header-actions {
+		position: absolute;
+		inset-inline-end: 0;
+		bottom: 0;
+	}
 }
 
 /* A section label reads as a heading at the left edge. */

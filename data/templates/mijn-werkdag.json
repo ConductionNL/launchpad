@@ -23,7 +23,7 @@
 				"gridX": 0,
 				"gridY": 0,
 				"gridWidth": 12,
-				"gridHeight": 2,
+				"gridHeight": 3,
 				"isCompulsory": 1,
 				"isVisible": 1,
 				"styleConfig": {},
@@ -51,7 +51,7 @@
 			{
 				"widgetId": "attention",
 				"gridX": 0,
-				"gridY": 2,
+				"gridY": 3,
 				"gridWidth": 12,
 				"gridHeight": 3,
 				"isCompulsory": 1,
@@ -73,7 +73,7 @@
 			{
 				"widgetId": "stat",
 				"gridX": 0,
-				"gridY": 5,
+				"gridY": 6,
 				"gridWidth": 4,
 				"gridHeight": 2,
 				"isCompulsory": 0,
@@ -85,7 +85,7 @@
 					"label": "dossiq · Zaken",
 					"caption": "open zaken",
 					"icon": "BriefcaseOutline",
-					"layout": "stacked",
+					"layout": "horizontal",
 					"format": {
 						"style": "decimal",
 						"decimals": 0
@@ -111,7 +111,7 @@
 			{
 				"widgetId": "stat",
 				"gridX": 4,
-				"gridY": 5,
+				"gridY": 6,
 				"gridWidth": 4,
 				"gridHeight": 2,
 				"isCompulsory": 0,
@@ -123,7 +123,7 @@
 					"label": "pipelinq · Klantcontact",
 					"caption": "open vragen",
 					"icon": "MessageOutline",
-					"layout": "stacked",
+					"layout": "horizontal",
 					"format": {
 						"style": "decimal",
 						"decimals": 0
@@ -151,7 +151,7 @@
 			{
 				"widgetId": "stat",
 				"gridX": 8,
-				"gridY": 5,
+				"gridY": 6,
 				"gridWidth": 4,
 				"gridHeight": 2,
 				"isCompulsory": 0,
@@ -163,7 +163,7 @@
 					"label": "decidiq · Besluitvorming",
 					"caption": "wachten op uw stem",
 					"icon": "Gavel",
-					"layout": "stacked",
+					"layout": "horizontal",
 					"format": {
 						"style": "decimal",
 						"decimals": 0
@@ -186,7 +186,7 @@
 			{
 				"widgetId": "app-tiles",
 				"gridX": 0,
-				"gridY": 7,
+				"gridY": 8,
 				"gridWidth": 8,
 				"gridHeight": 8,
 				"isCompulsory": 0,
@@ -211,7 +211,7 @@
 			{
 				"widgetId": "calendar",
 				"gridX": 8,
-				"gridY": 7,
+				"gridY": 8,
 				"gridWidth": 4,
 				"gridHeight": 4,
 				"isCompulsory": 0,
@@ -241,7 +241,7 @@
 			{
 				"widgetId": "nc-widget",
 				"gridX": 8,
-				"gridY": 11,
+				"gridY": 12,
 				"gridWidth": 4,
 				"gridHeight": 4,
 				"isCompulsory": 0,
@@ -253,7 +253,8 @@
 					"title": "Verder waar u was",
 					"widgetId": "activity",
 					"displayMode": "vertical",
-					"showActions": false
+					"showActions": false,
+					"showHeader": false
 				},
 				"showTitle": 1,
 				"sortOrder": 7

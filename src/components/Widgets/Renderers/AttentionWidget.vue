@@ -330,6 +330,10 @@ export default {
 
 /* `layout: "columns"`: the items in one row, each with its title, reason
    and app on the left and its action on the right (LpVandaag). */
+.attention-widget--columns {
+	padding: 0;
+}
+
 .attention-widget--columns .attention-widget__list {
 	display: grid;
 	grid-template-columns: repeat(var(--attention-columns, 3), minmax(0, 1fr));

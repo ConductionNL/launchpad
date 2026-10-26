@@ -96,6 +96,22 @@ import AcknowledgementPrompt from './AcknowledgementPrompt.vue'
 import WidgetRenderer from './WidgetRenderer.vue'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
+/**
+ * Whether two links lead to the same page, ignoring the host, `/index.php`
+ * and a trailing slash.
+ *
+ * @param {string} a A link.
+ * @param {string} b Another link.
+ * @return {boolean}
+ */
+export function sameDestination(a, b) {
+	const path = (link) => String(link ?? '')
+		.replace(/^[a-z]+:\/\/[^/]+/i, '')
+		.replace(/^\/index\.php/, '')
+		.replace(/\/+$/, '')
+	return a !== undefined && a !== null && path(a) === path(b)
+}
+
 export default {
 	name: 'WidgetWrapper',
 
@@ -232,6 +248,7 @@ export default {
 		 */
 		rendersOwnHeader() {
 			return this.placement?.widgetId === 'nc-widget'
+				&& this.placement?.content?.showHeader !== false
 		},
 
 		/**
@@ -309,7 +326,12 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		widgetButtons() {
-			return this.widget?.buttons || []
+			const buttons = this.widget?.buttons || []
+			const headerHref = this.headerLink?.href
+			if (!headerHref) {
+				return buttons
+			}
+			return buttons.filter((button) => !sameDestination(button?.link, headerHref))
 		},
 
 		/**

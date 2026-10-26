@@ -98,14 +98,32 @@ describe('WidgetWrapper — header link (LpVandaag "Open agenda")', () => {
 			id: 2,
 			widgetId: 'calendar',
 			showTitle: true,
-			content: { headerLink: { label: 'Open agenda', href: '/index.php/apps/calendar/' } },
+			content: {
+				headerLink: {
+					label: 'Open agenda',
+					href: '/index.php/apps/calendar/',
+				},
+			},
 		})
-		expect(wrapper.vm.headerLink).toEqual({ label: 'Open agenda', href: '/index.php/apps/calendar/' })
+		expect(wrapper.vm.headerLink).toEqual({
+			label: 'Open agenda',
+			href: '/index.php/apps/calendar/',
+		})
 	})
 
 	it('hands none without a label or a link', () => {
-		for (const headerLink of [undefined, { label: 'Open agenda' }, { href: '/x' }, { label: '', href: '/x' }]) {
-			const wrapper = mountWrapper({ id: 3, widgetId: 'calendar', showTitle: true, content: { headerLink } })
+		for (const headerLink of [
+			undefined,
+			{ label: 'Open agenda' },
+			{ href: '/x' },
+			{ label: '', href: '/x' },
+		]) {
+			const wrapper = mountWrapper({
+				id: 3,
+				widgetId: 'calendar',
+				showTitle: true,
+				content: { headerLink },
+			})
 			expect(wrapper.vm.headerLink).toBeNull()
 		}
 	})
@@ -115,8 +133,27 @@ describe('WidgetWrapper — footer buttons and the Nextcloud widget header', () 
 	it('leaves out a footer button that leads where the header link does', () => {
 		const wrapper = shallowMount(WidgetWrapper, {
 			propsData: {
-				placement: { id: 4, widgetId: 'calendar', showTitle: true, content: { headerLink: { label: 'Open agenda', href: '/index.php/apps/calendar/' } } },
-				widget: { title: 'Agenda', buttons: [{ text: 'Meer activiteiten', link: 'http://localhost:8080/apps/calendar' }, { text: 'Nieuw', link: '/apps/calendar/new' }] },
+				placement: {
+					id: 4,
+					widgetId: 'calendar',
+					showTitle: true,
+					content: {
+						headerLink: {
+							label: 'Open agenda',
+							href: '/index.php/apps/calendar/',
+						},
+					},
+				},
+				widget: {
+					title: 'Agenda',
+					buttons: [
+						{
+							text: 'Meer activiteiten',
+							link: 'http://localhost:8080/apps/calendar',
+						},
+						{ text: 'Nieuw', link: '/apps/calendar/new' },
+					],
+				},
 			},
 			mocks: { t: (_app, key) => key },
 		})
@@ -125,23 +162,42 @@ describe('WidgetWrapper — footer buttons and the Nextcloud widget header', () 
 
 	it('keeps every footer button without a header link', () => {
 		const wrapper = shallowMount(WidgetWrapper, {
-			propsData: { placement: { id: 5, widgetId: 'calendar', showTitle: true }, widget: { title: 'Agenda', buttons: [{ text: 'A', link: '/a' }] } },
+			propsData: {
+				placement: { id: 5, widgetId: 'calendar', showTitle: true },
+				widget: { title: 'Agenda', buttons: [{ text: 'A', link: '/a' }] },
+			},
 			mocks: { t: (_app, key) => key },
 		})
 		expect(wrapper.vm.widgetButtons).toHaveLength(1)
 	})
 
 	it('lets the card title a Nextcloud widget that draws no header of its own', () => {
-		const own = mountWrapper({ id: 6, widgetId: 'nc-widget', showTitle: true, content: {} })
+		const own = mountWrapper({
+			id: 6,
+			widgetId: 'nc-widget',
+			showTitle: true,
+			content: {},
+		})
 		expect(own.vm.showHeader).toBe(false)
-		const titled = mountWrapper({ id: 7, widgetId: 'nc-widget', showTitle: true, customTitle: 'Verder waar u was', content: { showHeader: false } })
+		const titled = mountWrapper({
+			id: 7,
+			widgetId: 'nc-widget',
+			showTitle: true,
+			customTitle: 'Verder waar u was',
+			content: { showHeader: false },
+		})
 		expect(titled.vm.showHeader).toBe(true)
 	})
 })
 
 describe('sameDestination', () => {
 	it('compares the path, ignoring the host, /index.php and a trailing slash', () => {
-		expect(sameDestination('http://localhost:8080/apps/calendar', '/index.php/apps/calendar/')).toBe(true)
+		expect(
+			sameDestination(
+				'http://localhost:8080/apps/calendar',
+				'/index.php/apps/calendar/',
+			),
+		).toBe(true)
 		expect(sameDestination('/apps/calendar/new', '/apps/calendar')).toBe(false)
 		expect(sameDestination(undefined, '/apps/calendar')).toBe(false)
 	})

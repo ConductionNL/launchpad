@@ -382,7 +382,11 @@ const _DASH = {
 		defaultContent: { folderPath: '/' },
 	},
 	stat: { renderer: CnStatWidget, form: CnStatWidgetForm, defaultContent: {} },
-	'app-tiles': { renderer: CnAppTilesWidget, form: CnAppTilesWidgetForm, defaultContent: {} },
+	'app-tiles': {
+		renderer: CnAppTilesWidget,
+		form: CnAppTilesWidgetForm,
+		defaultContent: {},
+	},
 	delta: { renderer: CnDeltaWidget, form: CnDeltaWidgetForm, defaultContent: {} },
 	gauge: { renderer: CnGaugeWidget, form: CnGaugeWidgetForm, defaultContent: {} },
 	'object-list': {

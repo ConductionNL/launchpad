@@ -141,10 +141,7 @@ export function startPageSections(chrome, openUserSettings) {
 		}
 	}
 	const settings = []
-	if (
-		chrome.includePersonalSettings
-		&& typeof openUserSettings === 'function'
-	) {
+	if (chrome.includePersonalSettings && typeof openUserSettings === 'function') {
 		settings.push({
 			id: 'personal-settings',
 			label: t('launchpad', 'Personal settings'),

@@ -105,10 +105,11 @@ import { resolveWidgetTitle } from '../utils/widgetTitle.js'
  * @return {boolean}
  */
 export function sameDestination(a, b) {
-	const path = (link) => String(link ?? '')
-		.replace(/^[a-z]+:\/\/[^/]+/i, '')
-		.replace(/^\/index\.php/, '')
-		.replace(/\/+$/, '')
+	const path = (link) =>
+		String(link ?? '')
+			.replace(/^[a-z]+:\/\/[^/]+/i, '')
+			.replace(/^\/index\.php/, '')
+			.replace(/\/+$/, '')
 	return a !== undefined && a !== null && path(a) === path(b)
 }
 
@@ -247,8 +248,10 @@ export default {
 		 * @return {boolean} true when the renderer owns the header.
 		 */
 		rendersOwnHeader() {
-			return this.placement?.widgetId === 'nc-widget'
+			return (
+				this.placement?.widgetId === 'nc-widget'
 				&& this.placement?.content?.showHeader !== false
+			)
 		},
 
 		/**
@@ -331,7 +334,9 @@ export default {
 			if (!headerHref) {
 				return buttons
 			}
-			return buttons.filter((button) => !sameDestination(button?.link, headerHref))
+			return buttons.filter(
+				(button) => !sameDestination(button?.link, headerHref),
+			)
 		},
 
 		/**
@@ -344,7 +349,13 @@ export default {
 		 */
 		headerLink() {
 			const link = this.placement?.content?.headerLink
-			if (!link || typeof link.label !== 'string' || link.label === '' || typeof link.href !== 'string' || link.href === '') {
+			if (
+				!link
+				|| typeof link.label !== 'string'
+				|| link.label === ''
+				|| typeof link.href !== 'string'
+				|| link.href === ''
+			) {
 				return null
 			}
 			return { label: link.label, href: link.href }

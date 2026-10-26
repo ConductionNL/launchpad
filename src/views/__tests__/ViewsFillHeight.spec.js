@@ -28,12 +28,20 @@ beforeAll(async () => {
  */
 function makeHost(placements, isEditMode = false) {
 	const host = { shownPlacements: placements, isEditMode }
-	Object.defineProperty(host, 'fillsHeight', { get: () => Views.computed.fillsHeight.call(host) })
-	Object.defineProperty(host, 'gridLayout', { get: () => Views.computed.gridLayout.call(host) })
+	Object.defineProperty(host, 'fillsHeight', {
+		get: () => Views.computed.fillsHeight.call(host),
+	})
+	Object.defineProperty(host, 'gridLayout', {
+		get: () => Views.computed.gridLayout.call(host),
+	})
 	return host
 }
 
-const header = { id: 1, widgetId: 'header', content: { fillHeight: true, fitRows: true } }
+const header = {
+	id: 1,
+	widgetId: 'header',
+	content: { fillHeight: true, fitRows: true },
+}
 const counter = { id: 2, widgetId: 'stat', content: { fitRows: true } }
 const tiles = { id: 3, widgetId: 'app-tiles', content: {} }
 
@@ -41,7 +49,11 @@ describe('Views: a dashboard that fills the height', () => {
 	it('fills when a placement asks for it, and marks the rows that fit their content', () => {
 		const host = makeHost([header, counter, tiles])
 		expect(host.fillsHeight).toBe(true)
-		expect(host.gridLayout.map((p) => p.fitRows === true)).toEqual([true, true, false])
+		expect(host.gridLayout.map((p) => p.fitRows === true)).toEqual([
+			true,
+			true,
+			false,
+		])
 		expect(host.gridLayout[2]).toBe(tiles)
 	})
 

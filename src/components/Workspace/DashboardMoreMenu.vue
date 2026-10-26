@@ -117,7 +117,9 @@ function destinationItem(item) {
 	return {
 		id: item.id,
 		label: item.label,
-		icon: DESTINATION_ICONS[item.id] ? markRaw(DESTINATION_ICONS[item.id]) : undefined,
+		icon: DESTINATION_ICONS[item.id]
+			? markRaw(DESTINATION_ICONS[item.id])
+			: undefined,
 		href: item.href,
 		target: item.href ? (item.external ? '_blank' : undefined) : undefined,
 		to: item.to,
@@ -241,6 +243,7 @@ export default {
 		/**
 		 * The chrome decision, unwrapped.
 		 *
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 * @return {{ railSuppressed: boolean, entries: object[], isAdmin: boolean, includePersonalSettings: boolean }}
 		 */
 		chrome() {
@@ -269,7 +272,10 @@ export default {
 			const shared = new Set(this.sharedDashboards.map((d) => d?.id))
 			const rows = [
 				...this.userDashboards.map((d) => ({ d, source: 'user' })),
-				...this.groupDashboards.map((d) => ({ d, source: shared.has(d?.id) ? 'shared' : 'group' })),
+				...this.groupDashboards.map((d) => ({
+					d,
+					source: shared.has(d?.id) ? 'shared' : 'group',
+				})),
 			].filter(({ d }) => d && d.id !== undefined && d.id !== null)
 			const seen = new Set()
 			const items = []
@@ -283,7 +289,9 @@ export default {
 					id: `dashboard-${d.id}`,
 					label: d.name || t('launchpad', 'Dashboard'),
 					icon: markRaw(isDefault ? Home : ViewDashboardOutline),
-					meta: isDefault ? t('launchpad', 'default') : this.sourceNote(source),
+					meta: isDefault
+						? t('launchpad', 'default')
+						: this.sourceNote(source),
 					checked: d.id === this.dashboard?.id,
 					onClick: () => this.$emit('switch', d.id, source),
 				})
@@ -301,6 +309,7 @@ export default {
 		 * The panel's destinations while the panel is left out; none while
 		 * the panel shows them.
 		 *
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 * @return {Record<string, object[]>}
 		 */
 		sections() {
@@ -314,11 +323,14 @@ export default {
 		 * The Settings group: the personal settings and, for an
 		 * administrator, the admin settings.
 		 *
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 * @return {object}
 		 */
 		settingsGroup() {
 			const items = this.sections.settings
-				.filter((item) => ['personal-settings', 'admin-settings-link'].includes(item.id))
+				.filter((item) =>
+					['personal-settings', 'admin-settings-link'].includes(item.id),
+				)
 				.map(destinationItem)
 			return { id: 'settings', title: t('launchpad', 'Settings'), items }
 		},
@@ -331,10 +343,23 @@ export default {
 		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 */
 		launchpadGroup() {
-			const items = [...this.sections.main, ...this.sections.footer, ...this.sections.settings]
+			const items = [
+				...this.sections.main,
+				...this.sections.footer,
+				...this.sections.settings,
+			]
 				.filter((item) => !OFFERED_ELSEWHERE.includes(item.id))
-				.filter((item) => !['personal-settings', 'admin-settings-link'].includes(item.id))
-			return { id: 'launchpad', title: t('launchpad', 'Launchpad'), items: orderDestinations(items).map(destinationItem) }
+				.filter(
+					(item) =>
+						!['personal-settings', 'admin-settings-link'].includes(
+							item.id,
+						),
+				)
+			return {
+				id: 'launchpad',
+				title: t('launchpad', 'Launchpad'),
+				items: orderDestinations(items).map(destinationItem),
+			}
 		},
 
 		/**
@@ -348,37 +373,100 @@ export default {
 			if (!this.dashboard) {
 				return []
 			}
-			const isDefault = Boolean(this.dashboard.uuid) && this.dashboard.uuid === this.defaultUuid
+			const isDefault =
+				Boolean(this.dashboard.uuid)
+				&& this.dashboard.uuid === this.defaultUuid
 			const published = this.dashboard.publicationStatus === 'published'
 			const items = [
 				this.canEdit && {
 					id: 'edit',
-					label: this.isEditMode ? t('launchpad', 'Save dashboard') : t('launchpad', 'Edit'),
+					label: this.isEditMode
+						? t('launchpad', 'Save dashboard')
+						: t('launchpad', 'Edit'),
 					icon: markRaw(this.isEditMode ? ContentSave : Pencil),
 					event: 'toggleEdit',
 				},
-				this.isOwner && { id: 'config', label: t('launchpad', 'Settings'), icon: markRaw(Cog), event: 'openConfig' },
-				this.canEdit && { id: 'add-widget', label: t('launchpad', 'Add widget'), icon: markRaw(Plus), event: 'addCustomWidget' },
-				this.canShare && { id: 'share', label: t('launchpad', 'Share'), icon: markRaw(ShareVariant), event: 'share' },
+				this.isOwner && {
+					id: 'config',
+					label: t('launchpad', 'Settings'),
+					icon: markRaw(Cog),
+					event: 'openConfig',
+				},
+				this.canEdit && {
+					id: 'add-widget',
+					label: t('launchpad', 'Add widget'),
+					icon: markRaw(Plus),
+					event: 'addCustomWidget',
+				},
+				this.canShare && {
+					id: 'share',
+					label: t('launchpad', 'Share'),
+					icon: markRaw(ShareVariant),
+					event: 'share',
+				},
 				{
 					id: 'set-default',
-					label: isDefault ? t('launchpad', 'Default dashboard') : t('launchpad', 'Set as default'),
+					label: isDefault
+						? t('launchpad', 'Default dashboard')
+						: t('launchpad', 'Set as default'),
 					icon: markRaw(isDefault ? StarCheck : Star),
 					event: 'setDefault',
 				},
-				this.canViewHistory && { id: 'versions', label: t('launchpad', 'Versions'), icon: markRaw(History), event: 'versionHistory' },
-				this.canManagePublication && { id: 'schedule', label: t('launchpad', 'Schedule'), icon: markRaw(CalendarClock), event: 'schedule' },
-				this.canManagePublication && (published
-					? { id: 'unpublish', label: t('launchpad', 'Unpublish'), icon: markRaw(EyeOffOutline), event: 'unpublish' }
-					: { id: 'publish', label: t('launchpad', 'Publish'), icon: markRaw(Publish), event: 'publish' }),
-				this.canViewReadReceipts && { id: 'read-receipts', label: t('launchpad', 'Read receipts'), icon: markRaw(CheckDecagramOutline), event: 'readReceipts' },
-			].filter(Boolean).map((item) => this.eventItem(item))
-			const groups = [{ id: 'this-dashboard', title: t('launchpad', 'This dashboard'), items }]
+				this.canViewHistory && {
+					id: 'versions',
+					label: t('launchpad', 'Versions'),
+					icon: markRaw(History),
+					event: 'versionHistory',
+				},
+				this.canManagePublication && {
+					id: 'schedule',
+					label: t('launchpad', 'Schedule'),
+					icon: markRaw(CalendarClock),
+					event: 'schedule',
+				},
+				this.canManagePublication
+					&& (published
+						? {
+								id: 'unpublish',
+								label: t('launchpad', 'Unpublish'),
+								icon: markRaw(EyeOffOutline),
+								event: 'unpublish',
+							}
+						: {
+								id: 'publish',
+								label: t('launchpad', 'Publish'),
+								icon: markRaw(Publish),
+								event: 'publish',
+							}),
+				this.canViewReadReceipts && {
+					id: 'read-receipts',
+					label: t('launchpad', 'Read receipts'),
+					icon: markRaw(CheckDecagramOutline),
+					event: 'readReceipts',
+				},
+			]
+				.filter(Boolean)
+				.map((item) => this.eventItem(item))
+			const groups = [
+				{
+					id: 'this-dashboard',
+					title: t('launchpad', 'This dashboard'),
+					items,
+				},
+			]
 			if (this.isOwner) {
 				groups.push({
 					id: 'delete',
 					divided: true,
-					items: [this.eventItem({ id: 'delete', label: t('launchpad', 'Delete'), icon: markRaw(TrashCanOutline), event: 'delete', destructive: true })],
+					items: [
+						this.eventItem({
+							id: 'delete',
+							label: t('launchpad', 'Delete'),
+							icon: markRaw(TrashCanOutline),
+							event: 'delete',
+							destructive: true,
+						}),
+					],
 				})
 			}
 			return groups
@@ -387,6 +475,7 @@ export default {
 		/**
 		 * The menu's two columns, as the board draws them.
 		 *
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 * @return {Array<Array<object>>}
 		 */
 		columns() {
@@ -403,6 +492,7 @@ export default {
 		/**
 		 * The note beside a dashboard that is not the person's own.
 		 *
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 * @param {string} source The dashboard's section.
 		 * @return {string|undefined}
 		 */
@@ -419,6 +509,7 @@ export default {
 		/**
 		 * A dashboard action as a menu item that emits its event.
 		 *
+		 * @spec openspec/changes/lpvandaag-start-page/specs/lpvandaag-start-page/spec.md#requirement-one-meer-menu-holds-the-start-pages-actions
 		 * @param {object} item The action, with the event it emits.
 		 * @return {object} The menu item.
 		 */

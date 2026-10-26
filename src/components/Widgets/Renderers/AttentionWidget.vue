@@ -191,7 +191,9 @@ export default {
 		 */
 		columns() {
 			const columns = Number(this.content?.columns)
-			return Number.isInteger(columns) && columns >= 1 && columns <= 4 ? columns : 3
+			return Number.isInteger(columns) && columns >= 1 && columns <= 4
+				? columns
+				: 3
 		},
 
 		/**

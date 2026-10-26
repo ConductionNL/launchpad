@@ -185,7 +185,8 @@
 
 /* A start page that fills the height (LpVandaag) runs from edge to edge, 28px
    in from the window with the grid's own 8px item margin. */
-.app-launchpad:has(.launchpad-rail-suppressed) .launchpad-container.launchpad-container--fill {
+.app-launchpad:has(.launchpad-rail-suppressed)
+	.launchpad-container.launchpad-container--fill {
 	padding-inline: 20px;
 }
 
@@ -311,9 +312,7 @@
 		transform: none;
 	}
 
-	.launchpad-container
-		.cn-header-widget--ground
-		> .launchpad-header-actions {
+	.launchpad-container .cn-header-widget--ground > .launchpad-header-actions {
 		position: absolute;
 		inset-inline-end: 0;
 		bottom: 0;

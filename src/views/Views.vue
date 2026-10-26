@@ -94,20 +94,32 @@
 					:canShare="canShareActiveDashboard"
 					:canManagePublication="canManagePublication"
 					:canViewHistory="canViewVersionHistory"
-					:canViewReadReceipts="canEdit && acknowledgementAnnouncementKeys.length > 0"
+					:canViewReadReceipts="
+						canEdit && acknowledgementAnnouncementKeys.length > 0
+					"
 					:isEditMode="isEditMode"
 					@switch="onSidebarSwitch"
 					@openAll="sidebarOpen = true"
-					@toggleEdit="onRowToggleEdit(activeDashboard, activeDashboardSource)"
-					@openConfig="onRowOpenConfig(activeDashboard, activeDashboardSource)"
-					@addCustomWidget="onRowAddCustomWidget(activeDashboard, activeDashboardSource)"
-					@setDefault="onRowSetDefault(activeDashboard, activeDashboardSource)"
+					@toggleEdit="
+						onRowToggleEdit(activeDashboard, activeDashboardSource)
+					"
+					@openConfig="
+						onRowOpenConfig(activeDashboard, activeDashboardSource)
+					"
+					@addCustomWidget="
+						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
+					"
+					@setDefault="
+						onRowSetDefault(activeDashboard, activeDashboardSource)
+					"
 					@share="openShareDrawer"
 					@publish="onPublishActive"
 					@unpublish="onUnpublishActive"
 					@schedule="scheduleDialogOpen = true"
 					@versionHistory="versionHistoryOpen = true"
-					@readReceipts="openAcknowledgementReport(acknowledgementAnnouncementKeys[0])"
+					@readReceipts="
+						openAcknowledgementReport(acknowledgementAnnouncementKeys[0])
+					"
 					@menuOpen="checkVersionSupport"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<!-- dashboard-acknowledgements REQ-ACK-002: dashboard-level count
@@ -187,7 +199,10 @@
 		<!-- Main dashboard grid -->
 		<div
 			class="launchpad-container"
-			:class="{ 'launchpad-edit-mode': isEditMode, 'launchpad-container--fill': fillsHeight }">
+			:class="{
+				'launchpad-edit-mode': isEditMode,
+				'launchpad-container--fill': fillsHeight,
+			}">
 			<!-- engagement-dashboard-reactions-bar REQ-RXN-010: view mode. -->
 			<DashboardReactions
 				v-if="activeDashboard?.uuid && !isEditMode"
@@ -773,7 +788,9 @@ export default {
 			if (this.isEditMode || !this.fillsHeight) {
 				return this.shownPlacements
 			}
-			return this.shownPlacements.map((p) => (p?.content?.fitRows === true ? { ...p, fitRows: true } : p))
+			return this.shownPlacements.map((p) =>
+				p?.content?.fitRows === true ? { ...p, fitRows: true } : p,
+			)
 		},
 
 		/**

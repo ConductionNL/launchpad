@@ -6578,7 +6578,7 @@
 				"state": "built",
 				"owner": "ConductionNL/dossiq",
 				"evidence": "dossiq lib/Dashboard/MyOpenWorkWidget.php (widget id dossiq_my_open_work_widget, development 304c18ee7), placed in LaunchPad as an nc-widget placement (src/services/widgetBridge.js:29, specs/widgets REQ-WDG-018)",
-				"change": "dossiq/changes/archive/2026-10-10-widgets-my-open-cases-on-the-start-page",
+				"change": "dossiq/widgets-my-open-cases-on-the-start-page",
 				"spec": "dossiq/dashboard",
 				"requirement": "My open work is a start page widget that any dashboard can render (REQ-DASH-023)",
 				"readOn": "2026-10-30"

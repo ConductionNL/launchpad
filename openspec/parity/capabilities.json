@@ -2296,7 +2296,9 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:20; lib/Service/OrgNavigationService.php:204",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-navigation-editor-org"
+				"change": "openspec/changes/archive/2026-05-03-navigation-editor-org",
+				"spec": "openspec/specs/navigation-editor-org",
+				"requirement": "REQ-ONAV-005 Vue panel rendering; REQ-ONAV-004 Global position setting"
 			},
 			"reachedOn": "Workspace page, navigation panel; edited on Admin settings, Organisation navigation tab",
 			"provider": "launchpad",
@@ -2642,7 +2644,9 @@
 				"state": "built",
 				"evidence": "lib/Service/PeopleWidgetService.php:8; lib/widget-types.json:30",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-people-widget"
+				"change": "openspec/changes/archive/2026-05-03-people-widget",
+				"spec": "openspec/specs/people-widget",
+				"requirement": "Widget registration via dashboard API (REQ-PPL-001); Three layout modes (REQ-PPL-008)"
 			},
 			"reachedOn": "Workspace page, Add widget, People",
 			"evidence": {
@@ -2819,8 +2823,13 @@
 				"state": "built",
 				"evidence": "src/constants/widgetRegistry.js:116-120 routes the chart and stats-block types to src/components/Widgets/Renderers/ChartHost.vue and StatsBlockHost.vue, thin adapters onto nextcloud-vue's CnChartWidget and CnStatsBlockWidget, which fetch their figures from an OpenRegister dataSource; stat, gauge, delta and table are nextcloud-vue registry types LaunchPad passes through unchanged (lib/widget-types.json:12-38). Renderers, configuration forms and data are nextcloud-vue's and OpenRegister's (nextcloud-vue src/components/CnWidgetGrid/registerDashboardWidgets.js:81-127, main 0f1c0ffbb); src/services/graphqlClient.js, cited before, serves the spend-analytics widget, not these",
 				"owner": "ConductionNL/openregister",
-				"spec": "none",
-				"readOn": "2026-10-07"
+				"spec": [
+					"openspec/specs/widgets",
+					"nextcloud-vue/widget-renderer",
+					"openregister/aggregation-api"
+				],
+				"readOn": "2026-10-07",
+				"requirement": "Widget Rendering Architecture (REQ-WDG-009), scenario: Chart, stat and table widgets pass through to the nextcloud-vue renderers"
 			},
 			"reachedOn": "Workspace page, Add widget, Chart, Stat or Table, only with OpenRegister installed",
 			"provider": "openregister",
@@ -2855,7 +2864,9 @@
 				"state": "built",
 				"evidence": "lib/Service/IframeService.php:9",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget"
+				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget",
+				"spec": "openspec/specs/iframe-embed-widget",
+				"requirement": "REQ-IFRAME-001 Register iframe-embed widget, scenario: A Power BI report as a live tile"
 			},
 			"reachedOn": "Workspace page, Embedded page widget, when the report host is on the allow-list",
 			"evidence": {
@@ -3083,7 +3094,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/integrations-office-tiles"
+				"change": "openspec/changes/integrations-office-tiles",
+				"requirement": "The add flow offers an office tile pack built from what the server has (REQ-OFT-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -3356,7 +3368,9 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/VersioningAuditTab.vue:8",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-refactor-launchpad-ia-alignment"
+				"change": "openspec/changes/archive/2026-06-14-refactor-launchpad-ia-alignment",
+				"spec": "openspec/specs/conditional-visibility",
+				"requirement": "Admin overview of widgets with visibility rules (REQ-VIS-012)"
 			},
 			"reachedOn": "Admin settings, Versioning and audit tab",
 			"provider": "launchpad",
@@ -3552,7 +3566,9 @@
 				"state": "built",
 				"evidence": "src/components/admin/tabs/SharingTab.vue:10; lib/Service/DashboardResolver.php:47",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-06-14-group-priority-order"
+				"change": "openspec/changes/archive/2026-06-14-group-priority-order",
+				"spec": "openspec/specs/admin-settings",
+				"requirement": "Group order setting (REQ-ASET-012)"
 			},
 			"reachedOn": "Admin settings, Sharing tab, group order",
 			"provider": "launchpad",
@@ -4375,7 +4391,8 @@
 				"state": "built",
 				"evidence": "lib/Listener/UserDeletedListener.php:8; lib/Service/DashboardShareService.php:342",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/specs/dashboard-sharing"
+				"spec": "openspec/specs/dashboard-sharing",
+				"requirement": "Cascade and admin retention on user deletion (REQ-SHARE-012)"
 			},
 			"reachedOn": "automatic when a Nextcloud user is deleted",
 			"provider": "launchpad",
@@ -4635,7 +4652,8 @@
 			"built": {
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/engagement-communities"
+				"change": "openspec/changes/engagement-communities",
+				"requirement": "The Communities widget lists open Talk conversations the viewer may join (REQ-COMM-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -4869,7 +4887,8 @@
 				"state": "specified",
 				"evidence": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md:226",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/mcp-tool-surface"
+				"change": "openspec/changes/mcp-tool-surface",
+				"requirement": "REQ-MCP-008 Chat command flows resolve to tool sequences"
 			},
 			"reachedOn": "nothing: the overlay lists it as soon",
 			"provider": "launchpad",
@@ -5307,7 +5326,9 @@
 				"change": [
 					"openspec/changes/adopt-connection-registry",
 					"openspec/changes/archive/2026-07-23-iframe-embed-widget"
-				]
+				],
+				"spec": "openspec/specs/iframe-embed-widget",
+				"requirement": "REQ-IFRAME-002 Admin allow-list of embeddable hosts, fail-closed"
 			},
 			"reachedOn": "occ config:app:set only; no admin screen edits the host lists",
 			"provider": "launchpad",

@@ -5375,7 +5375,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/DashboardApiController.php:158",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "LaunchPad has no login of its own (REQ-PLB-001)"
 			},
 			"reachedOn": "Nextcloud login; every LaunchPad route runs behind the Nextcloud session",
 			"evidence": {
@@ -5438,7 +5439,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml:56",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "LaunchPad runs on the organisation's own servers (REQ-PLB-002)"
 			},
 			"reachedOn": "installed as a Nextcloud app on your own instance",
 			"evidence": {
@@ -5471,7 +5473,8 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:552",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "Every page takes on the organisation's theme (REQ-PLB-003)"
 			},
 			"reachedOn": "every page; colours come from Nextcloud theming or the NL Design System app",
 			"evidence": {
@@ -5565,7 +5568,8 @@
 				"state": "built",
 				"evidence": "l10n/nl.json:2",
 				"owner": "ConductionNL/launchpad",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "Every string is translatable and follows the user's language (REQ-PLB-004)"
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
@@ -5832,7 +5836,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "lib/Service/RuleEvaluatorService.php:125",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "Group dashboards follow the groups set at sign-in (REQ-PLB-005)"
 			},
 			"reachedOn": "every targeting rule and group dashboard; group membership itself comes from the Nextcloud login app",
 			"evidence": {
@@ -5904,7 +5909,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "src/views/WorkspaceApp.vue:480",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "Pages install on a phone through Nextcloud's web app manifest (REQ-PLB-006)"
 			},
 			"reachedOn": "any LaunchPad page, through the browser's install option",
 			"evidence": {
@@ -6255,7 +6261,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "src/views/WorkspaceApp.vue:480",
-				"spec": "none"
+				"spec": "openspec/changes/platform-baseline",
+				"requirement": "Pages follow light or dark mode (REQ-PLB-007)"
 			},
 			"reachedOn": "every page",
 			"evidence": {

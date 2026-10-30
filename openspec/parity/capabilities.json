@@ -2591,7 +2591,7 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": [
-					"LpStart",
+					"LpVandaag",
 					"LpWerkplek"
 				]
 			}
@@ -3078,7 +3078,7 @@
 			"origin": "own-code",
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpStart"
+				"board": "LpVandaag"
 			}
 		},
 		{
@@ -6600,7 +6600,7 @@
 			"note": "LaunchPad has no work queue of its own; it can show a case app's Nextcloud widget. dossiq registers 'My tasks' and 'Cases overview' widgets (ConductionNL/dossiq development 00869dd7 lib/AppInfo/Registrar/AppHostRegistrar.php:126-132, lib/Dashboard/MyTasksWidget.php:42 a legacy IWidget) and LaunchPad's bridge catches OCA.Dashboard.register for such widgets (widgetBridge.js:29-62). Whether they render end to end is pending q-sibling-widgets. Also mined from https://www.tenderned.nl/aankondigingen/overzicht/237144, https://www.tenderned.nl/aankondigingen/overzicht/416075. Tender text: Noorderzijlvest 2023: 'Startscherm/medewerkersportaal met doorklik naar werkvoorraad'; Nationale ombudsman 2021: 'persoonlijk dashboard ... Overzicht lopende (eigen) zaken'; Súdwest-Fryslân 2026: dashboard with 'alle openstaande signaleringen, actiepunten, issues' at a glance, set up by the user with widgets. Specified 2026-09-27 (openspec pass, coordinator) in ConductionNL/dossiq openspec/changes/widgets-my-open-cases-on-the-start-page.",
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpStart"
+				"board": "LpVandaag"
 			}
 		},
 		{
@@ -6624,7 +6624,7 @@
 			"feature": "nc-dashboard-widget-proxy",
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpStart"
+				"board": "LpVandaag"
 			}
 		},
 		{
@@ -6759,7 +6759,7 @@
 		},
 		"calendar-widget": {
 			"board": [
-				"LpStart",
+				"LpVandaag",
 				"LpWerkplek"
 			]
 		},
@@ -7055,6 +7055,31 @@
 		"video-widget": {
 			"board": [
 				"LpIntranet"
+			]
+		},
+		"attention-feed": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"mijn-werkdag-v3": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"cross-app-attention-feed": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"mijn-werkdag-template": {
+			"board": [
+				"LpVandaag"
+			]
+		},
+		"start-page-without-navigation-panel": {
+			"board": [
+				"LpVandaag"
 			]
 		}
 	}

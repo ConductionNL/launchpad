@@ -155,4 +155,31 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(allowUserDash: null);
 	}//end testUnsuppliedSettingsStayNull()
+
+	/**
+	 * runtime-shell REQ-SHELL-009: the start-page option reaches the service
+	 * under its own name, and only when it was sent.
+	 *
+	 * @return void
+	 */
+	public function testStartPageWithoutNavigationIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with(
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isNull(),
+				$this->isTrue(),
+			);
+
+		$this->controller->updateSettings(startPageWithoutNavigation: true);
+	}//end testStartPageWithoutNavigationIsPassedThrough()
 }//end class

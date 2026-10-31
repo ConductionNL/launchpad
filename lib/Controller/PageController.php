@@ -174,12 +174,15 @@ class PageController extends Controller {
 		$active = null;
 		if ($userId !== '') {
 			$isAdmin = $this->dashboardService->isAdmin(userId: $userId);
-			$visible = $this->dashboardService->getVisibleToUser(userId: $userId);
+			// Active first: resolving it can hand a first-time user their copy
+			// of an admin template (REQ-TMPL-019), and the list read after it
+			// must hold that copy or the switcher opens without it.
 			$active = $this->resolveActive(
 				userId: $userId,
 				deepLink: $deepLink,
 				primaryGroupId: $primaryGroupId
 			);
+			$visible = $this->dashboardService->getVisibleToUser(userId: $userId);
 		}
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
@@ -224,6 +227,7 @@ class PageController extends Controller {
 			->setAllowedWidgets($allowedWidgets)
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
+			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

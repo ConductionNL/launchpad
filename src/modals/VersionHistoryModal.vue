@@ -6,11 +6,22 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal launchpad-modal--wide"
 		size="normal"
-		:name="t('launchpad', 'Version history')"
+		:name="title"
 		@close="$emit('close')">
 		<div class="launchpad-versions" data-testid="version-history">
-			<h2>{{ t('launchpad', 'Version history') }}</h2>
+			<header>
+				<p
+					v-if="dashboardName"
+					class="launchpad-modal__kicker"
+					data-testid="version-kicker">
+					{{ dashboardName }}
+				</p>
+				<h2 class="launchpad-modal__title">
+					{{ title }}
+				</h2>
+			</header>
 
 			<div v-if="loading" class="launchpad-versions__loading">
 				<NcLoadingIcon :size="32" />
@@ -145,6 +156,16 @@ export default {
 			type: String,
 			default: '',
 		},
+
+		/**
+		 * The dashboard's name, for the line over the title and the title
+		 * itself ("Versions of {name}", board LpVersies). Empty keeps the
+		 * plain "Version history".
+		 */
+		dashboardName: {
+			type: String,
+			default: '',
+		},
 	},
 
 	emits: ['close', 'restored'],
@@ -163,6 +184,19 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The dialog title: "Versions of {name}" when the dashboard's name is
+		 * known (board LpVersies), else "Version history".
+		 *
+		 * @return {string} The translated title.
+		 * @spec exclude presentation only: the title of an existing dialog follows the board wording.
+		 */
+		title() {
+			return this.dashboardName
+				? t('launchpad', 'Versions of {name}', { name: this.dashboardName })
+				: t('launchpad', 'Version history')
+		},
+
 		/**
 		 * @return {Array<object>} Versions, newest first.
 		 * @spec openspec/specs/dashboard-versioning/spec.md
@@ -324,14 +358,16 @@ export default {
 
 <style scoped>
 .launchpad-versions {
-	padding: 16px;
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
 
 .launchpad-versions__save {
 	display: flex;
 	gap: 8px;
 	align-items: flex-end;
-	margin-bottom: 16px;
 }
 
 .launchpad-versions__table {

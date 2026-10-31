@@ -45,7 +45,7 @@ class SetupCommand extends Command {
 	 *
 	 * @param SetupWizardService $wizardService Wizard orchestrator.
 	 * @param AdminSettingsService $settings Group-order persistence
-	 *                                       (Step 3 in the YAML
+	 *                                       (Step 2 in the YAML
 	 *                                       schema).
 	 */
 	public function __construct(
@@ -117,13 +117,12 @@ class SetupCommand extends Command {
 			return self::FAILURE;
 		}
 
-		if (isset($config['storage_backend']) === false
-			|| is_string($config['storage_backend']) === false
-		) {
+		// Decision 131 retired the storage step. A file written for the
+		// seven-step wizard still runs; its storage_backend is not applied.
+		if (array_key_exists(key: 'storage_backend', array: $config) === true) {
 			$output->writeln(
-				messages: "<error>Invalid setup.yaml: missing field 'storage_backend'</error>"
+				messages: "<comment>'storage_backend' is no longer used and was ignored.</comment>"
 			);
-			return self::FAILURE;
 		}
 
 		try {
@@ -154,55 +153,31 @@ class SetupCommand extends Command {
 	private function applySteps(array $config, OutputInterface $output): void {
 		$output->writeln(messages: 'Step 1: Welcome... done');
 
-		$this->applyStorageStep(config: $config, output: $output);
 		$this->applyGroupOrderStep(config: $config, output: $output);
 		$this->skipUnimplementedStep(
-			stepNumber: 4,
+			stepNumber: 3,
 			stepName: 'Demo data',
 			present: array_key_exists(key: 'demo_packages', array: $config),
 			output: $output
 		);
 		$this->skipUnimplementedStep(
-			stepNumber: 5,
+			stepNumber: 4,
 			stepName: 'Admin roles',
 			present: array_key_exists(key: 'admin_role_group', array: $config),
 			output: $output
 		);
 		$this->skipUnimplementedStep(
-			stepNumber: 6,
+			stepNumber: 5,
 			stepName: 'Footer config',
 			present: array_key_exists(key: 'footer_config', array: $config),
 			output: $output
 		);
 
-		$output->writeln(messages: 'Step 7: Done... done');
+		$output->writeln(messages: 'Step 6: Done... done');
 	}//end applySteps()
 
 	/**
-	 * Apply Step 2 — storage backend (REQ-WIZ-003).
-	 *
-	 * @param array<string,mixed> $config Parsed YAML.
-	 * @param OutputInterface $output CLI output.
-	 *
-	 * @return void
-	 */
-	private function applyStorageStep(array $config, OutputInterface $output): void {
-		$current = $this->wizardService->getContentStorage();
-		$target = (string)$config['storage_backend'];
-
-		if ($current === $target) {
-			$output->writeln(
-				messages: 'Step 2: Storage backend... already configured, skipping'
-			);
-			return;
-		}
-
-		$this->wizardService->setContentStorage(value: $target);
-		$output->writeln(messages: 'Step 2: Storage backend... done');
-	}//end applyStorageStep()
-
-	/**
-	 * Apply Step 3 — group priority order (REQ-WIZ-004).
+	 * Apply Step 2 — group priority order (REQ-WIZ-004).
 	 *
 	 * @param array<string,mixed> $config Parsed YAML.
 	 * @param OutputInterface $output CLI output.
@@ -214,7 +189,7 @@ class SetupCommand extends Command {
 		OutputInterface $output,
 	): void {
 		if (array_key_exists(key: 'group_priority_order', array: $config) === false) {
-			$output->writeln(messages: 'Step 3: Group order... skipped (not in config)');
+			$output->writeln(messages: 'Step 2: Group order... skipped (not in config)');
 			return;
 		}
 
@@ -228,13 +203,13 @@ class SetupCommand extends Command {
 		$current = $this->settings->getGroupOrder();
 		if ($current === array_values(array: $groups)) {
 			$output->writeln(
-				messages: 'Step 3: Group order... already configured, skipping'
+				messages: 'Step 2: Group order... already configured, skipping'
 			);
 			return;
 		}
 
 		$this->settings->setGroupOrder(groupIds: $groups);
-		$output->writeln(messages: 'Step 3: Group order... done');
+		$output->writeln(messages: 'Step 2: Group order... done');
 	}//end applyGroupOrderStep()
 
 	/**

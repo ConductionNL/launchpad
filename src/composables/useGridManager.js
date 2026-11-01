@@ -217,6 +217,22 @@ function rectsOverlap(a, b) {
 }
 
 /**
+ * The grid rectangle of a neighbouring placement, with a missing or
+ * non-finite position read as 0 and a missing size as 1.
+ *
+ * @param {{gridX?: number, gridY?: number, gridWidth?: number, gridHeight?: number}} other A placement in LaunchPad field-name form.
+ * @return {{x: number, y: number, w: number, h: number}} Its rectangle.
+ */
+function neighbourRect(other) {
+	return {
+		x: Number.isFinite(other.gridX) ? other.gridX : 0,
+		y: Number.isFinite(other.gridY) ? other.gridY : 0,
+		w: Number.isFinite(other.gridWidth) ? other.gridWidth : 1,
+		h: Number.isFinite(other.gridHeight) ? other.gridHeight : 1,
+	}
+}
+
+/**
  * Compute the candidate rectangle for a keyboard-driven move or resize of
  * an existing placement, reusing the same collision model as
  * {@link placeNewWidget} so keyboard moves get the same push-down
@@ -302,13 +318,7 @@ export function nudgePlacement(placement, action, allPlacements, options = {}) {
 		if (other === null || other === undefined || other.id === placement?.id) {
 			continue
 		}
-		const otherRect = {
-			x: Number.isFinite(other.gridX) ? other.gridX : 0,
-			y: Number.isFinite(other.gridY) ? other.gridY : 0,
-			w: Number.isFinite(other.gridWidth) ? other.gridWidth : 1,
-			h: Number.isFinite(other.gridHeight) ? other.gridHeight : 1,
-		}
-		if (rectsOverlap(newRect, otherRect)) {
+		if (rectsOverlap(newRect, neighbourRect(other))) {
 			pushed.push({ id: other.id, gridY: ny + nh })
 		}
 	}

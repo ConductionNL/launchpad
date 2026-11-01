@@ -29,4 +29,4 @@
 
 ## 5. After an instance runs both apps
 
-- [ ] 5.1 Run the e2e spec against an instance with launchpad and integriq, then archive this change.
+- [x] 5.1 Run the e2e spec against an instance with launchpad and integriq, then archive this change. Run 1 Nov 2026 on the shared instance (:8080, launchpad 9f872349, integriq installed): `tests/e2e/integrations-page.spec.ts` 4 passed, `--workers=1`. The archive is its own PR.

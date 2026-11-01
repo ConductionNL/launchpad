@@ -3160,10 +3160,11 @@
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23",
+				"state": "built",
+				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23; live pass 1 Nov 2026: tests/e2e/integrations-page.spec.ts 4 passed against an instance with launchpad and integriq",
 				"owner": "ConductionNL/integriq",
-				"change": "openspec/changes/adopt-connection-registry"
+				"change": "openspec/changes/adopt-connection-registry",
+				"readOn": "2026-11-01"
 			},
 			"reachedOn": "Integrations page (/apps/launchpad/settings/integrations), shown only when the integriq app is installed",
 			"provider": "integriq",

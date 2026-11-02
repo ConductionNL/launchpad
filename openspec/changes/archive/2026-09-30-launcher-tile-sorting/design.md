@@ -43,3 +43,11 @@ A reflow changes the reading order, so the container announces "Sorted by most u
 
 - Vitest: ordering for each mode, tie breaks, the once-per-load shuffle, storage blocked, edit mode shows stored positions.
 - Playwright: set "Most used", click one tile three times, reload, it comes first; switch back to "By hand", the original layout returns.
+
+## What the build corrected (2026-09-30)
+
+- Tiles inside a container render through the widget registry, not through `TileWidget.vue`, so a click there never reached `recordTileClick()`. The container counts a click on any of its children itself (`onChildClick`), in the browser only; `recordTileClick()` and its server call are unchanged.
+- The widget menu is an editor tool, so "Forget my usage" is a small button under the container title, shown in view mode for most used and last used when there is use to forget.
+- A new click does not re-sort until the next page load, so tiles never jump under the pointer. "Forget my usage" re-sorts at once and rebuilds the inner grid.
+- When browser storage is blocked, most used and last used show the stored order (the spec's rule), not alphabetical.
+- A view-time reflow never reaches the persistence callback: `onGridChange` returns in view mode.

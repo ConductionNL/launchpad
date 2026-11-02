@@ -292,6 +292,56 @@ export function isCtrlKFocusShortcut(event) {
 }
 
 /**
+ * Split a query into a known search shortcut and the rest (REQ-SPX-002).
+ * The first word must equal a shortcut prefix, case-insensitively.
+ *
+ * @param {string} query The raw query.
+ * @param {Array<{prefix: string, name: string, urlTemplate: string}>} shortcuts The admin's shortcuts.
+ * @return {{shortcut: object, rest: string}|null} The match, or null.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function parsePrefix(query, shortcuts) {
+	const trimmed = String(query ?? '').trim()
+	if (!trimmed.startsWith('!') || !Array.isArray(shortcuts)) {
+		return null
+	}
+	const [first, ...rest] = trimmed.split(/\s+/)
+	const shortcut = shortcuts.find(
+		(entry) => String(entry?.prefix || '').toLowerCase() === first.toLowerCase(),
+	)
+	return shortcut ? { shortcut, rest: rest.join(' ') } : null
+}
+
+/**
+ * The address a shortcut opens for a query: its template with the
+ * URL-encoded query, only when the template is a valid https `{query}`
+ * address (REQ-SPX-002).
+ *
+ * @param {{urlTemplate: string}} shortcut The shortcut.
+ * @param {string} rest The query after the prefix.
+ * @return {string|null} The address, or null.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function shortcutUrl(shortcut, rest) {
+	if (!isValidFallbackTemplate(shortcut?.urlTemplate)) {
+		return null
+	}
+	return shortcut.urlTemplate.replace('{query}', encodeURIComponent(rest))
+}
+
+/**
+ * Whether a query asks for the shortcut list: `!` alone or `?` (REQ-SPX-003).
+ *
+ * @param {string} query The raw query.
+ * @return {boolean} True for the list.
+ * @spec openspec/specs/tile-quick-search/spec.md
+ */
+export function isShortcutListQuery(query) {
+	const trimmed = String(query ?? '').trim()
+	return trimmed === '!' || trimmed === '?'
+}
+
+/**
  * Factory — one instance per mounted search bar. Mirrors the
  * `useGridManager()` shape: a `reactive()` reactive `state` plus
  * plain methods, consumable from an Options-API component without
@@ -307,12 +357,24 @@ export function isCtrlKFocusShortcut(event) {
  * @param {() => string} [options.getFallbackTarget] returns the current
  *   `quicksearch_fallback_target` value; consulted lazily so the caller
  *   can change it without recreating the composable.
+ * @param {() => Array<object>} [options.getShortcuts] returns the admin's
+ *   search shortcuts (REQ-SPX-002); consulted on every recompute.
  * @return {object} the `{state, ...methods}` API — see inline method docs.
  *
  * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function useTileSearch(options = {}) {
-	const { onOpen, onFallback, getFallbackTarget } = options
+	const { onOpen, onFallback, getFallbackTarget, getShortcuts } = options
+
+	/**
+	 * The admin's shortcuts, or an empty list.
+	 *
+	 * @return {Array<object>} Shortcuts.
+	 */
+	function shortcuts() {
+		const list = typeof getShortcuts === 'function' ? getShortcuts() : []
+		return Array.isArray(list) ? list : []
+	}
 
 	const state = reactive({
 		query: '',
@@ -335,6 +397,34 @@ export function useTileSearch(options = {}) {
 		if (trimmed === '') {
 			state.results = []
 			state.activeIndex = -1
+			return
+		}
+		// REQ-SPX-003: `!` or `?` lists the shortcuts.
+		if (isShortcutListQuery(trimmed) && shortcuts().length > 0) {
+			state.results = shortcuts().map((shortcut) => ({
+				id: `shortcut-list:${shortcut.prefix}`,
+				label: `${shortcut.prefix} ${shortcut.name}`,
+				kind: 'shortcut-list',
+				shortcut,
+				item: null,
+			}))
+			state.activeIndex = 0
+			return
+		}
+		// REQ-SPX-002: a known prefix wins over tile ranking.
+		const prefixed = parsePrefix(trimmed, shortcuts())
+		if (prefixed) {
+			state.results = [
+				{
+					id: `shortcut:${prefixed.shortcut.prefix}`,
+					label: prefixed.shortcut.name,
+					kind: 'shortcut',
+					shortcut: prefixed.shortcut,
+					rest: prefixed.rest,
+					item: null,
+				},
+			]
+			state.activeIndex = 0
 			return
 		}
 		state.results = rankItems(trimmed, items)
@@ -412,6 +502,24 @@ export function useTileSearch(options = {}) {
 	 */
 	function pressEnter() {
 		const result = activeResult()
+		// REQ-SPX-003: Enter on a listed shortcut types its prefix.
+		if (result && result.kind === 'shortcut-list') {
+			setQuery(`${result.shortcut.prefix} `)
+			return { type: 'shortcut-list', shortcut: result.shortcut }
+		}
+		// REQ-SPX-002: Enter on a shortcut opens its site in a new tab.
+		if (result && result.kind === 'shortcut') {
+			const url = result.rest
+				? shortcutUrl(result.shortcut, result.rest)
+				: null
+			const action = url
+				? { type: 'web-search', url }
+				: { type: FALLBACK_TARGET_NONE }
+			if (url && typeof onFallback === 'function') {
+				onFallback(action)
+			}
+			return action
+		}
 		if (result) {
 			if (typeof onOpen === 'function') {
 				onOpen(result.item)

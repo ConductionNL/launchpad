@@ -24,13 +24,15 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		name: 'NcDialog',
 		props: ['open', 'name'],
 		emits: ['update:open'],
-		template: '<div v-if="open"><slot /><footer><slot name="actions" /></footer></div>',
+		template:
+			'<div v-if="open"><slot /><footer><slot name="actions" /></footer></div>',
 	},
 	NcButton: {
 		name: 'NcButton',
 		props: ['disabled', 'variant'],
 		emits: ['click'],
-		template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+		template:
+			'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
 	},
 	CnDialogActions: {
 		name: 'CnDialogActions',
@@ -82,7 +84,11 @@ const CONFIRMATIONS = {
 	'asks, blank prompt': {
 		placement: { requiresAcknowledgement: 1, acknowledgementPrompt: '   ' },
 	},
-	'switched on in the dialog': { placement: { requiresAcknowledgement: 0 }, ask: true, prompt: ' Got it ' },
+	'switched on in the dialog': {
+		placement: { requiresAcknowledgement: 0 },
+		ask: true,
+		prompt: ' Got it ',
+	},
 }
 
 /**

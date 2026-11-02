@@ -36,22 +36,18 @@
 			</p>
 		</div>
 		<template #actions>
-			<NcButton variant="tertiary" @click="$emit('update:open', false)">
-				{{ t('launchpad', 'Cancel') }}
-			</NcButton>
-			<NcButton
-				variant="primary"
-				data-testid="read-confirmation-save"
-				@click="save">
-				{{ t('launchpad', 'Save') }}
-			</NcButton>
+			<CnDialogActions
+				:confirmLabel="t('launchpad', 'Save')"
+				:cancelLabel="t('launchpad', 'Cancel')"
+				@cancel="$emit('update:open', false)"
+				@submit="save" />
 		</template>
 	</NcDialog>
 </template>
 
 <script>
 import {
-	NcButton,
+	CnDialogActions,
 	NcCheckboxRadioSwitch,
 	NcDialog,
 	NcTextField,
@@ -70,7 +66,7 @@ export default {
 	name: 'ReadConfirmationDialog',
 
 	components: {
-		NcButton,
+		CnDialogActions,
 		NcCheckboxRadioSwitch,
 		NcDialog,
 		NcTextField,

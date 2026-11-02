@@ -17,12 +17,12 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		props: ['open'],
 		template: '<div v-if="open"><slot /><slot name="actions" /></div>',
 	},
-	NcButton: {
-		name: 'NcButton',
-		props: ['disabled'],
-		emits: ['click'],
+	CnDialogActions: {
+		name: 'CnDialogActions',
+		props: { canSubmit: { type: Boolean, default: true } },
+		emits: ['cancel', 'submit'],
 		template:
-			'<button :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+			'<button data-testid="cn-dialog-actions-submit" :disabled="!canSubmit" @click="$emit(\'submit\')" />',
 	},
 }))
 
@@ -35,7 +35,9 @@ describe('ScheduleDashboardDialog', () => {
 		await wrapper
 			.find('[data-testid="schedule-take-down"]')
 			.setValue('2026-10-02T17:00')
-		await wrapper.find('[data-testid="schedule-save"]').trigger('click')
+		await wrapper
+			.find('[data-testid="cn-dialog-actions-submit"]')
+			.trigger('click')
 		const { publishAt, unpublishAt } = wrapper.emitted('save')[0][0]
 		expect(new Date(publishAt).getTime()).toBe(
 			new Date('2026-10-01T09:00').getTime(),
@@ -50,7 +52,9 @@ describe('ScheduleDashboardDialog', () => {
 		await wrapper
 			.find('[data-testid="schedule-take-down"]')
 			.setValue('2026-10-02T17:00')
-		await wrapper.find('[data-testid="schedule-save"]').trigger('click')
+		await wrapper
+			.find('[data-testid="cn-dialog-actions-submit"]')
+			.trigger('click')
 		expect(wrapper.emitted('save')[0][0].publishAt).toBeNull()
 	})
 

@@ -1,0 +1,276 @@
+{
+	"schedule | empty": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Schedule",
+				"disabled": true
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Schedule": {}
+		}
+	},
+	"schedule | go live only": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Schedule",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Schedule": {
+				"save": [
+					[
+						{
+							"publishAt": "local 2026-10-01T09:00",
+							"unpublishAt": null
+						}
+					]
+				]
+			}
+		}
+	},
+	"schedule | take down only": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Schedule",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Schedule": {
+				"save": [
+					[
+						{
+							"publishAt": null,
+							"unpublishAt": "local 2026-11-01T18:00"
+						}
+					]
+				]
+			}
+		}
+	},
+	"schedule | both": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Schedule",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Schedule": {
+				"save": [
+					[
+						{
+							"publishAt": "local 2026-10-01T09:00",
+							"unpublishAt": "local 2026-11-01T18:00"
+						}
+					]
+				]
+			}
+		}
+	},
+	"schedule | with error": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Schedule",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Schedule": {
+				"save": [
+					[
+						{
+							"publishAt": "local 2026-10-01T09:00",
+							"unpublishAt": null
+						}
+					]
+				]
+			}
+		}
+	},
+	"read confirmation | no placement": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Save",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Save": {
+				"save": [
+					[
+						{
+							"requiresAcknowledgement": 0,
+							"acknowledgementPrompt": null,
+							"acknowledgementDeadline": null
+						}
+					]
+				]
+			}
+		}
+	},
+	"read confirmation | asks with prompt and deadline": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Save",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Save": {
+				"save": [
+					[
+						{
+							"requiresAcknowledgement": 1,
+							"acknowledgementPrompt": "Read it",
+							"acknowledgementDeadline": "2026-12-01"
+						}
+					]
+				]
+			}
+		}
+	},
+	"read confirmation | asks, blank prompt": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Save",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Save": {
+				"save": [
+					[
+						{
+							"requiresAcknowledgement": 1,
+							"acknowledgementPrompt": null,
+							"acknowledgementDeadline": null
+						}
+					]
+				]
+			}
+		}
+	},
+	"read confirmation | switched on in the dialog": {
+		"buttons": [
+			{
+				"text": "Cancel",
+				"disabled": false
+			},
+			{
+				"text": "Save",
+				"disabled": false
+			}
+		],
+		"clicks": {
+			"Cancel": {
+				"update:open": [
+					[
+						false
+					]
+				]
+			},
+			"Save": {
+				"save": [
+					[
+						{
+							"requiresAcknowledgement": 1,
+							"acknowledgementPrompt": "Got it",
+							"acknowledgementDeadline": null
+						}
+					]
+				]
+			}
+		}
+	}
+}

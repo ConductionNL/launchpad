@@ -133,6 +133,7 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 
 /**
@@ -155,25 +156,16 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
-		dashboardUuid: {
-			type: String,
-			default: '',
-		},
+		dashboardUuid: TEXT_PROP,
 
 		/**
 		 * The dashboard's name, for the line over the title and the title
 		 * itself ("Versions of {name}", board LpVersies). Empty keeps the
 		 * plain "Version history".
 		 */
-		dashboardName: {
-			type: String,
-			default: '',
-		},
+		dashboardName: TEXT_PROP,
 	},
 
 	emits: ['close', 'restored'],

@@ -60,6 +60,7 @@
 <script>
 import { NcButton } from '@conduction/nextcloud-vue'
 import { showError } from '@nextcloud/dialogs'
+import { REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { useDashboardStore } from '../stores/dashboard.js'
 
 export default {
@@ -70,10 +71,7 @@ export default {
 	},
 
 	props: {
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
 	},
 
 	emits: ['acknowledged'],

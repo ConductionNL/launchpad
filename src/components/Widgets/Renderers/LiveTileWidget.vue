@@ -71,6 +71,10 @@ import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import CloudOffOutline from 'vue-material-design-icons/CloudOffOutline.vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { fetchLiveTileValue } from '../../../services/liveTileClient.js'
 
 /**
@@ -116,10 +120,7 @@ export default {
 		 *
 		 * @type {object}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The widget placement — only `placement.id` is used, to call the
@@ -127,10 +128,7 @@ export default {
 		 *
 		 * @type {{id?: number|string}|null}
 		 */
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 	},
 
 	data() {

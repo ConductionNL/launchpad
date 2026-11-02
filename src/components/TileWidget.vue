@@ -89,6 +89,7 @@ import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
+import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { logger } from '../utils/logger.js'
 
 const { recordTileClick } = useTileClickTracking()
@@ -103,15 +104,9 @@ export default {
 	},
 
 	props: {
-		tile: {
-			type: Object,
-			required: true,
-		},
+		tile: REQUIRED_OBJECT_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}
@@ -130,10 +125,7 @@ export default {
 		 *
 		 * @type {boolean}
 		 */
-		healthPingEnabled: {
-			type: Boolean,
-			default: false,
-		},
+		healthPingEnabled: FLAG_PROP,
 
 		/**
 		 * The tile's configured ping interval in seconds.

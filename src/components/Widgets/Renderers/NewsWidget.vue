@@ -119,6 +119,10 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import DOMPurify from 'dompurify'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 
 const ALLOWED_LAYOUTS = ['list', 'grid', 'carousel']
 const DEFAULT_LAYOUT = 'list'
@@ -225,16 +229,10 @@ export default {
 
 	props: {
 		/** Persisted widget content blob (placement.styleConfig.content). */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** Placement entity carrying the id we hit the API with. */
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 	},
 
 	data() {

@@ -30,6 +30,7 @@
 import { NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import ConditionalVisibilityEditor from '../components/Widgets/ConditionalVisibilityEditor.vue'
+import { FLAG_PROP, LIST_PROP } from '../constants/propDefinitions.js'
 
 /**
  * VisibilityRulesModal — the placement's "Visibility" settings surface
@@ -53,16 +54,10 @@ export default {
 		},
 
 		/** Whether the modal is shown. */
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
 		/** Optional group-id list for the group-rule picker. */
-		availableGroups: {
-			type: Array,
-			default: () => [],
-		},
+		availableGroups: LIST_PROP,
 	},
 
 	emits: ['close', 'ruleAdded', 'ruleUpdated', 'ruleRemoved'],

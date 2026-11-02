@@ -9,6 +9,7 @@
 	"resolveWidgetTitle | undefined | proxy to catalog": "t:Widget",
 	"resolveWidgetTitle | undefined | proxy to untitled": "t:Widget",
 	"resolveWidgetTitle | undefined | proxy to unknown": "t:Widget",
+	"resolveWidgetTitle | undefined | untitled widget proxying a titled one": "t:Widget",
 	"resolveWidgetTitle | undefined | proxy without id": "t:Widget",
 	"resolveWidgetTitle | undefined | registry type": "t:Chart",
 	"resolveWidgetTitle | undefined | registry blank name": "t:Widget",
@@ -25,6 +26,7 @@
 	"resolveWidgetTitle | empty | proxy to catalog": "t:Widget",
 	"resolveWidgetTitle | empty | proxy to untitled": "t:Widget",
 	"resolveWidgetTitle | empty | proxy to unknown": "t:Widget",
+	"resolveWidgetTitle | empty | untitled widget proxying a titled one": "t:Widget",
 	"resolveWidgetTitle | empty | proxy without id": "t:Widget",
 	"resolveWidgetTitle | empty | registry type": "t:Chart",
 	"resolveWidgetTitle | empty | registry blank name": "t:Widget",
@@ -41,6 +43,7 @@
 	"resolveWidgetTitle | full | proxy to catalog": "Deals overview",
 	"resolveWidgetTitle | full | proxy to untitled": "t:Widget",
 	"resolveWidgetTitle | full | proxy to unknown": "t:Widget",
+	"resolveWidgetTitle | full | untitled widget proxying a titled one": "Deals overview",
 	"resolveWidgetTitle | full | proxy without id": "t:Widget",
 	"resolveWidgetTitle | full | registry type": "Catalog chart",
 	"resolveWidgetTitle | full | registry blank name": "t:Widget",
@@ -84,6 +87,12 @@
 		]
 	},
 	"activateSearchResult | no link, not focusable | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focus not a function | undefined": {
 		"value": false,
 		"log": [
 			"getElementById launchpad-main-content"
@@ -137,6 +146,12 @@
 			"getElementById launchpad-main-content"
 		]
 	},
+	"activateSearchResult | no link, focus not a function | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
 	"activateSearchResult | bare | no placement": {
 		"value": false,
 		"log": [
@@ -180,6 +195,12 @@
 		]
 	},
 	"activateSearchResult | no link, not focusable | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focus not a function | id null": {
 		"value": false,
 		"log": [
 			"getElementById launchpad-main-content"
@@ -246,6 +267,15 @@
 		]
 	},
 	"activateSearchResult | no link, not focusable | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | no link, focus not a function | id zero": {
 		"value": true,
 		"log": [
 			"getElementById launchpad-main-content",
@@ -325,6 +355,15 @@
 			"item.querySelector a[href]"
 		]
 	},
+	"activateSearchResult | no link, focus not a function | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]"
+		]
+	},
 	"activateSearchResult | bare | id number": {
 		"value": true,
 		"log": [
@@ -388,6 +427,15 @@
 		]
 	},
 	"activateSearchResult | no link, not focusable | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | no link, focus not a function | id with quote": {
 		"value": true,
 		"log": [
 			"getElementById launchpad-main-content",

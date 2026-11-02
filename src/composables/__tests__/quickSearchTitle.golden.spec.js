@@ -37,6 +37,10 @@ const PLACEMENTS = {
 	'proxy to catalog': { widgetId: 'nc-widget', content: { widgetId: 'deals' } },
 	'proxy to untitled': { widgetId: 'nc-widget', content: { widgetId: 'untitled' } },
 	'proxy to unknown': { widgetId: 'nc-widget', content: { widgetId: 'nope' } },
+	'untitled widget proxying a titled one': {
+		widgetId: 'untitled',
+		content: { widgetId: 'deals' },
+	},
 	'proxy without id': { widgetId: 'nc-widget', content: {} },
 	'registry type': { widgetId: 'chart', content: { widgetId: 'nope' } },
 	'registry blank name': { widgetId: 'blank' },
@@ -73,7 +77,9 @@ function fakeItem(spec, log) {
 	if (spec.scroll) {
 		item.scrollIntoView = (opts) => log.push(`scroll ${JSON.stringify(opts)}`)
 	}
-	if (spec.focus) {
+	if (spec.focus === 'broken') {
+		item.focus = 'not a function'
+	} else if (spec.focus) {
 		item.focus = (opts) => log.push(`focus ${JSON.stringify(opts)}`)
 	}
 	item.querySelector = (selector) => {
@@ -95,6 +101,7 @@ const ITEMS = {
 	'no link, focusable': { scroll: true, focus: true },
 	'no link, focusable with tabindex': { focus: true, attrs: { tabindex: '0' } },
 	'no link, not focusable': { scroll: true },
+	'no link, focus not a function': { scroll: true, focus: 'broken' },
 	bare: {},
 }
 

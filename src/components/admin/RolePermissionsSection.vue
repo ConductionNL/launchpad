@@ -153,15 +153,6 @@ export default {
 		}
 	},
 
-	/** @spec openspec/specs/admin-roles/spec.md */
-	async mounted() {
-		try {
-			await this.store.loadPermissions()
-		} catch (e) {
-			logger.error('Failed to load role permissions', e)
-		}
-	},
-
 	computed: {
 		/**
 		 * The question in the delete confirmation.
@@ -174,6 +165,15 @@ export default {
 				group: this.deleteTarget ? this.deleteTarget.groupId : '',
 			})
 		},
+	},
+
+	/** @spec openspec/specs/admin-roles/spec.md */
+	async mounted() {
+		try {
+			await this.store.loadPermissions()
+		} catch (e) {
+			logger.error('Failed to load role permissions', e)
+		}
 	},
 
 	methods: {

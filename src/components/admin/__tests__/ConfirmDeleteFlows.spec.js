@@ -11,10 +11,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import ManageGroupDashboardsModal from '../../../dialogs/ManageGroupDashboardsModal.vue'
 import AdminDemoData from '../AdminDemoData.vue'
 import RoleLayoutDefaultsSection from '../RoleLayoutDefaultsSection.vue'
 import RolePermissionsSection from '../RolePermissionsSection.vue'
-import ManageGroupDashboardsModal from '../../../dialogs/ManageGroupDashboardsModal.vue'
 import { api } from '../../../services/api.js'
 import { useGroupDashboardsStore } from '../../../stores/groupDashboards.js'
 import { useRoleFeaturePermissionStore } from '../../../stores/roleFeaturePermissions.js'
@@ -56,7 +56,10 @@ vi.mock('@conduction/nextcloud-vue', () => {
 		NcEmptyContent: { name: 'NcEmptyContent', template: '<div><slot /></div>' },
 		NcModal: { name: 'NcModal', template: '<div><slot /></div>' },
 		NcTextField: { name: 'NcTextField', template: '<input>' },
-		NcCheckboxRadioSwitch: { name: 'NcCheckboxRadioSwitch', template: '<div />' },
+		NcCheckboxRadioSwitch: {
+			name: 'NcCheckboxRadioSwitch',
+			template: '<div />',
+		},
 		NcSelect: { name: 'NcSelect', template: '<div />' },
 		NcSelectTags: { name: 'NcSelectTags', template: '<div />' },
 		NcPasswordField: { name: 'NcPasswordField', template: '<input>' },
@@ -64,8 +67,14 @@ vi.mock('@conduction/nextcloud-vue', () => {
 		NcNoteCard: { name: 'NcNoteCard', template: '<div><slot /></div>' },
 		CnDashboardIcon: { name: 'CnDashboardIcon', template: '<span />' },
 		CnIconBrowser: { name: 'CnIconBrowser', template: '<div />' },
-		CnSettingsSection: { name: 'CnSettingsSection', template: '<div><slot /></div>' },
-		CnAdminSettingsShell: { name: 'CnAdminSettingsShell', template: '<div><slot /></div>' },
+		CnSettingsSection: {
+			name: 'CnSettingsSection',
+			template: '<div><slot /></div>',
+		},
+		CnAdminSettingsShell: {
+			name: 'CnAdminSettingsShell',
+			template: '<div><slot /></div>',
+		},
 		NcDialog: {
 			name: 'NcDialog',
 			props: ['name', 'open'],

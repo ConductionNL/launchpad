@@ -216,7 +216,11 @@
 				t(
 					'launchpad',
 					'{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.',
-					{ name: editLock.state.holderName || t('launchpad', 'A colleague') },
+					{
+						name:
+							editLock.state.holderName
+							|| t('launchpad', 'A colleague'),
+					},
 				)
 			"
 			:confirmLabel="t('launchpad', 'Take over')"

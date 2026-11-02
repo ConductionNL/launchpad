@@ -151,15 +151,6 @@ export default {
 		}
 	},
 
-	/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
-	async mounted() {
-		try {
-			await this.store.loadLayoutDefaults()
-		} catch (e) {
-			logger.error('Failed to load layout defaults', e)
-		}
-	},
-
 	computed: {
 		/**
 		 * The question in the delete confirmation.
@@ -168,11 +159,24 @@ export default {
 		 * @spec openspec/changes/role-based-content/tasks.md#task-6
 		 */
 		deleteMessage() {
-			return t('launchpad', 'Delete layout default for "{group}" / "{widget}"?', {
-				group: this.deleteTarget ? this.deleteTarget.groupId : '',
-				widget: this.deleteTarget ? this.deleteTarget.widgetId : '',
-			})
+			return t(
+				'launchpad',
+				'Delete layout default for "{group}" / "{widget}"?',
+				{
+					group: this.deleteTarget ? this.deleteTarget.groupId : '',
+					widget: this.deleteTarget ? this.deleteTarget.widgetId : '',
+				},
+			)
 		},
+	},
+
+	/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
+	async mounted() {
+		try {
+			await this.store.loadLayoutDefaults()
+		} catch (e) {
+			logger.error('Failed to load layout defaults', e)
+		}
 	},
 
 	methods: {

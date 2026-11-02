@@ -89,7 +89,9 @@
 		<CnConfirmDialog
 			v-if="deleteTarget !== null"
 			:dialogTitle="t('launchpad', 'Delete dashboard')"
-			:message="t('launchpad', 'Delete this dashboard? This cannot be undone.')"
+			:message="
+				t('launchpad', 'Delete this dashboard? This cannot be undone.')
+			"
 			:confirmLabel="t('launchpad', 'Delete')"
 			variant="error"
 			@confirm="onDeleteConfirm"

@@ -49,6 +49,7 @@
 
 <script>
 import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
+import { OBJECT_PROP } from '../../../constants/widgetProps.js'
 
 /**
  * Persisted-content field defaults (REQ-CLOCK-002). `timezone: ''` means
@@ -84,10 +85,7 @@ export default {
 		 *
 		 * @type {{style?: string, hourFormat?: string, timezone?: string, showDate?: boolean}}
 		 */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 	},
 
 	data() {

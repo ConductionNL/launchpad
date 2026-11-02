@@ -17,6 +17,7 @@
 
 <script>
 import { CnStatsBlockWidget } from '@conduction/nextcloud-vue'
+import { OBJECT_PROP } from '../../../constants/widgetProps.js'
 
 /**
  * StatsBlockHost — thin LaunchPad wrapper adapting the registry's `content`
@@ -32,17 +33,11 @@ export default {
 
 	props: {
 		/** The placement's content blob — `{ title, dataSource, props }`. */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** The placement record (unused; accepted for the renderer interface). */
 		// eslint-disable-next-line vue/no-unused-properties -- absorbs WidgetRenderer's uniform binding
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
 	},
 
 	computed: {

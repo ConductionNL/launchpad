@@ -204,21 +204,18 @@
  * changes so re-configuring the widget root never leaves the user on
  * a stale path.
  */
+
+import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+
 export default {
 	name: 'FilesWidget',
 
 	props: {
 		/** Persisted content blob: see FilesForm for shape. */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** Placement entity (provides `id` for endpoint scoping). */
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
 
 		/*
 		 * `isAdmin` / `canEdit` used to be declared here and were removed: no

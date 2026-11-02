@@ -96,6 +96,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import { OBJECT_PROP } from '../../../constants/widgetProps.js'
 import { loadAttentionFeed } from '../../../services/attentionFeed.js'
 import { logger } from '../../../utils/logger.js'
 
@@ -117,10 +118,7 @@ export default {
 
 	props: {
 		/** Persisted widget content: `{ limit }`. */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 	},
 
 	data() {

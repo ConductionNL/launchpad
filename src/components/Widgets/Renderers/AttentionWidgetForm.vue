@@ -26,6 +26,7 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcSelect } from '@nextcloud/vue'
+import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/widgetProps.js'
 
 const DEFAULT_LIMIT = 5
 const LIMIT_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -45,20 +46,14 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values, used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ limit: DEFAULT_LIMIT }),
-		},
+		value: objectProp({ limit: DEFAULT_LIMIT }),
 	},
 
 	emits: ['update:content'],

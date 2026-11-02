@@ -69,6 +69,7 @@ import WeatherRainy from 'vue-material-design-icons/WeatherRainy.vue'
 import WeatherSnowy from 'vue-material-design-icons/WeatherSnowy.vue'
 import WeatherSunny from 'vue-material-design-icons/WeatherSunny.vue'
 import WeatherWindy from 'vue-material-design-icons/WeatherWindy.vue'
+import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/widgetProps.js'
 import { fetchWeatherReading } from '../../../services/weatherClient.js'
 
 /**
@@ -127,10 +128,7 @@ export default {
 		 * @type {{location?: string, unitsOverride?: string}}
 		 */
 		// eslint-disable-next-line vue/no-unused-properties -- resolved server-side; see above
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/**
 		 * The widget placement — only `placement.id` is used, to call the
@@ -138,10 +136,7 @@ export default {
 		 *
 		 * @type {{id?: number|string}|null}
 		 */
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 	},
 
 	data() {

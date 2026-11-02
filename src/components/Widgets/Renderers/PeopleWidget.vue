@@ -148,6 +148,8 @@
 </template>
 
 <script>
+import { objectProp } from '../../../constants/widgetProps.js'
+
 const CACHE_TTL_MS = 60 * 1000
 const PAGE_SIZE = 50
 const MIN_SERVER_QUERY = 2
@@ -193,10 +195,7 @@ export default {
 		/**
 		 * Persisted widget content (see `DEFAULT_CONTENT` for shape).
 		 */
-		content: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		content: objectProp(DEFAULT_CONTENT),
 	},
 
 	data() {

@@ -120,6 +120,7 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
+import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/widgetProps.js'
 import {
 	fetchConnectorAvailability,
 	validateLiveTileSource,
@@ -168,20 +169,14 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values — used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: ['update:content'],

@@ -26,6 +26,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/widgetProps.js'
 
 /**
  * AiAssistantWidgetForm: the assistant widget's settings, the Hermiq agent
@@ -37,15 +38,9 @@ export default {
 	name: 'AiAssistantWidgetForm',
 
 	props: {
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
-		value: {
-			type: Object,
-			default: () => ({ agentUuid: '' }),
-		},
+		value: objectProp({ agentUuid: '' }),
 	},
 
 	emits: ['update:content'],

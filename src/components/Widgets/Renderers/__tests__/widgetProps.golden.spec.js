@@ -52,7 +52,8 @@ function contractOf(definition) {
 		const first = value()
 		const second = value()
 		contract.default = first === undefined ? '(undefined)' : first
-		contract.fresh = typeof first === 'object' && first !== null ? first !== second : 'n/a'
+		contract.fresh =
+			typeof first === 'object' && first !== null ? first !== second : 'n/a'
 		contract.frozen = Object.isFrozen(first)
 	} else {
 		contract.default = value

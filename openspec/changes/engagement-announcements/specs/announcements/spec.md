@@ -48,7 +48,7 @@ The editor MUST offer a preview that renders the announcement with the same comp
 
 - **GIVEN** Karin writes a notice "Onderhoud zaaksysteem zaterdag 08:00 tot 12:00" for group "Burgerzaken"
 - **WHEN** she chooses "Preview"
-- **THEN** she sees the warning banner as readers will and "Reaches 42 people"
+- **THEN** she sees the warning banner as readers will and "People reached: 42"
 - **AND** nobody else sees it until she chooses "Publish"
 
 ### Requirement: Notices show above every targeted dashboard for their period (REQ-ANN-005)

@@ -47,3 +47,10 @@ Only administrators edit `office_networks`. Tile authors with edit rights set th
 - PHPUnit: `OfficeNetworkService` with IPv4, IPv6, empty list and a malformed range (ignored and logged); `TileUpdater` validation.
 - Vitest: `TileWidget` picks the internal address only when both the flag and the key are set.
 - Playwright: with `office_networks` covering the test runner, a tile with both addresses links to the internal one.
+
+## What the build corrected (2026-09-30)
+
+- The ranges have their own admin endpoints (`GET`/`PUT /api/admin/office-networks`, `OfficeNetworksController`, `OfficeNetworkService`) rather than another parameter on `AdminSettingsService`. The answer names the administrator's own address and whether it is inside, which is how the admin tab shows "your current address".
+- A range is valid when Nextcloud's `IFactory::rangeFromString()` parses it; a single address counts as a range. At most 50.
+- `TileUpdater::assertValidInternalUrl()` accepts empty, an http or https address with a host, or a path on this Nextcloud; it runs before the placement is written, so an invalid address refuses the whole update.
+- The tile reads `onOfficeNetwork` through the page's provide/inject like the other workspace keys; the tile editor shows the address in effect only when an office address is filled in.

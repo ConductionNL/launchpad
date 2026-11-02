@@ -52,7 +52,7 @@ describe('AdminSettings tabs', () => {
 		expect(tabs[1].id).toBe('templates')
 	})
 
-	it('hands the twelve tabs to the admin shell as an underline strip', () => {
+	it('hands the fifteen tabs to the admin shell as an underline strip', () => {
 		expect(tabs.map((tab) => tab.id)).toEqual([
 			'general',
 			'templates',
@@ -66,6 +66,9 @@ describe('AdminSettings tabs', () => {
 			'group-dashboards',
 			'detail-fields',
 			'profile-fields',
+			'search-shortcuts',
+			'office-networks',
+			'announcements',
 		])
 		expect(source).toContain(':tabs="beheerTabs"')
 		expect(render).toContain('tabsVariant: "underline"')

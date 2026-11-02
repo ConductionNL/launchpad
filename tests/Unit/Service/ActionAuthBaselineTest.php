@@ -84,7 +84,13 @@ class ActionAuthBaselineTest extends TestCase {
 		'metadata-admin.update-field',
 		'metadata-admin.delete-field',
 		'people-widget.get-users',
+		'search-shortcut.list',
+		'search-shortcut.save',
+		'office-network.list',
+		'office-network.save',
 		'profile-fields.get-definitions',
+		// engagement-announcements D6: the editor groups are an admin setting.
+		'announcement.settings',
 		'profile-fields.save-definitions',
 		'rule.get-rules',
 		'rule.add-rule',
@@ -123,6 +129,15 @@ class ActionAuthBaselineTest extends TestCase {
 		// The `admin.` prefix is the controller's, not a privilege level:
 		// getMyRole() only ever answers for the caller.
 		'admin.get-my-role',
+		// REQ-BMI-001: importing bookmarks is like adding tiles.
+		'widget.import-bookmarks',
+		// engagement-announcements D6: everyone reads, likes, comments and
+		// follows; `manage` is open to call because AnnouncementService checks
+		// the editor groups itself (a reader still gets 403).
+		'announcement.read',
+		'announcement.comment',
+		'announcement.follow',
+		'announcement.manage',
 		// REQ-PEX-002: every person fills their own profile fields.
 		'profile-fields.get-own',
 		'profile-fields.save-own',

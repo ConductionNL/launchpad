@@ -64,6 +64,7 @@ class DemoDataService {
 	 * @param ContainerInterface $container  Resolves OpenRegister's importer.
 	 * @param LoggerInterface    $logger     Records what was imported.
 	 * @param ProfileFieldService $profileFields Defines the demo profile fields.
+	 * @param AnnouncementService|null $announcements Writes the demo announcements.
 	 *
 	 * @return void
 	 */
@@ -72,6 +73,7 @@ class DemoDataService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ProfileFieldService $profileFields,
+		private readonly ?AnnouncementService $announcements = null,
 	) {
 	}//end __construct()
 
@@ -237,6 +239,10 @@ class DemoDataService {
 		// Widgets-people-expertise-and-fields: the demo profile fields
 		// (office, cost centre, expertise tags), only when none are defined.
 		$this->profileFields->seedDemoDefinitions();
+
+		// Engagement-announcements: two news items and a maintenance notice,
+		// only on an instance without announcements. The app is the author.
+		$this->announcements?->seedDemoAnnouncements(authorId: Application::APP_ID);
 
 		$imported = [
 			'objects'   => $objects,

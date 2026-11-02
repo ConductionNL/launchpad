@@ -65,3 +65,12 @@ Demo installs get three announcements: a news item "Nieuwe werkplekken op de 3e 
 - PHPUnit: targeting, drafts hidden, time window, comment access, follow notification once, author rights, notice needs an end time.
 - Vitest: widget list, like and comment counts, editor preview step, banner dismiss.
 - Playwright: an editor writes a notice for group "Burgerzaken", previews it as a banner, publishes; a member sees the banner above his dashboard; a non-member does not.
+
+## What the build changed (5 Oct 2026)
+
+- The follows table is `oc_launchpad_ann_follows`, not `oc_launchpad_announcement_follows`: Nextcloud refuses table names over 27 characters without the prefix.
+- A like is a comment with verb `like` (message 👍) on object type `launchpad_announcement`, one per person, not a Nextcloud reaction: Nextcloud reactions hang on a parent comment, and an announcement is not one. Comments use verb `comment`. Counts come from `getNumberOfCommentsForObjects` per verb.
+- The preview shows "People reached: N" (an exact count of the distinct members of the target groups, or of all users when no group is set).
+- Demo announcements are written once, by `DemoDataService::install()`, with the app as author and already marked notified, so a demo install sends no notifications. "Inloopspreekuur privacy" targets "Medewerkers" only when that group exists.
+- The editor groups are their own admin tab ("Announcements") and endpoint `/api/announcement-settings`, behind the admin-only action `announcement.settings`.
+- Dismissed notices are stored in the preference `dismissed-notices`, pruned to notices still running.

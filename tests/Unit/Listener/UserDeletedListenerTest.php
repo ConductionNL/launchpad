@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Listener;
 
+use OCA\LaunchPad\Db\AnnouncementFollowMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
@@ -232,6 +233,31 @@ class UserDeletedListenerTest extends TestCase {
 
 		$this->listener->handle($event);
 	}//end testRecipientSharesAreDeleted()
+
+	/**
+	 * engagement-announcements: the categories the person followed go with them.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementFollowsAreDeleted(): void {
+		$follows = $this->createMock(AnnouncementFollowMapper::class);
+		$follows->expects($this->once())->method('deleteByUser')->with('bob');
+		$this->dashboardMapper->method('findByUserId')->willReturn([]);
+
+		$listener = new UserDeletedListener(
+			shareMapper: $this->shareMapper,
+			dashboardMapper: $this->dashboardMapper,
+			placementMapper: $this->placementMapper,
+			shareService: $this->shareService,
+			groupManager: $this->groupManager,
+			userManager: $this->userManager,
+			db: $this->db,
+			logger: $this->logger,
+			roleService: $this->roleService,
+			announcementFollows: $follows,
+		);
+		$listener->handle($this->makeEvent('bob'));
+	}//end testAnnouncementFollowsAreDeleted()
 
 	// =========================================================================
 	// Tests — admin pool non-empty: ownership transferred

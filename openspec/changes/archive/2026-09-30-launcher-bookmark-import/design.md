@@ -42,3 +42,11 @@ The user needs `add_only` or `full` permission on the dashboard (`canAddWidget()
 - Vitest: the parser on exports from Firefox, Chrome and Edge fixtures, including nested folders and non-http links.
 - PHPUnit: endpoint auth, quota refusal (409, nothing created), unsafe URLs skipped, transaction rollback on a mid-import failure.
 - Playwright: import a fixture file, pick one folder, see one container with its tiles at the bottom of the dashboard.
+
+## What the build corrected (2026-09-30)
+
+- D3: `UrlSafetyValidator::isSafe()` is an SSRF check (https only, public addresses only, a DNS lookup per host). A tile never makes the server fetch its address, and intranet bookmarks are the point, so the import accepts http and https addresses with a host (`BookmarkImportService::isWebAddress()`) and skips the rest with the reason `not-a-web-address`.
+- The endpoint lives in its own `BookmarkImportController` and `BookmarkImportService` rather than in `WidgetApiController` and `PlacementService`, which already carry many collaborators. The quota check for the whole import is `QuotaService::assertRoomFor()`; every placement still passes the single check inside `PlacementService`.
+- Folder tiles are `link` widgets inside the container (the container renders children through the widget registry); loose bookmarks are URL tiles (`addTileFromArray`, link type `url`). Containers are 4 columns wide, side by side, below the lowest widget; loose tiles follow in rows of six.
+- The browsers' own root folders (bookmarks toolbar, other bookmarks, favorites bar) are transparent: the folders inside them are the top-level folders.
+- The dialog is `src/dialogs/BookmarkImportDialog.vue` (an NcDialog, per the modal-isolation rule), opened from "Import bookmarks…" in the active dashboard's menu, shown only with add rights.

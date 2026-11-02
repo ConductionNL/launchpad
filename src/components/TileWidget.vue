@@ -102,6 +102,17 @@ export default {
 		HealthPingBadge,
 	},
 
+	inject: {
+		/**
+		 * Whether this request comes from an office network (REQ-TIA-003),
+		 * decided by the server from the request address.
+		 */
+		injectedOnOfficeNetwork: {
+			from: 'onOfficeNetwork',
+			default: false,
+		},
+	},
+
 	props: {
 		tile: {
 			type: Object,
@@ -144,13 +155,33 @@ export default {
 			type: Number,
 			default: 60,
 		},
+
+		/**
+		 * The address to open on the office network (REQ-TIA-003); empty
+		 * keeps the tile on its main address.
+		 *
+		 * @type {string}
+		 */
+		internalUrl: {
+			type: String,
+			default: '',
+		},
 	},
 
 	emits: ['edit', 'remove'],
 
 	computed: {
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * The address this tile opens: the office network address when the
+		 * server says this request comes from an office network and the tile
+		 * has one, else the main address (REQ-TIA-003).
+		 *
+		 * @spec openspec/specs/tiles/spec.md
+		 */
 		tileUrl() {
+			if (this.injectedOnOfficeNetwork === true && this.internalUrl) {
+				return this.resolveAddress(this.internalUrl)
+			}
 			const value = this.tile.linkValue
 			if (this.tile.linkType === 'app') {
 				return generateUrl('/apps/' + value)
@@ -207,6 +238,21 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * An address as a link: a path on this Nextcloud goes through
+		 * generateUrl, anything else passes through (REQ-TIA-003).
+		 *
+		 * @param {string} value The address.
+		 * @return {string} The href.
+		 * @spec openspec/specs/tiles/spec.md
+		 */
+		resolveAddress(value) {
+			if (value.startsWith('/') && !value.startsWith('//')) {
+				return generateUrl(value)
+			}
+			return value
+		},
+
 		/**
 		 * REQ-TANLT-002 — fire a fire-and-forget tile-click record call
 		 * on activation. Never blocks or interferes with the anchor's own

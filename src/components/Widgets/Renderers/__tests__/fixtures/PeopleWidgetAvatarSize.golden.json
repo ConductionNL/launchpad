@@ -4,7 +4,7 @@
 		"list": 44,
 		"grid": 64,
 		"other": 64,
-		"": 64,
+		"(empty string)": 64,
 		"undefined": 64,
 		"null": 64,
 		"CARD": 64

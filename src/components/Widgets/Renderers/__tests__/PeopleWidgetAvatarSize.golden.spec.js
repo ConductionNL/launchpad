@@ -44,9 +44,10 @@ describe('PeopleWidget avatar size (golden)', () => {
 		)
 		const actual = { computed: {}, rendered: {} }
 		for (const layout of LAYOUTS) {
-			actual.computed[String(layout)] = PeopleWidget.computed.avatarSize.call({
-				layout,
-			})
+			actual.computed[layout === '' ? '(empty string)' : String(layout)] =
+				PeopleWidget.computed.avatarSize.call({
+					layout,
+				})
 		}
 		for (const layout of ['card', 'list', 'grid', 'other']) {
 			const wrapper = mount(PeopleWidget, { props: { content: { layout } } })

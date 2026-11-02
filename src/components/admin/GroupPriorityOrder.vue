@@ -142,6 +142,7 @@
 <script>
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { NcButton, NcTextField } from '@nextcloud/vue'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
@@ -164,10 +165,7 @@ export default {
 	props: {
 		// Optional initial seed for the active list (admin initial-state).
 		// `loadGroups()` always overwrites with the API-truth at mount.
-		initialActive: {
-			type: Array,
-			default: () => [],
-		},
+		initialActive: LIST_PROP,
 	},
 
 	data() {

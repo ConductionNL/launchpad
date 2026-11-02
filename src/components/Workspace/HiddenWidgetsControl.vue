@@ -64,6 +64,7 @@
 <script>
 import { CnConfirmDialog, NcButton, NcPopover } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { resolveWidgetTitle } from '../../utils/widgetTitle.js'
 
 /**
@@ -84,16 +85,10 @@ export default {
 
 	props: {
 		/** Hidden placements (WidgetPlacement::jsonSerialize rows). */
-		hiddenPlacements: {
-			type: Array,
-			default: () => [],
-		},
+		hiddenPlacements: LIST_PROP,
 
 		/** Widget catalog, for naming Nextcloud dashboard widgets. */
-		availableWidgets: {
-			type: Array,
-			default: () => [],
-		},
+		availableWidgets: LIST_PROP,
 	},
 
 	emits: ['showAgain', 'reset'],

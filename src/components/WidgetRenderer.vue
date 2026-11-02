@@ -73,6 +73,10 @@ import {
 import { mapActions, storeToRefs } from 'pinia'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import TileWidget from './TileWidget.vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_OBJECT_PROP,
+} from '../constants/propDefinitions.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { widgetBridge } from '../services/widgetBridge.js'
 import {
@@ -107,15 +111,9 @@ export default {
 	},
 
 	props: {
-		widget: {
-			type: Object,
-			default: null,
-		},
+		widget: NULLABLE_OBJECT_PROP,
 
-		placement: {
-			type: Object,
-			required: true,
-		},
+		placement: REQUIRED_OBJECT_PROP,
 	},
 
 	data() {

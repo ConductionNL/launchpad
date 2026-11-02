@@ -49,6 +49,7 @@
 <script>
 import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 
 /**
  * ScheduleDashboardDialog: set when a dashboard goes live, when it comes
@@ -67,16 +68,10 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
 		/** Why the last attempt was refused. */
-		error: {
-			type: String,
-			default: '',
-		},
+		error: TEXT_PROP,
 	},
 
 	emits: ['update:open', 'save'],

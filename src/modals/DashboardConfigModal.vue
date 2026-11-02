@@ -441,6 +441,7 @@ import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
 import DetailsTab from '../components/Workspace/config/DetailsTab.vue'
 import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
+import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
@@ -478,20 +479,11 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		dashboard: {
-			type: Object,
-			default: null,
-		},
+		dashboard: NULLABLE_OBJECT_PROP,
 
-		canDelete: {
-			type: Boolean,
-			default: false,
-		},
+		canDelete: FLAG_PROP,
 
 		mode: {
 			type: String,
@@ -506,25 +498,16 @@ export default {
 		 * fetches it once via `GET /api/dashboards/default` and
 		 * passes it down both here and to `DashboardSwitcherSidebar`.
 		 */
-		defaultUuid: {
-			type: String,
-			default: '',
-		},
+		defaultUuid: TEXT_PROP,
 
 		/**
 		 * Dashboards that may be chosen as parent (dashboard-tree-navigation).
 		 * The server refuses a cycle; the host leaves the dashboard itself out.
 		 */
-		parentOptions: {
-			type: Array,
-			default: () => [],
-		},
+		parentOptions: LIST_PROP,
 
 		/** Why the last save was refused, shown in the General tab. */
-		saveError: {
-			type: String,
-			default: '',
-		},
+		saveError: TEXT_PROP,
 
 		/**
 		 * Tab to land on when the modal opens (dashboard-sharing spec). The

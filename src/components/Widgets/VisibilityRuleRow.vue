@@ -233,6 +233,11 @@ import {
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import Delete from 'vue-material-design-icons/Delete.vue'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	REQUIRED_OBJECT_PROP,
+} from '../../constants/propDefinitions.js'
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
@@ -274,28 +279,16 @@ export default {
 
 	props: {
 		/** The rule this row edits: `{id?, ruleType, ruleConfig, isInclude}`. */
-		rule: {
-			type: Object,
-			required: true,
-		},
+		rule: REQUIRED_OBJECT_PROP,
 
 		/** Group-id options for the group-rule multi-select. */
-		availableGroups: {
-			type: Array,
-			default: () => [],
-		},
+		availableGroups: LIST_PROP,
 
 		/** Disables Save/Remove while a request for this row is in flight. */
-		busy: {
-			type: Boolean,
-			default: false,
-		},
+		busy: FLAG_PROP,
 
 		/** True for a not-yet-persisted draft row (no `id` yet). */
-		isNew: {
-			type: Boolean,
-			default: false,
-		},
+		isNew: FLAG_PROP,
 	},
 
 	emits: ['update:rule', 'save', 'remove'],

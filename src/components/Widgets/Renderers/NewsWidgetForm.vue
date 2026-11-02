@@ -99,6 +99,10 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 
 const ALLOWED_LAYOUTS = Object.freeze(['list', 'grid', 'carousel'])
 
@@ -140,16 +144,10 @@ export default {
 
 	props: {
 		/** The placement being edited, or `null` in create mode. */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/** Initial content values (registry defaults when not editing). */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: [

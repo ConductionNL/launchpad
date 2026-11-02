@@ -5,8 +5,8 @@
  * Golden test for the styles of RolePermissionsSection and
  * RoleLayoutDefaultsSection: every rule each component gets from its style
  * blocks (a `src` block read from its file), whether the block is scoped,
- * and the order of rules whose selectors extend one another (`.a` before
- * `.a--b`), compared with fixtures/roleSectionStyles.golden.json.
+ * and for each selector that extends another (`.a` and `.a--b`) which comes
+ * first, compared with fixtures/roleSectionStyles.golden.json.
  * Set RECORD_GOLDEN=1 to rewrite it.
  */
 
@@ -76,13 +76,20 @@ function contract(file) {
 		bySelector[rule.selector] = { body: rule.body, scoped: rule.scoped }
 	}
 	const selectors = all.map((rule) => rule.selector)
-	const related = selectors.filter((a) =>
-		selectors.some((b) => a !== b && (a.startsWith(b) || b.startsWith(a))),
-	)
+	const order = []
+	for (const base of selectors) {
+		for (const extended of selectors) {
+			if (extended !== base && extended.startsWith(base)) {
+				order.push(
+					`${base} ${selectors.indexOf(base) < selectors.indexOf(extended) ? 'before' : 'after'} ${extended}`,
+				)
+			}
+		}
+	}
 	return {
 		rules: Object.fromEntries(Object.entries(bySelector).sort()),
 		count: all.length,
-		order: related,
+		order: order.sort(),
 	}
 }
 

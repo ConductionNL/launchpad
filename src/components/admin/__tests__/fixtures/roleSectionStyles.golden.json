@@ -52,10 +52,8 @@
 		},
 		"count": 12,
 		"order": [
-			".launchpad-admin__chip",
-			".launchpad-admin__chip--denied",
-			".launchpad-admin__editor",
-			".launchpad-admin__editor-actions"
+			".launchpad-admin__chip before .launchpad-admin__chip--denied",
+			".launchpad-admin__editor before .launchpad-admin__editor-actions"
 		]
 	},
 	"RoleLayoutDefaultsSection.vue": {
@@ -115,11 +113,10 @@
 		},
 		"count": 13,
 		"order": [
-			".launchpad-admin__chip",
-			".launchpad-admin__chip--compulsory",
-			".launchpad-admin__editor",
-			".launchpad-admin__editor-row",
-			".launchpad-admin__editor-row > *"
+			".launchpad-admin__chip before .launchpad-admin__chip--compulsory",
+			".launchpad-admin__editor before .launchpad-admin__editor-row",
+			".launchpad-admin__editor before .launchpad-admin__editor-row > *",
+			".launchpad-admin__editor-row before .launchpad-admin__editor-row > *"
 		]
 	}
 }

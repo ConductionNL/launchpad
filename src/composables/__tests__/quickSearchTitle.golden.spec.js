@@ -28,14 +28,21 @@ const FIXTURE = path.resolve(__dirname, 'fixtures/quickSearchTitle.golden.json')
 
 const PLACEMENTS = {
 	null: null,
-	'custom tile with title': { tileType: 'custom', tileTitle: 'Mail', customTitle: 'X' },
+	'custom tile with title': {
+		tileType: 'custom',
+		tileTitle: 'Mail',
+		customTitle: 'X',
+	},
 	'custom tile without title': { tileType: 'custom', tileTitle: '' },
 	'custom title': { widgetId: 'calendar', customTitle: 'My cal' },
 	'empty custom title': { widgetId: 'calendar', customTitle: '' },
 	'catalog widget': { widgetId: 'calendar' },
 	'catalog widget without title': { widgetId: 'untitled' },
 	'proxy to catalog': { widgetId: 'nc-widget', content: { widgetId: 'deals' } },
-	'proxy to untitled': { widgetId: 'nc-widget', content: { widgetId: 'untitled' } },
+	'proxy to untitled': {
+		widgetId: 'nc-widget',
+		content: { widgetId: 'untitled' },
+	},
 	'proxy to unknown': { widgetId: 'nc-widget', content: { widgetId: 'nope' } },
 	'untitled widget proxying a titled one': {
 		widgetId: 'untitled',

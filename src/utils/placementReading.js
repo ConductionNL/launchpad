@@ -29,7 +29,7 @@ export async function loadPlacementReading(widget, source) {
 	widget.errorMessage = ''
 	try {
 		const data = await source.fetch(placementId)
-		if (data && data.error) {
+		if (data?.error) {
 			widget.reading = null
 			widget.errorMessage = source.unavailable
 			return

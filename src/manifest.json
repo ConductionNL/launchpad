@@ -167,7 +167,14 @@
       "config": {
         "app": "launchpad",
         "title": "Store",
-        "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers."
+        "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.",
+        "kindLenses": [
+          { "kind": "app-template", "label": "App template" },
+          { "kind": "adapter", "label": "Adapter" },
+          { "kind": "source-template", "label": "Source template" },
+          { "kind": "configuration-template", "label": "Configuration template" },
+          { "kind": "agent-template", "label": "Agent template" }
+        ]
       },
       "_note": "ADR-080. Discovery is engine-owned: openregister's GenericStoreService owns the SSRF guard, the redirect refusal and the Bearer-only token. Install is LaunchPad's, in Controller\\StoreController, and runs through the existing ImportService. With no registry configured the page makes NO network call and reports not_configured. There is deliberately NO top-level `store` block: it configures the engine's GenericStoreController, which cannot write a LaunchPad dashboard, so the engine alias yields to the leaf controller. The block this replaced declared `openregister.configset` types, which would have offered configuration sets to somebody looking for a dashboard."
     },

@@ -263,6 +263,133 @@ function widgetRequestBody(widgetId, placement) {
 	return requestBody
 }
 
+/**
+ * The toast text for a dashboard that could not be forked (REQ-ASET-003,
+ * extended): the stable `personal_dashboards_disabled` 403 and a 404 get
+ * their own message, anything else the generic one.
+ *
+ * @param {object} error The axios error.
+ * @return {string} The localised message.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function forkFailureText(error) {
+	const status = error?.response?.status
+	if (
+		status === 403
+		&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED
+	) {
+		return t(
+			'launchpad',
+			'Personal dashboards are not enabled by your administrator',
+		)
+	}
+	if (status === 404) {
+		return t('launchpad', 'Dashboard not found')
+	}
+	return t('launchpad', 'Failed to fork dashboard')
+}
+
+/**
+ * The publication-state fields of an updated dashboard entity, as they are
+ * patched onto the copies already in the store (REQ-DASH-031..037).
+ *
+ * @param {object} dashboard The updated entity.
+ * @return {object} The publication fields.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function publicationFields(dashboard) {
+	return {
+		publicationStatus: dashboard.publicationStatus,
+		publishAt: dashboard.publishAt,
+		publishedAt: dashboard.publishedAt,
+		unpublishAt: dashboard.unpublishAt ?? null,
+	}
+}
+
+/**
+ * The effective status of a scheduled dashboard (REQ-DASH-034): published
+ * once its valid publish moment has passed, scheduled otherwise.
+ *
+ * @param {string|null|undefined} publishAt The scheduled publish moment.
+ * @return {string} `'published' | 'scheduled'`.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function scheduledStatus(publishAt) {
+	if (!publishAt) {
+		return STATUS_SCHEDULED
+	}
+	const when = new Date(publishAt)
+	if (Number.isNaN(when.getTime())) {
+		return STATUS_SCHEDULED
+	}
+	return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
+}
+
+/**
+ * The cache key of a dashboard slug-chain path (REQ-DASH-027): the path
+ * without leading and trailing slashes, or `''` when there is none.
+ *
+ * @param {unknown} path The slash-joined slug chain.
+ * @return {string} The key.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function dashboardPathKey(path) {
+	return String(path || '')
+		.replace(/\/+$/, '')
+		.replace(/^\/+/, '')
+}
+
+/**
+ * The metadata map of a metadata response (REQ-MDFL-004/005): its body when
+ * that is a plain object, otherwise an empty map.
+ *
+ * @param {object|undefined} response The axios response.
+ * @return {object} The metadata map.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function metadataMapOf(response) {
+	const payload = response?.data
+	return payload && typeof payload === 'object' && !Array.isArray(payload)
+		? payload
+		: {}
+}
+
+/**
+ * The dashboard a slug-chain path resolves to (REQ-DASH-027), or null when
+ * none does; a failure other than a 404 miss is logged.
+ *
+ * @param {string} key The path cache key.
+ * @return {Promise<object|null>} The dashboard payload or null.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+async function resolveDashboardPath(key) {
+	try {
+		const response = await api.getDashboardByPath(key)
+		return response?.data?.dashboard ?? null
+	} catch (error) {
+		if (error?.response?.status !== 404) {
+			logger.error('Failed to resolve dashboard path:', error)
+		}
+		return null
+	}
+}
+
+/**
+ * Cache a dashboard's metadata map on the store and return it.
+ *
+ * @param {object} store The dashboard store.
+ * @param {{uuid: string, map: object}} entry The dashboard UUID and its map.
+ * @return {object} The map.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function cacheMetadata(store, { uuid, map }) {
+	store.metadataByDashboard = {
+		...store.metadataByDashboard,
+		[uuid]: map,
+	}
+	return map
+}
+
 export const useDashboardStore = defineStore('dashboard', {
 	state: () => ({
 		// `dashboards` carries every dashboard visible to the user
@@ -717,24 +844,13 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (!dashboard || !dashboard.uuid) {
 				return
 			}
+			const fields = publicationFields(dashboard)
 			const idx = this.dashboards.findIndex((d) => d.uuid === dashboard.uuid)
 			if (idx >= 0) {
-				this.dashboards[idx] = {
-					...this.dashboards[idx],
-					publicationStatus: dashboard.publicationStatus,
-					publishAt: dashboard.publishAt,
-					publishedAt: dashboard.publishedAt,
-					unpublishAt: dashboard.unpublishAt ?? null,
-				}
+				this.dashboards[idx] = { ...this.dashboards[idx], ...fields }
 			}
 			if (this.activeDashboard?.uuid === dashboard.uuid) {
-				this.activeDashboard = {
-					...this.activeDashboard,
-					publicationStatus: dashboard.publicationStatus,
-					publishAt: dashboard.publishAt,
-					publishedAt: dashboard.publishedAt,
-					unpublishAt: dashboard.unpublishAt ?? null,
-				}
+				this.activeDashboard = { ...this.activeDashboard, ...fields }
 			}
 		},
 
@@ -756,15 +872,7 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (status !== STATUS_SCHEDULED) {
 				return status
 			}
-			const publishAt = dashboard.publishAt
-			if (!publishAt) {
-				return STATUS_SCHEDULED
-			}
-			const when = new Date(publishAt)
-			if (Number.isNaN(when.getTime())) {
-				return STATUS_SCHEDULED
-			}
-			return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
+			return scheduledStatus(dashboard.publishAt)
 		},
 
 		/**
@@ -841,26 +949,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return fork
 			} catch (error) {
-				// REQ-ASET-003 (extended): surface the localised toast
-				// for the gating envelope. Other errors (404 source
-				// not visible, 500 rollback) are surfaced via the
-				// caller; we just log here.
-				if (
-					error?.response?.status === 403
-					&& error?.response?.data?.error
-						=== ERR_PERSONAL_DASHBOARDS_DISABLED
-				) {
-					showError(
-						t(
-							'launchpad',
-							'Personal dashboards are not enabled by your administrator',
-						),
-					)
-				} else if (error?.response?.status === 404) {
-					showError(t('launchpad', 'Dashboard not found'))
-				} else {
-					showError(t('launchpad', 'Failed to fork dashboard'))
-				}
+				showError(forkFailureText(error))
 				logger.error('Failed to fork dashboard:', error)
 				throw error
 			} finally {
@@ -1169,9 +1258,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async dashboardByPath(path) {
-			const key = String(path || '')
-				.replace(/\/+$/, '')
-				.replace(/^\/+/, '')
+			const key = dashboardPathKey(path)
 			if (key === '') {
 				return null
 			}
@@ -1180,18 +1267,9 @@ export const useDashboardStore = defineStore('dashboard', {
 				return this.pathCache[key]
 			}
 
-			try {
-				const response = await api.getDashboardByPath(key)
-				const payload = response?.data?.dashboard ?? null
-				this.pathCache[key] = payload
-				return payload
-			} catch (error) {
-				if (error?.response?.status !== 404) {
-					logger.error('Failed to resolve dashboard path:', error)
-				}
-				this.pathCache[key] = null
-				return null
-			}
+			const payload = await resolveDashboardPath(key)
+			this.pathCache[key] = payload
+			return payload
 		},
 
 		/**
@@ -1385,27 +1463,12 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			try {
 				const response = await api.getDashboardMetadata(uuid)
-				const payload = response?.data
-				const map =
-					payload && typeof payload === 'object' && !Array.isArray(payload)
-						? payload
-						: {}
-				this.metadataByDashboard = {
-					...this.metadataByDashboard,
-					[uuid]: map,
-				}
-				return map
+				return cacheMetadata(this, { uuid, map: metadataMapOf(response) })
 			} catch (error) {
-				if (
-					error?.response?.status !== 403
-					&& error?.response?.status !== 404
-				) {
+				if (![403, 404].includes(error?.response?.status)) {
 					logger.error('Failed to load dashboard metadata:', error)
 				}
-				this.metadataByDashboard = {
-					...this.metadataByDashboard,
-					[uuid]: {},
-				}
+				cacheMetadata(this, { uuid, map: {} })
 				return {}
 			}
 		},
@@ -1430,16 +1493,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			try {
 				const response = await api.updateDashboardMetadata(uuid, metadata)
-				const payload = response?.data
-				const map =
-					payload && typeof payload === 'object' && !Array.isArray(payload)
-						? payload
-						: {}
-				this.metadataByDashboard = {
-					...this.metadataByDashboard,
-					[uuid]: map,
-				}
-				return map
+				return cacheMetadata(this, { uuid, map: metadataMapOf(response) })
 			} catch (error) {
 				const message =
 					error?.response?.data?.message

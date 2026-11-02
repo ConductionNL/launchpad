@@ -75,7 +75,9 @@ const START = {
 }
 
 const FORK_ANSWERS = {
-	'fork with dashboard': { data: { dashboard: { id: 2, uuid: 'b', name: 'Copy' } } },
+	'fork with dashboard': {
+		data: { dashboard: { id: 2, uuid: 'b', name: 'Copy' } },
+	},
 	'fork without dashboard': { data: {} },
 	'no data': { data: null },
 	'no response': undefined,
@@ -109,12 +111,18 @@ const STATUS_CASES = {
 	draft: { publicationStatus: 'draft' },
 	published: { publicationStatus: 'published' },
 	'scheduled without date': { publicationStatus: 'scheduled' },
-	'scheduled past': { publicationStatus: 'scheduled', publishAt: '2026-01-01T00:00:00Z' },
+	'scheduled past': {
+		publicationStatus: 'scheduled',
+		publishAt: '2026-01-01T00:00:00Z',
+	},
 	'scheduled exactly now': {
 		publicationStatus: 'scheduled',
 		publishAt: '2026-06-01T12:00:00Z',
 	},
-	'scheduled future': { publicationStatus: 'scheduled', publishAt: '2027-01-01T00:00:00Z' },
+	'scheduled future': {
+		publicationStatus: 'scheduled',
+		publishAt: '2027-01-01T00:00:00Z',
+	},
 	'scheduled invalid date': { publicationStatus: 'scheduled', publishAt: 'soon' },
 }
 
@@ -264,7 +272,9 @@ async function record() {
 			)
 		}
 	}
-	const now = vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-06-01T12:00:00Z'))
+	const now = vi
+		.spyOn(Date, 'now')
+		.mockReturnValue(Date.parse('2026-06-01T12:00:00Z'))
 	for (const [name, dashboard] of Object.entries(STATUS_CASES)) {
 		actual[`effectivePublicationStatus | ${name}`] = await outcome({}, (store) =>
 			store.effectivePublicationStatus(dashboard),
@@ -274,20 +284,23 @@ async function record() {
 	for (const [pathName, value] of Object.entries(PATHS)) {
 		for (const [name, reply] of answersAndFailures(PATH_ANSWERS)) {
 			await answer('getDashboardByPath', reply)
-			actual[`dashboardByPath | ${pathName} | ${name}`] = await outcome({}, (store) =>
-				store.dashboardByPath(value),
+			actual[`dashboardByPath | ${pathName} | ${name}`] = await outcome(
+				{},
+				(store) => store.dashboardByPath(value),
 			)
 		}
 	}
 	for (const uuid of ['', 'old', 'u2']) {
 		for (const [name, reply] of answersAndFailures(METADATA_ANSWERS)) {
 			await answer('getDashboardMetadata', reply)
-			actual[`fetchDashboardMetadata | ${uuid} | ${name}`] = await outcome({}, (store) =>
-				store.fetchDashboardMetadata(uuid),
+			actual[`fetchDashboardMetadata | ${uuid} | ${name}`] = await outcome(
+				{},
+				(store) => store.fetchDashboardMetadata(uuid),
 			)
 			await answer('updateDashboardMetadata', reply)
-			actual[`updateDashboardMetadata | ${uuid} | ${name}`] = await outcome({}, (store) =>
-				store.updateDashboardMetadata(uuid, { k: 'new' }),
+			actual[`updateDashboardMetadata | ${uuid} | ${name}`] = await outcome(
+				{},
+				(store) => store.updateDashboardMetadata(uuid, { k: 'new' }),
 			)
 		}
 	}

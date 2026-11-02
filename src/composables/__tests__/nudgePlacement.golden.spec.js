@@ -24,6 +24,10 @@ const ACTIONS = [
 	'grow-height',
 	'shrink-height',
 	'unknown',
+	'toString',
+	'__proto__',
+	'constructor',
+	undefined,
 ]
 
 const PLACEMENTS = {
@@ -64,6 +68,7 @@ const OPTIONS = {
 	default: undefined,
 	'six columns': { gridColumns: 6 },
 	'zero columns': { gridColumns: 0 },
+	'three columns': { gridColumns: 3 },
 }
 
 describe('nudgePlacement (golden)', () => {

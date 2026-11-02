@@ -62,6 +62,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"top left | none | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | default | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"top left | none | six columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -119,6 +147,34 @@
 		"pushed": []
 	},
 	"top left | none | six columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | six columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -188,6 +244,125 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"top left | none | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"top left | none | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | none | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"top left | not an array | default | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -245,6 +420,34 @@
 		"pushed": []
 	},
 	"top left | not an array | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -314,6 +517,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"top left | not an array | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"top left | not an array | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -371,6 +602,125 @@
 		"pushed": []
 	},
 	"top left | not an array | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"top left | not an array | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"top left | not an array | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -538,6 +888,82 @@
 		]
 	},
 	"top left | mixed | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -735,6 +1161,82 @@
 			}
 		]
 	},
+	"top left | mixed | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"top left | mixed | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -914,6 +1416,337 @@
 			}
 		]
 	},
+	"top left | mixed | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"top left | mixed | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"id": 5,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"top left | mixed | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"top left | mixed | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"right edge | none | default | move-up": {
 		"gridX": 10,
 		"gridY": 2,
@@ -971,6 +1804,34 @@
 		"pushed": []
 	},
 	"right edge | none | default | unknown": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | default | toString": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | default | __proto__": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | default | constructor": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | default | undefined": {
 		"gridX": 10,
 		"gridY": 3,
 		"gridWidth": 2,
@@ -1040,6 +1901,34 @@
 		"gridHeight": 3,
 		"pushed": []
 	},
+	"right edge | none | six columns | toString": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | six columns | __proto__": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | six columns | constructor": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | six columns | undefined": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
 	"right edge | none | zero columns | move-up": {
 		"gridX": 10,
 		"gridY": 2,
@@ -1103,6 +1992,125 @@
 		"gridHeight": 3,
 		"pushed": []
 	},
+	"right edge | none | zero columns | toString": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | zero columns | __proto__": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | zero columns | constructor": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | zero columns | undefined": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | move-up": {
+		"gridX": 1,
+		"gridY": 2,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | move-down": {
+		"gridX": 1,
+		"gridY": 4,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | move-left": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | grow-width": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": -7,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | shrink-width": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | grow-height": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 4,
+		"pushed": []
+	},
+	"right edge | none | three columns | shrink-height": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"right edge | none | three columns | unknown": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | toString": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | __proto__": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | constructor": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | none | three columns | undefined": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
 	"right edge | not an array | default | move-up": {
 		"gridX": 10,
 		"gridY": 2,
@@ -1160,6 +2168,34 @@
 		"pushed": []
 	},
 	"right edge | not an array | default | unknown": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | default | toString": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | default | __proto__": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | default | constructor": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | default | undefined": {
 		"gridX": 10,
 		"gridY": 3,
 		"gridWidth": 2,
@@ -1229,6 +2265,34 @@
 		"gridHeight": 3,
 		"pushed": []
 	},
+	"right edge | not an array | six columns | toString": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | six columns | __proto__": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | six columns | constructor": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | six columns | undefined": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
 	"right edge | not an array | zero columns | move-up": {
 		"gridX": 10,
 		"gridY": 2,
@@ -1287,6 +2351,125 @@
 	},
 	"right edge | not an array | zero columns | unknown": {
 		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | zero columns | toString": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | zero columns | __proto__": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | zero columns | constructor": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | zero columns | undefined": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | move-up": {
+		"gridX": 1,
+		"gridY": 2,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | move-down": {
+		"gridX": 1,
+		"gridY": 4,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | move-left": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | grow-width": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": -7,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | shrink-width": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | grow-height": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 4,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | shrink-height": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | unknown": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | toString": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | __proto__": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | constructor": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | not an array | three columns | undefined": {
+		"gridX": 1,
 		"gridY": 3,
 		"gridWidth": 2,
 		"gridHeight": 3,
@@ -1408,6 +2591,54 @@
 			}
 		]
 	},
+	"right edge | mixed | default | toString": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | default | __proto__": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | default | constructor": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | default | undefined": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
 	"right edge | mixed | six columns | move-up": {
 		"gridX": 4,
 		"gridY": 2,
@@ -1465,6 +2696,34 @@
 		"pushed": []
 	},
 	"right edge | mixed | six columns | unknown": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | mixed | six columns | toString": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | mixed | six columns | __proto__": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | mixed | six columns | constructor": {
+		"gridX": 4,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | mixed | six columns | undefined": {
 		"gridX": 4,
 		"gridY": 3,
 		"gridWidth": 2,
@@ -1587,6 +2846,200 @@
 			}
 		]
 	},
+	"right edge | mixed | zero columns | toString": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | zero columns | __proto__": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | zero columns | constructor": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | zero columns | undefined": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 4,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | move-up": {
+		"gridX": 1,
+		"gridY": 2,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 5
+			}
+		]
+	},
+	"right edge | mixed | three columns | move-down": {
+		"gridX": 1,
+		"gridY": 4,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | mixed | three columns | move-left": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | grow-width": {
+		"gridX": 10,
+		"gridY": 3,
+		"gridWidth": -7,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"right edge | mixed | three columns | shrink-width": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | grow-height": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 4,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 7
+			}
+		]
+	},
+	"right edge | mixed | three columns | shrink-height": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 5
+			}
+		]
+	},
+	"right edge | mixed | three columns | unknown": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | toString": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | __proto__": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | constructor": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
+	"right edge | mixed | three columns | undefined": {
+		"gridX": 1,
+		"gridY": 3,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 6
+			}
+		]
+	},
 	"too wide | none | default | move-up": {
 		"gridX": 6,
 		"gridY": 0,
@@ -1644,6 +3097,34 @@
 		"pushed": []
 	},
 	"too wide | none | default | unknown": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | default | toString": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | default | __proto__": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | default | constructor": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | default | undefined": {
 		"gridX": 6,
 		"gridY": 1,
 		"gridWidth": 6,
@@ -1713,6 +3194,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"too wide | none | six columns | toString": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"too wide | none | zero columns | move-up": {
 		"gridX": 6,
 		"gridY": 0,
@@ -1776,6 +3285,125 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"too wide | none | zero columns | toString": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | zero columns | __proto__": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | zero columns | constructor": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | zero columns | undefined": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 2,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | move-right": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | grow-width": {
+		"gridX": 8,
+		"gridY": 1,
+		"gridWidth": -5,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 5,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"too wide | none | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | toString": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | none | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"too wide | not an array | default | move-up": {
 		"gridX": 6,
 		"gridY": 0,
@@ -1833,6 +3461,34 @@
 		"pushed": []
 	},
 	"too wide | not an array | default | unknown": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | default | toString": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | default | __proto__": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | default | constructor": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | default | undefined": {
 		"gridX": 6,
 		"gridY": 1,
 		"gridWidth": 6,
@@ -1902,6 +3558,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"too wide | not an array | six columns | toString": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"too wide | not an array | zero columns | move-up": {
 		"gridX": 6,
 		"gridY": 0,
@@ -1965,6 +3649,125 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"too wide | not an array | zero columns | toString": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | zero columns | __proto__": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | zero columns | constructor": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | zero columns | undefined": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 2,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | move-right": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | grow-width": {
+		"gridX": 8,
+		"gridY": 1,
+		"gridWidth": -5,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 5,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | toString": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | not an array | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"too wide | mixed | default | move-up": {
 		"gridX": 6,
 		"gridY": 0,
@@ -2022,6 +3825,34 @@
 		"pushed": []
 	},
 	"too wide | mixed | default | unknown": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | default | toString": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | default | __proto__": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | default | constructor": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | default | undefined": {
 		"gridX": 6,
 		"gridY": 1,
 		"gridWidth": 6,
@@ -2192,6 +4023,82 @@
 			}
 		]
 	},
+	"too wide | mixed | six columns | toString": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
 	"too wide | mixed | zero columns | move-up": {
 		"gridX": 6,
 		"gridY": 0,
@@ -2255,6 +4162,274 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"too wide | mixed | zero columns | toString": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | zero columns | __proto__": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | zero columns | constructor": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | zero columns | undefined": {
+		"gridX": 6,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"too wide | mixed | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 2,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 4
+			},
+			{
+				"id": 6,
+				"gridY": 4
+			}
+		]
+	},
+	"too wide | mixed | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | move-right": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | grow-width": {
+		"gridX": 8,
+		"gridY": 1,
+		"gridWidth": -5,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"too wide | mixed | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 5,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 4
+			},
+			{
+				"id": 6,
+				"gridY": 4
+			},
+			{
+				"gridY": 4
+			},
+			{
+				"id": 8,
+				"gridY": 4
+			}
+		]
+	},
+	"too wide | mixed | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | toString": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"too wide | mixed | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 6,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
 	"missing fields | none | default | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -2312,6 +4487,34 @@
 		"pushed": []
 	},
 	"missing fields | none | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -2381,6 +4584,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"missing fields | none | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"missing fields | none | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -2438,6 +4669,125 @@
 		"pushed": []
 	},
 	"missing fields | none | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"missing fields | none | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | none | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -2507,6 +4857,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"missing fields | not an array | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | default | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"missing fields | not an array | six columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -2570,6 +4948,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"missing fields | not an array | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"missing fields | not an array | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -2627,6 +5033,125 @@
 		"pushed": []
 	},
 	"missing fields | not an array | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"missing fields | not an array | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -2794,6 +5319,82 @@
 		]
 	},
 	"missing fields | mixed | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -2991,6 +5592,82 @@
 			}
 		]
 	},
+	"missing fields | mixed | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"missing fields | mixed | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -3170,6 +5847,337 @@
 			}
 		]
 	},
+	"missing fields | mixed | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"missing fields | mixed | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"id": 5,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"missing fields | mixed | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"missing fields | mixed | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"string fields | none | default | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -3227,6 +6235,34 @@
 		"pushed": []
 	},
 	"string fields | none | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -3296,6 +6332,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"string fields | none | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"string fields | none | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -3353,6 +6417,125 @@
 		"pushed": []
 	},
 	"string fields | none | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"string fields | none | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | none | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -3422,6 +6605,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"string fields | not an array | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | default | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"string fields | not an array | six columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -3485,6 +6696,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"string fields | not an array | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"string fields | not an array | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -3542,6 +6781,125 @@
 		"pushed": []
 	},
 	"string fields | not an array | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"string fields | not an array | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -3709,6 +7067,82 @@
 		]
 	},
 	"string fields | mixed | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -3906,6 +7340,82 @@
 			}
 		]
 	},
+	"string fields | mixed | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"string fields | mixed | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -4085,6 +7595,337 @@
 			}
 		]
 	},
+	"string fields | mixed | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"string fields | mixed | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"id": 5,
+				"gridY": 3
+			},
+			{
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"string fields | mixed | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"string fields | mixed | three columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"no placement | none | default | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -4142,6 +7983,34 @@
 		"pushed": []
 	},
 	"no placement | none | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -4211,6 +8080,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"no placement | none | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"no placement | none | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -4268,6 +8165,125 @@
 		"pushed": []
 	},
 	"no placement | none | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"no placement | none | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | none | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -4337,6 +8353,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"no placement | not an array | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | default | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"no placement | not an array | six columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -4400,6 +8444,34 @@
 		"gridHeight": 2,
 		"pushed": []
 	},
+	"no placement | not an array | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
 	"no placement | not an array | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -4457,6 +8529,125 @@
 		"pushed": []
 	},
 	"no placement | not an array | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": []
+	},
+	"no placement | not an array | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -4632,6 +8823,86 @@
 		]
 	},
 	"no placement | mixed | default | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | default | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | default | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | default | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | default | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,
@@ -4839,6 +9110,86 @@
 			}
 		]
 	},
+	"no placement | mixed | six columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | six columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | six columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | six columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
 	"no placement | mixed | zero columns | move-up": {
 		"gridX": 0,
 		"gridY": 0,
@@ -5008,6 +9359,354 @@
 		]
 	},
 	"no placement | mixed | zero columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | zero columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | zero columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | zero columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | zero columns | undefined": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | move-up": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | move-down": {
+		"gridX": 0,
+		"gridY": 1,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 3
+			},
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"no placement | mixed | three columns | move-left": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | move-right": {
+		"gridX": 1,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | grow-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 3,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 3,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | shrink-width": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | grow-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 3,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 3
+			},
+			{
+				"id": 2,
+				"gridY": 3
+			},
+			{
+				"id": 5,
+				"gridY": 3
+			},
+			{
+				"id": 8,
+				"gridY": 3
+			}
+		]
+	},
+	"no placement | mixed | three columns | shrink-height": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | unknown": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | toString": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | __proto__": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | constructor": {
+		"gridX": 0,
+		"gridY": 0,
+		"gridWidth": 2,
+		"gridHeight": 2,
+		"pushed": [
+			{
+				"id": 1,
+				"gridY": 2
+			},
+			{
+				"id": 5,
+				"gridY": 2
+			},
+			{
+				"id": 8,
+				"gridY": 2
+			}
+		]
+	},
+	"no placement | mixed | three columns | undefined": {
 		"gridX": 0,
 		"gridY": 0,
 		"gridWidth": 2,

@@ -123,3 +123,136 @@ export function __resetTileClickTrackingForTest() {
 	cachedEnabled = null
 	inflightConfigPromise = null
 }
+
+/**
+ * Browser storage key of the viewer's own tile use (launcher-tile-sorting).
+ *
+ * @type {string}
+ */
+const TILE_USE_KEY = 'launchpad.tileUse'
+
+/**
+ * Read the viewer's own tile use: `{ [placementId]: {count, lastUsedAt} }`.
+ * The counts live only in this browser and are never sent to the server
+ * (REQ-TSO-002). Corrupt data reads as no use; blocked storage reads as null.
+ *
+ * @return {Object<string, {count: number, lastUsedAt: number}>|null} Use per placement id, or null when storage is unavailable.
+ * @spec openspec/specs/container-widget/spec.md
+ */
+export function readLocalTileUse() {
+	let raw
+	try {
+		raw = window.localStorage.getItem(TILE_USE_KEY)
+	} catch {
+		return null
+	}
+	try {
+		const parsed = JSON.parse(raw || '{}')
+		return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+			? parsed
+			: {}
+	} catch {
+		return {}
+	}
+}
+
+/**
+ * Write the use map; a blocked storage is ignored.
+ *
+ * @param {object} use The use map.
+ * @return {boolean} True when stored.
+ * @spec openspec/specs/container-widget/spec.md
+ */
+function writeLocalTileUse(use) {
+	try {
+		window.localStorage.setItem(TILE_USE_KEY, JSON.stringify(use))
+		return true
+	} catch {
+		return false
+	}
+}
+
+/**
+ * Count one use of a tile in this browser (REQ-TSO-002). Never throws.
+ *
+ * @param {string|number} placementId The tile's placement id.
+ * @return {void}
+ * @spec openspec/specs/container-widget/spec.md
+ */
+export function recordLocalTileUse(placementId) {
+	if (!placementId && placementId !== 0) {
+		return
+	}
+	const use = readLocalTileUse()
+	if (use === null) {
+		return
+	}
+	const key = String(placementId)
+	const previous = use[key] || { count: 0, lastUsedAt: 0 }
+	use[key] = { count: (Number(previous.count) || 0) + 1, lastUsedAt: Date.now() }
+	writeLocalTileUse(use)
+}
+
+/**
+ * Forget this browser's use of the given tiles (REQ-TSO-003).
+ *
+ * @param {Array<string|number>} placementIds The tiles to forget.
+ * @return {void}
+ * @spec openspec/specs/container-widget/spec.md
+ */
+export function forgetLocalTileUse(placementIds) {
+	const use = readLocalTileUse()
+	if (use === null) {
+		return
+	}
+	placementIds.forEach((id) => {
+		delete use[String(id)]
+	})
+	writeLocalTileUse(use)
+}
+
+/**
+ * Test-only reset of the local tile use and the page-load shuffle.
+ *
+ * @spec exclude test-only harness hook; `src/components/Widgets/Renderers/__tests__/ContainerWidget.sort.spec.js` is its only importer. It clears the browser use map and the random ranks so each test starts cold.
+ * @return {void}
+ */
+export function __resetTileUseForTest() {
+	try {
+		window.localStorage.removeItem(TILE_USE_KEY)
+	} catch {
+		// blocked storage: nothing to clear
+	}
+	resetRandomRanks()
+}
+
+/**
+ * Random rank per placement id, assigned once per page load (REQ-TSO-004).
+ *
+ * @type {Map<string, number>}
+ */
+let randomRanks = new Map()
+
+/**
+ * The page-load random rank of a tile.
+ *
+ * @param {string} key The tile key.
+ * @return {number} A rank in [0, 1).
+ * @spec openspec/specs/container-widget/spec.md
+ */
+export function randomRankFor(key) {
+	if (!randomRanks.has(key)) {
+		randomRanks.set(key, Math.random())
+	}
+	return randomRanks.get(key)
+}
+
+/**
+ * Drop the page-load random ranks.
+ *
+ * @return {void}
+ * @spec openspec/specs/container-widget/spec.md
+ */
+function resetRandomRanks() {
+	randomRanks = new Map()
+}

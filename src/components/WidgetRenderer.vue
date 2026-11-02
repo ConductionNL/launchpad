@@ -23,7 +23,8 @@
 			:tile="tileData"
 			:placementId="placement.id"
 			:healthPingEnabled="normalizedContent.healthPingEnabled === true"
-			:pingInterval="normalizedContent.pingInterval" />
+			:pingInterval="normalizedContent.pingInterval"
+			:internalUrl="normalizedContent.internalUrl || ''" />
 
 		<!-- API Widget V1 or V2 - Use NcDashboardWidget -->
 		<template v-else-if="isApiWidget">

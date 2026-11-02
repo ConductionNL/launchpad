@@ -104,6 +104,7 @@
 					:canShare="canShareActiveDashboard"
 					:canManagePublication="canManagePublication"
 					:canViewHistory="canViewVersionHistory"
+					:canImportBookmarks="true"
 					:defaultUuid="defaultDashboardUuid"
 					:isEditMode="isEditMode"
 					:activeDashboardId="activeDashboard.id"
@@ -128,6 +129,7 @@
 					@schedule="scheduleDialogOpen = true"
 					@versionHistory="versionHistoryOpen = true"
 					@menuOpen="checkVersionSupport"
+					@importBookmarks="bookmarkImportOpen = true"
 					@delete="onSidebarDeleteDashboard(activeDashboard.id)" />
 				<NcButton
 					variant="secondary"
@@ -307,6 +309,9 @@
 								&& item.content.healthPingEnabled === true
 							"
 							:pingInterval="item.content && item.content.pingInterval"
+							:internalUrl="
+								(item.content && item.content.internalUrl) || ''
+							"
 							@edit="openTileEditorForEdit(item)"
 							@remove="removeWidget(item.id)" />
 						<!-- All other placements render through the widget wrapper. -->
@@ -358,6 +363,13 @@
 				</NcEmptyContent>
 			</div>
 		</div>
+
+		<!-- launcher-bookmark-import: browser bookmarks become tiles (REQ-BMI-001). -->
+		<BookmarkImportDialog
+			v-if="activeDashboard"
+			v-model:open="bookmarkImportOpen"
+			:dashboardId="activeDashboard.id"
+			@imported="onBookmarksImported" />
 
 		<!-- Widget picker modal -->
 		<WidgetPickerModal
@@ -505,6 +517,7 @@ import EditLockBanner from '../components/Workspace/EditLockBanner.vue'
 import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
+import BookmarkImportDialog from '../dialogs/BookmarkImportDialog.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
@@ -555,6 +568,7 @@ export default {
 		AcknowledgementReportModal,
 		TileWidget,
 		WidgetPickerModal,
+		BookmarkImportDialog,
 		CnWidgetStyleEditorModal,
 		TileEditor,
 		DashboardConfigModal,
@@ -786,6 +800,7 @@ export default {
 			// dashboard uuid whether versioning is supported (read when the
 			// dashboard menu opens; absent means not known yet).
 			versionHistoryOpen: false,
+			bookmarkImportOpen: false,
 			versionSupport: {},
 		}
 	},
@@ -2417,6 +2432,8 @@ export default {
 				healthUrl: content.healthUrl || '',
 				expectedStatus: content.expectedStatus || 200,
 				pingInterval: content.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002.
+				internalUrl: content.internalUrl || '',
 			}
 			this.openTileEditor(tileData)
 		},
@@ -2443,6 +2460,8 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002.
+				internalUrl: String(tileData.internalUrl || '').trim(),
 			}
 			try {
 				if (this.editingTile) {
@@ -2462,7 +2481,11 @@ export default {
 					// `addWidget` create-then-patch pattern above) — persist
 					// the health-ping block with a follow-up patch only when
 					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
+					if (
+						newPlacement?.id
+						&& (healthPingContent.healthPingEnabled
+							|| healthPingContent.internalUrl)
+					) {
 						await this.updateWidgetPlacement(newPlacement.id, {
 							content: healthPingContent,
 						})
@@ -2779,6 +2802,20 @@ export default {
 		 * @param {'group'|'default'|'user'} source Row section discriminator.
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
+		/**
+		 * Show the placements a bookmark import created at once (REQ-BMI-001).
+		 *
+		 * @param {Array<object>} placements The created placements.
+		 * @spec openspec/specs/tiles/spec.md
+		 */
+		onBookmarksImported(placements) {
+			if (!Array.isArray(placements) || placements.length === 0) {
+				return
+			}
+			const store = useDashboardStore()
+			store.widgetPlacements = [...store.widgetPlacements, ...placements]
+		},
+
 		async onRowAddCustomWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openCustomWidgetModal()

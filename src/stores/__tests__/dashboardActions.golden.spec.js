@@ -123,6 +123,7 @@ const PATHS = {
 	empty: '',
 	slashes: '///',
 	trimmed: '/team/sales/',
+	'double trailing': 'team//',
 	cached: 'cached',
 	'cached null': '/nulled',
 	number: 42,
@@ -139,6 +140,7 @@ const METADATA_ANSWERS = {
 	map: { data: { a: '1', b: 2 } },
 	array: { data: ['x'] },
 	string: { data: 'text' },
+	number: { data: 5 },
 	null: { data: null },
 	'no response': undefined,
 }

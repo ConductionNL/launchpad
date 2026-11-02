@@ -12,17 +12,19 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { validateIframeUrl } from '../../../../services/iframeClient.js'
-import { validateLiveTileSource } from '../../../../services/liveTileClient.js'
 import IframeWidgetForm from '../IframeWidgetForm.vue'
 import LiveTileWidgetForm from '../LiveTileWidgetForm.vue'
+import { validateIframeUrl } from '../../../../services/iframeClient.js'
+import { validateLiveTileSource } from '../../../../services/liveTileClient.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
 	translate: (_app, text) => `t:${text}`,
 	t: (_app, text) => `t:${text}`,
 }))
-vi.mock('../../../../services/iframeClient.js', () => ({ validateIframeUrl: vi.fn() }))
+vi.mock('../../../../services/iframeClient.js', () => ({
+	validateIframeUrl: vi.fn(),
+}))
 vi.mock('../../../../services/liveTileClient.js', () => ({
 	validateLiveTileSource: vi.fn(),
 	fetchConnectorAvailability: vi.fn(),
@@ -63,7 +65,12 @@ const FORMS = {
 	'live tile url': {
 		component: LiveTileWidgetForm,
 		client: validateLiveTileSource,
-		host: (url) => ({ url, sourceMode: 'url', valueExpr: 'value', sourceId: '' }),
+		host: (url) => ({
+			url,
+			sourceMode: 'url',
+			valueExpr: 'value',
+			sourceId: '',
+		}),
 	},
 	'live tile connector': {
 		component: LiveTileWidgetForm,
@@ -121,9 +128,13 @@ describe('URL allow-list checks (golden)', () => {
 					}
 				}
 				for (const allowListError of ['', 'Not allowed']) {
-					const host = standIn(form, { ...form.host(url), urlAllowListError: allowListError })
-					actual[`${formName} | validate | ${urlName} | ${allowListError || 'no allow-list error'}`] =
-						host.validate()
+					const host = standIn(form, {
+						...form.host(url),
+						urlAllowListError: allowListError,
+					})
+					actual[
+						`${formName} | validate | ${urlName} | ${allowListError || 'no allow-list error'}`
+					] = host.validate()
 				}
 			}
 		}

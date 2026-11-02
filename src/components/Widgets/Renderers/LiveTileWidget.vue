@@ -76,6 +76,7 @@ import {
 	OBJECT_PROP,
 } from '../../../constants/propDefinitions.js'
 import { fetchLiveTileValue } from '../../../services/liveTileClient.js'
+import { loadPlacementReading } from '../../../utils/placementReading.js'
 
 /**
  * Maps a badge `state` to an icon component. Falls back to
@@ -262,87 +263,27 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		async load() {
-			const placementId = this.placement?.id
-			if (placementId === undefined || placementId === null) {
-				this.loading = false
-				this.errorMessage = t(
+			await loadPlacementReading(this, {
+				placementId: this.placement?.id,
+				fetch: fetchLiveTileValue,
+				unsaved: t(
 					'launchpad',
 					'This tile is not available until it is saved.',
-				)
-				return
-			}
-
-			this.loading = true
-			this.errorMessage = ''
-			try {
-				const data = await fetchLiveTileValue(placementId)
-				if (data && data.error) {
-					this.reading = null
-					this.errorMessage = t(
-						'launchpad',
-						'The value is currently unavailable.',
-					)
-					return
-				}
-				this.reading = data
-			} catch {
-				this.reading = null
-				this.errorMessage = t('launchpad', 'Failed to load the value.')
-			} finally {
-				this.loading = false
-			}
+				),
+				unavailable: t('launchpad', 'The value is currently unavailable.'),
+				failed: t('launchpad', 'Failed to load the value.'),
+			})
 		},
 	},
 }
 </script>
 
+<style scoped src="./readingTile.css"></style>
+
 <style scoped>
 .live-tile-widget {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
 	text-decoration: none;
 	color: inherit;
-}
-
-.live-tile-widget__state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	color: var(--color-text-maxcontrast, var(--color-main-text));
-	text-align: center;
-}
-
-.live-tile-widget__retry {
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-	background: transparent;
-	padding: 4px 12px;
-	cursor: pointer;
-	color: var(--color-main-text);
-}
-
-.live-tile-widget__reading {
-	position: relative;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 4px;
-}
-
-.live-tile-widget__stale-badge {
-	position: absolute;
-	top: -8px;
-	right: -8px;
-	font-size: 0.7rem;
-	padding: 2px 6px;
-	border-radius: var(--border-radius-pill, 8px);
-	background: var(--color-warning, #ffcc00);
-	color: var(--color-main-text);
 }
 
 .live-tile-widget__label {

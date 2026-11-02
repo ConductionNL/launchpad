@@ -12,25 +12,37 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { fetchLiveTileValue } from '../../../../services/liveTileClient.js'
-import { fetchWeatherReading } from '../../../../services/weatherClient.js'
 import LiveTileWidget from '../LiveTileWidget.vue'
 import WeatherWidget from '../WeatherWidget.vue'
+import { fetchLiveTileValue } from '../../../../services/liveTileClient.js'
+import { fetchWeatherReading } from '../../../../services/weatherClient.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
 	translate: (_app, text) => `t:${text}`,
 	t: (_app, text) => `t:${text}`,
 }))
-vi.mock('../../../../services/weatherClient.js', () => ({ fetchWeatherReading: vi.fn() }))
-vi.mock('../../../../services/liveTileClient.js', () => ({ fetchLiveTileValue: vi.fn() }))
+vi.mock('../../../../services/weatherClient.js', () => ({
+	fetchWeatherReading: vi.fn(),
+}))
+vi.mock('../../../../services/liveTileClient.js', () => ({
+	fetchLiveTileValue: vi.fn(),
+}))
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/placementReading.golden.json')
 const RENDERERS = path.resolve(__dirname, '..')
 
 const WIDGETS = {
-	weather: { component: WeatherWidget, file: 'WeatherWidget.vue', client: fetchWeatherReading },
-	'live tile': { component: LiveTileWidget, file: 'LiveTileWidget.vue', client: fetchLiveTileValue },
+	weather: {
+		component: WeatherWidget,
+		file: 'WeatherWidget.vue',
+		client: fetchWeatherReading,
+	},
+	'live tile': {
+		component: LiveTileWidget,
+		file: 'LiveTileWidget.vue',
+		client: fetchLiveTileValue,
+	},
 }
 
 const PLACEMENTS = {
@@ -102,13 +114,14 @@ function finalStyles(file, block) {
 	const own = new RegExp(`^\\.${block}(?:$|__|--|[\\s:.[>])`)
 	for (const match of source.matchAll(/<style([^>]*)>([\s\S]*?)<\/style>/g)) {
 		const src = /src="([^"]+)"/.exec(match[1])
-		const css = (src ? fs.readFileSync(path.join(RENDERERS, src[1]), 'utf8') : match[2]).replace(
-			/\/\*[\s\S]*?\*\//g,
-			'',
-		)
+		const css = (
+			src ? fs.readFileSync(path.join(RENDERERS, src[1]), 'utf8') : match[2]
+		).replace(/\/\*[\s\S]*?\*\//g, '')
 		const scoped = /\bscoped\b/.test(match[1])
 		for (const rule of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-			for (const selector of rule[1].split(',').map((s) => s.trim().replace(/\s+/g, ' '))) {
+			for (const selector of rule[1]
+				.split(',')
+				.map((s) => s.trim().replace(/\s+/g, ' '))) {
 				if (!own.test(selector)) {
 					continue
 				}
@@ -117,7 +130,10 @@ function finalStyles(file, block) {
 				for (const declaration of rule[2].split(';')) {
 					const [prop, ...value] = declaration.split(':')
 					if (prop.trim()) {
-						entry.props[prop.trim()] = value.join(':').trim().replace(/\s+/g, ' ')
+						entry.props[prop.trim()] = value
+							.join(':')
+							.trim()
+							.replace(/\s+/g, ' ')
 					}
 				}
 			}
@@ -132,10 +148,11 @@ describe('placement reading widgets (golden)', () => {
 		for (const [name, widget] of Object.entries(WIDGETS)) {
 			for (const [placementName, placement] of Object.entries(PLACEMENTS)) {
 				for (const [answerName, answer] of Object.entries(ANSWERS)) {
-					actual[`${name} | load | ${placementName} | ${answerName}`] = await runLoad(widget, {
-						placement,
-						answer,
-					})
+					actual[`${name} | load | ${placementName} | ${answerName}`] =
+						await runLoad(widget, {
+							placement,
+							answer,
+						})
 				}
 			}
 			actual[`${name} | styles`] = finalStyles(

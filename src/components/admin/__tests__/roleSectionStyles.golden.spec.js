@@ -69,7 +69,11 @@ function rules(css) {
 function contract(file) {
 	const blocks = styleBlocks(file)
 	const all = blocks.flatMap((block) =>
-		rules(block.css).map(([selector, body]) => ({ selector, body, scoped: block.scoped })),
+		rules(block.css).map(([selector, body]) => ({
+			selector,
+			body,
+			scoped: block.scoped,
+		})),
 	)
 	const bySelector = {}
 	for (const rule of all) {
@@ -95,7 +99,9 @@ function contract(file) {
 
 describe('admin role section styles (golden)', () => {
 	it('matches the recorded rules case by case', () => {
-		const actual = Object.fromEntries(COMPONENTS.map((file) => [file, contract(file)]))
+		const actual = Object.fromEntries(
+			COMPONENTS.map((file) => [file, contract(file)]),
+		)
 		if (process.env.RECORD_GOLDEN) {
 			fs.writeFileSync(FIXTURE, JSON.stringify(actual, null, '\t') + '\n')
 		}

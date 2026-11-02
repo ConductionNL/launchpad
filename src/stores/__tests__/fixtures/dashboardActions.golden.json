@@ -1,0 +1,8929 @@
+{
+	"forkDashboard | fork with dashboard": {
+		"result": {
+			"value": {
+				"id": 2,
+				"uuid": "b",
+				"name": "Copy"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				},
+				{
+					"id": 2,
+					"uuid": "b",
+					"name": "Copy",
+					"source": "user",
+					"isOwner": true,
+					"sharedBy": null
+				}
+			],
+			"activeDashboard": {
+				"id": 2,
+				"uuid": "b",
+				"name": "Copy",
+				"isOwner": true,
+				"sharedBy": null
+			},
+			"widgetPlacements": [],
+			"permissionLevel": "full",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					"Mine"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"forkDashboard | fork without dashboard": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					"Mine"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"forkDashboard | no data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					"Mine"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"forkDashboard | no response": {
+		"result": {
+			"rejected": "Cannot read properties of undefined (reading 'data')"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					"Mine"
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"forkDashboard | fails: personal dashboards disabled": {
+		"result": {
+			"rejected": "Request failed with status 403"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Personal dashboards are not enabled by your administrator"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"forkDashboard | fails: other 403": {
+		"result": {
+			"rejected": "Request failed with status 403"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"forkDashboard | fails: 403 without body": {
+		"result": {
+			"rejected": "Request failed with status 403"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"forkDashboard | fails: not found": {
+		"result": {
+			"rejected": "Request failed with status 404"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Dashboard not found"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Request failed with status 404"
+			]
+		]
+	},
+	"forkDashboard | fails: server error with message": {
+		"result": {
+			"rejected": "Request failed with status 500"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"forkDashboard | fails: validation with empty message": {
+		"result": {
+			"rejected": "Request failed with status 400"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"forkDashboard | fails: no response": {
+		"result": {
+			"rejected": "offline"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				"Error: offline"
+			]
+		]
+	},
+	"forkDashboard | fails: null": {
+		"result": {
+			"rejected": "null"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"forkDashboard": [
+				[
+					"src",
+					null
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to fork dashboard"
+			]
+		],
+		"errors": [
+			[
+				"Failed to fork dashboard:",
+				null
+			]
+		]
+	},
+	"applyPublicationPatch | start | null": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | start | no uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | start | active and listed": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "scheduled",
+					"publishAt": "2030-01-01",
+					"publishedAt": null,
+					"unpublishAt": "2031-01-01"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a",
+				"publicationStatus": "scheduled",
+				"publishAt": "2030-01-01",
+				"publishedAt": null,
+				"unpublishAt": "2031-01-01"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | start | listed without unpublish": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "published",
+					"publishAt": "(undefined)",
+					"publishedAt": "(undefined)",
+					"unpublishAt": null
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a",
+				"publicationStatus": "published",
+				"publishAt": "(undefined)",
+				"publishedAt": "(undefined)",
+				"unpublishAt": null
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | start | unknown uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active differs | null": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"uuid": "other"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active differs | no uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"uuid": "other"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active differs | active and listed": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "scheduled",
+					"publishAt": "2030-01-01",
+					"publishedAt": null,
+					"unpublishAt": "2031-01-01"
+				}
+			],
+			"activeDashboard": {
+				"uuid": "other"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active differs | listed without unpublish": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "published",
+					"publishAt": "(undefined)",
+					"publishedAt": "(undefined)",
+					"unpublishAt": null
+				}
+			],
+			"activeDashboard": {
+				"uuid": "other"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active differs | unknown uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"uuid": "other"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | no active | null": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | no active | no uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | no active | active and listed": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "scheduled",
+					"publishAt": "2030-01-01",
+					"publishedAt": null,
+					"unpublishAt": "2031-01-01"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | no active | listed without unpublish": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "published",
+					"publishAt": "(undefined)",
+					"publishedAt": "(undefined)",
+					"unpublishAt": null
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | no active | unknown uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active only | null": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"uuid": "a",
+				"name": "A"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active only | no uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"uuid": "a",
+				"name": "A"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active only | active and listed": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"uuid": "a",
+				"name": "A",
+				"publicationStatus": "scheduled",
+				"publishAt": "2030-01-01",
+				"publishedAt": null,
+				"unpublishAt": "2031-01-01"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active only | listed without unpublish": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"uuid": "a",
+				"name": "A",
+				"publicationStatus": "published",
+				"publishAt": "(undefined)",
+				"publishedAt": "(undefined)",
+				"unpublishAt": null
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"applyPublicationPatch | active only | unknown uuid": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"uuid": "a",
+				"name": "A"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | null": {
+		"result": {
+			"value": "draft"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | no status": {
+		"result": {
+			"value": "published"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | draft": {
+		"result": {
+			"value": "draft"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | published": {
+		"result": {
+			"value": "published"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | scheduled without date": {
+		"result": {
+			"value": "scheduled"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | scheduled past": {
+		"result": {
+			"value": "published"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | scheduled exactly now": {
+		"result": {
+			"value": "published"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | scheduled future": {
+		"result": {
+			"value": "scheduled"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"effectivePublicationStatus | scheduled invalid date": {
+		"result": {
+			"value": "scheduled"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | no dashboard": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | no data": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | undefined | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | no dashboard": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | no data": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | empty | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | no dashboard": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | no data": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | slashes | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | trimmed | found": {
+		"result": {
+			"value": {
+				"id": 5
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": {
+					"id": 5
+				}
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | trimmed | no dashboard": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | trimmed | no data": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | trimmed | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | trimmed | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"dashboardByPath | trimmed | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"dashboardByPath | trimmed | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"dashboardByPath | trimmed | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | trimmed | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"dashboardByPath | trimmed | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"dashboardByPath | trimmed | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: offline"
+			]
+		]
+	},
+	"dashboardByPath | trimmed | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null,
+				"team/sales": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"team/sales"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				null
+			]
+		]
+	},
+	"dashboardByPath | cached | found": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | no dashboard": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | no data": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | no response": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: personal dashboards disabled": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: other 403": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: 403 without body": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: not found": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: server error with message": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: validation with empty message": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: no response": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached | fails: null": {
+		"result": {
+			"value": {
+				"id": "hit"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | no dashboard": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | no data": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | cached null | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | number | found": {
+		"result": {
+			"value": {
+				"id": 5
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": {
+					"id": 5
+				},
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | number | no dashboard": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | number | no data": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | number | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | number | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"dashboardByPath | number | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"dashboardByPath | number | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"dashboardByPath | number | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"dashboardByPath | number | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"dashboardByPath | number | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"dashboardByPath | number | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				"Error: offline"
+			]
+		]
+	},
+	"dashboardByPath | number | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"42": null,
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardByPath": [
+				[
+					"42"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to resolve dashboard path:",
+				null
+			]
+		]
+	},
+	"fetchDashboardMetadata |  | map": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | map": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | array": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | array": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | string": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | string": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: personal dashboards disabled": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: other 403": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: 403 without body": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: not found": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: server error with message": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: validation with empty message": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata |  | fails: null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata |  | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | old | map": {
+		"result": {
+			"value": {
+				"a": "1",
+				"b": 2
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"a": "1",
+					"b": 2
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | map": {
+		"result": {
+			"value": {
+				"a": "1",
+				"b": 2
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"a": "1",
+					"b": 2
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | old | array": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | array": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | old | string": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | string": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | old | null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | old | no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | old | fails: personal dashboards disabled": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: other 403": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: 403 without body": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: not found": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | old | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 404"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: server error with message": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"updateDashboardMetadata | old | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Bad key"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: validation with empty message": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"updateDashboardMetadata | old | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				"Error: offline"
+			]
+		]
+	},
+	"updateDashboardMetadata | old | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: offline"
+			]
+		]
+	},
+	"fetchDashboardMetadata | old | fails: null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"old"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				null
+			]
+		]
+	},
+	"updateDashboardMetadata | old | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"old",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				null
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | map": {
+		"result": {
+			"value": {
+				"a": "1",
+				"b": 2
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {
+					"a": "1",
+					"b": 2
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | map": {
+		"result": {
+			"value": {
+				"a": "1",
+				"b": 2
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {
+					"a": "1",
+					"b": 2
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | u2 | array": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | array": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | u2 | string": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | string": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | u2 | null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | u2 | no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"fetchDashboardMetadata | u2 | fails: personal dashboards disabled": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | fails: personal dashboards disabled": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: other 403": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | fails: other 403": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: 403 without body": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | fails: 403 without body": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: not found": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": []
+	},
+	"updateDashboardMetadata | u2 | fails: not found": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 404"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: server error with message": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"updateDashboardMetadata | u2 | fails: server error with message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Bad key"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 500"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: validation with empty message": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"updateDashboardMetadata | u2 | fails: validation with empty message": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: Request failed with status 400"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: no response": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				"Error: offline"
+			]
+		]
+	},
+	"updateDashboardMetadata | u2 | fails: no response": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				"Error: offline"
+			]
+		]
+	},
+	"fetchDashboardMetadata | u2 | fails: null": {
+		"result": {
+			"value": {}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				},
+				"u2": {}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"getDashboardMetadata": [
+				[
+					"u2"
+				]
+			]
+		},
+		"toasts": [],
+		"errors": [
+			[
+				"Failed to load dashboard metadata:",
+				null
+			]
+		]
+	},
+	"updateDashboardMetadata | u2 | fails: null": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "a",
+					"publicationStatus": "draft"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"uuid": "a"
+			},
+			"widgetPlacements": [
+				{
+					"id": 9
+				}
+			],
+			"permissionLevel": "view",
+			"loading": false,
+			"metadataByDashboard": {
+				"old": {
+					"k": "v"
+				}
+			},
+			"pathCache": {
+				"cached": {
+					"id": "hit"
+				},
+				"nulled": null
+			}
+		},
+		"calls": {
+			"updateDashboardMetadata": [
+				[
+					"u2",
+					{
+						"k": "new"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Failed to update dashboard metadata"
+			]
+		],
+		"errors": [
+			[
+				"Failed to update dashboard metadata:",
+				null
+			]
+		]
+	}
+}

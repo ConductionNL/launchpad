@@ -53,6 +53,10 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import {
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_FLAG_PROP,
+} from '../constants/propDefinitions.js'
 
 /**
  * ReadConfirmationDialog: an editor asks readers to confirm they have read
@@ -73,16 +77,10 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
 		/** The widget placement being set up. */
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['update:open', 'save'],

@@ -60,6 +60,7 @@ import { CnAppRoot } from '@conduction/nextcloud-vue'
 import { translate as ncTranslate } from '@nextcloud/l10n'
 import { computed } from 'vue'
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
+import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { permits } from './utils/permissions.js'
@@ -188,27 +189,18 @@ export default {
 		 * Bundled (stub) manifest from the bootstrap. `liveManifest` prefers
 		 * the runtime one once it arrives.
 		 */
-		manifest: {
-			type: Object,
-			required: true,
-		},
+		manifest: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * V2 kind-tagged registry (ADR-036). `CnPageRenderer` resolves every
 		 * `type: "custom"` page's `component` string against it.
 		 */
-		registry: {
-			type: Object,
-			required: true,
-		},
+		registry: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * Declarative page-type components, from the library's defaults.
 		 */
-		pageTypes: {
-			type: Object,
-			required: true,
-		},
+		pageTypes: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * The permission strings this account holds, built by

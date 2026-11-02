@@ -85,6 +85,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
+import { LIST_PROP } from '../constants/propDefinitions.js'
 
 const STATIC_WIDGET_KINDS = ['label', 'header', 'text', 'image', 'link', 'divider']
 
@@ -177,10 +178,7 @@ export default {
 	name: 'PublicDashboardGrid',
 
 	props: {
-		placements: {
-			type: Array,
-			default: () => [],
-		},
+		placements: LIST_PROP,
 	},
 
 	computed: {

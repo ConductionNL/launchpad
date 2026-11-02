@@ -152,6 +152,7 @@ import {
 	NcModal,
 	NcSelect,
 } from '@conduction/nextcloud-vue'
+import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 
 /**
@@ -170,15 +171,9 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		template: {
-			type: Object,
-			default: null,
-		},
+		template: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['close', 'resynced'],

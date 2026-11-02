@@ -116,6 +116,7 @@ import { NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import { FLAG_PROP, LIST_PROP } from '../constants/propDefinitions.js'
 
 export default {
 	name: 'WidgetPickerModal',
@@ -130,35 +131,23 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
 		widgets: {
 			type: Array,
 			required: true,
 		},
 
-		placedWidgetIds: {
-			type: Array,
-			default: () => [],
-		},
+		placedWidgetIds: LIST_PROP,
 
 		/**
 		 * The apps this server runs for the user (`GET /api/tiles/discover`):
 		 * `[{ appId, name, href, icon }]`.
 		 */
-		discoveredApps: {
-			type: Array,
-			default: () => [],
-		},
+		discoveredApps: LIST_PROP,
 
 		/** The discovered app ids already on the dashboard. */
-		placedAppIds: {
-			type: Array,
-			default: () => [],
-		},
+		placedAppIds: LIST_PROP,
 	},
 
 	emits: ['close', 'add', 'addApp'],

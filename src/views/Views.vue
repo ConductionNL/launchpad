@@ -209,11 +209,19 @@
 			@confirm="confirmDeleteDashboard" />
 
 		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
-		<ForceReleaseLockDialog
-			:open="forceReleaseDialogOpen"
-			:holderName="editLock.state.holderName"
-			@update:open="forceReleaseDialogOpen = $event"
-			@confirm="onTakeOverConfirmed" />
+		<CnConfirmDialog
+			v-if="forceReleaseDialogOpen"
+			:dialogTitle="t('launchpad', 'Take over editing?')"
+			:message="
+				t(
+					'launchpad',
+					'{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.',
+					{ name: editLock.state.holderName || t('launchpad', 'A colleague') },
+				)
+			"
+			:confirmLabel="t('launchpad', 'Take over')"
+			@confirm="onTakeOverConfirmed"
+			@close="forceReleaseDialogOpen = false" />
 
 		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
 		<ScheduleDashboardDialog
@@ -476,6 +484,7 @@
 <script>
 import {
 	CnAddWidgetModal,
+	CnConfirmDialog,
 	CnDashboardGrid,
 	CnWidgetStyleEditorModal,
 	getDashboardColumnOpts,
@@ -506,7 +515,6 @@ import HiddenWidgetsControl from '../components/Workspace/HiddenWidgetsControl.v
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
 import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
-import ForceReleaseLockDialog from '../dialogs/ForceReleaseLockDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
 import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
@@ -573,7 +581,7 @@ export default {
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
 		EditLockBanner,
-		ForceReleaseLockDialog,
+		CnConfirmDialog,
 		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},

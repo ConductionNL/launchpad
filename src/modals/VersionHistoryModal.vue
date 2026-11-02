@@ -108,23 +108,31 @@
 			</template>
 		</div>
 
-		<RestoreVersionDialog
-			:open="restoreTarget !== null"
-			:date="restoreTarget ? formatDate(restoreTarget.createdAt) : ''"
-			@update:open="onRestoreDialog"
-			@confirm="confirmRestore" />
+		<CnConfirmDialog
+			v-if="restoreTarget !== null"
+			:dialogTitle="t('launchpad', 'Restore this version?')"
+			:message="
+				t(
+					'launchpad',
+					'The dashboard goes back to how it was on {date}. How it looks now is saved as a version first, so you can undo this.',
+					{ date: formatDate(restoreTarget.createdAt) },
+				)
+			"
+			:confirmLabel="t('launchpad', 'Restore')"
+			@confirm="confirmRestore"
+			@close="restoreTarget = null" />
 	</NcModal>
 </template>
 
 <script>
 import {
+	CnConfirmDialog,
 	NcButton,
 	NcLoadingIcon,
 	NcModal,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import RestoreVersionDialog from '../dialogs/RestoreVersionDialog.vue'
 import { api } from '../services/api.js'
 
 /**
@@ -139,11 +147,11 @@ export default {
 	name: 'VersionHistoryModal',
 
 	components: {
+		CnConfirmDialog,
 		NcButton,
 		NcLoadingIcon,
 		NcModal,
 		NcTextField,
-		RestoreVersionDialog,
 	},
 
 	props: {
@@ -282,18 +290,6 @@ export default {
 		 */
 		askRestore(version) {
 			this.restoreTarget = version
-		},
-
-		/**
-		 * The confirmation closed without confirming.
-		 *
-		 * @param {boolean} isOpen New open state.
-		 * @spec openspec/specs/dashboard-versioning/spec.md
-		 */
-		onRestoreDialog(isOpen) {
-			if (!isOpen) {
-				this.restoreTarget = null
-			}
 		},
 
 		/**

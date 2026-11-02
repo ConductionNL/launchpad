@@ -86,17 +86,21 @@
 			@update:open="renameTarget = null"
 			@confirm="onRenameConfirm" />
 
-		<GroupDashboardDeleteDialog
-			:open="deleteTarget !== null"
-			@update:open="deleteTarget = null"
-			@confirm="onDeleteConfirm" />
+		<CnConfirmDialog
+			v-if="deleteTarget !== null"
+			:dialogTitle="t('launchpad', 'Delete dashboard')"
+			:message="t('launchpad', 'Delete this dashboard? This cannot be undone.')"
+			:confirmLabel="t('launchpad', 'Delete')"
+			variant="error"
+			@confirm="onDeleteConfirm"
+			@close="deleteTarget = null" />
 	</NcDialog>
 </template>
 
 <script>
+import { CnConfirmDialog } from '@conduction/nextcloud-vue'
 import { NcButton, NcDialog, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
 import ViewDashboardIcon from 'vue-material-design-icons/ViewDashboard.vue'
-import GroupDashboardDeleteDialog from './GroupDashboardDeleteDialog.vue'
 import GroupDashboardRenameDialog from './GroupDashboardRenameDialog.vue'
 import { useGroupDashboardsStore } from '../stores/groupDashboards.js'
 
@@ -112,7 +116,7 @@ export default {
 	name: 'ManageGroupDashboardsModal',
 
 	components: {
-		GroupDashboardDeleteDialog,
+		CnConfirmDialog,
 		GroupDashboardRenameDialog,
 		NcButton,
 		NcDialog,

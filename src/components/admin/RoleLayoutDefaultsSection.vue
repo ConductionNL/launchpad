@@ -98,24 +98,26 @@
 			@update:row="editorRow = $event"
 			@save="save" />
 
-		<!-- Delete confirmation dialog (extracted per ADR-004) -->
-		<RoleLayoutDefaultDeleteDialog
+		<!-- Delete confirmation dialog -->
+		<CnConfirmDialog
 			v-if="showDeleteDialog"
-			:open="showDeleteDialog"
-			:groupId="deleteTarget ? deleteTarget.groupId : ''"
-			:widgetId="deleteTarget ? deleteTarget.widgetId : ''"
-			@update:open="showDeleteDialog = $event"
-			@confirm="confirmDelete" />
+			ref="deleteDialog"
+			:dialogTitle="t('launchpad', 'Delete layout default')"
+			:message="deleteMessage"
+			:confirmLabel="t('launchpad', 'Delete')"
+			variant="error"
+			@confirm="confirmDelete"
+			@close="showDeleteDialog = false" />
 	</div>
 </template>
 
 <script>
-import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { t } from '@nextcloud/l10n'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
-import RoleLayoutDefaultDeleteDialog from '../../dialogs/RoleLayoutDefaultDeleteDialog.vue'
 import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 import { logger } from '../../utils/logger.js'
@@ -131,7 +133,7 @@ export default {
 		Pencil,
 		Delete,
 		RoleLayoutDefaultEditorDialog,
-		RoleLayoutDefaultDeleteDialog,
+		CnConfirmDialog,
 	},
 
 	/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
@@ -156,6 +158,21 @@ export default {
 		} catch (e) {
 			logger.error('Failed to load layout defaults', e)
 		}
+	},
+
+	computed: {
+		/**
+		 * The question in the delete confirmation.
+		 *
+		 * @return {string} The translated question.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-6
+		 */
+		deleteMessage() {
+			return t('launchpad', 'Delete layout default for "{group}" / "{widget}"?', {
+				group: this.deleteTarget ? this.deleteTarget.groupId : '',
+				widget: this.deleteTarget ? this.deleteTarget.widgetId : '',
+			})
+		},
 	},
 
 	methods: {
@@ -226,6 +243,7 @@ export default {
 				this.deleteTarget = null
 			} catch (e) {
 				logger.error('Failed to delete layout default', e)
+				this.$refs.deleteDialog?.setResult({ error: this.store.error })
 			}
 		},
 	},

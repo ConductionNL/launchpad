@@ -98,23 +98,26 @@
 			@save="save"
 			@close="closeEditor" />
 
-		<!-- Delete confirmation dialog (ADR-004: extracted to dialogs/) -->
-		<RolePermissionDeleteDialog
+		<!-- Delete confirmation dialog -->
+		<CnConfirmDialog
 			v-if="showDeleteDialog"
-			:open="showDeleteDialog"
-			:groupId="deleteTarget ? deleteTarget.groupId : ''"
-			@update:open="showDeleteDialog = $event"
-			@confirm="doDelete" />
+			ref="deleteDialog"
+			:dialogTitle="t('launchpad', 'Delete role permission')"
+			:message="deleteMessage"
+			:confirmLabel="t('launchpad', 'Delete')"
+			variant="error"
+			@confirm="doDelete"
+			@close="showDeleteDialog = false" />
 	</div>
 </template>
 
 <script>
-import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { t } from '@nextcloud/l10n'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import RolePermissionDeleteDialog from '../../dialogs/RolePermissionDeleteDialog.vue'
 import RolePermissionEditorModal from '../../modals/RolePermissionEditorModal.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 import { logger } from '../../utils/logger.js'
@@ -130,7 +133,7 @@ export default {
 		Pencil,
 		Delete,
 		RolePermissionEditorModal,
-		RolePermissionDeleteDialog,
+		CnConfirmDialog,
 	},
 
 	/** @spec openspec/specs/admin-roles/spec.md */
@@ -157,6 +160,20 @@ export default {
 		} catch (e) {
 			logger.error('Failed to load role permissions', e)
 		}
+	},
+
+	computed: {
+		/**
+		 * The question in the delete confirmation.
+		 *
+		 * @return {string} The translated question.
+		 * @spec openspec/specs/admin-roles/spec.md
+		 */
+		deleteMessage() {
+			return t('launchpad', 'Delete role permission for group "{group}"?', {
+				group: this.deleteTarget ? this.deleteTarget.groupId : '',
+			})
+		},
 	},
 
 	methods: {
@@ -258,6 +275,7 @@ export default {
 				this.deleteTarget = null
 			} catch (e) {
 				logger.error('Failed to delete role permission', e)
+				this.$refs.deleteDialog?.setResult({ error: this.store.error })
 			}
 		},
 	},

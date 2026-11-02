@@ -18,10 +18,12 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		props: ['open'],
 		template: '<div v-if="open"><slot /><slot name="actions" /></div>',
 	},
-	NcButton: {
-		name: 'NcButton',
-		emits: ['click'],
-		template: '<button @click="$emit(\'click\')"><slot /></button>',
+	CnDialogActions: {
+		name: 'CnDialogActions',
+		props: { canSubmit: { type: Boolean, default: true } },
+		emits: ['cancel', 'submit'],
+		template:
+			'<button data-testid="cn-dialog-actions-submit" :disabled="!canSubmit" @click="$emit(\'submit\')" />',
 	},
 	NcCheckboxRadioSwitch: {
 		name: 'NcCheckboxRadioSwitch',
@@ -49,7 +51,9 @@ describe('ReadConfirmationDialog', () => {
 			.find('input.prompt')
 			.setValue('I have read the new expense rules')
 		await wrapper.find('input[type="date"]').setValue('2026-10-15')
-		await wrapper.find('[data-testid="read-confirmation-save"]').trigger('click')
+		await wrapper
+			.find('[data-testid="cn-dialog-actions-submit"]')
+			.trigger('click')
 		expect(wrapper.emitted('save')[0][0]).toEqual({
 			requiresAcknowledgement: 1,
 			acknowledgementPrompt: 'I have read the new expense rules',
@@ -71,7 +75,9 @@ describe('ReadConfirmationDialog', () => {
 		})
 		expect(wrapper.find('input.ask').element.checked).toBe(true)
 		await wrapper.find('input.ask').setValue(false)
-		await wrapper.find('[data-testid="read-confirmation-save"]').trigger('click')
+		await wrapper
+			.find('[data-testid="cn-dialog-actions-submit"]')
+			.trigger('click')
 		expect(wrapper.emitted('save')[0][0]).toEqual({
 			requiresAcknowledgement: 0,
 			acknowledgementPrompt: 'Read it',

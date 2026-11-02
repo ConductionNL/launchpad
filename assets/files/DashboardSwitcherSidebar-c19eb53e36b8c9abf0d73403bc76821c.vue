@@ -497,6 +497,12 @@ import Star from 'vue-material-design-icons/Star.vue'
 import DashboardRowActions from './DashboardRowActions.vue'
 import DetailFilter from './DetailFilter.vue'
 import SidebarFooter from './SidebarFooter.vue'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	REQUIRED_FLAG_PROP,
+	TEXT_PROP,
+} from '../../constants/propDefinitions.js'
 
 export default {
 	name: 'DashboardSwitcherSidebar',
@@ -516,10 +522,7 @@ export default {
 
 	props: {
 		/** Detail field definitions for "Filter by detail". */
-		filterFields: {
-			type: Array,
-			default: () => [],
-		},
+		filterFields: LIST_PROP,
 
 		/**
 		 * Controlled by the parent. Vue 3 removed the component-level
@@ -527,10 +530,7 @@ export default {
 		 * `v-model` onto `isOpen` / `update:open`, so the host binds the
 		 * prop and the `update:open` listener explicitly (see Views.vue).
 		 */
-		isOpen: {
-			type: Boolean,
-			required: true,
-		},
+		isOpen: REQUIRED_FLAG_PROP,
 
 		/**
 		 * Display name of the user's primary group; falls back to the
@@ -590,10 +590,7 @@ export default {
 		 * Dashboard" card button below the personal list (REQ-SWITCH-008);
 		 * when false the card MUST NOT be in the DOM.
 		 */
-		allowUserDashboards: {
-			type: Boolean,
-			default: false,
-		},
+		allowUserDashboards: FLAG_PROP,
 
 		/*
 		 * `canEdit` flows down to each per-row cog (wave3.6) so the
@@ -605,10 +602,7 @@ export default {
 		 * `dashboard.isOwner`, and Edit/Save toggle is implicit
 		 * (the host enters edit mode after switching).
 		 */
-		canEdit: {
-			type: Boolean,
-			default: false,
-		},
+		canEdit: FLAG_PROP,
 
 		/*
 		 * Wave3.7 — UUID of the user's pinned default dashboard, or
@@ -616,39 +610,27 @@ export default {
 		 * DashboardRowActions so the cog menu can show "Set as default"
 		 * vs "Default dashboard" with the right icon.
 		 */
-		defaultUuid: {
-			type: String,
-			default: '',
-		},
+		defaultUuid: TEXT_PROP,
 
 		/*
 		 * Wave3.9 — host's edit-mode boolean. Forwarded down so the
 		 * cog button on the active row flips to "Save dashboard" +
 		 * ContentSave icon while editing.
 		 */
-		isEditMode: {
-			type: Boolean,
-			default: false,
-		},
+		isEditMode: FLAG_PROP,
 
 		/**
 		 * dashboard-quota-limits REQ-QUOTA-006: when true the user is at
 		 * their per-user dashboard limit, so the "Add dashboard" affordance
 		 * is disabled. Default false ⇒ unlimited instances are unaffected.
 		 */
-		dashboardQuotaReached: {
-			type: Boolean,
-			default: false,
-		},
+		dashboardQuotaReached: FLAG_PROP,
 
 		/**
 		 * dashboard-quota-limits REQ-QUOTA-006: localised tooltip explaining
 		 * the limit, shown on the disabled "Add dashboard" affordance.
 		 */
-		dashboardQuotaTooltip: {
-			type: String,
-			default: '',
-		},
+		dashboardQuotaTooltip: TEXT_PROP,
 	},
 
 	emits: [

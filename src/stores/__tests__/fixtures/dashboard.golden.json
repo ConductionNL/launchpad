@@ -420,6 +420,51 @@
 		"warnings": [],
 		"errors": []
 	},
+	"resolveActive | default default after another default-group": {
+		"result": {
+			"value": {
+				"id": 5,
+				"uuid": "d2",
+				"source": "default",
+				"isDefault": 1
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				},
+				{
+					"id": 5,
+					"uuid": "d2",
+					"source": "default",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
 	"resolveActive | first in primary group": {
 		"result": {
 			"value": {
@@ -457,6 +502,53 @@
 					"source": "group",
 					"groupId": "sales",
 					"isDefault": "1"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | first in primary group without defaults": {
+		"result": {
+			"value": {
+				"id": 2,
+				"uuid": "g1",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
 				}
 			],
 			"activeDashboard": null,

@@ -110,8 +110,15 @@ const RESOLVE_STATES = {
 	'default default without primary': {
 		dashboards: rows([0, 1, 2, 4, 5]),
 	},
+	'default default after another default-group': {
+		dashboards: rows([0, 3, 4]),
+	},
 	'first in primary group': {
 		dashboards: rows([0, 3, 1, 2]),
+		primaryGroup: 'sales',
+	},
+	'first in primary group without defaults': {
+		dashboards: rows([0, 3, 1]),
 		primaryGroup: 'sales',
 	},
 	'primary group without rows': {

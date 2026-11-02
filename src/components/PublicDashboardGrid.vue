@@ -86,6 +86,84 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 
+const STATIC_WIDGET_KINDS = ['label', 'header', 'text', 'image', 'link', 'divider']
+
+/**
+ * A placement's content when it is an object, else an empty object.
+ *
+ * @param {object} p The placement.
+ * @return {object} The content.
+ */
+function placementContent(p) {
+	return p.content && typeof p.content === 'object' ? p.content : {}
+}
+
+/**
+ * How a placement renders: a tile, one of the static widget kinds, or
+ * restricted (only visible to signed-in users).
+ *
+ * @param {object} p The placement.
+ * @return {string} The display kind.
+ */
+function placementKind(p) {
+	const widgetId = p.widgetId || ''
+	if (widgetId.startsWith('tile-') || p.tileType) {
+		return 'tile'
+	}
+	return STATIC_WIDGET_KINDS.includes(widgetId) ? widgetId : 'restricted'
+}
+
+/**
+ * The first non-empty value, else an empty string.
+ *
+ * @param {Array<string|undefined>} values The candidates, in order of preference.
+ * @return {string} The first non-empty value or ''.
+ */
+function firstFilled(values) {
+	return values.find(Boolean) || ''
+}
+
+/**
+ * The tile look and link of a placement, with empty strings for unset values.
+ *
+ * @param {object} p The placement.
+ * @return {object} Icon, background and text colour, and link.
+ */
+function tileFields(p) {
+	return {
+		tileIcon: p.tileIcon || '',
+		tileBackgroundColor: p.tileBackgroundColor || '',
+		tileTextColor: p.tileTextColor || '',
+		tileLink: p.tileLinkValue || '',
+	}
+}
+
+/**
+ * A placement normalised for display.
+ *
+ * @param {object} p The placement.
+ * @return {object} The display item.
+ */
+function displayItem(p) {
+	const content = placementContent(p)
+	return {
+		id: p.id,
+		kind: placementKind(p),
+		gridWidth: p.gridWidth || 4,
+		gridHeight: p.gridHeight || 4,
+		title: firstFilled([
+			p.customTitle,
+			p.tileTitle,
+			content.label,
+			content.title,
+		]),
+		showTitle: p.showTitle !== 0 && p.showTitle !== false,
+		...tileFields(p),
+		text: firstFilled([content.text, content.body]),
+		url: content.url || '',
+	}
+}
+
 /**
  * PublicDashboardGrid: the read-only, anonymous-safe rendering of a
  * dashboard's placements. Tiles and static widgets (label, header, text,
@@ -115,41 +193,7 @@ export default {
 				(p) => p.isVisible !== 0 && p.isVisible !== false,
 			)
 			list.sort((a, b) => a.gridY - b.gridY || a.gridX - b.gridX)
-			return list.map((p) => {
-				const content =
-					p.content && typeof p.content === 'object' ? p.content : {}
-				const widgetId = p.widgetId || ''
-				const isTile = widgetId.startsWith('tile-') || !!p.tileType
-				let kind = 'restricted'
-				if (isTile) {
-					kind = 'tile'
-				} else if (
-					['label', 'header', 'text', 'image', 'link', 'divider'].includes(
-						widgetId,
-					)
-				) {
-					kind = widgetId
-				}
-				return {
-					id: p.id,
-					kind,
-					gridWidth: p.gridWidth || 4,
-					gridHeight: p.gridHeight || 4,
-					title:
-						p.customTitle
-						|| p.tileTitle
-						|| content.label
-						|| content.title
-						|| '',
-					showTitle: p.showTitle !== 0 && p.showTitle !== false,
-					tileIcon: p.tileIcon || '',
-					tileBackgroundColor: p.tileBackgroundColor || '',
-					tileTextColor: p.tileTextColor || '',
-					tileLink: p.tileLinkValue || '',
-					text: content.text || content.body || '',
-					url: content.url || '',
-				}
-			})
+			return list.map(displayItem)
 		},
 	},
 

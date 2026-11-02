@@ -13,6 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@nextcloud/l10n', () => ({
 	translate: (_app, text, vars = {}) =>
 		text.replace(/\{(\w+)\}/g, (_m, k) => vars[k] ?? `{${k}}`),
+	translatePlural: (_app, one, many, count) =>
+		(count === 1 ? one : many).replace('%n', String(count)),
 }))
 vi.mock('../../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
@@ -233,5 +235,64 @@ describe('AttentionWidget', () => {
 			{ limit: 'many' },
 		)
 		expect(nonsense.findAll('.attention-widget__item')).toHaveLength(5)
+	})
+})
+
+describe('AttentionWidget columns layout (LpVandaag "Vandaag eerst")', () => {
+	const feed = {
+		items: [
+			item('dossiq', 'dossiq', 'error', 1),
+			item('pipelinq', 'pipelinq', 'warning', 1),
+			item('decidiq', 'decidiq', 'warning', 1),
+			item('learniq', 'learniq', 'info', 1),
+		],
+		failedApps: [],
+		sourceCount: 4,
+	}
+
+	it('draws its own heading with how many things it shows, in one row of three', async () => {
+		const wrapper = await mountWith(feed, {
+			title: 'Vandaag eerst',
+			layout: 'columns',
+			limit: 3,
+		})
+		expect(wrapper.find('.attention-widget').classes()).toContain(
+			'attention-widget--columns',
+		)
+		expect(wrapper.find('.attention-widget').attributes('style')).toContain(
+			'--attention-columns: 3',
+		)
+		expect(wrapper.find('.attention-widget__heading').text()).toBe(
+			'Vandaag eerst',
+		)
+		expect(wrapper.find('[data-testid="attention-summary"]').text()).toBe(
+			'3 things from all your apps that need attention today',
+		)
+		expect(wrapper.findAll('.attention-widget__item')).toHaveLength(3)
+	})
+
+	it('takes 1 to 4 columns and falls back to 3', async () => {
+		const two = await mountWith(feed, { layout: 'columns', columns: 2 })
+		expect(two.find('.attention-widget').attributes('style')).toContain(
+			'--attention-columns: 2',
+		)
+		const wrong = await mountWith(feed, { layout: 'columns', columns: 9 })
+		expect(wrong.find('.attention-widget').attributes('style')).toContain(
+			'--attention-columns: 3',
+		)
+	})
+
+	it('draws no heading without a title, and no count without items', async () => {
+		const plain = await mountWith(feed)
+		expect(plain.find('.attention-widget__head').exists()).toBe(false)
+		expect(plain.find('.attention-widget').classes()).not.toContain(
+			'attention-widget--columns',
+		)
+		const empty = await mountWith(
+			{ items: [], failedApps: [], sourceCount: 2 },
+			{ title: 'Vandaag eerst', layout: 'columns' },
+		)
+		expect(empty.find('.attention-widget__heading').text()).toBe('Vandaag eerst')
+		expect(empty.find('[data-testid="attention-summary"]').exists()).toBe(false)
 	})
 })

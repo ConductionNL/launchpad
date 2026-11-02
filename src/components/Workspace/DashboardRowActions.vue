@@ -172,6 +172,23 @@ import StarCheck from 'vue-material-design-icons/StarCheck.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import Tune from 'vue-material-design-icons/Tune.vue'
 
+/**
+ * Whether the caller owns a dashboard: a row under "My dashboards" (the
+ * `user` source) always, any other row only when the dashboard says
+ * `isOwner: true`. Owner-gated actions (configure, delete) use it.
+ *
+ * @param {object|null} dashboard The dashboard.
+ * @param {string} source The dashboard's section.
+ * @return {boolean}
+ * @spec openspec/specs/dashboard-switcher/spec.md
+ */
+export function isOwnedDashboard(dashboard, source) {
+	if (source === 'user') {
+		return true
+	}
+	return dashboard?.isOwner === true
+}
+
 export default {
 	name: 'DashboardRowActions',
 
@@ -321,10 +338,7 @@ export default {
 		 * @spec openspec/specs/dashboard-switcher/spec.md
 		 */
 		isOwner() {
-			if (this.source === 'user') {
-				return true
-			}
-			return this.dashboard?.isOwner === true
+			return isOwnedDashboard(this.dashboard, this.source)
 		},
 
 		/*

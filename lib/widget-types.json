@@ -9,6 +9,7 @@
 	],
 	"types": [
 		"ai-assistant",
+		"app-tiles",
 		"attention",
 		"calendar",
 		"chart",

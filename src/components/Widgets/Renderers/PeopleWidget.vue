@@ -251,15 +251,13 @@ export default {
 
 		/** @spec openspec/specs/people-widget/spec.md */
 		avatarSize() {
-			switch (this.layout) {
-				case 'card':
-					return 80
-				case 'list':
-					return 44
-				case 'grid':
-				default:
-					return 64
+			if (this.layout === 'card') {
+				return 80
 			}
+			if (this.layout === 'list') {
+				return 44
+			}
+			return 64
 		},
 
 		/** @spec openspec/specs/people-widget/spec.md */

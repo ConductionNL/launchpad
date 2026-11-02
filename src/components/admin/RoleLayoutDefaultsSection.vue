@@ -254,77 +254,11 @@ export default {
 }
 </script>
 
+<style scoped src="./roleSection.css"></style>
+
 <style scoped>
-.launchpad-admin__hint {
-	color: var(--color-text-maxcontrast);
-	margin: 0 0 var(--default-grid-baseline) 0;
-}
-
-.launchpad-admin__error {
-	background: var(--color-error);
-	color: var(--color-primary-element-text);
-	padding: var(--default-grid-baseline);
-	border-radius: var(--border-radius);
-	margin-bottom: var(--default-grid-baseline);
-}
-
-.launchpad-admin__role-list {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	margin-bottom: var(--default-grid-baseline);
-}
-
-.launchpad-admin__role-row {
-	display: flex;
-	align-items: center;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-}
-
-.launchpad-admin__role-meta {
-	display: flex;
-	flex-direction: column;
-	min-width: 200px;
-}
-
-.launchpad-admin__role-group {
-	color: var(--color-text-maxcontrast);
-	font-family: var(--font-face-monospace, monospace);
-	font-size: 0.85em;
-}
-
-.launchpad-admin__role-widgets {
-	flex: 1;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px;
-}
-
-.launchpad-admin__chip {
-	background: var(--color-background-hover);
-	padding: 2px 8px;
-	border-radius: var(--border-radius);
-	font-size: 0.85em;
-}
-
 .launchpad-admin__chip--compulsory {
 	background: var(--color-warning);
-}
-
-.launchpad-admin__role-actions {
-	display: flex;
-	gap: 4px;
-}
-
-.launchpad-admin__editor {
-	padding: calc(var(--default-grid-baseline) * 2);
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	min-width: 480px;
 }
 
 .launchpad-admin__editor-row {

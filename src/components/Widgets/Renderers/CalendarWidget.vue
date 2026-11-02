@@ -157,7 +157,7 @@
 <script>
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 const VIEW_MODES = ['month', 'week', 'agenda']
 

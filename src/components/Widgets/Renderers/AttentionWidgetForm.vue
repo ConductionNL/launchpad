@@ -26,7 +26,10 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcSelect } from '@nextcloud/vue'
-import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 
 const DEFAULT_LIMIT = 5
 const LIMIT_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]

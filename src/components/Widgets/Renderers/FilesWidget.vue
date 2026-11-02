@@ -205,7 +205,7 @@
  * a stale path.
  */
 
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 export default {
 	name: 'FilesWidget',

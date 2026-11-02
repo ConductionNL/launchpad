@@ -13,7 +13,7 @@
 
 <script>
 import { CnChartWidget } from '@conduction/nextcloud-vue'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 // Chart config keys that a content-based placement may carry through to
 // CnChartWidget verbatim (apexcharts passthrough). `dataSource` resolves the

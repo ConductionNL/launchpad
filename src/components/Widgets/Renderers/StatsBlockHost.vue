@@ -17,7 +17,7 @@
 
 <script>
 import { CnStatsBlockWidget } from '@conduction/nextcloud-vue'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 /**
  * StatsBlockHost — thin LaunchPad wrapper adapting the registry's `content`

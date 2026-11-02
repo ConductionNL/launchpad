@@ -119,7 +119,10 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import DOMPurify from 'dompurify'
-import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 
 const ALLOWED_LAYOUTS = ['list', 'grid', 'carousel']
 const DEFAULT_LAYOUT = 'list'

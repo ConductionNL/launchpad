@@ -37,7 +37,10 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcSelect, NcTextField } from '@nextcloud/vue'
-import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 
 const DEFAULT_CONTENT = Object.freeze({
 	location: '',

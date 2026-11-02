@@ -69,7 +69,10 @@ import WeatherRainy from 'vue-material-design-icons/WeatherRainy.vue'
 import WeatherSnowy from 'vue-material-design-icons/WeatherSnowy.vue'
 import WeatherSunny from 'vue-material-design-icons/WeatherSunny.vue'
 import WeatherWindy from 'vue-material-design-icons/WeatherWindy.vue'
-import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { fetchWeatherReading } from '../../../services/weatherClient.js'
 
 /**

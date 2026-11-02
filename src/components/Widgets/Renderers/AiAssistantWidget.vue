@@ -88,7 +88,10 @@
 import { chatHealthUrl, useAiChatStream } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
-import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { useDashboardStore } from '../../../stores/dashboard.js'
 
 /** The fleet's chat engine. */

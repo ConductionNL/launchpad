@@ -32,7 +32,7 @@ import {
 	getNestedGridOptions,
 	useNestedGridManager,
 } from '../../../composables/useNestedGridManager.js'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { FLAG_PROP, OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 const PADDING_TOKENS = Object.freeze({
 	none: '0',
@@ -68,10 +68,7 @@ export default {
 	props: {
 		content: OBJECT_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 	},
 
 	emits: ['update:content'],

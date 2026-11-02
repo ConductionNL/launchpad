@@ -89,7 +89,7 @@
 import { CnLinkButtonWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { useInternalActions } from '../../../composables/useInternalActions.js'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 // `@nextcloud/axios` / `@nextcloud/router` / `@nextcloud/dialogs` are loaded
 // lazily inside `onCreateConfirm()` so the registry import graph doesn't drag

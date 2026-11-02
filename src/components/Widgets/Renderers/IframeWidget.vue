@@ -54,7 +54,10 @@ import { translate as t } from '@nextcloud/l10n'
 import { NcLoadingIcon } from '@nextcloud/vue'
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
-import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { checkIframeFramable } from '../../../services/iframeClient.js'
 
 /**

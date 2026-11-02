@@ -126,6 +126,11 @@
 import { NcButton, NcModal } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
 import { nudgePlacement } from '../composables/useGridManager.js'
+import {
+	FLAG_PROP,
+	LIST_PROP,
+	NULLABLE_OBJECT_PROP,
+} from '../constants/propDefinitions.js'
 
 /**
  * WidgetMovePanel — keyboard-operable move/resize panel for a dashboard
@@ -163,20 +168,11 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 
-		allPlacements: {
-			type: Array,
-			default: () => [],
-		},
+		allPlacements: LIST_PROP,
 
 		gridColumns: {
 			type: Number,

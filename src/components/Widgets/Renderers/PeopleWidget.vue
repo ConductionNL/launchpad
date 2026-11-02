@@ -148,7 +148,7 @@
 </template>
 
 <script>
-import { objectProp } from '../../../constants/widgetProps.js'
+import { objectProp } from '../../../constants/propDefinitions.js'
 
 const CACHE_TTL_MS = 60 * 1000
 const PAGE_SIZE = 50

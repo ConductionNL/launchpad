@@ -49,7 +49,7 @@
 
 <script>
 import { getCanonicalLocale, translate as t } from '@nextcloud/l10n'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 /**
  * Persisted-content field defaults (REQ-CLOCK-002). `timezone: ''` means

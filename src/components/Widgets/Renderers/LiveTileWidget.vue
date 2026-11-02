@@ -71,7 +71,10 @@ import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import CloudOffOutline from 'vue-material-design-icons/CloudOffOutline.vue'
-import { NULLABLE_OBJECT_PROP, OBJECT_PROP } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	OBJECT_PROP,
+} from '../../../constants/propDefinitions.js'
 import { fetchLiveTileValue } from '../../../services/liveTileClient.js'
 
 /**

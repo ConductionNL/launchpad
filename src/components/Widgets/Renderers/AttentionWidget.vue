@@ -96,7 +96,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { loadAttentionFeed } from '../../../services/attentionFeed.js'
 import { logger } from '../../../utils/logger.js'
 

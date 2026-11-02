@@ -56,7 +56,10 @@ import {
 	FALLBACK_TARGET_UNIFIED_SEARCH,
 	isValidFallbackTemplate,
 } from '../../../composables/useTileSearch.js'
-import { NULLABLE_OBJECT_PROP, objectProp } from '../../../constants/widgetProps.js'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 
 /**
  * The "inherit the admin setting" marker (REQ-QSEARCH-005).

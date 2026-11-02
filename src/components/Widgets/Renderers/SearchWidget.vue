@@ -25,7 +25,7 @@ import {
 	focusGrid,
 	performFallback,
 } from '../../../composables/useTileSearchHost.js'
-import { OBJECT_PROP } from '../../../constants/widgetProps.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 import { useDashboardStore } from '../../../stores/dashboard.js'
 import { useTileSearchStore } from '../../../stores/tileSearch.js'
 import { useWidgetStore } from '../../../stores/widgets.js'

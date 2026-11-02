@@ -1,0 +1,584 @@
+{
+	"given | tree and language": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n2"
+				}
+			],
+			"language": "fr",
+			"error": null,
+			"loading": false
+		}
+	},
+	"given | tree only": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "en",
+			"error": null,
+			"loading": false
+		}
+	},
+	"given | tree not a list": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n1",
+					"label": "Home"
+				}
+			],
+			"language": "en",
+			"error": null,
+			"loading": false
+		}
+	},
+	"given | no data": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n1",
+					"label": "Home"
+				}
+			],
+			"language": "en",
+			"error": null,
+			"loading": false
+		}
+	},
+	"given | no response": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "nl",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"given | server error text": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "nl",
+			"error": "Not allowed",
+			"loading": false
+		}
+	},
+	"given | server error empty": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "nl",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"given | response without data": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "nl",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"given | null": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"en"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "nl",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"from the store | tree and language": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n2"
+				}
+			],
+			"language": "fr",
+			"error": null,
+			"loading": false
+		}
+	},
+	"from the store | tree only": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "de",
+			"error": null,
+			"loading": false
+		}
+	},
+	"from the store | tree not a list": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n1",
+					"label": "Home"
+				}
+			],
+			"language": "de",
+			"error": null,
+			"loading": false
+		}
+	},
+	"from the store | no data": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n1",
+					"label": "Home"
+				}
+			],
+			"language": "de",
+			"error": null,
+			"loading": false
+		}
+	},
+	"from the store | no response": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "de",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"from the store | server error text": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "de",
+			"error": "Not allowed",
+			"loading": false
+		}
+	},
+	"from the store | server error empty": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "de",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"from the store | response without data": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "de",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"from the store | null": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"de"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "de",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"store language empty | tree and language": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n2"
+				}
+			],
+			"language": "fr",
+			"error": null,
+			"loading": false
+		}
+	},
+	"store language empty | tree only": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "nl",
+			"error": null,
+			"loading": false
+		}
+	},
+	"store language empty | tree not a list": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n1",
+					"label": "Home"
+				}
+			],
+			"language": "nl",
+			"error": null,
+			"loading": false
+		}
+	},
+	"store language empty | no data": {
+		"result": true,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [
+				{
+					"id": "n1",
+					"label": "Home"
+				}
+			],
+			"language": "nl",
+			"error": null,
+			"loading": false
+		}
+	},
+	"store language empty | no response": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"store language empty | server error text": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "",
+			"error": "Not allowed",
+			"loading": false
+		}
+	},
+	"store language empty | server error empty": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"store language empty | response without data": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	},
+	"store language empty | null": {
+		"result": false,
+		"calls": [
+			[
+				[
+					{
+						"id": "n1",
+						"label": "Home"
+					}
+				],
+				"nl"
+			]
+		],
+		"state": {
+			"tree": [],
+			"language": "",
+			"error": "Failed to save navigation",
+			"loading": false
+		}
+	}
+}

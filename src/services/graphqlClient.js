@@ -106,31 +106,52 @@ export async function queryGraphql({
 			{ timeout: timeoutMs },
 		)
 	} catch (err) {
-		// A 404 means the sibling app's GraphQL route is absent — i.e. the
-		// app is not installed. Map it to the empty-state contract code.
-		const status = err?.response?.status
-		if (status === 404) {
-			throw new GraphQLSourceError(
-				'not_installed',
-				app,
-				`${app} is not installed`,
-			)
-		}
-		// axios surfaces request timeouts as ECONNABORTED.
-		if (err?.code === 'ECONNABORTED') {
-			throw new GraphQLSourceError(
-				'timeout',
-				app,
-				`${app} did not respond in time`,
-			)
-		}
-		throw new GraphQLSourceError(
-			'network_error',
-			app,
-			err?.message || 'Network error',
-		)
+		throw transportError(err, app)
 	}
 
+	return dataOf(response, app)
+}
+
+/**
+ * The typed error for a failed GraphQL request: a 404 means the sibling
+ * app's route is absent, so the app is not installed; axios reports a
+ * request timeout as `ECONNABORTED`; anything else is a network error.
+ *
+ * @param {unknown} err The caught request error.
+ * @param {string} app The sibling app id the call targeted.
+ * @return {GraphQLSourceError} The error to throw.
+ */
+function transportError(err, app) {
+	if (err?.response?.status === 404) {
+		return new GraphQLSourceError(
+			'not_installed',
+			app,
+			`${app} is not installed`,
+		)
+	}
+	if (err?.code === 'ECONNABORTED') {
+		return new GraphQLSourceError(
+			'timeout',
+			app,
+			`${app} did not respond in time`,
+		)
+	}
+	return new GraphQLSourceError(
+		'network_error',
+		app,
+		err?.message || 'Network error',
+	)
+}
+
+/**
+ * The `data` payload of a GraphQL response, or an empty object when it has none.
+ *
+ * @param {object} response The axios response.
+ * @param {string} app The sibling app id the call targeted.
+ * @return {object} The GraphQL `data` object.
+ * @throws {GraphQLSourceError} With `graphql_errors` and the first error's message when the source returned `errors[]`.
+ */
+function dataOf(response, app) {
 	const body = response?.data
 	if (body && Array.isArray(body.errors) && body.errors.length > 0) {
 		const first = body.errors[0]?.message || 'GraphQL error'

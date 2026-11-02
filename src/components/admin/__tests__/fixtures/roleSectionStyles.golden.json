@@ -1,0 +1,125 @@
+{
+	"RolePermissionsSection.vue": {
+		"rules": {
+			".launchpad-admin__chip": {
+				"body": "background: var(--color-background-hover); padding: 2px 8px; border-radius: var(--border-radius); font-size: 0.85em",
+				"scoped": true
+			},
+			".launchpad-admin__chip--denied": {
+				"body": "background: var(--color-error); color: var(--color-primary-element-text)",
+				"scoped": true
+			},
+			".launchpad-admin__editor": {
+				"body": "padding: calc(var(--default-grid-baseline) * 2); display: flex; flex-direction: column; gap: var(--default-grid-baseline); min-width: 480px",
+				"scoped": true
+			},
+			".launchpad-admin__editor-actions": {
+				"body": "display: flex; justify-content: flex-end; gap: var(--default-grid-baseline); margin-top: var(--default-grid-baseline)",
+				"scoped": true
+			},
+			".launchpad-admin__error": {
+				"body": "background: var(--color-error); color: var(--color-primary-element-text); padding: var(--default-grid-baseline); border-radius: var(--border-radius); margin-bottom: var(--default-grid-baseline)",
+				"scoped": true
+			},
+			".launchpad-admin__hint": {
+				"body": "color: var(--color-text-maxcontrast); margin: 0 0 var(--default-grid-baseline) 0",
+				"scoped": true
+			},
+			".launchpad-admin__role-actions": {
+				"body": "display: flex; gap: 4px",
+				"scoped": true
+			},
+			".launchpad-admin__role-group": {
+				"body": "color: var(--color-text-maxcontrast); font-family: var(--font-face-monospace, monospace); font-size: 0.85em",
+				"scoped": true
+			},
+			".launchpad-admin__role-list": {
+				"body": "display: flex; flex-direction: column; gap: var(--default-grid-baseline); margin-bottom: var(--default-grid-baseline)",
+				"scoped": true
+			},
+			".launchpad-admin__role-meta": {
+				"body": "display: flex; flex-direction: column; min-width: 200px",
+				"scoped": true
+			},
+			".launchpad-admin__role-row": {
+				"body": "display: flex; align-items: center; gap: var(--default-grid-baseline); padding: var(--default-grid-baseline); border: 1px solid var(--color-border); border-radius: var(--border-radius)",
+				"scoped": true
+			},
+			".launchpad-admin__role-widgets": {
+				"body": "flex: 1; display: flex; flex-wrap: wrap; gap: 4px",
+				"scoped": true
+			}
+		},
+		"count": 12,
+		"order": [
+			".launchpad-admin__chip",
+			".launchpad-admin__chip--denied",
+			".launchpad-admin__editor",
+			".launchpad-admin__editor-actions"
+		]
+	},
+	"RoleLayoutDefaultsSection.vue": {
+		"rules": {
+			".launchpad-admin__chip": {
+				"body": "background: var(--color-background-hover); padding: 2px 8px; border-radius: var(--border-radius); font-size: 0.85em",
+				"scoped": true
+			},
+			".launchpad-admin__chip--compulsory": {
+				"body": "background: var(--color-warning)",
+				"scoped": true
+			},
+			".launchpad-admin__editor": {
+				"body": "padding: calc(var(--default-grid-baseline) * 2); display: flex; flex-direction: column; gap: var(--default-grid-baseline); min-width: 480px",
+				"scoped": true
+			},
+			".launchpad-admin__editor-row > *": {
+				"body": "flex: 1",
+				"scoped": true
+			},
+			".launchpad-admin__editor-row": {
+				"body": "display: flex; gap: var(--default-grid-baseline)",
+				"scoped": true
+			},
+			".launchpad-admin__error": {
+				"body": "background: var(--color-error); color: var(--color-primary-element-text); padding: var(--default-grid-baseline); border-radius: var(--border-radius); margin-bottom: var(--default-grid-baseline)",
+				"scoped": true
+			},
+			".launchpad-admin__hint": {
+				"body": "color: var(--color-text-maxcontrast); margin: 0 0 var(--default-grid-baseline) 0",
+				"scoped": true
+			},
+			".launchpad-admin__role-actions": {
+				"body": "display: flex; gap: 4px",
+				"scoped": true
+			},
+			".launchpad-admin__role-group": {
+				"body": "color: var(--color-text-maxcontrast); font-family: var(--font-face-monospace, monospace); font-size: 0.85em",
+				"scoped": true
+			},
+			".launchpad-admin__role-list": {
+				"body": "display: flex; flex-direction: column; gap: var(--default-grid-baseline); margin-bottom: var(--default-grid-baseline)",
+				"scoped": true
+			},
+			".launchpad-admin__role-meta": {
+				"body": "display: flex; flex-direction: column; min-width: 200px",
+				"scoped": true
+			},
+			".launchpad-admin__role-row": {
+				"body": "display: flex; align-items: center; gap: var(--default-grid-baseline); padding: var(--default-grid-baseline); border: 1px solid var(--color-border); border-radius: var(--border-radius)",
+				"scoped": true
+			},
+			".launchpad-admin__role-widgets": {
+				"body": "flex: 1; display: flex; flex-wrap: wrap; gap: 4px",
+				"scoped": true
+			}
+		},
+		"count": 13,
+		"order": [
+			".launchpad-admin__chip",
+			".launchpad-admin__chip--compulsory",
+			".launchpad-admin__editor",
+			".launchpad-admin__editor-row",
+			".launchpad-admin__editor-row > *"
+		]
+	}
+}

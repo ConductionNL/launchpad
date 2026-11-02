@@ -26,6 +26,7 @@ import {
  *
  * @param {object} args `{ offset, limit, filters, excludeDisabled, sortBy }`.
  * @return {Promise<{users: object[], total: number, hasMore: boolean}>} page.
+ * @spec openspec/specs/people-widget/spec.md
  */
 export async function fetchPeoplePage(args = {}) {
 	const [{ default: axios }, { generateUrl: genUrl }] = await Promise.all([

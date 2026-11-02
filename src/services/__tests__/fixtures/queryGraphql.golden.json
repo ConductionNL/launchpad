@@ -1,0 +1,1526 @@
+{
+	"app and query | data": {
+		"result": {
+			"rows": [
+				1,
+				2
+			]
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | null data": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | no data key": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | no body": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | no response": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "financeq",
+			"message": "bad field"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | error without message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "financeq",
+			"message": "GraphQL error"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | null first error": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "financeq",
+			"message": "GraphQL error"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | empty errors": {
+		"result": {
+			"x": 2
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | errors not a list": {
+		"result": {
+			"x": 3
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | 404": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "not_installed",
+			"app": "financeq",
+			"message": "financeq is not installed"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | 500": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "financeq",
+			"message": "Server Error"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | 404 as text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "financeq",
+			"message": "Not Found"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "timeout",
+			"app": "financeq",
+			"message": "financeq did not respond in time"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | 404 and timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "not_installed",
+			"app": "financeq",
+			"message": "financeq is not installed"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | no message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "financeq",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | null": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "financeq",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"app and query | text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "financeq",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/financeq/graphql",
+				{
+					"query": "query X { x }",
+					"variables": {}
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"with variables and timeout | data": {
+		"result": {
+			"rows": [
+				1,
+				2
+			]
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | null data": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | no data key": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | no body": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | no response": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "dossiq",
+			"message": "bad field"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | error without message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "dossiq",
+			"message": "GraphQL error"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | null first error": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "dossiq",
+			"message": "GraphQL error"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | empty errors": {
+		"result": {
+			"x": 2
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | errors not a list": {
+		"result": {
+			"x": 3
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | 404": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "not_installed",
+			"app": "dossiq",
+			"message": "dossiq is not installed"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | 500": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "dossiq",
+			"message": "Server Error"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | 404 as text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "dossiq",
+			"message": "Not Found"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "timeout",
+			"app": "dossiq",
+			"message": "dossiq did not respond in time"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | 404 and timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "not_installed",
+			"app": "dossiq",
+			"message": "dossiq is not installed"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | no message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "dossiq",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | null": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "dossiq",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"with variables and timeout | text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "dossiq",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/dossiq/graphql",
+				{
+					"query": "query Y { y }",
+					"variables": {
+						"period": "month"
+					}
+				},
+				{
+					"timeout": 100
+				}
+			]
+		]
+	},
+	"null variables | data": {
+		"result": {
+			"rows": [
+				1,
+				2
+			]
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | null data": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | no data key": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | no body": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | no response": {
+		"result": {},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "a",
+			"message": "bad field"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | error without message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "a",
+			"message": "GraphQL error"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | null first error": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "graphql_errors",
+			"app": "a",
+			"message": "GraphQL error"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | empty errors": {
+		"result": {
+			"x": 2
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | errors not a list": {
+		"result": {
+			"x": 3
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | 404": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "not_installed",
+			"app": "a",
+			"message": "a is not installed"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | 500": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "a",
+			"message": "Server Error"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | 404 as text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "a",
+			"message": "Not Found"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "timeout",
+			"app": "a",
+			"message": "a did not respond in time"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | 404 and timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "not_installed",
+			"app": "a",
+			"message": "a is not installed"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | no message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "a",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | null": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "a",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"null variables | text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "network_error",
+			"app": "a",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/apps/a/graphql",
+				{
+					"query": "q",
+					"variables": null
+				},
+				{
+					"timeout": 5000
+				}
+			]
+		]
+	},
+	"blank app | data": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | null data": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | no data key": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | no body": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | no response": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | error without message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | null first error": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | empty errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | errors not a list": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | 404": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | 500": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | 404 as text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | 404 and timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | no message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | null": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"blank app | text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "  ",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | data": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | null data": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | no data key": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | no body": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | no response": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | error without message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | null first error": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | empty errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | errors not a list": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | 404": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | 500": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | 404 as text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | 404 and timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | no message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | null": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"missing app | text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "undefined",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | data": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | null data": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | no data key": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | no body": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | no response": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | error without message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | null first error": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | empty errors": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | errors not a list": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | 404": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | 500": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | 404 as text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | 404 and timeout": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | no message": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | null": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	},
+	"numeric app | text": {
+		"rejected": {
+			"name": "GraphQLSourceError",
+			"code": "invalid_app",
+			"app": "7",
+			"message": "A sibling app id is required"
+		},
+		"sent": []
+	}
+}

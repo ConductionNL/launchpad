@@ -233,6 +233,76 @@ function neighbourRect(other) {
 }
 
 /**
+ * The grid rectangle of the placement being nudged, with a missing or
+ * non-finite position read as 0 and a missing size as {@link MIN_CELLS}.
+ *
+ * @param {{gridX?: number, gridY?: number, gridWidth?: number, gridHeight?: number}} [placement] A placement in LaunchPad field-name form.
+ * @return {{x: number, y: number, w: number, h: number}} Its rectangle.
+ */
+function placementRect(placement) {
+	return {
+		x: Number.isFinite(placement?.gridX) ? placement.gridX : 0,
+		y: Number.isFinite(placement?.gridY) ? placement.gridY : 0,
+		w: Number.isFinite(placement?.gridWidth) ? placement.gridWidth : MIN_CELLS,
+		h: Number.isFinite(placement?.gridHeight) ? placement.gridHeight : MIN_CELLS,
+	}
+}
+
+/**
+ * One keyboard step per action: each takes the current rectangle and the
+ * column count and returns the moved or resized rectangle.
+ */
+const NUDGES = {
+	'move-up': (rect) => ({ ...rect, y: Math.max(0, rect.y - 1) }),
+	'move-down': (rect) => ({ ...rect, y: rect.y + 1 }),
+	'move-left': (rect) => ({ ...rect, x: Math.max(0, rect.x - 1) }),
+	'move-right': (rect, columns) => ({
+		...rect,
+		x: Math.min(Math.max(0, columns - rect.w), rect.x + 1),
+	}),
+	'grow-width': (rect, columns) => ({
+		...rect,
+		w: Math.min(columns - rect.x, rect.w + 1),
+	}),
+	'shrink-width': (rect) => ({ ...rect, w: Math.max(MIN_CELLS, rect.w - 1) }),
+	'grow-height': (rect) => ({ ...rect, h: rect.h + 1 }),
+	'shrink-height': (rect) => ({ ...rect, h: Math.max(MIN_CELLS, rect.h - 1) }),
+}
+
+/**
+ * Shift a rectangle left so it ends inside the grid's columns.
+ *
+ * @param {{x: number, y: number, w: number, h: number}} rect The rectangle.
+ * @param {number} columns The column count.
+ * @return {{x: number, y: number, w: number, h: number}} The rectangle, inside the columns.
+ */
+function keepInColumns(rect, columns) {
+	if (rect.x + rect.w > columns) {
+		return { ...rect, x: Math.max(0, columns - rect.w) }
+	}
+	return rect
+}
+
+/**
+ * The neighbours a nudged rectangle overlaps, each pushed to the row below it.
+ * The moved placement itself and empty entries are skipped.
+ *
+ * @param {{rect: {x: number, y: number, w: number, h: number}, id?: (number|string)}} moved The nudged rectangle and the id of its placement.
+ * @param {Array<object>} allPlacements Every placement on the dashboard.
+ * @return {Array<{id: (number|string), gridY: number}>} The pushed neighbours.
+ */
+function pushedNeighbours(moved, allPlacements) {
+	const others = Array.isArray(allPlacements) ? allPlacements : []
+	return others
+		.filter(
+			(other) =>
+				other !== null && other !== undefined && other.id !== moved.id,
+		)
+		.filter((other) => rectsOverlap(moved.rect, neighbourRect(other)))
+		.map((other) => ({ id: other.id, gridY: moved.rect.y + moved.rect.h }))
+}
+
+/**
  * Compute the candidate rectangle for a keyboard-driven move or resize of
  * an existing placement, reusing the same collision model as
  * {@link placeNewWidget} so keyboard moves get the same push-down
@@ -263,72 +333,15 @@ function neighbourRect(other) {
  */
 export function nudgePlacement(placement, action, allPlacements, options = {}) {
 	const columns = options.gridColumns || DEFAULT_COLUMNS
-
-	const x = Number.isFinite(placement?.gridX) ? placement.gridX : 0
-	const y = Number.isFinite(placement?.gridY) ? placement.gridY : 0
-	const w = Number.isFinite(placement?.gridWidth) ? placement.gridWidth : MIN_CELLS
-	const h = Number.isFinite(placement?.gridHeight)
-		? placement.gridHeight
-		: MIN_CELLS
-
-	let nx = x
-	let ny = y
-	let nw = w
-	let nh = h
-
-	switch (action) {
-		case 'move-up':
-			ny = Math.max(0, y - 1)
-			break
-		case 'move-down':
-			ny = y + 1
-			break
-		case 'move-left':
-			nx = Math.max(0, x - 1)
-			break
-		case 'move-right':
-			nx = Math.min(Math.max(0, columns - w), x + 1)
-			break
-		case 'grow-width':
-			nw = Math.min(columns - x, w + 1)
-			break
-		case 'shrink-width':
-			nw = Math.max(MIN_CELLS, w - 1)
-			break
-		case 'grow-height':
-			nh = h + 1
-			break
-		case 'shrink-height':
-			nh = Math.max(MIN_CELLS, h - 1)
-			break
-		default:
-			// Unknown action → no change.
-			break
-	}
-
-	// Keep the widget inside the horizontal bounds after any width change.
-	if (nx + nw > columns) {
-		nx = Math.max(0, columns - nw)
-	}
-
-	const newRect = { x: nx, y: ny, w: nw, h: nh }
-	const pushed = []
-	const others = Array.isArray(allPlacements) ? allPlacements : []
-	for (const other of others) {
-		if (other === null || other === undefined || other.id === placement?.id) {
-			continue
-		}
-		if (rectsOverlap(newRect, neighbourRect(other))) {
-			pushed.push({ id: other.id, gridY: ny + nh })
-		}
-	}
+	const nudge = Object.hasOwn(NUDGES, action) ? NUDGES[action] : (rect) => rect
+	const rect = keepInColumns(nudge(placementRect(placement), columns), columns)
 
 	return {
-		gridX: nx,
-		gridY: ny,
-		gridWidth: nw,
-		gridHeight: nh,
-		pushed,
+		gridX: rect.x,
+		gridY: rect.y,
+		gridWidth: rect.w,
+		gridHeight: rect.h,
+		pushed: pushedNeighbours({ rect, id: placement?.id }, allPlacements),
 	}
 }
 

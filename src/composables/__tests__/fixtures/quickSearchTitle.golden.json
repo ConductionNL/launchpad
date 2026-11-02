@@ -1,0 +1,407 @@
+{
+	"resolveWidgetTitle | undefined | null": "t:Widget",
+	"resolveWidgetTitle | undefined | custom tile with title": "Mail",
+	"resolveWidgetTitle | undefined | custom tile without title": "t:Tile",
+	"resolveWidgetTitle | undefined | custom title": "My cal",
+	"resolveWidgetTitle | undefined | empty custom title": "t:Widget",
+	"resolveWidgetTitle | undefined | catalog widget": "t:Widget",
+	"resolveWidgetTitle | undefined | catalog widget without title": "t:Widget",
+	"resolveWidgetTitle | undefined | proxy to catalog": "t:Widget",
+	"resolveWidgetTitle | undefined | proxy to untitled": "t:Widget",
+	"resolveWidgetTitle | undefined | proxy to unknown": "t:Widget",
+	"resolveWidgetTitle | undefined | proxy without id": "t:Widget",
+	"resolveWidgetTitle | undefined | registry type": "t:Chart",
+	"resolveWidgetTitle | undefined | registry blank name": "t:Widget",
+	"resolveWidgetTitle | undefined | registry without name": "t:Widget",
+	"resolveWidgetTitle | undefined | unknown": "t:Widget",
+	"resolveWidgetTitle | undefined | tile type other": "t:Chart",
+	"resolveWidgetTitle | empty | null": "t:Widget",
+	"resolveWidgetTitle | empty | custom tile with title": "Mail",
+	"resolveWidgetTitle | empty | custom tile without title": "t:Tile",
+	"resolveWidgetTitle | empty | custom title": "My cal",
+	"resolveWidgetTitle | empty | empty custom title": "t:Widget",
+	"resolveWidgetTitle | empty | catalog widget": "t:Widget",
+	"resolveWidgetTitle | empty | catalog widget without title": "t:Widget",
+	"resolveWidgetTitle | empty | proxy to catalog": "t:Widget",
+	"resolveWidgetTitle | empty | proxy to untitled": "t:Widget",
+	"resolveWidgetTitle | empty | proxy to unknown": "t:Widget",
+	"resolveWidgetTitle | empty | proxy without id": "t:Widget",
+	"resolveWidgetTitle | empty | registry type": "t:Chart",
+	"resolveWidgetTitle | empty | registry blank name": "t:Widget",
+	"resolveWidgetTitle | empty | registry without name": "t:Widget",
+	"resolveWidgetTitle | empty | unknown": "t:Widget",
+	"resolveWidgetTitle | empty | tile type other": "t:Chart",
+	"resolveWidgetTitle | full | null": "t:Widget",
+	"resolveWidgetTitle | full | custom tile with title": "Mail",
+	"resolveWidgetTitle | full | custom tile without title": "t:Tile",
+	"resolveWidgetTitle | full | custom title": "My cal",
+	"resolveWidgetTitle | full | empty custom title": "Calendar",
+	"resolveWidgetTitle | full | catalog widget": "Calendar",
+	"resolveWidgetTitle | full | catalog widget without title": "t:Widget",
+	"resolveWidgetTitle | full | proxy to catalog": "Deals overview",
+	"resolveWidgetTitle | full | proxy to untitled": "t:Widget",
+	"resolveWidgetTitle | full | proxy to unknown": "t:Widget",
+	"resolveWidgetTitle | full | proxy without id": "t:Widget",
+	"resolveWidgetTitle | full | registry type": "Catalog chart",
+	"resolveWidgetTitle | full | registry blank name": "t:Widget",
+	"resolveWidgetTitle | full | registry without name": "t:Widget",
+	"resolveWidgetTitle | full | unknown": "t:Widget",
+	"resolveWidgetTitle | full | tile type other": "Catalog chart",
+	"activateSearchResult | no grid | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | missing | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | link | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | link without click | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focusable | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focusable with tabindex | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, not focusable | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | bare | undefined": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no grid | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | missing | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | link | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | link without click | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focusable | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focusable with tabindex | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, not focusable | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | bare | no placement": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no grid | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | missing | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | link | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | link without click | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focusable | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, focusable with tabindex | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no link, not focusable | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | bare | id null": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | no grid | id zero": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | missing | id zero": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]"
+		]
+	},
+	"activateSearchResult | link | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"link click"
+		]
+	},
+	"activateSearchResult | link without click | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"setAttribute tabindex=-1",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, focusable | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"setAttribute tabindex=-1",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, focusable with tabindex | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"item.querySelector a[href]",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, not focusable | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | bare | id zero": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"0\"]",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | no grid | id number": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | missing | id number": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]"
+		]
+	},
+	"activateSearchResult | link | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"link click"
+		]
+	},
+	"activateSearchResult | link without click | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"setAttribute tabindex=-1",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, focusable | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"setAttribute tabindex=-1",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, focusable with tabindex | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"item.querySelector a[href]",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, not focusable | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | bare | id number": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"12\"]",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | no grid | id with quote": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content"
+		]
+	},
+	"activateSearchResult | missing | id with quote": {
+		"value": false,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]"
+		]
+	},
+	"activateSearchResult | link | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"link click"
+		]
+	},
+	"activateSearchResult | link without click | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"setAttribute tabindex=-1",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, focusable | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]",
+			"setAttribute tabindex=-1",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, focusable with tabindex | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"item.querySelector a[href]",
+			"focus {\"preventScroll\":true}"
+		]
+	},
+	"activateSearchResult | no link, not focusable | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"scroll {\"behavior\":\"smooth\",\"block\":\"center\"}",
+			"item.querySelector a[href]"
+		]
+	},
+	"activateSearchResult | bare | id with quote": {
+		"value": true,
+		"log": [
+			"getElementById launchpad-main-content",
+			"grid.querySelector .launchpad-grid-item[data-placement-id=\"a\\\"b\"]",
+			"item.querySelector a[href]"
+		]
+	}
+}

@@ -34,11 +34,12 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		emits: ['close'],
 		template: '<div class="modal"><slot /></div>',
 	},
-	NcDialog: {
-		name: 'NcDialog',
-		props: ['name', 'open'],
+	CnConfirmDialog: {
+		name: 'CnConfirmDialog',
+		props: ['dialogTitle', 'message', 'confirmLabel'],
+		emits: ['confirm', 'close'],
 		template:
-			'<div v-if="open" class="dialog"><slot /><slot name="actions" /></div>',
+			'<div class="dialog">{{ message }}<button data-testid="cn-confirm-dialog-confirm" @click="$emit(\'confirm\')">{{ confirmLabel }}</button></div>',
 	},
 	NcButton: {
 		name: 'NcButton',
@@ -137,7 +138,7 @@ describe('VersionHistoryModal', () => {
 		await wrapper.findAll('[data-testid="version-restore"]')[1].trigger('click')
 		expect(api.restoreVersion).not.toHaveBeenCalled()
 		await wrapper
-			.find('[data-testid="version-restore-confirm"]')
+			.find('[data-testid="cn-confirm-dialog-confirm"]')
 			.trigger('click')
 		await flushPromises()
 		expect(api.restoreVersion).toHaveBeenCalledWith('dash-uuid', 1)

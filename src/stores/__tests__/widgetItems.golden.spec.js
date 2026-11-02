@@ -30,7 +30,12 @@ const FIXTURE = path.resolve(__dirname, 'fixtures/widgetItems.golden.json')
 const STARTS = {
 	empty: {},
 	'earlier items': {
-		a: { items: [{ id: 1 }], emptyContentMessage: 'none', loading: false, extra: 'kept' },
+		a: {
+			items: [{ id: 1 }],
+			emptyContentMessage: 'none',
+			loading: false,
+			extra: 'kept',
+		},
 		z: { items: [], loading: false },
 	},
 }
@@ -55,7 +60,11 @@ const ANSWERS = {
 	'entry without fields': { data: { a: {} } },
 	'entry with null fields': {
 		data: {
-			b: { items: null, emptyContentMessage: null, halfEmptyContentMessage: '' },
+			b: {
+				items: null,
+				emptyContentMessage: null,
+				halfEmptyContentMessage: '',
+			},
 		},
 	},
 	'unrequested id': { data: { other: { items: [{ id: 3 }] } } },
@@ -89,7 +98,10 @@ async function outcome(start, ids) {
 			result,
 			widgetItems: store.widgetItems,
 			calls: api.getWidgetItems.mock.calls,
-			errors: logger.error.mock.calls.map(([text, error]) => [text, String(error)]),
+			errors: logger.error.mock.calls.map(([text, error]) => [
+				text,
+				String(error),
+			]),
 		}),
 	)
 }
@@ -116,7 +128,10 @@ async function record() {
 				} else {
 					api.getWidgetItems.mockResolvedValue(reply.value)
 				}
-				actual[`${startName} | ${idsName} | ${name}`] = await outcome(start, ids)
+				actual[`${startName} | ${idsName} | ${name}`] = await outcome(
+					start,
+					ids,
+				)
 			}
 		}
 	}

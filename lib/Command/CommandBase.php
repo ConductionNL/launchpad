@@ -161,11 +161,13 @@ abstract class CommandBase extends Command {
 		} finally {
 			$finished = (int)round(num: (microtime(as_float: true) * 1000));
 			$this->commandService->audit(
-				command: $this->stripPrefix(name: (string)$this->getName()),
-				args: $this->collectArgsForAudit(input: $input),
-				exitCode: $exitCode,
-				durationMs: ($finished - $started),
-				byUser: $this->resolveByUser()
+				run: [
+					'command'    => $this->stripPrefix(name: (string)$this->getName()),
+					'args'       => $this->collectArgsForAudit(input: $input),
+					'exitCode'   => $exitCode,
+					'durationMs' => ($finished - $started),
+					'byUser'     => $this->resolveByUser(),
+				]
 			);
 		}//end try
 

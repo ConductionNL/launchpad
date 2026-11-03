@@ -105,10 +105,12 @@ class DashboardDebugShareCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
+				error: [
+					'exitCode' => CommandService::EXIT_NOT_FOUND,
+					'code'     => 'NOT_FOUND',
+					'message'  => 'Dashboard not found',
+					'context'  => ['uuid' => $uuid],
+				]
 			);
 		}
 

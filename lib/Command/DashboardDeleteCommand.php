@@ -118,10 +118,12 @@ class DashboardDeleteCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
+				error: [
+					'exitCode' => CommandService::EXIT_NOT_FOUND,
+					'code'     => 'NOT_FOUND',
+					'message'  => 'Dashboard not found',
+					'context'  => ['uuid' => $uuid],
+				]
 			);
 		}
 
@@ -130,10 +132,12 @@ class DashboardDeleteCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'CHILDREN_EXIST',
-				message: 'Use --cascade to also delete child dashboards',
-				context: ['uuid' => $uuid, 'childCount' => $childCount]
+				error: [
+					'exitCode' => CommandService::EXIT_INVALID_ARGS,
+					'code'     => 'CHILDREN_EXIST',
+					'message'  => 'Use --cascade to also delete child dashboards',
+					'context'  => ['uuid' => $uuid, 'childCount' => $childCount],
+				]
 			);
 		}
 
@@ -147,9 +151,7 @@ class DashboardDeleteCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'ABORTED',
-				message: 'Deletion aborted by user.'
+				error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Deletion aborted by user.']
 			);
 		}
 

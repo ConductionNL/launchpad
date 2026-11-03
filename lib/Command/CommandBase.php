@@ -245,25 +245,21 @@ abstract class CommandBase extends Command {
 	 * line on stderr (always; `--quiet` does NOT mute errors per
 	 * REQ-CLI-002).
 	 *
-	 * @param InputInterface $input CLI input.
-	 * @param OutputInterface $output CLI output.
-	 * @param int $exitCode Exit code constant.
-	 * @param string $code Stable error identifier.
-	 * @param string $message Human-readable text.
-	 * @param array<string,mixed>|null $context Optional metadata.
+	 * @param InputInterface       $input  CLI input.
+	 * @param OutputInterface      $output CLI output.
+	 * @param array<string, mixed> $error  `exitCode` (exit code constant), `code` (stable error
+	 *                                     identifier), `message` (human-readable text) and optional
+	 *                                     `context` (metadata).
 	 *
 	 * @return int Echoes back the exit code for caller convenience.
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	final protected function emitError(
-		InputInterface $input,
-		OutputInterface $output,
-		int $exitCode,
-		string $code,
-		string $message,
-		?array $context = null,
-	): int {
+	final protected function emitError(InputInterface $input, OutputInterface $output, array $error): int {
+		$exitCode = (int)$error['exitCode'];
+		$code     = (string)$error['code'];
+		$message  = (string)$error['message'];
+		$context  = $error['context'] ?? null;
 		if ($this->isJson(input: $input) === true) {
 			$output->writeln(
 				messages: $this->commandService->encodeEnvelope(

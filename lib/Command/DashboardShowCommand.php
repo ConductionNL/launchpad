@@ -110,10 +110,12 @@ class DashboardShowCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'INVALID_ARGUMENT',
-				message: "Invalid UUID format: '" . $uuid . "'",
-				context: ['field' => 'uuid', 'providedValue' => $uuid]
+				error: [
+					'exitCode' => CommandService::EXIT_INVALID_ARGS,
+					'code'     => 'INVALID_ARGUMENT',
+					'message'  => "Invalid UUID format: '" . $uuid . "'",
+					'context'  => ['field' => 'uuid', 'providedValue' => $uuid],
+				]
 			);
 		}
 
@@ -123,10 +125,12 @@ class DashboardShowCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
+				error: [
+					'exitCode' => CommandService::EXIT_NOT_FOUND,
+					'code'     => 'NOT_FOUND',
+					'message'  => 'Dashboard not found',
+					'context'  => ['uuid' => $uuid],
+				]
 			);
 		}
 

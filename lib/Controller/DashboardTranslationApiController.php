@@ -44,6 +44,8 @@ use OCP\IRequest;
  * @spec openspec/specs/dashboard-language-content/spec.md
  */
 class DashboardTranslationApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -270,7 +272,7 @@ class DashboardTranslationApiController extends Controller {
 				data: ['translation' => $variant->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -314,7 +316,7 @@ class DashboardTranslationApiController extends Controller {
 
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			$errorCode = 'invalid_state';
 			if ($e->getMessage() === DashboardTranslationService::ERR_LAST_VARIANT) {
@@ -373,7 +375,7 @@ class DashboardTranslationApiController extends Controller {
 				data: ['translation' => $variant->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}
@@ -415,7 +417,7 @@ class DashboardTranslationApiController extends Controller {
 		try {
 			$dashboard = $this->translations->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		$variant = $this->resolveVariant(
@@ -427,7 +429,7 @@ class DashboardTranslationApiController extends Controller {
 		// Only the strict explicit-lang path yields null; the locale path
 		// always materialises a variant. REQ-DASH-039 strict scenario.
 		if ($variant === null) {
-			return ResponseHelper::errorCode(code: 'language_not_available', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'language_not_available', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return ResponseHelper::success(
@@ -582,7 +584,7 @@ class DashboardTranslationApiController extends Controller {
 		try {
 			$dashboard = $this->translations->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		if ($dashboard->getUserId() !== $this->userId) {

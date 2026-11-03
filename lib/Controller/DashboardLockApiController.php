@@ -49,10 +49,10 @@ use OCP\IRequest;
 
 /**
  * Controller for dashboard editing-lock endpoints (REQ-LOCK-001..008).
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class DashboardLockApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -111,7 +111,7 @@ class DashboardLockApiController extends Controller {
 				statusCode: Http::STATUS_OK
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (LockForbiddenException $e) {
 			// C3 fix: caller lacks view access to this dashboard.
 			return new JSONResponse(

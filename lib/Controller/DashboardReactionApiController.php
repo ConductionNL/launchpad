@@ -54,6 +54,8 @@ use Throwable;
  *                                                  across four routes.
  */
 class DashboardReactionApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -96,7 +98,7 @@ class DashboardReactionApiController extends Controller {
 				userId: $this->userId
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (PermissionDeniedException $e) {
 			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (Throwable $e) {
@@ -104,7 +106,7 @@ class DashboardReactionApiController extends Controller {
 				message: 'getReactions failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		return ResponseHelper::success(data: $summary);
@@ -138,19 +140,19 @@ class DashboardReactionApiController extends Controller {
 				emoji: $emoji
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (PermissionDeniedException $e) {
 			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (ReactionsDisabledException $e) {
 			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (Throwable $e) {
 			$this->reactions->logger->error(
 				message: 'addReaction failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		return ResponseHelper::success(data: $summary);
@@ -183,7 +185,7 @@ class DashboardReactionApiController extends Controller {
 				emoji: $emoji
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (PermissionDeniedException $e) {
 			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (Throwable $e) {
@@ -191,7 +193,7 @@ class DashboardReactionApiController extends Controller {
 				message: 'removeReaction failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		// 204 No Content — JSONResponse with empty body and explicit
@@ -236,7 +238,7 @@ class DashboardReactionApiController extends Controller {
 				cursor: $cursor
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (PermissionDeniedException $e) {
 			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (Throwable $e) {
@@ -244,7 +246,7 @@ class DashboardReactionApiController extends Controller {
 				message: 'getReactorsByEmoji failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		return ResponseHelper::success(data: $page);

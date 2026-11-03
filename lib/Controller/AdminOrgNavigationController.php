@@ -50,6 +50,8 @@ use OCP\IRequest;
  * Org-wide navigation editor REST surface.
  */
 class AdminOrgNavigationController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Setting key for the global navigation rail position
 	 * (REQ-ONAV-004). Stored in `launchpad_admin_settings` rather than
@@ -141,7 +143,7 @@ class AdminOrgNavigationController extends Controller {
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return ResponseHelper::failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$tree = $this->sources->service->getTree(language: $language);
@@ -182,17 +184,17 @@ class AdminOrgNavigationController extends Controller {
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return ResponseHelper::failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (is_array($tree) === false) {
-			return ResponseHelper::failure(message: 'tree must be an array of node objects', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'tree must be an array of node objects', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
 			$this->sources->service->setTree(tree: $tree, language: $language);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return ResponseHelper::success(

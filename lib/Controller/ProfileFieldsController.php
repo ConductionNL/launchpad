@@ -41,10 +41,10 @@ use OCP\IUser;
  * Custom profile field endpoints.
  *
  * @spec openspec/specs/people-widget/spec.md
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class ProfileFieldsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -103,7 +103,7 @@ class ProfileFieldsController extends Controller {
 		try {
 			$fields = $this->profileFields->saveOwnValues(userId: $user->getUID(), values: ($values ?? []));
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: ['fields' => $fields]);
@@ -145,7 +145,7 @@ class ProfileFieldsController extends Controller {
 		try {
 			$saved = $this->profileFields->saveDefinitions(raw: ($fields ?? []));
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: ['fields' => $saved]);

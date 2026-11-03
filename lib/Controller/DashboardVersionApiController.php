@@ -43,10 +43,10 @@ use OCP\IRequest;
 
 /**
  * Controller for dashboard version endpoints (REQ-VERS-001..009).
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class DashboardVersionApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -93,7 +93,7 @@ class DashboardVersionApiController extends Controller {
 		try {
 			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
@@ -141,7 +141,7 @@ class DashboardVersionApiController extends Controller {
 		try {
 			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
@@ -151,7 +151,7 @@ class DashboardVersionApiController extends Controller {
 				requestingUser: $this->userId
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Version not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Version not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return $this->mapServiceException(exception: $e);
 		}
@@ -200,7 +200,7 @@ class DashboardVersionApiController extends Controller {
 		try {
 			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
@@ -253,7 +253,7 @@ class DashboardVersionApiController extends Controller {
 		try {
 			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
@@ -263,7 +263,7 @@ class DashboardVersionApiController extends Controller {
 				restoringUser: $this->userId
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Version not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Version not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return $this->mapServiceException(exception: $e);
 		}
@@ -299,6 +299,6 @@ class DashboardVersionApiController extends Controller {
 			context: ['exception' => $exception]
 		);
 
-		return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+		return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 	}//end mapServiceException()
 }//end class

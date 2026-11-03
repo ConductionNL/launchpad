@@ -50,10 +50,10 @@ use OCP\IUserSession;
  * Bulk admin endpoints for dashboards (REQ-BULK-001..011).
  *
  * @spec openspec/specs/dashboard-bulk-operations/spec.md
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class AdminBulkController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -120,7 +120,7 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -143,7 +143,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
@@ -174,7 +174,7 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -196,7 +196,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
@@ -228,11 +228,11 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if ($publicationStatus === null || trim($publicationStatus) === '') {
-			return ResponseHelper::failure(message: 'publicationStatus is required', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'publicationStatus is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -257,7 +257,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
@@ -285,7 +285,7 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -306,7 +306,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);

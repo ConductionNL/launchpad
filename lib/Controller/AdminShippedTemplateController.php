@@ -51,6 +51,8 @@ use Throwable;
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
  */
 class AdminShippedTemplateController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -129,13 +131,13 @@ class AdminShippedTemplateController extends Controller {
 		try {
 			$result = $this->tools->templates->install(templateId: $id, options: ['force' => $force, 'userId' => $admin]);
 		} catch (InvalidArgumentException) {
-			return ResponseHelper::failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'Shipped template install failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Template installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Template installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$statusCode = Http::STATUS_CREATED;
@@ -169,15 +171,15 @@ class AdminShippedTemplateController extends Controller {
 		try {
 			$result = $this->tools->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
 		} catch (InvalidArgumentException) {
-			return ResponseHelper::failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (TemplateNotInstalledException) {
-			return ResponseHelper::failure(message: 'Template not installed', statusCode: Http::STATUS_CONFLICT);
+			return $this->failure(message: 'Template not installed', statusCode: Http::STATUS_CONFLICT);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'Shipped template update failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Template update failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Template update failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);

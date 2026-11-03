@@ -51,6 +51,8 @@ use OCP\IUserSession;
  * Admin-only controller for the group-priority order setting.
  */
 class AdminSettingsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -167,13 +169,13 @@ class AdminSettingsController extends Controller {
 		}
 
 		if (is_array($groups) === false) {
-			return ResponseHelper::failure(message: 'groups must be an array', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'groups must be an array', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
 			$this->settingsService->setGroupOrder(groupIds: $groups);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return ResponseHelper::success(

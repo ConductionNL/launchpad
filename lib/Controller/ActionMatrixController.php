@@ -37,10 +37,10 @@ use OCP\IRequest;
  * Admin-only controller exposing the action-authorization matrix (ADR-023).
  *
  * @spec openspec/architecture/adr-023-action-authorization.md
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class ActionMatrixController extends Controller {
+	use RespondsWithErrors;
+
 	private const SEED_PATH = __DIR__ . '/../actions.seed.json';
 
 	/**
@@ -117,7 +117,7 @@ class ActionMatrixController extends Controller {
 		try {
 			$this->actionAuth->setMatrix($matrix);
 		} catch (\JsonException $e) {
-			return ResponseHelper::failure(
+			return $this->failure(
 				message: 'Could not encode the action matrix: ' . $e->getMessage(),
 				statusCode: Http::STATUS_BAD_REQUEST
 			);

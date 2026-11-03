@@ -48,10 +48,10 @@ use Throwable;
  * Controller for the service-health-ping capability.
  *
  * @spec openspec/specs/service-health-ping/spec.md
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class HealthPingController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -112,7 +112,7 @@ class HealthPingController extends Controller {
 				message: 'Unexpected health-ping resolution failure',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
-			return ResponseHelper::errorCode(code: 'unknown_error', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->errorCode(code: 'unknown_error', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		if (isset($badge['error']) === true) {

@@ -41,6 +41,7 @@ use RuntimeException;
  *
  * @covers \OCA\LaunchPad\Controller\AdminController
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @covers \OCA\LaunchPad\Service\AdminTemplateService
  * @uses   \OCA\LaunchPad\Service\AdminTemplateStores

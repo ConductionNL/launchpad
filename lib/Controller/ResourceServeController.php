@@ -70,10 +70,10 @@ use Throwable;
  * Public read-side controller for uploaded resources.
  *
  * @spec openspec/changes/resource-serving/tasks.md
- * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
- *  stateless response factory shared by every controller in this app.
  */
 class ResourceServeController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Cache directive sent on every served resource (REQ-RES-006).
 	 *
@@ -148,7 +148,7 @@ class ResourceServeController extends Controller {
 
 		// 413 guard — refuse oversize files BEFORE pulling bytes.
 		if ((int)$file->getSize() > ResourceService::MAX_BYTES) {
-			return ResponseHelper::errorCode(code: 'file_too_large', statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE);
+			return $this->errorCode(code: 'file_too_large', statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE);
 		}
 
 		try {

@@ -40,6 +40,8 @@ use OCP\IURLGenerator;
  * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
  */
 class KioskPlaylistMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -89,16 +91,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function findByToken(string $token): KioskPlaylist {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'token',
-					y: $qb->createNamedParameter(value: $token)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->selectWhere(match: ['token' => $token]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		// @phpstan-ignore-next-line
 		$playlist = $this->findEntity(query: $qb);
@@ -117,19 +111,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function findById(int $id): KioskPlaylist {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->selectWhere(match: ['id' => $id]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		// @phpstan-ignore-next-line
 		$playlist = $this->findEntity(query: $qb);
@@ -146,16 +129,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function findByCreator(string $createdBy): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'created_by',
-					y: $qb->createNamedParameter(value: $createdBy)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'))
+		$qb = $this->selectWhere(match: ['created_by' => $createdBy]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
 			->orderBy(sort: 'created_at', order: 'DESC');
 
 		$playlists = $this->findEntities(query: $qb);

@@ -23,6 +23,7 @@ namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\AcknowledgementTools;
 use OCA\LaunchPad\Controller\AcknowledgementController;
+use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Service\AcknowledgementService;
 use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Http;
@@ -36,12 +37,46 @@ use Psr\Log\LoggerInterface;
  * Unit tests for AcknowledgementController authorization.
  */
 class AcknowledgementControllerTest extends TestCase {
+	/**
+	 * Request double.
+	 *
+	 * @var IRequest&MockObject
+	 */
 	private IRequest&MockObject $request;
+
+	/**
+	 * Acknowledgement service double.
+	 *
+	 * @var AcknowledgementService&MockObject
+	 */
 	private AcknowledgementService&MockObject $service;
+
+	/**
+	 * Role service double.
+	 *
+	 * @var RoleService&MockObject
+	 */
 	private RoleService&MockObject $roleService;
+
+	/**
+	 * Group manager double.
+	 *
+	 * @var IGroupManager&MockObject
+	 */
 	private IGroupManager&MockObject $groupManager;
+
+	/**
+	 * Logger double.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
 	private LoggerInterface&MockObject $logger;
 
+	/**
+	 * Create fresh doubles.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
 		$this->request = $this->createMock(originalClassName: IRequest::class);
 		$this->service = $this->createMock(originalClassName: AcknowledgementService::class);
@@ -50,6 +85,13 @@ class AcknowledgementControllerTest extends TestCase {
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 	}
 
+	/**
+	 * Build the controller for a session user.
+	 *
+	 * @param string|null $userId The session user.
+	 *
+	 * @return AcknowledgementController The controller.
+	 */
 	private function makeController(?string $userId = 'alice'): AcknowledgementController {
 		return new AcknowledgementController(
 			request: $this->request,
@@ -75,6 +117,11 @@ class AcknowledgementControllerTest extends TestCase {
 			['userId', null, 'bob'],
 			['contentVersion', 1, 1],
 		]);
+		// Alice may acknowledge ak-1, so only the body userId check can refuse.
+		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
+			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
+		);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 1]]);
 
 		$this->service->expects($this->never())->method('acknowledge');
 
@@ -86,11 +133,6 @@ class AcknowledgementControllerTest extends TestCase {
 		);
 	}
 
-	/**
-	 * REQ-ACK-003: acknowledging with one's own userId succeeds.
-	 *
-	 * @return void
-	 */
 	/**
 	 * A user outside the announcement's audience cannot acknowledge it, and
 	 * the audience is checked for the session user, not a request value.
@@ -134,6 +176,11 @@ class AcknowledgementControllerTest extends TestCase {
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}
 
+	/**
+	 * REQ-ACK-003: acknowledging with one's own userId succeeds.
+	 *
+	 * @return void
+	 */
 	public function testAcknowledgeOwnUserSucceeds(): void {
 		$this->request->method('getParam')->willReturnMap([
 			['announcementKey', '', 'ak-1'],
@@ -141,16 +188,12 @@ class AcknowledgementControllerTest extends TestCase {
 			['contentVersion', 1, 1],
 		]);
 
-		$receipt = new \OCA\LaunchPad\Db\Acknowledgement();
-		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$receipt->setAnnouncementKey('ak-1');
-		$receipt->setUserId('alice');
-		$receipt->setContentVersion(1);
-		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$receipt = $this->makeReceipt(version: 1);
 
 		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
 			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
 		);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 1]]);
 		$this->service->expects($this->once())
 			->method('acknowledge')
 			->with('ak-1', 'alice', 1)
@@ -162,6 +205,109 @@ class AcknowledgementControllerTest extends TestCase {
 			expected: Http::STATUS_OK,
 			actual: $response->getStatus()
 		);
+	}
+
+	/**
+	 * Point the request at ak-1 for alice with the given body version, with
+	 * ak-1 addressed to alice at the given current version.
+	 *
+	 * @param int $bodyVersion    The contentVersion in the request.
+	 * @param int $currentVersion The announcement's current version.
+	 *
+	 * @return void
+	 */
+	private function acknowledgeVersion(int $bodyVersion, int $currentVersion): void {
+		$this->request->method('getParam')->willReturnMap([
+			['announcementKey', '', 'ak-1'],
+			['userId', null, null],
+			['contentVersion', 1, $bodyVersion],
+		]);
+		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
+			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
+		);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', $currentVersion]]);
+	}
+
+	/**
+	 * REQ-ACK-005: a receipt cannot be taken in advance for a content
+	 * version that has not been published yet.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeRefusesAFutureContentVersion(): void {
+		$this->acknowledgeVersion(bodyVersion: 3, currentVersion: 2);
+		$this->service->expects($this->never())->method('acknowledge');
+
+		$response = $this->makeController()->acknowledge();
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+	}
+
+	/**
+	 * An announcement without a current version accepts no receipt.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeRefusesWhenTheAnnouncementHasNoVersion(): void {
+		$this->request->method('getParam')->willReturnMap([
+			['announcementKey', '', 'ak-1'],
+			['userId', null, null],
+			['contentVersion', 1, 1],
+		]);
+		$this->service->method('isAllowedToAcknowledge')->willReturn(true);
+		$this->service->method('currentContentVersion')->willReturn(null);
+		$this->service->expects($this->never())->method('acknowledge');
+
+		$response = $this->makeController()->acknowledge();
+
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $response->getStatus());
+	}
+
+	/**
+	 * REQ-ACK-005: the current version is recorded as sent.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeAcceptsTheCurrentContentVersion(): void {
+		$this->acknowledgeVersion(bodyVersion: 2, currentVersion: 2);
+		$this->service->expects($this->once())->method('acknowledge')->with('ak-1', 'alice', 2)->willReturn($this->makeReceipt(version: 2));
+
+		$response = $this->makeController()->acknowledge();
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+	}
+
+	/**
+	 * REQ-ACK-005: an older version is accepted, since a copy that was not
+	 * re-synced yet still shows it.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeAcceptsAnOlderContentVersion(): void {
+		$this->acknowledgeVersion(bodyVersion: 1, currentVersion: 2);
+		$this->service->expects($this->once())->method('acknowledge')->with('ak-1', 'alice', 1)->willReturn($this->makeReceipt(version: 1));
+
+		$response = $this->makeController()->acknowledge();
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+	}
+
+	/**
+	 * Build alice's receipt for ak-1.
+	 *
+	 * @param int $version The content version.
+	 *
+	 * @return Acknowledgement The receipt.
+	 */
+	private function makeReceipt(int $version): Acknowledgement {
+		$receipt = new Acknowledgement();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$receipt->setAnnouncementKey('ak-1');
+		$receipt->setUserId('alice');
+		$receipt->setContentVersion($version);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		return $receipt;
 	}
 
 	/**
@@ -235,7 +381,7 @@ class AcknowledgementControllerTest extends TestCase {
 			expected: Http::STATUS_OK,
 			actual: $response->getStatus()
 		);
-		$this->assertSame(expected: 1, actual: $response->getData()['count']);
+		$this->assertSame(expected: ['count' => 1, 'items' => [['announcementKey' => 'ak-1']]], actual: $response->getData());
 	}
 
 	/**

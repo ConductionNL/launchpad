@@ -31,6 +31,14 @@ use OCP\IDBConnection;
  * @extends QBMapper<ConditionalRule>
  */
 class ConditionalRuleMapper extends QBMapper {
+	use ColumnMatchQueries;
+	use OrphanRowQueries;
+
+	/**
+	 * Parent link for the orphan queries: alias, parent table, parent alias, foreign key.
+	 */
+	private const ORPHAN_LINK = ['r', 'launchpad_widget_placements', 'p', 'widget_placement_id'];
+
 	/**
 	 * Constructor
 	 *
@@ -54,18 +62,7 @@ class ConditionalRuleMapper extends QBMapper {
 	 * @throws DoesNotExistException If not found.
 	 */
 	public function find(int $id): ConditionalRule {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -78,19 +75,8 @@ class ConditionalRuleMapper extends QBMapper {
 	 * @return ConditionalRule[] The list of rules.
 	 */
 	public function findByPlacementId(int $placementId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'widget_placement_id',
-					y: $qb->createNamedParameter(
-						value: $placementId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['widget_placement_id' => $placementId]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByPlacementId()
@@ -122,17 +108,7 @@ class ConditionalRuleMapper extends QBMapper {
 	 * @return void
 	 */
 	public function deleteByPlacementId(int $placementId): void {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'widget_placement_id',
-					y: $qb->createNamedParameter(
-						value: $placementId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['widget_placement_id' => $placementId]);
 
 		$qb->executeStatement();
 	}//end deleteByPlacementId()
@@ -149,22 +125,7 @@ class ConditionalRuleMapper extends QBMapper {
 	 * @return int The number of orphaned rule rows.
 	 */
 	public function countOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('r.id'))
-			->from(from: $this->getTableName(), alias: 'r')
-			->leftJoin(
-				fromAlias: 'r',
-				join: 'launchpad_widget_placements',
-				alias: 'p',
-				condition: 'p.id = r.widget_placement_id'
-			)
-			->where($qb->expr()->isNull(x: 'p.id'));
-
-		$result = $qb->executeQuery();
-		$count = $result->fetchOne();
-		$result->closeCursor();
-
-		return (int)($count ?? 0);
+		return $this->countOrphanRows(link: self::ORPHAN_LINK);
 	}//end countOrphaned()
 
 	/**
@@ -178,41 +139,6 @@ class ConditionalRuleMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('r.id')
-			->from(from: $this->getTableName(), alias: 'r')
-			->leftJoin(
-				fromAlias: 'r',
-				join: 'launchpad_widget_placements',
-				alias: 'p',
-				condition: 'p.id = r.widget_placement_id'
-			)
-			->where($qb->expr()->isNull(x: 'p.id'));
-
-		$result = $qb->executeQuery();
-		$ids = [];
-		while (($row = $result->fetch()) !== false) {
-			$ids[] = (int)$row['id'];
-		}
-
-		$result->closeCursor();
-
-		if (count(value: $ids) === 0) {
-			return 0;
-		}
-
-		$delete = $this->db->getQueryBuilder();
-		$delete->delete(delete: $this->getTableName())
-			->where(
-				$delete->expr()->in(
-					x: 'id',
-					y: $delete->createNamedParameter(
-						value: $ids,
-						type: IQueryBuilder::PARAM_INT_ARRAY
-					)
-				)
-			);
-
-		return $delete->executeStatement();
+		return $this->deleteOrphanRows(link: self::ORPHAN_LINK);
 	}//end deleteOrphaned()
 }//end class

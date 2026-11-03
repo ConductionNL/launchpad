@@ -41,6 +41,8 @@ use OCP\IURLGenerator;
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
  */
 class PublicShareMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 
 	/**
 	 * Distributed cache for view-count debouncing.
@@ -101,15 +103,7 @@ class PublicShareMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
 	 */
 	public function findByToken(string $token): PublicShare {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'token',
-					y: $qb->createNamedParameter(value: $token)
-				)
-			);
+		$qb = $this->selectWhere(match: ['token' => $token]);
 
 		// @phpstan-ignore-next-line
 		$share = $this->findEntity(query: $qb);
@@ -126,16 +120,8 @@ class PublicShareMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
 	 */
 	public function findByDashboardUuid(string $dashboardUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		$shares = $this->findEntities(query: $qb);
 		return array_map(
@@ -156,16 +142,8 @@ class PublicShareMapper extends QBMapper {
 	public function findActiveByDashboardUuid(string $dashboardUuid): array {
 		$now = (new DateTime())->format('Y-m-d H:i:s');
 
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'))
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
 			->andWhere(
 				$qb->expr()->orX(
 					$qb->expr()->isNull(x: 'expires_at'),

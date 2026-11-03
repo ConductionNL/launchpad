@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\WidgetPlatform;
+use OCA\LaunchPad\Service\WidgetRendering;
+use OCA\LaunchPad\Service\PlacementUpdaters;
 use OCA\LaunchPad\Controller\WidgetApiPolicy;
 use OCA\LaunchPad\Controller\WidgetApiSources;
 use OCA\LaunchPad\Controller\RequestActor;
@@ -60,6 +63,9 @@ use Throwable;
  * @uses   \OCA\LaunchPad\Controller\RequestActor
  * @uses   \OCA\LaunchPad\Controller\WidgetApiSources
  * @uses   \OCA\LaunchPad\Controller\WidgetApiPolicy
+ * @uses   \OCA\LaunchPad\Service\PlacementUpdaters
+ * @uses   \OCA\LaunchPad\Service\WidgetRendering
+ * @uses   \OCA\LaunchPad\Service\WidgetPlatform
  */
 class AddWidgetGoldenTest extends TestCase {
 
@@ -153,16 +159,22 @@ class AddWidgetGoldenTest extends TestCase {
 	private function service(WidgetPlacementMapper $mapper): WidgetService {
 		$placements = new PlacementService(
 			placementMapper: $mapper,
-			tileUpdater: $this->createMock(TileUpdater::class),
-			placementUpdater: $this->createMock(PlacementUpdater::class),
+			updaters: new PlacementUpdaters(
+				tileUpdater: $this->createMock(TileUpdater::class),
+				placementUpdater: $this->createMock(PlacementUpdater::class)
+			)
 		);
 		$service = new WidgetService(
-			dashboardManager: $this->createMock(IManager::class),
+			platform: new WidgetPlatform(
+				dashboardManager: $this->createMock(IManager::class),
+				userSession: $this->createMock(IUserSession::class)
+			),
 			placementService: $placements,
-			widgetFormatter: $this->createMock(WidgetFormatter::class),
-			widgetItemLoader: $this->createMock(WidgetItemLoader::class),
-			userSession: $this->createMock(IUserSession::class),
-			menuService: new MenuService(),
+			rendering: new WidgetRendering(
+				widgetFormatter: $this->createMock(WidgetFormatter::class),
+				widgetItemLoader: $this->createMock(WidgetItemLoader::class)
+			),
+			menuService: new MenuService()
 		);
 
 		return $service;

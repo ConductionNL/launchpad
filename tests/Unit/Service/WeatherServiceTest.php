@@ -25,6 +25,8 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\ReadingSources;
 use OCA\LaunchPad\Service\WeatherService;
+use OCA\LaunchPad\Service\WeatherSettings;
+use OCA\LaunchPad\Service\WeatherStore;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Http\Client\IClient;
@@ -76,10 +78,8 @@ class WeatherServiceTest extends TestCase {
 				$this->clientService,
 				$this->cacheFactory,
 			),
-			$this->appConfig,
-			$this->placementMapper,
-			$this->config,
-			$this->logger,
+			new WeatherSettings($this->appConfig, $this->config),
+			new WeatherStore($this->placementMapper, $this->logger),
 		);
 	}//end service()
 

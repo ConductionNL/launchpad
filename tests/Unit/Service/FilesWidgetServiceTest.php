@@ -236,12 +236,83 @@ class FilesWidgetServiceTest extends TestCase {
 		$second = $this->service->getContentsForPlacement(
 			userId: 'alice',
 			config: ['fileId' => 99],
-			currentSubPath: '/',
-			limit: 50,
-			cursor: '50'
+			page: ['currentSubPath' => '/', 'limit' => 50, 'cursor' => '50']
 		);
 		$this->assertCount(25, $second['items']);
 		$this->assertNull($second['nextCursor']);
+	}
+
+	/**
+	 * List one page of the configured folder.
+	 *
+	 * @param array<string, mixed> $page The page options.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function listPage(array $page): array {
+		return $this->service->getContentsForPlacement(userId: 'alice', config: ['fileId' => 99, 'sortDescending' => true], page: $page);
+	}
+
+	/**
+	 * REQ-FLS-003: the page a set of paging options selects (sub-path,
+	 * page size, cursor), or the refusal, pinned against a fixture.
+	 */
+	public function testPagesMatchTheRecordedFixture(): void {
+		$files = [];
+		for ($i = 1; $i <= 120; $i++) {
+			$files[] = $this->buildFile(id: $i, name: sprintf('file-%03d.txt', $i));
+		}
+		$sub = $this->createMock(Folder::class);
+		$sub->method('isReadable')->willReturn(true);
+		$sub->method('getDirectoryListing')->willReturn([$this->buildFile(id: 500, name: 'inner.txt')]);
+		$this->configuredFolder->method('isReadable')->willReturn(true);
+		$this->configuredFolder->method('getDirectoryListing')->willReturn($files);
+		$this->configuredFolder->method('get')->willReturnCallback(
+			static function (string $path) use ($sub): Folder {
+				if ($path === 'sub') {
+					return $sub;
+				}
+				throw new \OCP\Files\NotFoundException($path);
+			}
+		);
+		$this->userFolder->method('getById')->willReturn([$this->configuredFolder]);
+
+		$cases = [
+			'defaults'      => [],
+			'root path'     => ['currentSubPath' => '/'],
+			'null path'     => ['currentSubPath' => null],
+			'sub path'      => ['currentSubPath' => '/sub/'],
+			'missing path'  => ['currentSubPath' => 'nope'],
+			'traversal'     => ['currentSubPath' => '/sub/../..'],
+			'small page'    => ['limit' => 7],
+			'second page'   => ['limit' => 7, 'cursor' => '7'],
+			'last page'     => ['limit' => 50, 'cursor' => '100'],
+			'past the end'  => ['limit' => 50, 'cursor' => '500'],
+			'zero limit'    => ['limit' => 0],
+			'huge limit'    => ['limit' => 100000],
+			'junk cursor'   => ['cursor' => 'abc'],
+			'all three'     => ['currentSubPath' => '/', 'limit' => 3, 'cursor' => '3'],
+		];
+		$actual = [];
+		foreach ($cases as $name => $page) {
+			try {
+				$result = $this->listPage($page);
+				$actual[$name] = [
+					'names' => array_map(static fn (array $item): string => $item['name'], $result['items']),
+					'nextCursor' => $result['nextCursor'],
+				];
+			} catch (FolderNotFoundException | NoAccessException $e) {
+				$actual[$name] = ['error' => $e::class];
+			}
+		}
+
+		$fixture = __DIR__ . '/fixtures/files-widget-pages.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+			$this->markTestIncomplete('Fixture recorded.');
+		}
+
+		$this->assertSame(json_decode((string)file_get_contents($fixture), true), $actual);
 	}
 
 	/**

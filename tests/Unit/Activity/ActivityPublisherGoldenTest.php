@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Activity\PublisherTools;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Activity\ActivityRow;
 use OCA\LaunchPad\Activity\ActivitySubject;
@@ -43,6 +44,7 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Activity\DebounceHelper
  * @uses   \OCA\LaunchPad\Activity\ActivityRow
  * @uses   \OCA\LaunchPad\Activity\ActivitySubject
+ * @uses   \OCA\LaunchPad\Activity\PublisherTools
  */
 class ActivityPublisherGoldenTest extends TestCase {
 
@@ -175,8 +177,10 @@ class ActivityPublisherGoldenTest extends TestCase {
 			manager: $manager,
 			groupManager: $groups,
 			userManager: $users,
-			debounce: new DebounceHelper(clock: static fn (): int => 1000),
-			logger: $logger
+			tools: new PublisherTools(
+				debounce: new DebounceHelper(clock: static fn (): int => 1000),
+				logger: $logger
+			)
 		);
 
 		$returns = [];

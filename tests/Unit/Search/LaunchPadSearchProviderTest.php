@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Search;
 
+use OCA\LaunchPad\Search\SearchLinks;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -89,8 +90,10 @@ class LaunchPadSearchProviderTest extends TestCase {
 			dashboardService: $this->dashboardService,
 			placementMapper: $this->placementMapper,
 			metadataService: $this->metadataService,
-			l10nFactory: $this->l10nFactory,
-			urlGenerator: $this->urlGenerator,
+			links: new SearchLinks(
+				l10nFactory: $this->l10nFactory,
+				urlGenerator: $this->urlGenerator
+			)
 		);
 	}
 

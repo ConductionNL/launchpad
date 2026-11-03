@@ -34,7 +34,6 @@ use OCP\Activity\IManager;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -44,18 +43,16 @@ class ActivityPublisher {
 	/**
 	 * Constructor.
 	 *
-	 * @param IManager $manager The NC Activity manager.
-	 * @param IGroupManager $groupManager The NC group manager.
-	 * @param IUserManager $userManager The NC user manager.
-	 * @param DebounceHelper $debounce The debounce guard.
-	 * @param LoggerInterface $logger The logger.
+	 * @param IManager       $manager The NC Activity manager.
+	 * @param IGroupManager  $groupManager The NC group manager.
+	 * @param IUserManager   $userManager The NC user manager.
+	 * @param PublisherTools $tools The debounce helper and logger.
 	 */
 	public function __construct(
 		private readonly IManager $manager,
 		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
-		private readonly DebounceHelper $debounce,
-		private readonly LoggerInterface $logger,
+		private readonly PublisherTools $tools,
 	) {
 	}//end __construct()
 
@@ -77,7 +74,7 @@ class ActivityPublisher {
 	 */
 	public function publish(ActivityRow $row, string $recipientUserId): bool {
 		if (in_array(needle: $row->type, haystack: Extension::ALL_EVENTS, strict: true) === false) {
-			$this->logger->warning(
+			$this->tools->logger->warning(
 				message: 'Unknown LaunchPad activity type rejected',
 				context: [
 					'type' => $row->type,
@@ -88,7 +85,7 @@ class ActivityPublisher {
 		}
 
 		if ($row->type === Extension::EVENT_REACTED
-			&& $this->debounce->allowReaction(
+			&& $this->tools->debounce->allowReaction(
 				actorUserId: $row->actorUserId,
 				dashboardUuid: $row->dashboard->uuid
 			) === false
@@ -99,7 +96,7 @@ class ActivityPublisher {
 		try {
 			$this->manager->publish(event: $this->buildEvent(row: $row, recipientUserId: $recipientUserId));
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'LaunchPad Activity publish failed',
 				context: [
 					'type' => $row->type,
@@ -185,12 +182,12 @@ class ActivityPublisher {
 	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
 	public function publishGlobal(ActivityRow $row): int {
-		if ($this->debounce->allowGlobalFanout(
+		if ($this->tools->debounce->allowGlobalFanout(
 			dashboardUuid: $row->dashboard->uuid,
 			eventType: $row->type
 		) === false
 		) {
-			$this->logger->debug(
+			$this->tools->logger->debug(
 				message: 'LaunchPad global activity fan-out debounced',
 				context: [
 					'type' => $row->type,

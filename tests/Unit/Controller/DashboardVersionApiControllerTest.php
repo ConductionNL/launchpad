@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\VersionApiSources;
 use Exception;
 use OCA\LaunchPad\Controller\DashboardVersionApiController;
@@ -129,8 +130,10 @@ class DashboardVersionApiControllerTest extends TestCase {
 				versionService: $this->versionService,
 				logger: $this->createMock(LoggerInterface::class)
 			),
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
 			userId: $userId
 		);
 

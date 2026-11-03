@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\MetadataAdminController;
 use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Db\MetadataFieldMapper;
@@ -43,6 +44,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Service\MetadataService
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Db\MetadataField
+ * @uses   \OCA\LaunchPad\Controller\ActionCaller
  */
 class MetadataFieldWriteGoldenTest extends TestCase {
 
@@ -116,8 +118,10 @@ class MetadataFieldWriteGoldenTest extends TestCase {
 				logger: $this->createMock(LoggerInterface::class),
 			),
 			groupManager: $groups,
-			userSession: $session,
-			actionAuth: $this->createMock(ActionAuthService::class),
+			caller: new ActionCaller(
+				userSession: $session,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			)
 		);
 	}//end controller()
 

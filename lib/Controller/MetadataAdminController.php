@@ -29,7 +29,6 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Exception\MetadataFieldHasValuesException;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -40,7 +39,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin field-definition CRUD controller.
@@ -55,18 +53,16 @@ class MetadataAdminController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
+	 * @param IRequest        $request The HTTP request.
 	 * @param MetadataService $metadataService The metadata service facade.
-	 * @param IGroupManager $groupManager Admin checker.
-	 * @param IUserSession $userSession Current user session.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param IGroupManager   $groupManager Admin checker.
+	 * @param ActionCaller    $caller The session and the action check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly MetadataService $metadataService,
 		private readonly IGroupManager $groupManager,
-		private readonly IUserSession $userSession,
-		private readonly ActionAuthService $actionAuth,
+		private readonly ActionCaller $caller,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -80,7 +76,7 @@ class MetadataAdminController extends Controller {
 	 * @return JSONResponse|null Non-null = caller must be rejected.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(
 				data: ['error' => 'Not authenticated'],
@@ -114,8 +110,8 @@ class MetadataAdminController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
+			$this->caller->actionAuth->requireAction(
+				$this->caller->userSession->getUser(),
 				'metadata-admin.list-fields'
 			);
 		} catch (OCSForbiddenException) {
@@ -163,8 +159,8 @@ class MetadataAdminController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
+			$this->caller->actionAuth->requireAction(
+				$this->caller->userSession->getUser(),
 				'metadata-admin.create-field'
 			);
 		} catch (OCSForbiddenException) {
@@ -206,8 +202,8 @@ class MetadataAdminController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
+			$this->caller->actionAuth->requireAction(
+				$this->caller->userSession->getUser(),
 				'metadata-admin.get-field'
 			);
 		} catch (OCSForbiddenException) {
@@ -257,8 +253,8 @@ class MetadataAdminController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
+			$this->caller->actionAuth->requireAction(
+				$this->caller->userSession->getUser(),
 				'metadata-admin.update-field'
 			);
 		} catch (OCSForbiddenException) {
@@ -312,8 +308,8 @@ class MetadataAdminController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
+			$this->caller->actionAuth->requireAction(
+				$this->caller->userSession->getUser(),
 				'metadata-admin.delete-field'
 			);
 		} catch (OCSForbiddenException) {

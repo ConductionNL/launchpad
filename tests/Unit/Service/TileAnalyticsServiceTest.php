@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\TileViewTools;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\TileClick;
@@ -63,8 +64,10 @@ class TileAnalyticsServiceTest extends TestCase {
 			tileClickMapper: $this->tileClickMapper,
 			placementMapper: $this->placementMapper,
 			dashboardMapper: $this->dashboardMapper,
-			dedup: $this->dedup,
-			analyticsService: $this->analyticsService,
+			views: new TileViewTools(
+				dedup: $this->dedup,
+				analyticsService: $this->analyticsService
+			)
 		);
 	}
 
@@ -147,11 +150,14 @@ class TileAnalyticsServiceTest extends TestCase {
 		$this->tileClickMapper->expects($this->once())
 			->method('upsertClick')
 			->with(
-				$this->equalTo('1'),
-				$this->equalTo('dsh-1'),
-				$this->isType(type: 'string'),
-				1,
-				0
+				$this->callback(
+					static fn (array $click): bool => $click['placementUuid'] === '1'
+						&& $click['dashboardUuid'] === 'dsh-1'
+						&& is_string($click['clickBucket']) === true
+						&& $click['clickCountDelta'] === 1
+						&& $click['uniqueCountDelta'] === 0
+						&& count($click) === 5
+				)
 			);
 
 		$result = $this->service->recordClick(placementId: 1, userId: 'alice');
@@ -174,11 +180,14 @@ class TileAnalyticsServiceTest extends TestCase {
 		$this->tileClickMapper->expects($this->once())
 			->method('upsertClick')
 			->with(
-				$this->equalTo('1'),
-				$this->equalTo('dsh-1'),
-				$this->isType(type: 'string'),
-				1,
-				1
+				$this->callback(
+					static fn (array $click): bool => $click['placementUuid'] === '1'
+						&& $click['dashboardUuid'] === 'dsh-1'
+						&& is_string($click['clickBucket']) === true
+						&& $click['clickCountDelta'] === 1
+						&& $click['uniqueCountDelta'] === 1
+						&& count($click) === 5
+				)
 			);
 
 		$result = $this->service->recordClick(placementId: 1, userId: 'bob');
@@ -229,11 +238,14 @@ class TileAnalyticsServiceTest extends TestCase {
 		$this->tileClickMapper->expects($this->once())
 			->method('upsertClick')
 			->with(
-				$this->equalTo('1'),
-				$this->equalTo(''),
-				$this->isType(type: 'string'),
-				1,
-				1
+				$this->callback(
+					static fn (array $click): bool => $click['placementUuid'] === '1'
+						&& $click['dashboardUuid'] === ''
+						&& is_string($click['clickBucket']) === true
+						&& $click['clickCountDelta'] === 1
+						&& $click['uniqueCountDelta'] === 1
+						&& count($click) === 5
+				)
 			);
 
 		$result = $this->service->recordClick(placementId: 1, userId: 'alice');

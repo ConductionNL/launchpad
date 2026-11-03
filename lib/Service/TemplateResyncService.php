@@ -333,11 +333,8 @@ class TemplateResyncService {
 		}//end foreach
 
 		$this->emitAuditEvent(
-			templateId: $templateId,
-			templateName: (string)$template->getName(),
-			strategy: $strategy,
-			affectedCount: $affectedCount,
-			actingAdminId: $actingAdminId
+			template: $template,
+			run: ['templateId' => $templateId, 'strategy' => $strategy, 'affectedCount' => $affectedCount, 'actingAdminId' => $actingAdminId]
 		);
 
 		foreach ($notifyDashboards as $dashboard) {
@@ -817,21 +814,19 @@ class TemplateResyncService {
 	 * Activity failure is swallowed by the publisher so an audit-log
 	 * problem never rolls back the re-sync itself.
 	 *
-	 * @param int $templateId The template's dashboard ID.
-	 * @param string $templateName The template's human-readable name.
-	 * @param string $strategy `'overwrite'` or `'merge'`.
-	 * @param int $affectedCount The number of copies actually changed.
-	 * @param string $actingAdminId The acting admin's NC user ID.
+	 * @param Dashboard            $template The template that was re-synced.
+	 * @param array<string, mixed> $run      The run: `templateId` (the template's dashboard ID),
+	 *                                       `strategy` (`'overwrite'` or `'merge'`), `affectedCount`
+	 *                                       (copies actually changed) and `actingAdminId`.
 	 *
 	 * @return void
 	 */
-	private function emitAuditEvent(
-		int $templateId,
-		string $templateName,
-		string $strategy,
-		int $affectedCount,
-		string $actingAdminId,
-	): void {
+	private function emitAuditEvent(Dashboard $template, array $run): void {
+		$templateId    = $run['templateId'];
+		$templateName  = (string)$template->getName();
+		$strategy      = $run['strategy'];
+		$affectedCount = $run['affectedCount'];
+		$actingAdminId = $run['actingAdminId'];
 		try {
 			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,

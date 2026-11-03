@@ -33,7 +33,6 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
-use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -42,7 +41,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -52,18 +50,16 @@ class AdminDemoShowcasesController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param DemoShowcasesService $showcasesSvc Showcase service.
-	 * @param IUserSession $userSession Active user session.
+	 * @param IRequest      $request The HTTP request.
+	 * @param ShowcaseTools $showcases The showcase service and logger.
+	 * @param IUserSession  $userSession Active user session.
 	 * @param IGroupManager $groupManager Admin check.
-	 * @param LoggerInterface $logger PSR-3 logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DemoShowcasesService $showcasesSvc,
+		private readonly ShowcaseTools $showcases,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -110,7 +106,7 @@ class AdminDemoShowcasesController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->showcasesSvc->getAvailableShowcases()
+			data: $this->showcases->showcasesSvc->getAvailableShowcases()
 		);
 	}//end index()
 
@@ -144,7 +140,7 @@ class AdminDemoShowcasesController extends Controller {
 		}
 
 		try {
-			$result = $this->showcasesSvc->installShowcase(
+			$result = $this->showcases->showcasesSvc->installShowcase(
 				showcaseId: $id,
 				lang: $lang,
 				force: $force
@@ -155,7 +151,7 @@ class AdminDemoShowcasesController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->showcases->logger->error(
 				message: 'Showcase install failed',
 				context: [
 					'showcaseId' => $id,
@@ -203,9 +199,9 @@ class AdminDemoShowcasesController extends Controller {
 		}
 
 		try {
-			$this->showcasesSvc->uninstallShowcase(showcaseId: $id);
+			$this->showcases->showcasesSvc->uninstallShowcase(showcaseId: $id);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->showcases->logger->error(
 				message: 'Showcase uninstall failed',
 				context: [
 					'showcaseId' => $id,

@@ -102,14 +102,7 @@ class DashboardDebugShareCommand extends CommandBase {
 		try {
 			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
-			);
+			return $this->emitDashboardNotFound(input: $input, output: $output, uuid: $uuid);
 		}
 
 		$shares = array_map(

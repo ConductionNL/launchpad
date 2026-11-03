@@ -124,9 +124,7 @@ class FilesWidgetController extends Controller {
 			$page = $this->sources->service->getContentsForPlacement(
 				userId: $userId,
 				config: $config,
-				currentSubPath: $currentPath,
-				limit: $limit,
-				cursor: $cursor
+				page: ['currentSubPath' => $currentPath, 'limit' => $limit, 'cursor' => $cursor]
 			);
 
 			return new JSONResponse(

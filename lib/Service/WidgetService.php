@@ -19,8 +19,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCP\Dashboard\IManager;
-use OCP\IUserSession;
 
 /**
  * Service for discovering and querying Nextcloud dashboard widgets.
@@ -29,19 +27,15 @@ class WidgetService {
 	/**
 	 * Constructor
 	 *
-	 * @param IManager $dashboardManager Dashboard manager interface.
+	 * @param WidgetPlatform   $platform The widget manager and session.
 	 * @param PlacementService $placementService Placement service for CRUD.
-	 * @param WidgetFormatter $widgetFormatter Widget formatter service.
-	 * @param WidgetItemLoader $widgetItemLoader Widget item loader service.
-	 * @param IUserSession $userSession User session interface.
-	 * @param MenuService $menuService Validator for `menu` widgets (REQ-MENU-002).
+	 * @param WidgetRendering  $rendering The formatter and item loader.
+	 * @param MenuService      $menuService Validator for `menu` widgets (REQ-MENU-002).
 	 */
 	public function __construct(
-		private readonly IManager $dashboardManager,
+		private readonly WidgetPlatform $platform,
 		private readonly PlacementService $placementService,
-		private readonly WidgetFormatter $widgetFormatter,
-		private readonly WidgetItemLoader $widgetItemLoader,
-		private readonly IUserSession $userSession,
+		private readonly WidgetRendering $rendering,
 		private readonly MenuService $menuService = new MenuService(),
 	) {
 	}//end __construct()
@@ -84,17 +78,17 @@ class WidgetService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-32
 	 */
 	public function getAvailableWidgets(): array {
-		$widgets = $this->dashboardManager->getWidgets();
+		$widgets = $this->platform->dashboardManager->getWidgets();
 		$result = [];
 
 		foreach ($widgets as $widget) {
-			$user = $this->userSession->getUser();
+			$user = $this->platform->userSession->getUser();
 			$userId = '';
 			if ($user !== null) {
 				$userId = $user->getUID();
 			}
 
-			$result[] = $this->widgetFormatter->format(
+			$result[] = $this->rendering->widgetFormatter->format(
 				widget: $widget,
 				userId: $userId
 			);
@@ -126,9 +120,9 @@ class WidgetService {
 		array $widgetIds,
 		int $limit = 7,
 	): array {
-		$widgets = $this->dashboardManager->getWidgets();
+		$widgets = $this->platform->dashboardManager->getWidgets();
 
-		return $this->widgetItemLoader->loadItems(
+		return $this->rendering->widgetItemLoader->loadItems(
 			widgets: $widgets,
 			userId: $userId,
 			widgetIds: $widgetIds,

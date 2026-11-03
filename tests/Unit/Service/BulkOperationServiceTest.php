@@ -464,6 +464,31 @@ class BulkOperationServiceTest extends TestCase {
 		);
 	}//end testEveryOperationWritesItsAuditRow()
 
+	/**
+	 * A failing audit write is logged with the operation and does not stop
+	 * the bulk operation; the row carried the duration in milliseconds.
+	 */
+	public function testAFailedAuditRowIsLoggedAndTheOperationCompletes(): void {
+		$this->dashboardMapper->method('findByUuid')->willReturn($this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT));
+		$failure = new \RuntimeException('activity down');
+		$seen = [];
+		$this->activityPublisher->method('publish')->willReturnCallback(
+			static function (\OCA\LaunchPad\Activity\ActivityRow $row) use (&$seen, $failure): bool {
+				$seen[] = [$row->type, $row->extraParams['durationMs'] >= 0, $row->extraParams['durationMs'] < 60000];
+				throw $failure;
+			}
+		);
+		$this->logger->expects(self::once())->method('warning')->with(
+			'BulkOperationService audit event failed',
+			['operation' => 'reindex', 'exception' => $failure]
+		);
+
+		$result = $this->service->bulkReindex(dashboardUuids: ['d1'], userId: 'admin', dryRun: true);
+
+		self::assertSame([[\OCA\LaunchPad\Activity\Extension::EVENT_UPDATED, true, true]], $seen);
+		self::assertIsArray($result);
+	}//end testAFailedAuditRowIsLoggedAndTheOperationCompletes()
+
 	public function testBulkStatusValidPublishesDrafts(): void {
 		$dash = $this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT);
 		$this->dashboardMapper->method('findByUuid')->willReturn($dash);

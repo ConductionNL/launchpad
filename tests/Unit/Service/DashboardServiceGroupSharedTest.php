@@ -159,7 +159,9 @@ class DashboardServiceGroupSharedTest extends TestCase {
 		$this->service->createGroupShared(
 			actorUserId: 'alice',
 			groupId: 'marketing',
-			name: 'Marketing Overview'
+			fields: [
+				'name' => 'Marketing Overview',
+			]
 		);
 	}//end testCreateGroupSharedRejectsNonAdmin()
 
@@ -184,7 +186,9 @@ class DashboardServiceGroupSharedTest extends TestCase {
 		$this->service->createGroupShared(
 			actorUserId: 'admin',
 			groupId: 'marketing',
-			name: 'Marketing Overview'
+			fields: [
+				'name' => 'Marketing Overview',
+			]
 		);
 
 		$this->assertNotNull($captured);

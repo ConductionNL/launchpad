@@ -1035,9 +1035,8 @@ class DashboardService {
 	 * @param string $actorUserId The acting user ID (for the admin
 	 *                            check).
 	 * @param string $groupId The group ID.
-	 * @param string $name The dashboard name.
-	 * @param string|null $description The dashboard description.
-	 * @param int $gridColumns The grid column count.
+	 * @param array $fields The dashboard `name`, and optional `description`
+	 *                      (null) and `gridColumns` (12).
 	 *
 	 * @return Dashboard The created group-shared dashboard.
 	 *
@@ -1045,25 +1044,20 @@ class DashboardService {
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	public function createGroupShared(
-		string $actorUserId,
-		string $groupId,
-		string $name,
-		?string $description = null,
-		int $gridColumns = 12,
-	): Dashboard {
+	public function createGroupShared(string $actorUserId, string $groupId, array $fields): Dashboard {
+		$fields += ['description' => null, 'gridColumns' => 12];
 		if ($this->isAdmin(userId: $actorUserId) === false) {
 			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
 		}
 
 		$dashboard = $this->builders->dashboardFactory->create(
 			userId: null,
-			name: $name,
+			name: $fields['name'],
 			options: [
-				'description' => $description,
+				'description' => $fields['description'],
 				'type'        => Dashboard::TYPE_GROUP_SHARED,
 				'groupId'     => $groupId,
-				'gridColumns' => $gridColumns,
+				'gridColumns' => $fields['gridColumns'],
 			]
 		);
 		$dashboard->setPermissionLevel(Dashboard::PERMISSION_VIEW_ONLY);

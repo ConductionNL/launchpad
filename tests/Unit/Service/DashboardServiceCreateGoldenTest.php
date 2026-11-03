@@ -263,11 +263,11 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 		$actual['controller create body'] = ['status' => $response->getStatus(), 'log' => $this->log];
 
 		$this->log = [];
-		$this->service()->createGroupShared(actorUserId: 'root', groupId: 'staff', name: 'Team', description: 'd', gridColumns: 8);
+		$this->service()->createGroupShared(actorUserId: 'root', groupId: 'staff', fields: ['name' => 'Team', 'description' => 'd', 'gridColumns' => 8]);
 		$actual['createGroupShared'] = $this->log;
 
 		$this->log = [];
-		$this->service()->createGroupShared(actorUserId: 'root', groupId: 'staff', name: 'Team');
+		$this->service()->createGroupShared(actorUserId: 'root', groupId: 'staff', fields: ['name' => 'Team']);
 		$actual['createGroupShared defaults'] = $this->log;
 
 		$this->log = [];

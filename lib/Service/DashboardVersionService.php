@@ -450,15 +450,8 @@ class DashboardVersionService {
 		try {
 			// Capture pre-restore state as a new snapshot so the restore
 			// itself is reversible (REQ-VERS-005 design D3).
-			$this->captureSnapshot(
-				dashboard: $dashboard,
-				createdBy: $restoringUser,
-				options: [
-					'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard),
-					'note'         => 'pre-restore',
-					'explicit'     => true,
-				]
-			);
+			$preRestore = ['snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard), 'note' => 'pre-restore', 'explicit' => true];
+			$this->captureSnapshot(dashboard: $dashboard, createdBy: $restoringUser, options: $preRestore);
 
 			// C3 fix: decode the target snapshot and apply it to the DB so
 			// the restore is a real state change, not a no-op.

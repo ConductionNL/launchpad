@@ -281,6 +281,22 @@ abstract class CommandBase extends Command {
 	}//end emitError()
 
 	/**
+	 * Emit the not-found error for a dashboard UUID.
+	 *
+	 * @param InputInterface  $input  CLI input.
+	 * @param OutputInterface $output CLI output.
+	 * @param string          $uuid   The UUID that matched no dashboard.
+	 *
+	 * @return int The not-found exit code.
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	final protected function emitDashboardNotFound(InputInterface $input, OutputInterface $output, string $uuid): int {
+		$error = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'Dashboard not found', 'context' => ['uuid' => $uuid]];
+		return $this->emitError(input: $input, output: $output, error: $error);
+	}//end emitDashboardNotFound()
+
+	/**
 	 * Write a line to the dedicated stderr stream when the runtime
 	 * `OutputInterface` actually exposes one (the production
 	 * `ConsoleOutput` does); fall back to the regular stream otherwise

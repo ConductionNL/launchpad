@@ -53,6 +53,7 @@ use Throwable;
  * @uses \OCA\LaunchPad\Exception\ResourceException
  * @uses \OCA\LaunchPad\Db\Dashboard
  * @uses \OCA\LaunchPad\Db\DashboardShare
+ * @uses \OCA\LaunchPad\Service\ShareGrant
  */
 class DashboardShareFailureGoldenTest extends TestCase {
 

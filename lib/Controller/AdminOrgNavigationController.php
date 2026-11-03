@@ -35,8 +35,6 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\OrgNavigationService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -47,7 +45,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Org-wide navigation editor REST surface.

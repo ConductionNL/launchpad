@@ -41,6 +41,8 @@ use Throwable;
  * @SuppressWarnings(PHPMD.Superglobals)
  *      `$_FILES` is the only multipart entry point under Nextcloud.
  * @spec                                 openspec/specs/confluence-html-import/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class ConfluenceImportController extends Controller {
 	/**

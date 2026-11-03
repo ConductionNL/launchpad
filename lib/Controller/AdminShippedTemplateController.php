@@ -26,8 +26,6 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
-use OCA\LaunchPad\Service\ShippedTemplateService;
-use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -36,7 +34,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**

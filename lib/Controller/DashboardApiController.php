@@ -29,15 +29,10 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\DashboardTreeService;
-use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -46,8 +41,6 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * Controller for dashboard API endpoints.
@@ -912,14 +905,7 @@ class DashboardApiController extends Controller {
 		}
 
 		if ($uuid === '') {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'missing_uuid',
-					'message' => 'UUID is required',
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::badRequest(code: 'missing_uuid', message: 'UUID is required');
 		}
 
 		return ResponseHelper::success(

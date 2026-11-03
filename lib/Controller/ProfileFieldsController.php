@@ -41,6 +41,8 @@ use OCP\IUser;
  * Custom profile field endpoints.
  *
  * @spec openspec/specs/people-widget/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class ProfileFieldsController extends Controller {
 	/**

@@ -45,14 +45,9 @@ use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\EventDispatcher\IEventDispatcher;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
 

@@ -48,6 +48,8 @@ use Throwable;
  * Controller for the service-health-ping capability.
  *
  * @spec openspec/specs/service-health-ping/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class HealthPingController extends Controller {
 	/**

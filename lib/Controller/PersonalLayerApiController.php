@@ -49,6 +49,8 @@ use stdClass;
  * of the dashboard is what decides whether they can see it.
  *
  * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class PersonalLayerApiController extends Controller {
 	/**

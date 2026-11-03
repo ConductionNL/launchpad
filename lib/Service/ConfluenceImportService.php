@@ -30,13 +30,8 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Confluence\ArchiveParser;
-use OCA\LaunchPad\Service\Confluence\HtmlSanitizer;
-use OCA\LaunchPad\Service\Confluence\LinkRewriter;
-use OCA\LaunchPad\Service\Confluence\MacroRenderer;
 use OCA\LaunchPad\Service\Confluence\ParsedPage;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;

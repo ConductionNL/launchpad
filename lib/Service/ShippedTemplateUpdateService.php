@@ -46,12 +46,8 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
-use OCP\IAppConfig;
-use OCP\IDBConnection;
 use RuntimeException;
 use Throwable;
 

@@ -52,6 +52,8 @@ use Throwable;
  * Controller for the live-data tile capability.
  *
  * @spec openspec/specs/live-data-tile-widget/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class LiveTileController extends Controller {
 	/**

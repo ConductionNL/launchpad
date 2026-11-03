@@ -196,14 +196,7 @@ class TileAnalyticsController extends Controller {
 				limit: $limit
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -242,14 +235,7 @@ class TileAnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -284,14 +270,7 @@ class TileAnalyticsController extends Controller {
 		try {
 			$csv = $this->tileAnalyticsService->generateCsvExport(period: $period);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return new DataDownloadResponse(

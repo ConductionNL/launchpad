@@ -43,6 +43,8 @@ use OCP\IRequest;
 
 /**
  * Controller for dashboard version endpoints (REQ-VERS-001..009).
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class DashboardVersionApiController extends Controller {
 	/**

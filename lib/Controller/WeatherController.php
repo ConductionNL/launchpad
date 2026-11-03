@@ -45,6 +45,8 @@ use Throwable;
  * Controller for the weather-widget capability.
  *
  * @spec openspec/specs/clock-weather-widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class WeatherController extends Controller {
 	/**

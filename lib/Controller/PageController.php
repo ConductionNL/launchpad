@@ -29,12 +29,8 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
-use OCA\LaunchPad\Service\RoleFeaturePermissionService;
-use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -42,11 +38,9 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
 use OCP\IUserSession;
 use OCP\Util;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**

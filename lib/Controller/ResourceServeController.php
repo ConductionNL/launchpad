@@ -70,6 +70,8 @@ use Throwable;
  * Public read-side controller for uploaded resources.
  *
  * @spec openspec/changes/resource-serving/tasks.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class ResourceServeController extends Controller {
 	/**

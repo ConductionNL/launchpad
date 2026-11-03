@@ -47,6 +47,8 @@ use OCP\IUserSession;
 
 /**
  * Bulk admin endpoints for dashboards (REQ-BULK-001..011).
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class AdminBulkController extends Controller {
 	/**

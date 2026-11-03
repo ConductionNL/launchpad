@@ -23,21 +23,15 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
-use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**

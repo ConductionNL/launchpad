@@ -26,13 +26,9 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Settings;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\FileService;
 use OCA\LaunchPad\Service\InitialState\Page;
 use OCA\LaunchPad\Service\InitialStateBuilder;
-use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IGroupManager;

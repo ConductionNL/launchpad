@@ -35,6 +35,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<DashboardView>
  */
 class DashboardViewMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -60,22 +62,8 @@ class DashboardViewMapper extends QBMapper {
 		string $dashboardUuid,
 		string $viewBucket,
 	): ?DashboardView {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $viewBucket)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'view_bucket' => $viewBucket]);
+		$qb->setMaxResults(maxResults: 1);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -99,16 +87,8 @@ class DashboardViewMapper extends QBMapper {
 		string $startDate,
 		string $endDate,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere(
 				$qb->expr()->gte(
 					x: 'view_bucket',
 					y: $qb->createNamedParameter(value: $startDate)
@@ -359,14 +339,7 @@ class DashboardViewMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByDashboard(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboard()

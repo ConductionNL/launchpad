@@ -36,6 +36,14 @@ use OCP\IDBConnection;
  * @spec    openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class WidgetPlacementMapper extends QBMapper {
+	use ColumnMatchQueries;
+	use OrphanRowQueries;
+
+	/**
+	 * Parent link for the orphan queries: alias, parent table, parent alias, foreign key.
+	 */
+	private const ORPHAN_LINK = ['p', 'launchpad_dashboards', 'd', 'dashboard_id'];
+
 	/**
 	 * Constructor
 	 *
@@ -60,18 +68,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function find(int $id): WidgetPlacement {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -85,19 +82,8 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function findByDashboardId(int $dashboardId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'sort_order', order: 'ASC')
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId]);
+		$qb->orderBy(sort: 'sort_order', order: 'ASC')
 			->addOrderBy(sort: 'grid_y', order: 'ASC')
 			->addOrderBy(sort: 'grid_x', order: 'ASC');
 
@@ -116,15 +102,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function findByWidgetId(string $widgetId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'widget_id',
-					y: $qb->createNamedParameter(value: $widgetId)
-				)
-			);
+		$qb = $this->selectWhere(match: ['widget_id' => $widgetId]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByWidgetId()
@@ -165,15 +143,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function findByAnnouncementKey(string $announcementKey): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			);
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByAnnouncementKey()
@@ -187,17 +157,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardId(int $dashboardId): void {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_id' => $dashboardId]);
 
 		$qb->executeStatement();
 	}//end deleteByDashboardId()
@@ -387,22 +347,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function countOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('p.id'))
-			->from(from: $this->getTableName(), alias: 'p')
-			->leftJoin(
-				fromAlias: 'p',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = p.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$count = $result->fetchOne();
-		$result->closeCursor();
-
-		return (int)($count ?? 0);
+		return $this->countOrphanRows(link: self::ORPHAN_LINK);
 	}//end countOrphaned()
 
 	/**
@@ -417,42 +362,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('p.id')
-			->from(from: $this->getTableName(), alias: 'p')
-			->leftJoin(
-				fromAlias: 'p',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = p.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$ids = [];
-		while (($row = $result->fetch()) !== false) {
-			$ids[] = (int)$row['id'];
-		}
-
-		$result->closeCursor();
-
-		if (count(value: $ids) === 0) {
-			return 0;
-		}
-
-		$delete = $this->db->getQueryBuilder();
-		$delete->delete(delete: $this->getTableName())
-			->where(
-				$delete->expr()->in(
-					x: 'id',
-					y: $delete->createNamedParameter(
-						value: $ids,
-						type: IQueryBuilder::PARAM_INT_ARRAY
-					)
-				)
-			);
-
-		return $delete->executeStatement();
+		return $this->deleteOrphanRows(link: self::ORPHAN_LINK);
 	}//end deleteOrphaned()
 
 	/**

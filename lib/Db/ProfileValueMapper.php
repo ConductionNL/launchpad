@@ -34,6 +34,8 @@ use OCP\IDBConnection;
  * @spec openspec/specs/people-widget/spec.md
  */
 class ProfileValueMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Most rows one search returns before the caller filters them.
 	 *
@@ -183,9 +185,7 @@ class ProfileValueMapper extends QBMapper {
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function deleteByUser(string $userId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where($qb->expr()->eq(x: 'user_id', y: $qb->createNamedParameter(value: $userId)));
+		$qb = $this->deleteWhere(match: ['user_id' => $userId]);
 
 		return $qb->executeStatement();
 	}//end deleteByUser()

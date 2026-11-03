@@ -35,6 +35,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<Acknowledgement>
  */
 class AcknowledgementMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -121,31 +123,8 @@ class AcknowledgementMapper extends QBMapper {
 		string $userId,
 		int $contentVersion,
 	): ?Acknowledgement {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'content_version',
-					y: $qb->createNamedParameter(
-						value: $contentVersion,
-						type: \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey, 'user_id' => $userId, 'content_version' => $contentVersion]);
+		$qb->setMaxResults(maxResults: 1);
 
 		$entities = $this->findEntities(query: $qb);
 		if (empty($entities) === true) {
@@ -170,25 +149,8 @@ class AcknowledgementMapper extends QBMapper {
 		string $announcementKey,
 		int $contentVersion,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'content_version',
-					y: $qb->createNamedParameter(
-						value: $contentVersion,
-						type: \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'acknowledged_at', order: 'ASC')
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey, 'content_version' => $contentVersion]);
+		$qb->orderBy(sort: 'acknowledged_at', order: 'ASC')
 			->addOrderBy(sort: 'id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
@@ -210,22 +172,8 @@ class AcknowledgementMapper extends QBMapper {
 		string $announcementKey,
 		string $userId,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->orderBy(sort: 'content_version', order: 'DESC');
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey, 'user_id' => $userId]);
+		$qb->orderBy(sort: 'content_version', order: 'DESC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByUserForAnnouncement()

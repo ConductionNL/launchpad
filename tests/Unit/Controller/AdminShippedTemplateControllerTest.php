@@ -100,7 +100,7 @@ class AdminShippedTemplateControllerTest extends TestCase {
 	public function testInstallAnswers201ThenThe200OfASecondRun(): void {
 		$this->loginAs('alice', true);
 		$this->service->expects(self::exactly(2))->method('install')
-			->with('mijn-werkdag', [], false, false, 'alice')
+			->with('mijn-werkdag', ['force' => false, 'userId' => 'alice'])
 			->willReturnOnConsecutiveCalls(
 				['uuid' => 'u1', 'alreadyInstalled' => false],
 				['uuid' => 'u1', 'alreadyInstalled' => true],

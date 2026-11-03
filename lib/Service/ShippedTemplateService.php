@@ -164,12 +164,13 @@ class ShippedTemplateService {
 	 * Forced: a fresh copy is added and becomes the recorded install. The
 	 * earlier one stays, because users' dashboards made from it point at it.
 	 *
-	 * @param string             $templateId   The shipped template id.
-	 * @param array<int, string> $targetGroups Groups whose members get the template.
-	 *                                         Empty leaves the definition's groups.
-	 * @param bool               $makeDefault  Make it the default template for everyone.
-	 * @param bool               $force        Add a fresh copy even when installed.
-	 * @param string             $userId       Who runs the install (for the archive).
+	 * @param string               $templateId The shipped template id.
+	 * @param array<string, mixed> $options    Optional `targetGroups` (groups whose members get the
+	 *                                         template; empty leaves the definition's groups),
+	 *                                         `makeDefault` (make it the default template for
+	 *                                         everyone; false), `force` (add a fresh copy even when
+	 *                                         installed; false) and `userId` (who runs the install,
+	 *                                         for the archive; 'cli').
 	 *
 	 * @return array{templateId:string, uuid:string, id:int, version:int, alreadyInstalled:bool,
 	 *               targetGroups:array<int,string>, isDefault:bool, missingWidgets:array<int,string>,
@@ -178,18 +179,14 @@ class ShippedTemplateService {
 	 * @throws InvalidArgumentException When the id or a group is unknown.
 	 * @throws RuntimeException When the definition or the import fails.
 	 *
-	 * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-	 *      The two flags are the command's `--default` and `--force`, one to one.
-	 *
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
 	 */
-	public function install(
-		string $templateId,
-		array $targetGroups = [],
-		bool $makeDefault = false,
-		bool $force = false,
-		string $userId = 'cli',
-	): array {
+	public function install(string $templateId, array $options=[]): array {
+		$options     += ['targetGroups' => [], 'makeDefault' => false, 'force' => false, 'userId' => 'cli'];
+		$targetGroups = $options['targetGroups'];
+		$makeDefault  = $options['makeDefault'];
+		$force        = $options['force'];
+		$userId       = $options['userId'];
 		$definition = $this->readDefinition(templateId: $templateId);
 
 		// A mistyped group would target nobody and still report success.

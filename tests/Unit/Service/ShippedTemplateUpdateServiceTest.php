@@ -356,7 +356,7 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 	 */
 	public function testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate(): void {
 		$this->ship(1, self::versionOne());
-		$installed = $this->shipped->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers'], makeDefault: true);
+		$installed = $this->shipped->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers'], 'makeDefault' => true]);
 		$before = $this->byTitle($installed['id']);
 		$this->ship(2, self::versionTwo());
 
@@ -402,7 +402,7 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 	 */
 	public function testAMembersCopyFollowsAndKeepsTheirOwnWidget(): void {
 		$this->ship(1, self::versionOne());
-		$installed = $this->shipped->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers']);
+		$installed = $this->shipped->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers']]);
 		$template = $this->templateService->getApplicableTemplate(userId: 'pieter');
 		self::assertNotNull($template);
 		self::assertSame($installed['id'], $template->getId());

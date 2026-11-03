@@ -303,7 +303,7 @@ class ShippedTemplateServiceTest extends TestCase {
 	public function testTheShippedTemplateSurvivesExportAndImport(): void {
 		$a = $this->makeInstance();
 		$service = $this->makeService($a);
-		$installed = $service->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers']);
+		$installed = $service->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers']]);
 		$onA = $a['export']->serializeDashboard(dashboard: $a['dashboards'][0]);
 		self::assertSame(['medewerkers'], $onA['targetGroups']);
 
@@ -355,7 +355,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = $this->makeService($instance);
 		$first = $service->install(templateId: 'mijn-werkdag');
 
-		$second = $service->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers'], makeDefault: true);
+		$second = $service->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers'], 'makeDefault' => true]);
 
 		self::assertTrue($second['alreadyInstalled']);
 		self::assertSame($first['uuid'], $second['uuid']);
@@ -372,12 +372,83 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = $this->makeService($instance);
 		$first = $service->install(templateId: 'mijn-werkdag');
 
-		$second = $service->install(templateId: 'mijn-werkdag', force: true);
+		$second = $service->install(templateId: 'mijn-werkdag', options: ['force' => true]);
 
 		self::assertFalse($second['alreadyInstalled']);
 		self::assertNotSame($first['uuid'], $second['uuid']);
 		self::assertCount(2, $instance['dashboards']);
 		self::assertSame($second['uuid'], $this->config['shipped_template_mijn-werkdag']);
+	}
+
+	/**
+	 * Run one install with named options.
+	 *
+	 * @param ShippedTemplateService $service The service.
+	 * @param array<string, mixed>   $options The install options.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function runInstall(ShippedTemplateService $service, array $options): array {
+		return $service->install(templateId: 'mijn-werkdag', options: $options);
+	}
+
+	/**
+	 * REQ-TMPL-018: a sequence of installs, each with its own options, pinned
+	 * step by step (result, stored rows, recorded config) against a fixture.
+	 */
+	public function testInstallSequenceMatchesTheRecordedFixture(): void {
+		$fixture = __DIR__ . '/fixtures/shipped-install.json';
+		$steps = [
+			'plain' => [],
+			'again with groups and default' => ['targetGroups' => ['medewerkers'], 'makeDefault' => true],
+			'again plain' => [],
+			'forced by a named user' => ['force' => true, 'userId' => 'alice'],
+			'forced with groups' => ['force' => true, 'targetGroups' => ['medewerkers']],
+			'unknown group' => ['targetGroups' => ['medewerkers', 'nobody']],
+			'default only' => ['makeDefault' => true],
+		];
+
+		$instance = $this->makeInstance();
+		$service = $this->makeService($instance);
+		$uuids = [];
+		$actual = [];
+		foreach ($steps as $name => $options) {
+			try {
+				$result = self::runInstall($service, $options);
+				$uuids[$result['uuid']] ??= 'uuid-' . count($uuids);
+				$result['uuid'] = $uuids[$result['uuid']];
+			} catch (InvalidArgumentException $e) {
+				$result = ['error' => $e->getMessage()];
+			}
+
+			$rows = [];
+			foreach ($instance['dashboards'] as $dashboard) {
+				$rows[] = [
+					'id' => $dashboard->getId(),
+					'name' => $dashboard->getName(),
+					'userId' => $dashboard->getUserId(),
+					'type' => $dashboard->getType(),
+					'targetGroups' => $dashboard->getTargetGroupsArray(),
+					'isDefault' => $dashboard->getIsDefault(),
+				];
+			}
+
+			$config = $this->config;
+			foreach ($config as $key => $value) {
+				if (is_string($value) === true && isset($uuids[$value]) === true) {
+					$config[$key] = $uuids[$value];
+				}
+			}
+
+			$actual[$name] = ['result' => $result, 'rows' => $rows, 'config' => $config];
+		}
+
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+			$this->markTestIncomplete('Fixture recorded.');
+		}
+
+		self::assertSame(json_decode((string)file_get_contents($fixture), true), $actual);
 	}
 
 	/**
@@ -403,7 +474,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = $this->makeService($instance);
 
 		try {
-			$service->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkerz']);
+			$service->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkerz']]);
 			self::fail('an unknown group must throw');
 		} catch (InvalidArgumentException $e) {
 			self::assertStringContainsString('medewerkerz', $e->getMessage());

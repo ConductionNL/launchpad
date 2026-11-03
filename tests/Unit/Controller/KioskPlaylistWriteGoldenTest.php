@@ -49,6 +49,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\LaunchPad\Service\KioskPlaylistDraft
  * @uses   \OCA\LaunchPad\Db\KioskPlaylist
  * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @uses   \OCA\LaunchPad\Exception\PlaylistNotFoundException
  */
 class KioskPlaylistWriteGoldenTest extends TestCase {
 

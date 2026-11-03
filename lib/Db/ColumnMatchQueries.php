@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Db;
 
+use DateTime;
 use OCP\DB\QueryBuilder\IParameter;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 
@@ -61,6 +62,70 @@ trait ColumnMatchQueries {
 
 		return $this->andWhereColumns(qb: $qb, match: $match);
 	}//end deleteWhere()
+
+
+	/**
+	 * Start `UPDATE` on this mapper's table: one `SET` per column => value
+	 * pair of `$set`, filtered on every column => value pair of `$match`.
+	 *
+	 * @param array<string, mixed> $set   The column => new value pairs.
+	 * @param array<string, mixed> $match The column => value conditions.
+	 *
+	 * @return IQueryBuilder The query, ready for more clauses.
+	 */
+	protected function updateWhere(array $set, array $match): IQueryBuilder {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update(update: $this->getTableName());
+		foreach ($set as $column => $value) {
+			$qb->set(key: $column, value: $this->namedParameter(qb: $qb, value: $value));
+		}
+
+		return $this->andWhereColumns(qb: $qb, match: $match);
+	}//end updateWhere()
+
+	/**
+	 * Count the rows of this mapper's table matching every
+	 * column => value pair of `$match`.
+	 *
+	 * @param array<string, mixed> $match The column => value conditions.
+	 *
+	 * @return int The number of matching rows.
+	 */
+	protected function countWhere(array $match): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'cnt'))
+			->from(from: $this->getTableName());
+
+		return $this->fetchCount(qb: $this->andWhereColumns(qb: $qb, match: $match));
+	}//end countWhere()
+
+	/**
+	 * Run a query that selects `COUNT(*) AS cnt` and return the count.
+	 *
+	 * @param IQueryBuilder $qb The count query.
+	 *
+	 * @return int The count, 0 when no row came back.
+	 */
+	protected function fetchCount(IQueryBuilder $qb): int {
+		$cursor = $qb->executeQuery();
+		$row = $cursor->fetch();
+		$cursor->closeCursor();
+
+		if ($row === false || isset($row['cnt']) === false) {
+			return 0;
+		}
+
+		return (int)$row['cnt'];
+	}//end fetchCount()
+
+	/**
+	 * The current time as stored in the `*_at` columns.
+	 *
+	 * @return string The time as `Y-m-d H:i:s`.
+	 */
+	protected function now(): string {
+		return (new DateTime())->format(format: 'Y-m-d H:i:s');
+	}//end now()
 
 	/**
 	 * Add one equality condition per column: `where` for the first,

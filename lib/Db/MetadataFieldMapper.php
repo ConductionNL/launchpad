@@ -153,15 +153,7 @@ class MetadataFieldMapper extends QBMapper {
 				)
 			);
 
-		$result = $qb->executeQuery();
-		$row = $result->fetch();
-		$result->closeCursor();
-
-		if (is_array($row) === false || array_key_exists(key: 'cnt', array: $row) === false) {
-			return 0;
-		}
-
-		return (int)$row['cnt'];
+		return $this->fetchCount(qb: $qb);
 	}//end countValuesForField()
 
 	/**

@@ -228,30 +228,6 @@ class DashboardReactionMapper extends QBMapper {
 		string $dashboardUuid,
 		string $emoji,
 	): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'emoji',
-					y: $qb->createNamedParameter(value: $emoji)
-				)
-			);
-
-		$result = $qb->executeQuery();
-		$row = $result->fetch();
-		$result->closeCursor();
-
-		if (is_array($row) === false) {
-			return 0;
-		}
-
-		return (int)($row['cnt'] ?? 0);
+		return $this->countWhere(match: ['dashboard_uuid' => $dashboardUuid, 'emoji' => $emoji]);
 	}//end countReactorsByEmoji()
 }//end class

@@ -62,6 +62,7 @@ use Throwable;
  * @spec                                             openspec/specs/service-health-ping/spec.md
  */
 class HealthPingService {
+	use ReadsJsonCache;
 
 	/**
 	 * Default cache TTL / ping interval in seconds when a tile has no (or
@@ -600,34 +601,6 @@ class HealthPingService {
 	private function buildCacheKey(int $placementId): string {
 		return 'badge_' . $placementId;
 	}//end buildCacheKey()
-
-	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
 
 	/**
 	 * Lazily resolve the distributed cache. Returns `null` when the cache

@@ -61,10 +61,7 @@ class AdminDemoShowcasesController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -146,10 +143,7 @@ class AdminDemoShowcasesController extends Controller {
 				force: $force
 			);
 		} catch (ShowcaseNotFoundException $e) {
-			return new JSONResponse(
-				data: ['error' => 'Showcase not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Showcase not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->showcases->logger->error(
 				message: 'Showcase install failed',
@@ -158,10 +152,7 @@ class AdminDemoShowcasesController extends Controller {
 					'exception' => $e,
 				]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Showcase installation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Showcase installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		$statusCode = Http::STATUS_CREATED;
@@ -208,10 +199,7 @@ class AdminDemoShowcasesController extends Controller {
 					'exception' => $e,
 				]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Showcase uninstall failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Showcase uninstall failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);

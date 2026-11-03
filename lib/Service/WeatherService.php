@@ -53,6 +53,8 @@ use Throwable;
  * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherService {
+	use ReadsJsonCache;
+	use ReadsPlacementContent;
 
 	/**
 	 * Default reading cache TTL in seconds (REQ-WEATHER-002). Overridden
@@ -293,37 +295,6 @@ class WeatherService {
 
 		return $this->fetchFromProviderUrl(location: $location, units: $units, language: $language);
 	}//end fetchFresh()
-
-	/**
-	 * Read the placement's `{location, unitsOverride}` config, falling
-	 * back to the legacy `style_config.content` slot for pre-column rows
-	 * (mirrors {@see \OCA\LaunchPad\Controller\FilesWidgetController::loadConfig()}).
-	 *
-	 * @param object $placement The {@see \OCA\LaunchPad\Db\WidgetPlacement} entity.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function readPlacementConfig(object $placement): array {
-		if (method_exists(object_or_class: $placement, method: 'getContentArray') === true) {
-			$content = $placement->getContentArray();
-			if (is_array(value: $content) === true && $content !== []) {
-				return $content;
-			}
-		}
-
-		if (method_exists(object_or_class: $placement, method: 'getStyleConfigArray') === true) {
-			$legacy = $placement->getStyleConfigArray();
-			if (isset($legacy['content']) === true && is_array(value: $legacy['content']) === true) {
-				return $legacy['content'];
-			}
-
-			if (is_array(value: $legacy) === true) {
-				return $legacy;
-			}
-		}
-
-		return [];
-	}//end readPlacementConfig()
 
 	/**
 	 * Derive the units to use: the author's explicit override when set,
@@ -669,34 +640,6 @@ class WeatherService {
 	private function buildCacheKey(string $location, string $units, string $language): string {
 		return 'reading_' . hash(algo: 'sha256', data: strtolower(string: $location) . '|' . $units . '|' . $language);
 	}//end buildCacheKey()
-
-	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
 
 	/**
 	 * Shape an internal reading array (which also carries the internal

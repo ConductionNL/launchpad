@@ -27,6 +27,7 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
@@ -36,6 +37,8 @@ use OCP\IRequest;
  * Admin-only controller exposing the action-authorization matrix (ADR-023).
  *
  * @spec openspec/architecture/adr-023-action-authorization.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class ActionMatrixController extends Controller {
 	private const SEED_PATH = __DIR__ . '/../actions.seed.json';
@@ -52,10 +55,7 @@ class ActionMatrixController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -117,9 +117,9 @@ class ActionMatrixController extends Controller {
 		try {
 			$this->actionAuth->setMatrix($matrix);
 		} catch (\JsonException $e) {
-			return new JSONResponse(
-				['error' => 'Could not encode the action matrix: ' . $e->getMessage()],
-				\OCP\AppFramework\Http::STATUS_BAD_REQUEST
+			return ResponseHelper::failure(
+				message: 'Could not encode the action matrix: ' . $e->getMessage(),
+				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		}
 

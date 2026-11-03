@@ -378,27 +378,6 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function countByDashboardId(int $dashboardId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
-
-		$cursor = $qb->executeQuery();
-		$row = $cursor->fetch();
-		$cursor->closeCursor();
-
-		if ($row === false || isset($row['cnt']) === false) {
-			return 0;
-		}
-
-		return (int)$row['cnt'];
+		return $this->countWhere(match: ['dashboard_id' => $dashboardId]);
 	}//end countByDashboardId()
 }//end class

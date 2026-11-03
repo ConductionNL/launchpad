@@ -34,10 +34,11 @@ use OCA\LaunchPad\Exception\ForbiddenException;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\Notification\IManager as INotificationManager;
-use Throwable;
 
 /**
  * Service for creating and managing dashboard shares.
+ *
+ * @spec openspec/specs/dashboard-sharing/spec.md
  */
 class DashboardShareService {
 
@@ -93,11 +94,9 @@ class DashboardShareService {
 	 * Add or upsert a single share. Publishes a notification when the
 	 * entry is new or the permission level is upgraded. REQ-SHARE-008.
 	 *
-	 * @param int $dashboardId The dashboard ID.
-	 * @param string $shareType The share type ('user' or 'group').
-	 * @param string $shareWith The recipient user/group ID.
-	 * @param string $permissionLevel The permission level.
-	 * @param string $callerId The calling user (must be dashboard owner).
+	 * @param int        $dashboardId The dashboard ID.
+	 * @param ShareGrant $grant       Share type, recipient and permission level.
+	 * @param string     $callerId    The calling user (must be dashboard owner).
 	 *
 	 * @return DashboardShare The persisted share.
 	 *
@@ -108,27 +107,16 @@ class DashboardShareService {
 	 */
 	public function addShare(
 		int $dashboardId,
-		string $shareType,
-		string $shareWith,
-		string $permissionLevel,
+		ShareGrant $grant,
 		string $callerId,
 	): DashboardShare {
 		$dashboard = $this->assertOwner(
 			dashboardId: $dashboardId,
 			userId: $callerId
 		);
-		$this->validateInput(
-			shareType: $shareType,
-			shareWith: $shareWith,
-			permissionLevel: $permissionLevel
-		);
+		$this->validateInput(grant: $grant);
 
-		$result = $this->persistShare(
-			dashboardId: $dashboardId,
-			shareType: $shareType,
-			shareWith: $shareWith,
-			permissionLevel: $permissionLevel
-		);
+		$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
 
 		if ($result['isNew'] === true || $result['isUpgrade'] === true) {
 			$this->notifyShared(
@@ -172,7 +160,8 @@ class DashboardShareService {
 	 *
 	 * Deletes every existing share not in the payload, upserts matching
 	 * ones. Publishes one notification per newly-added or upgraded
-	 * recipient only. All DB writes run in a single transaction.
+	 * recipient only. All DB writes run in a single transaction; a database
+	 * error is rethrown after the rollback.
 	 *
 	 * @param int $dashboardId The dashboard ID.
 	 * @param array $shares Array of {shareType, shareWith, permissionLevel}.
@@ -182,7 +171,6 @@ class DashboardShareService {
 	 *
 	 * @throws ForbiddenException When the caller is not the owner.
 	 * @throws InvalidArgumentException When the input is invalid.
-	 * @throws Throwable On DB error (rolls back).
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -197,8 +185,11 @@ class DashboardShareService {
 		);
 
 		// Validate all entries up-front before touching the DB.
+		$grants = [];
 		foreach ($shares as $entry) {
-			$this->validateEntry(entry: $entry);
+			$grant = $this->grantFrom(entry: $entry);
+			$this->validateInput(grant: $grant);
+			$grants[] = $grant;
 		}
 
 		// Build the keep-key set for deletion.
@@ -210,6 +201,7 @@ class DashboardShareService {
 		$notifyQueue = [];
 
 		$this->db->beginTransaction();
+		$committed = false;
 		try {
 			// Remove shares not in payload.
 			$this->shareMapper->deleteNotIn(
@@ -218,13 +210,8 @@ class DashboardShareService {
 			);
 
 			// Upsert each entry.
-			foreach ($shares as $entry) {
-				$result = $this->persistShare(
-					dashboardId: $dashboardId,
-					shareType: $entry['shareType'],
-					shareWith: $entry['shareWith'],
-					permissionLevel: $entry['permissionLevel']
-				);
+			foreach ($grants as $grant) {
+				$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
 
 				if ($result['isNew'] === true || $result['isUpgrade'] === true) {
 					$notifyQueue[] = $result['share'];
@@ -232,9 +219,11 @@ class DashboardShareService {
 			}
 
 			$this->db->commit();
-		} catch (Throwable $t) {
-			$this->db->rollBack();
-			throw $t;
+			$committed = true;
+		} finally {
+			if ($committed === false) {
+				$this->db->rollBack();
+			}
 		}//end try
 
 		// Publish notifications after the transaction commits.
@@ -396,19 +385,15 @@ class DashboardShareService {
 	 * Persist a single share (insert or update). Returns metadata about
 	 * whether the row is new or the level was upgraded.
 	 *
-	 * @param int $dashboardId The dashboard ID.
-	 * @param string $shareType The share type.
-	 * @param string $shareWith The recipient.
-	 * @param string $permissionLevel The permission level.
+	 * @param int        $dashboardId The dashboard ID.
+	 * @param ShareGrant $grant       Share type, recipient and permission level.
 	 *
 	 * @return array{share: DashboardShare, isNew: bool, isUpgrade: bool}
 	 */
-	private function persistShare(
-		int $dashboardId,
-		string $shareType,
-		string $shareWith,
-		string $permissionLevel,
-	): array {
+	private function persistShare(int $dashboardId, ShareGrant $grant): array {
+		$shareType = $grant->shareType;
+		$shareWith = $grant->shareWith;
+		$permissionLevel = $grant->permissionLevel;
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$existing = $this->shareMapper->findShare(
 			dashboardId: $dashboardId,
@@ -557,17 +542,18 @@ class DashboardShareService {
 	}//end resolveRecipients()
 
 	/**
-	 * Validate one entry of a share replace: an object whose shareType,
-	 * shareWith and permissionLevel, when present, are strings, and whose
-	 * values pass {@see self::validateInput()}.
+	 * Read one entry of a share replace as a grant: an object whose
+	 * shareType, shareWith and permissionLevel, when present, are strings.
+	 * A missing field reads as an empty string, which
+	 * {@see self::validateInput()} then rejects.
 	 *
 	 * @param array|string|int|float|bool|null $entry The entry from the request.
 	 *
-	 * @return void
+	 * @return ShareGrant The grant.
 	 *
-	 * @throws InvalidArgumentException On invalid input.
+	 * @throws InvalidArgumentException When the entry is not an object or a field is not a string.
 	 */
-	private function validateEntry(array|string|int|float|bool|null $entry): void {
+	private function grantFrom(array|string|int|float|bool|null $entry): ShareGrant {
 		if (is_array($entry) === false) {
 			throw new InvalidArgumentException(message: 'Each share must be an object');
 		}
@@ -582,29 +568,25 @@ class DashboardShareService {
 			$fields[$field] = $value;
 		}
 
-		$this->validateInput(
+		return new ShareGrant(
 			shareType: $fields['shareType'],
 			shareWith: $fields['shareWith'],
 			permissionLevel: $fields['permissionLevel']
 		);
-	}//end validateEntry()
+	}//end grantFrom()
 
 	/**
 	 * Validate share type, shareWith, and permission level.
 	 *
-	 * @param string $shareType The share type.
-	 * @param string $shareWith The recipient.
-	 * @param string $permissionLevel The permission level.
+	 * @param ShareGrant $grant Share type, recipient and permission level.
 	 *
 	 * @return void
 	 *
 	 * @throws InvalidArgumentException On invalid input.
 	 */
-	private function validateInput(
-		string $shareType,
-		string $shareWith,
-		string $permissionLevel,
-	): void {
+	private function validateInput(ShareGrant $grant): void {
+		$shareType = $grant->shareType;
+		$permissionLevel = $grant->permissionLevel;
 		$validType = in_array(
 			needle: $shareType,
 			haystack: DashboardShare::VALID_SHARE_TYPES,
@@ -616,7 +598,7 @@ class DashboardShareService {
 			);
 		}
 
-		if ($shareWith === '') {
+		if ($grant->shareWith === '') {
 			throw new InvalidArgumentException(message: 'shareWith is required');
 		}
 

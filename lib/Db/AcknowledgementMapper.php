@@ -69,40 +69,9 @@ class AcknowledgementMapper extends QBMapper {
 		string $userId,
 		int $contentVersion,
 	): bool {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'content_version',
-					y: $qb->createNamedParameter(
-						value: $contentVersion,
-						type: \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$match = ['announcement_key' => $announcementKey, 'user_id' => $userId, 'content_version' => $contentVersion];
 
-		$result = $qb->executeQuery();
-		$row = $result->fetch();
-		$result->closeCursor();
-
-		if (is_array($row) === false) {
-			return false;
-		}
-
-		return ((int)($row['cnt'] ?? 0)) > 0;
+		return $this->countWhere(match: $match) > 0;
 	}//end existsFor()
 
 	/**

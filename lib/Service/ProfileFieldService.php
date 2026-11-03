@@ -28,6 +28,7 @@ use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\ProfileValue;
+use OCA\LaunchPad\Db\ProfileFieldValues;
 use OCA\LaunchPad\Db\ProfileValueMapper;
 use OCP\Accounts\IAccountManager;
 use OCP\IUser;
@@ -308,7 +309,7 @@ class ProfileFieldService {
 		}
 
 		foreach ($clean as $key => $list) {
-			$this->valueMapper->replaceValues(userId: $userId, fieldKey: (string)$key, values: $list, source: 'self');
+			$this->valueMapper->replaceValues(userId: $userId, field: new ProfileFieldValues(fieldKey: (string)$key, values: $list, source: 'self'));
 		}
 
 		return $this->getOwnFields(userId: $userId);
@@ -584,10 +585,7 @@ class ProfileFieldService {
 
 			$this->valueMapper->replaceValues(
 				userId: $user->getUID(),
-				fieldKey: $key,
-				values: $values,
-				source: 'nextcloud',
-				scope: $scope
+				field: new ProfileFieldValues(fieldKey: $key, values: $values, source: 'nextcloud', scope: $scope)
 			);
 		}//end foreach
 	}//end mirrorStandardFields()
@@ -621,7 +619,10 @@ class ProfileFieldService {
 			foreach ($definitions as $definition) {
 				$raw = $provider->getMultiValueUserAttribute(uid: $user->getUID(), attribute: $definition['ldapAttribute']);
 				$values = $this->cleanLdapValues(definition: $definition, raw: $raw);
-				$this->valueMapper->replaceValues(userId: $user->getUID(), fieldKey: $definition['key'], values: $values, source: 'ldap');
+				$this->valueMapper->replaceValues(
+					userId: $user->getUID(),
+					field: new ProfileFieldValues(fieldKey: $definition['key'], values: $values, source: 'ldap')
+				);
 				$synced++;
 			}
 		} catch (Exception $e) {

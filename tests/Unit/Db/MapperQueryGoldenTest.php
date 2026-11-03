@@ -76,7 +76,7 @@ class MapperQueryGoldenTest extends TestCase {
 
 			foreach (['all' => false, 'required' => true] as $variant => $requiredOnly) {
 				$args = $this->argumentsFor(method: $method, requiredOnly: $requiredOnly);
-				if ($args === null || ($requiredOnly === true && $method->getNumberOfParameters() === $method->getNumberOfRequiredParameters())) {
+				if ($args === null || ($requiredOnly === true && $this->hasOptional(method: $method) === false)) {
 					continue;
 				}
 
@@ -162,6 +162,50 @@ class MapperQueryGoldenTest extends TestCase {
 	}
 
 	/**
+	 * Whether a method, or a value object it takes, has optional parameters.
+	 *
+	 * @param ReflectionMethod $method The method.
+	 *
+	 * @return bool
+	 */
+	private function hasOptional(ReflectionMethod $method): bool {
+		foreach ($method->getParameters() as $param) {
+			$value = $this->valueObjectClass(param: $param);
+			$constructor = $value?->getConstructor();
+			if ($param->isOptional() === true) {
+				return true;
+			}
+
+			if ($constructor !== null && $constructor->getNumberOfParameters() > $constructor->getNumberOfRequiredParameters()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * The app value object a parameter takes, or null.
+	 *
+	 * @param ReflectionParameter $param The parameter.
+	 *
+	 * @return ReflectionClass|null
+	 */
+	private function valueObjectClass(ReflectionParameter $param): ?ReflectionClass {
+		$name = (string)$param->getType();
+		if (str_starts_with($name, 'OCA\\LaunchPad\\') === false || class_exists($name) === false) {
+			return null;
+		}
+
+		$class = new ReflectionClass($name);
+		if ($class->isFinal() === false || is_subclass_of($name, Entity::class) === true) {
+			return null;
+		}
+
+		return $class;
+	}
+
+	/**
 	 * Fixed arguments for a method, or null when one cannot be made.
 	 *
 	 * @param ReflectionMethod $method       The method.
@@ -177,6 +221,15 @@ class MapperQueryGoldenTest extends TestCase {
 			}
 
 			$value = $this->valueFor(param: $param);
+			$valueObject = $this->valueObjectClass(param: $param);
+			if ($valueObject !== null) {
+				$fields = $this->argumentsFor(method: $valueObject->getConstructor(), requiredOnly: $requiredOnly);
+				$value = false;
+				if ($fields !== null) {
+					$value = $valueObject->newInstanceArgs($fields);
+				}
+			}
+
 			if ($value === false) {
 				return null;
 			}

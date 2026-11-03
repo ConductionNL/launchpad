@@ -49,10 +49,7 @@ class AttentionController extends Controller {
 		private readonly AttentionSourceService $sources,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

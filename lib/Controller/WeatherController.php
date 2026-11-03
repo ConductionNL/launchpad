@@ -45,6 +45,8 @@ use Throwable;
  * Controller for the weather-widget capability.
  *
  * @spec openspec/specs/clock-weather-widgets/spec.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class WeatherController extends Controller {
 	/**
@@ -61,10 +63,7 @@ class WeatherController extends Controller {
 		private readonly PermissionService $permissionService,
 		private readonly SessionLog $session,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -113,10 +112,7 @@ class WeatherController extends Controller {
 				message: 'Unexpected weather resolution failure',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unknown_error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::errorCode(code: 'unknown_error', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		if (isset($reading['error']) === true) {

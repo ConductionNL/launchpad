@@ -45,6 +45,51 @@ class ResponseHelper {
 	}//end unauthorized()
 
 	/**
+	 * Create an error response carrying one message under `error`.
+	 *
+	 * @param string $message    The message shown to the client.
+	 * @param int    $statusCode The HTTP status code.
+	 *
+	 * @return JSONResponse The response `{"error": message}`.
+	 *
+	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 */
+	public static function failure(string $message, int $statusCode): JSONResponse {
+		return new JSONResponse(data: ['error' => $message], statusCode: $statusCode);
+	}//end failure()
+
+	/**
+	 * Create an HTTP 400 response carrying an error code and a message.
+	 *
+	 * @param string $code    The error code, such as `invalid_period`.
+	 * @param string $message The message shown to the client.
+	 *
+	 * @return JSONResponse The response `{"status": "error", "error": code, "message": message}`.
+	 *
+	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 */
+	public static function badRequest(string $code, string $message): JSONResponse {
+		return new JSONResponse(
+			data: ['status' => 'error', 'error' => $code, 'message' => $message],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end badRequest()
+
+	/**
+	 * Create an error response carrying a machine-readable error code.
+	 *
+	 * @param string $code       The error code, such as `not_found`.
+	 * @param int    $statusCode The HTTP status code.
+	 *
+	 * @return JSONResponse The response `{"status": "error", "error": code}`.
+	 *
+	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 */
+	public static function errorCode(string $code, int $statusCode): JSONResponse {
+		return new JSONResponse(data: ['status' => 'error', 'error' => $code], statusCode: $statusCode);
+	}//end errorCode()
+
+	/**
 	 * Create a forbidden response.
 	 *
 	 * @param string $message The error message.
@@ -136,14 +181,7 @@ class ResponseHelper {
 	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
 	 */
 	public static function invalidArgument(string $message): JSONResponse {
-		return new JSONResponse(
-			data: [
-				'status' => 'error',
-				'error' => 'invalid_argument',
-				'message' => $message,
-			],
-			statusCode: Http::STATUS_BAD_REQUEST
-		);
+		return self::badRequest(code: 'invalid_argument', message: $message);
 	}//end invalidArgument()
 
 	/**

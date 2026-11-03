@@ -27,8 +27,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AcknowledgementService;
-use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -38,7 +36,6 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -66,10 +63,7 @@ class AcknowledgementController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -89,10 +83,7 @@ class AcknowledgementController extends Controller {
 
 		$announcementKey = (string)$this->request->getParam(key: 'announcementKey', default: '');
 		if ($announcementKey === '') {
-			return new JSONResponse(
-				data: ['error' => 'announcementKey is required'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// Reject any attempt to acknowledge on behalf of another user
@@ -131,10 +122,7 @@ class AcknowledgementController extends Controller {
 				message: 'acknowledge failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $receipt->jsonSerialize());
@@ -160,7 +148,9 @@ class AcknowledgementController extends Controller {
 	}//end denyOutsideAudience()
 
 	/**
-	 * Refuse a content version newer than the announcement's current one, so
+	 * Refuse a content version newer than the announcement's current one for
+	 * the session user (the template's version, or without a template the
+	 * version on the user's own copy), so
 	 * no receipt can exist for content that was not published yet
 	 * (REQ-ACK-005). An older version stays accepted: a copy that has not
 	 * been re-synced yet still shows it.
@@ -171,7 +161,7 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse|null The 400, or null when the version is published.
 	 */
 	private function rejectUnpublishedVersion(string $announcementKey, int $contentVersion): ?JSONResponse {
-		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey);
+		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->userId);
 		if ($current === null || $contentVersion > $current) {
 			return ResponseHelper::invalidArgument(
 				message: 'contentVersion is not a published version of this announcement'
@@ -202,10 +192,7 @@ class AcknowledgementController extends Controller {
 				message: 'pending failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $result);
@@ -239,19 +226,13 @@ class AcknowledgementController extends Controller {
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'report failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $report);
@@ -286,19 +267,13 @@ class AcknowledgementController extends Controller {
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'reportCsv failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$csv = $this->buildCsv(report: $report);

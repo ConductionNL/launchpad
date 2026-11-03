@@ -133,9 +133,11 @@ class QueryRecorder {
 	private function result(): IResult {
 		$rows = $this->rows;
 		$result = $this->test->getMockBuilder(className: IResult::class)->getMock();
-		$result->method('fetch')->willReturnCallback(static function () use (&$rows): array|false {
+		$next = static function () use (&$rows): array|false {
 			return array_shift($rows) ?? false;
-		});
+		};
+		$result->method('fetch')->willReturnCallback($next);
+		$result->method('fetchAssociative')->willReturnCallback($next);
 		$result->method('fetchAll')->willReturn($this->rows);
 		$first = false;
 		if ($this->rows !== []) {

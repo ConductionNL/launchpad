@@ -70,6 +70,8 @@ use Throwable;
  * Public read-side controller for uploaded resources.
  *
  * @spec openspec/changes/resource-serving/tasks.md
+ * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
+ *  stateless response factory shared by every controller in this app.
  */
 class ResourceServeController extends Controller {
 	/**
@@ -93,10 +95,7 @@ class ResourceServeController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -149,13 +148,7 @@ class ResourceServeController extends Controller {
 
 		// 413 guard — refuse oversize files BEFORE pulling bytes.
 		if ((int)$file->getSize() > ResourceService::MAX_BYTES) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'file_too_large',
-				],
-				statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE
-			);
+			return ResponseHelper::errorCode(code: 'file_too_large', statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE);
 		}
 
 		try {

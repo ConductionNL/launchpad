@@ -121,10 +121,7 @@ class I18nExportStringsCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$appRoot = (string)realpath(path: ($this->appRoot ?? __DIR__ . '/../..'));
 		if ($appRoot === '') {
 			return $this->emitError(

@@ -93,10 +93,7 @@ class ExportCommand extends Command {
 	 *
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$scope = (string)$input->getOption(name: 'scope');
 		$outputPath = (string)($input->getOption(name: 'output') ?? '');
 		$dashboardUid = (string)($input->getOption(name: 'dashboard-uuid') ?? '');

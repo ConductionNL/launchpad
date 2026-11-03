@@ -65,10 +65,7 @@ class AdminSettingsController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -170,19 +167,13 @@ class AdminSettingsController extends Controller {
 		}
 
 		if (is_array($groups) === false) {
-			return new JSONResponse(
-				data: ['error' => 'groups must be an array'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'groups must be an array', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
 			$this->settingsService->setGroupOrder(groupIds: $groups);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return ResponseHelper::success(

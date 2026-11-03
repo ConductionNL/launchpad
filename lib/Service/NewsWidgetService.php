@@ -32,7 +32,6 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
 use OCP\ICacheFactory;

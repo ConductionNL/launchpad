@@ -262,24 +262,6 @@ class DashboardTranslationMapper extends QBMapper {
 	 * @return int The number of variants.
 	 */
 	public function countByDashboardUuid(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
-
-		$cursor = $qb->executeQuery();
-		$row = $cursor->fetch();
-		$cursor->closeCursor();
-
-		if ($row === false || isset($row['cnt']) === false) {
-			return 0;
-		}
-
-		return (int)$row['cnt'];
+		return $this->countWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 	}//end countByDashboardUuid()
 }//end class

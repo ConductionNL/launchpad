@@ -103,10 +103,7 @@ class CleanupPurgeCommand extends Command {
 	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$categoryOption = $input->getOption(name: 'category');
 		$dryRun = (bool)$input->getOption(name: 'dry-run');
 		$assumeYes = (bool)$input->getOption(name: 'yes');

@@ -40,7 +40,6 @@ use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
-use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
 use OCP\ICacheFactory;

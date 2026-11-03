@@ -117,10 +117,7 @@ class DashboardListCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$user = $input->getOption(name: 'user');
 		$group = $input->getOption(name: 'group');
 		$status = $input->getOption(name: 'status');

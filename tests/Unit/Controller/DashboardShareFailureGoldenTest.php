@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DashboardShareWriteGoldenTest
+ * DashboardShareFailureGoldenTest
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Controller
@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Tests\Unit\Controller;
 
 use OCA\LaunchPad\Controller\DashboardShareApiController;
+use OCA\LaunchPad\Controller\ShareApiTools;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
@@ -47,10 +48,15 @@ use Throwable;
  *
  * @covers \OCA\LaunchPad\Controller\DashboardShareApiController
  * @covers \OCA\LaunchPad\Service\DashboardShareService
+ * @covers \OCA\LaunchPad\Controller\ShareApiTools
+ * @uses \OCA\LaunchPad\Exception\ForbiddenException
+ * @uses \OCA\LaunchPad\Exception\ResourceException
+ * @uses \OCA\LaunchPad\Db\Dashboard
+ * @uses \OCA\LaunchPad\Db\DashboardShare
  */
-class DashboardShareWriteGoldenTest extends TestCase {
+class DashboardShareFailureGoldenTest extends TestCase {
 
-	private const FIXTURE = __DIR__ . '/fixtures/dashboard-share-write.json';
+	private const FIXTURE = __DIR__ . '/fixtures/dashboard-share-failures.json';
 
 	/**
 	 * Endpoint calls: [method, arguments].
@@ -246,20 +252,10 @@ class DashboardShareWriteGoldenTest extends TestCase {
 	private function build(DashboardShareService $service, ?string $userId, LoggerInterface $logger): DashboardShareApiController {
 		$userManager = $this->createMock(IUserManager::class);
 		$groupManager = $this->createMock(IGroupManager::class);
-		if (class_exists(\OCA\LaunchPad\Controller\ShareApiTools::class) === true) {
-			return new DashboardShareApiController(
-				request: $this->createMock(IRequest::class),
-				shareService: $service,
-				tools: new \OCA\LaunchPad\Controller\ShareApiTools(userManager: $userManager, groupManager: $groupManager, logger: $logger),
-				userId: $userId,
-			);
-		}
-
 		return new DashboardShareApiController(
 			request: $this->createMock(IRequest::class),
 			shareService: $service,
-			userManager: $userManager,
-			groupManager: $groupManager,
+			tools: new ShareApiTools(userManager: $userManager, groupManager: $groupManager, logger: $logger),
 			userId: $userId,
 		);
 	}

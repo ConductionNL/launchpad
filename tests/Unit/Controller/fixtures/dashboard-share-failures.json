@@ -19,20 +19,26 @@
         "logged": []
     },
     "create / alice (owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
         ],
         "writes": [],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "create / alice (owner) / write fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "insert failed: secret column name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
@@ -40,7 +46,13 @@
         "writes": [
             "insert user:carol:view_only"
         ],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "create / anonymous / healthy": {
         "status": 401,
@@ -300,18 +312,24 @@
         "logged": []
     },
     "destroy / alice (owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [],
         "writes": [],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "destroy / alice (owner) / write fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "insert failed: secret column name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
@@ -319,7 +337,13 @@
         "writes": [
             "delete 10"
         ],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "destroy / anonymous / healthy": {
         "status": 401,
@@ -360,13 +384,19 @@
         "logged": []
     },
     "destroy / bob (not owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [],
         "writes": [],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "destroy / bob (not owner) / write fails": {
         "status": 403,
@@ -389,13 +419,19 @@
         "logged": []
     },
     "destroy unknown share / alice (owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [],
         "writes": [],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "destroy unknown share / alice (owner) / write fails": {
         "status": 404,
@@ -443,13 +479,19 @@
         "logged": []
     },
     "destroy unknown share / bob (not owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [],
         "writes": [],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "destroy unknown share / bob (not owner) / write fails": {
         "status": 404,
@@ -480,15 +522,21 @@
         "logged": []
     },
     "index / alice (owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
         ],
         "writes": [],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "index / alice (owner) / write fails": {
         "status": 200,
@@ -685,9 +733,9 @@
         "logged": []
     },
     "replace / alice (owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
@@ -695,12 +743,18 @@
         "writes": [
             "deleteNotIn 1 keep user:carol"
         ],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "replace / alice (owner) / write fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "insert failed: secret column name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
@@ -708,7 +762,13 @@
         "writes": [
             "deleteNotIn 1 keep user:carol"
         ],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "replace / anonymous / healthy": {
         "status": 401,
@@ -771,7 +831,10 @@
         "logged": []
     },
     "replace array recipient / alice (owner) / healthy": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -779,7 +842,10 @@
         "logged": []
     },
     "replace array recipient / alice (owner) / read fails": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -787,7 +853,10 @@
         "logged": []
     },
     "replace array recipient / alice (owner) / write fails": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -876,9 +945,9 @@
         "logged": []
     },
     "replace empty / alice (owner) / read fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "select failed: secret table name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
@@ -886,12 +955,18 @@
         "writes": [
             "deleteNotIn 1 keep "
         ],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "replace empty / alice (owner) / write fails": {
-        "status": 403,
+        "status": 500,
         "data": {
-            "error": "insert failed: secret column name"
+            "error": "Internal error"
         },
         "ownerLookups": [
             1
@@ -899,7 +974,13 @@
         "writes": [
             "deleteNotIn 1 keep "
         ],
-        "logged": []
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
     },
     "replace empty / anonymous / healthy": {
         "status": 401,
@@ -964,7 +1045,7 @@
     "replace entry not an array / alice (owner) / healthy": {
         "status": 400,
         "data": {
-            "error": "Invalid shareType: "
+            "error": "Each share must be an object"
         },
         "ownerLookups": [
             1
@@ -975,7 +1056,7 @@
     "replace entry not an array / alice (owner) / read fails": {
         "status": 400,
         "data": {
-            "error": "Invalid shareType: "
+            "error": "Each share must be an object"
         },
         "ownerLookups": [
             1
@@ -986,7 +1067,7 @@
     "replace entry not an array / alice (owner) / write fails": {
         "status": 400,
         "data": {
-            "error": "Invalid shareType: "
+            "error": "Each share must be an object"
         },
         "ownerLookups": [
             1
@@ -1055,7 +1136,10 @@
         "logged": []
     },
     "replace int recipient / alice (owner) / healthy": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -1063,7 +1147,10 @@
         "logged": []
     },
     "replace int recipient / alice (owner) / read fails": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -1071,7 +1158,10 @@
         "logged": []
     },
     "replace int recipient / alice (owner) / write fails": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -1139,7 +1229,10 @@
         "logged": []
     },
     "replace int type / alice (owner) / healthy": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareType must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -1147,7 +1240,10 @@
         "logged": []
     },
     "replace int type / alice (owner) / read fails": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareType must be a string"
+        },
         "ownerLookups": [
             1
         ],
@@ -1155,7 +1251,10 @@
         "logged": []
     },
     "replace int type / alice (owner) / write fails": {
-        "threw": "TypeError",
+        "status": 400,
+        "data": {
+            "error": "shareType must be a string"
+        },
         "ownerLookups": [
             1
         ],

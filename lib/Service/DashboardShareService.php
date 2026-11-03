@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\Notification\IManager as INotificationManager;
@@ -80,7 +80,7 @@ class DashboardShareService {
 	 *
 	 * @return DashboardShare[] The shares.
 	 *
-	 * @throws Exception When the user is not the dashboard owner.
+	 * @throws ForbiddenException When the user is not the dashboard owner.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -101,7 +101,8 @@ class DashboardShareService {
 	 *
 	 * @return DashboardShare The persisted share.
 	 *
-	 * @throws Exception When the caller is not the owner or input is invalid.
+	 * @throws ForbiddenException When the caller is not the owner.
+	 * @throws InvalidArgumentException When the input is invalid.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -149,7 +150,7 @@ class DashboardShareService {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception When the share does not exist or caller is not owner.
+	 * @throws ForbiddenException When the caller is not the owner.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -160,7 +161,7 @@ class DashboardShareService {
 		);
 
 		if ($dashboard->getUserId() !== $callerId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$this->shareMapper->delete(entity: $share);
@@ -179,7 +180,8 @@ class DashboardShareService {
 	 *
 	 * @return DashboardShare[] The new full share list.
 	 *
-	 * @throws Exception When the caller is not the owner or input is invalid.
+	 * @throws ForbiddenException When the caller is not the owner.
+	 * @throws InvalidArgumentException When the input is invalid.
 	 * @throws Throwable On DB error (rolls back).
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
@@ -196,11 +198,7 @@ class DashboardShareService {
 
 		// Validate all entries up-front before touching the DB.
 		foreach ($shares as $entry) {
-			$this->validateInput(
-				shareType: $entry['shareType'] ?? '',
-				shareWith: $entry['shareWith'] ?? '',
-				permissionLevel: $entry['permissionLevel'] ?? ''
-			);
+			$this->validateEntry(entry: $entry);
 		}
 
 		// Build the keep-key set for deletion.
@@ -559,6 +557,39 @@ class DashboardShareService {
 	}//end resolveRecipients()
 
 	/**
+	 * Validate one entry of a share replace: an object whose shareType,
+	 * shareWith and permissionLevel, when present, are strings, and whose
+	 * values pass {@see self::validateInput()}.
+	 *
+	 * @param array|string|int|float|bool|null $entry The entry from the request.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException On invalid input.
+	 */
+	private function validateEntry(array|string|int|float|bool|null $entry): void {
+		if (is_array($entry) === false) {
+			throw new InvalidArgumentException(message: 'Each share must be an object');
+		}
+
+		$fields = [];
+		foreach (['shareType', 'shareWith', 'permissionLevel'] as $field) {
+			$value = $entry[$field] ?? '';
+			if (is_string($value) === false) {
+				throw new InvalidArgumentException(message: $field . ' must be a string');
+			}
+
+			$fields[$field] = $value;
+		}
+
+		$this->validateInput(
+			shareType: $fields['shareType'],
+			shareWith: $fields['shareWith'],
+			permissionLevel: $fields['permissionLevel']
+		);
+	}//end validateEntry()
+
+	/**
 	 * Validate share type, shareWith, and permission level.
 	 *
 	 * @param string $shareType The share type.
@@ -609,13 +640,13 @@ class DashboardShareService {
 	 *
 	 * @return Dashboard The dashboard.
 	 *
-	 * @throws Exception When the user is not the owner.
+	 * @throws ForbiddenException When the user is not the owner.
 	 */
 	private function assertOwner(int $dashboardId, string $userId): Dashboard {
 		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		return $dashboard;

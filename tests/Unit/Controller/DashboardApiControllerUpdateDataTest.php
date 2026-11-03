@@ -40,6 +40,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\LaunchPad\Controller\DashboardApiController
  * @covers \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Db\Dashboard
  */
 class DashboardApiControllerUpdateDataTest extends TestCase {
 

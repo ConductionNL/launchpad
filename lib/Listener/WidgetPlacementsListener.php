@@ -27,18 +27,16 @@ namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCP\EventDispatcher\Event;
-use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Deletes widget placements for the deleted dashboard.
  * C4 fix (REQ-CSC-003, REQ-CSC-008 idempotency).
  *
- * @implements IEventListener<DashboardDeletedEvent>
  */
-class WidgetPlacementsListener implements IEventListener {
+class WidgetPlacementsListener extends DashboardCleanupListener {
+	protected const CLEANED = 'deleted %d placement rows';
+
 	/**
 	 * Constructor.
 	 *
@@ -49,50 +47,21 @@ class WidgetPlacementsListener implements IEventListener {
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly LoggerInterface $logger,
+		LoggerInterface $logger,
 	) {
+		parent::__construct(logger: $logger);
 	}//end __construct()
 
 	/**
-	 * Handle the DashboardDeletedEvent.
+	 * Remove the deleted dashboard's rows.
 	 *
-	 * @param Event $event The event.
+	 * @param DashboardDeletedEvent $event The event.
 	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/dashboard-cascade-events/spec.md
+	 * @return int The number of rows removed.
 	 */
-	public function handle(Event $event): void {
-		if (($event instanceof DashboardDeletedEvent) === false) {
-			return;
-		}
-
-		$uuid = $event->getDashboardUuid();
-
-		try {
-			$deleted = $this->placementMapper->deleteByDashboardUuid(
-				dashboardUuid: $uuid
-			);
-
-			$this->logger->debug(
-				message: sprintf(
-					'launchpad WidgetPlacementsListener: deleted %d placement rows for dashboard %s',
-					$deleted,
-					$uuid
-				),
-				context: ['app' => 'launchpad']
-			);
-		} catch (Throwable $t) {
-			// Failure isolation per REQ-CSC-006 — log at WARN, do not
-			// rethrow so peer listeners still execute.
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad WidgetPlacementsListener: failed for dashboard %s: %s',
-					$uuid,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
-		}//end try
-	}//end handle()
+	protected function cleanUp(DashboardDeletedEvent $event): int {
+		return $this->placementMapper->deleteByDashboardUuid(
+			dashboardUuid: $event->getDashboardUuid()
+		);
+	}//end cleanUp()
 }//end class

@@ -41,19 +41,17 @@ namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCP\EventDispatcher\Event;
-use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Deletes user and group shares for a deleted dashboard.
  *
- * @implements IEventListener<DashboardDeletedEvent>
  *
  * @spec openspec/specs/dashboard-cascade-events/spec.md#requirement-req-csc-003-dependent-data-listener-group
  */
-class DashboardSharesListener implements IEventListener {
+class DashboardSharesListener extends DashboardCleanupListener {
+	protected const CLEANED = 'deleted %d share row(s)';
+
 	/**
 	 * Constructor.
 	 *
@@ -63,53 +61,24 @@ class DashboardSharesListener implements IEventListener {
 	 */
 	public function __construct(
 		private readonly DashboardShareMapper $shareMapper,
-		private readonly LoggerInterface $logger,
+		LoggerInterface $logger,
 	) {
+		parent::__construct(logger: $logger);
 	}//end __construct()
 
 	/**
-	 * Handle the DashboardDeletedEvent by deleting every share of the dashboard.
+	 * Remove the deleted dashboard's rows.
 	 *
-	 * @param Event $event The event.
+	 * @param DashboardDeletedEvent $event The event.
 	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/dashboard-cascade-events/spec.md#requirement-req-csc-003-dependent-data-listener-group
+	 * @return int The number of rows removed.
 	 */
-	public function handle(Event $event): void {
-		if (($event instanceof DashboardDeletedEvent) === false) {
-			return;
-		}
-
-		$uuid = $event->getDashboardUuid();
-
-		try {
-			$deleted = $this->deleteShares(
-				uuid: $uuid,
-				dashboardId: $event->getDashboardId()
-			);
-
-			$this->logger->debug(
-				message: sprintf(
-					'launchpad DashboardSharesListener: deleted %d share row(s) for dashboard %s',
-					$deleted,
-					$uuid
-				),
-				context: ['app' => 'launchpad']
-			);
-		} catch (Throwable $t) {
-			// Failure isolation per REQ-CSC-006: log at WARN, do not rethrow,
-			// so peer listeners still execute.
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad DashboardSharesListener: failed for dashboard %s: %s',
-					$uuid,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
-		}//end try
-	}//end handle()
+	protected function cleanUp(DashboardDeletedEvent $event): int {
+		return $this->deleteShares(
+			uuid: $event->getDashboardUuid(),
+			dashboardId: $event->getDashboardId()
+		);
+	}//end cleanUp()
 
 	/**
 	 * Delete the shares by id, or by UUID when the event carries no id.

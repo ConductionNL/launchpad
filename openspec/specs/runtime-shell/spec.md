@@ -223,7 +223,7 @@ When the option is off, or the initial state does not carry the key, nothing cha
 
 #### Scenario: Other pages keep the panel
 - GIVEN the option is on
-- WHEN a member opens the Store page
+- WHEN a member opens the Marketplace page
 - THEN the navigation panel MUST render
 
 @e2e openspec/specs/runtime-shell/spec.md#req-shell-009

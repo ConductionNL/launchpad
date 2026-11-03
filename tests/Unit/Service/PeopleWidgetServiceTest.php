@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ProfileFieldTools;
+use OCA\LaunchPad\Service\ProfileSources;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -125,10 +127,14 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->profileFields = new ProfileFieldService(
 			settingMapper: $settingMapper,
 			valueMapper: $this->profileValues,
-			accountManager: $this->accountManager,
-			adminTemplateService: $this->adminTemplateService,
-			ldapProviderFactory: $this->createMock(originalClassName: ILDAPProviderFactory::class),
-			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			sources: new ProfileSources(
+				accountManager: $this->accountManager,
+				ldapProviderFactory: $this->createMock(originalClassName: ILDAPProviderFactory::class)
+			),
+			tools: new ProfileFieldTools(
+				adminTemplateService: $this->adminTemplateService,
+				logger: $this->createMock(originalClassName: LoggerInterface::class)
+			)
 		);
 
 		$this->service = new PeopleWidgetService(

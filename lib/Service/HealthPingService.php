@@ -47,11 +47,8 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
-use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
-use OCP\ICacheFactory;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -155,21 +152,17 @@ class HealthPingService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IClientService $clientService HTTP client factory for the health-check request.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed badge cache.
-	 * @param IAppConfig $appConfig Admin config: allow-listed hosts, latency threshold.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id / enumerates all placements.
-	 * @param LoggerInterface $logger PSR logger.
+	 * @param PingTransport           $transport The HTTP client and cache factory.
+	 * @param PingSettings            $settings The app config and logger.
+	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id / enumerates all placements.
 	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a ping met, or nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
-		private readonly IAppConfig $appConfig,
+		private readonly PingTransport $transport,
+		private readonly PingSettings $settings,
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly LoggerInterface $logger,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
@@ -271,7 +264,7 @@ class HealthPingService {
 		try {
 			$placements = $this->placementMapper->findAll();
 		} catch (Throwable $exception) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'HealthPingService: could not enumerate placements for refresh',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -297,7 +290,7 @@ class HealthPingService {
 					$refreshed++;
 				}
 			} catch (Throwable $exception) {
-				$this->logger->info(
+				$this->settings->logger->info(
 					message: 'HealthPingService: refresh failed for one placement, continuing',
 					context: [
 						'app' => Application::APP_ID,
@@ -319,7 +312,8 @@ class HealthPingService {
 	 * `healthPingEnabled` is not `true` — an author may save an untouched
 	 * (disabled) ping block freely.
 	 *
-	 * @param array<string,mixed> $config The candidate `{healthPingEnabled, healthUrl, expectedStatus, pingInterval}` config.
+	 * @param array<string,mixed> $config The candidate `{healthPingEnabled, healthUrl, expectedStatus,
+	 *                                    pingInterval}` config.
 	 *
 	 * @return string[] Validation error codes; empty when the config is valid.
 	 *
@@ -412,7 +406,7 @@ class HealthPingService {
 		}
 
 		if ($this->isHostAllowed(url: $url) === false) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'HealthPingService: host not on healthping_allowed_hosts, refusing ping (fail-closed)',
 				context: ['app' => Application::APP_ID]
 			);
@@ -425,7 +419,7 @@ class HealthPingService {
 		$startedAt = microtime(as_float: true);
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->transport->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -441,7 +435,7 @@ class HealthPingService {
 			// REQ-HPING-002 "Offline on failure" — a connection failure or
 			// timeout IS a definitive reading, not a missed attempt.
 			$latencyMs = (int)round((microtime(as_float: true) - $startedAt) * 1000);
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'HealthPingService: ping transport failure, classifying offline',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -490,7 +484,7 @@ class HealthPingService {
 	 * @return integer
 	 */
 	private function latencyThreshold(): int {
-		$threshold = $this->appConfig->getValueInt(
+		$threshold = $this->settings->appConfig->getValueInt(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_LATENCY_THRESHOLD_MS,
 			default: self::DEFAULT_LATENCY_THRESHOLD_MS
@@ -530,7 +524,7 @@ class HealthPingService {
 			return false;
 		}
 
-		$raw = $this->appConfig->getValueString(
+		$raw = $this->settings->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_ALLOWED_HOSTS,
 			default: ''
@@ -647,9 +641,9 @@ class HealthPingService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_healthping_');
+			$this->cache = $this->transport->cacheFactory->createDistributed(prefix: 'launchpad_healthping_');
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'HealthPingService: cache subsystem unavailable, falling back to direct ping',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);

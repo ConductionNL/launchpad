@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\TileViewTools;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\TileClick;
@@ -63,8 +64,10 @@ class TileAnalyticsServiceTest extends TestCase {
 			tileClickMapper: $this->tileClickMapper,
 			placementMapper: $this->placementMapper,
 			dashboardMapper: $this->dashboardMapper,
-			dedup: $this->dedup,
-			analyticsService: $this->analyticsService,
+			views: new TileViewTools(
+				dedup: $this->dedup,
+				analyticsService: $this->analyticsService
+			)
 		);
 	}
 

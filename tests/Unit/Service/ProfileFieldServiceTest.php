@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ProfileFieldTools;
+use OCA\LaunchPad\Service\ProfileSources;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\AdminTemplateService;
@@ -97,10 +99,14 @@ class ProfileFieldServiceTest extends TestCase {
 		$this->service = new ProfileFieldService(
 			settingMapper: $settingMapper,
 			valueMapper: $this->values,
-			accountManager: $this->accountManager,
-			adminTemplateService: $templates,
-			ldapProviderFactory: $this->ldapFactory,
-			logger: $this->createMock(LoggerInterface::class),
+			sources: new ProfileSources(
+				accountManager: $this->accountManager,
+				ldapProviderFactory: $this->ldapFactory
+			),
+			tools: new ProfileFieldTools(
+				adminTemplateService: $templates,
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 	}//end setUp()
 

@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
+use OCA\LaunchPad\Service\ShippedTemplateStore;
+use OCA\LaunchPad\Service\ShippedTemplatePlatform;
 use OCA\LaunchPad\Service\AdminTemplateStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Command\ExportCommand;
@@ -194,10 +196,14 @@ class ShippedTemplateServiceTest extends TestCase {
 				groupManager: $groupManager,
 				userManager: $this->createMock(IUserManager::class)
 			),
-			dashboardMapper: $instance['dashboardMapper'],
-			appConfig: $appConfig,
-			dashboardMgr: $dashboardManager,
-			groupManager: $groupManager,
+			store: new ShippedTemplateStore(
+				dashboardMapper: $instance['dashboardMapper'],
+				appConfig: $appConfig
+			),
+			platform: new ShippedTemplatePlatform(
+				dashboardMgr: $dashboardManager,
+				groupManager: $groupManager
+			)
 		);
 		if ($dataDir !== null) {
 			$service->setDataDirForTesting(path: $dataDir);

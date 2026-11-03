@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\CleanupReporting;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCA\LaunchPad\Service\Cleanup\CleanupCategoryInterface;
 use OCA\LaunchPad\Service\OrphanedDataCleanupService;
@@ -106,8 +107,10 @@ class OrphanedDataCleanupServiceTest extends TestCase {
 			registry: $this->registry,
 			cacheFactory: $this->cacheFactory,
 			db: $this->db,
-			activityManager: $this->activity,
-			logger: $this->logger,
+			reporting: new CleanupReporting(
+				activityManager: $this->activity,
+				logger: $this->logger
+			)
 		);
 	}
 

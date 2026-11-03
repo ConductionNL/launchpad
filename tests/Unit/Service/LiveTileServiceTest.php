@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\LiveTileSettings;
 use OCA\LaunchPad\Service\ReadingSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -114,9 +115,11 @@ class LiveTileServiceTest extends TestCase {
 				clientService: $this->clientService,
 				cacheFactory: $cacheFactory
 			),
-			appConfig: $this->appConfig,
-			placementMapper: $this->placementMapper,
-			logger: $this->logger
+			settings: new LiveTileSettings(
+				appConfig: $this->appConfig,
+				logger: $this->logger
+			),
+			placementMapper: $this->placementMapper
 		);
 	}//end setUp()
 

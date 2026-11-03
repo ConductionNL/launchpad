@@ -33,8 +33,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Controller for the v2 runtime manifest endpoint (ADR-036 Decision 8).
@@ -74,23 +72,15 @@ class ManifestController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param ContainerInterface $container The Nextcloud DI container; used to
-	 *                                      lazy-load ObjectService so that launchpad
-	 *                                      degrades gracefully when OpenRegister
-	 *                                      is not yet active.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId The authenticated user ID, injected
-	 *                            by the DI container.
+	 * @param IRequest      $request The HTTP request.
+	 * @param ManifestTools $tools The container and logger.
+	 * @param ActionCaller  $caller The session and the action check.
+	 * @param string|null   $userId The authenticated user ID, injected by the DI container.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ContainerInterface $container,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
+		private readonly ManifestTools $tools,
+		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(
@@ -124,13 +114,13 @@ class ManifestController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'manifest.index');
+			$this->caller->actionAuth->requireAction($user, 'manifest.index');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -143,9 +133,9 @@ class ManifestController extends Controller {
 			 * @var \OCA\OpenRegister\Service\ObjectService $objectService
 			 */
 
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			$objectService = $this->tools->container->get('OCA\OpenRegister\Service\ObjectService');
 		} catch (\Throwable $e) {
-			$this->logger->warning(
+			$this->tools->logger->warning(
 				'LaunchPad: OpenRegister ObjectService unavailable — returning empty manifest. ' . $e->getMessage(),
 				['app' => Application::APP_ID]
 			);
@@ -240,14 +230,14 @@ class ManifestController extends Controller {
 			// so the frontend renders its "no dashboards yet" CTA instead of a
 			// 500 (OpenRegister surfaces this as DoesNotExistException, which
 			// extends \Exception and so is not a RuntimeException).
-			$this->logger->info(
+			$this->tools->logger->info(
 				'MyDash: OpenRegister register/schema not provisioned — returning empty manifest. ' . $e->getMessage(),
 				['app' => Application::APP_ID, 'userId' => $userId]
 			);
 		} catch (\RuntimeException|\InvalidArgumentException $e) {
 			// Narrow catch: only handle recoverable OR API errors. Let
 			// unexpected errors propagate so they are visible in the logs.
-			$this->logger->error(
+			$this->tools->logger->error(
 				'LaunchPad: failed to fetch dashboards from OpenRegister: ' . $e->getMessage(),
 				['app' => Application::APP_ID, 'userId' => $userId]
 			);
@@ -342,11 +332,11 @@ class ManifestController extends Controller {
 	 */
 	private function fetchGrantedDashboards(object $objectService, string $userId): array {
 		try {
-			$grantResolver = $this->container->get('OCA\OpenRegister\Service\Rbac\ObjectGrantResolver');
+			$grantResolver = $this->tools->container->get('OCA\OpenRegister\Service\Rbac\ObjectGrantResolver');
 		} catch (\Throwable $e) {
 			// OpenRegister without the per-object sharing primitive. Not an
 			// error: degrade to owned-only, which is the pre-existing behaviour.
-			$this->logger->debug(
+			$this->tools->logger->debug(
 				'LaunchPad: OpenRegister object-grant resolver unavailable — manifest is owned-only. ' . $e->getMessage(),
 				['app' => Application::APP_ID]
 			);
@@ -365,7 +355,7 @@ class ManifestController extends Controller {
 			if (count($grantedUuids) > self::MAX_GRANTED) {
 				// Logged, never silent: a truncated manifest must not be
 				// indistinguishable from "nothing is shared with this user".
-				$this->logger->warning(
+				$this->tools->logger->warning(
 					sprintf(
 						'LaunchPad: %d granted dashboards exceeds the %d cap — manifest truncated.',
 						count($grantedUuids),
@@ -409,7 +399,7 @@ class ManifestController extends Controller {
 			// query already handles.
 			return [];
 		} catch (\RuntimeException|\InvalidArgumentException $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				'LaunchPad: failed to fetch granted dashboards from OpenRegister: ' . $e->getMessage(),
 				['app' => Application::APP_ID, 'userId' => $userId]
 			);

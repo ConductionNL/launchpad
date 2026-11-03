@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Activity\PublisherTools;
 use Closure;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Activity\DebounceHelper;
@@ -46,6 +47,7 @@ use ReflectionClass;
  * @uses   \OCA\LaunchPad\Activity\ActivityRow
  * @uses   \OCA\LaunchPad\Activity\ActivitySubject
  * @uses   \OCA\LaunchPad\Activity\DebounceHelper
+ * @uses   \OCA\LaunchPad\Activity\PublisherTools
  */
 class ActivityCallSitesGoldenTest extends TestCase {
 
@@ -105,8 +107,10 @@ class ActivityCallSitesGoldenTest extends TestCase {
 			manager: $manager,
 			groupManager: $this->createMock(IGroupManager::class),
 			userManager: $this->createMock(IUserManager::class),
-			debounce: new DebounceHelper(clock: static fn (): int => 1000),
-			logger: new NullLogger()
+			tools: new PublisherTools(
+				debounce: new DebounceHelper(clock: static fn (): int => 1000),
+				logger: new NullLogger()
+			)
 		);
 	}//end publisher()
 

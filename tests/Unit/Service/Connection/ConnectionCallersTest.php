@@ -28,6 +28,10 @@ declare(strict_types=1);
 
 namespace Unit\Service\Connection;
 
+use OCA\LaunchPad\Service\WeatherStore;
+use OCA\LaunchPad\Service\WeatherSettings;
+use OCA\LaunchPad\Service\PingSettings;
+use OCA\LaunchPad\Service\PingTransport;
 use OCA\LaunchPad\Service\FeedFetchTools;
 use OCA\LaunchPad\Service\ReadingSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
@@ -168,12 +172,16 @@ class ConnectionCallersTest extends TestCase {
 		$placements->method('find')->willReturn($placement);
 
 		return new HealthPingService(
-			clientService: $clients,
-			cacheFactory: $this->emptyCacheFactory(),
-			appConfig: $appConfig,
+			transport: new PingTransport(
+				clientService: $clients,
+				cacheFactory: $this->emptyCacheFactory()
+			),
+			settings: new PingSettings(
+				appConfig: $appConfig,
+				logger: new NullLogger()
+			),
 			placementMapper: $placements,
-			logger: new NullLogger(),
-			connectionReporter: $reporter,
+			connectionReporter: $reporter
 		);
 	}//end healthPing()
 
@@ -467,10 +475,14 @@ class ConnectionCallersTest extends TestCase {
 				clientService: $this->createMock(originalClassName: IClientService::class),
 				cacheFactory: $this->emptyCacheFactory()
 			),
-			appConfig: $appConfig,
-			placementMapper: $placements,
-			config: $this->createMock(originalClassName: IConfig::class),
-			logger: new NullLogger(),
+			settings: new WeatherSettings(
+				appConfig: $appConfig,
+				config: $this->createMock(originalClassName: IConfig::class)
+			),
+			store: new WeatherStore(
+				placementMapper: $placements,
+				logger: new NullLogger()
+			),
 			connectionReporter: $this->recordingReporter(appConfig: $appConfig)
 		);
 	}//end weather()

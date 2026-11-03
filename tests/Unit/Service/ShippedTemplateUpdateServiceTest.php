@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
+use OCA\LaunchPad\Service\ShippedTemplateStore;
+use OCA\LaunchPad\Service\ShippedTemplatePlatform;
 use OCA\LaunchPad\Service\AdminTemplateStores;
 use OCA\LaunchPad\Service\ResyncStores;
 use OCA\LaunchPad\Service\ShippedTemplateStores;
@@ -132,10 +134,14 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 				logger: new NullLogger(),
 			),
 			templateService: $adminTemplates,
-			dashboardMapper: $this->dashboardMapper,
-			appConfig: $appConfig,
-			dashboardMgr: $this->createMock(IManager::class),
-			groupManager: $groupManager,
+			store: new ShippedTemplateStore(
+				dashboardMapper: $this->dashboardMapper,
+				appConfig: $appConfig
+			),
+			platform: new ShippedTemplatePlatform(
+				dashboardMgr: $this->createMock(IManager::class),
+				groupManager: $groupManager
+			)
 		);
 		$this->shipped->setDataDirForTesting(path: $this->dataDir);
 

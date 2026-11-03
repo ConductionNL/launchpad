@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\MetadataApiCaller;
 use OCA\LaunchPad\Controller\MetadataSources;
 use OCA\LaunchPad\Controller\DashboardMetadataController;
 use OCA\LaunchPad\Db\Dashboard;
@@ -74,13 +75,15 @@ class DashboardMetadataControllerTest extends TestCase {
 
 		return new DashboardMetadataController(
 			request: $this->request,
-			sources: new MetadataSources(
-				metadataService: $this->metadataService,
-				dashboardMapper: $this->dashboardMapper
+			caller: new MetadataApiCaller(
+				sources: new MetadataSources(
+					metadataService: $this->metadataService,
+					dashboardMapper: $this->dashboardMapper
+				),
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
 			),
 			permissionService: $this->permissionService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
 			userId: $userId
 		);
 	}

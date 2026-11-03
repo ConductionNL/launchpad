@@ -43,25 +43,16 @@ class PlacementService {
 	/**
 	 * Constructor
 	 *
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param TileUpdater $tileUpdater Tile updater service.
-	 * @param PlacementUpdater $placementUpdater Placement updater service.
-	 * @param PublicShareContext|null $publicShareContext Public-share bearer
-	 *                                                    guard (nullable for
-	 *                                                    legacy test doubles).
-	 * @param QuotaService|null $quotaService Widget-quota enforcer
-	 *                                        (dashboard-quota-limits
-	 *                                        REQ-QUOTA-003).
-	 *                                        Nullable to keep
-	 *                                        existing test doubles
-	 *                                        working — when
-	 *                                        absent no quota is
-	 *                                        enforced.
+	 * @param WidgetPlacementMapper   $placementMapper Widget placement mapper.
+	 * @param PlacementUpdaters       $updaters The tile and placement updaters.
+	 * @param PublicShareContext|null $publicShareContext Public-share bearer guard (nullable for legacy test doubles).
+	 * @param QuotaService|null       $quotaService Widget-quota enforcer (dashboard-quota-limits
+	 *                                              REQ-QUOTA-003). Nullable to keep existing test doubles
+	 *                                              working — when absent no quota is enforced.
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly TileUpdater $tileUpdater,
-		private readonly PlacementUpdater $placementUpdater,
+		private readonly PlacementUpdaters $updaters,
 		private readonly ?PublicShareContext $publicShareContext = null,
 		private readonly ?QuotaService $quotaService = null,
 	) {
@@ -156,7 +147,7 @@ class PlacementService {
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
 
-		$this->tileUpdater->applyTileConfig(
+		$this->updaters->tileUpdater->applyTileConfig(
 			placement: $placement,
 			tileData: $tileData
 		);
@@ -185,19 +176,19 @@ class PlacementService {
 		$this->publicShareContext?->requireMutable();
 		$placement = $this->placementMapper->find(id: $placementId);
 
-		$this->placementUpdater->applyGridUpdates(
+		$this->updaters->placementUpdater->applyGridUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->placementUpdater->applyDisplayUpdates(
+		$this->updaters->placementUpdater->applyDisplayUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->tileUpdater->applyTileUpdates(
+		$this->updaters->tileUpdater->applyTileUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->placementUpdater->applyAcknowledgementUpdates(
+		$this->updaters->placementUpdater->applyAcknowledgementUpdates(
 			placement: $placement,
 			data: $data
 		);

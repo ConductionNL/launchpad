@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\TranslationSources;
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\DashboardTranslationApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -44,6 +46,8 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\DashboardTranslation
  * @uses   \OCA\LaunchPad\Db\DashboardTranslationMapper
+ * @uses   \OCA\LaunchPad\Controller\ActionCaller
+ * @uses   \OCA\LaunchPad\Controller\TranslationSources
  */
 class DashboardTranslationCreateGoldenTest extends TestCase {
 
@@ -111,15 +115,19 @@ class DashboardTranslationCreateGoldenTest extends TestCase {
 
 			$controller = new DashboardTranslationApiController(
 				request: $this->createMock(IRequest::class),
-				dashboardMapper: $dashboards,
-				translationService: new DashboardTranslationService(
-					translationMapper: $mapper,
-					db: $this->createMock(IDBConnection::class),
-					config: $this->createMock(IConfig::class),
+				translations: new TranslationSources(
+					dashboardMapper: $dashboards,
+					translationService: new DashboardTranslationService(
+						translationMapper: $mapper,
+						db: $this->createMock(IDBConnection::class),
+						config: $this->createMock(IConfig::class),
+					)
 				),
-				actionAuth: $this->createMock(ActionAuthService::class),
-				userSession: $session,
-				userId: 'alice',
+				caller: new ActionCaller(
+					actionAuth: $this->createMock(ActionAuthService::class),
+					userSession: $session
+				),
+				userId: 'alice'
 			);
 
 			$response      = $controller->create('uuid-1', ...$args);

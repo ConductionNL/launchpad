@@ -27,6 +27,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -40,6 +41,8 @@ use Psr\Log\LoggerInterface;
 
 /**
  * REST controller exposing the paginated People widget directory.
+ *
+ * @spec openspec/specs/people-widget/spec.md
  */
 class PeopleWidgetController extends Controller {
 	/**
@@ -132,13 +135,17 @@ class PeopleWidgetController extends Controller {
 
 		try {
 			$payload = $this->service->listUsers(
-				filters: $parsedFilters,
-				excludeDisabled: ($excludeDisabled ?? 1) === 1,
-				showBirthdays: ($showBirthdays ?? 1) === 1,
-				sortBy: ($sortBy ?? 'displayName'),
-				limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
-				offset: ($offset ?? 0),
-				query: $q,
+				request: new PeopleQuery(
+					filters: $parsedFilters,
+					sortBy: ($sortBy ?? 'displayName'),
+					search: $q,
+					page: PeopleQuery::window(
+						excludeDisabled: ($excludeDisabled ?? 1) === 1,
+						showBirthdays: ($showBirthdays ?? 1) === 1,
+						limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
+						offset: ($offset ?? 0)
+					)
+				),
 				viewerId: $user->getUID(),
 			);
 		} catch (InvalidArgumentException $e) {

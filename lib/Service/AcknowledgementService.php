@@ -215,7 +215,9 @@ class AcknowledgementService {
 
 	/**
 	 * Return the current user's outstanding mandatory items across their
-	 * own dashboards. REQ-ACK-002 (outstanding-count indicator).
+	 * own dashboards, limited to announcements still addressed to them: a
+	 * copy kept after leaving the audience cannot be acknowledged, so it is
+	 * not pending. REQ-ACK-002 (outstanding-count indicator).
 	 *
 	 * @param string $userId The current user ID.
 	 *
@@ -226,6 +228,7 @@ class AcknowledgementService {
 	public function getPending(string $userId): array {
 		$dashboards = $this->dashboardMapper->findByUserId(userId: $userId);
 		$items = [];
+		$addressed = [];
 
 		foreach ($dashboards as $dashboard) {
 			$placements = $this->placementMapper->findByDashboardId(
@@ -236,14 +239,14 @@ class AcknowledgementService {
 					continue;
 				}
 
-				$items[] = [
-					'placementId' => $placement->getId(),
-					'dashboardUuid' => $dashboard->getUuid(),
-					'announcementKey' => $placement->getAnnouncementKey(),
-					'prompt' => $placement->getAcknowledgementPrompt(),
-					'deadline' => $placement->getAcknowledgementDeadline(),
-					'contentVersion' => $placement->getAcknowledgementContentVersion(),
-				];
+				$key = (string)$placement->getAnnouncementKey();
+				if (array_key_exists($key, $addressed) === false) {
+					$addressed[$key] = $this->isAllowedToAcknowledge(announcementKey: $key, userId: $userId);
+				}
+
+				if ($addressed[$key] === true) {
+					$items[] = $this->pendingItem(dashboard: $dashboard, placement: $placement);
+				}
 			}
 		}
 
@@ -252,6 +255,46 @@ class AcknowledgementService {
 			'items' => $items,
 		];
 	}//end getPending()
+
+	/**
+	 * The current content version of an announcement: the version on its
+	 * blueprint placement. Null when no placement carries the key.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 *
+	 * @return int|null The current content version, or null.
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function currentContentVersion(string $announcementKey): ?int {
+		$placements = $this->placementMapper->findByAnnouncementKey(
+			announcementKey: $announcementKey
+		);
+		if (empty($placements) === true) {
+			return null;
+		}
+
+		return $this->resolveBlueprintPlacement(placements: $placements)->getAcknowledgementContentVersion();
+	}//end currentContentVersion()
+
+	/**
+	 * Build the pending-list entry for an outstanding placement.
+	 *
+	 * @param Dashboard       $dashboard The dashboard holding the placement.
+	 * @param WidgetPlacement $placement The outstanding placement.
+	 *
+	 * @return array<string, mixed> The pending item.
+	 */
+	private function pendingItem(Dashboard $dashboard, WidgetPlacement $placement): array {
+		return [
+			'placementId' => $placement->getId(),
+			'dashboardUuid' => $dashboard->getUuid(),
+			'announcementKey' => $placement->getAnnouncementKey(),
+			'prompt' => $placement->getAcknowledgementPrompt(),
+			'deadline' => $placement->getAcknowledgementDeadline(),
+			'contentVersion' => $placement->getAcknowledgementContentVersion(),
+		];
+	}//end pendingItem()
 
 	/**
 	 * Build the audience-scoped read-receipt report for an announcement.
@@ -453,7 +496,8 @@ class AcknowledgementService {
 			$audience = $this->audienceFromRecipients(placements: $placements);
 		}
 
-		$ids = array_keys($audience);
+		// Numeric user ids come back from array_keys() as int keys.
+		$ids = array_map(callback: static fn (int|string $uid): string => (string)$uid, array: array_keys($audience));
 		sort($ids);
 
 		return $ids;

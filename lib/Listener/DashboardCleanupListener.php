@@ -53,6 +53,15 @@ abstract class DashboardCleanupListener implements IEventListener {
 	}//end __construct()
 
 	/**
+	 * Remove the deleted dashboard's rows.
+	 *
+	 * @param DashboardDeletedEvent $event The event.
+	 *
+	 * @return int The number of rows removed.
+	 */
+	abstract protected function cleanUp(DashboardDeletedEvent $event): int;
+
+	/**
 	 * Handle the DashboardDeletedEvent.
 	 *
 	 * @param Event $event The event.
@@ -82,13 +91,4 @@ abstract class DashboardCleanupListener implements IEventListener {
 			);
 		}
 	}//end handle()
-
-	/**
-	 * Remove the deleted dashboard's rows.
-	 *
-	 * @param DashboardDeletedEvent $event The event.
-	 *
-	 * @return int The number of rows removed.
-	 */
-	abstract protected function cleanUp(DashboardDeletedEvent $event): int;
 }//end class

@@ -26,6 +26,7 @@ namespace Unit\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\PeopleWidgetController;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -82,12 +83,15 @@ class PeopleWidgetControllerTest extends TestCase {
 		$this->service->expects($this->once())
 			->method('listUsers')
 			->with(
-				filters: [],
-				excludeDisabled: true,
+				new PeopleQuery(
+					filters: [],
+					sortBy: 'displayName',
+					search: null,
+					excludeDisabled: true,
 				showBirthdays: true,
-				sortBy: 'displayName',
 				limit: 50,
-				offset: 0,
+				offset: 0
+				),
 			)
 			->willReturn(
 				[
@@ -178,18 +182,21 @@ class PeopleWidgetControllerTest extends TestCase {
 		$this->service->expects($this->once())
 			->method('listUsers')
 			->with(
-				filters: [
-					[
-						'fieldName' => 'group',
-						'operator' => 'in',
-						'values' => ['management'],
+				new PeopleQuery(
+					filters: [
+						[
+							'fieldName' => 'group',
+							'operator' => 'in',
+							'values' => ['management'],
+						],
 					],
-				],
-				excludeDisabled: true,
+					sortBy: 'displayName',
+					search: null,
+					excludeDisabled: true,
 				showBirthdays: true,
-				sortBy: 'displayName',
 				limit: 50,
-				offset: 0,
+				offset: 0
+				),
 			)
 			->willReturn(['users' => [], 'total' => 0, 'hasMore' => false]);
 

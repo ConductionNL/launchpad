@@ -72,6 +72,8 @@ use Throwable;
  * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileService {
+	use ReadsJsonCache;
+	use ReadsPlacementContent;
 
 	/**
 	 * Default value-cache TTL in seconds when a placement has no (or an
@@ -716,37 +718,6 @@ class LiveTileService {
 	}//end isHostAllowed()
 
 	/**
-	 * Read the placement's live-tile config, falling back to the legacy
-	 * `style_config.content` slot for pre-column rows (mirrors
-	 * {@see WeatherService::readPlacementConfig()}).
-	 *
-	 * @param object $placement The {@see \OCA\LaunchPad\Db\WidgetPlacement} entity.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function readPlacementConfig(object $placement): array {
-		if (method_exists(object_or_class: $placement, method: 'getContentArray') === true) {
-			$content = $placement->getContentArray();
-			if (is_array(value: $content) === true && $content !== []) {
-				return $content;
-			}
-		}
-
-		if (method_exists(object_or_class: $placement, method: 'getStyleConfigArray') === true) {
-			$legacy = $placement->getStyleConfigArray();
-			if (isset($legacy['content']) === true && is_array(value: $legacy['content']) === true) {
-				return $legacy['content'];
-			}
-
-			if (is_array(value: $legacy) === true) {
-				return $legacy;
-			}
-		}
-
-		return [];
-	}//end readPlacementConfig()
-
-	/**
 	 * Shape an internal reading array (which also carries the internal
 	 * `fetchedAtTs` unix timestamp / `rawValue`) into the public response
 	 * contract (REQ-LIVETILE-003): `{value, formatted, badge, fetchedAt,
@@ -790,34 +761,6 @@ class LiveTileService {
 	private function buildCacheKey(int $placementId, array $config): string {
 		return 'value_' . $placementId . '_' . hash(algo: 'sha256', data: (string)json_encode($config));
 	}//end buildCacheKey()
-
-	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
 
 	/**
 	 * Lazily resolve the distributed cache. Returns `null` when the cache

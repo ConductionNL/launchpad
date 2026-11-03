@@ -87,10 +87,7 @@ class TileAnalyticsController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -130,13 +127,7 @@ class TileAnalyticsController extends Controller {
 				userId: $user->getUID()
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse(

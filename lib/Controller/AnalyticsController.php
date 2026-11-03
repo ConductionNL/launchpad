@@ -70,10 +70,7 @@ class AnalyticsController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -154,13 +151,7 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
 			return new JSONResponse(
 				data: [

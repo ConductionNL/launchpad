@@ -90,10 +90,7 @@ class AdminOrgNavigationController extends Controller {
 		private readonly RequestActor $actor,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -147,10 +144,7 @@ class AdminOrgNavigationController extends Controller {
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported language'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$tree = $this->sources->service->getTree(language: $language);
@@ -191,26 +185,17 @@ class AdminOrgNavigationController extends Controller {
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported language'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (is_array($tree) === false) {
-			return new JSONResponse(
-				data: ['error' => 'tree must be an array of node objects'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'tree must be an array of node objects', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
 			$this->sources->service->setTree(tree: $tree, language: $language);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return ResponseHelper::success(

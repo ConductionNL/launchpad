@@ -68,10 +68,7 @@ class LiveTileController extends Controller {
 		private readonly PermissionService $permissionService,
 		private readonly SessionLog $session,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -116,10 +113,7 @@ class LiveTileController extends Controller {
 				message: 'Unexpected live-tile resolution failure',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unknown_error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::errorCode(code: 'unknown_error', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		if (isset($reading['error']) === true) {

@@ -52,10 +52,7 @@ class ActionMatrixController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -117,10 +114,7 @@ class ActionMatrixController extends Controller {
 		try {
 			$this->actionAuth->setMatrix($matrix);
 		} catch (\JsonException $e) {
-			return new JSONResponse(
-				['error' => 'Could not encode the action matrix: ' . $e->getMessage()],
-				\OCP\AppFramework\Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'Could not encode the action matrix: ' . $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(['matrix' => $this->actionAuth->getMatrix()]);

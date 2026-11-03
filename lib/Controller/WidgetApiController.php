@@ -69,10 +69,7 @@ class WidgetApiController extends Controller {
 		private readonly RequestActor $actor,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -654,10 +651,7 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($effectiveLimit < 1 || $effectiveLimit > 50) {
-			return new JSONResponse(
-				data: ['error' => 'limit out of range (1..50)'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'limit out of range (1..50)', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// M1: data-fetch endpoints only need view permission; canStyleWidget
@@ -720,10 +714,7 @@ class WidgetApiController extends Controller {
 			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
 		} catch (Throwable $exception) {
 			unset($exception);
-			return new JSONResponse(
-				data: ['error' => 'Placement not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Placement not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// M1: data-fetch endpoint — view permission is sufficient;
@@ -797,10 +788,7 @@ class WidgetApiController extends Controller {
 	private function resolveCalendarRange(string $from, string $to): array {
 		if ($from === '' || $to === '') {
 			return [
-				'error' => new JSONResponse(
-					data: ['error' => 'Both from and to are required ISO 8601 timestamps'],
-					statusCode: Http::STATUS_BAD_REQUEST
-				),
+				'error' => ResponseHelper::failure(message: 'Both from and to are required ISO 8601 timestamps', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -812,10 +800,7 @@ class WidgetApiController extends Controller {
 		} catch (Throwable $exception) {
 			unset($exception);
 			return [
-				'error' => new JSONResponse(
-					data: ['error' => 'Invalid date format'],
-					statusCode: Http::STATUS_BAD_REQUEST
-				),
+				'error' => ResponseHelper::failure(message: 'Invalid date format', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -823,10 +808,7 @@ class WidgetApiController extends Controller {
 
 		if ($end < $start) {
 			return [
-				'error' => new JSONResponse(
-					data: ['error' => '`to` must be greater than or equal to `from`'],
-					statusCode: Http::STATUS_BAD_REQUEST
-				),
+				'error' => ResponseHelper::failure(message: '`to` must be greater than or equal to `from`', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];

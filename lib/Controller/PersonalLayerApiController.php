@@ -85,7 +85,7 @@ class PersonalLayerApiController extends Controller {
 	public function show(int $dashboardId): JSONResponse {
 		$visible = $this->visible(dashboardId: $dashboardId);
 		if ($visible === null) {
-			return new JSONResponse(['error' => 'dashboard_not_found'], Http::STATUS_NOT_FOUND);
+			return ResponseHelper::failure(message: 'dashboard_not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		$layer = $this->mapper->findForUser(userId: (string)$this->userId, dashboardId: $dashboardId);
@@ -163,7 +163,7 @@ class PersonalLayerApiController extends Controller {
 	public function save(int $dashboardId, array $overrides = [], array $hidden = []): JSONResponse {
 		$visible = $this->visible(dashboardId: $dashboardId);
 		if ($visible === null) {
-			return new JSONResponse(['error' => 'dashboard_not_found'], Http::STATUS_NOT_FOUND);
+			return ResponseHelper::failure(message: 'dashboard_not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		$saved = $this->layers->save(
@@ -194,7 +194,7 @@ class PersonalLayerApiController extends Controller {
 	#[NoAdminRequired]
 	public function reset(int $dashboardId): JSONResponse {
 		if ($this->visible(dashboardId: $dashboardId) === null) {
-			return new JSONResponse(['error' => 'dashboard_not_found'], Http::STATUS_NOT_FOUND);
+			return ResponseHelper::failure(message: 'dashboard_not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// A reset with no layer is not an error: the caller asked for the

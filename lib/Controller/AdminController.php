@@ -110,10 +110,7 @@ class AdminController extends Controller {
 		private readonly AdminSettingsTools $settings,
 		private readonly AdminCallerAndRoles $caller,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -496,10 +493,7 @@ class AdminController extends Controller {
 
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -628,10 +622,7 @@ class AdminController extends Controller {
 		}
 
 		if (in_array(needle: $scope, haystack: ['site', 'dashboard'], strict: true) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported scope: ' . $scope],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'Unsupported scope: ' . $scope, statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->caller->userSession->getUser()?->getUID();
@@ -641,17 +632,11 @@ class AdminController extends Controller {
 		}
 
 		if ($dashboardUuid === null || $dashboardUuid === '') {
-			return new JSONResponse(
-				data: ['error' => 'dashboardUuid parameter is required when scope=dashboard'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'dashboardUuid parameter is required when scope=dashboard', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (preg_match(pattern: '/^[A-Za-z0-9\-]{8,}$/', subject: $dashboardUuid) !== 1) {
-			return new JSONResponse(
-				data: ['error' => 'Invalid dashboard UUID format'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'Invalid dashboard UUID format', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
@@ -660,10 +645,7 @@ class AdminController extends Controller {
 				currentUserId: $userId
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 	}//end export()
 
@@ -695,10 +677,7 @@ class AdminController extends Controller {
 			|| isset($upload['tmp_name']) === false
 			|| (string)$upload['tmp_name'] === ''
 		) {
-			return new JSONResponse(
-				data: ['error' => 'No file uploaded under field "file".'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$tmpName = (string)$upload['tmp_name'];
@@ -712,10 +691,7 @@ class AdminController extends Controller {
 				currentUserId: $userId
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
@@ -904,12 +880,7 @@ class AdminController extends Controller {
 				)
 			);
 			if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-				return new JSONResponse(
-					data: [
-						'error' => 'feedUrl must use http:// or https:// scheme.',
-					],
-					statusCode: Http::STATUS_BAD_REQUEST
-				);
+				return ResponseHelper::failure(message: 'feedUrl must use http:// or https:// scheme.', statusCode: Http::STATUS_BAD_REQUEST);
 			}
 		}
 

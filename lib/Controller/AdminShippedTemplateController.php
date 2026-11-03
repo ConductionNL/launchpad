@@ -68,10 +68,7 @@ class AdminShippedTemplateController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -135,19 +132,13 @@ class AdminShippedTemplateController extends Controller {
 		try {
 			$result = $this->tools->templates->install(templateId: $id, options: ['force' => $force, 'userId' => $admin]);
 		} catch (InvalidArgumentException) {
-			return new JSONResponse(
-				data: ['error' => 'Template not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'Shipped template install failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Template installation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Template installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$statusCode = Http::STATUS_CREATED;
@@ -181,24 +172,15 @@ class AdminShippedTemplateController extends Controller {
 		try {
 			$result = $this->tools->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
 		} catch (InvalidArgumentException) {
-			return new JSONResponse(
-				data: ['error' => 'Template not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return ResponseHelper::failure(message: 'Template not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (TemplateNotInstalledException) {
-			return new JSONResponse(
-				data: ['error' => 'Template not installed'],
-				statusCode: Http::STATUS_CONFLICT
-			);
+			return ResponseHelper::failure(message: 'Template not installed', statusCode: Http::STATUS_CONFLICT);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'Shipped template update failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Template update failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return ResponseHelper::failure(message: 'Template update failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);

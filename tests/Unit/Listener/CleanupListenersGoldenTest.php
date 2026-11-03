@@ -42,6 +42,7 @@ use RuntimeException;
  * @covers \OCA\LaunchPad\Listener\DashboardSharesListener
  * @covers \OCA\LaunchPad\Listener\WidgetPlacementsListener
  * @covers \OCA\LaunchPad\Listener\TranslationsListener
+ * @covers \OCA\LaunchPad\Listener\DashboardCleanupListener
  * @uses   \OCA\LaunchPad\Event\DashboardDeletedEvent
  */
 class CleanupListenersGoldenTest extends TestCase {

@@ -56,6 +56,8 @@ class PublicSharesListener extends DashboardCleanupListener {
 	 * @param DashboardDeletedEvent $event The event.
 	 *
 	 * @return int The number of rows removed.
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
 	 */
 	protected function cleanUp(DashboardDeletedEvent $event): int {
 		return $this->shareMapper->revokeByDashboardUuid(

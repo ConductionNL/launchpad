@@ -79,6 +79,15 @@ outstanding (unacknowledged) mandatory items.
 - **THEN** the prompt MUST still require an explicit sign-off (a passed deadline MUST NOT auto-acknowledge)
 - **AND** the item MUST be reportable as overdue in the read-receipt report (REQ-ACK-004)
 
+#### Scenario: A copy kept after leaving the audience is not pending
+
+@e2e exclude Asserted in AcknowledgementServiceTest::testPendingListsOnlyAnnouncementsStillAddressedToTheUser; group membership changes are set up outside the dashboard UI.
+
+- **GIVEN** user "alice" holds a copy of announcement `ak-1`, whose template routes to group "sociaal-domein", and she is no longer a member of that group
+- **WHEN** her outstanding items are listed
+- **THEN** `ak-1` MUST NOT be listed and MUST NOT count toward the outstanding-acknowledgements count
+- **AND** no blocking prompt MUST be shown for it, since she can no longer acknowledge it (REQ-ACK-003)
+
 ### Requirement: REQ-ACK-003 Record an idempotent acknowledgement receipt
 
 When a recipient acknowledges, the system MUST persist a receipt
@@ -116,7 +125,7 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 
 #### Scenario: Only the announcement's audience can acknowledge it
 
-@e2e exclude The audience refusal is asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAUserOutsideTheAudience and AcknowledgementServiceTest::testOnlyTheRoutedGroupMayAcknowledge, a server-side auth contract, not a UI flow.
+@e2e exclude The audience refusal is asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAUserOutsideTheAudience and AcknowledgementServiceTest::testIsInAudienceFollowsTheGroupRouting, a server-side auth contract, not a UI flow.
 
 - **GIVEN** an announcement whose template routes to group "sociaal-domein", and authenticated user "mallory" who is not a member
 - **WHEN** she `POST`s an acknowledgement for that announcement, or for an announcement key that no placement carries
@@ -185,6 +194,15 @@ re-force delivery for users who already acknowledged a prior version.
 - **WHEN** the author bumps `acknowledgementContentVersion` to `2`
 - **THEN** alice's item MUST NOT re-force delivery
 - **AND** the read-receipt report MAY report her against the latest version she acknowledged
+
+#### Scenario: A version that is not published yet cannot be acknowledged
+
+@e2e exclude Asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAFutureContentVersion and its accept cases; the UI only ever sends the version its copy shows, so a future version is not reachable from it.
+
+- **GIVEN** announcement `ak-1` at `acknowledgementContentVersion = 2`
+- **WHEN** user "alice" `POST`s an acknowledgement for `ak-1` with `contentVersion = 3`
+- **THEN** the system MUST return `400` and MUST NOT write any receipt
+- **AND** a `contentVersion` at or below `2` MUST still be accepted, so a copy that was not re-synced yet can be signed off
 
 ### Requirement: REQ-ACK-006 Acknowledgement events feed activity and export
 

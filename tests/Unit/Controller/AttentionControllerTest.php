@@ -18,6 +18,9 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\ActionAuthService;
+use OCP\IGroupManager;
 
 /**
  * `GET /api/attention/sources` (REQ-ATT-002).
@@ -32,7 +35,7 @@ class AttentionControllerTest extends TestCase {
 		$service->expects(self::once())->method('collect')->with($user)
 			->willReturn(['sources' => [['appId' => 'dossiq']], 'invalid' => []]);
 
-		$response = (new AttentionController($this->createMock(IRequest::class), $service, $session))->sources();
+		$response = (new AttentionController($this->createMock(IRequest::class), $service, new RequestGuard(userSession: $session, groupManager: $this->createMock(IGroupManager::class), actionAuth: $this->createMock(ActionAuthService::class))))->sources();
 
 		self::assertSame(Http::STATUS_OK, $response->getStatus());
 		self::assertSame(
@@ -47,7 +50,7 @@ class AttentionControllerTest extends TestCase {
 		$service = $this->createMock(AttentionSourceService::class);
 		$service->expects(self::never())->method('collect');
 
-		$response = (new AttentionController($this->createMock(IRequest::class), $service, $session))->sources();
+		$response = (new AttentionController($this->createMock(IRequest::class), $service, new RequestGuard(userSession: $session, groupManager: $this->createMock(IGroupManager::class), actionAuth: $this->createMock(ActionAuthService::class))))->sources();
 
 		self::assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 	}

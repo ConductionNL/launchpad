@@ -24,12 +24,12 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\AttentionSourceService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * The attention sources endpoint.
@@ -42,12 +42,12 @@ class AttentionController extends Controller {
 	 *
 	 * @param IRequest               $request     The request.
 	 * @param AttentionSourceService $sources     Reads the apps' declarations.
-	 * @param IUserSession           $userSession The user session.
+	 * @param RequestGuard $guard The session and administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AttentionSourceService $sources,
-		private readonly IUserSession $userSession,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -64,12 +64,9 @@ class AttentionController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function sources(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+		$user = $this->guard->sessionUser();
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		// The widget resolves `@me` in a filter to this id before it counts.

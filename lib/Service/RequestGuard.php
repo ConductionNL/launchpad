@@ -27,6 +27,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
+use OCP\IUser;
 use OCP\IUserSession;
 
 /**
@@ -69,6 +70,25 @@ class RequestGuard {
 	}//end refusal()
 
 	/**
+	 * The signed-in user, or the refusal.
+	 *
+	 * @return IUser|JSONResponse The user, or the 401 to return.
+	 *
+	 * @spec openspec/specs/admin-roles/spec.md
+	 */
+	public function sessionUser(): IUser|JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(
+				data: ['error' => 'Not authenticated'],
+				statusCode: Http::STATUS_UNAUTHORIZED
+			);
+		}
+
+		return $user;
+	}//end sessionUser()
+
+	/**
 	 * The signed-in administrator's id, or the refusal.
 	 *
 	 * @return string|JSONResponse The user id, or the 401/403 to return.
@@ -76,12 +96,9 @@ class RequestGuard {
 	 * @spec openspec/specs/admin-templates/spec.md
 	 */
 	public function adminId(): string|JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+		$user = $this->sessionUser();
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
@@ -104,9 +121,9 @@ class RequestGuard {
 	 * @spec openspec/specs/admin-roles/spec.md
 	 */
 	public function actionRefusal(string $action): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$user = $this->sessionUser();
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		try {

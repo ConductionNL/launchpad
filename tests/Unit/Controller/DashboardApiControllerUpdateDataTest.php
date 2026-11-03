@@ -28,6 +28,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\PermissionService;
+use InvalidArgumentException;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -38,6 +39,7 @@ use Psr\Log\LoggerInterface;
  * The update action's patch payload, case by case.
  *
  * @covers \OCA\LaunchPad\Controller\DashboardApiController
+ * @covers \OCA\LaunchPad\Controller\ResponseHelper
  */
 class DashboardApiControllerUpdateDataTest extends TestCase {
 
@@ -92,15 +94,6 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 	 * @return array<string, mixed>|null The patch, or null when none was sent.
 	 */
 	private function patchFor(array $args): ?array {
-		$user = $this->createMock(IUser::class);
-		$user->method('getUID')->willReturn('alice');
-		$session = $this->createMock(IUserSession::class);
-		$session->method('getUser')->willReturn($user);
-
-		$permissions = $this->createMock(PermissionService::class);
-		$permissions->method('canEditDashboard')->willReturn(true);
-		$permissions->method('canEditDashboardMetadata')->willReturn(true);
-
 		$patch     = null;
 		$dashboard = new Dashboard();
 		$dashboard->setUuid('u-1');
@@ -112,7 +105,30 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 			}
 		);
 
-		$controller = new DashboardApiController(
+		$response = $this->controller(service: $service)->update(7, ...$args);
+		$this->assertSame(200, $response->getStatus());
+
+		return $patch;
+	}//end patchFor()
+
+	/**
+	 * Build the controller for alice, allowed to edit, over the given service.
+	 *
+	 * @param DashboardService $service The dashboard service double.
+	 *
+	 * @return DashboardApiController
+	 */
+	private function controller(DashboardService $service): DashboardApiController {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('alice');
+		$session = $this->createMock(IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+
+		$permissions = $this->createMock(PermissionService::class);
+		$permissions->method('canEditDashboard')->willReturn(true);
+		$permissions->method('canEditDashboardMetadata')->willReturn(true);
+
+		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
 			dashboardService: $service,
 			permissionService: $permissions,
@@ -124,12 +140,7 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 			actionAuth: $this->createMock(ActionAuthService::class),
 			userId: 'alice',
 		);
-
-		$response = $controller->update(7, ...$args);
-		$this->assertSame(200, $response->getStatus());
-
-		return $patch;
-	}//end patchFor()
+	}//end controller()
 
 	/**
 	 * Every case sends the recorded patch, keys in the recorded order.
@@ -154,4 +165,40 @@ class DashboardApiControllerUpdateDataTest extends TestCase {
 
 		$this->assertSame(array_keys($expected), array_keys($actual));
 	}//end testPatchMatchesTheRecordedFixture()
+
+	/**
+	 * A validation failure in the service answers 400 with its message.
+	 *
+	 * @return void
+	 */
+	public function testUpdateValidationFailureIsABadRequest(): void {
+		$service = $this->createMock(DashboardService::class);
+		$service->method('updateDashboard')->willThrowException(new InvalidArgumentException('Slug taken'));
+
+		$response = $this->controller(service: $service)->update(7, slug: 'x');
+
+		$this->assertSame(400, $response->getStatus());
+		$this->assertSame(
+			['status' => 'error', 'error' => 'invalid_argument', 'message' => 'Slug taken'],
+			$response->getData()
+		);
+	}//end testUpdateValidationFailureIsABadRequest()
+
+	/**
+	 * A schedule without either time answers 400 with the past-date message.
+	 *
+	 * @return void
+	 */
+	public function testScheduleWithoutTimesIsABadRequest(): void {
+		$service = $this->createMock(DashboardService::class);
+		$service->expects($this->never())->method('schedule');
+
+		$response = $this->controller(service: $service)->schedule('u-1', '', null);
+
+		$this->assertSame(400, $response->getStatus());
+		$this->assertSame(
+			['status' => 'error', 'error' => 'invalid_argument', 'message' => DashboardService::ERR_SCHEDULE_PAST_DATE],
+			$response->getData()
+		);
+	}//end testScheduleWithoutTimesIsABadRequest()
 }//end class

@@ -558,14 +558,7 @@ class DashboardApiController extends Controller {
 		} catch (InvalidArgumentException $e) {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations
 			// surface as HTTP 400 with the validation message verbatim.
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::invalidArgument(message: $e->getMessage());
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -708,14 +701,7 @@ class DashboardApiController extends Controller {
 		} catch (InvalidArgumentException $e) {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations
 			// surface as HTTP 400 with the validation message verbatim.
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::invalidArgument(message: $e->getMessage());
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -1628,14 +1614,7 @@ class DashboardApiController extends Controller {
 
 		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
 		if ($this->isBlank(value: $publishAt) === true && $this->isBlank(value: $unpublishAt) === true) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => DashboardService::ERR_SCHEDULE_PAST_DATE,
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::invalidArgument(message: DashboardService::ERR_SCHEDULE_PAST_DATE);
 		}
 
 		try {
@@ -1658,14 +1637,7 @@ class DashboardApiController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_argument',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return ResponseHelper::invalidArgument(message: $e->getMessage());
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try

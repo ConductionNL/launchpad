@@ -1630,7 +1630,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "geldt voor de hele organisatie",
     "Discovered on this server" : "Gevonden op deze server",
     "Apps this server runs for you. One click places one as a tile." : "Apps die deze server voor u draait. Met één klik wordt er een tegel van.",
-    "On this dashboard" : "Op dit dashboard"
+    "On this dashboard" : "Op dit dashboard",
+    "App template" : "App-sjabloon",
+    "Adapter" : "Adapter",
+    "Source template" : "Bronsjabloon",
+    "Configuration template" : "Configuratiesjabloon",
+    "Agent template" : "Agentsjabloon"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -105,6 +105,11 @@ class AcknowledgementController extends Controller {
 			);
 		}
 
+		$denied = $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->userId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
 		$contentVersion = (int)$this->request->getParam(key: 'contentVersion', default: 1);
 		if ($contentVersion < 1) {
 			$contentVersion = 1;
@@ -129,6 +134,25 @@ class AcknowledgementController extends Controller {
 
 		return ResponseHelper::success(data: $receipt->jsonSerialize());
 	}//end acknowledge()
+
+	/**
+	 * Refuse a user outside the announcement's live audience (REQ-ACK-003,
+	 * ADR-005). An unknown announcement has no audience.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The session user.
+	 *
+	 * @return JSONResponse|null The 403, or null when the user may acknowledge.
+	 */
+	private function denyOutsideAudience(string $announcementKey, string $userId): ?JSONResponse {
+		if ($this->tools->acknowledgements->isAllowedToAcknowledge(announcementKey: $announcementKey, userId: $userId) === false) {
+			return ResponseHelper::forbidden(
+				message: 'This announcement is not addressed to you'
+			);
+		}
+
+		return null;
+	}//end denyOutsideAudience()
 
 	/**
 	 * GET /api/acknowledgements/pending — the current user's outstanding

@@ -141,41 +141,27 @@ class WidgetService {
 	 *
 	 * @param int $dashboardId Dashboard ID.
 	 * @param string $widgetId Widget ID.
-	 * @param int $gridX Grid X position.
-	 * @param int $gridY Grid Y position.
-	 * @param int $gridWidth Grid width.
-	 * @param int $gridHeight Grid height.
-	 * @param array|null $content Optional per-type content payload for
-	 *                            registry-driven custom widgets.
+	 * @param array $layout Grid position and size (`gridX`, `gridY`,
+	 *                      `gridWidth`, `gridHeight`) and the optional
+	 *                      per-type `content` payload for registry-driven
+	 *                      custom widgets.
 	 *
 	 * @return WidgetPlacement The created widget placement.
 	 *
 	 * @spec openspec/specs/widgets/spec.md
 	 */
-	public function addWidget(
-		int $dashboardId,
-		string $widgetId,
-		int $gridX = 0,
-		int $gridY = 0,
-		int $gridWidth = 4,
-		int $gridHeight = 4,
-		?array $content = null,
-	): WidgetPlacement {
-		if ($content !== null) {
+	public function addWidget(int $dashboardId, string $widgetId, array $layout=[]): WidgetPlacement {
+		if (isset($layout['content']) === true) {
 			$this->validateWidgetContent(
 				widgetType: $widgetId,
-				content: $content
+				content: $layout['content']
 			);
 		}
 
 		return $this->placementService->addWidget(
 			dashboardId: $dashboardId,
 			widgetId: $widgetId,
-			gridX: $gridX,
-			gridY: $gridY,
-			gridWidth: $gridWidth,
-			gridHeight: $gridHeight,
-			content: $content
+			layout: $layout
 		);
 	}//end addWidget()
 

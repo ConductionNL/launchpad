@@ -274,11 +274,13 @@ class WidgetApiController extends Controller {
 			$placement = $this->widgetService->addWidget(
 				dashboardId: $dashboardId,
 				widgetId: (string)$widgetId,
-				gridX: $gridX,
-				gridY: $gridY,
-				gridWidth: $gridWidth,
-				gridHeight: $gridHeight,
-				content: $contentToPersist
+				layout: [
+					'gridX'      => $gridX,
+					'gridY'      => $gridY,
+					'gridWidth'  => $gridWidth,
+					'gridHeight' => $gridHeight,
+					'content'    => $contentToPersist,
+				]
 			);
 
 			return ResponseHelper::success(

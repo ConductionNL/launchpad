@@ -60,7 +60,8 @@
             "params": {
                 "self": true,
                 "actor": "alice",
-                "dashboard": "ak-1"
+                "dashboard": "ak-1",
+                "version": 1
             },
             "object": "ak-1",
             "link": ""

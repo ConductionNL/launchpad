@@ -134,10 +134,7 @@ class AcknowledgementService {
 			throw $exception;
 		}//end try
 
-		$this->emitAcknowledgedActivity(
-			announcementKey: $announcementKey,
-			userId: $userId
-		);
+		$this->emitAcknowledgedActivity(receipt: $receipt);
 
 		return $receipt;
 	}//end acknowledge()
@@ -257,17 +254,31 @@ class AcknowledgementService {
 	}//end getPending()
 
 	/**
-	 * The current content version of an announcement: the version on its
-	 * blueprint placement. Null when no placement carries the key.
+	 * The current content version of an announcement for a user: the
+	 * version on its template placement, or, when the announcement has no
+	 * template (any more), the version on the user's own copy. Null when no
+	 * placement carries the key.
 	 *
 	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The user whose copy counts without a template.
 	 *
 	 * @return int|null The current content version, or null.
 	 *
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
-	public function currentContentVersion(string $announcementKey): ?int {
-		return $this->blueprintOf(announcementKey: $announcementKey)?->getAcknowledgementContentVersion();
+	public function currentContentVersion(string $announcementKey, string $userId): ?int {
+		$placements = $this->placementMapper->findByAnnouncementKey(
+			announcementKey: $announcementKey
+		);
+		if (empty($placements) === true) {
+			return null;
+		}
+
+		$placement = $this->templatePlacement(placements: $placements)
+			?? $this->ownCopy(placements: $placements, userId: $userId)
+			?? $placements[0];
+
+		return $placement->getAcknowledgementContentVersion();
 	}//end currentContentVersion()
 
 	/**
@@ -459,6 +470,17 @@ class AcknowledgementService {
 	 * @return WidgetPlacement The blueprint placement.
 	 */
 	private function resolveBlueprintPlacement(array $placements): WidgetPlacement {
+		return $this->templatePlacement(placements: $placements) ?? $placements[0];
+	}//end resolveBlueprintPlacement()
+
+	/**
+	 * The placement that sits on an admin template, or null.
+	 *
+	 * @param WidgetPlacement[] $placements The placements sharing the key.
+	 *
+	 * @return WidgetPlacement|null The template placement.
+	 */
+	private function templatePlacement(array $placements): ?WidgetPlacement {
 		foreach ($placements as $placement) {
 			$dashboard = $this->resolveDashboard(placement: $placement);
 			if ($dashboard !== null
@@ -468,8 +490,26 @@ class AcknowledgementService {
 			}
 		}
 
-		return $placements[0];
-	}//end resolveBlueprintPlacement()
+		return null;
+	}//end templatePlacement()
+
+	/**
+	 * The placement on a dashboard the user owns, or null.
+	 *
+	 * @param WidgetPlacement[] $placements The placements sharing the key.
+	 * @param string            $userId     The user.
+	 *
+	 * @return WidgetPlacement|null The user's copy.
+	 */
+	private function ownCopy(array $placements, string $userId): ?WidgetPlacement {
+		foreach ($placements as $placement) {
+			if ($this->resolveDashboard(placement: $placement)?->getUserId() === $userId) {
+				return $placement;
+			}
+		}
+
+		return null;
+	}//end ownCopy()
 
 	/**
 	 * Resolve the current audience for an announcement, live, from the
@@ -588,15 +628,14 @@ class AcknowledgementService {
 	 * and logs any failure so a broken Activity backend never rolls the
 	 * receipt back (REQ-ACK-006, mirrors the cross-capability contract).
 	 *
-	 * @param string $announcementKey The announcement identity.
-	 * @param string $userId The acknowledging user ID.
+	 * @param Acknowledgement $receipt The new receipt; its content version is
+	 *                                 part of the activity line.
 	 *
 	 * @return void
 	 */
-	private function emitAcknowledgedActivity(
-		string $announcementKey,
-		string $userId,
-	): void {
+	private function emitAcknowledgedActivity(Acknowledgement $receipt): void {
+		$announcementKey = (string)$receipt->getAnnouncementKey();
+		$userId = (string)$receipt->getUserId();
 		$dashboardUuid = $announcementKey;
 		$dashboardName = $announcementKey;
 
@@ -616,7 +655,7 @@ class AcknowledgementService {
 			type: Extension::EVENT_ACKNOWLEDGED,
 			actorUserId: $userId,
 			dashboard: new ActivitySubject(uuid: $dashboardUuid, name: $dashboardName),
-			extraParams: ['self' => true]
+			extraParams: ['self' => true, 'version' => (int)$receipt->getContentVersion()]
 		);
 		$this->activityPublisher->publish(row: $row, recipientUserId: $userId);
 	}//end emitAcknowledgedActivity()

@@ -548,11 +548,14 @@ class PermissionService {
 
 	/**
 	 * Whether the user may set/change/clear the mandatory-read
-	 * acknowledgement requirement on a placement — a Nextcloud admin, a
-	 * LaunchPad admin, or the owner of the placement's dashboard (the
-	 * template author). A non-author MUST be rejected (REQ-ACK-001,
-	 * ADR-005). Returns false when the placement or its dashboard is
-	 * missing.
+	 * acknowledgement requirement on a placement: a Nextcloud admin, a
+	 * LaunchPad admin, or the author of the announcement. Once a placement
+	 * carries an announcement key the author is the owner of the
+	 * announcement's admin template, or, without a template, the owner of
+	 * the first placement that carried the key; a recipient of a copy is not
+	 * the author. Before that, the owner of the placement's dashboard may set
+	 * a requirement. A non-author MUST be rejected (REQ-ACK-001, ADR-005).
+	 * Returns false when the placement or its dashboard is missing.
 	 *
 	 * @param string $userId The acting user ID.
 	 * @param int $placementId The placement ID.
@@ -580,8 +583,43 @@ class PermissionService {
 			return false;
 		}
 
-		return $dashboard->getUserId() === $userId;
+		$key = (string)$placement->getAnnouncementKey();
+		if ($key === '') {
+			return $dashboard->getUserId() === $userId;
+		}
+
+		return $this->announcementAuthor(announcementKey: $key) === $userId;
 	}//end canManageAcknowledgement()
+
+	/**
+	 * The author of an announcement: the owner of the admin template that
+	 * carries the key, or, without one, the owner of the placement with the
+	 * lowest id (the original; copies and forks are created later).
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 *
+	 * @return string|null The author's user id, or null.
+	 */
+	private function announcementAuthor(string $announcementKey): ?string {
+		$original = null;
+		foreach ($this->placementMapper->findByAnnouncementKey(announcementKey: $announcementKey) as $placement) {
+			try {
+				$dashboard = $this->dashboardMapper->find(id: $placement->getDashboardId());
+			} catch (DoesNotExistException) {
+				continue;
+			}
+
+			if ($dashboard->getType() === Dashboard::TYPE_ADMIN_TEMPLATE) {
+				return $dashboard->getUserId();
+			}
+
+			if ($original === null || $placement->getId() < $original[0]) {
+				$original = [$placement->getId(), $dashboard->getUserId()];
+			}
+		}
+
+		return $original[1] ?? null;
+	}//end announcementAuthor()
 
 	/**
 	 * Verify user owns a placement's dashboard.

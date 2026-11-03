@@ -174,10 +174,15 @@ class Extension implements IProvider {
 		$role = (string)($params['role'] ?? '');
 		$target = (string)($params['target'] ?? '');
 
+		$version = (string)($params['version'] ?? '');
 		$template = $this->resolveSubjectTemplate(
 			type: $type,
 			isSelf: $isSelf
 		);
+		if ($version !== '') {
+			$template = $this->versionedTemplate(type: $type, isSelf: $isSelf) ?? $template;
+		}
+
 		$rendered = strtr(
 			$l->t($template),
 			[
@@ -186,6 +191,7 @@ class Extension implements IProvider {
 				'{recipient}' => $recipient,
 				'{role}' => $role,
 				'{target}' => $target,
+				'{version}' => $version,
 			]
 		);
 
@@ -234,7 +240,7 @@ class Extension implements IProvider {
 	 * Templates use `{placeholder}` substitution that is rendered both
 	 * by `parse()` and by NC Activity's translation layer.
 	 *
-	 * @return array<string, array{self: string, other: string}>
+	 * @return array<string, array{self: string, other: string, self_version?: string, other_version?: string}>
 	 * @spec   openspec/specs/activity-feed-integration/spec.md
 	 */
 	public function getSubjectTemplates(): array {
@@ -294,6 +300,8 @@ class Extension implements IProvider {
 			self::EVENT_ACKNOWLEDGED => [
 				'self' => 'You acknowledged {dashboard}',
 				'other' => '{actor} acknowledged {dashboard}',
+				'self_version' => 'You acknowledged version {version} of {dashboard}',
+				'other_version' => '{actor} acknowledged version {version} of {dashboard}',
 			],
 		];
 	}//end getSubjectTemplates()
@@ -316,4 +324,22 @@ class Extension implements IProvider {
 
 		return ($templates[$type][$variant] ?? '');
 	}//end resolveSubjectTemplate()
+
+	/**
+	 * The subject template that names the content version, for event types
+	 * that have one (dashboard_acknowledged), or null.
+	 *
+	 * @param string $type   The event-type constant value.
+	 * @param bool   $isSelf True when the actor equals the recipient.
+	 *
+	 * @return string|null The template string.
+	 */
+	private function versionedTemplate(string $type, bool $isSelf): ?string {
+		$variant = 'other_version';
+		if ($isSelf === true) {
+			$variant = 'self_version';
+		}
+
+		return ($this->getSubjectTemplates()[$type][$variant] ?? null);
+	}//end versionedTemplate()
 }//end class

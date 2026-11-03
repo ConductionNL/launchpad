@@ -545,6 +545,31 @@ class ExtensionTest extends TestCase {
 	}//end testParseSetsRichSubjectForAllTypes()
 
 	/**
+	 * REQ-ACK-006: an acknowledgement line names the acknowledged version;
+	 * a line stored without one keeps its old text.
+	 *
+	 * @return void
+	 */
+	public function testParseNamesTheAcknowledgedVersion(): void {
+		$extension = $this->createExtension();
+		$cases = [
+			'You acknowledged version 2 of Dashboard A' => ['self' => true, 'version' => 2],
+			'alice acknowledged version 2 of Dashboard A' => ['self' => false, 'version' => 2],
+			'You acknowledged Dashboard A' => ['self' => true],
+			'alice acknowledged Dashboard A' => ['self' => false],
+		];
+		foreach ($cases as $expected => $params) {
+			$event = new RecordingEvent();
+			$event->setApp(app: Extension::APP_ID);
+			$event->setType(type: Extension::EVENT_ACKNOWLEDGED);
+			$event->setSubject(subject: Extension::EVENT_ACKNOWLEDGED, parameters: $params + ['actor' => 'alice', 'dashboard' => 'Dashboard A']);
+			$extension->parse(language: 'en', event: $event);
+
+			$this->assertSame(expected: $expected, actual: $event->getParsedSubject());
+		}
+	}//end testParseNamesTheAcknowledgedVersion()
+
+	/**
 	 * REQ-ACT-001: parse() throws UnknownActivityException for unknown
 	 * subjects so NC's provider chain can fall through.
 	 *

@@ -40,6 +40,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Service\DashboardVersionService
  * @uses   \OCA\LaunchPad\Service\VersionStores
  * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @uses   \OCA\LaunchPad\Db\DashboardVersion
  */
 class DashboardSnapshotGoldenTest extends TestCase {
 

@@ -241,24 +241,18 @@ class AdminTemplateService {
 	/**
 	 * Create a new admin template.
 	 *
-	 * @param string $name The template name.
-	 * @param string|null $description The template description.
-	 * @param array|null $targetGroups The target groups.
-	 * @param string $permissionLevel The permission level.
-	 * @param bool $isDefault Whether this is the default.
+	 * @param string $name     The template name.
+	 * @param array  $settings Optional `description` (null), `targetGroups`
+	 *                         (none), `permissionLevel` (add_only) and
+	 *                         `isDefault` (false).
 	 *
 	 * @return Dashboard The created template.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-3
 	 */
-	public function createTemplate(
-		string $name,
-		?string $description = null,
-		?array $targetGroups = null,
-		string $permissionLevel = Dashboard::PERMISSION_ADD_ONLY,
-		bool $isDefault = false,
-	): Dashboard {
-		if ($isDefault === true) {
+	public function createTemplate(string $name, array $settings=[]): Dashboard {
+		$settings += ['description' => null, 'targetGroups' => null, 'permissionLevel' => Dashboard::PERMISSION_ADD_ONLY, 'isDefault' => false];
+		if ($settings['isDefault'] === true) {
 			$this->stores->dashboardMapper->clearDefaultTemplates();
 		}
 
@@ -266,17 +260,17 @@ class AdminTemplateService {
 		$template = new Dashboard();
 		$template->setUuid($this->generateUuid());
 		$template->setName($name);
-		$template->setDescription($description);
+		$template->setDescription($settings['description']);
 		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
 		$template->setUserId(null);
 		$template->setGridColumns(12);
 		$template->setPermissionLevel(
-			$permissionLevel
+			$settings['permissionLevel']
 		);
 		$template->setTargetGroupsArray(
-			$targetGroups ?? []
+			$settings['targetGroups'] ?? []
 		);
-		$template->setIsDefault((int)$isDefault);
+		$template->setIsDefault((int)$settings['isDefault']);
 		$template->setCreatedAt($now);
 		$template->setUpdatedAt($now);
 

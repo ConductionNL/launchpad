@@ -274,7 +274,9 @@ class DashboardServiceDefaultFlagTest extends TestCase {
 		$result = $this->service->createGroupShared(
 			actorUserId: 'admin',
 			groupId: 'marketing',
-			name: 'Sneaky'
+			fields: [
+				'name' => 'Sneaky',
+			]
 		);
 
 		$this->assertSame(0, $result->getIsDefault());

@@ -161,11 +161,13 @@ abstract class CommandBase extends Command {
 		} finally {
 			$finished = (int)round(num: (microtime(as_float: true) * 1000));
 			$this->commandService->audit(
-				command: $this->stripPrefix(name: (string)$this->getName()),
-				args: $this->collectArgsForAudit(input: $input),
-				exitCode: $exitCode,
-				durationMs: ($finished - $started),
-				byUser: $this->resolveByUser()
+				run: [
+					'command'    => $this->stripPrefix(name: (string)$this->getName()),
+					'args'       => $this->collectArgsForAudit(input: $input),
+					'exitCode'   => $exitCode,
+					'durationMs' => ($finished - $started),
+					'byUser'     => $this->resolveByUser(),
+				]
 			);
 		}//end try
 
@@ -312,7 +314,7 @@ abstract class CommandBase extends Command {
 	 */
 	private function stripPrefix(string $name): string {
 		if (str_starts_with(haystack: $name, needle: 'launchpad:') === true) {
-			return substr(string: $name, offset: 7);
+			return substr(string: $name, offset: strlen(string: 'launchpad:'));
 		}
 
 		return $name;

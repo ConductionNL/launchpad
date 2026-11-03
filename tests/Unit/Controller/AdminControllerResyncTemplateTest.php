@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\LaunchPad\Controller\AdminRoleAndFeedTools;
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
 use OCA\LaunchPad\Controller\AdminSettingsTools;
 use OCA\LaunchPad\Controller\AdminTemplateTools;
 use InvalidArgumentException;
@@ -81,12 +81,12 @@ class AdminControllerResyncTemplateTest extends TestCase {
 				footerService: $this->createMock(FooterService::class),
 				setupWizardService: $this->createMock(SetupWizardService::class)
 			),
-			userSession: $this->userSession,
-			roles: new AdminRoleAndFeedTools(
+			caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(RoleService::class),
-				feedRefresh: $this->createMock(FeedRefreshService::class)
-			),
-			actionAuth: $this->createMock(ActionAuthService::class)
+				feedRefresh: $this->createMock(FeedRefreshService::class),
+				userSession: $this->userSession,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			)
 		);
 	}
 

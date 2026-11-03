@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\AcknowledgementTools;
 use OCA\LaunchPad\Controller\AcknowledgementController;
 use OCA\LaunchPad\Service\AcknowledgementService;
 use OCA\LaunchPad\Service\RoleService;
@@ -52,11 +53,13 @@ class AcknowledgementControllerTest extends TestCase {
 	private function makeController(?string $userId = 'alice'): AcknowledgementController {
 		return new AcknowledgementController(
 			request: $this->request,
-			acknowledgementService: $this->service,
-			roleService: $this->roleService,
+			tools: new AcknowledgementTools(
+				acknowledgements: $this->service,
+				roleService: $this->roleService,
+				logger: $this->logger
+			),
 			groupManager: $this->groupManager,
-			logger: $this->logger,
-			userId: $userId,
+			userId: $userId
 		);
 	}
 

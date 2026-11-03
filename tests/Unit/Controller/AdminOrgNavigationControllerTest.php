@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\OrgNavigationSources;
+use OCA\LaunchPad\Controller\RequestActor;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminOrgNavigationController;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -65,11 +67,15 @@ class AdminOrgNavigationControllerTest extends TestCase {
 
 		$this->controller = new AdminOrgNavigationController(
 			request: $this->request,
-			service: $this->service,
-			settings: $this->settings,
-			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			actionAuth: $this->actionAuth,
+			sources: new OrgNavigationSources(
+				service: $this->service,
+				settings: $this->settings
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			),
+			groupManager: $this->groupManager
 		);
 
 	}//end setUp()

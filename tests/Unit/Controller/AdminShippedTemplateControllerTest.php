@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ShippedTemplateTools;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminShippedTemplateController;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
@@ -51,11 +52,13 @@ class AdminShippedTemplateControllerTest extends TestCase {
 
 		$this->controller = new AdminShippedTemplateController(
 			request: $this->createMock(IRequest::class),
-			templates: $this->service,
-			updates: $this->updates,
+			tools: new ShippedTemplateTools(
+				templates: $this->service,
+				updates: $this->updates,
+				logger: new NullLogger()
+			),
 			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			logger: new NullLogger(),
+			groupManager: $this->groupManager
 		);
 	}
 

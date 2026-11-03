@@ -1051,8 +1051,7 @@ class DashboardApiController extends Controller {
 			$dashboard = $this->services->dashboardService->createGroupShared(
 				actorUserId: $this->userId,
 				groupId: $groupId,
-				name: $resolved['name'],
-				description: $resolved['description']
+				fields: ['name' => $resolved['name'], 'description' => $resolved['description']]
 			);
 
 			return ResponseHelper::success(

@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\LaunchPad\Controller\AdminRoleAndFeedTools;
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
 use OCA\LaunchPad\Controller\AdminSettingsTools;
 use OCA\LaunchPad\Controller\AdminTemplateTools;
 use OCA\LaunchPad\Controller\AdminController;
@@ -81,12 +81,12 @@ class AdminControllerRefreshFeedsTest extends TestCase {
 				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
 				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			userSession: $this->userSession,
-			roles: new AdminRoleAndFeedTools(
+			caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-				feedRefresh: $this->feedRefresh
-			),
-			actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
+				feedRefresh: $this->feedRefresh,
+				userSession: $this->userSession,
+				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
+			)
 		);
 	}//end setUp()
 

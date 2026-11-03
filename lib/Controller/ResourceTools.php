@@ -1,9 +1,9 @@
 <?php
 
 /**
- * AdminRoleAndFeedTools
+ * ResourceTools
  *
- * The role and feed-refresh services of the admin API.
+ * The resource service, the upload parser and the log of the resource API.
  *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
@@ -23,25 +23,26 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\FeedRefreshService;
-use OCA\LaunchPad\Service\RoleService;
+use OCA\LaunchPad\Service\ResourceService;
+use Psr\Log\LoggerInterface;
 
 /**
- * The role and feed-refresh services of the admin API.
+ * The resource service, the upload parser and the log of the resource API.
  *
  * @spec openspec/specs/admin-settings/spec.md
  */
-class AdminRoleAndFeedTools {
+class ResourceTools {
 	/**
 	 * Constructor.
 	 *
-	 * @param RoleService        $roleService The LaunchPad role service (REQ-ROLE-001..011).
-	 * @param FeedRefreshService $feedRefresh The background feed refresh service used by the on-demand admin
-	 *                                        `refreshFeeds` action (REQ-BGJOB-FEED-005).
+	 * @param ResourceService             $resourceService The upload pipeline.
+	 * @param ResourceUploadRequestParser $parser Parses request body.
+	 * @param LoggerInterface             $logger PSR logger.
 	 */
 	public function __construct(
-		public readonly RoleService $roleService,
-		public readonly FeedRefreshService $feedRefresh,
+		public readonly ResourceService $resourceService,
+		public readonly ResourceUploadRequestParser $parser,
+		public readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
 }//end class

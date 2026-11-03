@@ -45,13 +45,53 @@ use PHPUnit\Framework\TestCase;
  * Tests for AcknowledgementService.
  */
 class AcknowledgementServiceTest extends TestCase {
+	/**
+	 * Receipt mapper double.
+	 *
+	 * @var AcknowledgementMapper&MockObject
+	 */
 	private AcknowledgementMapper&MockObject $ackMapper;
+
+	/**
+	 * Placement mapper double.
+	 *
+	 * @var WidgetPlacementMapper&MockObject
+	 */
 	private WidgetPlacementMapper&MockObject $placementMapper;
+
+	/**
+	 * Dashboard mapper double.
+	 *
+	 * @var DashboardMapper&MockObject
+	 */
 	private DashboardMapper&MockObject $dashboardMapper;
+
+	/**
+	 * Group manager double.
+	 *
+	 * @var IGroupManager&MockObject
+	 */
 	private IGroupManager&MockObject $groupManager;
+
+	/**
+	 * Activity publisher double.
+	 *
+	 * @var ActivityPublisher&MockObject
+	 */
 	private ActivityPublisher&MockObject $activityPublisher;
+
+	/**
+	 * The service under test.
+	 *
+	 * @var AcknowledgementService
+	 */
 	private AcknowledgementService $service;
 
+	/**
+	 * Build the service over fresh doubles.
+	 *
+	 * @return void
+	 */
 	protected function setUp(): void {
 		$this->ackMapper = $this->createMock(originalClassName: AcknowledgementMapper::class);
 		$this->placementMapper = $this->createMock(originalClassName: WidgetPlacementMapper::class);
@@ -68,6 +108,16 @@ class AcknowledgementServiceTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Build a receipt.
+	 *
+	 * @param string $key     The announcement key.
+	 * @param string $userId  The acknowledging user.
+	 * @param int    $version The content version.
+	 * @param string $at      The acknowledgement time.
+	 *
+	 * @return Acknowledgement The receipt.
+	 */
 	private function makeReceipt(string $key, string $userId, int $version, string $at = '2026-07-07 09:00:00'): Acknowledgement {
 		$receipt = new Acknowledgement();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -79,6 +129,16 @@ class AcknowledgementServiceTest extends TestCase {
 		return $receipt;
 	}
 
+	/**
+	 * Build a mandatory-read placement.
+	 *
+	 * @param string $key         The announcement key.
+	 * @param int    $dashboardId The dashboard holding it.
+	 * @param int    $version     The content version.
+	 * @param int    $reack       The re-acknowledge-on-change flag.
+	 *
+	 * @return WidgetPlacement The placement.
+	 */
 	private function makePlacement(string $key, int $dashboardId, int $version = 1, int $reack = 0): WidgetPlacement {
 		$placement = new WidgetPlacement();
 		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
@@ -93,6 +153,13 @@ class AcknowledgementServiceTest extends TestCase {
 		return $placement;
 	}
 
+	/**
+	 * Build a user double.
+	 *
+	 * @param string $uid The user id.
+	 *
+	 * @return IUser&MockObject The user.
+	 */
 	private function makeUser(string $uid): IUser&MockObject {
 		$user = $this->createMock(originalClassName: IUser::class);
 		$user->method('getUID')->willReturn($uid);
@@ -110,14 +177,14 @@ class AcknowledgementServiceTest extends TestCase {
 		$this->ackMapper->expects($this->once())
 			->method('record')
 			->with('ak-1', 'alice', 1)
-			->willReturn($this->makeReceipt('ak-1', 'alice', 1));
+			->willReturn($this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1));
 
 		// Activity emission resolves the announcement's dashboard.
 		$this->placementMapper->method('findByAnnouncementKey')->willReturn([]);
 		$this->activityPublisher->expects($this->once())
 			->method('publish')
 			->with(
-				$this->callback(static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_ACKNOWLEDGED && $row->actorUserId === 'alice'),
+				$this->callback(callback: static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_ACKNOWLEDGED && $row->actorUserId === 'alice'),
 				'alice'
 			);
 
@@ -137,7 +204,7 @@ class AcknowledgementServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testRepeatedAcknowledgeIsIdempotent(): void {
-		$existing = $this->makeReceipt('ak-1', 'alice', 1, '2026-07-01 08:00:00');
+		$existing = $this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1, at: '2026-07-01 08:00:00');
 		$this->ackMapper->method('findOneFor')->willReturn($existing);
 		$this->ackMapper->expects($this->never())->method('record');
 		$this->activityPublisher->expects($this->never())->method('publish');
@@ -161,7 +228,7 @@ class AcknowledgementServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testAcknowledgeRaceReturnsWinnerWithoutActivity(): void {
-		$winner = $this->makeReceipt('ak-1', 'alice', 1);
+		$winner = $this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1);
 		// First lookup: none; after the failed insert: the winner.
 		$this->ackMapper->method('findOneFor')
 			->willReturnOnConsecutiveCalls(null, $winner);
@@ -212,7 +279,7 @@ class AcknowledgementServiceTest extends TestCase {
 
 		$this->ackMapper->method('findByUserForAnnouncement')
 			->with('ak-1', 'alice')
-			->willReturn([$this->makeReceipt('ak-1', 'alice', 1)]);
+			->willReturn([$this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1)]);
 
 		$this->assertFalse(
 			condition: $this->service->isOutstanding(placement: $placement, userId: 'alice')
@@ -262,18 +329,18 @@ class AcknowledgementServiceTest extends TestCase {
 		// Live audience {alice, bob, carol}.
 		$group = $this->createMock(originalClassName: IGroup::class);
 		$group->method('getUsers')->willReturn([
-			$this->makeUser('alice'),
-			$this->makeUser('bob'),
-			$this->makeUser('carol'),
+			$this->makeUser(uid: 'alice'),
+			$this->makeUser(uid: 'bob'),
+			$this->makeUser(uid: 'carol'),
 		]);
 		$this->groupManager->method('get')->with('sociaal-domein')->willReturn($group);
 
-		// alice + carol acknowledged version 1.
+		// Alice and carol acknowledged version 1.
 		$this->ackMapper->method('findByAnnouncement')
 			->with('ak-1', 1)
 			->willReturn([
-				$this->makeReceipt('ak-1', 'alice', 1),
-				$this->makeReceipt('ak-1', 'carol', 1),
+				$this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1),
+				$this->makeReceipt(key: 'ak-1', userId: 'carol', version: 1),
 			]);
 
 		$report = $this->service->report(announcementKey: 'ak-1');
@@ -311,12 +378,13 @@ class AcknowledgementServiceTest extends TestCase {
 		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
 		$template->setTargetGroups(json_encode(['sociaal-domein']));
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$this->placementMapper->method('findByAnnouncementKey')->willReturnCallback(
-			fn (string $key): array => $key === 'ak-1' ? [$this->makePlacement(key: 'ak-1', dashboardId: 1)] : []
-		);
+		$this->placementMapper->method('findByAnnouncementKey')->willReturnMap([
+			['ak-1', [$this->makePlacement(key: 'ak-1', dashboardId: 1)]],
+			['nope', []],
+		]);
 		$this->dashboardMapper->method('find')->with(1)->willReturn($template);
 		$group = $this->createMock(originalClassName: IGroup::class);
-		$group->method('getUsers')->willReturn(array_map(fn (string $uid): IUser => $this->makeUser($uid), $members));
+		$group->method('getUsers')->willReturn(array_map(fn (string $uid): IUser => $this->makeUser(uid: $uid), $members));
 		$this->groupManager->method('get')->with('sociaal-domein')->willReturn($group);
 	}
 
@@ -329,11 +397,11 @@ class AcknowledgementServiceTest extends TestCase {
 	public function testIsInAudienceFollowsTheGroupRouting(): void {
 		$this->routeToGroup(members: ['alice', 'carol']);
 
-		$this->assertTrue($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'alice'));
-		$this->assertTrue($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'carol'));
-		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'mallory'));
-		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: ''));
-		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'nope', userId: 'alice'));
+		$this->assertTrue(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'alice'));
+		$this->assertTrue(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'carol'));
+		$this->assertFalse(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'mallory'));
+		$this->assertFalse(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: ''));
+		$this->assertFalse(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'nope', userId: 'alice'));
 	}
 
 	/**
@@ -358,7 +426,111 @@ class AcknowledgementServiceTest extends TestCase {
 		]);
 		$this->dashboardMapper->method('find')->willReturnMap([[1, $template], [2, $copy]]);
 
-		$this->assertTrue($this->service->isAllowedToAcknowledge(announcementKey: 'ak-2', userId: 'bob'));
-		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'ak-2', userId: 'alice'));
+		$this->assertTrue(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-2', userId: 'bob'));
+		$this->assertFalse(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-2', userId: 'alice'));
+	}
+
+	/**
+	 * A numeric user id is matched as the same string, and never loosely:
+	 * "1e1" is not user "10".
+	 *
+	 * @return void
+	 */
+	public function testIsInAudienceMatchesNumericUserIdsExactly(): void {
+		$this->routeToGroup(members: ['10']);
+
+		$this->assertTrue(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: '10'));
+		$this->assertFalse(condition: $this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: '1e1'));
+	}
+
+	/**
+	 * Give alice one user dashboard holding ak-in (routed to a group she is
+	 * in) and ak-out (routed to a group she has left), neither acknowledged.
+	 *
+	 * @return void
+	 */
+	private function giveAliceTwoAnnouncements(): void {
+		$own = new Dashboard();
+		$inTemplate = new Dashboard();
+		$outTemplate = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$own->setId(2);
+		$own->setUuid('d-2');
+		$own->setType(Dashboard::TYPE_USER);
+		$own->setUserId('alice');
+		$inTemplate->setId(1);
+		$inTemplate->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$inTemplate->setTargetGroups(json_encode(['g-in']));
+		$outTemplate->setId(3);
+		$outTemplate->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$outTemplate->setTargetGroups(json_encode(['g-out']));
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$inCopy = $this->makePlacement(key: 'ak-in', dashboardId: 2, version: 4);
+		$outCopy = $this->makePlacement(key: 'ak-out', dashboardId: 2);
+		$this->dashboardMapper->method('findByUserId')->with('alice')->willReturn([$own]);
+		$this->placementMapper->method('findByDashboardId')->with(2)->willReturn([$inCopy, $outCopy]);
+		$this->placementMapper->method('findByAnnouncementKey')->willReturnMap([
+			['ak-in', [$this->makePlacement(key: 'ak-in', dashboardId: 1, version: 4), $inCopy]],
+			['ak-out', [$this->makePlacement(key: 'ak-out', dashboardId: 3), $outCopy]],
+		]);
+		$this->dashboardMapper->method('find')->willReturnMap([[1, $inTemplate], [2, $own], [3, $outTemplate]]);
+		$this->ackMapper->method('findByUserForAnnouncement')->willReturn([]);
+		$member = $this->createMock(originalClassName: IGroup::class);
+		$member->method('getUsers')->willReturn([$this->makeUser(uid: 'alice')]);
+		$left = $this->createMock(originalClassName: IGroup::class);
+		$left->method('getUsers')->willReturn([$this->makeUser(uid: 'bob')]);
+		$this->groupManager->method('get')->willReturnMap([['g-in', $member], ['g-out', $left]]);
+	}
+
+	/**
+	 * REQ-ACK-002: a copy of an announcement the user is no longer addressed
+	 * by is not pending, since it can never be acknowledged.
+	 *
+	 * @return void
+	 */
+	public function testPendingListsOnlyAnnouncementsStillAddressedToTheUser(): void {
+		$this->giveAliceTwoAnnouncements();
+
+		$this->assertSame(
+			expected: [
+				'count' => 1,
+				'items' => [
+					[
+						'placementId' => 20,
+						'dashboardUuid' => 'd-2',
+						'announcementKey' => 'ak-in',
+						'prompt' => null,
+						'deadline' => null,
+						'contentVersion' => 4,
+					],
+				],
+			],
+			actual: $this->service->getPending(userId: 'alice')
+		);
+	}
+
+	/**
+	 * The current content version is the blueprint's, not a copy's; an
+	 * unknown announcement has none.
+	 *
+	 * @return void
+	 */
+	public function testCurrentContentVersionIsTheBlueprintVersion(): void {
+		$template = new Dashboard();
+		$copy = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$template->setId(1);
+		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$copy->setId(2);
+		$copy->setType(Dashboard::TYPE_USER);
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->placementMapper->method('findByAnnouncementKey')->willReturnMap([
+			['ak-1', [$this->makePlacement(key: 'ak-1', dashboardId: 2, version: 2), $this->makePlacement(key: 'ak-1', dashboardId: 1, version: 3)]],
+			['nope', []],
+		]);
+		$this->dashboardMapper->method('find')->willReturnMap([[1, $template], [2, $copy]]);
+
+		$this->assertSame(expected: 3, actual: $this->service->currentContentVersion(announcementKey: 'ak-1'));
+		$this->assertNull(actual: $this->service->currentContentVersion(announcementKey: 'nope'));
 	}
 }//end class

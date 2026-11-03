@@ -262,19 +262,32 @@ class AdminController extends Controller {
 		?bool $isDefault = null,
 		?int $gridColumns = null,
 	): JSONResponse {
-		try {
-			$data = $this->buildUpdateData(
-				name: $name,
-				description: $description,
-				targetGroups: $targetGroups,
-				permissionLevel: $permissionLevel,
-				isDefault: $isDefault,
-				gridColumns: $gridColumns
-			);
+		return $this->saveTemplate(
+			templateId: $id,
+			fields: [
+				'name'            => $name,
+				'description'     => $description,
+				'targetGroups'    => $targetGroups,
+				'permissionLevel' => $permissionLevel,
+				'isDefault'       => $isDefault,
+				'gridColumns'     => $gridColumns,
+			]
+		);
+	}//end updateTemplate()
 
+	/**
+	 * Save the non-null template fields and answer with the template.
+	 *
+	 * @param int                  $templateId The template ID.
+	 * @param array<string, mixed> $fields     The nullable template fields by name.
+	 *
+	 * @return JSONResponse The updated template, or the error.
+	 */
+	private function saveTemplate(int $templateId, array $fields): JSONResponse {
+		try {
 			$template = $this->templates->templateService->updateTemplate(
-				id: $id,
-				data: $data
+				id: $templateId,
+				data: $this->buildUpdateData(fields: $fields)
 			);
 
 			return ResponseHelper::success(
@@ -283,7 +296,7 @@ class AdminController extends Controller {
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
-	}//end updateTemplate()
+	}//end saveTemplate()
 
 	/**
 	 * Delete an admin template.
@@ -1024,34 +1037,13 @@ class AdminController extends Controller {
 	}//end completeWizard()
 
 	/**
-	 * Build the update data array from nullable parameters.
+	 * Keep the non-null update fields.
 	 *
-	 * @param string|null $name The name.
-	 * @param string|null $description The description.
-	 * @param array|null $targetGroups The target groups.
-	 * @param string|null $permissionLevel The permission level.
-	 * @param bool|null $isDefault Whether default.
-	 * @param int|null $gridColumns The grid columns.
+	 * @param array<string, mixed> $fields The nullable update fields by name.
 	 *
-	 * @return array The non-null update data.
+	 * @return array<string, mixed> The non-null update data.
 	 */
-	private function buildUpdateData(
-		?string $name,
-		?string $description,
-		?array $targetGroups,
-		?string $permissionLevel,
-		?bool $isDefault,
-		?int $gridColumns,
-	): array {
-		$fields = [
-			'name' => $name,
-			'description' => $description,
-			'targetGroups' => $targetGroups,
-			'permissionLevel' => $permissionLevel,
-			'isDefault' => $isDefault,
-			'gridColumns' => $gridColumns,
-		];
-
+	private function buildUpdateData(array $fields): array {
 		return array_filter(
 			array: $fields,
 			callback: function ($value) {

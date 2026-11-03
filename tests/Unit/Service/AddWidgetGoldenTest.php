@@ -53,6 +53,7 @@ use Throwable;
  * @covers \OCA\LaunchPad\Controller\WidgetApiController
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Service\MenuService
+ * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  */
 class AddWidgetGoldenTest extends TestCase {
 

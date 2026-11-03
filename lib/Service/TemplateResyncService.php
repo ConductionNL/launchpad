@@ -333,13 +333,11 @@ class TemplateResyncService {
 		}//end foreach
 
 		$this->emitAuditEvent(
-			actingAdminId: $actingAdminId,
-			resync: [
-				'templateId'    => $templateId,
-				'templateName'  => (string)$template->getName(),
-				'strategy'      => $strategy,
-				'affectedCount' => $affectedCount,
-			]
+			templateId: $templateId,
+			templateName: (string)$template->getName(),
+			strategy: $strategy,
+			affectedCount: $affectedCount,
+			actingAdminId: $actingAdminId
 		);
 
 		foreach ($notifyDashboards as $dashboard) {
@@ -819,32 +817,34 @@ class TemplateResyncService {
 	 * Activity failure is swallowed by the publisher so an audit-log
 	 * problem never rolls back the re-sync itself.
 	 *
-	 * @param string               $actingAdminId The acting admin's NC user ID.
-	 * @param array<string, mixed> $resync        The template's dashboard
-	 *                                            `templateId` and
-	 *                                            `templateName`, the
-	 *                                            `strategy` (`'overwrite'`
-	 *                                            or `'merge'`) and the
-	 *                                            `affectedCount` of copies
-	 *                                            actually changed.
+	 * @param int $templateId The template's dashboard ID.
+	 * @param string $templateName The template's human-readable name.
+	 * @param string $strategy `'overwrite'` or `'merge'`.
+	 * @param int $affectedCount The number of copies actually changed.
+	 * @param string $actingAdminId The acting admin's NC user ID.
 	 *
 	 * @return void
 	 */
-	private function emitAuditEvent(string $actingAdminId, array $resync): void {
-		$templateId = $resync['templateId'];
+	private function emitAuditEvent(
+		int $templateId,
+		string $templateName,
+		string $strategy,
+		int $affectedCount,
+		string $actingAdminId,
+	): void {
 		try {
 			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $actingAdminId,
 				dashboard: new ActivitySubject(
 					uuid: 'template-resync-' . $templateId,
-					name: 'Template resync: ' . $resync['templateName'] . ' (' . $resync['strategy'] . ', ' . $resync['affectedCount'] . ' copies)'
+					name: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)'
 				),
 				extraParams: [
 					'templateResync' => true,
 					'templateId' => $templateId,
-					'strategy' => $resync['strategy'],
-					'affectedCount' => $resync['affectedCount'],
+					'strategy' => $strategy,
+					'affectedCount' => $affectedCount,
 				]
 			);
 			$this->activityPublisher->publish(row: $row, recipientUserId: $actingAdminId);

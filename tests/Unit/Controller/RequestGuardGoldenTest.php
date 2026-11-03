@@ -20,9 +20,12 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Tests\Unit\Controller;
 
 use OCA\LaunchPad\Controller\AdminBulkController;
+use OCA\LaunchPad\Controller\AdminCleanupController;
 use OCA\LaunchPad\Controller\AdminDemoShowcasesController;
 use OCA\LaunchPad\Controller\AdminOrgNavigationController;
+use OCA\LaunchPad\Controller\AdminSettingsController;
 use OCA\LaunchPad\Controller\AdminShippedTemplateController;
+use OCA\LaunchPad\Controller\AttentionController;
 use OCA\LaunchPad\Controller\DashboardLockApiController;
 use OCA\LaunchPad\Controller\MetadataAdminController;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -38,7 +41,8 @@ use ReflectionNamedType;
 use Throwable;
 
 /**
- * Calls every endpoint of the admin and lock controllers as an anonymous visitor,
+ * Calls every endpoint of the admin, attention and lock controllers as an
+ * anonymous visitor,
  * as bob (signed in, not an administrator) and as alice (administrator),
  * and pins the response, the users the administrator check ran for, the
  * user and action key of every action check (only alice is granted), and
@@ -55,9 +59,12 @@ class RequestGuardGoldenTest extends TestCase {
 
 	private const CONTROLLERS = [
 		AdminBulkController::class,
+		AdminCleanupController::class,
 		AdminDemoShowcasesController::class,
 		AdminOrgNavigationController::class,
+		AdminSettingsController::class,
 		AdminShippedTemplateController::class,
+		AttentionController::class,
 		DashboardLockApiController::class,
 		MetadataAdminController::class,
 	];
@@ -178,6 +185,7 @@ class RequestGuardGoldenTest extends TestCase {
 				$log['isAdmin'][] = $userId;
 				return $userId === 'alice';
 			});
+			$groups->method('search')->willReturn([]);
 			return $groups;
 		}
 

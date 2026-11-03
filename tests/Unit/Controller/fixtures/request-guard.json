@@ -111,6 +111,62 @@
         "actions": [],
         "reachedServices": false
     },
+    "AdminCleanupController::purge / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminCleanupController::purge / anonymous": {
+        "status": 403,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::purge / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::scan / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminCleanupController::scan / anonymous": {
+        "status": 403,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::scan / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
     "AdminDemoShowcasesController::destroy / alice (admin)": {
         "threw": "RuntimeException",
         "isAdmin": [
@@ -319,6 +375,62 @@
         "actions": [],
         "reachedServices": false
     },
+    "AdminSettingsController::listGroups / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminSettingsController::listGroups / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::listGroups / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateGroupOrder / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateGroupOrder / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateGroupOrder / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
     "AdminShippedTemplateController::index / alice (admin)": {
         "threw": "RuntimeException",
         "isAdmin": [
@@ -402,6 +514,27 @@
         ],
         "actions": [],
         "reachedServices": false
+    },
+    "AttentionController::sources / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AttentionController::sources / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AttentionController::sources / bob (signed in)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": true
     },
     "DashboardLockApiController::acquire / alice (admin)": {
         "threw": "RuntimeException",

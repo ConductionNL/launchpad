@@ -163,14 +163,12 @@ class DashboardVersionService {
 	 * controllers that don't yet pass an explicit body.
 	 *
 	 * @param Dashboard $dashboard The dashboard being snapshotted.
-	 * @param string|null $snapshotJson Pre-built snapshot JSON, or null
-	 *                                  to auto-build from the live
-	 *                                  state.
-	 * @param string $createdBy The acting user ID.
-	 * @param string|null $note Optional note for explicit
-	 *                          snapshots; ignored / coerced to
-	 *                          null on automatic captures.
-	 * @param boolean $explicit Whether to bypass the debounce.
+	 * @param string    $createdBy The acting user ID.
+	 * @param array     $options   Optional `snapshotJson` (pre-built
+	 *                             snapshot JSON; null or empty to
+	 *                             auto-build from the live state), `note`
+	 *                             (kept on explicit snapshots only) and
+	 *                             `explicit` (bypass the debounce; false).
 	 *
 	 * @return DashboardVersion|null The persisted version row, or null
 	 *                               when an automatic snapshot was
@@ -178,13 +176,11 @@ class DashboardVersionService {
 	 *
 	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
-	public function captureSnapshot(
-		Dashboard $dashboard,
-		?string $snapshotJson,
-		string $createdBy,
-		?string $note = null,
-		bool $explicit = false,
-	): ?DashboardVersion {
+	public function captureSnapshot(Dashboard $dashboard, string $createdBy, array $options=[]): ?DashboardVersion {
+		$options     += ['snapshotJson' => null, 'note' => null, 'explicit' => false];
+		$snapshotJson = $options['snapshotJson'];
+		$note         = $options['note'];
+		$explicit     = $options['explicit'];
 		$uuid = (string)$dashboard->getUuid();
 		if ($uuid === '') {
 			// Defensive — without a UUID we have nothing to key the
@@ -367,10 +363,8 @@ class DashboardVersionService {
 
 		$persisted = $this->captureSnapshot(
 			dashboard: $dashboard,
-			snapshotJson: null,
 			createdBy: $requestingUser,
-			note: $note,
-			explicit: true
+			options: ['note' => $note, 'explicit' => true]
 		);
 
 		if ($persisted === null) {
@@ -458,10 +452,12 @@ class DashboardVersionService {
 			// itself is reversible (REQ-VERS-005 design D3).
 			$this->captureSnapshot(
 				dashboard: $dashboard,
-				snapshotJson: $this->buildDefaultSnapshot(dashboard: $dashboard),
 				createdBy: $restoringUser,
-				note: 'pre-restore',
-				explicit: true
+				options: [
+					'snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard),
+					'note'         => 'pre-restore',
+					'explicit'     => true,
+				]
 			);
 
 			// C3 fix: decode the target snapshot and apply it to the DB so

@@ -127,6 +127,26 @@ class ResponseHelper {
 	}//end quotaExceeded()
 
 	/**
+	 * Build the HTTP 400 invalid-argument envelope.
+	 *
+	 * @param string $message The validation message.
+	 *
+	 * @return JSONResponse The 400 response.
+	 *
+	 * @spec openspec/changes/archive/2026-05-24-retrofit-dashboards/tasks.md#task-3
+	 */
+	public static function invalidArgument(string $message): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'error',
+				'error' => 'invalid_argument',
+				'message' => $message,
+			],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end invalidArgument()
+
+	/**
 	 * Create a success response.
 	 *
 	 * @param array $data The response data.

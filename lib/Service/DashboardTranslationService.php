@@ -248,13 +248,11 @@ class DashboardTranslationService {
 	 * @param string $dashboardUuid The dashboard UUID.
 	 * @param string $languageCode The (raw) language code; will
 	 *                             be normalised before storage.
-	 * @param string|null $name Optional explicit name.
-	 * @param string|null $description Optional explicit description.
-	 * @param string|null $widgetTreeJson Optional explicit tree JSON.
-	 * @param string|null $copyFromLanguage Optional language code to seed
-	 *                                      from (`'primary'` or another
-	 *                                      language); defaults to the
-	 *                                      primary variant when null.
+	 * @param array $content Optional `name`, `description` and
+	 *                       `widgetTreeJson` (explicit values win over the
+	 *                       seed) and `copyFromLanguage`, the language code
+	 *                       to seed from (`'primary'` or another language;
+	 *                       the primary variant when null).
 	 *
 	 * @return DashboardTranslation The created variant.
 	 *
@@ -265,14 +263,8 @@ class DashboardTranslationService {
 	 *
 	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
-	public function createVariant(
-		string $dashboardUuid,
-		string $languageCode,
-		?string $name = null,
-		?string $description = null,
-		?string $widgetTreeJson = null,
-		?string $copyFromLanguage = null,
-	): DashboardTranslation {
+	public function createVariant(string $dashboardUuid, string $languageCode, array $content=[]): DashboardTranslation {
+		$content += ['name' => null, 'description' => null, 'widgetTreeJson' => null, 'copyFromLanguage' => null];
 		$normalised = DashboardTranslationMapper::normaliseLanguageCode(
 			raw: $languageCode
 		);
@@ -292,7 +284,7 @@ class DashboardTranslationService {
 
 		$seed = $this->resolveSeed(
 			dashboardUuid: $dashboardUuid,
-			copyFromLanguage: $copyFromLanguage
+			copyFromLanguage: $content['copyFromLanguage']
 		);
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
@@ -300,17 +292,17 @@ class DashboardTranslationService {
 		$translation->setDashboardUuid($dashboardUuid);
 		$translation->setLanguageCode($normalised);
 		$translation->setName(
-			$this->coalesce(value: $name, fallback: $seed?->getName())
+			$this->coalesce(value: $content['name'], fallback: $seed?->getName())
 		);
 		$translation->setDescription(
 			$this->coalesce(
-				value: $description,
+				value: $content['description'],
 				fallback: $seed?->getDescription()
 			)
 		);
 		$translation->setWidgetTreeJson(
 			$this->coalesce(
-				value: $widgetTreeJson,
+				value: $content['widgetTreeJson'],
 				fallback: $seed?->getWidgetTreeJson()
 			)
 		);

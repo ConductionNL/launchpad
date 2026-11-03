@@ -1,0 +1,929 @@
+{
+	"weather | load | null | reading": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | null | error answer": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | null | empty error": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | null | null": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | null | undefined": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | null | rejects": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | no id | reading": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | no id | error answer": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | no id | empty error": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | no id | null": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | no id | undefined": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | no id | rejects": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id null | reading": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id null | error answer": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id null | empty error": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id null | null": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id null | undefined": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id null | rejects": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is not available until this tile is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"weather | load | id zero | reading": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"value": 21,
+				"stale": false
+			}
+		},
+		"calls": 1
+	},
+	"weather | load | id zero | error answer": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is currently unavailable.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"weather | load | id zero | empty error": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"error": ""
+			}
+		},
+		"calls": 1
+	},
+	"weather | load | id zero | null": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"weather | load | id zero | undefined": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": "(undefined)"
+		},
+		"calls": 1
+	},
+	"weather | load | id zero | rejects": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Failed to load weather.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"weather | load | id 7 | reading": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"value": 21,
+				"stale": false
+			}
+		},
+		"calls": 1
+	},
+	"weather | load | id 7 | error answer": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Weather is currently unavailable.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"weather | load | id 7 | empty error": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"error": ""
+			}
+		},
+		"calls": 1
+	},
+	"weather | load | id 7 | null": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"weather | load | id 7 | undefined": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": "(undefined)"
+		},
+		"calls": 1
+	},
+	"weather | load | id 7 | rejects": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Failed to load weather.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"weather | styles": {
+		".weather-widget": {
+			"scoped": true,
+			"props": {
+				"width": "100%",
+				"height": "100%",
+				"display": "flex",
+				"align-items": "center",
+				"justify-content": "center"
+			}
+		},
+		".weather-widget__badge": {
+			"scoped": true,
+			"props": {
+				"position": "absolute",
+				"top": "-8px",
+				"right": "-8px",
+				"font-size": "0.7rem",
+				"padding": "2px 6px",
+				"border-radius": "var(--border-radius-pill, 8px)",
+				"background": "var(--color-warning, #ffcc00)",
+				"color": "var(--color-main-text)"
+			}
+		},
+		".weather-widget__body": {
+			"scoped": true,
+			"props": {
+				"display": "flex",
+				"align-items": "center",
+				"gap": "12px"
+			}
+		},
+		".weather-widget__condition-text": {
+			"scoped": true,
+			"props": {
+				"color": "var(--color-text-maxcontrast, var(--color-main-text))"
+			}
+		},
+		".weather-widget__details": {
+			"scoped": true,
+			"props": {
+				"display": "flex",
+				"flex-direction": "column"
+			}
+		},
+		".weather-widget__location": {
+			"scoped": true,
+			"props": {
+				"font-weight": "600",
+				"color": "var(--color-main-text)"
+			}
+		},
+		".weather-widget__reading": {
+			"scoped": true,
+			"props": {
+				"position": "relative",
+				"width": "100%",
+				"display": "flex",
+				"flex-direction": "column",
+				"align-items": "center",
+				"gap": "4px"
+			}
+		},
+		".weather-widget__retry": {
+			"scoped": true,
+			"props": {
+				"border": "1px solid var(--color-border)",
+				"border-radius": "var(--border-radius)",
+				"background": "transparent",
+				"padding": "4px 12px",
+				"cursor": "pointer",
+				"color": "var(--color-main-text)"
+			}
+		},
+		".weather-widget__state": {
+			"scoped": true,
+			"props": {
+				"display": "flex",
+				"flex-direction": "column",
+				"align-items": "center",
+				"gap": "8px",
+				"color": "var(--color-text-maxcontrast, var(--color-main-text))",
+				"text-align": "center"
+			}
+		},
+		".weather-widget__temp": {
+			"scoped": true,
+			"props": {
+				"font-size": "1.8rem",
+				"font-weight": "600",
+				"color": "var(--color-main-text)"
+			}
+		}
+	},
+	"live tile | load | null | reading": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | null | error answer": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | null | empty error": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | null | null": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | null | undefined": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | null | rejects": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | no id | reading": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | no id | error answer": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | no id | empty error": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | no id | null": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | no id | undefined": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | no id | rejects": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id null | reading": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id null | error answer": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id null | empty error": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id null | null": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id null | undefined": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id null | rejects": {
+		"during": null,
+		"after": {
+			"loading": false,
+			"errorMessage": "t:This tile is not available until it is saved.",
+			"reading": {
+				"old": true
+			}
+		},
+		"calls": 0
+	},
+	"live tile | load | id zero | reading": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"value": 21,
+				"stale": false
+			}
+		},
+		"calls": 1
+	},
+	"live tile | load | id zero | error answer": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:The value is currently unavailable.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"live tile | load | id zero | empty error": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"error": ""
+			}
+		},
+		"calls": 1
+	},
+	"live tile | load | id zero | null": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"live tile | load | id zero | undefined": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": "(undefined)"
+		},
+		"calls": 1
+	},
+	"live tile | load | id zero | rejects": {
+		"during": {
+			"id": 0,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Failed to load the value.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"live tile | load | id 7 | reading": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"value": 21,
+				"stale": false
+			}
+		},
+		"calls": 1
+	},
+	"live tile | load | id 7 | error answer": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:The value is currently unavailable.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"live tile | load | id 7 | empty error": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": {
+				"error": ""
+			}
+		},
+		"calls": 1
+	},
+	"live tile | load | id 7 | null": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"live tile | load | id 7 | undefined": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "",
+			"reading": "(undefined)"
+		},
+		"calls": 1
+	},
+	"live tile | load | id 7 | rejects": {
+		"during": {
+			"id": 7,
+			"loading": true,
+			"errorMessage": ""
+		},
+		"after": {
+			"loading": false,
+			"errorMessage": "t:Failed to load the value.",
+			"reading": null
+		},
+		"calls": 1
+	},
+	"live tile | styles": {
+		".live-tile-widget": {
+			"scoped": true,
+			"props": {
+				"width": "100%",
+				"height": "100%",
+				"display": "flex",
+				"align-items": "center",
+				"justify-content": "center",
+				"text-decoration": "none",
+				"color": "inherit"
+			}
+		},
+		".live-tile-widget__badge": {
+			"scoped": true,
+			"props": {
+				"display": "inline-flex",
+				"align-items": "center",
+				"gap": "4px",
+				"font-size": "0.8rem",
+				"padding": "2px 8px",
+				"border-radius": "var(--border-radius-pill, 8px)",
+				"border": "1px solid var(--color-border)"
+			}
+		},
+		".live-tile-widget__badge--alert": {
+			"scoped": true,
+			"props": {
+				"border-color": "var(--color-error, #e9322d)"
+			}
+		},
+		".live-tile-widget__badge--ok": {
+			"scoped": true,
+			"props": {
+				"border-color": "var(--color-success, #46ba61)"
+			}
+		},
+		".live-tile-widget__badge--warn": {
+			"scoped": true,
+			"props": {
+				"border-color": "var(--color-warning, #ffcc00)"
+			}
+		},
+		".live-tile-widget__label": {
+			"scoped": true,
+			"props": {
+				"font-weight": "600",
+				"color": "var(--color-text-maxcontrast, var(--color-main-text))"
+			}
+		},
+		".live-tile-widget__reading": {
+			"scoped": true,
+			"props": {
+				"position": "relative",
+				"width": "100%",
+				"display": "flex",
+				"flex-direction": "column",
+				"align-items": "center",
+				"gap": "4px"
+			}
+		},
+		".live-tile-widget__retry": {
+			"scoped": true,
+			"props": {
+				"border": "1px solid var(--color-border)",
+				"border-radius": "var(--border-radius)",
+				"background": "transparent",
+				"padding": "4px 12px",
+				"cursor": "pointer",
+				"color": "var(--color-main-text)"
+			}
+		},
+		".live-tile-widget__stale-badge": {
+			"scoped": true,
+			"props": {
+				"position": "absolute",
+				"top": "-8px",
+				"right": "-8px",
+				"font-size": "0.7rem",
+				"padding": "2px 6px",
+				"border-radius": "var(--border-radius-pill, 8px)",
+				"background": "var(--color-warning, #ffcc00)",
+				"color": "var(--color-main-text)"
+			}
+		},
+		".live-tile-widget__state": {
+			"scoped": true,
+			"props": {
+				"display": "flex",
+				"flex-direction": "column",
+				"align-items": "center",
+				"gap": "8px",
+				"color": "var(--color-text-maxcontrast, var(--color-main-text))",
+				"text-align": "center"
+			}
+		},
+		".live-tile-widget__value": {
+			"scoped": true,
+			"props": {
+				"font-size": "1.8rem",
+				"font-weight": "600",
+				"color": "var(--color-main-text)"
+			}
+		}
+	}
+}

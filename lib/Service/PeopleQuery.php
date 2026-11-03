@@ -23,10 +23,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 /**
- * Filters, sort, search text and page window of a People widget request:
- * whether disabled users are left out, whether birthdates show, the page
- * size and the offset. PeopleWidgetService validates them before it reads
- * the directory.
+ * Filters, sort, search text and page window of a People widget request.
+ * PeopleWidgetService validates them before it reads the directory.
  *
  * @spec openspec/specs/people-widget/spec.md
  */
@@ -34,22 +32,32 @@ final class PeopleQuery {
 	/**
 	 * Constructor
 	 *
-	 * @param array       $filters         Filter predicates `{fieldName, operator, values}`.
-	 * @param string      $sortBy          One of `displayName`, `group` or `recent-activity`.
-	 * @param string|null $search          Search text (2 or more characters), or null.
-	 * @param bool        $excludeDisabled True leaves disabled users out.
-	 * @param bool        $showBirthdays   False strips the birthdate field.
-	 * @param int         $limit           Page size (1..MAX_LIMIT).
-	 * @param int         $offset          Page offset (>= 0).
+	 * @param array       $filters Filter predicates `{fieldName, operator, values}`.
+	 * @param string      $sortBy  One of `displayName`, `group` or `recent-activity`.
+	 * @param string|null $search  Search text (2 or more characters), or null.
+	 * @param PeoplePage  $page    Disabled users, birthdates, page size and offset.
 	 */
 	public function __construct(
 		public readonly array $filters,
 		public readonly string $sortBy,
 		public readonly ?string $search,
-		public readonly bool $excludeDisabled,
-		public readonly bool $showBirthdays,
-		public readonly int $limit,
-		public readonly int $offset,
+		public readonly PeoplePage $page,
 	) {
 	}//end __construct()
+
+	/**
+	 * Build the page window of a query.
+	 *
+	 * @param bool $excludeDisabled True leaves disabled users out.
+	 * @param bool $showBirthdays   False strips the birthdate field.
+	 * @param int  $limit           Page size (1..MAX_LIMIT).
+	 * @param int  $offset          Page offset (>= 0).
+	 *
+	 * @return PeoplePage
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	public static function window(bool $excludeDisabled, bool $showBirthdays, int $limit, int $offset): PeoplePage {
+		return new PeoplePage(excludeDisabled: $excludeDisabled, showBirthdays: $showBirthdays, limit: $limit, offset: $offset);
+	}//end window()
 }//end class

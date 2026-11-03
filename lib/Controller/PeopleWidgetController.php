@@ -142,10 +142,12 @@ class PeopleWidgetController extends Controller {
 					filters: $parsedFilters,
 					sortBy: ($sortBy ?? 'displayName'),
 					search: $q,
-					excludeDisabled: ($excludeDisabled ?? 1) === 1,
-					showBirthdays: ($showBirthdays ?? 1) === 1,
-					limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
-					offset: ($offset ?? 0)
+					page: PeopleQuery::window(
+						excludeDisabled: ($excludeDisabled ?? 1) === 1,
+						showBirthdays: ($showBirthdays ?? 1) === 1,
+						limit: ($limit ?? PeopleWidgetService::DEFAULT_LIMIT),
+						offset: ($offset ?? 0)
+					)
 				),
 				viewerId: $user->getUID(),
 			);

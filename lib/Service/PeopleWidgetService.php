@@ -177,8 +177,9 @@ class PeopleWidgetService {
 		$this->viewerId = $viewerId;
 		$filters = $request->filters;
 		$sortBy = $request->sortBy;
-		$limit = $request->limit;
-		$offset = $request->offset;
+		$page = $request->page;
+		$limit = $page->limit;
+		$offset = $page->offset;
 
 		if ($limit < 1 || $limit > self::MAX_LIMIT) {
 			throw new InvalidArgumentException(
@@ -206,7 +207,7 @@ class PeopleWidgetService {
 
 			return $this->paginateCandidates(
 				candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
-				window: $request,
+				window: $page,
 				sortBy: 'displayName'
 			);
 		}
@@ -218,7 +219,7 @@ class PeopleWidgetService {
 		// former full-directory `IUserManager::search('')` scan on every
 		// People-widget render. REQ-PPL-003.
 		if ($groupFilter === null && $sortBy !== 'group') {
-			return $this->listDirectoryPageByDisplayName(window: $request);
+			return $this->listDirectoryPageByDisplayName(window: $page);
 		}
 
 		// Bounded candidate pool: either the union of the filtered group
@@ -233,7 +234,7 @@ class PeopleWidgetService {
 
 		return $this->paginateCandidates(
 			candidates: $candidates,
-			window: $request,
+			window: $page,
 			sortBy: $sortBy
 		);
 	}//end listUsers()
@@ -250,12 +251,12 @@ class PeopleWidgetService {
 	 * the exact `total` is derived from `countUsersTotal()` (minus
 	 * `countDisabledUsers()`) so no full scan is needed to size it.
 	 *
-	 * @param PeopleQuery $window Disabled users, birthdates, size (already
-	 *                            validated 1..MAX_LIMIT) and offset (>= 0).
+	 * @param PeoplePage $window Disabled users, birthdates, size (already
+	 *                           validated 1..MAX_LIMIT) and offset (>= 0).
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 */
-	private function listDirectoryPageByDisplayName(PeopleQuery $window): array {
+	private function listDirectoryPageByDisplayName(PeoplePage $window): array {
 		$page = $this->collectDisplayNamePage(window: $window);
 		$total = $this->countDirectory(excludeDisabled: $window->excludeDisabled);
 		$offset = $window->offset;
@@ -284,13 +285,13 @@ class PeopleWidgetService {
 	 * Reads at most `offset + limit` matches (plus any disabled users
 	 * interleaved in that window) — never the full user table.
 	 *
-	 * @param PeopleQuery $window Whether disabled users are skipped, the
-	 *                            number of users to collect and the number
-	 *                            of matching users to skip first.
+	 * @param PeoplePage $window Whether disabled users are skipped, the
+	 *                           number of users to collect and the number
+	 *                           of matching users to skip first.
 	 *
 	 * @return IUser[] The requested page in display-name order.
 	 */
-	private function collectDisplayNamePage(PeopleQuery $window): array {
+	private function collectDisplayNamePage(PeoplePage $window): array {
 		$excludeDisabled = $window->excludeDisabled;
 		$limit = $window->limit;
 		$offset = $window->offset;
@@ -369,15 +370,15 @@ class PeopleWidgetService {
 	 * Used for the group-filtered path (pool already bounded to group
 	 * membership) and the rare no-filter `group` sort path.
 	 *
-	 * @param IUser[]     $candidates The resolved candidate pool.
-	 * @param PeopleQuery $window     Disabled users, birthdates, size and offset.
-	 * @param string      $sortBy     Sort mode (`displayName` or `group`).
+	 * @param IUser[]    $candidates The resolved candidate pool.
+	 * @param PeoplePage $window     Disabled users, birthdates, size and offset.
+	 * @param string     $sortBy     Sort mode (`displayName` or `group`).
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 */
 	private function paginateCandidates(
 		array $candidates,
-		PeopleQuery $window,
+		PeoplePage $window,
 		string $sortBy,
 	): array {
 		$offset = $window->offset;

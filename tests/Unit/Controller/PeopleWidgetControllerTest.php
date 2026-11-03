@@ -87,10 +87,7 @@ class PeopleWidgetControllerTest extends TestCase {
 					filters: [],
 					sortBy: 'displayName',
 					search: null,
-					excludeDisabled: true,
-				showBirthdays: true,
-				limit: 50,
-				offset: 0
+					page: PeopleQuery::window(excludeDisabled: true, showBirthdays: true, limit: 50, offset: 0)
 				),
 			)
 			->willReturn(
@@ -192,10 +189,7 @@ class PeopleWidgetControllerTest extends TestCase {
 					],
 					sortBy: 'displayName',
 					search: null,
-					excludeDisabled: true,
-				showBirthdays: true,
-				limit: 50,
-				offset: 0
+					page: PeopleQuery::window(excludeDisabled: true, showBirthdays: true, limit: 50, offset: 0)
 				),
 			)
 			->willReturn(['users' => [], 'total' => 0, 'hasMore' => false]);

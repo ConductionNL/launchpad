@@ -177,10 +177,7 @@ class PeopleWidgetServiceTest extends TestCase {
 				filters: $filters,
 				sortBy: $sortBy,
 				search: $query,
-				excludeDisabled: $excludeDisabled,
-				showBirthdays: $showBirthdays,
-				limit: $limit,
-				offset: $offset
+				page: PeopleQuery::window(excludeDisabled: $excludeDisabled, showBirthdays: $showBirthdays, limit: $limit, offset: $offset)
 			),
 			viewerId: $viewerId
 		);

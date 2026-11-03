@@ -48,6 +48,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Service\PeopleWidgetService
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Service\PeopleQuery
+ * @uses   \OCA\LaunchPad\Service\PeoplePage
  */
 class PeopleDirectoryGoldenTest extends TestCase {
 

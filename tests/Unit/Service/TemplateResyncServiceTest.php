@@ -64,6 +64,13 @@ class TemplateResyncServiceTest extends TestCase {
 	/** @var ActivityPublisher&MockObject */
 	private $activityPublisher;
 
+	/**
+	 * Audit rows whose checks ran.
+	 *
+	 * @var int
+	 */
+	private int $audited = 0;
+
 	/** @var INotificationManager&MockObject */
 	private $notificationManager;
 
@@ -565,19 +572,15 @@ class TemplateResyncServiceTest extends TestCase {
 
 		$this->activityPublisher->expects($this->once())
 			->method('publish')
-			->willReturnCallback(function (
-				string $type,
-				string $actorUserId,
-				string $recipientUserId,
-				string $dashboardUuid,
-				string $dashboardName,
-				string $dashboardLink,
-				array $extraParams = [],
-			) {
-				$this->assertSame('admin1', $actorUserId);
-				$this->assertSame(1, $extraParams['templateId']);
-				$this->assertSame(TemplateResyncService::STRATEGY_MERGE, $extraParams['strategy']);
-				$this->assertSame(12, $extraParams['affectedCount']);
+			->willReturnCallback(function (\OCA\LaunchPad\Activity\ActivityRow $row, string $recipientUserId) {
+				$this->assertSame('admin1', $row->actorUserId);
+				$this->assertSame('admin1', $recipientUserId);
+				$this->assertSame('template-resync-1', $row->dashboard->uuid);
+				$this->assertStringEndsWith('(merge, 12 copies)', $row->dashboard->name);
+				$this->assertSame(1, $row->extraParams['templateId']);
+				$this->assertSame(TemplateResyncService::STRATEGY_MERGE, $row->extraParams['strategy']);
+				$this->assertSame(12, $row->extraParams['affectedCount']);
+				$this->audited++;
 				return true;
 			});
 
@@ -588,6 +591,7 @@ class TemplateResyncServiceTest extends TestCase {
 		);
 
 		$this->assertSame(12, $result['affectedCount']);
+		$this->assertSame(1, $this->audited, 'the audit row reached the publisher and its checks ran');
 	}
 
 	public function testAffectedUsersAreNotified(): void {

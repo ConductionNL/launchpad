@@ -138,12 +138,12 @@ class FileService {
 	 *
 	 * @param string $userId Owner of the target Files area.
 	 * @param string $filename Leaf filename — strictly validated.
-	 * @param string $dir Target subdirectory inside the user's
-	 *                    folder (default `/`).
-	 * @param string $content Bytes to write (default empty).
-	 * @param string $onExisting ON_EXISTING_REPLACE (default) or
-	 *                           ON_EXISTING_REFUSE, which answers 409
-	 *                           instead of replacing a file (#712).
+	 * @param array $write Optional `dir` (target subdirectory inside
+	 *                     the user's folder; `/`), `content` (bytes to
+	 *                     write; empty) and `onExisting`
+	 *                     (ON_EXISTING_REPLACE, the default, or
+	 *                     ON_EXISTING_REFUSE, which answers 409 instead
+	 *                     of replacing a file, #712).
 	 *
 	 * @return array{status: string, fileId: int, url: string}
 	 *
@@ -160,13 +160,9 @@ class FileService {
 	 *
 	 * @spec openspec/specs/resource-uploads/spec.md
 	 */
-	public function createFile(
-		string $userId,
-		string $filename,
-		string $dir = '/',
-		string $content = '',
-		string $onExisting = self::ON_EXISTING_REPLACE,
-	): array {
+	public function createFile(string $userId, string $filename, array $write=[]): array {
+		$write += ['dir' => '/', 'content' => '', 'onExisting' => self::ON_EXISTING_REPLACE];
+		$dir    = $write['dir'];
 		$this->assertValidFilename(filename: $filename);
 		$this->assertValidDirectory(dir: $dir);
 		$this->assertAllowedExtension(filename: $filename);
@@ -187,8 +183,8 @@ class FileService {
 		$file = $this->writeFile(
 			folder: $targetFolder,
 			filename: $filename,
-			content: $content,
-			onExisting: $onExisting
+			content: $write['content'],
+			onExisting: $write['onExisting']
 		);
 
 		$url = $this->urlGenerator->linkToRouteAbsolute(

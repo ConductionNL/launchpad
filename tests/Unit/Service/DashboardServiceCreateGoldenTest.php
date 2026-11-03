@@ -302,6 +302,37 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 	}//end testRowsMatchTheRecordedFixture()
 
 	/**
+	 * The create endpoint keeps an explicit slug that differs from the name's,
+	 * and the group create endpoint keeps the description.
+	 *
+	 * @return void
+	 */
+	public function testCreateEndpointsKeepExplicitFields(): void {
+		$this->log = [];
+		$this->assertSame(201, $this->controller()->create(name: 'Posted', slug: 'own-slug')->getStatus());
+		$this->assertSame('own-slug', $this->firstInsert()['slug']);
+
+		$this->log = [];
+		$this->controller()->createGroup('staff', 'Team', 'About the team');
+		$this->assertSame(['Team', 'About the team'], [$this->firstInsert()['name'], $this->firstInsert()['description']]);
+	}//end testCreateEndpointsKeepExplicitFields()
+
+	/**
+	 * The first dashboard row written in this test.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function firstInsert(): array {
+		foreach ($this->log as $entry) {
+			if (isset($entry['insert']) === true) {
+				return $entry['insert'];
+			}
+		}
+
+		$this->fail('no dashboard was written');
+	}//end firstInsert()
+
+	/**
 	 * The fixture text: one line per case.
 	 *
 	 * @param array<string, mixed> $rows The recorded cases.

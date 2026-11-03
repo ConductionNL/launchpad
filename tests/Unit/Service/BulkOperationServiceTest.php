@@ -430,6 +430,40 @@ class BulkOperationServiceTest extends TestCase {
 		);
 	}//end testBulkMoveRejectsMissingParent()
 
+	/**
+	 * Each operation writes one audit row named after it, with the batch
+	 * size, the dry-run flag and, for status, the target status.
+	 */
+	public function testEveryOperationWritesItsAuditRow(): void {
+		$rows = [];
+		$this->activityPublisher->method('publish')->willReturnCallback(
+			static function (\OCA\LaunchPad\Activity\ActivityRow $row, string $recipientUserId) use (&$rows): bool {
+				$params = $row->extraParams;
+				self::assertIsInt($params['durationMs']);
+				unset($params['durationMs']);
+				$rows[] = [$row->dashboard->uuid, $row->dashboard->name, $row->actorUserId, $recipientUserId, $params];
+				return true;
+			}
+		);
+		$this->dashboardMapper->method('findByUuid')->willReturn($this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT));
+
+		$this->service->bulkDelete(dashboardUuids: ['d1', 'd2'], userId: 'admin', dryRun: true);
+		$this->service->bulkMove(dashboardUuids: ['d1'], parentUuid: null, userId: 'admin', dryRun: true);
+		$this->service->bulkStatus(dashboardUuids: ['d1'], publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, userId: 'admin', dryRun: true);
+		$this->service->bulkReindex(dashboardUuids: ['d1', 'd2', 'd3'], userId: 'admin', dryRun: true);
+
+		$params = static fn (string $op, int $count, array $extra=[]): array => ['bulkOperation' => $op, 'dashboardCount' => $count, 'dryRun' => true] + $extra;
+		self::assertSame(
+			[
+				['bulk-delete', 'Bulk delete (2 dashboards)', 'admin', 'admin', $params('delete', 2)],
+				['bulk-move', 'Bulk move (1 dashboards)', 'admin', 'admin', $params('move', 1)],
+				['bulk-status', 'Bulk status (1 dashboards)', 'admin', 'admin', $params('status', 1, ['publicationStatus' => Dashboard::STATUS_PUBLISHED])],
+				['bulk-reindex', 'Bulk reindex (3 dashboards)', 'admin', 'admin', $params('reindex', 3)],
+			],
+			$rows
+		);
+	}//end testEveryOperationWritesItsAuditRow()
+
 	public function testBulkStatusValidPublishesDrafts(): void {
 		$dash = $this->makeDashboard(uuid: 'd1', publicationStatus: Dashboard::STATUS_DRAFT);
 		$this->dashboardMapper->method('findByUuid')->willReturn($dash);

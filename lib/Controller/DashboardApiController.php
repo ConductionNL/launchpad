@@ -465,11 +465,13 @@ class DashboardApiController extends Controller {
 
 		$resolved = $this->resolveCreateParams(
 			name: $name,
-			description: $description,
-			icon: $icon,
-			parentUuid: $parentUuid,
-			slug: $slug,
-			sortOrder: $sortOrder
+			flat: [
+				'description' => $description,
+				'icon'        => $icon,
+				'parentUuid'  => $parentUuid,
+				'slug'        => $slug,
+				'sortOrder'   => $sortOrder,
+			]
 		);
 
 		$permError = $this->checkCreatePermissions(
@@ -1042,7 +1044,7 @@ class DashboardApiController extends Controller {
 
 		$resolved = $this->resolveCreateParams(
 			name: $name,
-			description: $description
+			flat: ['description' => $description]
 		);
 
 		try {
@@ -1752,23 +1754,13 @@ class DashboardApiController extends Controller {
 	 * falls back to those.
 	 *
 	 * @param mixed $name The name parameter.
-	 * @param string|null $description The description parameter.
-	 * @param string|null $icon The icon parameter.
-	 * @param string|null $parentUuid Optional parent UUID.
-	 * @param string|null $slug Optional caller-supplied slug.
-	 * @param int|null $sortOrder Optional sort order.
+	 * @param array $flat The flat-form `description`, `icon`, `parentUuid`,
+	 *                    `slug` and `sortOrder` parameters, each optional.
 	 *
 	 * @return array{name: string, description: ?string, icon: ?string, parentUuid: ?string, slug: ?string, sortOrder: int}
 	 *                                                                                                                      The resolved values.
 	 */
-	private function resolveCreateParams(
-		$name,
-		?string $description,
-		?string $icon = null,
-		?string $parentUuid = null,
-		?string $slug = null,
-		?int $sortOrder = null,
-	): array {
+	private function resolveCreateParams($name, array $flat=[]): array {
 		if (is_array($name) === true) {
 			$bodyIcon = ($name['icon'] ?? null);
 			$resolvedIcon = null;
@@ -1806,11 +1798,11 @@ class DashboardApiController extends Controller {
 
 		return [
 			'name' => $name ?? 'My Dashboard',
-			'description' => $description,
-			'icon' => $icon,
-			'parentUuid' => $parentUuid,
-			'slug' => $slug,
-			'sortOrder' => ($sortOrder ?? 0),
+			'description' => ($flat['description'] ?? null),
+			'icon' => ($flat['icon'] ?? null),
+			'parentUuid' => ($flat['parentUuid'] ?? null),
+			'slug' => ($flat['slug'] ?? null),
+			'sortOrder' => ($flat['sortOrder'] ?? 0),
 		];
 	}//end resolveCreateParams()
 

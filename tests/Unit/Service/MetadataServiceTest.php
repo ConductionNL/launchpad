@@ -136,7 +136,9 @@ class MetadataServiceTest extends TestCase {
 			key: 'department',
 			label: 'Department',
 			type: MetadataField::TYPE_TEXT,
-			options: ['foo'],
+			settings: [
+				'options' => ['foo'],
+			]
 		);
 	}
 
@@ -166,7 +168,9 @@ class MetadataServiceTest extends TestCase {
 			key: 'department',
 			label: 'Department',
 			type: MetadataField::TYPE_TEXT,
-			required: 1,
+			settings: [
+				'required' => 1,
+			]
 		);
 
 		$this->assertSame('department', $field->getFieldKey());

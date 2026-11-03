@@ -95,9 +95,11 @@ class FileController extends Controller {
 			$result = $this->fileService->createFile(
 				userId: $userId,
 				filename: ($filename ?? ''),
-				dir: ($dir ?? '/'),
-				content: ($content ?? ''),
-				onExisting: $this->onExisting()
+				write: [
+					'dir'        => ($dir ?? '/'),
+					'content'    => ($content ?? ''),
+					'onExisting' => $this->onExisting(),
+				]
 			);
 
 			return new JSONResponse(

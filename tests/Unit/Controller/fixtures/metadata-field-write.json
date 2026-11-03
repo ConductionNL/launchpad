@@ -1,0 +1,16 @@
+{
+"create text": {"status":201,"rows":[{"insert":{"id":null,"key":"room","label":"Room","type":"text","options":null,"required":0,"sortOrder":0}}],"error":null},
+"create select": {"status":201,"rows":[{"insert":{"id":null,"key":"floor","label":"Floor","type":"select","options":["1","2"],"required":0,"sortOrder":0}}],"error":null},
+"create required sorted": {"status":201,"rows":[{"insert":{"id":null,"key":"cost","label":"Cost","type":"number","options":null,"required":1,"sortOrder":4}}],"error":null},
+"create required two": {"status":201,"rows":[{"insert":{"id":null,"key":"cost2","label":"Cost","type":"text","options":null,"required":0,"sortOrder":0}}],"error":null},
+"create duplicate key": {"status":400,"rows":[],"error":{"error":"invalid_metadata_field","message":"Field key 'dept' already exists"}},
+"create bad key": {"status":400,"rows":[],"error":{"error":"invalid_metadata_field","message":"Field key must be lowercase alphanumeric with underscores only"}},
+"create bad type": {"status":400,"rows":[],"error":{"error":"invalid_metadata_field","message":"Unsupported field type 'nope'"}},
+"create select no option": {"status":400,"rows":[],"error":{"error":"invalid_metadata_field","message":"Select type requires non-empty options array"}},
+"create nothing": {"status":400,"rows":[],"error":{"error":"invalid_metadata_field","message":"Field key must be 1..64 characters"}},
+"update label": {"status":200,"rows":[{"update":{"id":3,"key":"dept","label":"Unit","type":"select","options":["a","b"],"required":0,"sortOrder":1}}],"error":null},
+"update all": {"status":200,"rows":[{"update":{"id":3,"key":"dept","label":"Unit","type":"select","options":["c"],"required":1,"sortOrder":9}}],"error":null},
+"update rename key": {"status":400,"rows":[],"error":{"error":"invalid_metadata_field","message":"Field key cannot be renamed"}},
+"update missing": {"status":404,"rows":[],"error":{"error":"Field not found"}},
+"update nothing": {"status":200,"rows":[{"update":{"id":3,"key":"dept","label":"Department","type":"select","options":["a","b"],"required":0,"sortOrder":1}}],"error":null}
+}

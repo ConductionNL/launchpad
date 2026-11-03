@@ -1,0 +1,13 @@
+{
+"explicit": {"status":201,"rows":[["uuid-1","nl","N","D","{}",0,true]],"error":null},
+"seed primary": {"status":201,"rows":[["uuid-1","de","Name primary","Desc primary","{\"t\":\"primary\"}",0,true]],"error":null},
+"seed named primary": {"status":201,"rows":[["uuid-1","de","Name primary","Desc primary","{\"t\":\"primary\"}",0,true]],"error":null},
+"seed empty": {"status":201,"rows":[["uuid-1","de","Name primary","Desc primary","{\"t\":\"primary\"}",0,true]],"error":null},
+"seed language": {"status":201,"rows":[["uuid-1","fr","Name en","Desc en","{\"t\":\"en\"}",0,true]],"error":null},
+"seed missing": {"status":201,"rows":[["uuid-1","fr",null,null,null,0,true]],"error":null},
+"partly explicit": {"status":201,"rows":[["uuid-1","fr","Own","Desc en","{\"t\":\"en\"}",0,true]],"error":null},
+"empty name": {"status":201,"rows":[["uuid-1","fr","","Desc primary","{\"t\":\"primary\"}",0,true]],"error":null},
+"exists": {"status":409,"rows":[],"error":"Language variant already exists"},
+"bad language": {"status":400,"rows":[],"error":"Language code is required"},
+"no language": {"status":400,"rows":[],"error":"Language code is required"}
+}

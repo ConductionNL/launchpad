@@ -172,10 +172,12 @@ class DashboardTranslationApiController extends Controller {
 			$variant = $this->translationService->createVariant(
 				dashboardUuid: $uuid,
 				languageCode: (string)$languageCode,
-				name: $name,
-				description: $description,
-				widgetTreeJson: $widgetTreeJson,
-				copyFromLanguage: $copyFrom
+				content: [
+					'name'             => $name,
+					'description'      => $description,
+					'widgetTreeJson'   => $widgetTreeJson,
+					'copyFromLanguage' => $copyFrom,
+				]
 			);
 
 			return new JSONResponse(

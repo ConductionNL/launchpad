@@ -40,6 +40,8 @@ use DateTime;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
@@ -917,13 +919,13 @@ class BulkOperationService {
 		array $extra = [],
 	): void {
 		try {
-			$this->activityPublisher->publish(
+			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $userId,
-				recipientUserId: $userId,
-				dashboardUuid: 'bulk-' . $operation,
-				dashboardName: 'Bulk ' . $operation . ' (' . $dashboardCount . ' dashboards)',
-				dashboardLink: '',
+				dashboard: new ActivitySubject(
+					uuid: 'bulk-' . $operation,
+					name: 'Bulk ' . $operation . ' (' . $dashboardCount . ' dashboards)'
+				),
 				extraParams: array_merge(
 					[
 						'bulkOperation' => $operation,
@@ -934,6 +936,7 @@ class BulkOperationService {
 					$extra
 				)
 			);
+			$this->activityPublisher->publish(row: $row, recipientUserId: $userId);
 		} catch (Throwable $t) {
 			// Defensive: ActivityPublisher already swallows; this is a
 			// belt-and-braces guard.

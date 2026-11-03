@@ -33,6 +33,8 @@ declare(strict_types=1);
 namespace Unit\Activity;
 
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivitySubject;
+use OCA\LaunchPad\Activity\ActivityRow;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Activity\Extension;
 use OCP\Activity\Exceptions\UnknownActivityException;
@@ -201,12 +203,12 @@ class ExtensionTest extends TestCase {
 
 		foreach (Extension::ALL_EVENTS as $type) {
 			$publisher->publish(
-				type: $type,
-				actorUserId: 'alice',
-				recipientUserId: 'alice',
-				dashboardUuid: 'uuid-1',
-				dashboardName: 'Dashboard A',
-				dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+				row: new ActivityRow(
+					type: $type,
+					actorUserId: 'alice',
+					dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Dashboard A', link: 'https://nc.example/apps/launchpad#uuid-1')
+				),
+				recipientUserId: 'alice'
 			);
 		}
 
@@ -257,12 +259,12 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$result = $publisher->publish(
-			type: 'totally_unknown_type',
-			actorUserId: 'alice',
-			recipientUserId: 'alice',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Dashboard A',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: 'totally_unknown_type',
+				actorUserId: 'alice',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Dashboard A', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'alice'
 		);
 
 		$this->assertFalse(condition: $result);
@@ -278,20 +280,20 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$first = $publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'bob'
 		);
 		$second = $publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'bob'
 		);
 
 		$this->assertTrue(condition: $first);
@@ -304,12 +306,12 @@ class ExtensionTest extends TestCase {
 		// Advance the clock past the 900 s window — third emission allowed.
 		$this->now += 901;
 		$third = $publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'https://nc.example/apps/launchpad#uuid-1'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'https://nc.example/apps/launchpad#uuid-1')
+			),
+			recipientUserId: 'bob'
 		);
 		$this->assertTrue(condition: $third);
 		$this->assertCount(
@@ -328,20 +330,20 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'bob',
-			recipientUserId: 'bob',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'link'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'bob',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'link')
+			),
+			recipientUserId: 'bob'
 		);
 		$publisher->publish(
-			type: Extension::EVENT_REACTED,
-			actorUserId: 'carol',
-			recipientUserId: 'carol',
-			dashboardUuid: 'uuid-1',
-			dashboardName: 'Marketing',
-			dashboardLink: 'link'
+			row: new ActivityRow(
+				type: Extension::EVENT_REACTED,
+				actorUserId: 'carol',
+				dashboard: new ActivitySubject(uuid: 'uuid-1', name: 'Marketing', link: 'link')
+			),
+			recipientUserId: 'carol'
 		);
 
 		$this->assertCount(
@@ -370,11 +372,11 @@ class ExtensionTest extends TestCase {
 			);
 
 		$count = $publisher->publishGlobal(
-			type: Extension::EVENT_UPDATED,
-			actorUserId: 'root',
-			dashboardUuid: 'uuid-default',
-			dashboardName: 'Company News',
-			dashboardLink: 'https://nc.example/'
+			row: new ActivityRow(
+				type: Extension::EVENT_UPDATED,
+				actorUserId: 'root',
+				dashboard: new ActivitySubject(uuid: 'uuid-default', name: 'Company News', link: 'https://nc.example/')
+			)
 		);
 		$this->assertSame(expected: 2, actual: $count);
 		$this->assertCount(
@@ -384,11 +386,11 @@ class ExtensionTest extends TestCase {
 
 		// Second call within window MUST NOT enumerate users.
 		$countSuppressed = $publisher->publishGlobal(
-			type: Extension::EVENT_UPDATED,
-			actorUserId: 'root',
-			dashboardUuid: 'uuid-default',
-			dashboardName: 'Company News',
-			dashboardLink: 'https://nc.example/'
+			row: new ActivityRow(
+				type: Extension::EVENT_UPDATED,
+				actorUserId: 'root',
+				dashboard: new ActivitySubject(uuid: 'uuid-default', name: 'Company News', link: 'https://nc.example/')
+			)
 		);
 		$this->assertSame(expected: 0, actual: $countSuppressed);
 		$this->assertCount(
@@ -408,11 +410,11 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$count = $publisher->publishToRecipients(
-			type: Extension::EVENT_SHARED,
-			actorUserId: 'alice',
-			dashboardUuid: 'uuid-2',
-			dashboardName: 'Marketing',
-			dashboardLink: 'link',
+			row: new ActivityRow(
+				type: Extension::EVENT_SHARED,
+				actorUserId: 'alice',
+				dashboard: new ActivitySubject(uuid: 'uuid-2', name: 'Marketing', link: 'link')
+			),
 			recipientUserIds: ['bob', 'carol', 'alice']
 		);
 
@@ -455,12 +457,12 @@ class ExtensionTest extends TestCase {
 		$publisher = $this->createPublisher();
 
 		$count = $publisher->publishToGroup(
-			type: Extension::EVENT_UPDATED,
-			actorUserId: 'alice',
-			groupId: 'marketing',
-			dashboardUuid: 'uuid-3',
-			dashboardName: 'Campaigns',
-			dashboardLink: 'link'
+			row: new ActivityRow(
+				type: Extension::EVENT_UPDATED,
+				actorUserId: 'alice',
+				dashboard: new ActivitySubject(uuid: 'uuid-3', name: 'Campaigns', link: 'link')
+			),
+			groupId: 'marketing'
 		);
 
 		$this->assertSame(expected: 3, actual: $count);

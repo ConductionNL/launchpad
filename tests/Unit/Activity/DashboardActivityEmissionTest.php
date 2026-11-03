@@ -32,6 +32,8 @@ use OCA\LaunchPad\Service\DashboardStructure;
 use OCA\LaunchPad\Service\DashboardBuilders;
 use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivitySubject;
+use OCA\LaunchPad\Activity\ActivityRow;
 use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Activity\Extension;
@@ -167,13 +169,14 @@ class DashboardActivityEmissionTest extends TestCase {
 	public function testSharingWithAUserSendsDashboardSharedToThatUser(): void {
 		$this->publisher->expects($this->once())->method('publishToRecipients')
 			->with(
-				Extension::EVENT_SHARED,
-				'alice',
-				'dash-7',
-				'Team board',
-				'',
-				['bob'],
-				$this->callback(static fn (array $p): bool => ($p['recipient'] ?? '') === 'bob')
+				$this->callback(
+					static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_SHARED
+						&& $row->actorUserId === 'alice'
+						&& $row->dashboard == new ActivitySubject(uuid: 'dash-7', name: 'Team board')
+						&& ($row->extraParams['recipient'] ?? '') === 'bob'
+						&& ($row->extraParams['role'] ?? '') === Dashboard::PERMISSION_VIEW_ONLY
+				),
+				['bob']
 			)
 			->willReturn(2);
 
@@ -192,7 +195,7 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 
 		$this->publisher->expects($this->once())->method('publishToGroup')
-			->with(Extension::EVENT_PUBLISHED, 'alice', 'staff', 'dash-7', 'Team board', '')
+			->with(new ActivityRow(Extension::EVENT_PUBLISHED, 'alice', new ActivitySubject('dash-7', 'Team board')), 'staff')
 			->willReturn(3);
 
 		$service = $this->dashboardService();
@@ -208,7 +211,10 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 
 		$this->publisher->expects($this->once())->method('publishToGroup')
-			->with(Extension::EVENT_PUBLISHED, 'alice', 'staff');
+			->with(
+				$this->callback(static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_PUBLISHED && $row->actorUserId === 'alice'),
+				'staff'
+			);
 
 		$this->assertSame(1, $this->dashboardService()->materialiseScheduledDashboards());
 	}
@@ -220,8 +226,8 @@ class DashboardActivityEmissionTest extends TestCase {
 
 		$calls = 0;
 		$this->publisher->method('publishToGroup')->willReturnCallback(
-			function (string $type) use (&$calls): int {
-				$this->assertSame(Extension::EVENT_UPDATED, $type);
+			function (ActivityRow $row) use (&$calls): int {
+				$this->assertSame(Extension::EVENT_UPDATED, $row->type);
 				$calls++;
 				return 1;
 			}
@@ -247,6 +253,20 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->dashboardService()->updateDashboard(dashboardId: 7, userId: 'alice', data: ['name' => 'Mine']);
 	}
 
+	public function testSavingADashboardSharedWithAGroupTellsThatGroup(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->dashboard());
+		$share = new DashboardShare();
+		$share->setShareType(DashboardShare::SHARE_TYPE_GROUP);
+		$share->setShareWith('sales');
+		$this->shareMapper->method('findByDashboardId')->willReturn([$share]);
+
+		$this->publisher->expects($this->never())->method('publishToRecipients');
+		$this->publisher->expects($this->once())->method('publishToGroup')
+			->with(new ActivityRow(Extension::EVENT_UPDATED, 'alice', new ActivitySubject('dash-7', 'Ours')), 'sales');
+
+		$this->dashboardService()->updateDashboard(dashboardId: 7, userId: 'alice', data: ['name' => 'Ours']);
+	}
+
 	public function testSavingADashboardSharedWithAUserTellsThatUser(): void {
 		$this->dashboardMapper->method('find')->willReturn($this->dashboard());
 		$share = new DashboardShare();
@@ -255,7 +275,7 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->shareMapper->method('findByDashboardId')->willReturn([$share]);
 
 		$this->publisher->expects($this->once())->method('publishToRecipients')
-			->with(Extension::EVENT_UPDATED, 'alice', 'dash-7', 'Ours', '', ['bob']);
+			->with(new ActivityRow(Extension::EVENT_UPDATED, 'alice', new ActivitySubject('dash-7', 'Ours')), ['bob']);
 
 		$this->dashboardService()->updateDashboard(dashboardId: 7, userId: 'alice', data: ['name' => 'Ours']);
 	}

@@ -314,7 +314,7 @@ abstract class CommandBase extends Command {
 	 */
 	private function stripPrefix(string $name): string {
 		if (str_starts_with(haystack: $name, needle: 'launchpad:') === true) {
-			return substr(string: $name, offset: 7);
+			return substr(string: $name, offset: strlen(string: 'launchpad:'));
 		}
 
 		return $name;

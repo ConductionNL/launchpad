@@ -31,6 +31,7 @@ use Exception;
 use Throwable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
+use OCA\LaunchPad\Service\KioskPlaylistDraft;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -111,9 +112,11 @@ class KioskController extends Controller {
 
 		try {
 			$playlist = $this->kioskService->createPlaylist(
-				name: (string)($name ?? ''),
-				entries: ($entries ?? []),
-				refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT),
+				draft: new KioskPlaylistDraft(
+					name: (string)($name ?? ''),
+					entries: ($entries ?? []),
+					refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT)
+				),
 				callerId: $this->userId
 			);
 			return new DataResponse(
@@ -192,10 +195,12 @@ class KioskController extends Controller {
 		try {
 			$playlist = $this->kioskService->updatePlaylist(
 				id: $id,
-				name: (string)($name ?? ''),
-				entries: ($entries ?? []),
-				refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT),
-				callerId: $this->userId
+				callerId: $this->userId,
+				draft: new KioskPlaylistDraft(
+					name: (string)($name ?? ''),
+					entries: ($entries ?? []),
+					refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT)
+				)
 			);
 			return new DataResponse(data: $playlist->jsonSerialize());
 		} catch (PlaylistNotFoundException) {

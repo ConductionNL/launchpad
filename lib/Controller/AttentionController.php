@@ -26,7 +26,6 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\AttentionSourceService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;

@@ -111,10 +111,15 @@ class AdminOrgNavigationController extends Controller {
 			return ResponseHelper::failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
+		$user = $this->guard->sessionUser();
+		if ($user instanceof JSONResponse) {
+			return $user;
+		}
+
 		$tree = $this->sources->service->getTree(language: $language);
 		$filtered = $this->sources->service->filterTreeByUserGroups(
 			tree: $tree,
-			userId: (string)$this->guard->userSession->getUser()?->getUID()
+			userId: $user->getUID()
 		);
 
 		return ResponseHelper::success(

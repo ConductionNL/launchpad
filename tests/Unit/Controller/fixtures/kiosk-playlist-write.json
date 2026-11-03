@@ -1,0 +1,1606 @@
+{
+    "create alice own ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice own 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice own 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 45,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice own 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 86400,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "update alice own playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update alice own playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create alice own clamped ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice own clamped 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice own clamped 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 45,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice own clamped 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 86400,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "update alice own clamped playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update alice own clamped playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create alice foreign ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob alice"
+        ]
+    },
+    "create alice foreign 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob alice"
+        ]
+    },
+    "create alice foreign 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob alice"
+        ]
+    },
+    "create alice foreign 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob alice"
+        ]
+    },
+    "update alice foreign playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob alice"
+        ]
+    },
+    "update alice foreign playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create alice missing ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create alice missing 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create alice missing 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create alice missing 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "update alice missing playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-missing"
+        ]
+    },
+    "update alice missing playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create alice invalid ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create alice invalid 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create alice invalid 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create alice invalid 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "update alice invalid playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice"
+        ]
+    },
+    "update alice invalid playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create alice none ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice none 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice none 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 45,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "create alice none 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 86400,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}"
+        ]
+    },
+    "update alice none playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update alice none playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create bob own ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob own 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob own 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob own 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "update bob own playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin bob"
+        ]
+    },
+    "update bob own playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create bob own clamped ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob own clamped 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob own clamped 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob own clamped 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "update bob own clamped playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin bob"
+        ]
+    },
+    "update bob own clamped playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create bob foreign ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob foreign 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob foreign 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "create bob foreign 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice bob"
+        ]
+    },
+    "update bob foreign playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin bob"
+        ]
+    },
+    "update bob foreign playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create bob missing ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create bob missing 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create bob missing 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create bob missing 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "update bob missing playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin bob"
+        ]
+    },
+    "update bob missing playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create bob invalid ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create bob invalid 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create bob invalid 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create bob invalid 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "update bob invalid playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin bob"
+        ]
+    },
+    "update bob invalid playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create bob none ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": "bob",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"bob\",\"revokedAt\":null}"
+        ]
+    },
+    "create bob none 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": "bob",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"bob\",\"revokedAt\":null}"
+        ]
+    },
+    "create bob none 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 45,
+            "createdBy": "bob",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"bob\",\"revokedAt\":null}"
+        ]
+    },
+    "create bob none 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 86400,
+            "createdBy": "bob",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"bob\",\"revokedAt\":null}"
+        ]
+    },
+    "update bob none playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin bob"
+        ]
+    },
+    "update bob none playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create admin own ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin own 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin own 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 45,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin own 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 30
+                }
+            ],
+            "refreshSeconds": 86400,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "update admin own playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update admin own playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create admin own clamped ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin own clamped 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin own clamped 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 45,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin own clamped 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 86400
+                },
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 86400,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "update admin own clamped playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":86400},{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update admin own clamped playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create admin foreign ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-bob",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin foreign 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-bob",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin foreign 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-bob",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 45,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin foreign 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [
+                {
+                    "dashboardUuid": "d-alice",
+                    "dwellSeconds": 10
+                },
+                {
+                    "dashboardUuid": "d-bob",
+                    "dwellSeconds": 10
+                }
+            ],
+            "refreshSeconds": 86400,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob admin",
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "update admin foreign playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin admin",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice admin",
+            "findByUuid d-bob",
+            "authorizeShareMutation d-bob admin",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":10},{\"dashboardUuid\":\"d-bob\",\"dwellSeconds\":10}],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update admin foreign playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create admin missing ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create admin missing 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create admin missing 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "create admin missing 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findByUuid d-missing"
+        ]
+    },
+    "update admin missing playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin admin",
+            "findByUuid d-missing"
+        ]
+    },
+    "update admin missing playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create admin invalid ": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create admin invalid 0": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create admin invalid 45": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "create admin invalid 999999": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": []
+    },
+    "update admin invalid playlist 7": {
+        "status": 403,
+        "data": {
+            "error": "Not authorized"
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin admin"
+        ]
+    },
+    "update admin invalid playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "create admin none ": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin none 0": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":300,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin none 45": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 45,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":45,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "create admin none 999999": {
+        "status": 201,
+        "data": {
+            "id": 7,
+            "name": "Lobby",
+            "token": "token",
+            "entries": [],
+            "refreshSeconds": 86400,
+            "createdBy": "admin",
+            "revokedAt": null
+        },
+        "calls": [
+            "insert {\"id\":null,\"name\":\"Lobby\",\"token\":\"token\",\"entries\":[],\"refreshSeconds\":86400,\"createdBy\":\"admin\",\"revokedAt\":null}"
+        ]
+    },
+    "update admin none playlist 7": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin admin",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[],\"refreshSeconds\":60,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update admin none playlist 8": {
+        "status": 404,
+        "data": {
+            "error": "Not found"
+        },
+        "calls": [
+            "findById 8"
+        ]
+    },
+    "update without name": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "update {\"id\":7,\"name\":\"\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update refresh 0": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":300,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update refresh 5": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":30,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    },
+    "update refresh 999999": {
+        "status": 200,
+        "data": {
+            "id": 7,
+            "name": "Old",
+            "token": "t-7",
+            "entries": [],
+            "refreshSeconds": 30,
+            "createdBy": "alice",
+            "revokedAt": null
+        },
+        "calls": [
+            "findById 7",
+            "isAdmin alice",
+            "findByUuid d-alice",
+            "authorizeShareMutation d-alice alice",
+            "update {\"id\":7,\"name\":\"Hall\",\"token\":\"t-7\",\"entries\":[{\"dashboardUuid\":\"d-alice\",\"dwellSeconds\":30}],\"refreshSeconds\":86400,\"createdBy\":\"alice\",\"revokedAt\":null}",
+            "findById 7"
+        ]
+    }
+}

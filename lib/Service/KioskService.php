@@ -113,10 +113,8 @@ class KioskService {
 	 * (REQ-KIOSK-002): a single unauthorized dashboard rejects the whole
 	 * request. Dwell and refresh values are clamped before storage.
 	 *
-	 * @param string $name Playlist name.
-	 * @param array $entries Raw entries [{dashboardUuid, dwellSeconds}, ...].
-	 * @param int $refresh Requested refresh interval in seconds.
-	 * @param string $callerId User ID of the creating user.
+	 * @param KioskPlaylistDraft $draft    Name, raw entries and refresh interval.
+	 * @param string             $callerId User ID of the creating user.
 	 *
 	 * @return KioskPlaylist The new playlist with URL populated.
 	 *
@@ -124,20 +122,15 @@ class KioskService {
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
 	 */
-	public function createPlaylist(
-		string $name,
-		array $entries,
-		int $refresh,
-		string $callerId,
-	): KioskPlaylist {
+	public function createPlaylist(KioskPlaylistDraft $draft, string $callerId): KioskPlaylist {
 		$normalised = $this->validateAndNormaliseEntries(
-			entries: $entries,
+			entries: $draft->entries,
 			callerId: $callerId
 		);
 
 		$playlist = new KioskPlaylist();
 		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
-		$playlist->setName($name);
+		$playlist->setName($draft->name);
 		$playlist->setToken(
 			$this->secureRandom->generate(
 				length: 64,
@@ -145,7 +138,7 @@ class KioskService {
 			)
 		);
 		$playlist->setEntries((string)json_encode($normalised));
-		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $refresh));
+		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $draft->refresh));
 		$playlist->setCreatedBy($callerId);
 		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
 		// phpcs:enable CustomSn.Functions.NamedParameters
@@ -168,10 +161,8 @@ class KioskService {
 	 * unchanged and OCSForbiddenException is thrown.
 	 *
 	 * @param int $id Playlist primary key.
-	 * @param string $name New playlist name.
-	 * @param array $entries Raw entries [{dashboardUuid, dwellSeconds}, ...].
-	 * @param int $refresh Requested refresh interval in seconds.
-	 * @param string $callerId Caller user ID.
+	 * @param KioskPlaylistDraft $draft    New name, raw entries and refresh interval.
+	 * @param string             $callerId Caller user ID.
 	 *
 	 * @return KioskPlaylist The updated playlist with URL populated.
 	 *
@@ -180,24 +171,18 @@ class KioskService {
 	 *
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-3
 	 */
-	public function updatePlaylist(
-		int $id,
-		string $name,
-		array $entries,
-		int $refresh,
-		string $callerId,
-	): KioskPlaylist {
+	public function updatePlaylist(int $id, KioskPlaylistDraft $draft, string $callerId): KioskPlaylist {
 		$playlist = $this->resolveOwnedPlaylist(id: $id, callerId: $callerId);
 
 		$normalised = $this->validateAndNormaliseEntries(
-			entries: $entries,
+			entries: $draft->entries,
 			callerId: $callerId
 		);
 
 		// phpcs:disable CustomSn.Functions.NamedParameters
-		$playlist->setName($name);
+		$playlist->setName($draft->name);
 		$playlist->setEntries((string)json_encode($normalised));
-		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $refresh));
+		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $draft->refresh));
 		// phpcs:enable CustomSn.Functions.NamedParameters
 
 		$saved = $this->stores->playlistMapper->update(entity: $playlist);

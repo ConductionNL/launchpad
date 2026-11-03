@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\LaunchPad\Controller\AdminRoleAndFeedTools;
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
 use OCA\LaunchPad\Controller\AdminSettingsTools;
 use OCA\LaunchPad\Controller\AdminTemplateTools;
 use OCA\LaunchPad\Controller\AdminController;
@@ -46,7 +46,7 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Service\AdminTemplateStores
  * @uses   \OCA\LaunchPad\Controller\AdminTemplateTools
  * @uses   \OCA\LaunchPad\Controller\AdminSettingsTools
- * @uses   \OCA\LaunchPad\Controller\AdminRoleAndFeedTools
+ * @uses   \OCA\LaunchPad\Controller\AdminCallerAndRoles
  */
 class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 
@@ -74,12 +74,12 @@ class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
 				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			userSession: $this->createMock(IUserSession::class),
-			roles: new AdminRoleAndFeedTools(
+			caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class)
-			),
-			actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
+				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
+				userSession: $this->createMock(IUserSession::class),
+				actionAuth: $this->createMock(\OCA\LaunchPad\Service\ActionAuthService::class)
+			)
 		);
 	}//end controller()
 

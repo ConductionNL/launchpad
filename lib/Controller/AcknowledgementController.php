@@ -55,19 +55,15 @@ class AcknowledgementController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param AcknowledgementService $acknowledgementService The service.
-	 * @param RoleService $roleService LaunchPad role gate.
-	 * @param IGroupManager $groupManager NC admin check.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId Acting user ID.
+	 * @param IRequest             $request The request.
+	 * @param AcknowledgementTools $tools The acknowledgement and role services and the logger.
+	 * @param IGroupManager        $groupManager NC admin check.
+	 * @param string|null          $userId Acting user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AcknowledgementService $acknowledgementService,
-		private readonly RoleService $roleService,
+		private readonly AcknowledgementTools $tools,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(
@@ -115,13 +111,13 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$receipt = $this->acknowledgementService->acknowledge(
+			$receipt = $this->tools->acknowledgements->acknowledge(
 				announcementKey: $announcementKey,
 				userId: $this->userId,
 				contentVersion: $contentVersion
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'acknowledge failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
@@ -149,9 +145,9 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$result = $this->acknowledgementService->getPending(userId: $this->userId);
+			$result = $this->tools->acknowledgements->getPending(userId: $this->userId);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'pending failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
@@ -188,7 +184,7 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$report = $this->acknowledgementService->report(
+			$report = $this->tools->acknowledgements->report(
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
@@ -197,7 +193,7 @@ class AcknowledgementController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'report failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
@@ -235,7 +231,7 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$report = $this->acknowledgementService->report(
+			$report = $this->tools->acknowledgements->report(
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
@@ -244,7 +240,7 @@ class AcknowledgementController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'reportCsv failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
@@ -318,11 +314,11 @@ class AcknowledgementController extends Controller {
 			return true;
 		}
 
-		if ($this->roleService->isAdmin(userId: $this->userId) === true) {
+		if ($this->tools->roleService->isAdmin(userId: $this->userId) === true) {
 			return true;
 		}
 
-		$owner = $this->acknowledgementService->resolveOwnerUserId(
+		$owner = $this->tools->acknowledgements->resolveOwnerUserId(
 			announcementKey: $announcementKey
 		);
 

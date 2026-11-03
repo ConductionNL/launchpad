@@ -57,20 +57,16 @@ class AdminShippedTemplateController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest               $request      The request.
-	 * @param ShippedTemplateService       $templates    Shipped template service.
-	 * @param ShippedTemplateUpdateService $updates      Updates an installed template in place.
-	 * @param IUserSession           $userSession  The user session.
-	 * @param IGroupManager          $groupManager The group manager.
-	 * @param LoggerInterface        $logger       Logger.
+	 * @param IRequest             $request The request.
+	 * @param ShippedTemplateTools $tools The shipped template and update services and the logger.
+	 * @param IUserSession         $userSession The user session.
+	 * @param IGroupManager        $groupManager The group manager.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ShippedTemplateService $templates,
-		private readonly ShippedTemplateUpdateService $updates,
+		private readonly ShippedTemplateTools $tools,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -116,7 +112,7 @@ class AdminShippedTemplateController extends Controller {
 			return $admin;
 		}
 
-		return ResponseHelper::success(data: $this->templates->listTemplates());
+		return ResponseHelper::success(data: $this->tools->templates->listTemplates());
 	}//end index()
 
 	/**
@@ -137,14 +133,14 @@ class AdminShippedTemplateController extends Controller {
 		}
 
 		try {
-			$result = $this->templates->install(templateId: $id, force: $force, userId: $admin);
+			$result = $this->tools->templates->install(templateId: $id, force: $force, userId: $admin);
 		} catch (InvalidArgumentException) {
 			return new JSONResponse(
 				data: ['error' => 'Template not found'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'Shipped template install failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);
@@ -183,7 +179,7 @@ class AdminShippedTemplateController extends Controller {
 		}
 
 		try {
-			$result = $this->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
+			$result = $this->tools->updates->update(templateId: $id, dryRun: $dryRun, userId: $admin);
 		} catch (InvalidArgumentException) {
 			return new JSONResponse(
 				data: ['error' => 'Template not found'],
@@ -195,7 +191,7 @@ class AdminShippedTemplateController extends Controller {
 				statusCode: Http::STATUS_CONFLICT
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'Shipped template update failed',
 				context: ['templateId' => $id, 'exception' => $e]
 			);

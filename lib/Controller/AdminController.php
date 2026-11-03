@@ -27,7 +27,6 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
 use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
 use OCA\LaunchPad\Exception\ResourceException;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\ExportService;
@@ -49,7 +48,6 @@ use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for admin dashboard template management plus role-assignment
@@ -101,20 +99,16 @@ class AdminController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest              $request The request.
-	 * @param AdminTemplateTools    $templates The template, resync, export and import services.
-	 * @param AdminSettingsTools    $settings The settings, footer and setup wizard services and the group manager.
-	 * @param IUserSession          $userSession The current user session.
-	 * @param AdminRoleAndFeedTools $roles The role and feed refresh services.
-	 * @param ActionAuthService     $actionAuth ADR-023 action authorization.
+	 * @param IRequest            $request The request.
+	 * @param AdminTemplateTools  $templates The template, resync, export and import services.
+	 * @param AdminSettingsTools  $settings The settings, footer and setup wizard services and the group manager.
+	 * @param AdminCallerAndRoles $caller The user session, the action check and the role and feed refresh services.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AdminTemplateTools $templates,
 		private readonly AdminSettingsTools $settings,
-		private readonly IUserSession $userSession,
-		private readonly AdminRoleAndFeedTools $roles,
-		private readonly ActionAuthService $actionAuth,
+		private readonly AdminCallerAndRoles $caller,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -131,7 +125,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse|null Non-null means the request must be rejected.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(
 				data: ['error' => 'Not authenticated'],
@@ -359,7 +353,7 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		$actingAdminId = '';
 		if ($user !== null) {
 			$actingAdminId = $user->getUID();
@@ -637,7 +631,7 @@ class AdminController extends Controller {
 			);
 		}
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->caller->userSession->getUser()?->getUID();
 
 		if ($scope === 'site') {
 			return $this->templates->exportService->exportSite(currentUserId: $userId);
@@ -706,7 +700,7 @@ class AdminController extends Controller {
 
 		$tmpName = (string)$upload['tmp_name'];
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->caller->userSession->getUser()?->getUID();
 
 		try {
 			$result = $this->templates->importService->import(
@@ -755,7 +749,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listRoles(): JSONResponse {
 
-		$assignments = $this->roles->roleService->listAssignments();
+		$assignments = $this->caller->roleService->listAssignments();
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $assignments)
@@ -785,10 +779,10 @@ class AdminController extends Controller {
 		?string $role = null,
 	): JSONResponse {
 
-		$assignedBy = (string)$this->userSession->getUser()->getUID();
+		$assignedBy = (string)$this->caller->userSession->getUser()->getUID();
 
 		try {
-			$assignment = $this->roles->roleService->assignRole(
+			$assignment = $this->caller->roleService->assignRole(
 				userId: $userId,
 				groupId: $groupId,
 				role: (string)$role,
@@ -833,7 +827,7 @@ class AdminController extends Controller {
 	public function deleteRole(int $id): JSONResponse {
 
 		try {
-			$this->roles->roleService->removeRole(id: $id);
+			$this->caller->roleService->removeRole(id: $id);
 		} catch (DoesNotExistException) {
 			return ResponseHelper::forbidden(
 				message: 'Role assignment not found'
@@ -858,13 +852,13 @@ class AdminController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getMyRole(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'admin.get-my-role');
+			$this->caller->actionAuth->requireAction($user, 'admin.get-my-role');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -873,8 +867,8 @@ class AdminController extends Controller {
 
 		return ResponseHelper::success(
 			data: [
-				'role' => $this->roles->roleService->getEffectiveRole(userId: $userId),
-				'source' => $this->roles->roleService->getRoleSource(userId: $userId),
+				'role' => $this->caller->roleService->getEffectiveRole(userId: $userId),
+				'source' => $this->caller->roleService->getRoleSource(userId: $userId),
 			]
 		);
 	}//end getMyRole()
@@ -916,7 +910,7 @@ class AdminController extends Controller {
 			}
 		}
 
-		$summary = $this->roles->feedRefresh->refreshAll(onlyUrl: $feedUrl);
+		$summary = $this->caller->feedRefresh->refreshAll(onlyUrl: $feedUrl);
 
 		return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
 	}//end refreshFeedsNow()

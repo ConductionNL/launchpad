@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
-use OCA\LaunchPad\Controller\AdminRoleAndFeedTools;
+use OCA\LaunchPad\Controller\AdminCallerAndRoles;
 use OCA\LaunchPad\Controller\AdminSettingsTools;
 use OCA\LaunchPad\Controller\AdminTemplateTools;
 use InvalidArgumentException;
@@ -76,12 +76,12 @@ class AdminControllerFooterSettingsTest extends TestCase {
 				footerService: $this->footerService,
 				setupWizardService: $this->createMock(\OCA\LaunchPad\Service\SetupWizardService::class)
 			),
-			userSession: $this->userSession,
-			roles: new AdminRoleAndFeedTools(
+			caller: new AdminCallerAndRoles(
 				roleService: $this->createMock(\OCA\LaunchPad\Service\RoleService::class),
-				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class)
-			),
-			actionAuth: $this->createMock(ActionAuthService::class)
+				feedRefresh: $this->createMock(\OCA\LaunchPad\Service\FeedRefreshService::class),
+				userSession: $this->userSession,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			)
 		);
 	}
 

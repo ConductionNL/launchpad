@@ -228,6 +228,14 @@ class ProfileFieldServiceTest extends TestCase {
 			[['key' => 'office', 'label' => 'Kantoorlocatie', 'type' => 'text', 'values' => ['Stadhuis, 3e verdieping']]],
 			$shown['pieter']
 		);
+		$this->assertSame(
+			expected: [['pieter', 'office', 'ldap']],
+			actual: array_map(
+				static fn ($row): array => [$row->getUserId(), $row->getFieldKey(), $row->getSource()],
+				$this->values->findByUsers(userIds: ['pieter'])
+			),
+			message: 'synced values are stored as LDAP-sourced'
+		);
 	}//end testLdapFieldsSyncForLdapAccountsOnly()
 
 	public function testLdapSyncDoesNothingWithoutUserLdap(): void {

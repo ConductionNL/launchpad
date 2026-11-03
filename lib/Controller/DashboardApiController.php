@@ -525,14 +525,7 @@ class DashboardApiController extends Controller {
 			$dashboard = $this->dashboardService->createDashboard(
 				userId: $this->userId,
 				name: $resolved['name'],
-				options: [
-					'description'  => $resolved['description'],
-					'icon'         => $resolved['icon'],
-					'parentUuid'   => $resolved['parentUuid'],
-					'slug'         => $resolved['slug'],
-					'sortOrder'    => $resolved['sortOrder'],
-					'seedDefaults' => true,
-				]
+				options: ['seedDefaults' => true] + array_diff_key($resolved, ['name' => true])
 			);
 
 			// The newly-created dashboard ships with a default widget

@@ -50,6 +50,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Exception\FolderNotFoundException
  * @uses   \OCA\LaunchPad\Exception\NoAccessException
+ * @uses   \OCA\LaunchPad\Exception\ResourceException
  */
 class FilesWidgetControllerContentsGoldenTest extends TestCase {
 

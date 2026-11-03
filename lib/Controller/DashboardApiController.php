@@ -678,13 +678,15 @@ class DashboardApiController extends Controller {
 
 		try {
 			$data = $this->buildUpdateData(
-				name: $name,
-				description: $description,
-				placements: $placements,
-				icon: $icon,
-				parentUuid: $parentUuid,
-				slug: $slug,
-				sortOrder: $sortOrder
+				fields: [
+					'name'        => $name,
+					'description' => $description,
+					'placements'  => $placements,
+					'icon'        => $icon,
+					'parentUuid'  => $parentUuid,
+					'slug'        => $slug,
+					'sortOrder'   => $sortOrder,
+				]
 			);
 
 			$dashboard = $this->dashboardService->updateDashboard(
@@ -1905,41 +1907,18 @@ class DashboardApiController extends Controller {
 	}//end checkCreatePermissions()
 
 	/**
-	 * Build update data from nullable parameters.
+	 * Build update data from the nullable update fields.
 	 *
-	 * @param string|null $name The name.
-	 * @param string|null $description The description.
-	 * @param array|null $placements The placements.
-	 * @param string|null $icon The icon registry key, URL, or NULL/empty.
-	 * @param string|null $parentUuid Optional new parent UUID
-	 *                                (REQ-DASH-023). The literal sentinel
-	 *                                `__null__` clears the parent
-	 *                                (re-roots the dashboard) — needed
-	 *                                because the framework cannot
-	 *                                distinguish "not in payload" from
-	 *                                "explicit NULL" with typed-string
-	 *                                binding.
-	 * @param string|null $slug Optional new slug (REQ-DASH-024).
-	 * @param int|null $sortOrder Optional new sort order
-	 *                            (REQ-DASH-029).
+	 * A null field is "not in the payload" and is left out. The parent
+	 * UUID sentinel `__null__` and the empty string both clear the parent
+	 * (re-root the dashboard, REQ-DASH-023), because the framework's typed
+	 * string binding cannot represent an explicit NULL.
 	 *
-	 * @return array The non-null update data.
+	 * @param array<string, mixed> $fields The update fields by name, in patch order.
+	 *
+	 * @return array<string, mixed> The non-null update data.
 	 */
-	private function buildUpdateData(
-		?string $name,
-		?string $description,
-		?array $placements,
-		?string $icon = null,
-		?string $parentUuid = null,
-		?string $slug = null,
-		?int $sortOrder = null,
-	): array {
-		$fields = [
-			'name' => $name,
-			'description' => $description,
-			'placements' => $placements,
-		];
-
+	private function buildUpdateData(array $fields): array {
 		$data = array_filter(
 			array: $fields,
 			callback: function ($value) {
@@ -1947,32 +1926,10 @@ class DashboardApiController extends Controller {
 			}
 		);
 
-		// Icon explicitly supports NULL/empty (resets to the default
-		// glyph), so it must be merged separately from the array_filter
-		// above. Caller distinguishes "not in payload" via the default
-		// null sentinel.
-		if ($icon !== null) {
-			$data['icon'] = $icon;
-		}
-
-		// REQ-DASH-023: `parentUuid = '__null__'` is the agreed sentinel
-		// for "re-root this dashboard" because the framework's typed
-		// string binding cannot represent an explicit NULL. Anything
-		// else (non-null string) is forwarded verbatim — including the
-		// empty string, which the service treats as a NULL parent.
-		if ($parentUuid !== null) {
-			$data['parentUuid'] = $parentUuid;
-			if ($parentUuid === '__null__' || $parentUuid === '') {
-				$data['parentUuid'] = null;
-			}
-		}
-
-		if ($slug !== null) {
-			$data['slug'] = $slug;
-		}
-
-		if ($sortOrder !== null) {
-			$data['sortOrder'] = $sortOrder;
+		if (isset($data['parentUuid']) === true
+			&& ($data['parentUuid'] === '__null__' || $data['parentUuid'] === '')
+		) {
+			$data['parentUuid'] = null;
 		}
 
 		return $data;

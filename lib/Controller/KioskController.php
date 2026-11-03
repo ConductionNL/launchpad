@@ -195,12 +195,12 @@ class KioskController extends Controller {
 		try {
 			$playlist = $this->kioskService->updatePlaylist(
 				id: $id,
+				callerId: $this->userId,
 				draft: new KioskPlaylistDraft(
 					name: (string)($name ?? ''),
 					entries: ($entries ?? []),
 					refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT)
-				),
-				callerId: $this->userId
+				)
 			);
 			return new DataResponse(data: $playlist->jsonSerialize());
 		} catch (PlaylistNotFoundException) {

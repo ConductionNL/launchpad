@@ -53,15 +53,6 @@ abstract class DashboardCleanupListener implements IEventListener {
 	}//end __construct()
 
 	/**
-	 * Remove the deleted dashboard's rows.
-	 *
-	 * @param DashboardDeletedEvent $event The event.
-	 *
-	 * @return int The number of rows removed.
-	 */
-	abstract protected function cleanUp(DashboardDeletedEvent $event): int;
-
-	/**
 	 * Handle the DashboardDeletedEvent.
 	 *
 	 * @param Event $event The event.
@@ -71,12 +62,12 @@ abstract class DashboardCleanupListener implements IEventListener {
 	 * @spec openspec/specs/dashboard-cascade-events/spec.md
 	 */
 	public function handle(Event $event): void {
+		$name = substr(string: strrchr(haystack: static::class, needle: '\\'), offset: 1);
 		if (($event instanceof DashboardDeletedEvent) === false) {
 			return;
 		}
 
 		$uuid = $event->getDashboardUuid();
-		$name = substr(string: strrchr(haystack: static::class, needle: '\\'), offset: 1);
 
 		try {
 			$count = $this->cleanUp(event: $event);
@@ -91,4 +82,13 @@ abstract class DashboardCleanupListener implements IEventListener {
 			);
 		}
 	}//end handle()
+
+	/**
+	 * Remove the deleted dashboard's rows.
+	 *
+	 * @param DashboardDeletedEvent $event The event.
+	 *
+	 * @return int The number of rows removed.
+	 */
+	abstract protected function cleanUp(DashboardDeletedEvent $event): int;
 }//end class

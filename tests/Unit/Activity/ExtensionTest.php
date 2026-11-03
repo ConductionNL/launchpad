@@ -567,6 +567,13 @@ class ExtensionTest extends TestCase {
 
 			$this->assertSame(expected: $expected, actual: $event->getParsedSubject());
 		}
+
+		$event = new RecordingEvent();
+		$event->setApp(app: Extension::APP_ID);
+		$event->setType(type: Extension::EVENT_SHARED);
+		$event->setSubject(subject: Extension::EVENT_SHARED, parameters: ['self' => false, 'version' => 2, 'actor' => 'alice', 'dashboard' => 'Dashboard A']);
+		$extension->parse(language: 'en', event: $event);
+		$this->assertStringNotContainsString(needle: 'version', haystack: (string)$event->getParsedSubject());
 	}//end testParseNamesTheAcknowledgedVersion()
 
 	/**

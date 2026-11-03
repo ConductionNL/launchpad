@@ -240,7 +240,7 @@ class Extension implements IProvider {
 	 * Templates use `{placeholder}` substitution that is rendered both
 	 * by `parse()` and by NC Activity's translation layer.
 	 *
-	 * @return array<string, array{self: string, other: string, self_version?: string, other_version?: string}>
+	 * @return array<string, array{self: string, other: string}>
 	 * @spec   openspec/specs/activity-feed-integration/spec.md
 	 */
 	public function getSubjectTemplates(): array {
@@ -300,8 +300,6 @@ class Extension implements IProvider {
 			self::EVENT_ACKNOWLEDGED => [
 				'self' => 'You acknowledged {dashboard}',
 				'other' => '{actor} acknowledged {dashboard}',
-				'self_version' => 'You acknowledged version {version} of {dashboard}',
-				'other_version' => '{actor} acknowledged version {version} of {dashboard}',
 			],
 		];
 	}//end getSubjectTemplates()
@@ -317,12 +315,8 @@ class Extension implements IProvider {
 	 */
 	private function resolveSubjectTemplate(string $type, bool $isSelf): string {
 		$templates = $this->getSubjectTemplates();
-		$variant = 'other';
-		if ($isSelf === true) {
-			$variant = 'self';
-		}
 
-		return ($templates[$type][$variant] ?? '');
+		return ($templates[$type][$this->variantOf(isSelf: $isSelf)] ?? '');
 	}//end resolveSubjectTemplate()
 
 	/**
@@ -335,11 +329,29 @@ class Extension implements IProvider {
 	 * @return string|null The template string.
 	 */
 	private function versionedTemplate(string $type, bool $isSelf): ?string {
-		$variant = 'other_version';
+		$templates = [
+			self::EVENT_ACKNOWLEDGED => [
+				'self' => 'You acknowledged version {version} of {dashboard}',
+				'other' => '{actor} acknowledged version {version} of {dashboard}',
+			],
+		];
+
+		return ($templates[$type][$this->variantOf(isSelf: $isSelf)] ?? null);
+	}//end versionedTemplate()
+
+	/**
+	 * The template variant for a line: `self` when the actor is the
+	 * recipient, `other` otherwise.
+	 *
+	 * @param bool $isSelf True when the actor equals the recipient.
+	 *
+	 * @return string The variant key.
+	 */
+	private function variantOf(bool $isSelf): string {
 		if ($isSelf === true) {
-			$variant = 'self_version';
+			return 'self';
 		}
 
-		return ($this->getSubjectTemplates()[$type][$variant] ?? null);
-	}//end versionedTemplate()
+		return 'other';
+	}//end variantOf()
 }//end class

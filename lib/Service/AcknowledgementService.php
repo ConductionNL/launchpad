@@ -267,16 +267,13 @@ class AcknowledgementService {
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function currentContentVersion(string $announcementKey, string $userId): ?int {
-		$placements = $this->placementMapper->findByAnnouncementKey(
-			announcementKey: $announcementKey
-		);
-		if (empty($placements) === true) {
-			return null;
-		}
-
+		$placements = $this->placementMapper->findByAnnouncementKey(announcementKey: $announcementKey);
 		$placement = $this->templatePlacement(placements: $placements)
 			?? $this->ownCopy(placements: $placements, userId: $userId)
-			?? $placements[0];
+			?? ($placements[0] ?? null);
+		if ($placement === null) {
+			return null;
+		}
 
 		return $placement->getAcknowledgementContentVersion();
 	}//end currentContentVersion()

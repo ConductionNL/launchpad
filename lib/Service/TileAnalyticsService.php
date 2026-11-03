@@ -161,11 +161,13 @@ class TileAnalyticsService {
 		}
 
 		$this->tileClickMapper->upsertClick(
-			placementUuid: $placementUuid,
-			dashboardUuid: $dashboardUuid,
-			clickBucket: $today,
-			clickCountDelta: 1,
-			uniqueCountDelta: $uniqueDelta
+			click: [
+				'placementUuid'    => $placementUuid,
+				'dashboardUuid'    => $dashboardUuid,
+				'clickBucket'      => $today,
+				'clickCountDelta'  => 1,
+				'uniqueCountDelta' => $uniqueDelta,
+			]
 		);
 
 		return true;

@@ -150,11 +150,14 @@ class TileAnalyticsServiceTest extends TestCase {
 		$this->tileClickMapper->expects($this->once())
 			->method('upsertClick')
 			->with(
-				$this->equalTo('1'),
-				$this->equalTo('dsh-1'),
-				$this->isType(type: 'string'),
-				1,
-				0
+				$this->callback(
+					static fn (array $click): bool => $click['placementUuid'] === '1'
+						&& $click['dashboardUuid'] === 'dsh-1'
+						&& is_string($click['clickBucket']) === true
+						&& $click['clickCountDelta'] === 1
+						&& $click['uniqueCountDelta'] === 0
+						&& count($click) === 5
+				)
 			);
 
 		$result = $this->service->recordClick(placementId: 1, userId: 'alice');
@@ -177,11 +180,14 @@ class TileAnalyticsServiceTest extends TestCase {
 		$this->tileClickMapper->expects($this->once())
 			->method('upsertClick')
 			->with(
-				$this->equalTo('1'),
-				$this->equalTo('dsh-1'),
-				$this->isType(type: 'string'),
-				1,
-				1
+				$this->callback(
+					static fn (array $click): bool => $click['placementUuid'] === '1'
+						&& $click['dashboardUuid'] === 'dsh-1'
+						&& is_string($click['clickBucket']) === true
+						&& $click['clickCountDelta'] === 1
+						&& $click['uniqueCountDelta'] === 1
+						&& count($click) === 5
+				)
 			);
 
 		$result = $this->service->recordClick(placementId: 1, userId: 'bob');
@@ -232,11 +238,14 @@ class TileAnalyticsServiceTest extends TestCase {
 		$this->tileClickMapper->expects($this->once())
 			->method('upsertClick')
 			->with(
-				$this->equalTo('1'),
-				$this->equalTo(''),
-				$this->isType(type: 'string'),
-				1,
-				1
+				$this->callback(
+					static fn (array $click): bool => $click['placementUuid'] === '1'
+						&& $click['dashboardUuid'] === ''
+						&& is_string($click['clickBucket']) === true
+						&& $click['clickCountDelta'] === 1
+						&& $click['uniqueCountDelta'] === 1
+						&& count($click) === 5
+				)
 			);
 
 		$result = $this->service->recordClick(placementId: 1, userId: 'alice');

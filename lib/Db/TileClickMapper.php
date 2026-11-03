@@ -258,22 +258,19 @@ class TileClickMapper extends QBMapper {
 	 * "one row per tile per day"). No per-event row is ever created —
 	 * this is the ONLY write path into the table.
 	 *
-	 * @param string $placementUuid The placement UUID.
-	 * @param string $dashboardUuid The owning dashboard UUID.
-	 * @param string $clickBucket The UTC date `YYYY-MM-DD`.
-	 * @param int $clickCountDelta Increment for `click_count`.
-	 * @param int $uniqueCountDelta Increment for
-	 *                              `unique_actor_count`.
+	 * @param array<string, mixed> $click `placementUuid`, `dashboardUuid` (the owning
+	 *                                    dashboard), `clickBucket` (the UTC date `YYYY-MM-DD`),
+	 *                                    `clickCountDelta` (increment for `click_count`) and
+	 *                                    `uniqueCountDelta` (increment for `unique_actor_count`).
 	 *
 	 * @return TileClick The persisted row after the update.
 	 */
-	public function upsertClick(
-		string $placementUuid,
-		string $dashboardUuid,
-		string $clickBucket,
-		int $clickCountDelta,
-		int $uniqueCountDelta,
-	): TileClick {
+	public function upsertClick(array $click): TileClick {
+		$placementUuid    = (string)$click['placementUuid'];
+		$dashboardUuid    = (string)$click['dashboardUuid'];
+		$clickBucket      = (string)$click['clickBucket'];
+		$clickCountDelta  = (int)$click['clickCountDelta'];
+		$uniqueCountDelta = (int)$click['uniqueCountDelta'];
 		$existing = $this->findByPlacementAndBucket(
 			placementUuid: $placementUuid,
 			clickBucket: $clickBucket

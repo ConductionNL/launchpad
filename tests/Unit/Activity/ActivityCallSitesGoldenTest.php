@@ -25,6 +25,7 @@ use OCA\LaunchPad\Activity\PublisherTools;
 use Closure;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Activity\DebounceHelper;
+use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AcknowledgementService;
 use OCA\LaunchPad\Service\BulkOperationService;
@@ -45,6 +46,7 @@ use ReflectionClass;
  * @covers \OCA\LaunchPad\Service\BulkOperationService
  * @covers \OCA\LaunchPad\Service\TemplateResyncService
  * @uses   \OCA\LaunchPad\Activity\ActivityPublisher
+ * @uses   \OCA\LaunchPad\Db\Acknowledgement
  * @uses   \OCA\LaunchPad\Activity\ActivityRow
  * @uses   \OCA\LaunchPad\Activity\ActivitySubject
  * @uses   \OCA\LaunchPad\Activity\DebounceHelper
@@ -171,7 +173,11 @@ class ActivityCallSitesGoldenTest extends TestCase {
 			AcknowledgementService::class,
 			['activityPublisher' => $this->publisher(), 'placementMapper' => $placements]
 		);
-		self::invoke($ack, 'emitAcknowledgedActivity', ['ak-1', 'alice']);
+		$receipt = new Acknowledgement();
+		$receipt->setAnnouncementKey('ak-1');
+		$receipt->setUserId('alice');
+		$receipt->setContentVersion(1);
+		self::invoke($ack, 'emitAcknowledgedActivity', [$receipt]);
 		$actual['acknowledged'] = $this->rows;
 
 		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {

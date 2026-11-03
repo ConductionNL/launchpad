@@ -48,6 +48,7 @@ use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareGrant;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
@@ -182,9 +183,7 @@ class DashboardActivityEmissionTest extends TestCase {
 
 		$this->shareService($this->dashboard())->addShare(
 			dashboardId: 7,
-			shareType: DashboardShare::SHARE_TYPE_USER,
-			shareWith: 'bob',
-			permissionLevel: Dashboard::PERMISSION_VIEW_ONLY,
+			grant: new ShareGrant(shareType: DashboardShare::SHARE_TYPE_USER, shareWith: 'bob', permissionLevel: Dashboard::PERMISSION_VIEW_ONLY),
 			callerId: 'alice'
 		);
 	}

@@ -36,6 +36,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Service\BulkStatusRequest;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -46,6 +47,8 @@ use OCP\IRequest;
 
 /**
  * Bulk admin endpoints for dashboards (REQ-BULK-001..011).
+ *
+ * @spec openspec/specs/dashboard-bulk-operations/spec.md
  * @SuppressWarnings(PHPMD.StaticAccess) {@see ResponseHelper} is an all-static,
  *  stateless response factory shared by every controller in this app.
  */
@@ -210,10 +213,12 @@ class AdminBulkController extends Controller {
 		try {
 			$result = $this->bulkService->bulkStatus(
 				dashboardUuids: $uuids,
-				publicationStatus: $publicationStatus,
-				publishAt: $publishAt,
-				userId: $userId,
-				dryRun: $isDryRun
+				request: new BulkStatusRequest(
+					publicationStatus: $publicationStatus,
+					publishAt: $publishAt,
+					dryRun: $isDryRun
+				),
+				userId: $userId
 			);
 		} catch (PermissionDeniedException $e) {
 			return new JSONResponse(

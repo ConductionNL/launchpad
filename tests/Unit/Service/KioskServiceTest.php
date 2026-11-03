@@ -31,6 +31,7 @@ use OCA\LaunchPad\Db\KioskPlaylistMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
+use OCA\LaunchPad\Service\KioskPlaylistDraft;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -121,9 +122,7 @@ class KioskServiceTest extends TestCase {
 			);
 
 		$result = $this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]],
-			refresh: 60,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]], refresh: 60),
 			callerId: 'alice'
 		);
 
@@ -149,9 +148,7 @@ class KioskServiceTest extends TestCase {
 		$this->expectException(OCSForbiddenException::class);
 
 		$this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]],
-			refresh: 60,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 20]], refresh: 60),
 			callerId: 'bob'
 		);
 	}
@@ -166,9 +163,7 @@ class KioskServiceTest extends TestCase {
 		$this->expectException(OCSForbiddenException::class);
 
 		$this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'missing', 'dwellSeconds' => 20]],
-			refresh: 60,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'missing', 'dwellSeconds' => 20]], refresh: 60),
 			callerId: 'alice'
 		);
 	}
@@ -200,9 +195,7 @@ class KioskServiceTest extends TestCase {
 			);
 
 		$this->service->createPlaylist(
-			name: 'Lobby',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => $dwellIn]],
-			refresh: $refreshIn,
+			draft: new KioskPlaylistDraft(name: 'Lobby', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => $dwellIn]], refresh: $refreshIn),
 			callerId: 'alice'
 		);
 
@@ -243,9 +236,7 @@ class KioskServiceTest extends TestCase {
 
 		$this->service->updatePlaylist(
 			id: 5,
-			name: 'Changed',
-			entries: [['dashboardUuid' => 'uuid-new', 'dwellSeconds' => 99]],
-			refresh: 120,
+			draft: new KioskPlaylistDraft(name: 'Changed', entries: [['dashboardUuid' => 'uuid-new', 'dwellSeconds' => 99]], refresh: 120),
 			callerId: 'alice'
 		);
 	}
@@ -261,9 +252,7 @@ class KioskServiceTest extends TestCase {
 
 		$this->service->updatePlaylist(
 			id: 999,
-			name: 'Changed',
-			entries: [],
-			refresh: 120,
+			draft: new KioskPlaylistDraft(name: 'Changed', entries: [], refresh: 120),
 			callerId: 'alice'
 		);
 	}
@@ -294,9 +283,7 @@ class KioskServiceTest extends TestCase {
 
 		$result = $this->service->updatePlaylist(
 			id: 5,
-			name: 'Changed',
-			entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 30]],
-			refresh: 120,
+			draft: new KioskPlaylistDraft(name: 'Changed', entries: [['dashboardUuid' => 'uuid-1', 'dwellSeconds' => 30]], refresh: 120),
 			callerId: 'alice'
 		);
 

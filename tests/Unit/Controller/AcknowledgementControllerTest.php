@@ -121,7 +121,7 @@ class AcknowledgementControllerTest extends TestCase {
 		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
 			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
 		);
-		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 1]]);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 'alice', 1]]);
 
 		$this->service->expects($this->never())->method('acknowledge');
 
@@ -193,7 +193,7 @@ class AcknowledgementControllerTest extends TestCase {
 		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
 			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
 		);
-		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 1]]);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 'alice', 1]]);
 		$this->service->expects($this->once())
 			->method('acknowledge')
 			->with('ak-1', 'alice', 1)
@@ -225,7 +225,7 @@ class AcknowledgementControllerTest extends TestCase {
 		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
 			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
 		);
-		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', $currentVersion]]);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 'alice', $currentVersion]]);
 	}
 
 	/**
@@ -290,6 +290,28 @@ class AcknowledgementControllerTest extends TestCase {
 		$response = $this->makeController()->acknowledge();
 
 		$this->assertSame(expected: Http::STATUS_OK, actual: $response->getStatus());
+	}
+
+	/**
+	 * REQ-ACK-005: the version check uses the announcement being
+	 * acknowledged and the session user, not ak-1's version.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeChecksTheVersionOfTheAnnouncementItNames(): void {
+		$bodyVersion = 3;
+		$this->request->method('getParam')->willReturnCallback(
+			static function (string $key, mixed $default = null) use (&$bodyVersion): mixed {
+				return ['announcementKey' => 'ak-2', 'userId' => null, 'contentVersion' => $bodyVersion][$key] ?? $default;
+			}
+		);
+		$this->service->method('isAllowedToAcknowledge')->willReturn(true);
+		$this->service->method('currentContentVersion')->willReturnMap([['ak-1', 'alice', 1], ['ak-2', 'alice', 3], ['ak-2', 'bob', 9]]);
+		$this->service->expects($this->once())->method('acknowledge')->with('ak-2', 'alice', 3)->willReturn($this->makeReceipt(version: 3));
+
+		$this->assertSame(expected: Http::STATUS_OK, actual: $this->makeController()->acknowledge()->getStatus());
+		$bodyVersion = 4;
+		$this->assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $this->makeController()->acknowledge()->getStatus());
 	}
 
 	/**

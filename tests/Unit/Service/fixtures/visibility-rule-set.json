@@ -1,0 +1,8475 @@
+{
+    "check []": {
+        "result": true,
+        "log": []
+    },
+    "set [] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": []
+    },
+    "set [] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": []
+    },
+    "set [] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": []
+    },
+    "check [I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I+]": {
+        "result": true,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I+ I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I+ I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I+ I-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ I-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ I-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I+ I-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I+ E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I+ E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I+ E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I- I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I- I-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- I-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- I-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I- I-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ I- E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ I- E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ I- E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E+ I+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E+ I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E+ I-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E+ I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E+ E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E+ E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E+ E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E- I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E- I-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- I-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- I-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E- I-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I+ E- E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I+ E- E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I+ E- E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                10
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I+ I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I+ I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I+ I-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ I-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ I-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I+ I-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I+ E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I+ E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I+ E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I- I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I- I-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- I- E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- I- E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- I- E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E+ I+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E+ I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E+ I-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E+ I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E+ E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E+ E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E+ E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E- I+]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E- I-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [I- E- E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [I- E- E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [I- E- E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I+ I+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I+ I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I+ I-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I+ I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I+ E+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10,
+                12
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10,
+                12
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10,
+                12
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I+ E-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I+ E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I+ E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I- I+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I- I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I- I-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I- E+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ I- E-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ I- E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ I- E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E+ I+]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E+ I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E+ I-]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E+ I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E+ E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E+ E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E+ E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E- I+]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E- I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E- I-]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E+ E- E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E+ E- E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E+ E- E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                10
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I+ I+]": {
+        "result": true,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I+ I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11,
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I+ I-]": {
+        "result": true,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ I-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ I-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I+ I-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I+ E+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I+ E-]": {
+        "result": true,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I+ E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I+ E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                11
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I- I+]": {
+        "result": true,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I- I-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I- E+]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- I- E-]": {
+        "result": false,
+        "log": [
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- I- E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- I- E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E+ I+]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ I+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ I+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E+ I+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E+ I-]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E+ I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E+ E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E+ E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11,
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E+ E-]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ E-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E+ E-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E+ E-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                11
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E- I+]": {
+        "result": true,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ],
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- I+] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ],
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- I+] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E- I+] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [
+                12
+            ],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ],
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E- I-]": {
+        "result": false,
+        "log": [
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- I-] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- I-] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E- I-] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E- E+]": {
+        "result": false,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- E+] live": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- E+] preview": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E- E+] preview no groups": {
+        "result": {
+            "visible": false,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": [
+                12
+            ]
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    },
+    "check [E- E- E-]": {
+        "result": true,
+        "log": [
+            [
+                10,
+                "alice",
+                null,
+                null
+            ],
+            [
+                11,
+                "alice",
+                null,
+                null
+            ],
+            [
+                12,
+                "alice",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- E-] live": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                null,
+                null
+            ],
+            [
+                11,
+                "bob",
+                null,
+                null
+            ],
+            [
+                12,
+                "bob",
+                null,
+                null
+            ]
+        ]
+    },
+    "set [E- E- E-] preview": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                11,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ],
+            [
+                12,
+                "bob",
+                [
+                    "staff",
+                    "hr"
+                ],
+                "2030-02-03T04:05:06+00:00"
+            ]
+        ]
+    },
+    "set [E- E- E-] preview no groups": {
+        "result": {
+            "visible": true,
+            "matchedIncludeRuleIds": [],
+            "matchedExcludeRuleIds": []
+        },
+        "log": [
+            [
+                10,
+                "bob",
+                [],
+                null
+            ],
+            [
+                11,
+                "bob",
+                [],
+                null
+            ],
+            [
+                12,
+                "bob",
+                [],
+                null
+            ]
+        ]
+    }
+}

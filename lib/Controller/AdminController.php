@@ -222,10 +222,12 @@ class AdminController extends Controller {
 		try {
 			$template = $this->templates->templateService->createTemplate(
 				name: $name,
-				description: $description,
-				targetGroups: $targetGroups,
-				permissionLevel: $permissionLevel,
-				isDefault: $isDefault
+				settings: [
+					'description'     => $description,
+					'targetGroups'    => $targetGroups,
+					'permissionLevel' => $permissionLevel,
+					'isDefault'       => $isDefault,
+				]
 			);
 
 			return ResponseHelper::success(

@@ -42,6 +42,8 @@ use RuntimeException;
  * @covers \OCA\LaunchPad\Controller\AdminController
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Db\Dashboard
+ * @covers \OCA\LaunchPad\Service\AdminTemplateService
+ * @uses   \OCA\LaunchPad\Service\AdminTemplateStores
  * @uses   \OCA\LaunchPad\Controller\AdminTemplateTools
  * @uses   \OCA\LaunchPad\Controller\AdminSettingsTools
  * @uses   \OCA\LaunchPad\Controller\AdminRoleAndFeedTools
@@ -135,4 +137,91 @@ class AdminControllerUpdateTemplateGoldenTest extends TestCase {
 
 		$this->assertSame(json_encode(json_decode((string) file_get_contents(self::FIXTURE))), json_encode($actual));
 	}//end testPatchMatchesTheRecordedFixture()
+
+	/**
+	 * Every create case writes the recorded template row.
+	 *
+	 * @return void
+	 */
+	public function testCreateTemplateRowsMatchTheRecordedFixture(): void {
+		$cases = [
+			'minimal'     => ['name' => 'T'],
+			'description' => ['name' => 'T', 'description' => 'd'],
+			'groups'      => ['name' => 'T', 'targetGroups' => ['staff']],
+			'no groups'   => ['name' => 'T', 'targetGroups' => []],
+			'level'       => ['name' => 'T', 'permissionLevel' => Dashboard::PERMISSION_FULL],
+			'default'     => ['name' => 'T', 'isDefault' => true],
+			'everything'  => ['isDefault' => false, 'permissionLevel' => 'view_only', 'targetGroups' => ['a', 'b'], 'description' => 'x', 'name' => 'y'],
+		];
+
+		$actual = [];
+		foreach ($cases as $case => $args) {
+			$log    = [];
+			$mapper = $this->createMock(\OCA\LaunchPad\Db\DashboardMapper::class);
+			$mapper->method('clearDefaultTemplates')->willReturnCallback(
+				static function () use (&$log): int {
+					$log[] = 'clearDefaultTemplates';
+					return 0;
+				}
+			);
+			$mapper->method('insert')->willReturnCallback(
+				static function (Dashboard $dashboard) use (&$log): Dashboard {
+					$row = $dashboard->jsonSerialize();
+					unset($row['uuid'], $row['createdAt'], $row['updatedAt']);
+					$log[] = ['insert' => $row, 'uuid' => strlen((string) $dashboard->getUuid()), 'stamped' => $dashboard->getCreatedAt() === $dashboard->getUpdatedAt()];
+					return $dashboard;
+				}
+			);
+			$service = new AdminTemplateService(
+				stores: new \OCA\LaunchPad\Service\AdminTemplateStores(
+					dashboardMapper: $mapper,
+					placementMapper: $this->createMock(\OCA\LaunchPad\Db\WidgetPlacementMapper::class)
+				),
+				settingsService: $this->createMock(AdminSettingsService::class),
+				groupManager: $this->createMock(IGroupManager::class),
+				userManager: $this->createMock(\OCP\IUserManager::class),
+			);
+
+			$response      = $this->controller(templates: $service)->createTemplate(...$args);
+			$actual[$case] = ['status' => $response->getStatus(), 'log' => $log];
+		}
+
+		$fixture = __DIR__.'/fixtures/admin-create-template.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			$lines = [];
+			foreach ($actual as $case => $row) {
+				$lines[] = json_encode($case).': '.json_encode($row, JSON_UNESCAPED_SLASHES);
+			}
+
+			file_put_contents($fixture, "{\n".implode(",\n", $lines)."\n}\n");
+			$this->markTestIncomplete('Fixture recorded.');
+		}
+
+		$this->assertSame(json_encode(json_decode((string) file_get_contents($fixture))), json_encode($actual));
+	}//end testCreateTemplateRowsMatchTheRecordedFixture()
+
+	/**
+	 * A template created with only a name gets the add-only level, no
+	 * groups and is not the default.
+	 *
+	 * @return void
+	 */
+	public function testServiceDefaults(): void {
+		$mapper = $this->createMock(\OCA\LaunchPad\Db\DashboardMapper::class);
+		$mapper->expects($this->never())->method('clearDefaultTemplates');
+		$mapper->method('insert')->willReturnArgument(0);
+		$service = new AdminTemplateService(
+			stores: new \OCA\LaunchPad\Service\AdminTemplateStores(
+				dashboardMapper: $mapper,
+				placementMapper: $this->createMock(\OCA\LaunchPad\Db\WidgetPlacementMapper::class)
+			),
+			settingsService: $this->createMock(AdminSettingsService::class),
+			groupManager: $this->createMock(IGroupManager::class),
+			userManager: $this->createMock(\OCP\IUserManager::class),
+		);
+
+		$template = $service->createTemplate(name: 'T');
+
+		$this->assertSame([Dashboard::PERMISSION_ADD_ONLY, [], 0, null], [$template->getPermissionLevel(), $template->getTargetGroupsArray(), $template->getIsDefault(), $template->getDescription()]);
+	}//end testServiceDefaults()
 }//end class

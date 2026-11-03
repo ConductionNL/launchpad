@@ -42,6 +42,7 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\TestCase;
 
 class AdminControllerSettingsAliasTest extends TestCase {
@@ -77,6 +78,19 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end setUp()
 
 	/**
+	 * A matcher for a full settings map that holds the expected entries.
+	 *
+	 * @param array<string, mixed> $expected The entries the map must hold.
+	 *
+	 * @return Callback<array<string, mixed>>
+	 */
+	private function settingsMatching(array $expected): Callback {
+		return $this->callback(
+			static fn (array $settings): bool => count($settings) === 12 && array_intersect_key($settings, $expected) === $expected
+		);
+	}//end settingsMatching()
+
+	/**
 	 * A payload spelled the way GET spells it must reach the service.
 	 *
 	 * @return void
@@ -85,11 +99,15 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->equalTo('full'),
-				$this->isTrue(),
-				$this->isFalse(),
-				$this->equalTo(8),
-				$this->equalTo(['md']),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => 'full',
+						'allowUserDash' => true,
+						'allowMultiDash' => false,
+						'defaultGridCols' => 8,
+						'linkCreateFileExts' => ['md'],
+					]
+				)
 			);
 
 		$this->controller->updateSettings(
@@ -110,10 +128,14 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->equalTo('view_only'),
-				$this->isTrue(),
-				$this->isNull(),
-				$this->equalTo(12),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => 'view_only',
+						'allowUserDash' => true,
+						'allowMultiDash' => null,
+						'defaultGridCols' => 12,
+					]
+				)
 			);
 
 		$this->controller->updateSettings(
@@ -135,7 +157,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	public function testShortNameWinsWhenBothAreSupplied(): void {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
-			->with($this->anything(), $this->isFalse());
+			->with($this->settingsMatching(['allowUserDash' => false]));
 
 		$this->controller->updateSettings(
 			allowUserDash: false,
@@ -155,11 +177,15 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => null,
+						'allowUserDash' => null,
+						'allowMultiDash' => null,
+						'defaultGridCols' => null,
+						'linkCreateFileExts' => null,
+					]
+				)
 			);
 
 		$this->controller->updateSettings(allowUserDash: null);
@@ -175,18 +201,22 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
 			->with(
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isNull(),
-				$this->isTrue(),
+				$this->settingsMatching(
+					[
+						'defaultPermLevel' => null,
+						'allowUserDash' => null,
+						'allowMultiDash' => null,
+						'defaultGridCols' => null,
+						'linkCreateFileExts' => null,
+						'defaultSharePermissionLevel' => null,
+						'forcedShareGroups' => null,
+						'legacyWidgetBridgeEnabled' => null,
+						'maxDashboardsPerUser' => null,
+						'maxWidgetsPerDashboard' => null,
+						'quicksearchFallbackTarget' => null,
+						'startPageWithoutNavigation' => true,
+					]
+				)
 			);
 
 		$this->controller->updateSettings(startPageWithoutNavigation: true);

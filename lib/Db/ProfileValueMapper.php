@@ -118,36 +118,27 @@ class ProfileValueMapper extends QBMapper {
 	/**
 	 * Replace one person's values of one field with a new list.
 	 *
-	 * @param string $userId Owner.
-	 * @param string $fieldKey Field key.
-	 * @param string[] $values New values (already cleaned).
-	 * @param string $source self, ldap or nextcloud.
-	 * @param string|null $scope Visibility scope of a mirrored standard field.
+	 * @param string             $userId Owner.
+	 * @param ProfileFieldValues $field  The field, its new values and their source.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
-	public function replaceValues(
-		string $userId,
-		string $fieldKey,
-		array $values,
-		string $source,
-		?string $scope = null,
-	): void {
-		$this->deleteField(userId: $userId, fieldKey: $fieldKey);
+	public function replaceValues(string $userId, ProfileFieldValues $field): void {
+		$this->deleteField(userId: $userId, fieldKey: $field->fieldKey);
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-		foreach ($values as $value) {
+		foreach ($field->values as $value) {
 			$row = new ProfileValue();
 			// Entity setters take their argument positionally.
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$row->setUserId($userId);
-			$row->setFieldKey($fieldKey);
+			$row->setFieldKey($field->fieldKey);
 			$row->setValue($value);
 			$row->setValueSearch(mb_strtolower(string: $value));
-			$row->setSource($source);
-			$row->setScope($scope);
+			$row->setSource($field->source);
+			$row->setScope($field->scope);
 			$row->setUpdatedAt($now);
 			// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$this->insert(entity: $row);

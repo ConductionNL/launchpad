@@ -589,37 +589,9 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.update');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		// REQ-PERM-007: Metadata-only updates (name, description, icon) are
-		// allowed for all permission levels. Widget/tile/layout changes
-		// require add_only or full permission.
-		$isMetadataOnly = $placements === null;
-		if ($isMetadataOnly === true
-			&& $this->permissionService->canEditDashboardMetadata(
-				userId: $this->userId,
-				dashboardId: $id
-			) === false
-		) {
-			return ResponseHelper::forbidden();
-		}
-
-		if ($isMetadataOnly === false
-			&& $this->permissionService->canEditDashboard(
-				userId: $this->userId,
-				dashboardId: $id
-			) === false
-		) {
-			return ResponseHelper::forbidden();
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $placements === null);
+		if ($denial !== null) {
+			return $denial;
 		}
 
 		return $this->applyUpdate(
@@ -635,6 +607,53 @@ class DashboardApiController extends Controller {
 			]
 		);
 	}//end update()
+
+	/**
+	 * Resolve the guard chain for {@see self::update()}.
+	 *
+	 * Order is load-bearing: the session, then the action check, then the
+	 * injected user id, then the permission for the kind of update.
+	 *
+	 * @param int  $dashboardId  The dashboard ID.
+	 * @param bool $metadataOnly Whether the update leaves the placements alone.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 */
+	private function denyUpdate(int $dashboardId, bool $metadataOnly): ?JSONResponse {
+		$user = $this->actor->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		}
+
+		$this->actor->actionAuth->requireAction($user, 'dashboard.update');
+
+		if ($this->userId === null) {
+			return ResponseHelper::unauthorized();
+		}
+
+		// REQ-PERM-007: Metadata-only updates (name, description, icon) are
+		// allowed for all permission levels. Widget/tile/layout changes
+		// require add_only or full permission.
+		if ($metadataOnly === true
+			&& $this->permissionService->canEditDashboardMetadata(
+				userId: $this->userId,
+				dashboardId: $dashboardId
+			) === false
+		) {
+			return ResponseHelper::forbidden();
+		}
+
+		if ($metadataOnly === false
+			&& $this->permissionService->canEditDashboard(
+				userId: $this->userId,
+				dashboardId: $dashboardId
+			) === false
+		) {
+			return ResponseHelper::forbidden();
+		}
+
+		return null;
+	}//end denyUpdate()
 
 	/**
 	 * Apply an allowed update and answer with the saved dashboard.

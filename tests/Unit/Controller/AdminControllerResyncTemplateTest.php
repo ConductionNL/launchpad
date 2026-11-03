@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\AdminRoleAndFeedTools;
+use OCA\LaunchPad\Controller\AdminSettingsTools;
+use OCA\LaunchPad\Controller\AdminTemplateTools;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminController;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -66,18 +69,24 @@ class AdminControllerResyncTemplateTest extends TestCase {
 
 		$this->controller = new AdminController(
 			request: $this->request,
-			templateService: $this->createMock(AdminTemplateService::class),
-			settingsService: $this->createMock(AdminSettingsService::class),
-			groupManager: $this->groupManager,
+			templates: new AdminTemplateTools(
+				templateService: $this->createMock(AdminTemplateService::class),
+				exportService: $this->createMock(ExportService::class),
+				importService: $this->createMock(ImportService::class),
+				resyncService: $this->resyncService
+			),
+			settings: new AdminSettingsTools(
+				settingsService: $this->createMock(AdminSettingsService::class),
+				groupManager: $this->groupManager,
+				footerService: $this->createMock(FooterService::class),
+				setupWizardService: $this->createMock(SetupWizardService::class)
+			),
 			userSession: $this->userSession,
-			exportService: $this->createMock(ExportService::class),
-			importService: $this->createMock(ImportService::class),
-			roleService: $this->createMock(RoleService::class),
-			feedRefresh: $this->createMock(FeedRefreshService::class),
-			footerService: $this->createMock(FooterService::class),
-			setupWizardService: $this->createMock(SetupWizardService::class),
-			actionAuth: $this->createMock(ActionAuthService::class),
-			resyncService: $this->resyncService,
+			roles: new AdminRoleAndFeedTools(
+				roleService: $this->createMock(RoleService::class),
+				feedRefresh: $this->createMock(FeedRefreshService::class)
+			),
+			actionAuth: $this->createMock(ActionAuthService::class)
 		);
 	}
 

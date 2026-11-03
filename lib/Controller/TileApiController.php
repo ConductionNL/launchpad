@@ -55,21 +55,17 @@ class TileApiController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param TileService $tileService The tile service.
+	 * @param IRequest          $request The request.
+	 * @param TileSources       $sources The tile service, translator and service discovery.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param IL10N $l10n The localisation helper.
-	 * @param ServiceDiscoveryService $discovery The apps in the user's app menu.
-	 * @param string|null $userId The user ID.
+	 * @param IUserSession      $userSession User session (IUser resolution).
+	 * @param string|null       $userId The user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly TileService $tileService,
+		private readonly TileSources $sources,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
-		private readonly IL10N $l10n,
-		private readonly ServiceDiscoveryService $discovery,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(
@@ -108,7 +104,7 @@ class TileApiController extends Controller {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		$tiles = $this->tileService->getUserTiles(userId: $this->userId);
+		$tiles = $this->sources->tileService->getUserTiles(userId: $this->userId);
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $tiles)
@@ -140,7 +136,7 @@ class TileApiController extends Controller {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		return new JSONResponse(['apps' => $this->discovery->discover()]);
+		return new JSONResponse(['apps' => $this->sources->discovery->discover()]);
 	}//end discover()
 
 	/**
@@ -245,7 +241,7 @@ class TileApiController extends Controller {
 	 * @return JSONResponse The envelope `{status, message, replacement}`.
 	 */
 	private function goneResponse(): JSONResponse {
-		$message = $this->l10n->t(
+		$message = $this->sources->l10n->t(
 			'The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead.'
 		);
 

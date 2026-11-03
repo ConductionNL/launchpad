@@ -54,37 +54,16 @@ class AdminTemplateService {
 	/**
 	 * Constructor
 	 *
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param AdminSettingsService $settingsService Admin settings reader
-	 *                                              (provides the
-	 *                                              `group_order` list).
-	 * @param IGroupManager $groupManager Nextcloud group manager.
-	 * @param IUserManager $userManager Nextcloud user manager.
-	 * @param ResourceService|null $resourceService Resource-uploads
-	 *                                              pipeline reused
-	 *                                              for
-	 *                                              preview-image
-	 *                                              storage
-	 *                                              (REQ-TMPL-017).
-	 *                                              Optional so
-	 *                                              existing wiring
-	 *                                              + tests stay
-	 *                                              valid.
-	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
-	 *                                               DashboardDeletedEvent
-	 *                                               (SB1 fix, REQ-CSC-001).
-	 *                                               Nullable for backwards-
-	 *                                               compat.
+	 * @param AdminTemplateStores  $stores The dashboard and placement mappers, resource service and event dispatcher.
+	 * @param AdminSettingsService $settingsService Admin settings reader (provides the `group_order` list).
+	 * @param IGroupManager        $groupManager Nextcloud group manager.
+	 * @param IUserManager         $userManager Nextcloud user manager.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly AdminTemplateStores $stores,
 		private readonly AdminSettingsService $settingsService,
 		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
-		private readonly ?ResourceService $resourceService = null,
-		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
 	}//end __construct()
 
@@ -228,7 +207,7 @@ class AdminTemplateService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
 	 */
 	public function listTemplates(): array {
-		return $this->dashboardMapper->findAdminTemplates();
+		return $this->stores->dashboardMapper->findAdminTemplates();
 	}//end listTemplates()
 
 	/**
@@ -243,13 +222,13 @@ class AdminTemplateService {
 	 * @spec openspec/specs/admin-templates/spec.md
 	 */
 	public function getTemplateWithPlacements(int $id): array {
-		$template = $this->dashboardMapper->find(id: $id);
+		$template = $this->stores->dashboardMapper->find(id: $id);
 
 		if ($template->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {
 			throw new Exception(message: 'Not an admin template');
 		}
 
-		$placements = $this->placementMapper->findByDashboardId(
+		$placements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $id
 		);
 
@@ -280,7 +259,7 @@ class AdminTemplateService {
 		bool $isDefault = false,
 	): Dashboard {
 		if ($isDefault === true) {
-			$this->dashboardMapper->clearDefaultTemplates();
+			$this->stores->dashboardMapper->clearDefaultTemplates();
 		}
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
@@ -301,7 +280,7 @@ class AdminTemplateService {
 		$template->setCreatedAt($now);
 		$template->setUpdatedAt($now);
 
-		return $this->dashboardMapper->insert(entity: $template);
+		return $this->stores->dashboardMapper->insert(entity: $template);
 	}//end createTemplate()
 
 	/**
@@ -332,7 +311,7 @@ class AdminTemplateService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-5
 	 */
 	public function updateTemplate(int $id, array $data): Dashboard {
-		$template = $this->dashboardMapper->find(id: $id);
+		$template = $this->stores->dashboardMapper->find(id: $id);
 
 		if ($template->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {
 			throw new Exception(message: 'Not an admin template');
@@ -347,7 +326,7 @@ class AdminTemplateService {
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
 
-		return $this->dashboardMapper->update(entity: $template);
+		return $this->stores->dashboardMapper->update(entity: $template);
 	}//end updateTemplate()
 
 	/**
@@ -362,23 +341,23 @@ class AdminTemplateService {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-6
 	 */
 	public function deleteTemplate(int $id): void {
-		$template = $this->dashboardMapper->find(id: $id);
+		$template = $this->stores->dashboardMapper->find(id: $id);
 
 		if ($template->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {
 			throw new Exception(message: 'Not an admin template');
 		}
 
 		// Delete placements first.
-		$this->placementMapper->deleteByDashboardId(dashboardId: $id);
+		$this->stores->placementMapper->deleteByDashboardId(dashboardId: $id);
 
 		// Delete template.
-		$this->dashboardMapper->delete(entity: $template);
+		$this->stores->dashboardMapper->delete(entity: $template);
 
 		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
 		// (REQ-CSC-001).
 		$deletedUuid = (string)$template->getUuid();
-		if ($this->eventDispatcher !== null && $deletedUuid !== '') {
-			$this->eventDispatcher->dispatchTyped(
+		if ($this->stores->eventDispatcher !== null && $deletedUuid !== '') {
+			$this->stores->eventDispatcher->dispatchTyped(
 				new DashboardDeletedEvent(
 					dashboardUuid: $deletedUuid,
 					ownerUserId:   (string)($template->getUserId() ?? ''),
@@ -459,7 +438,7 @@ class AdminTemplateService {
 
 		if (isset($data['isDefault']) === true) {
 			if ($data['isDefault'] === true) {
-				$this->dashboardMapper->clearDefaultTemplates();
+				$this->stores->dashboardMapper->clearDefaultTemplates();
 			}
 
 			$template->setIsDefault(
@@ -528,7 +507,7 @@ class AdminTemplateService {
 		?string $category = null,
 		string $sortBy = 'name',
 	): array {
-		$templates = $this->dashboardMapper->findAllTemplatesForGallery(
+		$templates = $this->stores->dashboardMapper->findAllTemplatesForGallery(
 			category: $category,
 			sortBy: $sortBy
 		);
@@ -543,7 +522,7 @@ class AdminTemplateService {
 				'category' => $template->getTemplateCategory(),
 				'previewImage' => $template->getTemplatePreviewImage(),
 				'gridColumns' => $template->getGridColumns(),
-				'widgetCount' => $this->placementMapper->countByDashboardId(
+				'widgetCount' => $this->stores->placementMapper->countByDashboardId(
 					dashboardId: $id
 				),
 				'lastUpdatedAt' => $template->getUpdatedAt(),
@@ -584,18 +563,18 @@ class AdminTemplateService {
 		string $templateUuid,
 		string $base64DataUrl,
 	): string {
-		if ($this->resourceService === null) {
+		if ($this->stores->resourceService === null) {
 			throw new RuntimeException(
 				message: 'ResourceService is not wired in'
 			);
 		}
 
-		$template = $this->dashboardMapper->findByUuid(uuid: $templateUuid);
+		$template = $this->stores->dashboardMapper->findByUuid(uuid: $templateUuid);
 		if ($template->getType() !== Dashboard::TYPE_ADMIN_TEMPLATE) {
 			throw new DoesNotExistException(msg: 'Not an admin template');
 		}
 
-		$resource = $this->resourceService->upload(
+		$resource = $this->stores->resourceService->upload(
 			base64DataUrl: $base64DataUrl
 		);
 
@@ -603,7 +582,7 @@ class AdminTemplateService {
 		$template->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
-		$this->dashboardMapper->update(entity: $template);
+		$this->stores->dashboardMapper->update(entity: $template);
 
 		return (string)$resource['url'];
 	}//end uploadPreviewImage()

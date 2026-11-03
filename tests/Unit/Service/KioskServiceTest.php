@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\KioskStores;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\KioskPlaylist;
@@ -75,13 +76,15 @@ class KioskServiceTest extends TestCase {
 		$this->placementMapper = $this->createMock(WidgetPlacementMapper::class);
 
 		$this->service = new KioskService(
-			playlistMapper: $this->playlistMapper,
-			dashMapper: $this->dashMapper,
-			shareService: $this->shareService,
+			stores: new KioskStores(
+				playlistMapper: $this->playlistMapper,
+				dashMapper: $this->dashMapper,
+				shareService: $this->shareService,
+				placementMapper: $this->placementMapper
+			),
 			groupManager: $this->groupManager,
 			secureRandom: $this->secureRandom,
-			logger: $this->logger,
-			placementMapper: $this->placementMapper,
+			logger: $this->logger
 		);
 	}
 

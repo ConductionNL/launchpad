@@ -28,6 +28,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -96,21 +101,31 @@ class DashboardServicePublicationTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $placementMapper,
-			settingMapper: $settingMapper,
-			templateService: $templateService,
-			dashboardFactory: $dashboardFactory,
-			dashResolver: $dashResolver,
-			treeService: $treeService,
-			groupManager: $this->groupManager,
-			adminTemplateService: $adminTemplateService,
-			db: $db,
-			config: $config,
-			l10nFactory: $l10nFactory,
-			logger: $logger,
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $placementMapper,
+				settingMapper: $settingMapper
+			),
+			builders: new DashboardBuilders(
+				templateService: $templateService,
+				dashboardFactory: $dashboardFactory,
+				dashResolver: $dashResolver,
+				adminTemplateService: $adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $treeService,
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $db,
+				config: $config,
+				l10nFactory: $l10nFactory
+			),
+			outlets: new DashboardOutlets(
+				logger: $logger
+			)
 		);
 	}//end setUp()
 

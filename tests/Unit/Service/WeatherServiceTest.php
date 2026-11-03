@@ -23,6 +23,7 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Service\ReadingSources;
 use OCA\LaunchPad\Service\WeatherService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -69,10 +70,12 @@ class WeatherServiceTest extends TestCase {
 	 */
 	private function service(): WeatherService {
 		return new WeatherService(
-			$this->appManager,
-			$this->container,
-			$this->clientService,
-			$this->cacheFactory,
+			new ReadingSources(
+				$this->appManager,
+				$this->container,
+				$this->clientService,
+				$this->cacheFactory,
+			),
 			$this->appConfig,
 			$this->placementMapper,
 			$this->config,

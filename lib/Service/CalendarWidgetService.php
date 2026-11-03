@@ -114,26 +114,20 @@ class CalendarWidgetService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppConfig $appConfig The app config reader.
-	 * @param ICacheFactory $cacheFactory Distributed cache factory.
-	 * @param IClientService $clientService HTTP client factory.
+	 * @param IAppConfig      $appConfig The app config reader.
+	 * @param FeedFetchTools  $fetch The HTTP client service, cache factory, URL validator and connection reporter.
 	 * @param LoggerInterface $logger Logger.
-	 * @param UrlSafetyValidator $urlValidator Shared SSRF / allow-list guard.
-	 * @param IManager|null $calendarMgr NC Calendar manager (optional).
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what an ICS fetch met, or nothing when absent.
+	 * @param IManager|null   $calendarMgr NC Calendar manager (optional).
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly IAppConfig $appConfig,
-		ICacheFactory $cacheFactory,
-		private readonly IClientService $clientService,
+		private readonly FeedFetchTools $fetch,
 		private readonly LoggerInterface $logger,
-		private readonly UrlSafetyValidator $urlValidator,
 		private readonly ?IManager $calendarMgr = null,
-		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
-		$this->cache = $cacheFactory->createDistributed(prefix: self::CACHE_NAMESPACE);
+		$this->cache = $this->fetch->cacheFactory->createDistributed(prefix: self::CACHE_NAMESPACE);
 	}//end __construct()
 
 	/**
@@ -402,7 +396,7 @@ class CalendarWidgetService {
 	 * @spec openspec/specs/calendar-widget/spec.md
 	 */
 	public function validateUrl(string $url): bool {
-		return $this->urlValidator->isSafe(url: $url);
+		return $this->fetch->urlValidator->isSafe(url: $url);
 	}//end validateUrl()
 
 	/**
@@ -419,7 +413,7 @@ class CalendarWidgetService {
 	 * @spec openspec/specs/calendar-widget/spec.md
 	 */
 	public function checkAllowList(string $url): bool {
-		return $this->urlValidator->checkAllowList(
+		return $this->fetch->urlValidator->checkAllowList(
 			url: $url,
 			appId: Application::APP_ID,
 			configKey: self::CONFIG_KEY_ALLOWED_HOSTS
@@ -464,7 +458,7 @@ class CalendarWidgetService {
 		}
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->fetch->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -476,15 +470,15 @@ class CalendarWidgetService {
 				]
 			);
 		} catch (Throwable $exception) {
-			$this->connectionReporter?->reportCall(
+			$this->fetch->connectionReporter?->reportCall(
 				key: ConnectionReporter::KEY_ICS_CALENDARS,
 				url: $url,
-				httpStatus: $this->connectionReporter->httpStatusOf(exception: $exception)
+				httpStatus: $this->fetch->connectionReporter->httpStatusOf(exception: $exception)
 			);
 			throw $exception;
 		}
 
-		$this->connectionReporter?->reportCall(
+		$this->fetch->connectionReporter?->reportCall(
 			key: ConnectionReporter::KEY_ICS_CALENDARS,
 			url: $url,
 			httpStatus: (int)$response->getStatusCode()

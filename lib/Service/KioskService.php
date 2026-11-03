@@ -93,22 +93,16 @@ class KioskService {
 	/**
 	 * Constructor.
 	 *
-	 * @param KioskPlaylistMapper $playlistMapper Mapper for kiosk playlists.
-	 * @param DashboardMapper $dashMapper Dashboard mapper for existence/ownership.
-	 * @param PublicShareService $shareService Reused owner-or-admin authorization rule.
-	 * @param IGroupManager $groupManager NC group manager for admin scoping.
-	 * @param ISecureRandom $secureRandom CSPRNG for token generation.
+	 * @param KioskStores     $stores The playlist, dashboard and placement mappers and the share service.
+	 * @param IGroupManager   $groupManager NC group manager for admin scoping.
+	 * @param ISecureRandom   $secureRandom CSPRNG for token generation.
 	 * @param LoggerInterface $logger PSR-3 logger.
-	 * @param WidgetPlacementMapper $placementMapper Placements of each played dashboard.
 	 */
 	public function __construct(
-		private readonly KioskPlaylistMapper $playlistMapper,
-		private readonly DashboardMapper $dashMapper,
-		private readonly PublicShareService $shareService,
+		private readonly KioskStores $stores,
 		private readonly IGroupManager $groupManager,
 		private readonly ISecureRandom $secureRandom,
 		private readonly LoggerInterface $logger,
-		private readonly WidgetPlacementMapper $placementMapper,
 	) {
 	}//end __construct()
 
@@ -156,7 +150,7 @@ class KioskService {
 		$playlist->setCreatedAt((new DateTime())->format('Y-m-d H:i:s'));
 		// phpcs:enable CustomSn.Functions.NamedParameters
 
-		$saved = $this->playlistMapper->insert(entity: $playlist);
+		$saved = $this->stores->playlistMapper->insert(entity: $playlist);
 
 		$this->logger->debug(
 			message: sprintf('launchpad: kiosk playlist created by %s', $callerId),
@@ -206,8 +200,8 @@ class KioskService {
 		$playlist->setRefreshSeconds($this->clampRefresh(refresh: $refresh));
 		// phpcs:enable CustomSn.Functions.NamedParameters
 
-		$saved = $this->playlistMapper->update(entity: $playlist);
-		return $this->playlistMapper->findById(id: (int)$saved->getId());
+		$saved = $this->stores->playlistMapper->update(entity: $playlist);
+		return $this->stores->playlistMapper->findById(id: (int)$saved->getId());
 	}//end updatePlaylist()
 
 	/**
@@ -224,10 +218,10 @@ class KioskService {
 	 */
 	public function listPlaylists(string $callerId): array {
 		if ($this->groupManager->isAdmin(userId: $callerId) === true) {
-			return $this->playlistMapper->findAllActive();
+			return $this->stores->playlistMapper->findAllActive();
 		}
 
-		return $this->playlistMapper->findByCreator(createdBy: $callerId);
+		return $this->stores->playlistMapper->findByCreator(createdBy: $callerId);
 	}//end listPlaylists()
 
 	/**
@@ -248,7 +242,7 @@ class KioskService {
 	 */
 	public function revokePlaylist(int $id, string $callerId): void {
 		$playlist = $this->resolveOwnedPlaylist(id: $id, callerId: $callerId);
-		$this->playlistMapper->softRevoke(id: (int)$playlist->getId());
+		$this->stores->playlistMapper->softRevoke(id: (int)$playlist->getId());
 	}//end revokePlaylist()
 
 	/**
@@ -270,7 +264,7 @@ class KioskService {
 	 */
 	public function renderPlaylist(string $token): array {
 		try {
-			$playlist = $this->playlistMapper->findByToken(token: $token);
+			$playlist = $this->stores->playlistMapper->findByToken(token: $token);
 		} catch (DoesNotExistException) {
 			throw new PlaylistNotFoundException();
 		}
@@ -278,7 +272,7 @@ class KioskService {
 		$rendered = [];
 		foreach ($playlist->getEntriesArray() as $entry) {
 			try {
-				$dashboard = $this->dashMapper->findByUuid(
+				$dashboard = $this->stores->dashMapper->findByUuid(
 					uuid: $entry['dashboardUuid']
 				);
 			} catch (DoesNotExistException) {
@@ -288,7 +282,7 @@ class KioskService {
 
 			// The screen shows the widgets, so each entry carries the
 			// dashboard's placements, as the public share render does.
-			$placements = $this->placementMapper->findByDashboardId(
+			$placements = $this->stores->placementMapper->findByDashboardId(
 				dashboardId: (int)$dashboard->getId()
 			);
 
@@ -341,7 +335,7 @@ class KioskService {
 			}
 
 			try {
-				$dashboard = $this->dashMapper->findByUuid(uuid: $uuid);
+				$dashboard = $this->stores->dashMapper->findByUuid(uuid: $uuid);
 			} catch (DoesNotExistException) {
 				// Treat a missing dashboard as a permission failure to avoid
 				// leaking which UUIDs exist (matches public-share 404/403 model).
@@ -351,7 +345,7 @@ class KioskService {
 			// Reuse the dashboard-public-share owner-or-admin rule: the
 			// playlist token grants anonymous read, so the caller must be
 			// allowed to share each dashboard (REQ-PSHR-001).
-			$this->shareService->authorizeShareMutation(
+			$this->stores->shareService->authorizeShareMutation(
 				dashboard: $dashboard,
 				userId: $callerId
 			);
@@ -383,7 +377,7 @@ class KioskService {
 	 */
 	private function resolveOwnedPlaylist(int $id, string $callerId): KioskPlaylist {
 		try {
-			$playlist = $this->playlistMapper->findById(id: $id);
+			$playlist = $this->stores->playlistMapper->findById(id: $id);
 		} catch (DoesNotExistException) {
 			throw new PlaylistNotFoundException();
 		}

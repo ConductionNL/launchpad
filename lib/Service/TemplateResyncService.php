@@ -37,6 +37,8 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\BackgroundJob\TemplateResyncJob;
 use OCA\LaunchPad\Db\Dashboard;
@@ -95,53 +97,20 @@ class TemplateResyncService {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param IDBConnection $db DB connection —
-	 *                          used for the
-	 *                          per-copy
-	 *                          transaction
-	 *                          boundary.
-	 * @param ActivityPublisher $activityPublisher Audit-trail
-	 *                                             publisher
-	 *                                             (REQ-RESYNC-005).
-	 * @param INotificationManager $notificationManager Nextcloud
-	 *                                                  notification
-	 *                                                  manager — used
-	 *                                                  for the
-	 *                                                  per-user
-	 *                                                  "your dashboard
-	 *                                                  was updated"
-	 *                                                  notification.
-	 *                                                  Canonical
-	 *                                                  fallback per
-	 *                                                  REQ-RESYNC-005;
-	 *                                                  this app has no
-	 *                                                  OpenRegister
-	 *                                                  dependency
-	 *                                                  (see the
-	 *                                                  admin-templates
-	 *                                                  storage
-	 *                                                  policy), so the
-	 *                                                  `x-openregister-
-	 *                                                  notifications`
-	 *                                                  branch is not
-	 *                                                  wired in.
-	 * @param IJobList $jobList Background job
-	 *                          list — used to
-	 *                          enqueue
-	 *                          {@see TemplateResyncJob}
-	 *                          for large
-	 *                          target groups.
-	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param ResyncStores         $stores The dashboard and placement mappers, the database and the job list.
+	 * @param ActivityPublisher    $activityPublisher Audit-trail publisher (REQ-RESYNC-005).
+	 * @param INotificationManager $notificationManager Nextcloud notification manager — used for the per-user
+	 *                                                  "your dashboard was updated" notification. Canonical
+	 *                                                  fallback per REQ-RESYNC-005; this app has no
+	 *                                                  OpenRegister dependency (see the admin-templates
+	 *                                                  storage policy), so the `x-openregister-
+	 *                                                  notifications` branch is not wired in.
+	 * @param LoggerInterface      $logger PSR-3 logger.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly IDBConnection $db,
+		private readonly ResyncStores $stores,
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly INotificationManager $notificationManager,
-		private readonly IJobList $jobList,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -190,7 +159,7 @@ class TemplateResyncService {
 		}
 
 		$totalCopies = count(
-			$this->dashboardMapper->findByBasedOnTemplate(
+			$this->stores->dashboardMapper->findByBasedOnTemplate(
 				templateId: $templateId
 			)
 		);
@@ -201,7 +170,7 @@ class TemplateResyncService {
 				strategy: $strategy
 			);
 
-			$this->jobList->add(
+			$this->stores->jobList->add(
 				TemplateResyncJob::class,
 				[
 					'templateId' => $templateId,
@@ -246,10 +215,10 @@ class TemplateResyncService {
 	 */
 	public function planResync(int $templateId, string $strategy): array {
 		$template = $this->getValidatedTemplate(templateId: $templateId);
-		$templatePlacements = $this->placementMapper->findByDashboardId(
+		$templatePlacements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $template->getId()
 		);
-		$copies = $this->dashboardMapper->findByBasedOnTemplate(
+		$copies = $this->stores->dashboardMapper->findByBasedOnTemplate(
 			templateId: $templateId
 		);
 
@@ -257,7 +226,7 @@ class TemplateResyncService {
 		$affectedCount = 0;
 
 		foreach ($copies as $copy) {
-			$copyPlacements = $this->placementMapper->findByDashboardId(
+			$copyPlacements = $this->stores->placementMapper->findByDashboardId(
 				dashboardId: $copy->getId()
 			);
 			$diff = $this->diffCopy(
@@ -317,10 +286,10 @@ class TemplateResyncService {
 		string $actingAdminId,
 	): array {
 		$template = $this->getValidatedTemplate(templateId: $templateId);
-		$templatePlacements = $this->placementMapper->findByDashboardId(
+		$templatePlacements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $template->getId()
 		);
-		$copies = $this->dashboardMapper->findByBasedOnTemplate(
+		$copies = $this->stores->dashboardMapper->findByBasedOnTemplate(
 			templateId: $templateId
 		);
 
@@ -329,7 +298,7 @@ class TemplateResyncService {
 		$notifyDashboards = [];
 
 		foreach ($copies as $copy) {
-			$copyPlacements = $this->placementMapper->findByDashboardId(
+			$copyPlacements = $this->stores->placementMapper->findByDashboardId(
 				dashboardId: $copy->getId()
 			);
 			$diff = $this->diffCopy(
@@ -404,11 +373,11 @@ class TemplateResyncService {
 	 * @return string|null The failure message, or null on success.
 	 */
 	private function applyDiffToCopy(Dashboard $copy, array $diff): ?string {
-		$this->db->beginTransaction();
+		$this->stores->db->beginTransaction();
 
 		try {
 			foreach ($diff['toAdd'] as $templatePlacement) {
-				$this->placementMapper->insert(
+				$this->stores->placementMapper->insert(
 					entity: $this->cloneTemplatePlacementInto(
 						template: $templatePlacement,
 						dashboardId: $copy->getId()
@@ -421,16 +390,16 @@ class TemplateResyncService {
 					copy: $pair['copy'],
 					template: $pair['template']
 				);
-				$this->placementMapper->update(entity: $pair['copy']);
+				$this->stores->placementMapper->update(entity: $pair['copy']);
 			}
 
 			foreach ($diff['toRemove'] as $copyPlacement) {
-				$this->placementMapper->delete(entity: $copyPlacement);
+				$this->stores->placementMapper->delete(entity: $copyPlacement);
 			}
 
-			$this->db->commit();
+			$this->stores->db->commit();
 		} catch (Throwable $t) {
-			$this->db->rollBack();
+			$this->stores->db->rollBack();
 			$this->logger->error(
 				message: 'launchpad.template_resync.copy_apply_failed',
 				context: [
@@ -784,7 +753,7 @@ class TemplateResyncService {
 	 */
 	private function getValidatedTemplate(int $templateId): Dashboard {
 		try {
-			$template = $this->dashboardMapper->find(id: $templateId);
+			$template = $this->stores->dashboardMapper->find(id: $templateId);
 		} catch (DoesNotExistException $e) {
 			throw new InvalidArgumentException(
 				message: 'Not an admin template',
@@ -864,13 +833,13 @@ class TemplateResyncService {
 		string $actingAdminId,
 	): void {
 		try {
-			$this->activityPublisher->publish(
+			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $actingAdminId,
-				recipientUserId: $actingAdminId,
-				dashboardUuid: 'template-resync-' . $templateId,
-				dashboardName: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)',
-				dashboardLink: '',
+				dashboard: new ActivitySubject(
+					uuid: 'template-resync-' . $templateId,
+					name: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)'
+				),
 				extraParams: [
 					'templateResync' => true,
 					'templateId' => $templateId,
@@ -878,6 +847,7 @@ class TemplateResyncService {
 					'affectedCount' => $affectedCount,
 				]
 			);
+			$this->activityPublisher->publish(row: $row, recipientUserId: $actingAdminId);
 		} catch (Throwable $t) {
 			$this->logger->warning(
 				message: 'launchpad.template_resync.audit_event_failed',

@@ -163,7 +163,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		if ($this->isBlank(value: $languageCode) === true) {
-			return self::invalidArgument(
+			return ResponseHelper::invalidArgument(
 				message: DashboardTranslationService::ERR_INVALID_LANGUAGE
 			);
 		}
@@ -183,7 +183,7 @@ class DashboardTranslationApiController extends Controller {
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (InvalidArgumentException $e) {
-			return self::invalidArgument(message: $e->getMessage());
+			return ResponseHelper::invalidArgument(message: $e->getMessage());
 		} catch (Exception $e) {
 			return $this->mapCreateFailure(exception: $e);
 		}//end try
@@ -202,24 +202,6 @@ class DashboardTranslationApiController extends Controller {
 	private function isBlank(?string $value): bool {
 		return ($value === null || $value === '');
 	}//end isBlank()
-
-	/**
-	 * Build the shared HTTP 400 invalid-argument envelope.
-	 *
-	 * @param string $message The validation message.
-	 *
-	 * @return JSONResponse The 400 response.
-	 */
-	private static function invalidArgument(string $message): JSONResponse {
-		return new JSONResponse(
-			data: [
-				'status' => 'error',
-				'error' => 'invalid_argument',
-				'message' => $message,
-			],
-			statusCode: Http::STATUS_BAD_REQUEST
-		);
-	}//end invalidArgument()
 
 	/**
 	 * Map a create-variant failure onto its HTTP envelope.

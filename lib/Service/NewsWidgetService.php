@@ -114,30 +114,19 @@ class NewsWidgetService {
 	 * Constructor.
 	 *
 	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param IClientService $clientService Builds the HTTP client used
-	 *                                      for synchronous on-demand
-	 *                                      feed fetches.
-	 * @param IAppConfig $appConfig Reads admin settings:
-	 *                              `news_widget_feed_cache_ttl_seconds`
-	 *                              and
-	 *                              `news_widget_allowed_feed_hosts`.
-	 * @param ICacheFactory $cacheFactory Backing factory for the
-	 *                                    distributed cache used to
-	 *                                    hold raw feed payloads.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param UrlSafetyValidator $urlValidator Shared SSRF / allow-list guard.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a feed fetch met, or nothing when absent.
+	 * @param FeedFetchTools        $fetch The HTTP client service, cache factory, URL validator and
+	 *                                     connection reporter.
+	 * @param IAppConfig            $appConfig Reads admin settings: `news_widget_feed_cache_ttl_seconds` and
+	 *                                         `news_widget_allowed_feed_hosts`.
+	 * @param LoggerInterface       $logger PSR logger.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly IClientService $clientService,
+		private readonly FeedFetchTools $fetch,
 		private readonly IAppConfig $appConfig,
-		private readonly ICacheFactory $cacheFactory,
 		private readonly LoggerInterface $logger,
-		private readonly UrlSafetyValidator $urlValidator,
-		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
 
@@ -432,7 +421,7 @@ class NewsWidgetService {
 			// C1: SSRF guard — reject non-HTTPS, private IPs, and any host
 			// not in the admin allow-list (default-deny when list is
 			// non-empty; open when list is empty per REQ-NEWS-006).
-			if ($this->urlValidator->isSafe(url: $url) === false) {
+			if ($this->fetch->urlValidator->isSafe(url: $url) === false) {
 				$this->logger->warning(
 					message: 'NewsWidget: URL rejected by SSRF guard',
 					context: ['url' => $url]
@@ -774,7 +763,7 @@ class NewsWidgetService {
 	 * @spec openspec/specs/news-widget/spec.md
 	 */
 	public function checkAllowList(string $url): bool {
-		return $this->urlValidator->checkAllowList(
+		return $this->fetch->urlValidator->checkAllowList(
 			url: $url,
 			appId: Application::APP_ID,
 			configKey: self::CONFIG_KEY_ALLOWED_HOSTS
@@ -850,7 +839,7 @@ class NewsWidgetService {
 		}
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->fetch->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -869,11 +858,11 @@ class NewsWidgetService {
 				$this->logger->warning(
 					message: 'NewsWidget: feed fetch returned HTTP ' . $statusCode . ' for ' . $url
 				);
-				$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
+				$this->fetch->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
 				return null;
 			}
 
-			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
+			$this->fetch->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
 
 			$body = (string)$response->getBody();
 			if ($body === '') {
@@ -903,10 +892,10 @@ class NewsWidgetService {
 				message: 'NewsWidget: feed fetch failed for ' . $url,
 				context: ['exception' => $e]
 			);
-			$this->connectionReporter?->reportCall(
+			$this->fetch->connectionReporter?->reportCall(
 				key: ConnectionReporter::KEY_NEWS_FEEDS,
 				url: $url,
-				httpStatus: $this->connectionReporter->httpStatusOf(exception: $e)
+				httpStatus: $this->fetch->connectionReporter->httpStatusOf(exception: $e)
 			);
 			return null;
 		}//end try
@@ -951,7 +940,7 @@ class NewsWidgetService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_news_');
+			$this->cache = $this->fetch->cacheFactory->createDistributed(prefix: 'launchpad_news_');
 		} catch (Throwable $e) {
 			$this->logger->info(
 				message: 'NewsWidget: cache subsystem unavailable, falling back to direct fetch',

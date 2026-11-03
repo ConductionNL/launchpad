@@ -34,6 +34,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\BulkOperationService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
@@ -41,9 +42,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Bulk admin endpoints for dashboards (REQ-BULK-001..011).
@@ -56,42 +55,15 @@ class AdminBulkController extends Controller {
 	 *
 	 * @param IRequest $request The current request.
 	 * @param BulkOperationService $bulkService The bulk service.
-	 * @param IUserSession $userSession The user session.
-	 * @param IGroupManager $groupManager NC group manager for inline admin guard.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly BulkOperationService $bulkService,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * Inline admin guard — returns a 401/403 JSONResponse when the caller
-	 * is not authenticated or not an NC admin, or null when the guard passes.
-	 *
-	 * @return JSONResponse|null Non-null means the request must be rejected.
-	 */
-	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end assertAdmin()
 
 	/**
 	 * `POST /api/admin/dashboards/bulk-delete` — REQ-BULK-001.
@@ -110,7 +82,7 @@ class AdminBulkController extends Controller {
 		?bool $dryRun = null,
 		?bool $cascade = null,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -120,7 +92,7 @@ class AdminBulkController extends Controller {
 			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 		$doCascade = $this->resolveBool(value: $cascade, queryKey: 'cascade');
 
@@ -164,7 +136,7 @@ class AdminBulkController extends Controller {
 		?string $parentUuid = null,
 		?bool $dryRun = null,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -174,7 +146,7 @@ class AdminBulkController extends Controller {
 			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
 		try {
@@ -218,7 +190,7 @@ class AdminBulkController extends Controller {
 		?string $publishAt = null,
 		?bool $dryRun = null,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -232,7 +204,7 @@ class AdminBulkController extends Controller {
 			return ResponseHelper::failure(message: 'publicationStatus is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
 		try {
@@ -273,7 +245,7 @@ class AdminBulkController extends Controller {
 		mixed $dashboardUuids = null,
 		?bool $dryRun = null,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -283,7 +255,7 @@ class AdminBulkController extends Controller {
 			return ResponseHelper::failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
 		try {

@@ -10,7 +10,7 @@
  *   - `POST   /api/admin/demo-showcases/{id}/install`
  *   - `DELETE /api/admin/demo-showcases/{id}`
  *
- * Admin enforcement uses the same {@see IGroupManager::isAdmin} runtime
+ * Admin enforcement uses the same {@see \OCP\IGroupManager::isAdmin} runtime
  * gate as the sibling `dashboard-export-import` controller — the
  * request-attribute alone is not sufficient (per Hydra semantic-auth
  * gate).
@@ -33,14 +33,13 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 use Throwable;
 
 /**
@@ -52,41 +51,15 @@ class AdminDemoShowcasesController extends Controller {
 	 *
 	 * @param IRequest      $request The HTTP request.
 	 * @param ShowcaseTools $showcases The showcase service and logger.
-	 * @param IUserSession  $userSession Active user session.
-	 * @param IGroupManager $groupManager Admin check.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ShowcaseTools $showcases,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * Inline admin guard.
-	 *
-	 * @return JSONResponse|null Non-null = caller must be rejected.
-	 */
-	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end assertAdmin()
 
 	/**
 	 * List bundled showcases with installation status (REQ-DEMO-002).
@@ -97,7 +70,7 @@ class AdminDemoShowcasesController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -131,7 +104,7 @@ class AdminDemoShowcasesController extends Controller {
 		string $lang = 'nl',
 		bool $force = false,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -184,7 +157,7 @@ class AdminDemoShowcasesController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function destroy(string $id): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}

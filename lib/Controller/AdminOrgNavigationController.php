@@ -35,6 +35,7 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\OrgNavigationService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -42,8 +43,6 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
-use OCP\IGroupManager;
 use OCP\IRequest;
 
 /**
@@ -78,41 +77,15 @@ class AdminOrgNavigationController extends Controller {
 	 *
 	 * @param IRequest             $request Inbound request.
 	 * @param OrgNavigationSources $sources The org navigation service and the admin setting mapper.
-	 * @param RequestActor         $actor The user session and the action authorisation service.
-	 * @param IGroupManager        $groupManager Admin check for write endpoints.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly OrgNavigationSources $sources,
-		private readonly RequestActor $actor,
-		private readonly IGroupManager $groupManager,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * Inline admin guard (returns null when the caller is an NC admin).
-	 *
-	 * @return JSONResponse|null Non-null = caller must be rejected.
-	 */
-	private function assertAdmin(): ?JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end assertAdmin()
 
 	/**
 	 * Read the org-navigation tree filtered for the current user.
@@ -128,15 +101,9 @@ class AdminOrgNavigationController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actor->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'admin-org-navigation.get-org-navigation');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$language = $this->validateLanguage(language: $lang);
@@ -147,7 +114,7 @@ class AdminOrgNavigationController extends Controller {
 		$tree = $this->sources->service->getTree(language: $language);
 		$filtered = $this->sources->service->filterTreeByUserGroups(
 			tree: $tree,
-			userId: $user->getUID()
+			userId: (string)$this->guard->userSession->getUser()?->getUID()
 		);
 
 		return ResponseHelper::success(
@@ -175,7 +142,7 @@ class AdminOrgNavigationController extends Controller {
 		?array $tree = null,
 		string $lang = OrgNavigationService::DEFAULT_LANGUAGE,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -212,15 +179,9 @@ class AdminOrgNavigationController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getPosition(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actor->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'admin-org-navigation.get-position');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return ResponseHelper::success(
@@ -241,7 +202,7 @@ class AdminOrgNavigationController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updatePosition(?string $position = null): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}

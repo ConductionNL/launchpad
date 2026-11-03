@@ -26,14 +26,13 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 use Throwable;
 
 /**
@@ -56,41 +55,15 @@ class AdminShippedTemplateController extends Controller {
 	 *
 	 * @param IRequest             $request The request.
 	 * @param ShippedTemplateTools $tools The shipped template and update services and the logger.
-	 * @param IUserSession         $userSession The user session.
-	 * @param IGroupManager        $groupManager The group manager.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ShippedTemplateTools $tools,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * The signed-in administrator's id, or a refusal.
-	 *
-	 * @return string|JSONResponse The user id, or the 401/403 to return.
-	 */
-	private function requireAdmin(): string|JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return $user->getUID();
-	}//end requireAdmin()
 
 	/**
 	 * List the shipped templates with whether each is installed.
@@ -101,7 +74,7 @@ class AdminShippedTemplateController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		$admin = $this->requireAdmin();
+		$admin = $this->guard->adminId();
 		if ($admin instanceof JSONResponse) {
 			return $admin;
 		}
@@ -121,7 +94,7 @@ class AdminShippedTemplateController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function install(string $id, bool $force = false): JSONResponse {
-		$admin = $this->requireAdmin();
+		$admin = $this->guard->adminId();
 		if ($admin instanceof JSONResponse) {
 			return $admin;
 		}
@@ -161,7 +134,7 @@ class AdminShippedTemplateController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function update(string $id, bool $dryRun = false): JSONResponse {
-		$admin = $this->requireAdmin();
+		$admin = $this->guard->adminId();
 		if ($admin instanceof JSONResponse) {
 			return $admin;
 		}

@@ -23,6 +23,7 @@ namespace Unit\Controller;
 
 use OCA\LaunchPad\Controller\ShowcaseTools;
 use OCA\LaunchPad\Controller\AdminDemoShowcasesController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
 use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCP\AppFramework\Http;
@@ -33,6 +34,7 @@ use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 class AdminDemoShowcasesControllerTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -61,8 +63,7 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 				showcasesSvc: $this->service,
 				logger: new NullLogger()
 			),
-			groupManager: $this->groupManager,
-			userSession: $this->userSession
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 		);
 	}
 

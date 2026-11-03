@@ -74,6 +74,7 @@ import {
 	OBJECT_PROP,
 } from '../../../constants/propDefinitions.js'
 import { fetchWeatherReading } from '../../../services/weatherClient.js'
+import { loadPlacementReading } from '../../../utils/placementReading.js'
 
 /**
  * Maps a normalised `condition` code (returned by `WeatherService`) to an
@@ -235,87 +236,24 @@ export default {
 		 * @return {Promise<void>}
 		 */
 		async load() {
-			const placementId = this.placement?.id
-			if (placementId === undefined || placementId === null) {
-				this.loading = false
-				this.errorMessage = t(
+			await loadPlacementReading(this, {
+				placementId: this.placement?.id,
+				fetch: fetchWeatherReading,
+				unsaved: t(
 					'launchpad',
 					'Weather is not available until this tile is saved.',
-				)
-				return
-			}
-
-			this.loading = true
-			this.errorMessage = ''
-			try {
-				const data = await fetchWeatherReading(placementId)
-				if (data && data.error) {
-					this.reading = null
-					this.errorMessage = t(
-						'launchpad',
-						'Weather is currently unavailable.',
-					)
-					return
-				}
-				this.reading = data
-			} catch {
-				this.reading = null
-				this.errorMessage = t('launchpad', 'Failed to load weather.')
-			} finally {
-				this.loading = false
-			}
+				),
+				unavailable: t('launchpad', 'Weather is currently unavailable.'),
+				failed: t('launchpad', 'Failed to load weather.'),
+			})
 		},
 	},
 }
 </script>
 
+<style scoped src="./readingTile.css"></style>
+
 <style scoped>
-.weather-widget {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.weather-widget__state {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	color: var(--color-text-maxcontrast, var(--color-main-text));
-	text-align: center;
-}
-
-.weather-widget__retry {
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-	background: transparent;
-	padding: 4px 12px;
-	cursor: pointer;
-	color: var(--color-main-text);
-}
-
-.weather-widget__reading {
-	position: relative;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 4px;
-}
-
-.weather-widget__badge {
-	position: absolute;
-	top: -8px;
-	right: -8px;
-	font-size: 0.7rem;
-	padding: 2px 6px;
-	border-radius: var(--border-radius-pill, 8px);
-	background: var(--color-warning, #ffcc00);
-	color: var(--color-main-text);
-}
-
 .weather-widget__location {
 	font-weight: 600;
 	color: var(--color-main-text);

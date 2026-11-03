@@ -138,7 +138,9 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$this->service->createDashboard(
 			userId: 'alice',
 			name: 'My Dashboard',
-			seedDefaults: true
+			options: [
+				'seedDefaults' => true,
+			]
 		);
 
 		$this->assertCount(4, $captured);

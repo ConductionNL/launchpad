@@ -1,0 +1,901 @@
+{
+    "createDashboard minimal": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "board"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Board",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "board",
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": null
+    },
+    "createDashboard description": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "board"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Board",
+                    "description": "About",
+                    "icon": null,
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "board",
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": null
+    },
+    "createDashboard icon": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "board"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Board",
+                    "description": null,
+                    "icon": "star",
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "board",
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": "star"
+    },
+    "createDashboard empty icon": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "board"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Board",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "board",
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": null
+    },
+    "createDashboard tree": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    "p-1"
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    "p-1",
+                    "kid"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Child",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": "p-1",
+                    "slug": "kid",
+                    "sortOrder": 3,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": null
+    },
+    "createDashboard no slug": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "***",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": null,
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": null
+    },
+    "createDashboard seeded": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "seeded"
+                ]
+            },
+            {
+                "deactivateAllForUser": "bob"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Seeded",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "bob",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "seeded",
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    0,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    4,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    8,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "files",
+                    0,
+                    3,
+                    12,
+                    5
+                ]
+            }
+        ],
+        "icon": null
+    },
+    "createDashboard not seeded": {
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "plain"
+                ]
+            },
+            {
+                "deactivateAllForUser": "bob"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Plain",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "bob",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "plain",
+                    "sortOrder": 0,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            }
+        ],
+        "icon": null
+    },
+    "controller create": {
+        "status": 201,
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    "p-9"
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    "p-9",
+                    "posted"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Posted",
+                    "description": "p",
+                    "icon": "i",
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": "p-9",
+                    "slug": "posted",
+                    "sortOrder": 2,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    0,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    4,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    8,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "files",
+                    0,
+                    3,
+                    12,
+                    5
+                ]
+            }
+        ]
+    },
+    "controller create body": {
+        "status": 201,
+        "log": [
+            {
+                "validateParent": [
+                    null,
+                    null
+                ]
+            },
+            {
+                "validateSlugUnique": [
+                    null,
+                    "body"
+                ]
+            },
+            {
+                "deactivateAllForUser": "alice"
+            },
+            {
+                "insert": {
+                    "id": null,
+                    "name": "Body",
+                    "description": null,
+                    "icon": null,
+                    "type": "user",
+                    "userId": "alice",
+                    "groupId": null,
+                    "basedOnTemplate": null,
+                    "gridColumns": 12,
+                    "permissionLevel": "full",
+                    "targetGroups": [],
+                    "isDefault": 0,
+                    "isActive": 1,
+                    "commentsEnabled": null,
+                    "reactionsEnabled": null,
+                    "parentUuid": null,
+                    "slug": "body",
+                    "sortOrder": 5,
+                    "publicationStatus": "draft",
+                    "publishAt": null,
+                    "publishedAt": null,
+                    "unpublishAt": null,
+                    "dashboardFooterMode": "inherit",
+                    "dashboardFooterHtml": null,
+                    "templateCategory": null,
+                    "templateDescription": null,
+                    "templatePreviewImage": null
+                }
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    0,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    4,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "tile",
+                    8,
+                    0,
+                    4,
+                    3
+                ]
+            },
+            {
+                "placement": [
+                    54,
+                    "files",
+                    0,
+                    3,
+                    12,
+                    5
+                ]
+            }
+        ]
+    },
+    "createGroupShared": [
+        {
+            "insert": {
+                "id": null,
+                "name": "Team",
+                "description": "d",
+                "icon": null,
+                "type": "group_shared",
+                "userId": null,
+                "groupId": "staff",
+                "basedOnTemplate": null,
+                "gridColumns": 8,
+                "permissionLevel": "view_only",
+                "targetGroups": [],
+                "isDefault": 0,
+                "isActive": 0,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "parentUuid": null,
+                "slug": "team",
+                "sortOrder": 0,
+                "publicationStatus": "draft",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            }
+        }
+    ],
+    "createGroupShared defaults": [
+        {
+            "insert": {
+                "id": null,
+                "name": "Team",
+                "description": null,
+                "icon": null,
+                "type": "group_shared",
+                "userId": null,
+                "groupId": "staff",
+                "basedOnTemplate": null,
+                "gridColumns": 12,
+                "permissionLevel": "view_only",
+                "targetGroups": [],
+                "isDefault": 0,
+                "isActive": 0,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "parentUuid": null,
+                "slug": "team",
+                "sortOrder": 0,
+                "publicationStatus": "draft",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            }
+        }
+    ],
+    "ensureDefaultDashboard": [
+        {
+            "insert": {
+                "id": null,
+                "name": "Dashboard",
+                "description": "The dashboard everyone starts on. Edit it to change what your whole organisation sees.",
+                "icon": null,
+                "type": "group_shared",
+                "userId": null,
+                "groupId": "default",
+                "basedOnTemplate": null,
+                "gridColumns": 12,
+                "permissionLevel": "view_only",
+                "targetGroups": [],
+                "isDefault": 1,
+                "isActive": 0,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "parentUuid": null,
+                "slug": "dashboard",
+                "sortOrder": 0,
+                "publicationStatus": "published",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            }
+        },
+        {
+            "placement": [
+                51,
+                "tile",
+                0,
+                0,
+                4,
+                3
+            ]
+        },
+        {
+            "placement": [
+                51,
+                "tile",
+                4,
+                0,
+                4,
+                3
+            ]
+        },
+        {
+            "placement": [
+                51,
+                "tile",
+                8,
+                0,
+                4,
+                3
+            ]
+        },
+        {
+            "placement": [
+                51,
+                "files",
+                0,
+                3,
+                12,
+                5
+            ]
+        }
+    ],
+    "persistFork": [
+        {
+            "deactivateAllForUser": "carol"
+        },
+        {
+            "insert": {
+                "id": null,
+                "name": "My copy",
+                "description": "src",
+                "icon": null,
+                "type": "user",
+                "userId": "carol",
+                "groupId": null,
+                "basedOnTemplate": null,
+                "gridColumns": 6,
+                "permissionLevel": "full",
+                "targetGroups": [],
+                "isDefault": 0,
+                "isActive": 1,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "parentUuid": null,
+                "slug": "my-copy",
+                "sortOrder": 0,
+                "publicationStatus": "draft",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            }
+        },
+        {
+            "clone": [
+                9,
+                52
+            ]
+        }
+    ],
+    "tryCreateFromTemplate": [
+        {
+            "validateSlugUnique": [
+                null,
+                "my-dashboard"
+            ]
+        },
+        {
+            "validateParent": [
+                null,
+                null
+            ]
+        },
+        {
+            "validateSlugUnique": [
+                null,
+                "my-dashboard"
+            ]
+        },
+        {
+            "deactivateAllForUser": "dave"
+        },
+        {
+            "insert": {
+                "id": null,
+                "name": "My Dashboard",
+                "description": null,
+                "icon": null,
+                "type": "user",
+                "userId": "dave",
+                "groupId": null,
+                "basedOnTemplate": null,
+                "gridColumns": 12,
+                "permissionLevel": "full",
+                "targetGroups": [],
+                "isDefault": 0,
+                "isActive": 1,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "parentUuid": null,
+                "slug": "my-dashboard",
+                "sortOrder": 0,
+                "publicationStatus": "draft",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            }
+        },
+        {
+            "placement": [
+                55,
+                "tile",
+                0,
+                0,
+                4,
+                3
+            ]
+        },
+        {
+            "placement": [
+                55,
+                "tile",
+                4,
+                0,
+                4,
+                3
+            ]
+        },
+        {
+            "placement": [
+                55,
+                "tile",
+                8,
+                0,
+                4,
+                3
+            ]
+        },
+        {
+            "placement": [
+                55,
+                "files",
+                0,
+                3,
+                12,
+                5
+            ]
+        }
+    ]
+}

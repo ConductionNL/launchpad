@@ -73,6 +73,18 @@ use Throwable;
  */
 class DashboardService {
 	/**
+	 * The optional createDashboard() fields and their defaults.
+	 */
+	private const CREATE_DEFAULTS = [
+		'description'  => null,
+		'icon'         => null,
+		'parentUuid'   => null,
+		'slug'         => null,
+		'sortOrder'    => 0,
+		'seedDefaults' => false,
+	];
+
+	/**
 	 * HTTP-like error message for non-admin attempting an admin-only mutation.
 	 *
 	 * @var string
@@ -716,44 +728,26 @@ class DashboardService {
 	 *
 	 * @param string $userId The user ID.
 	 * @param string $name The dashboard name.
-	 * @param string|null $description The dashboard description.
-	 * @param string|null $icon Opaque icon identifier (registry
-	 *                          key or URL); see the
-	 *                          `dashboard-icons` capability.
-	 * @param string|null $parentUuid Optional parent dashboard UUID
-	 *                                (REQ-DASH-023). NULL ⇒ root.
-	 * @param string|null $slug Optional caller-supplied slug
-	 *                          (REQ-DASH-024). NULL ⇒
-	 *                          derive from the name.
-	 * @param int $sortOrder Optional sibling sort order
-	 *                       (REQ-DASH-029). Defaults to
-	 *                       0.
-	 * @param bool $seedDefaults Whether to seed the default
-	 *                           widget bundle (Conduction +
-	 *                           Sendent + Nextcloud tiles +
-	 *                           a Files widget) on the new
-	 *                           dashboard. The controller
-	 *                           path (`POST
-	 *                           /api/dashboard`) opts in;
-	 *                           the bootstrap path keeps it
-	 *                           off to avoid double-seeding
-	 *                           when role defaults already
-	 *                           apply.
+	 * @param array $options Optional fields: `description` (null);
+	 *                       `icon`, an opaque icon identifier (registry key
+	 *                       or URL, see the `dashboard-icons` capability;
+	 *                       null or '' ⇒ default glyph); `parentUuid` (null
+	 *                       ⇒ root, REQ-DASH-023); `slug` (null ⇒ derived
+	 *                       from the name, REQ-DASH-024); `sortOrder` (0,
+	 *                       REQ-DASH-029); `seedDefaults` (false), whether
+	 *                       to seed the default widget bundle (Conduction +
+	 *                       Sendent + Nextcloud tiles + a Files widget).
+	 *                       The controller path (`POST /api/dashboard`)
+	 *                       opts in; the bootstrap path keeps it off to
+	 *                       avoid double-seeding when role defaults apply.
 	 *
 	 * @return Dashboard The created dashboard.
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	public function createDashboard(
-		string $userId,
-		string $name,
-		?string $description = null,
-		?string $icon = null,
-		?string $parentUuid = null,
-		?string $slug = null,
-		int $sortOrder = 0,
-		bool $seedDefaults = false,
-	): Dashboard {
+	public function createDashboard(string $userId, string $name, array $options=[]): Dashboard {
+		$options   += self::CREATE_DEFAULTS;
+		$parentUuid = $options['parentUuid'];
 		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
 		$this->publicShareContext?->requireMutable();
 		// Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
@@ -774,18 +768,20 @@ class DashboardService {
 		$dashboard = $this->dashboardFactory->create(
 			userId: $userId,
 			name: $name,
-			description: $description,
-			parentUuid: $parentUuid,
-			slug: $slug,
-			sortOrder: $sortOrder
+			options: [
+				'description' => $options['description'],
+				'parentUuid'  => $parentUuid,
+				'slug'        => $options['slug'],
+				'sortOrder'   => $options['sortOrder'],
+			]
 		);
 
 		// Icon is an opaque string (registry key or URL) — see the
 		// `dashboard-icons` capability. NULL/empty means "use the
 		// frontend default glyph".
-		if ($icon !== null && $icon !== '') {
+		if ($options['icon'] !== null && $options['icon'] !== '') {
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setIcon($icon);
+			$dashboard->setIcon($options['icon']);
 		}
 
 		// REQ-DASH-024: slug uniqueness within parent scope. The
@@ -830,7 +826,7 @@ class DashboardService {
 		// (tryCreateFromTemplate) keeps $seedDefaults=false because it
 		// runs its own role-default-driven seed afterwards and would
 		// otherwise double-seed.
-		if ($seedDefaults === true) {
+		if ($options['seedDefaults'] === true) {
 			$this->seedDefaultWidgets(dashboardId: $persisted->getId());
 		}
 
@@ -1234,10 +1230,12 @@ class DashboardService {
 		$dashboard = $this->dashboardFactory->create(
 			userId: null,
 			name: $name,
-			description: $description,
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: $groupId,
-			gridColumns: $gridColumns
+			options: [
+				'description' => $description,
+				'type'        => Dashboard::TYPE_GROUP_SHARED,
+				'groupId'     => $groupId,
+				'gridColumns' => $gridColumns,
+			]
 		);
 		$dashboard->setPermissionLevel(Dashboard::PERMISSION_VIEW_ONLY);
 		// REQ-DASH-016: new group-shared rows always start non-default.
@@ -2537,11 +2535,13 @@ class DashboardService {
 			$fork = $this->dashboardFactory->create(
 				userId: $userId,
 				name: $resolvedName,
-				description: $source->getDescription(),
-				type: Dashboard::TYPE_USER,
-				groupId: null,
-				gridColumns: $source->getGridColumns(),
-				permissionLevel: Dashboard::PERMISSION_FULL
+				options: [
+					'description'     => $source->getDescription(),
+					'type'            => Dashboard::TYPE_USER,
+					'groupId'         => null,
+					'gridColumns'     => $source->getGridColumns(),
+					'permissionLevel' => Dashboard::PERMISSION_FULL,
+				]
 			);
 			// Defensive — the factory already sets this for TYPE_USER but
 			// we make the contract visible at the call site.
@@ -2961,7 +2961,7 @@ class DashboardService {
 			$dashboard = $this->createDashboard(
 				userId: $userId,
 				name: 'My Dashboard',
-				slug: $this->uniqueRootSlugFor(userId: $userId)
+				options: ['slug' => $this->uniqueRootSlugFor(userId: $userId)]
 			);
 
 			// REQ-RFP-002: when no admin template applies, prefer seeding
@@ -3095,10 +3095,12 @@ class DashboardService {
 		$dashboard = $this->dashboardFactory->create(
 			userId: null,
 			name: 'Dashboard',
-			description: 'The dashboard everyone starts on. Edit it to change what your whole organisation sees.',
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: Dashboard::DEFAULT_GROUP_ID,
-			permissionLevel: Dashboard::PERMISSION_VIEW_ONLY
+			options: [
+				'description'     => 'The dashboard everyone starts on. Edit it to change what your whole organisation sees.',
+				'type'            => Dashboard::TYPE_GROUP_SHARED,
+				'groupId'         => Dashboard::DEFAULT_GROUP_ID,
+				'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
+			]
 		);
 		// Rung 3 of resolveGroupSharedDashboard() requires isDefault; without
 		// it the row is only reachable through the weaker rung-5 fallback.

@@ -401,14 +401,16 @@ class ConfluenceImportService {
 			$dashboard = $this->dashboardFactory->create(
 				userId: $currentUserId,
 				name: $page->title,
-				description: null,
-				type: Dashboard::TYPE_USER,
-				groupId: null,
-				gridColumns: 12,
-				permissionLevel: Dashboard::PERMISSION_FULL,
-				parentUuid: $parentUuid,
-				slug: null,
-				sortOrder: $page->sortOrder
+				options: [
+					'description'     => null,
+					'type'            => Dashboard::TYPE_USER,
+					'groupId'         => null,
+					'gridColumns'     => 12,
+					'permissionLevel' => Dashboard::PERMISSION_FULL,
+					'parentUuid'      => $parentUuid,
+					'slug'            => null,
+					'sortOrder'       => $page->sortOrder,
+				]
 			);
 
 			// Suffix slug with pageId on collision so re-import always

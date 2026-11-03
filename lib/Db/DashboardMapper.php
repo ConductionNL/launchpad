@@ -45,6 +45,8 @@ use OCP\IDBConnection;
  * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -69,18 +71,7 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function find(int $id): Dashboard {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -96,15 +87,7 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findByUuid(string $uuid): Dashboard {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'uuid',
-					y: $qb->createNamedParameter(value: $uuid)
-				)
-			);
+		$qb = $this->selectWhere(match: ['uuid' => $uuid]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByUuid()
@@ -118,24 +101,8 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findByUserId(string $userId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_USER
-					)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['user_id' => $userId, 'type' => Dashboard::TYPE_USER]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByUserId()
@@ -151,32 +118,7 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findActiveByUserId(string $userId): Dashboard {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_USER
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'is_active',
-					y: $qb->createNamedParameter(
-						value: 1,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['user_id' => $userId, 'type' => Dashboard::TYPE_USER, 'is_active' => 1]);
 
 		return $this->findEntity(query: $qb);
 	}//end findActiveByUserId()
@@ -188,18 +130,8 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findAdminTemplates(): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_ADMIN_TEMPLATE
-					)
-				)
-			)
-			->orderBy(sort: 'name', order: 'ASC');
+		$qb = $this->selectWhere(match: ['type' => Dashboard::TYPE_ADMIN_TEMPLATE]);
+		$qb->orderBy(sort: 'name', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findAdminTemplates()
@@ -216,19 +148,8 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/admin-templates/spec.md
 	 */
 	public function findByBasedOnTemplate(int $templateId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'based_on_template',
-					y: $qb->createNamedParameter(
-						value: $templateId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'id', order: 'ASC');
+		$qb = $this->selectWhere(match: ['based_on_template' => $templateId]);
+		$qb->orderBy(sort: 'id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByBasedOnTemplate()
@@ -242,26 +163,7 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findDefaultTemplate(): Dashboard {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_ADMIN_TEMPLATE
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'is_default',
-					y: $qb->createNamedParameter(
-						value: 1,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['type' => Dashboard::TYPE_ADMIN_TEMPLATE, 'is_default' => 1]);
 
 		return $this->findEntity(query: $qb);
 	}//end findDefaultTemplate()
@@ -363,24 +265,8 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findByGroup(string $groupId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_GROUP_SHARED
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['type' => Dashboard::TYPE_GROUP_SHARED, 'group_id' => $groupId]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByGroup()
@@ -492,18 +378,8 @@ class DashboardMapper extends QBMapper {
 			return [];
 		}
 
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_GROUP_SHARED
-					)
-				)
-			)
-			->andWhere(
+		$qb = $this->selectWhere(match: ['type' => Dashboard::TYPE_GROUP_SHARED]);
+		$qb->andWhere(
 				$qb->expr()->in(
 					x: 'group_id',
 					y: $qb->createNamedParameter(
@@ -952,18 +828,8 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findDueScheduled(): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'publication_status',
-					y: $qb->createNamedParameter(
-						value: Dashboard::STATUS_SCHEDULED
-					)
-				)
-			)
-			->andWhere(
+		$qb = $this->selectWhere(match: ['publication_status' => Dashboard::STATUS_SCHEDULED]);
+		$qb->andWhere(
 				$qb->expr()->lte(
 					x: 'publish_at',
 					y: $qb->createNamedParameter(
@@ -1003,17 +869,7 @@ class DashboardMapper extends QBMapper {
 		?string $category = null,
 		string $sortBy = 'name',
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_ADMIN_TEMPLATE
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['type' => Dashboard::TYPE_ADMIN_TEMPLATE]);
 
 		if ($category !== null && $category !== '') {
 			$qb->andWhere(
@@ -1072,30 +928,8 @@ class DashboardMapper extends QBMapper {
 		string $userId,
 		string $uuid,
 	): ?Dashboard {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'uuid',
-					y: $qb->createNamedParameter(value: $uuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'type',
-					y: $qb->createNamedParameter(
-						value: Dashboard::TYPE_USER
-					)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['user_id' => $userId, 'uuid' => $uuid, 'type' => Dashboard::TYPE_USER]);
+		$qb->setMaxResults(maxResults: 1);
 
 		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();

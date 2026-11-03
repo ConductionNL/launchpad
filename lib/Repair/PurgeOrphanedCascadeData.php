@@ -86,35 +86,19 @@ class PurgeOrphanedCascadeData implements IRepairStep {
 
 		$total = 0;
 
-		// UUID-keyed tables: uuid columns reference dashboards.uuid.
-		$uuidTables = [
-			['launchpad_dashboard_locks',    'dashboard_uuid'],
-			['launchpad_meta_values',        'dashboard_uuid'],
-			['launchpad_dash_translations',  'dashboard_uuid'],
-			['launchpad_dashboard_views',    'dashboard_uuid'],
-			['launchpad_dash_versions', 'dashboard_uuid'],
+		// Each table's foreign key references dashboards.uuid or dashboards.id.
+		$targets = [
+			['launchpad_dashboard_locks', 'dashboard_uuid', 'uuid'],
+			['launchpad_meta_values', 'dashboard_uuid', 'uuid'],
+			['launchpad_dash_translations', 'dashboard_uuid', 'uuid'],
+			['launchpad_dashboard_views', 'dashboard_uuid', 'uuid'],
+			['launchpad_dash_versions', 'dashboard_uuid', 'uuid'],
+			['launchpad_widget_placements', 'dashboard_id', 'id'],
+			['launchpad_dashboard_shares', 'dashboard_id', 'id'],
 		];
 
-		foreach ($uuidTables as [$table, $fkCol]) {
-			$total += $this->purgeOrphansUuid(
-				output: $output,
-				table: $table,
-				fkCol: $fkCol
-			);
-		}
-
-		// ID-keyed tables: id columns reference dashboards.id.
-		$idTables = [
-			['launchpad_widget_placements',  'dashboard_id'],
-			['launchpad_dashboard_shares',   'dashboard_id'],
-		];
-
-		foreach ($idTables as [$table, $fkCol]) {
-			$total += $this->purgeOrphansId(
-				output: $output,
-				table: $table,
-				fkCol: $fkCol
-			);
+		foreach ($targets as $target) {
+			$total += $this->purgeOrphans(output: $output, target: $target);
 		}
 
 		$output->info(
@@ -126,19 +110,18 @@ class PurgeOrphanedCascadeData implements IRepairStep {
 	}//end run()
 
 	/**
-	 * Delete rows from a table whose UUID FK has no matching dashboards.uuid.
+	 * Delete the rows of one table whose foreign key matches no dashboard.
 	 *
-	 * @param IOutput $output Repair output channel.
-	 * @param string $table Table name (without oc_ prefix).
-	 * @param string $fkCol FK column name.
+	 * @param IOutput                                $output Repair output channel.
+	 * @param array{0: string, 1: string, 2: string} $target Table (without oc_ prefix), its
+	 *                                                       foreign-key column, and the
+	 *                                                       dashboards column it references.
 	 *
 	 * @return int Number of rows deleted.
 	 */
-	private function purgeOrphansUuid(
-		IOutput $output,
-		string $table,
-		string $fkCol,
-	): int {
+	private function purgeOrphans(IOutput $output, array $target): int {
+		[$table, $fkCol, $parentColumn] = $target;
+
 		try {
 			$qb = $this->db->getQueryBuilder();
 			$qb->delete($table)
@@ -146,7 +129,7 @@ class PurgeOrphanedCascadeData implements IRepairStep {
 					$qb->expr()->notIn(
 						x: $fkCol,
 						y: $qb->createFunction(
-							call: '(SELECT `uuid` FROM `*PREFIX*launchpad_dashboards`)'
+							call: '(SELECT `' . $parentColumn . '` FROM `*PREFIX*launchpad_dashboards`)'
 						)
 					)
 				);
@@ -178,60 +161,5 @@ class PurgeOrphanedCascadeData implements IRepairStep {
 			);
 			return 0;
 		}//end try
-	}//end purgeOrphansUuid()
-
-	/**
-	 * Delete rows from a table whose integer FK has no matching dashboards.id.
-	 *
-	 * @param IOutput $output Repair output channel.
-	 * @param string $table Table name (without oc_ prefix).
-	 * @param string $fkCol FK column name.
-	 *
-	 * @return int Number of rows deleted.
-	 */
-	private function purgeOrphansId(
-		IOutput $output,
-		string $table,
-		string $fkCol,
-	): int {
-		try {
-			$qb = $this->db->getQueryBuilder();
-			$qb->delete($table)
-				->where(
-					$qb->expr()->notIn(
-						x: $fkCol,
-						y: $qb->createFunction(
-							call: '(SELECT `id` FROM `*PREFIX*launchpad_dashboards`)'
-						)
-					)
-				);
-
-			$count = $qb->executeStatement();
-
-			if ($count > 0) {
-				$output->info(
-					sprintf(
-						'  %s: removed %d orphaned row(s).',
-						$table,
-						$count
-					)
-				);
-			}
-
-			return $count;
-		} catch (Throwable $t) {
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad PurgeOrphanedCascadeData: failed on %s: %s',
-					$table,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
-			$output->warning(
-				sprintf('  %s: purge failed (%s) — skipped.', $table, $t->getMessage())
-			);
-			return 0;
-		}//end try
-	}//end purgeOrphansId()
+	}//end purgeOrphans()
 }//end class

@@ -267,14 +267,7 @@ class AcknowledgementService {
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function currentContentVersion(string $announcementKey): ?int {
-		$placements = $this->placementMapper->findByAnnouncementKey(
-			announcementKey: $announcementKey
-		);
-		if (empty($placements) === true) {
-			return null;
-		}
-
-		return $this->resolveBlueprintPlacement(placements: $placements)->getAcknowledgementContentVersion();
+		return $this->blueprintOf(announcementKey: $announcementKey)?->getAcknowledgementContentVersion();
 	}//end currentContentVersion()
 
 	/**
@@ -400,14 +393,11 @@ class AcknowledgementService {
 	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function resolveOwnerUserId(string $announcementKey): ?string {
-		$placements = $this->placementMapper->findByAnnouncementKey(
-			announcementKey: $announcementKey
-		);
-		if (empty($placements) === true) {
+		$blueprint = $this->blueprintOf(announcementKey: $announcementKey);
+		if ($blueprint === null) {
 			return null;
 		}
 
-		$blueprint = $this->resolveBlueprintPlacement(placements: $placements);
 		$dashboard = $this->resolveDashboard(placement: $blueprint);
 		if ($dashboard === null) {
 			return null;
@@ -420,6 +410,25 @@ class AcknowledgementService {
 
 		return $owner;
 	}//end resolveOwnerUserId()
+
+	/**
+	 * The blueprint placement of an announcement, or null when no placement
+	 * carries the key.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 *
+	 * @return WidgetPlacement|null The blueprint placement.
+	 */
+	private function blueprintOf(string $announcementKey): ?WidgetPlacement {
+		$placements = $this->placementMapper->findByAnnouncementKey(
+			announcementKey: $announcementKey
+		);
+		if (empty($placements) === true) {
+			return null;
+		}
+
+		return $this->resolveBlueprintPlacement(placements: $placements);
+	}//end blueprintOf()
 
 	/**
 	 * Resolve the dashboard that a placement belongs to, or null when the

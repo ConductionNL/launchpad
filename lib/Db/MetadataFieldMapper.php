@@ -35,6 +35,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<MetadataField>
  */
 class MetadataFieldMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -73,18 +75,7 @@ class MetadataFieldMapper extends QBMapper {
 	 * @throws DoesNotExistException When the row is missing.
 	 */
 	public function findById(int $id): MetadataField {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end findById()
@@ -99,15 +90,7 @@ class MetadataFieldMapper extends QBMapper {
 	 * @throws DoesNotExistException When the row is missing.
 	 */
 	public function findByKey(string $key): MetadataField {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'field_key',
-					y: $qb->createNamedParameter(value: $key)
-				)
-			);
+		$qb = $this->selectWhere(match: ['field_key' => $key]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByKey()

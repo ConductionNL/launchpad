@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Db;
 
 use DateTime;
-use Exception;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\Exception as DbException;
 use OCP\IDBConnection;
@@ -35,6 +34,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<DashboardReaction>
  */
 class DashboardReactionMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -56,16 +57,8 @@ class DashboardReactionMapper extends QBMapper {
 	 * @return DashboardReaction[] The reactions.
 	 */
 	public function findByDashboard(string $dashboardUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->orderBy(sort: 'reacted_at', order: 'DESC');
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->orderBy(sort: 'reacted_at', order: 'DESC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboard()
@@ -89,22 +82,8 @@ class DashboardReactionMapper extends QBMapper {
 		?int $limit = null,
 		?int $offset = null,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'emoji',
-					y: $qb->createNamedParameter(value: $emoji)
-				)
-			)
-			->orderBy(sort: 'reacted_at', order: 'ASC')
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'emoji' => $emoji]);
+		$qb->orderBy(sort: 'reacted_at', order: 'ASC')
 			->addOrderBy(sort: 'id', order: 'ASC');
 
 		if ($limit !== null) {
@@ -127,21 +106,7 @@ class DashboardReactionMapper extends QBMapper {
 	 * @return DashboardReaction[] The reactions.
 	 */
 	public function findByUser(string $userId, string $dashboardUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'user_id' => $userId]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByUser()
@@ -228,26 +193,7 @@ class DashboardReactionMapper extends QBMapper {
 		string $userId,
 		string $emoji,
 	): bool {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'emoji',
-					y: $qb->createNamedParameter(value: $emoji)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid, 'user_id' => $userId, 'emoji' => $emoji]);
 
 		return $qb->executeStatement() > 0;
 	}//end removeReaction()
@@ -262,14 +208,7 @@ class DashboardReactionMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByDashboardUuid(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboardUuid()

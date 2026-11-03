@@ -478,17 +478,20 @@ class AdminController extends Controller {
 
 		try {
 			$this->settings->settingsService->updateSettings(
-				defaultPermLevel: $defaultPermLevel,
-				allowUserDash: $allowUserDash,
-				allowMultiDash: $allowMultiDash,
-				defaultGridCols: $defaultGridCols,
-				linkCreateFileExts: $linkCreateFileExts,
-				defaultSharePermissionLevel: $defaultSharePermissionLevel,
-				forcedShareGroups: $forcedShareGroups,
-				legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
-				maxDashboardsPerUser: $maxDashboardsPerUser,
-				maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
-				quicksearchFallbackTarget: $quicksearchFallbackTarget, startPageWithoutNavigation: $startPageWithoutNavigation
+				settings: [
+					'defaultPermLevel'            => $defaultPermLevel,
+					'allowUserDash'               => $allowUserDash,
+					'allowMultiDash'              => $allowMultiDash,
+					'defaultGridCols'             => $defaultGridCols,
+					'linkCreateFileExts'          => $linkCreateFileExts,
+					'defaultSharePermissionLevel' => $defaultSharePermissionLevel,
+					'forcedShareGroups'           => $forcedShareGroups,
+					'legacyWidgetBridgeEnabled'   => $legacyWidgetBridgeEnabled,
+					'maxDashboardsPerUser'        => $maxDashboardsPerUser,
+					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
+					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
+					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
+				]
 			);
 
 			return ResponseHelper::success(data: ['status' => 'ok']);

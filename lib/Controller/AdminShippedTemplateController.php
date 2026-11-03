@@ -133,7 +133,7 @@ class AdminShippedTemplateController extends Controller {
 		}
 
 		try {
-			$result = $this->tools->templates->install(templateId: $id, force: $force, userId: $admin);
+			$result = $this->tools->templates->install(templateId: $id, options: ['force' => $force, 'userId' => $admin]);
 		} catch (InvalidArgumentException) {
 			return new JSONResponse(
 				data: ['error' => 'Template not found'],

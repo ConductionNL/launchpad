@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\MetadataAdminController;
 use OCA\LaunchPad\Db\MetadataField;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
@@ -59,8 +60,10 @@ class MetadataAdminControllerTest extends TestCase {
 			request: $this->request,
 			metadataService: $this->metadataService,
 			groupManager: $this->groupManager,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
+			caller: new ActionCaller(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			)
 		);
 	}
 

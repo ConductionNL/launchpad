@@ -31,8 +31,6 @@ use OCA\LaunchPad\Db\ProfileValue;
 use OCA\LaunchPad\Db\ProfileValueMapper;
 use OCP\Accounts\IAccountManager;
 use OCP\IUser;
-use OCP\LDAP\ILDAPProviderFactory;
-use Psr\Log\LoggerInterface;
 
 /**
  * Definitions, values and visibility of custom profile fields.
@@ -102,20 +100,16 @@ class ProfileFieldService {
 	 *
 	 * @param AdminSettingMapper $settingMapper Admin settings store.
 	 * @param ProfileValueMapper $valueMapper Profile values store.
-	 * @param IAccountManager $accountManager Standard profile fields.
-	 * @param AdminTemplateService $adminTemplateService Group ids of a user.
-	 * @param ILDAPProviderFactory $ldapProviderFactory LDAP attribute access.
-	 * @param LoggerInterface $logger Logger.
+	 * @param ProfileSources     $sources The account manager and LDAP provider factory.
+	 * @param ProfileFieldTools  $tools The admin template service and logger.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
 		private readonly ProfileValueMapper $valueMapper,
-		private readonly IAccountManager $accountManager,
-		private readonly AdminTemplateService $adminTemplateService,
-		private readonly ILDAPProviderFactory $ldapProviderFactory,
-		private readonly LoggerInterface $logger,
+		private readonly ProfileSources $sources,
+		private readonly ProfileFieldTools $tools,
 	) {
 	}//end __construct()
 
@@ -533,7 +527,7 @@ class ProfileFieldService {
 	 */
 	private function groupsOf(string $userId): array {
 		if (isset($this->groupCache[$userId]) === false) {
-			$this->groupCache[$userId] = $this->adminTemplateService->getUserGroupIdsFor(userId: $userId);
+			$this->groupCache[$userId] = $this->tools->adminTemplateService->getUserGroupIdsFor(userId: $userId);
 		}
 
 		return $this->groupCache[$userId];
@@ -566,9 +560,9 @@ class ProfileFieldService {
 	 */
 	public function mirrorStandardFields(IUser $user): void {
 		try {
-			$account = $this->accountManager->getAccount(user: $user);
+			$account = $this->sources->accountManager->getAccount(user: $user);
 		} catch (Exception $e) {
-			$this->logger->debug(message: 'Profile mirror: no account for ' . $user->getUID() . ': ' . $e->getMessage());
+			$this->tools->logger->debug(message: 'Profile mirror: no account for ' . $user->getUID() . ': ' . $e->getMessage());
 			return;
 		}
 
@@ -617,13 +611,13 @@ class ProfileFieldService {
 			return 0;
 		}
 
-		if ($this->ldapProviderFactory->isAvailable() === false) {
+		if ($this->sources->ldapProviderFactory->isAvailable() === false) {
 			return 0;
 		}
 
 		$synced = 0;
 		try {
-			$provider = $this->ldapProviderFactory->getLDAPProvider();
+			$provider = $this->sources->ldapProviderFactory->getLDAPProvider();
 			foreach ($definitions as $definition) {
 				$raw = $provider->getMultiValueUserAttribute(uid: $user->getUID(), attribute: $definition['ldapAttribute']);
 				$values = $this->cleanLdapValues(definition: $definition, raw: $raw);
@@ -631,7 +625,7 @@ class ProfileFieldService {
 				$synced++;
 			}
 		} catch (Exception $e) {
-			$this->logger->warning(message: 'Profile LDAP sync failed for ' . $user->getUID() . ': ' . $e->getMessage());
+			$this->tools->logger->warning(message: 'Profile LDAP sync failed for ' . $user->getUID() . ': ' . $e->getMessage());
 		}
 
 		return $synced;

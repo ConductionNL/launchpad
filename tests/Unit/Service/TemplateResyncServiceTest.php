@@ -576,10 +576,12 @@ class TemplateResyncServiceTest extends TestCase {
 				$this->assertSame('admin1', $row->actorUserId);
 				$this->assertSame('admin1', $recipientUserId);
 				$this->assertSame('template-resync-1', $row->dashboard->uuid);
-				$this->assertStringEndsWith('(merge, 12 copies)', $row->dashboard->name);
-				$this->assertSame(1, $row->extraParams['templateId']);
-				$this->assertSame(TemplateResyncService::STRATEGY_MERGE, $row->extraParams['strategy']);
-				$this->assertSame(12, $row->extraParams['affectedCount']);
+				$this->assertSame('Template resync: Marketing Dashboard (merge, 12 copies)', $row->dashboard->name);
+				$this->assertSame(\OCA\LaunchPad\Activity\Extension::EVENT_UPDATED, $row->type);
+				$this->assertSame(
+					['templateResync' => true, 'templateId' => 1, 'strategy' => TemplateResyncService::STRATEGY_MERGE, 'affectedCount' => 12],
+					$row->extraParams
+				);
 				$this->audited++;
 				return true;
 			});
@@ -592,6 +594,30 @@ class TemplateResyncServiceTest extends TestCase {
 
 		$this->assertSame(12, $result['affectedCount']);
 		$this->assertSame(1, $this->audited, 'the audit row reached the publisher and its checks ran');
+	}
+
+	/**
+	 * A failing audit write is logged with the template id and does not
+	 * stop the run.
+	 */
+	public function testAFailedAuditRowIsLoggedAndTheRunCompletes(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->makeTemplate(id: 3));
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([]);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$failure = new \RuntimeException('activity down');
+		$this->activityPublisher->method('publish')->willThrowException($failure);
+		$this->logger->expects($this->once())->method('warning')->with(
+			'launchpad.template_resync.audit_event_failed',
+			['templateId' => 3, 'exception' => $failure]
+		);
+
+		$result = $this->service->applyResync(
+			templateId: 3,
+			strategy: TemplateResyncService::STRATEGY_OVERWRITE,
+			actingAdminId: 'admin1'
+		);
+
+		$this->assertSame(0, $result['affectedCount']);
 	}
 
 	public function testAffectedUsersAreNotified(): void {

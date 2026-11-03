@@ -55,7 +55,6 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\ResourceServeService;
 use OCA\LaunchPad\Service\ResourceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -65,7 +64,6 @@ use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -84,17 +82,15 @@ class ResourceServeController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param ResourceServeService $serve Filesystem + formatting helper.
+	 * @param IRequest          $request The HTTP request.
+	 * @param ServeTools        $serving The serve service and logger.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param IUserSession $userSession The current user session.
+	 * @param IUserSession      $userSession The current user session.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ResourceServeService $serve,
+		private readonly ServeTools $serving,
 		private readonly ActionAuthService $actionAuth,
-		private readonly LoggerInterface $logger,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(
@@ -146,7 +142,7 @@ class ResourceServeController extends Controller {
 			return $this->notFoundResponse();
 		}
 
-		$file = $this->serve->findFile(filename: $filename);
+		$file = $this->serving->serve->findFile(filename: $filename);
 		if ($file === null) {
 			return $this->notFoundResponse();
 		}
@@ -165,7 +161,7 @@ class ResourceServeController extends Controller {
 		try {
 			$bytes = $file->getContent();
 		} catch (Throwable $e) {
-			$this->logger->warning(
+			$this->serving->logger->warning(
 				message: 'Resource serve failed to read bytes',
 				context: ['exception' => $e->getMessage()]
 			);
@@ -211,7 +207,7 @@ class ResourceServeController extends Controller {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		$files = $this->serve->listFiles();
+		$files = $this->serving->serve->listFiles();
 
 		$resources = [];
 		foreach ($files as $file) {
@@ -220,7 +216,7 @@ class ResourceServeController extends Controller {
 				'name' => $name,
 				'url' => ('/apps/' . Application::APP_ID . '/resource/' . $name),
 				'size' => (int)$file->getSize(),
-				'modifiedAt' => $this->serve->formatTimestamp(epoch: $file->getMTime()),
+				'modifiedAt' => $this->serving->serve->formatTimestamp(epoch: $file->getMTime()),
 				'_mtime' => $file->getMTime(),
 			];
 		}
@@ -307,7 +303,7 @@ class ResourceServeController extends Controller {
 		$response = new StreamResponse(filePath: $stream);
 		$response->addHeader(
 			name: 'Content-Type',
-			value: $this->serve->contentTypeForFilename(filename: $filename)
+			value: $this->serving->serve->contentTypeForFilename(filename: $filename)
 		);
 		$response->addHeader(name: 'Cache-Control', value: self::CACHE_CONTROL);
 		$response->addHeader(

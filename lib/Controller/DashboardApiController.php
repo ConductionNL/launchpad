@@ -1943,10 +1943,7 @@ class DashboardApiController extends Controller {
 		try {
 			$this->history->versionService->captureSnapshot(
 				dashboard: $dashboard,
-				snapshotJson: null,
-				createdBy: $this->userId,
-				note: null,
-				explicit: false
+				createdBy: $this->userId
 			);
 		} catch (\Throwable $t) {
 			$this->history->logger->warning(

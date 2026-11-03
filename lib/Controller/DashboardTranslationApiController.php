@@ -28,9 +28,7 @@ use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardTranslationMapper;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -39,7 +37,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for dashboard translation endpoints (REQ-DASH-038..044).
@@ -50,27 +47,15 @@ class DashboardTranslationApiController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper
-	 *                                         (used for the
-	 *                                         ownership check
-	 *                                         before any
-	 *                                         translation
-	 *                                         mutation).
-	 * @param DashboardTranslationService $translationService Translation
-	 *                                                        service.
-	 * @param ActionAuthService $actionAuth ADR-023 action
-	 *                                      authorization.
-	 * @param IUserSession $userSession User session
-	 *                                  (IUser resolution).
-	 * @param string|null $userId The user ID.
+	 * @param IRequest           $request The request.
+	 * @param TranslationSources $translations The dashboard lookup and translation service.
+	 * @param ActionCaller       $caller The session and the action check.
+	 * @param string|null        $userId The user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly DashboardTranslationService $translationService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
+		private readonly TranslationSources $translations,
+		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(
@@ -92,13 +77,13 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function list(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-translation.list');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.list');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -108,7 +93,7 @@ class DashboardTranslationApiController extends Controller {
 			return $ownerCheck;
 		}
 
-		$variants = $this->translationService->listVariants(
+		$variants = $this->translations->translationService->listVariants(
 			dashboardUuid: $uuid
 		);
 
@@ -146,13 +131,13 @@ class DashboardTranslationApiController extends Controller {
 		?string $widgetTreeJson = null,
 		?string $copyFrom = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-translation.create');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.create');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -169,7 +154,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		try {
-			$variant = $this->translationService->createVariant(
+			$variant = $this->translations->translationService->createVariant(
 				dashboardUuid: $uuid,
 				languageCode: (string)$languageCode,
 				content: [
@@ -255,13 +240,13 @@ class DashboardTranslationApiController extends Controller {
 		?string $description = null,
 		?string $widgetTreeJson = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-translation.update');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.update');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -278,7 +263,7 @@ class DashboardTranslationApiController extends Controller {
 		);
 
 		try {
-			$variant = $this->translationService->updateVariant(
+			$variant = $this->translations->translationService->updateVariant(
 				dashboardUuid: $uuid,
 				languageCode: $lang,
 				patch: $patch
@@ -314,13 +299,13 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid, string $lang): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-translation.destroy');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.destroy');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -331,7 +316,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		try {
-			$this->translationService->deleteVariant(
+			$this->translations->translationService->deleteVariant(
 				dashboardUuid: $uuid,
 				languageCode: $lang
 			);
@@ -377,13 +362,13 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setPrimary(string $uuid, string $lang): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-translation.set-primary');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.set-primary');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -394,7 +379,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		try {
-			$variant = $this->translationService->promoteVariantToPrimary(
+			$variant = $this->translations->translationService->promoteVariantToPrimary(
 				dashboardUuid: $uuid,
 				languageCode: $lang
 			);
@@ -437,19 +422,19 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function resolved(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-translation.resolved');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.resolved');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->translations->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: [
@@ -536,7 +521,7 @@ class DashboardTranslationApiController extends Controller {
 	 *                                                          null.
 	 */
 	private function resolveExactVariant(string $uuid, string $explicitLang): ?array {
-		$variant = $this->translationService->resolveForLocale(
+		$variant = $this->translations->translationService->resolveForLocale(
 			dashboardUuid: $uuid,
 			preferredLanguage: $explicitLang
 		);
@@ -570,7 +555,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return array{translation: mixed, isFallback: bool} The variant.
 	 */
 	private function resolveLocaleVariant(string $uuid, Dashboard $dashboard): array {
-		$variant = $this->translationService->resolveForLocale(
+		$variant = $this->translations->translationService->resolveForLocale(
 			dashboardUuid: $uuid,
 			preferredLanguage: ''
 		);
@@ -580,7 +565,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		return [
-			'translation' => $this->translationService
+			'translation' => $this->translations->translationService
 				->materialiseLegacyVariant(dashboard: $dashboard),
 			'isFallback' => true,
 		];
@@ -599,7 +584,7 @@ class DashboardTranslationApiController extends Controller {
 	 * @return array<int, string> The available codes.
 	 */
 	private function resolveAvailableLanguages(string $uuid, array $variant): array {
-		$available = $this->translationService->listAvailableLanguages(
+		$available = $this->translations->translationService->listAvailableLanguages(
 			dashboardUuid: $uuid
 		);
 		if (count($available) > 0) {
@@ -628,7 +613,7 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	private function assertOwner(string $uuid): ?JSONResponse {
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->translations->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: [

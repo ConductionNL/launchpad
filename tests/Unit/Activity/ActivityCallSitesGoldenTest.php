@@ -21,12 +21,14 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Activity\PublisherTools;
 use Closure;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\AcknowledgementService;
 use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\TemplateResyncService;
 use OCP\Activity\IEvent;
 use OCP\Activity\IManager;
@@ -46,6 +48,8 @@ use ReflectionClass;
  * @uses   \OCA\LaunchPad\Activity\ActivityRow
  * @uses   \OCA\LaunchPad\Activity\ActivitySubject
  * @uses   \OCA\LaunchPad\Activity\DebounceHelper
+ * @uses   \OCA\LaunchPad\Activity\PublisherTools
+ * @uses   \OCA\LaunchPad\Db\Dashboard
  */
 class ActivityCallSitesGoldenTest extends TestCase {
 
@@ -105,8 +109,10 @@ class ActivityCallSitesGoldenTest extends TestCase {
 			manager: $manager,
 			groupManager: $this->createMock(IGroupManager::class),
 			userManager: $this->createMock(IUserManager::class),
-			debounce: new DebounceHelper(clock: static fn (): int => 1000),
-			logger: new NullLogger()
+			tools: new PublisherTools(
+				debounce: new DebounceHelper(clock: static fn (): int => 1000),
+				logger: new NullLogger()
+			)
 		);
 	}//end publisher()
 
@@ -132,13 +138,30 @@ class ActivityCallSitesGoldenTest extends TestCase {
 		$actual = [];
 
 		$bulk = $this->service(BulkOperationService::class, ['activityPublisher' => $this->publisher(), 'logger' => new NullLogger()]);
-		self::invoke($bulk, 'emitAuditEvent', ['delete', 3, 'admin', 12, false]);
-		self::invoke($bulk, 'emitAuditEvent', ['status', 2, 'root', 5, true, ['publicationStatus' => 'published', 'dryRun' => 'x']]);
+		$run = static fn (int $count, string $user, int $ms, bool $dryRun): array => [
+			'dashboardUuids' => array_fill(0, $count, 'u'),
+			'userId'         => $user,
+			'start'          => (microtime(true) - ($ms / 1000)),
+			'dryRun'         => $dryRun,
+		];
+		self::invoke($bulk, 'emitAuditEvent', ['delete', $run(3, 'admin', 12, false)]);
+		self::invoke($bulk, 'emitAuditEvent', ['status', $run(2, 'root', 5, true) + ['extra' => ['publicationStatus' => 'published', 'dryRun' => 'x']]]);
+		// The duration is measured from the run's start: at least the time
+		// that had passed, and pinned to it for the comparison.
+		foreach ([12, 5] as $i => $ms) {
+			$measured = $this->rows[$i]['params']['durationMs'];
+			$this->assertGreaterThanOrEqual($ms, $measured);
+			$this->assertLessThan($ms + 1000, $measured);
+			$this->rows[$i]['params']['durationMs'] = $ms;
+		}
+
 		$actual['bulk'] = $this->rows;
 
 		$this->rows = [];
 		$resync     = $this->service(TemplateResyncService::class, ['activityPublisher' => $this->publisher(), 'logger' => new NullLogger()]);
-		self::invoke($resync, 'emitAuditEvent', [7, 'Intranet', 'merge', 4, 'admin']);
+		$template = new Dashboard();
+		$template->setName('Intranet');
+		self::invoke($resync, 'emitAuditEvent', [$template, ['templateId' => 7, 'strategy' => 'merge', 'affectedCount' => 4, 'actingAdminId' => 'admin']]);
 		$actual['resync'] = $this->rows;
 
 		$this->rows = [];

@@ -53,13 +53,8 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Support\FleetAppId;
-use OCP\App\IAppManager;
-use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
-use OCP\ICacheFactory;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -173,9 +168,8 @@ class LiveTileService {
 	 * Constructor.
 	 *
 	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
-	 * @param IAppConfig              $appConfig Admin config: allow-listed hosts.
+	 * @param LiveTileSettings        $settings The app config and logger.
 	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
-	 * @param LoggerInterface         $logger PSR logger.
 	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or
 	 *                                                    nothing when absent.
 	 *
@@ -183,9 +177,8 @@ class LiveTileService {
 	 */
 	public function __construct(
 		private readonly ReadingSources $sources,
-		private readonly IAppConfig $appConfig,
+		private readonly LiveTileSettings $settings,
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly LoggerInterface $logger,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
@@ -322,7 +315,7 @@ class LiveTileService {
 				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
 			);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: connector capability probe failed, treating as absent',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -396,7 +389,7 @@ class LiveTileService {
 
 			$result = $service->{self::CONNECTOR_DATASOURCE_METHOD}($sourceId, $valueExpr);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: connector resolve call failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -434,7 +427,7 @@ class LiveTileService {
 		}
 
 		if ($this->isHostAllowed(url: $url) === false) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'LiveTileService: host not on livetile_allowed_hosts, refusing fetch (fail-closed)',
 				context: ['app' => Application::APP_ID]
 			);
@@ -456,7 +449,7 @@ class LiveTileService {
 				]
 			);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: direct-URL fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -700,7 +693,7 @@ class LiveTileService {
 			return false;
 		}
 
-		$raw = $this->appConfig->getValueString(
+		$raw = $this->settings->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_ALLOWED_HOSTS,
 			default: ''
@@ -840,7 +833,7 @@ class LiveTileService {
 		try {
 			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: cache subsystem unavailable, falling back to direct fetch',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);

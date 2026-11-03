@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ServeTools;
 use OCA\LaunchPad\Controller\ResourceServeController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\ResourceServeService;
@@ -74,10 +75,12 @@ class ResourceServeControllerTest extends TestCase {
 
 		$this->controller = new ResourceServeController(
 			request: $this->request,
-			serve: $this->serve,
+			serving: new ServeTools(
+				serve: $this->serve,
+				logger: $this->logger
+			),
 			actionAuth: $this->actionAuth,
-			logger: $this->logger,
-			userSession: $this->userSession,
+			userSession: $this->userSession
 		);
 	}
 

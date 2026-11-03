@@ -141,9 +141,11 @@ class TemplateInstallCommand extends Command {
 		try {
 			$result = $this->templates->install(
 				templateId: $id,
-				targetGroups: array_map(callback: 'strval', array: (array)$input->getOption(name: 'group')),
-				makeDefault: (bool)$input->getOption(name: 'default'),
-				force: (bool)$input->getOption(name: 'force')
+				options: [
+					'targetGroups' => array_map(callback: 'strval', array: (array)$input->getOption(name: 'group')),
+					'makeDefault'  => (bool)$input->getOption(name: 'default'),
+					'force'        => (bool)$input->getOption(name: 'force'),
+				]
 			);
 		} catch (InvalidArgumentException $e) {
 			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');

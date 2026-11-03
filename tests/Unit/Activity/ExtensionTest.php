@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Activity\PublisherTools;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\ActivityRow;
@@ -569,8 +570,10 @@ class ExtensionTest extends TestCase {
 			manager: $this->manager,
 			groupManager: $this->groupManager,
 			userManager: $this->userManager,
-			debounce: $this->debounce,
-			logger: new NullLogger()
+			tools: new PublisherTools(
+				debounce: $this->debounce,
+				logger: new NullLogger()
+			)
 		);
 	}//end createPublisher()
 

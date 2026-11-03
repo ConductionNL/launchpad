@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\AnalyticsConfig;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -61,8 +62,10 @@ class AnalyticsServiceTest extends TestCase {
 			viewMapper: $this->viewMapper,
 			dashboardMapper: $this->dashboardMapper,
 			dedup: $this->dedup,
-			appConfig: $this->appConfig,
-			config: $this->config,
+			settings: new AnalyticsConfig(
+				appConfig: $this->appConfig,
+				config: $this->config
+			)
 		);
 	}
 

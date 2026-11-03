@@ -72,10 +72,7 @@ class CleanupScanCommand extends Command {
 	 *
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$result = $this->cleanupService->scan();
 
 		$table = new Table(output: $output);

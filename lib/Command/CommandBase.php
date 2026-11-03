@@ -135,10 +135,7 @@ abstract class CommandBase extends Command {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	final protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	final protected function execute(InputInterface $input, OutputInterface $output): int {
 		$started = (int)round(num: (microtime(as_float: true) * 1000));
 		$exitCode = CommandService::EXIT_ERROR;
 		try {

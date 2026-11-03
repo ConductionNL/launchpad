@@ -110,10 +110,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$from = $input->getOption(name: 'from');
 		$to = $input->getOption(name: 'to');
 

@@ -123,10 +123,7 @@ class TemplateInstallCommand extends Command {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md#req-cli-012
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$id = (string)$input->getArgument(name: 'id');
 
 		if ((bool)$input->getOption(name: 'update') === true) {

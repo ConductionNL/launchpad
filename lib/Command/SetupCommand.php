@@ -85,10 +85,7 @@ class SetupCommand extends Command {
 	 *
 	 * @spec openspec/specs/setup-wizard/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$configPath = (string)($input->getOption(name: 'config') ?? '');
 
 		if ($configPath === '') {

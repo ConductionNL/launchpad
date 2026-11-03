@@ -89,10 +89,7 @@ class DemoShowcasesInstallCommand extends Command {
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$id = (string)$input->getArgument(name: 'id');
 		$lang = (string)($input->getOption(name: 'lang') ?? 'nl');
 		$force = (bool)$input->getOption(name: 'force');

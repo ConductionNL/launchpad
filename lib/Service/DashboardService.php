@@ -161,191 +161,20 @@ class DashboardService {
 	/**
 	 * Constructor
 	 *
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param AdminSettingMapper $settingMapper Admin setting mapper.
-	 * @param TemplateService $templateService Template service.
-	 * @param DashboardFactory $dashboardFactory Dashboard factory.
-	 * @param DashboardResolver $dashResolver Dashboard resolver.
-	 * @param DashboardTreeService $treeService Tree-aware
-	 *                                          validation
-	 *                                          / cascade
-	 *                                          walker
-	 *                                          (REQ-DASH-023..030).
-	 * @param IGroupManager $groupManager Group manager (used for
-	 *                                    `isAdmin` only —
-	 *                                    group membership
-	 *                                    lookups go through the
-	 *                                    routing resolver per
-	 *                                    REQ-TMPL-013).
-	 * @param AdminTemplateService $adminTemplateService Routing resolver
-	 *                                                   — single
-	 *                                                   source of truth
-	 *                                                   for
-	 *                                                   `IGroupManager::getUserGroupIds`
-	 *                                                   (REQ-TMPL-013).
-	 * @param IDBConnection $db DB connection (for the
-	 *                          transactional default
-	 *                          flip —
-	 *                          REQ-DASH-015).
-	 * @param IConfig $config Nextcloud per-user
-	 *                        preference
-	 *                        storage.
-	 * @param IFactory $l10nFactory L10N factory used to
-	 *                              build the "My copy
-	 *                              of {name}" default
-	 *                              fork name
-	 *                              (REQ-DASH-020).
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param PersonalLayerService $personalLayers Lays a reader's own
-	 *                                             arrangement over a
-	 *                                             dashboard somebody else
-	 *                                             owns (REQ-DWMS-001).
-	 *                                             Required, not nullable:
-	 *                                             a null here is
-	 *                                             indistinguishable from a
-	 *                                             reader who has no layer,
-	 *                                             so broken wiring would
-	 *                                             store layers and show
-	 *                                             none of them, in silence
-	 *                                             and with every test
-	 *                                             green.
-	 * @param DashboardTranslationService|null $translationService Optional
-	 *                                                             translation
-	 *                                                             service
-	 *                                                             for the
-	 *                                                             per-language
-	 *                                                             content
-	 *                                                             variants
-	 *                                                             (REQ-DASH-038..044).
-	 *                                                             Nullable
-	 *                                                             so
-	 *                                                             legacy
-	 *                                                             test
-	 *                                                             doubles
-	 *                                                             constructed
-	 *                                                             without
-	 *                                                             it keep
-	 *                                                             working.
-	 * @param DashboardLockMapper|null $lockMapper Optional lock
-	 *                                             mapper. When
-	 *                                             provided the
-	 *                                             delete path
-	 *                                             cascades the
-	 *                                             row removal
-	 *                                             to the
-	 *                                             editing-lock
-	 *                                             table per
-	 *                                             REQ-LOCK-008.
-	 *                                             Nullable to
-	 *                                             keep the
-	 *                                             constructor
-	 *                                             backwards-
-	 *                                             compatible
-	 *                                             with existing
-	 *                                             unit tests.
-	 * @param FooterService|null $footerService Optional
-	 *                                          per-dashboard
-	 *                                          footer
-	 *                                          sanitiser
-	 *                                          +
-	 *                                          resolver
-	 *                                          (REQ-FTR-006).
-	 *                                          Nullable
-	 *                                          for
-	 *                                          backwards-
-	 *                                          compat
-	 *                                          with
-	 *                                          existing
-	 *                                          test
-	 *                                          doubles.
-	 * @param RoleFeaturePermissionService|null $roleFeaturePerm Role-default
-	 *                                                           layout
-	 *                                                           seeding
-	 *                                                           (REQ-RFP-002).
-	 *                                                           Nullable to
-	 *                                                           keep legacy
-	 *                                                           PHPUnit
-	 *                                                           doubles
-	 *                                                           working —
-	 *                                                           the
-	 *                                                           seedLayoutFromRoleDefaults
-	 *                                                           call site
-	 *                                                           below guards
-	 *                                                           on null and
-	 *                                                           degrades to
-	 *                                                           the original
-	 *                                                           no- op
-	 *                                                           behaviour.
-	 * @param IEventDispatcher|null $eventDispatcher Event
-	 *                                               dispatcher
-	 *                                               for
-	 *                                               DashboardDeletedEvent.
-	 *                                               Nullable
-	 *                                               for
-	 *                                               backwards-
-	 *                                               compat
-	 *                                               with
-	 *                                               existing
-	 *                                               test
-	 *                                               doubles.
-	 * @param PublicShareContext|null $publicShareContext Optional public-share
-	 *                                                    bearer context; when
-	 *                                                    present a share
-	 *                                                    bearer cannot mutate
-	 *                                                    dashboards
-	 *                                                    (dashboard-public-share).
-	 * @param QuotaService|null $quotaService Optional quota-enforcement
-	 *                                        service gating per-user
-	 *                                        dashboard creation
-	 *                                        (dashboard-quota-limits).
-	 * @param IURLGenerator|null $urlGenerator URL generator used to
-	 *                                         build widget / app
-	 *                                         image paths and to
-	 *                                         resolve app image
-	 *                                         paths for default
-	 *                                         tile logos, so they
-	 *                                         render regardless of
-	 *                                         the app's install
-	 *                                         location.
-	 * @param ILockingProvider|null $lockingProvider Optional cluster lock
-	 *                                               provider used to
-	 *                                               serialise the fork
-	 *                                               naming + insert
-	 *                                               sequence per user so
-	 *                                               concurrent forks
-	 *                                               cannot produce
-	 *                                               duplicate slugs
-	 *                                               (REQ-DASH-020).
-	 * @param DashboardActivityEmitter|null $activity Sends dashboard_published
-	 *                                                and dashboard_updated to
-	 *                                                the audience (#713).
+	 * @param DashboardStores    $stores The dashboard, placement, admin-setting and lock mappers.
+	 * @param DashboardBuilders  $builders The template services, the dashboard factory and the resolver.
+	 * @param DashboardStructure $structure The tree, personal-layer, translation and footer services.
+	 * @param DashboardPlatform  $platform The group manager, database connection, config and l10n factory.
+	 * @param DashboardOutlets   $outlets The logger, event dispatcher, URL generator and activity emitter.
+	 * @param DashboardLimits    $limits The optional role-feature, public-share, quota and locking collaborators.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly AdminSettingMapper $settingMapper,
-		private readonly TemplateService $templateService,
-		private readonly DashboardFactory $dashboardFactory,
-		private readonly DashboardResolver $dashResolver,
-		private readonly DashboardTreeService $treeService,
-		private readonly IGroupManager $groupManager,
-		private readonly AdminTemplateService $adminTemplateService,
-		private readonly IDBConnection $db,
-		private readonly IConfig $config,
-		private readonly IFactory $l10nFactory,
-		private readonly LoggerInterface $logger,
-		private readonly PersonalLayerService $personalLayers,
-		private readonly ?DashboardTranslationService $translationService = null,
-		private readonly ?DashboardLockMapper $lockMapper = null,
-		private readonly ?FooterService $footerService = null,
-		private readonly ?RoleFeaturePermissionService $roleFeaturePerm = null,
-		private readonly ?IEventDispatcher $eventDispatcher = null,
-		private readonly ?PublicShareContext $publicShareContext = null,
-		private readonly ?QuotaService $quotaService = null,
-		private readonly ?IURLGenerator $urlGenerator = null,
-		private readonly ?ILockingProvider $lockingProvider = null,
-		private readonly ?DashboardActivityEmitter $activity = null,
+		private readonly DashboardStores $stores,
+		private readonly DashboardBuilders $builders,
+		private readonly DashboardStructure $structure,
+		private readonly DashboardPlatform $platform,
+		private readonly DashboardOutlets $outlets,
+		private readonly DashboardLimits $limits = new DashboardLimits(),
 	) {
 	}//end __construct()
 
@@ -361,8 +190,8 @@ class DashboardService {
 	 * @return string The web path to the image.
 	 */
 	private function appImagePath(string $image): string {
-		if ($this->urlGenerator !== null) {
-			return $this->urlGenerator->imagePath('launchpad', $image);
+		if ($this->outlets->urlGenerator !== null) {
+			return $this->outlets->urlGenerator->imagePath('launchpad', $image);
 		}
 
 		return '/apps/launchpad/img/' . $image;
@@ -381,7 +210,7 @@ class DashboardService {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function getUserDashboards(string $userId): array {
-		return $this->dashboardMapper->findByUserId(userId: $userId);
+		return $this->stores->dashboardMapper->findByUserId(userId: $userId);
 	}//end getUserDashboards()
 
 	/**
@@ -429,7 +258,7 @@ class DashboardService {
 			return null;
 		}
 
-		$placements = $this->placementMapper->findByDashboardId(
+		$placements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $dashboard->getId()
 		);
 
@@ -440,9 +269,9 @@ class DashboardService {
 		// goes through PermissionService::resolveAccessLevel(); this keeps
 		// the envelope the frontend renders from agreeing with it.
 		if ($source === Dashboard::SOURCE_SHARED) {
-			$levels = $this->dashResolver->findSharedLevels(
+			$levels = $this->builders->dashResolver->findSharedLevels(
 				userId: $userId,
-				userGroupIds: $this->adminTemplateService->getUserGroupIdsFor(
+				userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
 					userId: $userId
 				)
 			);
@@ -459,7 +288,7 @@ class DashboardService {
 			}
 		}
 
-		return $this->dashResolver->buildResult(
+		return $this->builders->dashResolver->buildResult(
 			dashboard: $dashboard,
 			placements: $this->withPersonalLayer(
 				placements: $placements,
@@ -499,7 +328,7 @@ class DashboardService {
 			return $placements;
 		}
 
-		return $this->personalLayers->applyTo(
+		return $this->structure->personalLayers->applyTo(
 			placements: $placements,
 			userId: $userId,
 			dashboardId: (int)$dashboard->getId()
@@ -557,7 +386,7 @@ class DashboardService {
 		// resolveActiveDashboard() resolves the same way. A stale pref
 		// (UUID no longer visible) falls through to the legacy chain.
 		$defaultUuid = $this->getDefaultPreference(userId: $userId);
-		$activeUuid = (string)$this->config->getUserValue(
+		$activeUuid = (string)$this->platform->config->getUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
@@ -575,10 +404,10 @@ class DashboardService {
 				foreach ($visible as $entry) {
 					$candidate = $entry['dashboard'];
 					if ((string)$candidate->getUuid() === $prefUuid) {
-						$placements = $this->placementMapper->findByDashboardId(
+						$placements = $this->stores->placementMapper->findByDashboardId(
 							dashboardId: $candidate->getId()
 						);
-						return $this->dashResolver->buildResult(
+						return $this->builders->dashResolver->buildResult(
 							dashboard: $candidate,
 							placements: $placements
 						);
@@ -587,14 +416,14 @@ class DashboardService {
 			}
 		}//end if
 
-		$result = $this->dashResolver->tryGetActiveDashboard(
+		$result = $this->builders->dashResolver->tryGetActiveDashboard(
 			userId: $userId
 		);
 		if ($result !== null) {
 			return $result;
 		}
 
-		$result = $this->dashResolver->tryActivateExistingDashboard(
+		$result = $this->builders->dashResolver->tryActivateExistingDashboard(
 			userId: $userId
 		);
 		if ($result !== null) {
@@ -612,9 +441,9 @@ class DashboardService {
 		// resolveActiveDashboard step 6b) and BEFORE the template step
 		// because tryCreateFromTemplate WRITES — it would otherwise mint an
 		// empty personal dashboard and permanently bury the share.
-		$result = $this->dashResolver->tryGetSharedDashboard(
+		$result = $this->builders->dashResolver->tryGetSharedDashboard(
 			userId: $userId,
-			userGroupIds: $this->adminTemplateService->getUserGroupIdsFor(
+			userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
 				userId: $userId
 			)
 		);
@@ -662,7 +491,7 @@ class DashboardService {
 		// `tryCreateFromTemplate()` still answers null when personal
 		// dashboards are switched off, which falls through to the old
 		// behaviour.
-		if ($this->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
+		if ($this->limits->roleFeaturePerm?->hasRoleLayoutDefaultsFor(userId: $userId) === true) {
 			$result = $this->tryCreateFromTemplate(userId: $userId);
 			if ($result !== null) {
 				return $result;
@@ -708,9 +537,9 @@ class DashboardService {
 			return null;
 		}
 
-		return $this->dashResolver->buildResult(
+		return $this->builders->dashResolver->buildResult(
 			dashboard: $groupShared['dashboard'],
-			placements: $this->placementMapper->findByDashboardId(
+			placements: $this->stores->placementMapper->findByDashboardId(
 				dashboardId: $groupShared['dashboard']->getId()
 			)
 		);
@@ -749,23 +578,23 @@ class DashboardService {
 		$options   += self::CREATE_DEFAULTS;
 		$parentUuid = $options['parentUuid'];
 		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
-		$this->publicShareContext?->requireMutable();
+		$this->limits->publicShareContext?->requireMutable();
 		// Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
 		// dashboard quota at the single creation choke point so every
 		// user-initiated surface (REST create, CLI, template
 		// instantiation) is bound. Admin provisioning paths wrap their
 		// calls in QuotaService::runProvisioning() to bypass this
 		// (REQ-QUOTA-004). Runs before any DB write.
-		$this->quotaService?->assertCanCreateDashboard(userId: $userId);
+		$this->limits->quotaService?->assertCanCreateDashboard(userId: $userId);
 		// REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
 		// depth checks BEFORE the entity is built so the request is
 		// rejected without a partial row in memory.
-		$this->treeService->validateParent(
+		$this->structure->treeService->validateParent(
 			movingUuid: null,
 			newParentUuid: $parentUuid
 		);
 
-		$dashboard = $this->dashboardFactory->create(
+		$dashboard = $this->builders->dashboardFactory->create(
 			userId: $userId,
 			name: $name,
 			options: [
@@ -791,15 +620,15 @@ class DashboardService {
 		// unaddressable by path).
 		$resolvedSlug = $dashboard->getSlug();
 		if ($resolvedSlug !== null && $resolvedSlug !== '') {
-			$this->treeService->validateSlugUnique(
+			$this->structure->treeService->validateSlugUnique(
 				parentUuid: $parentUuid,
 				slug: $resolvedSlug
 			);
 		}
 
-		$this->dashboardMapper->deactivateAllForUser(userId: $userId);
+		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
 
-		$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
 
 		// REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
 		// a primary translation row in the owner's Nextcloud locale (or
@@ -807,13 +636,13 @@ class DashboardService {
 		// best-effort — failure here does not abort dashboard creation,
 		// because the legacy materialiser keeps reads working until the
 		// seed retries via a subsequent translation API call.
-		if ($this->translationService !== null) {
+		if ($this->structure->translationService !== null) {
 			try {
-				$this->translationService->seedPrimaryFor(
+				$this->structure->translationService->seedPrimaryFor(
 					dashboard: $persisted
 				);
 			} catch (Throwable $t) {
-				$this->logger->warning(
+				$this->outlets->logger->warning(
 					message: 'launchpad: failed to seed primary translation: {message}',
 					context: ['message' => $t->getMessage()]
 				);
@@ -850,8 +679,8 @@ class DashboardService {
 		array $data,
 	): Dashboard {
 		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
-		$this->publicShareContext?->requireMutable();
-		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
+		$this->limits->publicShareContext?->requireMutable();
+		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
 			throw new Exception(message: 'Access denied');
@@ -862,9 +691,9 @@ class DashboardService {
 			data: $data
 		);
 
-		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->stores->dashboardMapper->update(entity: $dashboard);
 		// Shared dashboards announce a save, at most once a day (#713).
-		$this->activity?->updated(dashboard: $saved, actor: $userId);
+		$this->outlets->activity?->updated(dashboard: $saved, actor: $userId);
 
 		return $saved;
 	}//end updateDashboard()
@@ -893,8 +722,8 @@ class DashboardService {
 		bool $cascade = false,
 	): void {
 		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
-		$this->publicShareContext?->requireMutable();
-		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
+		$this->limits->publicShareContext?->requireMutable();
+		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
 			throw new Exception(message: 'Access denied');
@@ -938,7 +767,7 @@ class DashboardService {
 			return;
 		}
 
-		$childCount = $this->dashboardMapper->countChildrenByParent(
+		$childCount = $this->stores->dashboardMapper->countChildrenByParent(
 			parentUuid: $uuid
 		);
 		if ($childCount > 0) {
@@ -975,25 +804,25 @@ class DashboardService {
 	): void {
 		// REQ-DASH-044: cascade-delete translation variants for the
 		// dashboard about to disappear so they don't outlive the parent.
-		if ($uuid !== '' && $this->translationService !== null) {
-			$this->translationService->deleteAllForDashboard(
+		if ($uuid !== '' && $this->structure->translationService !== null) {
+			$this->structure->translationService->deleteAllForDashboard(
 				dashboardUuid: $uuid
 			);
 		}
 
-		$this->placementMapper->deleteByDashboardId(
+		$this->stores->placementMapper->deleteByDashboardId(
 			dashboardId: $dashboardId
 		);
 
 		// Cascade-clear the editing lock so a deleted dashboard never
 		// leaves an orphaned lock row behind (REQ-LOCK-008).
-		if ($this->lockMapper !== null && $uuid !== '') {
-			$this->lockMapper->deleteByDashboardUuid(
+		if ($this->stores->lockMapper !== null && $uuid !== '') {
+			$this->stores->lockMapper->deleteByDashboardUuid(
 				dashboardUuid: $uuid
 			);
 		}
 
-		$this->dashboardMapper->delete(entity: $dashboard);
+		$this->stores->dashboardMapper->delete(entity: $dashboard);
 
 		$this->dispatchDashboardDeleted(
 			dashboard: $dashboard,
@@ -1022,31 +851,31 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function deleteSubtreeWithChildRows(Dashboard $dashboard, string $uuid): void {
-		if ($this->translationService !== null) {
-			$descendants = $this->dashboardMapper->findDescendants(
+		if ($this->structure->translationService !== null) {
+			$descendants = $this->stores->dashboardMapper->findDescendants(
 				ancestorUuid: $uuid
 			);
 			foreach ($descendants as $descendant) {
 				$descendantUuid = (string)$descendant->getUuid();
 				if ($descendantUuid !== '') {
-					$this->translationService->deleteAllForDashboard(
+					$this->structure->translationService->deleteAllForDashboard(
 						dashboardUuid: $descendantUuid
 					);
 				}
 			}
 
-			$this->translationService->deleteAllForDashboard(
+			$this->structure->translationService->deleteAllForDashboard(
 				dashboardUuid: $uuid
 			);
 		}
 
-		if ($this->lockMapper !== null) {
-			$this->lockMapper->deleteByDashboardUuid(
+		if ($this->stores->lockMapper !== null) {
+			$this->stores->lockMapper->deleteByDashboardUuid(
 				dashboardUuid: $uuid
 			);
 		}
 
-		$this->treeService->deleteSubtree(dashboard: $dashboard);
+		$this->structure->treeService->deleteSubtree(dashboard: $dashboard);
 	}//end deleteSubtreeWithChildRows()
 
 	/**
@@ -1072,7 +901,7 @@ class DashboardService {
 		string $uuid,
 		string $fallbackOwnerId,
 	): void {
-		if ($this->eventDispatcher === null || $uuid === '') {
+		if ($this->outlets->eventDispatcher === null || $uuid === '') {
 			return;
 		}
 
@@ -1082,7 +911,7 @@ class DashboardService {
 			$resolvedOwnerId = $ownerId;
 		}
 
-		$this->eventDispatcher->dispatchTyped(
+		$this->outlets->eventDispatcher->dispatchTyped(
 			new DashboardDeletedEvent(
 				dashboardUuid: $uuid,
 				ownerUserId:   $resolvedOwnerId,
@@ -1107,13 +936,13 @@ class DashboardService {
 		int $dashboardId,
 		string $userId,
 	): Dashboard {
-		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
+		$dashboard = $this->stores->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
 			throw new Exception(message: 'Access denied');
 		}
 
-		$this->dashboardMapper->setActive(
+		$this->stores->dashboardMapper->setActive(
 			$dashboardId,
 			userId: $userId
 		);
@@ -1138,7 +967,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function findByUuid(string $uuid): Dashboard {
-		return $this->dashboardMapper->findByUuid(uuid: $uuid);
+		return $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 	}//end findByUuid()
 
 	/**
@@ -1153,7 +982,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function listGroupDashboards(string $groupId): array {
-		return $this->dashboardMapper->findByGroup(groupId: $groupId);
+		return $this->stores->dashboardMapper->findByGroup(groupId: $groupId);
 	}//end listGroupDashboards()
 
 	/**
@@ -1179,7 +1008,7 @@ class DashboardService {
 		string $groupId,
 		string $uuid,
 	): Dashboard {
-		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+		$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 
 		if ($dashboard->getType() !== Dashboard::TYPE_GROUP_SHARED) {
 			throw new DoesNotExistException(
@@ -1227,7 +1056,7 @@ class DashboardService {
 			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
 		}
 
-		$dashboard = $this->dashboardFactory->create(
+		$dashboard = $this->builders->dashboardFactory->create(
 			userId: null,
 			name: $name,
 			options: [
@@ -1243,7 +1072,7 @@ class DashboardService {
 		// POST /api/dashboards/group/{groupId}/default endpoint.
 		$dashboard->setIsDefault(0);
 
-		return $this->dashboardMapper->insert(entity: $dashboard);
+		return $this->stores->dashboardMapper->insert(entity: $dashboard);
 	}//end createGroupShared()
 
 	/**
@@ -1293,9 +1122,9 @@ class DashboardService {
 			data: $patch
 		);
 
-		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->stores->dashboardMapper->update(entity: $dashboard);
 		// The group hears about a save, at most once a day (#713).
-		$this->activity?->updated(dashboard: $saved, actor: $actorUserId);
+		$this->outlets->activity?->updated(dashboard: $saved, actor: $actorUserId);
 
 		return $saved;
 	}//end updateGroupShared()
@@ -1335,7 +1164,7 @@ class DashboardService {
 		);
 
 		if ($groupId !== Dashboard::DEFAULT_GROUP_ID) {
-			$count = $this->dashboardMapper->countByGroup(
+			$count = $this->stores->dashboardMapper->countByGroup(
 				groupId: $groupId
 			);
 			if ($count <= 1) {
@@ -1343,16 +1172,16 @@ class DashboardService {
 			}
 		}
 
-		$this->placementMapper->deleteByDashboardId(
+		$this->stores->placementMapper->deleteByDashboardId(
 			dashboardId: $dashboard->getId()
 		);
-		$this->dashboardMapper->delete(entity: $dashboard);
+		$this->stores->dashboardMapper->delete(entity: $dashboard);
 
 		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
 		// (REQ-CSC-001). Actor is the admin who performed the delete.
 		$deletedUuid = (string)$dashboard->getUuid();
-		if ($this->eventDispatcher !== null && $deletedUuid !== '') {
-			$this->eventDispatcher->dispatchTyped(
+		if ($this->outlets->eventDispatcher !== null && $deletedUuid !== '') {
+			$this->outlets->eventDispatcher->dispatchTyped(
 				new DashboardDeletedEvent(
 					dashboardUuid: $deletedUuid,
 					ownerUserId:   $actorUserId,
@@ -1401,9 +1230,9 @@ class DashboardService {
 			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
 		}
 
-		$this->db->beginTransaction();
+		$this->platform->db->beginTransaction();
 		try {
-			$affected = $this->dashboardMapper->setGroupDefaultUuid(
+			$affected = $this->stores->dashboardMapper->setGroupDefaultUuid(
 				groupId: $groupId,
 				uuid: $uuid
 			);
@@ -1413,23 +1242,23 @@ class DashboardService {
 				// back so the existing default in the group is
 				// preserved. REQ-DASH-015 scenario "Default cannot be
 				// set across groups".
-				$this->db->rollBack();
+				$this->platform->db->rollBack();
 				throw new DoesNotExistException(
 					msg: self::ERR_DEFAULT_TARGET_NOT_IN_GROUP
 				);
 			}
 
-			$this->dashboardMapper->clearGroupDefaults(
+			$this->stores->dashboardMapper->clearGroupDefaults(
 				groupId: $groupId,
 				exceptUuid: $uuid
 			);
 
-			$this->db->commit();
+			$this->platform->db->commit();
 		} catch (DoesNotExistException $e) {
 			// Already rolled back above — re-throw for the controller.
 			throw $e;
 		} catch (Throwable $t) {
-			$this->db->rollBack();
+			$this->platform->db->rollBack();
 			throw $t;
 		}//end try
 	}//end setGroupDefault()
@@ -1451,11 +1280,11 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function getVisibleToUser(string $userId): array {
-		$userGroupIds = $this->adminTemplateService->getUserGroupIdsFor(
+		$userGroupIds = $this->builders->adminTemplateService->getUserGroupIdsFor(
 			userId: $userId
 		);
 
-		$entries = $this->dashboardMapper->findVisibleToUser(
+		$entries = $this->stores->dashboardMapper->findVisibleToUser(
 			userId: $userId,
 			userGroupIds: $userGroupIds
 		);
@@ -1496,7 +1325,7 @@ class DashboardService {
 			$seenUuids[(string)$entry['dashboard']->getUuid()] = true;
 		}
 
-		$sharedEntries = $this->dashResolver->findSharedDashboards(
+		$sharedEntries = $this->builders->dashResolver->findSharedDashboards(
 			userId: $userId,
 			userGroupIds: $userGroupIds
 		);
@@ -1565,7 +1394,7 @@ class DashboardService {
 	 */
 	private function safeIsAdmin(string $userId): bool {
 		try {
-			return (bool)$this->groupManager->isAdmin(userId: $userId);
+			return (bool)$this->platform->groupManager->isAdmin(userId: $userId);
 		} catch (Throwable) {
 			return false;
 		}
@@ -1811,7 +1640,7 @@ class DashboardService {
 		array $byUuid,
 		string $prefKey,
 	): ?array {
-		$uuid = $this->config->getUserValue(
+		$uuid = $this->platform->config->getUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: $prefKey,
@@ -1827,12 +1656,12 @@ class DashboardService {
 		}
 
 		// Stale pref: UUID is no longer visible — clear and fall through.
-		$this->config->deleteUserValue(
+		$this->platform->config->deleteUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: $prefKey
 		);
-		$this->logger->warning(
+		$this->outlets->logger->warning(
 			message: 'launchpad: stale ' . $prefKey . ' "{uuid}" cleared for user "{user}"',
 			context: ['uuid' => $uuid, 'user' => $userId]
 		);
@@ -1896,14 +1725,14 @@ class DashboardService {
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-019
 	 */
 	private function resolveTemplateRung(string $userId): ?array {
-		$template = $this->templateService->getApplicableTemplate(userId: $userId);
+		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
 		if ($template === null) {
 			return null;
 		}
 
 		// "First time" means: owns nothing yet. Whoever has a personal
 		// dashboard already made, or was given, their start.
-		if ($this->dashboardMapper->findByUserId(userId: $userId) !== []) {
+		if ($this->stores->dashboardMapper->findByUserId(userId: $userId) !== []) {
 			return null;
 		}
 
@@ -1917,11 +1746,11 @@ class DashboardService {
 			return ['dashboard' => $template, 'viewOnly' => true];
 		}
 
-		$copy = $this->templateService->createDashboardFromTemplate(
+		$copy = $this->builders->templateService->createDashboardFromTemplate(
 			userId: $userId,
 			template: $template
 		);
-		$this->config->setUserValue(
+		$this->platform->config->setUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
@@ -1939,7 +1768,7 @@ class DashboardService {
 	 * @return bool True when one exists.
 	 */
 	private function hasPrimaryGroupDefault(string $userId): bool {
-		$groupId = $this->adminTemplateService->resolvePrimaryGroup(userId: $userId);
+		$groupId = $this->builders->adminTemplateService->resolvePrimaryGroup(userId: $userId);
 		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
 			return false;
 		}
@@ -1960,7 +1789,7 @@ class DashboardService {
 	 * @return array The dashboard result.
 	 */
 	private function describeTemplateRung(array $rung): array {
-		$placements = $this->placementMapper->findByDashboardId(
+		$placements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $rung['dashboard']->getId()
 		);
 
@@ -1972,7 +1801,7 @@ class DashboardService {
 			];
 		}
 
-		return $this->dashResolver->buildResult(
+		return $this->builders->dashResolver->buildResult(
 			dashboard: $rung['dashboard'],
 			placements: $placements
 		);
@@ -2065,7 +1894,7 @@ class DashboardService {
 	 */
 	public function setActivePreference(string $userId, string $uuid): void {
 		if ($uuid === '') {
-			$this->config->deleteUserValue(
+			$this->platform->config->deleteUserValue(
 				userId: $userId,
 				appName: Application::APP_ID,
 				key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
@@ -2073,7 +1902,7 @@ class DashboardService {
 			return;
 		}
 
-		$this->config->setUserValue(
+		$this->platform->config->setUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
@@ -2104,7 +1933,7 @@ class DashboardService {
 	 */
 	public function setDefaultPreference(string $userId, string $uuid): void {
 		if ($uuid === '') {
-			$this->config->deleteUserValue(
+			$this->platform->config->deleteUserValue(
 				userId: $userId,
 				appName: Application::APP_ID,
 				key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
@@ -2112,7 +1941,7 @@ class DashboardService {
 			return;
 		}
 
-		$this->config->setUserValue(
+		$this->platform->config->setUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY,
@@ -2135,7 +1964,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function getDefaultPreference(string $userId): string {
-		return (string)$this->config->getUserValue(
+		return (string)$this->platform->config->getUserValue(
 			userId: $userId,
 			appName: Application::APP_ID,
 			key: self::DEFAULT_DASHBOARD_UUID_PREF_KEY,
@@ -2165,7 +1994,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function publishDashboard(string $uuid, string $userId): Dashboard {
-		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+		$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		$this->assertOwnerOrAdmin(
 			dashboard: $dashboard,
 			actorUserId: $userId
@@ -2181,7 +2010,7 @@ class DashboardService {
 			$dashboard->setUnpublishAt(null);
 			if ($dashboard->getPublicationStatus() === Dashboard::STATUS_PUBLISHED) {
 				$dashboard->setUpdatedAt($now);
-				return $this->dashboardMapper->update(entity: $dashboard);
+				return $this->stores->dashboardMapper->update(entity: $dashboard);
 			}
 		}
 
@@ -2206,10 +2035,10 @@ class DashboardService {
 		$dashboard->setPublishAt(null);
 		$dashboard->setUpdatedAt($now);
 
-		$saved = $this->dashboardMapper->update(entity: $dashboard);
+		$saved = $this->stores->dashboardMapper->update(entity: $dashboard);
 		// Only the transition into published is announced; the idempotent
 		// early return above sends nothing (#713).
-		$this->activity?->published(dashboard: $saved, actor: $userId);
+		$this->outlets->activity?->published(dashboard: $saved, actor: $userId);
 
 		return $saved;
 	}//end publishDashboard()
@@ -2233,7 +2062,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function unpublish(string $uuid, string $userId): Dashboard {
-		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+		$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		$this->assertOwnerOrAdmin(
 			dashboard: $dashboard,
 			actorUserId: $userId
@@ -2254,7 +2083,7 @@ class DashboardService {
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		return $this->stores->dashboardMapper->update(entity: $dashboard);
 	}//end unpublish()
 
 	/**
@@ -2289,7 +2118,7 @@ class DashboardService {
 		string $userId,
 		?string $unpublishAt = null,
 	): Dashboard {
-		$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+		$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		$this->assertOwnerOrAdmin(
 			dashboard: $dashboard,
 			actorUserId: $userId
@@ -2326,7 +2155,7 @@ class DashboardService {
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
 		);
 
-		return $this->dashboardMapper->update(entity: $dashboard);
+		return $this->stores->dashboardMapper->update(entity: $dashboard);
 	}//end schedule()
 
 	/**
@@ -2345,7 +2174,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function materialiseScheduledDashboards(): int {
-		$dueRows = $this->dashboardMapper->findDueScheduled();
+		$dueRows = $this->stores->dashboardMapper->findDueScheduled();
 		if (count($dueRows) === 0) {
 			return 0;
 		}
@@ -2359,10 +2188,10 @@ class DashboardService {
 
 			$dashboard->setPublishAt(null);
 			$dashboard->setUpdatedAt($now);
-			$saved = $this->dashboardMapper->update(entity: $dashboard);
+			$saved = $this->stores->dashboardMapper->update(entity: $dashboard);
 			// A scheduled dashboard is announced once, when its row flips
 			// to published here; the owner is the actor (#713).
-			$this->activity?->published(dashboard: $saved, actor: (string) $saved->getUserId());
+			$this->outlets->activity?->published(dashboard: $saved, actor: (string) $saved->getUserId());
 		}
 
 		return count($dueRows);
@@ -2446,7 +2275,7 @@ class DashboardService {
 		// personal-scope dashboard, so it is bound by the per-user
 		// dashboard quota exactly like a plain create. Runs before any DB
 		// write and before the transaction opens.
-		$this->quotaService?->assertCanCreateDashboard(userId: $userId);
+		$this->limits->quotaService?->assertCanCreateDashboard(userId: $userId);
 
 		// REQ-DASH-020: source must be visible to the user — reuse the
 		// visible-to-user resolver so personal / group / default-group
@@ -2495,7 +2324,7 @@ class DashboardService {
 			);
 		} finally {
 			if ($lockAcquired === true) {
-				$this->lockingProvider?->releaseLock(
+				$this->limits->lockingProvider?->releaseLock(
 					path: $lockKey,
 					type: ILockingProvider::LOCK_EXCLUSIVE
 				);
@@ -2527,12 +2356,12 @@ class DashboardService {
 		Dashboard $source,
 		string $resolvedName,
 	): Dashboard {
-		$this->db->beginTransaction();
+		$this->platform->db->beginTransaction();
 		try {
 			// REQ-DASH-020: force `isDefault = 0` and `groupId = null`
 			// on the fork — the factory is the single source of truth
 			// for the (type, groupId) invariant (REQ-DASH-011).
-			$fork = $this->dashboardFactory->create(
+			$fork = $this->builders->dashboardFactory->create(
 				userId: $userId,
 				name: $resolvedName,
 				options: [
@@ -2551,14 +2380,14 @@ class DashboardService {
 			// for this user before persisting the fork — mirrors
 			// {@see self::createDashboard()} so the single-active
 			// invariant holds across the transaction.
-			$this->dashboardMapper->deactivateAllForUser(userId: $userId);
+			$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
 			$fork->setIsActive(1);
 
-			$persisted = $this->dashboardMapper->insert(entity: $fork);
+			$persisted = $this->stores->dashboardMapper->insert(entity: $fork);
 
 			// REQ-DASH-020: byte-for-byte placement clone. Any DB error
 			// bubbles out of the mapper and the catch below rolls back.
-			$this->placementMapper->cloneToDashboard(
+			$this->stores->placementMapper->cloneToDashboard(
 				sourceDashboardId: (int)$source->getId(),
 				targetDashboardId: (int)$persisted->getId()
 			);
@@ -2575,11 +2404,11 @@ class DashboardService {
 				);
 			}
 
-			$this->db->commit();
+			$this->platform->db->commit();
 
 			return $persisted;
 		} catch (Throwable $t) {
-			$this->db->rollBack();
+			$this->platform->db->rollBack();
 			throw $t;
 		}//end try
 	}//end persistFork()
@@ -2603,14 +2432,14 @@ class DashboardService {
 	 * @return bool True when the lock was acquired (caller MUST release it).
 	 */
 	private function acquireForkLock(string $lockKey): bool {
-		if ($this->lockingProvider === null) {
+		if ($this->limits->lockingProvider === null) {
 			return false;
 		}
 
 		$maxAttempts = 10;
 		for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
 			try {
-				$this->lockingProvider->acquireLock(
+				$this->limits->lockingProvider->acquireLock(
 					path: $lockKey,
 					type: ILockingProvider::LOCK_EXCLUSIVE
 				);
@@ -2621,7 +2450,7 @@ class DashboardService {
 			}
 		}
 
-		$this->logger->warning(
+		$this->outlets->logger->warning(
 			message: 'forkAsPersonal could not acquire the fork-naming lock; proceeding unlocked',
 			context: [
 				'app' => Application::APP_ID,
@@ -2693,9 +2522,9 @@ class DashboardService {
 			return $trimmed;
 		}
 
-		$l10n = $this->l10nFactory->get(
+		$l10n = $this->platform->l10nFactory->get(
 			app: Application::APP_ID,
-			lang: $this->config->getUserValue(
+			lang: $this->platform->config->getUserValue(
 				userId: $userId,
 				appName: 'core',
 				key: 'lang',
@@ -2728,7 +2557,7 @@ class DashboardService {
 		string $baseName,
 	): string {
 		$taken = [];
-		foreach ($this->dashboardMapper->findByUserId(userId: $userId) as $dash) {
+		foreach ($this->stores->dashboardMapper->findByUserId(userId: $userId) as $dash) {
 			// Forks land at the root, so only root siblings can collide.
 			if ($dash->getParentUuid() !== null) {
 				continue;
@@ -2762,7 +2591,7 @@ class DashboardService {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function isAdmin(string $userId): bool {
-		return $this->groupManager->isAdmin(userId: $userId);
+		return $this->platform->groupManager->isAdmin(userId: $userId);
 	}//end isAdmin()
 
 	/**
@@ -2779,11 +2608,11 @@ class DashboardService {
 	 * @spec openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function userCanAccessGroup(string $userId, string $groupId): bool {
-		if ($this->groupManager->isAdmin(userId: $userId) === true) {
+		if ($this->platform->groupManager->isAdmin(userId: $userId) === true) {
 			return true;
 		}
 
-		$userGroupIds = $this->adminTemplateService->getUserGroupIdsFor(
+		$userGroupIds = $this->builders->adminTemplateService->getUserGroupIdsFor(
 			userId: $userId
 		);
 
@@ -2815,7 +2644,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function getAllowUserDashboards(): bool {
-		return (bool)$this->settingMapper->getValue(
+		return (bool)$this->stores->settingMapper->getValue(
 			key: AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
 			default: false
 		);
@@ -2918,7 +2747,7 @@ class DashboardService {
 			}
 
 			try {
-				$this->treeService->validateSlugUnique(parentUuid: null, slug: $candidate);
+				$this->structure->treeService->validateSlugUnique(parentUuid: null, slug: $candidate);
 				return $candidate;
 			} catch (InvalidArgumentException) {
 				continue;
@@ -2938,12 +2767,12 @@ class DashboardService {
 	private function tryCreateFromTemplate(string $userId): ?array {
 		$allowUserDashboards = $this->getAllowUserDashboards();
 
-		$template = $this->templateService->getApplicableTemplate(
+		$template = $this->builders->templateService->getApplicableTemplate(
 			userId: $userId
 		);
 
 		if ($template !== null) {
-			return $this->dashResolver->handleTemplateResult(
+			return $this->builders->dashResolver->handleTemplateResult(
 				template: $template,
 				allowUserDashboards: $allowUserDashboards,
 				userId: $userId
@@ -2972,8 +2801,8 @@ class DashboardService {
 			// before role-based-content shipped) working — when null we treat
 			// it as "no defaults seeded" so the legacy hardcoded fallback runs.
 			$seeded = 0;
-			if ($this->roleFeaturePerm !== null) {
-				$seeded = $this->roleFeaturePerm->seedLayoutFromRoleDefaults(
+			if ($this->limits->roleFeaturePerm !== null) {
+				$seeded = $this->limits->roleFeaturePerm->seedLayoutFromRoleDefaults(
 					userId: $userId,
 					dashboard: $dashboard
 				);
@@ -2984,7 +2813,7 @@ class DashboardService {
 			// came out carrying the role defaults AND tile/tile/tile/files.
 			$placements = [];
 			if ($seeded > 0) {
-				$placements = $this->placementMapper->findByDashboardId(
+				$placements = $this->stores->placementMapper->findByDashboardId(
 					dashboardId: $dashboard->getId()
 				);
 			}
@@ -3035,7 +2864,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function findPlacements(int $dashboardId): array {
-		return $this->placementMapper->findByDashboardId(
+		return $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $dashboardId
 		);
 	}//end findPlacements()
@@ -3085,14 +2914,14 @@ class DashboardService {
 	 * @spec openspec/specs/default-widget-bundle/spec.md
 	 */
 	public function ensureDefaultDashboard(): ?Dashboard {
-		$existing = $this->dashboardMapper->findByGroup(
+		$existing = $this->stores->dashboardMapper->findByGroup(
 			groupId: Dashboard::DEFAULT_GROUP_ID
 		);
 		if (count(value: $existing) > 0) {
 			return null;
 		}
 
-		$dashboard = $this->dashboardFactory->create(
+		$dashboard = $this->builders->dashboardFactory->create(
 			userId: null,
 			name: 'Dashboard',
 			options: [
@@ -3108,7 +2937,7 @@ class DashboardService {
 		// Drafts are hidden from every non-owner, and this row has no owner.
 		$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
 
-		$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
 		$this->seedDefaultWidgets(dashboardId: $persisted->getId());
 
 		return $persisted;
@@ -3148,7 +2977,7 @@ class DashboardService {
 
 		$placements = [];
 		foreach ($this->defaultWidgetSeeds() as $config) {
-			$placements[] = $this->placementMapper->insert(
+			$placements[] = $this->stores->placementMapper->insert(
 				entity: $this->buildSeedPlacement(
 					dashboardId: $dashboardId,
 					config: $config,
@@ -3334,7 +3163,7 @@ class DashboardService {
 		if (isset($data['placements']) === true
 			&& is_array($data['placements']) === true
 		) {
-			$this->placementMapper->updatePositions(
+			$this->stores->placementMapper->updatePositions(
 				updates: $data['placements']
 			);
 		}
@@ -3377,7 +3206,7 @@ class DashboardService {
 		);
 
 		if ($newMode === Dashboard::FOOTER_MODE_CUSTOM) {
-			$sanitised = $this->footerService->sanitiseHtml(
+			$sanitised = $this->structure->footerService->sanitiseHtml(
 				html: $this->resolveCustomFooterHtml(
 					dashboard: $dashboard,
 					data: $data,
@@ -3488,7 +3317,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function resolveFooterForDashboard(Dashboard $dashboard): ?array {
-		return $this->footerService->resolveFooterForDashboard(dashboard: $dashboard);
+		return $this->structure->footerService->resolveFooterForDashboard(dashboard: $dashboard);
 	}//end resolveFooterForDashboard()
 
 	/**
@@ -3527,7 +3356,7 @@ class DashboardService {
 			}
 
 			// REQ-DASH-028: cycle + depth before applying.
-			$this->treeService->validateParent(
+			$this->structure->treeService->validateParent(
 				movingUuid: $movingUuid,
 				newParentUuid: $newParent
 			);
@@ -3551,7 +3380,7 @@ class DashboardService {
 
 				// REQ-DASH-024: per-parent uniqueness — exclude the row
 				// being updated so no-op writes succeed.
-				$this->treeService->validateSlugUnique(
+				$this->structure->treeService->validateSlugUnique(
 					parentUuid: $effectiveParent,
 					slug: $newSlug,
 					excludeUuid: $movingUuid

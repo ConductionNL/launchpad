@@ -26,6 +26,11 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Activity\DebounceHelper;
@@ -130,22 +135,32 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->groupManager->method('isAdmin')->willReturn(true);
 
 		return new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->createMock(WidgetPlacementMapper::class),
-			settingMapper: $this->createMock(AdminSettingMapper::class),
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: $this->createMock(DashboardFactory::class),
-			dashResolver: $this->createMock(DashboardResolver::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			groupManager: $this->groupManager,
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			db: $this->createMock(IDBConnection::class),
-			config: $this->createMock(IConfig::class),
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
-			activity: $this->emitter,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->createMock(WidgetPlacementMapper::class),
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: $this->createMock(DashboardFactory::class),
+				dashResolver: $this->createMock(DashboardResolver::class),
+				adminTemplateService: $this->createMock(AdminTemplateService::class)
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->createMock(IDBConnection::class),
+				config: $this->createMock(IConfig::class),
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class),
+				activity: $this->emitter
+			)
 		);
 	}
 

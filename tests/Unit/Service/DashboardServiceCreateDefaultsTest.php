@@ -22,6 +22,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -77,21 +82,31 @@ class DashboardServiceCreateDefaultsTest extends TestCase {
 		$this->treeService = $this->createMock(DashboardTreeService::class);
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->createMock(AdminSettingMapper::class),
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: $this->dashboardFactory,
-			dashResolver: $this->createMock(DashboardResolver::class),
-			treeService: $this->treeService,
-			groupManager: $this->createMock(IGroupManager::class),
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			db: $this->createMock(IDBConnection::class),
-			config: $this->createMock(IConfig::class),
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(FooterService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: $this->dashboardFactory,
+				dashResolver: $this->createMock(DashboardResolver::class),
+				adminTemplateService: $this->createMock(AdminTemplateService::class)
+			),
+			structure: new DashboardStructure(
+				treeService: $this->treeService,
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->createMock(IGroupManager::class),
+				db: $this->createMock(IDBConnection::class),
+				config: $this->createMock(IConfig::class),
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 	}//end setUp()
 

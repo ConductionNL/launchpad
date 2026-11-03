@@ -22,6 +22,12 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardLimits;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
@@ -60,6 +66,12 @@ use ReflectionMethod;
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Service\SlugGenerator
+ * @uses   \OCA\LaunchPad\Service\DashboardStores
+ * @uses   \OCA\LaunchPad\Service\DashboardBuilders
+ * @uses   \OCA\LaunchPad\Service\DashboardStructure
+ * @uses   \OCA\LaunchPad\Service\DashboardPlatform
+ * @uses   \OCA\LaunchPad\Service\DashboardLimits
+ * @uses   \OCA\LaunchPad\Service\DashboardOutlets
  */
 class DashboardServiceCreateGoldenTest extends TestCase {
 
@@ -161,20 +173,30 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 		$settings->method('getValue')->willReturn(true);
 
 		return new DashboardService(
-			dashboardMapper: $mapper,
-			placementMapper: $placements,
-			settingMapper: $settings,
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $this->createMock(DashboardResolver::class),
-			treeService: $tree,
-			groupManager: $groups,
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			db: $this->createMock(IDBConnection::class),
-			config: $this->createMock(IConfig::class),
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->createMock(PersonalLayerService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $mapper,
+				placementMapper: $placements,
+				settingMapper: $settings
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->createMock(DashboardResolver::class),
+				adminTemplateService: $this->createMock(AdminTemplateService::class)
+			),
+			structure: new DashboardStructure(
+				treeService: $tree,
+				personalLayers: $this->createMock(PersonalLayerService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $groups,
+				db: $this->createMock(IDBConnection::class),
+				config: $this->createMock(IConfig::class),
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 	}//end service()
 

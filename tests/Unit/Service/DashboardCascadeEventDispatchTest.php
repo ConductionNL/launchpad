@@ -32,6 +32,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -115,21 +120,31 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 	 */
 	private function buildDashboardService(): DashboardService {
 		return new DashboardService(
-			dashboardMapper:      $this->dashboardMapper,
-			placementMapper:      $this->placementMapper,
-			settingMapper:        $this->createMock(AdminSettingMapper::class),
-			templateService:      $this->createMock(TemplateService::class),
-			dashboardFactory:     new DashboardFactory(),
-			dashResolver:         $this->createMock(DashboardResolver::class),
-			treeService:          $this->createMock(DashboardTreeService::class),
-			groupManager:         $this->groupManager,
-			adminTemplateService: $this->createMock(\OCA\LaunchPad\Service\AdminTemplateService::class),
-			db:                   $this->db,
-			config:               $this->createMock(IConfig::class),
-			l10nFactory:          $this->createMock(IFactory::class),
-			logger:               $this->createMock(LoggerInterface::class),
-			personalLayers:       $this->createMock(PersonalLayerService::class),
-			eventDispatcher:      $this->eventDispatcher,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->createMock(DashboardResolver::class),
+				adminTemplateService: $this->createMock(\OCA\LaunchPad\Service\AdminTemplateService::class)
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->db,
+				config: $this->createMock(IConfig::class),
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class),
+				eventDispatcher: $this->eventDispatcher
+			)
 		);
 	}//end buildDashboardService()
 

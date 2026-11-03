@@ -27,6 +27,7 @@ use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareGrant;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -137,9 +138,11 @@ class DashboardShareApiController extends Controller {
 		try {
 			$share = $this->shareService->addShare(
 				dashboardId: $id,
-				shareType: (string)$shareType,
-				shareWith: (string)$shareWith,
-				permissionLevel: (string)$permissionLevel,
+				grant: new ShareGrant(
+					shareType: (string)$shareType,
+					shareWith: (string)$shareWith,
+					permissionLevel: (string)$permissionLevel
+				),
 				callerId: $this->userId
 			);
 			return new DataResponse(

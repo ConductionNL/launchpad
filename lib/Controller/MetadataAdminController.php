@@ -176,9 +176,7 @@ class MetadataAdminController extends Controller {
 				key: $key,
 				label: $label,
 				type: $type,
-				options: $options,
-				required: $required,
-				sortOrder: $sortOrder
+				settings: ['options' => $options, 'required' => $required, 'sortOrder' => $sortOrder]
 			);
 		} catch (InvalidMetadataFieldException $exception) {
 			return self::badRequest(message: $exception->getMessage());
@@ -268,11 +266,13 @@ class MetadataAdminController extends Controller {
 		}
 
 		$patch = self::buildPatch(
-			key: $key,
-			label: $label,
-			sortOrder: $sortOrder,
-			required: $required,
-			options: $options
+			fields: [
+				'key'       => $key,
+				'label'     => $label,
+				'sortOrder' => $sortOrder,
+				'required'  => $required,
+				'options'   => $options,
+			]
 		);
 
 		try {
@@ -356,43 +356,19 @@ class MetadataAdminController extends Controller {
 	 * The forbidden `key` rename is deliberately forwarded rather than
 	 * dropped — the service rejects it with the documented 400.
 	 *
-	 * @param string|null $key The (forbidden) new slug.
-	 * @param string|null $label The new label.
-	 * @param int|null $sortOrder The new sort order.
-	 * @param int|null $required The new required flag.
-	 * @param array<int, string>|null $options The new option set.
+	 * @param array<string, mixed> $fields The nullable `key` (forbidden
+	 *                                     new slug), `label`, `sortOrder`,
+	 *                                     `required` and `options`.
 	 *
 	 * @return array<string, mixed> The patch payload.
 	 */
-	private static function buildPatch(
-		?string $key,
-		?string $label,
-		?int $sortOrder,
-		?int $required,
-		?array $options,
-	): array {
-		$patch = [];
-		if ($key !== null) {
-			$patch['key'] = $key;
-		}
-
-		if ($label !== null) {
-			$patch['label'] = $label;
-		}
-
-		if ($sortOrder !== null) {
-			$patch['sortOrder'] = $sortOrder;
-		}
-
-		if ($required !== null) {
-			$patch['required'] = $required;
-		}
-
-		if ($options !== null) {
-			$patch['options'] = $options;
-		}
-
-		return $patch;
+	private static function buildPatch(array $fields): array {
+		return array_filter(
+			array: $fields,
+			callback: static function ($value): bool {
+				return $value !== null;
+			}
+		);
 	}//end buildPatch()
 
 	/**

@@ -1,0 +1,386 @@
+{
+    "badRequest STATUS_BAD_REQUEST invalid_image|dynamic: $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "status": "error",
+            "error": "invalid_image",
+            "message": "dynamic: $e->getMessage()"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"invalid_image\",\"message\":\"dynamic: $e-\\u003EgetMessage()\"}"
+    },
+    "badRequest STATUS_BAD_REQUEST invalid_payload|Field \"base64\" is required": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "status": "error",
+            "error": "invalid_payload",
+            "message": "Field \"base64\" is required"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"invalid_payload\",\"message\":\"Field \\\"base64\\\" is required\"}"
+    },
+    "badRequest STATUS_BAD_REQUEST invalid_period|dynamic: $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "status": "error",
+            "error": "invalid_period",
+            "message": "dynamic: $e->getMessage()"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"invalid_period\",\"message\":\"dynamic: $e-\\u003EgetMessage()\"}"
+    },
+    "badRequest STATUS_BAD_REQUEST missing_uuid|UUID is required": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "status": "error",
+            "error": "missing_uuid",
+            "message": "UUID is required"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"missing_uuid\",\"message\":\"UUID is required\"}"
+    },
+    "errorCode STATUS_INTERNAL_SERVER_ERROR unknown_error": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"unknown_error\"}"
+    },
+    "errorCode STATUS_NOT_FOUND language_not_available": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "status": "error",
+            "error": "language_not_available"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"language_not_available\"}"
+    },
+    "errorCode STATUS_NOT_FOUND not_found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"not_found\"}"
+    },
+    "errorCode STATUS_REQUEST_ENTITY_TOO_LARGE file_too_large": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 413,
+        "data": {
+            "status": "error",
+            "error": "file_too_large"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"file_too_large\"}"
+    },
+    "failure STATUS_BAD_REQUEST ": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": ""
+        },
+        "body": "{\"error\":\"\"}"
+    },
+    "failure STATUS_BAD_REQUEST Both from and to are required ISO 8601 timestamps": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "Both from and to are required ISO 8601 timestamps"
+        },
+        "body": "{\"error\":\"Both from and to are required ISO 8601 timestamps\"}"
+    },
+    "failure STATUS_BAD_REQUEST Invalid dashboard UUID format": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "Invalid dashboard UUID format"
+        },
+        "body": "{\"error\":\"Invalid dashboard UUID format\"}"
+    },
+    "failure STATUS_BAD_REQUEST Invalid date format": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "Invalid date format"
+        },
+        "body": "{\"error\":\"Invalid date format\"}"
+    },
+    "failure STATUS_BAD_REQUEST No file uploaded under field \"file\".": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "No file uploaded under field \"file\"."
+        },
+        "body": "{\"error\":\"No file uploaded under field \\\"file\\\".\"}"
+    },
+    "failure STATUS_BAD_REQUEST Preview failed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "Preview failed"
+        },
+        "body": "{\"error\":\"Preview failed\"}"
+    },
+    "failure STATUS_BAD_REQUEST Unsupported language": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "Unsupported language"
+        },
+        "body": "{\"error\":\"Unsupported language\"}"
+    },
+    "failure STATUS_BAD_REQUEST `to` must be greater than or equal to `from`": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "`to` must be greater than or equal to `from`"
+        },
+        "body": "{\"error\":\"`to` must be greater than or equal to `from`\"}"
+    },
+    "failure STATUS_BAD_REQUEST announcementKey is required": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "announcementKey is required"
+        },
+        "body": "{\"error\":\"announcementKey is required\"}"
+    },
+    "failure STATUS_BAD_REQUEST dashboardUuid parameter is required when scope=dashboard": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "dashboardUuid parameter is required when scope=dashboard"
+        },
+        "body": "{\"error\":\"dashboardUuid parameter is required when scope=dashboard\"}"
+    },
+    "failure STATUS_BAD_REQUEST dashboardUuids must be an array of strings": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "dashboardUuids must be an array of strings"
+        },
+        "body": "{\"error\":\"dashboardUuids must be an array of strings\"}"
+    },
+    "failure STATUS_BAD_REQUEST dynamic: $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "dynamic: $e->getMessage()"
+        },
+        "body": "{\"error\":\"dynamic: $e-\\u003EgetMessage()\"}"
+    },
+    "failure STATUS_BAD_REQUEST dynamic: 'Could not encode the action matrix: ' . $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "dynamic: 'Could not encode the action matrix: ' . $e->getMessage()"
+        },
+        "body": "{\"error\":\"dynamic: 'Could not encode the action matrix: ' . $e-\\u003EgetMessage()\"}"
+    },
+    "failure STATUS_BAD_REQUEST dynamic: 'Unsupported scope: ' . $scope": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "dynamic: 'Unsupported scope: ' . $scope"
+        },
+        "body": "{\"error\":\"dynamic: 'Unsupported scope: ' . $scope\"}"
+    },
+    "failure STATUS_BAD_REQUEST feedUrl must use http:// or https:// scheme.": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "feedUrl must use http:// or https:// scheme."
+        },
+        "body": "{\"error\":\"feedUrl must use http:\\/\\/ or https:\\/\\/ scheme.\"}"
+    },
+    "failure STATUS_BAD_REQUEST groups must be an array": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "groups must be an array"
+        },
+        "body": "{\"error\":\"groups must be an array\"}"
+    },
+    "failure STATUS_BAD_REQUEST limit out of range (1..50)": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "limit out of range (1..50)"
+        },
+        "body": "{\"error\":\"limit out of range (1..50)\"}"
+    },
+    "failure STATUS_BAD_REQUEST publicationStatus is required": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "publicationStatus is required"
+        },
+        "body": "{\"error\":\"publicationStatus is required\"}"
+    },
+    "failure STATUS_BAD_REQUEST tree must be an array of node objects": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "error": "tree must be an array of node objects"
+        },
+        "body": "{\"error\":\"tree must be an array of node objects\"}"
+    },
+    "failure STATUS_CONFLICT Template not installed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 409,
+        "data": {
+            "error": "Template not installed"
+        },
+        "body": "{\"error\":\"Template not installed\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR Operation failed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "Operation failed"
+        },
+        "body": "{\"error\":\"Operation failed\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR Showcase installation failed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "Showcase installation failed"
+        },
+        "body": "{\"error\":\"Showcase installation failed\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR Showcase uninstall failed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "Showcase uninstall failed"
+        },
+        "body": "{\"error\":\"Showcase uninstall failed\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR Template installation failed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "Template installation failed"
+        },
+        "body": "{\"error\":\"Template installation failed\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR Template update failed": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "Template update failed"
+        },
+        "body": "{\"error\":\"Template update failed\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR dynamic: 'Confluence dry-run failed: ' . $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "dynamic: 'Confluence dry-run failed: ' . $e->getMessage()"
+        },
+        "body": "{\"error\":\"dynamic: 'Confluence dry-run failed: ' . $e-\\u003EgetMessage()\"}"
+    },
+    "failure STATUS_INTERNAL_SERVER_ERROR dynamic: 'Confluence import failed: ' . $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 500,
+        "data": {
+            "error": "dynamic: 'Confluence import failed: ' . $e->getMessage()"
+        },
+        "body": "{\"error\":\"dynamic: 'Confluence import failed: ' . $e-\\u003EgetMessage()\"}"
+    },
+    "failure STATUS_NOT_FOUND Dashboard not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "body": "{\"error\":\"Dashboard not found\"}"
+    },
+    "failure STATUS_NOT_FOUND Field not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Field not found"
+        },
+        "body": "{\"error\":\"Field not found\"}"
+    },
+    "failure STATUS_NOT_FOUND Placement not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Placement not found"
+        },
+        "body": "{\"error\":\"Placement not found\"}"
+    },
+    "failure STATUS_NOT_FOUND Showcase not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Showcase not found"
+        },
+        "body": "{\"error\":\"Showcase not found\"}"
+    },
+    "failure STATUS_NOT_FOUND Template not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Template not found"
+        },
+        "body": "{\"error\":\"Template not found\"}"
+    },
+    "failure STATUS_NOT_FOUND Unknown announcement": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Unknown announcement"
+        },
+        "body": "{\"error\":\"Unknown announcement\"}"
+    },
+    "failure STATUS_NOT_FOUND Version not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "Version not found"
+        },
+        "body": "{\"error\":\"Version not found\"}"
+    },
+    "failure STATUS_NOT_FOUND dashboard_not_found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 404,
+        "data": {
+            "error": "dashboard_not_found"
+        },
+        "body": "{\"error\":\"dashboard_not_found\"}"
+    },
+    "failure STATUS_OK Dashboard not found": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 200,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "body": "{\"error\":\"Dashboard not found\"}"
+    },
+    "invalidArgument STATUS_BAD_REQUEST ": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "status": "error",
+            "error": "invalid_argument",
+            "message": ""
+        },
+        "body": "{\"status\":\"error\",\"error\":\"invalid_argument\",\"message\":\"\"}"
+    },
+    "invalidArgument STATUS_BAD_REQUEST dynamic: $e->getMessage()": {
+        "class": "OCP\\AppFramework\\Http\\JSONResponse",
+        "status": 400,
+        "data": {
+            "status": "error",
+            "error": "invalid_argument",
+            "message": "dynamic: $e->getMessage()"
+        },
+        "body": "{\"status\":\"error\",\"error\":\"invalid_argument\",\"message\":\"dynamic: $e-\\u003EgetMessage()\"}"
+    }
+}

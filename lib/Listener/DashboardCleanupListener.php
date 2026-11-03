@@ -89,6 +89,8 @@ abstract class DashboardCleanupListener implements IEventListener {
 	 * @param DashboardDeletedEvent $event The event.
 	 *
 	 * @return int The number of rows removed.
+	 *
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
 	 */
 	abstract protected function cleanUp(DashboardDeletedEvent $event): int;
 }//end class

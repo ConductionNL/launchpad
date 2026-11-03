@@ -174,10 +174,15 @@ class Extension implements IProvider {
 		$role = (string)($params['role'] ?? '');
 		$target = (string)($params['target'] ?? '');
 
+		$version = (string)($params['version'] ?? '');
 		$template = $this->resolveSubjectTemplate(
 			type: $type,
 			isSelf: $isSelf
 		);
+		if ($version !== '') {
+			$template = $this->versionedTemplate(type: $type, isSelf: $isSelf) ?? $template;
+		}
+
 		$rendered = strtr(
 			$l->t($template),
 			[
@@ -186,6 +191,7 @@ class Extension implements IProvider {
 				'{recipient}' => $recipient,
 				'{role}' => $role,
 				'{target}' => $target,
+				'{version}' => $version,
 			]
 		);
 
@@ -309,11 +315,43 @@ class Extension implements IProvider {
 	 */
 	private function resolveSubjectTemplate(string $type, bool $isSelf): string {
 		$templates = $this->getSubjectTemplates();
-		$variant = 'other';
+
+		return ($templates[$type][$this->variantOf(isSelf: $isSelf)] ?? '');
+	}//end resolveSubjectTemplate()
+
+	/**
+	 * The subject template that names the content version, for event types
+	 * that have one (dashboard_acknowledged), or null.
+	 *
+	 * @param string $type   The event-type constant value.
+	 * @param bool   $isSelf True when the actor equals the recipient.
+	 *
+	 * @return string|null The template string.
+	 */
+	private function versionedTemplate(string $type, bool $isSelf): ?string {
+		$templates = [
+			self::EVENT_ACKNOWLEDGED => [
+				'self' => 'You acknowledged version {version} of {dashboard}',
+				'other' => '{actor} acknowledged version {version} of {dashboard}',
+			],
+		];
+
+		return ($templates[$type][$this->variantOf(isSelf: $isSelf)] ?? null);
+	}//end versionedTemplate()
+
+	/**
+	 * The template variant for a line: `self` when the actor is the
+	 * recipient, `other` otherwise.
+	 *
+	 * @param bool $isSelf True when the actor equals the recipient.
+	 *
+	 * @return string The variant key.
+	 */
+	private function variantOf(bool $isSelf): string {
 		if ($isSelf === true) {
-			$variant = 'self';
+			return 'self';
 		}
 
-		return ($templates[$type][$variant] ?? '');
-	}//end resolveSubjectTemplate()
+		return 'other';
+	}//end variantOf()
 }//end class

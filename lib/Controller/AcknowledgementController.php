@@ -160,7 +160,9 @@ class AcknowledgementController extends Controller {
 	}//end denyOutsideAudience()
 
 	/**
-	 * Refuse a content version newer than the announcement's current one, so
+	 * Refuse a content version newer than the announcement's current one for
+	 * the session user (the template's version, or without a template the
+	 * version on the user's own copy), so
 	 * no receipt can exist for content that was not published yet
 	 * (REQ-ACK-005). An older version stays accepted: a copy that has not
 	 * been re-synced yet still shows it.
@@ -171,7 +173,7 @@ class AcknowledgementController extends Controller {
 	 * @return JSONResponse|null The 400, or null when the version is published.
 	 */
 	private function rejectUnpublishedVersion(string $announcementKey, int $contentVersion): ?JSONResponse {
-		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey);
+		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->userId);
 		if ($current === null || $contentVersion > $current) {
 			return ResponseHelper::invalidArgument(
 				message: 'contentVersion is not a published version of this announcement'

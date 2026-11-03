@@ -42,6 +42,15 @@ placement MUST be unchanged.
 - **THEN** the placement MUST no longer force delivery
 - **AND** existing acknowledgement receipts MUST be retained as history (not deleted)
 
+#### Scenario: A recipient cannot change the requirement on their copy
+
+@e2e exclude Asserted in PermissionServiceAcknowledgementTest; a template copy for a second user is set up outside the dashboard UI.
+
+- **GIVEN** user "bob" holds a copy of announcement `ak-1` from a template owned by "tom"
+- **WHEN** bob updates his copy's placement with `requiresAcknowledgement = 0`, `reacknowledgeOnChange = 0` or another `acknowledgementContentVersion`
+- **THEN** the system MUST return `403` and the placement MUST be unchanged
+- **AND** without a template the author is the owner of the first placement that carried the key, never a later copy or fork
+
 ### Requirement: REQ-ACK-002 Forced delivery of unacknowledged mandatory items
 
 The system MUST apply forced delivery to a widget placement with
@@ -204,6 +213,14 @@ re-force delivery for users who already acknowledged a prior version.
 - **THEN** the system MUST return `400` and MUST NOT write any receipt
 - **AND** a `contentVersion` at or below `2` MUST still be accepted, so a copy that was not re-synced yet can be signed off
 
+#### Scenario: Without a template the user's own copy sets the current version
+
+@e2e exclude Asserted in AcknowledgementServiceTest::testCurrentContentVersionWithoutATemplateIsTheUsersCopy; deleting a template under live copies is not a UI flow.
+
+- **GIVEN** announcement `ak-1` whose template was deleted, and user "alice" whose copy is at version `2` while another copy is at version `1`
+- **WHEN** alice acknowledges `ak-1` at version `2`
+- **THEN** the system MUST accept it, so her prompt can be cleared
+
 ### Requirement: REQ-ACK-006 Acknowledgement events feed activity and export
 
 Each successful acknowledgement MUST raise one entry in the existing Activity
@@ -230,6 +247,15 @@ evidence.
 - **AND** alice's and carol's rows MUST carry status `acknowledged` and their timestamps
 - **AND** bob's row MUST carry status `pending` with an empty timestamp
 
+
+#### Scenario: The activity line names the acknowledged version
+
+@e2e exclude Asserted in ExtensionTest::testParseNamesTheAcknowledgedVersion; the Activity row is not UI-observable on the dashboard.
+
+- **GIVEN** user "alice" acknowledges `ak-1` at version `2`
+- **WHEN** the activity line is rendered
+- **THEN** it MUST read "You acknowledged version 2 of {dashboard}" (or "{actor} acknowledged version 2 of {dashboard}")
+- **AND** a line stored before versions were recorded MUST keep its old text
 ### Requirement: An editor can ask for confirmation from the widget form (REQ-ACK-007)
 
 @e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php

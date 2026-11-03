@@ -264,12 +264,11 @@ class BulkOperationService {
 	 * triple. `publishAt` is required when the target status is
 	 * `scheduled` and is rejected when in the past.
 	 *
-	 * @param string[] $dashboardUuids The dashboards to mutate.
-	 * @param string $publicationStatus The target status enum value.
-	 * @param string|null $publishAt Future ISO-8601 timestamp
-	 *                               (required for `scheduled`).
-	 * @param string $userId The acting NC user ID.
-	 * @param bool $dryRun When true, preview only.
+	 * @param string[]          $dashboardUuids The dashboards to mutate.
+	 * @param BulkStatusRequest $request        Target status, future ISO-8601
+	 *                                          `publishAt` (required for
+	 *                                          `scheduled`) and dry-run flag.
+	 * @param string            $userId         The acting NC user ID.
 	 *
 	 * @return array<string, mixed> The result envelope.
 	 *
@@ -284,11 +283,12 @@ class BulkOperationService {
 	 */
 	public function bulkStatus(
 		array $dashboardUuids,
-		string $publicationStatus,
-		?string $publishAt,
+		BulkStatusRequest $request,
 		string $userId,
-		bool $dryRun = false,
 	): array {
+		$publicationStatus = $request->publicationStatus;
+		$publishAt         = $request->publishAt;
+		$dryRun            = $request->dryRun;
 		$start = microtime(as_float: true);
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
@@ -319,16 +319,15 @@ class BulkOperationService {
 		$updated = 0;
 		$skipped = 0;
 		$errors = [];
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$change = new BulkStatusChange(
+			publicationStatus: $publicationStatus,
+			publishAt: $resolvedPublishAt,
+			now: (new DateTime())->format(format: 'Y-m-d H:i:s'),
+			dryRun: $dryRun
+		);
 
 		foreach ($dashboardUuids as $uuid) {
-			$outcome = $this->statusOneDashboard(
-				uuid: (string)$uuid,
-				publicationStatus: $publicationStatus,
-				resolvedPublishAt: $resolvedPublishAt,
-				now: $now,
-				dryRun: $dryRun
-			);
+			$outcome = $this->statusOneDashboard(uuid: (string)$uuid, change: $change);
 			$updated += $outcome['updated'];
 			$skipped += $outcome['skipped'];
 
@@ -716,23 +715,15 @@ class BulkOperationService {
 	 * Apply a publication-status change to a single dashboard as part of a
 	 * {@see self::bulkStatus()} batch.
 	 *
-	 * @param string $uuid The dashboard UUID to mutate.
-	 * @param string $publicationStatus The target status enum value.
-	 * @param string|null $resolvedPublishAt The parsed publishAt.
-	 * @param string $now Current `Y-m-d H:i:s` timestamp.
-	 * @param bool $dryRun When true, preview only.
+	 * @param string           $uuid   The dashboard UUID to mutate.
+	 * @param BulkStatusChange $change The validated change of the batch.
 	 *
 	 * @return array{updated: int, skipped: int, error: array<string, mixed>|null}
 	 *
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
-	private function statusOneDashboard(
-		string $uuid,
-		string $publicationStatus,
-		?string $resolvedPublishAt,
-		string $now,
-		bool $dryRun,
-	): array {
+	private function statusOneDashboard(string $uuid, BulkStatusChange $change): array {
+		$publicationStatus = $change->publicationStatus;
 		try {
 			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
@@ -749,7 +740,7 @@ class BulkOperationService {
 		// REQ-BULK-007 idempotency: already at target status.
 		if ($dashboard->getPublicationStatus() === $publicationStatus
 			&& ($publicationStatus !== Dashboard::STATUS_SCHEDULED
-			|| $dashboard->getPublishAt() === $resolvedPublishAt)
+			|| $dashboard->getPublishAt() === $change->publishAt)
 		) {
 			return [
 				'updated' => 0,
@@ -761,7 +752,7 @@ class BulkOperationService {
 			];
 		}
 
-		if ($dryRun === true) {
+		if ($change->dryRun === true) {
 			return [
 				'updated' => 1,
 				'skipped' => 0,
@@ -770,12 +761,7 @@ class BulkOperationService {
 		}
 
 		try {
-			$this->applyStatusChange(
-				dashboard: $dashboard,
-				publicationStatus: $publicationStatus,
-				resolvedPublishAt: $resolvedPublishAt,
-				now: $now
-			);
+			$this->applyStatusChange(dashboard: $dashboard, change: $change);
 
 			return [
 				'updated' => 1,
@@ -980,20 +966,16 @@ class BulkOperationService {
 	 * - DRAFT: clears `publishAt`.
 	 * - SCHEDULED: stores the parsed `publishAt`.
 	 *
-	 * @param Dashboard $dashboard The dashboard to mutate.
-	 * @param string $publicationStatus The target status.
-	 * @param string|null $resolvedPublishAt The parsed publishAt (for
-	 *                                       STATUS_SCHEDULED).
-	 * @param string $now Current timestamp.
+	 * @param Dashboard        $dashboard The dashboard to mutate.
+	 * @param BulkStatusChange $change    Target status, parsed publishAt
+	 *                                    (for STATUS_SCHEDULED) and the
+	 *                                    batch timestamp.
 	 *
 	 * @return void
 	 */
-	private function applyStatusChange(
-		Dashboard $dashboard,
-		string $publicationStatus,
-		?string $resolvedPublishAt,
-		string $now,
-	): void {
+	private function applyStatusChange(Dashboard $dashboard, BulkStatusChange $change): void {
+		$publicationStatus = $change->publicationStatus;
+		$now = $change->now;
 		$dashboard->setPublicationStatus($publicationStatus);
 
 		if ($publicationStatus === Dashboard::STATUS_PUBLISHED) {
@@ -1012,7 +994,7 @@ class BulkOperationService {
 			&& $publicationStatus !== Dashboard::STATUS_DRAFT
 		) {
 			// STATUS_SCHEDULED.
-			$dashboard->setPublishAt($resolvedPublishAt);
+			$dashboard->setPublishAt($change->publishAt);
 		}
 
 		$dashboard->setUpdatedAt($now);

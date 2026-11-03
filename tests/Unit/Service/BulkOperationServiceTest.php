@@ -31,6 +31,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Service\BulkOperationService;
+use OCA\LaunchPad\Service\BulkStatusRequest;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Service\PermissionService;
@@ -449,7 +450,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkDelete(dashboardUuids: ['d1', 'd2'], userId: 'admin', dryRun: true);
 		$this->service->bulkMove(dashboardUuids: ['d1'], parentUuid: null, userId: 'admin', dryRun: true);
-		$this->service->bulkStatus(dashboardUuids: ['d1'], publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, userId: 'admin', dryRun: true);
+		$this->service->bulkStatus(dashboardUuids: ['d1'], request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, dryRun: true), userId: 'admin');
 		$this->service->bulkReindex(dashboardUuids: ['d1', 'd2', 'd3'], userId: 'admin', dryRun: true);
 
 		$params = static fn (string $op, int $count, array $extra=[]): array => ['bulkOperation' => $op, 'dashboardCount' => $count, 'dryRun' => true] + $extra;
@@ -497,8 +498,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$result = $this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_PUBLISHED,
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 
@@ -514,8 +514,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$result = $this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_PUBLISHED,
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_PUBLISHED, publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 
@@ -530,8 +529,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: 'bogus',
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: 'bogus', publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 	}//end testBulkStatusInvalidStatusRejected()
@@ -542,8 +540,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_SCHEDULED,
-			publishAt: null,
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_SCHEDULED, publishAt: null, dryRun: false),
 			userId: 'admin'
 		);
 	}//end testBulkStatusScheduledRequiresPublishAt()
@@ -553,8 +550,7 @@ class BulkOperationServiceTest extends TestCase {
 
 		$this->service->bulkStatus(
 			dashboardUuids: ['d1'],
-			publicationStatus: Dashboard::STATUS_SCHEDULED,
-			publishAt: '2000-01-01T00:00:00Z',
+			request: new BulkStatusRequest(publicationStatus: Dashboard::STATUS_SCHEDULED, publishAt: '2000-01-01T00:00:00Z', dryRun: false),
 			userId: 'admin'
 		);
 	}//end testBulkStatusScheduledRejectsPastPublishAt()

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Db\AcknowledgementMapper;
@@ -115,7 +116,10 @@ class AcknowledgementServiceTest extends TestCase {
 		$this->placementMapper->method('findByAnnouncementKey')->willReturn([]);
 		$this->activityPublisher->expects($this->once())
 			->method('publish')
-			->with(Extension::EVENT_ACKNOWLEDGED, 'alice', 'alice');
+			->with(
+				$this->callback(static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_ACKNOWLEDGED && $row->actorUserId === 'alice'),
+				'alice'
+			);
 
 		$receipt = $this->service->acknowledge(
 			announcementKey: 'ak-1',

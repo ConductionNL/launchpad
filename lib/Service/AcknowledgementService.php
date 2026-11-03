@@ -28,6 +28,8 @@ namespace OCA\LaunchPad\Service;
 
 use DateTimeImmutable;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\Db\Acknowledgement;
 use OCA\LaunchPad\Db\AcknowledgementMapper;
@@ -41,6 +43,9 @@ use OCP\IGroupManager;
 
 /**
  * Service for mandatory-read acknowledgements and read receipts.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Receipts, placements, dashboards
+ *                                                 and the activity row it writes.
  *
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
@@ -529,14 +534,12 @@ class AcknowledgementService {
 			}
 		}
 
-		$this->activityPublisher->publish(
+		$row = new ActivityRow(
 			type: Extension::EVENT_ACKNOWLEDGED,
 			actorUserId: $userId,
-			recipientUserId: $userId,
-			dashboardUuid: $dashboardUuid,
-			dashboardName: $dashboardName,
-			dashboardLink: '',
+			dashboard: new ActivitySubject(uuid: $dashboardUuid, name: $dashboardName),
 			extraParams: ['self' => true]
 		);
+		$this->activityPublisher->publish(row: $row, recipientUserId: $userId);
 	}//end emitAcknowledgedActivity()
 }//end class

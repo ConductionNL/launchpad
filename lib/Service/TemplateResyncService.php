@@ -37,6 +37,8 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\BackgroundJob\TemplateResyncJob;
 use OCA\LaunchPad\Db\Dashboard;
@@ -864,13 +866,13 @@ class TemplateResyncService {
 		string $actingAdminId,
 	): void {
 		try {
-			$this->activityPublisher->publish(
+			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $actingAdminId,
-				recipientUserId: $actingAdminId,
-				dashboardUuid: 'template-resync-' . $templateId,
-				dashboardName: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)',
-				dashboardLink: '',
+				dashboard: new ActivitySubject(
+					uuid: 'template-resync-' . $templateId,
+					name: 'Template resync: ' . $templateName . ' (' . $strategy . ', ' . $affectedCount . ' copies)'
+				),
 				extraParams: [
 					'templateResync' => true,
 					'templateId' => $templateId,
@@ -878,6 +880,7 @@ class TemplateResyncService {
 					'affectedCount' => $affectedCount,
 				]
 			);
+			$this->activityPublisher->publish(row: $row, recipientUserId: $actingAdminId);
 		} catch (Throwable $t) {
 			$this->logger->warning(
 				message: 'launchpad.template_resync.audit_event_failed',

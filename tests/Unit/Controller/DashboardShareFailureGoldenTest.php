@@ -26,6 +26,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareNotifier;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
 use OCP\IDBConnection;
@@ -48,6 +49,7 @@ use Throwable;
  *
  * @covers \OCA\LaunchPad\Controller\DashboardShareApiController
  * @covers \OCA\LaunchPad\Service\DashboardShareService
+ * @covers \OCA\LaunchPad\Service\ShareNotifier
  * @covers \OCA\LaunchPad\Controller\ShareApiTools
  * @uses \OCA\LaunchPad\Exception\ForbiddenException
  * @uses \OCA\LaunchPad\Exception\ResourceException
@@ -79,6 +81,8 @@ class DashboardShareFailureGoldenTest extends TestCase {
 		'replace null level' => ['replace', [1, [['shareType' => 'user', 'shareWith' => 'carol', 'permissionLevel' => null]]]],
 		'replace entry not an array' => ['replace', [1, ['user:carol']]],
 		'replace unknown dashboard' => ['replace', [404, []]],
+		'revoke for recipient' => ['revokeForRecipient', ['user', 'carol']],
+		'revoke for recipient invalid type' => ['revokeForRecipient', ['team', 'carol']],
 	];
 
 	/**
@@ -206,6 +210,11 @@ class DashboardShareFailureGoldenTest extends TestCase {
 			return 0;
 		});
 
+		$shares->method('deleteByOwnerAndRecipient')->willReturnCallback(static function (string $shareType, string $shareWith, string $ownerId) use ($writeFails): int {
+			$writeFails('revoke ' . $shareType . ':' . $shareWith . ' owner ' . $ownerId);
+			return 2;
+		});
+
 		$dashboards->method('find')->willReturnCallback(static function (int $id) use ($dashboard, &$log): Dashboard {
 			$log['ownerLookups'][] = $id;
 			if ($id !== 1) {
@@ -223,20 +232,19 @@ class DashboardShareFailureGoldenTest extends TestCase {
 		$notifications = $this->createMock(INotificationManager::class);
 		$notifications->method('createNotification')->willReturn($notification);
 
-		$service = new DashboardShareService(
-			shareMapper: $shares,
-			dashboardMapper: $dashboards,
-			groupManager: $this->createMock(IGroupManager::class),
-			notificationManager: $notifications,
-			db: $this->createMock(IDBConnection::class),
-		);
-
 		$logger = $this->createMock(LoggerInterface::class);
 		foreach (['error', 'warning', 'info', 'critical'] as $level) {
 			$logger->method($level)->willReturnCallback(static function (string|\Stringable $message, array $context = []) use ($level, &$log): void {
 				$log['logged'][] = [$level, (string)$message, $context['exceptionClass'] ?? null];
 			});
 		}
+
+		$service = new DashboardShareService(
+			shareMapper: $shares,
+			dashboardMapper: $dashboards,
+			db: $this->createMock(IDBConnection::class),
+			notifier: new ShareNotifier(notificationManager: $notifications, groupManager: $this->createMock(IGroupManager::class), logger: $logger),
+		);
 
 		return $this->build(service: $service, userId: $userId, logger: $logger);
 	}

@@ -293,6 +293,8 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_BAD_REQUEST
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}
 	}//end revokeForRecipient()
 

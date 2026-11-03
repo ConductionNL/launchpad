@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareNotifier;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use OCP\IGroup;
@@ -50,6 +51,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\LaunchPad\Controller\DashboardShareApiController
  * @covers \OCA\LaunchPad\Service\DashboardShareService
+ * @covers \OCA\LaunchPad\Service\ShareNotifier
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\DashboardShare
  * @uses   \OCA\LaunchPad\Service\ShareGrant
@@ -276,10 +278,13 @@ class DashboardShareWriteGoldenTest extends TestCase {
 		$service = new DashboardShareService(
 			shareMapper: $shares,
 			dashboardMapper: $dashboards,
-			groupManager: $groups,
-			notificationManager: $notifications,
 			db: $db,
-			activity: $activity
+			notifier: new ShareNotifier(
+				notificationManager: $notifications,
+				groupManager: $groups,
+				logger: $this->getMockBuilder(className: LoggerInterface::class)->getMock(),
+				activity: $activity
+			)
 		);
 		$controller = new DashboardShareApiController(
 			request: $this->getMockBuilder(className: IRequest::class)->getMock(),

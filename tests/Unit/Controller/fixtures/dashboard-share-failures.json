@@ -1599,5 +1599,191 @@
         ],
         "writes": [],
         "logged": []
+    },
+    "revoke for recipient / alice (owner) / healthy": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner alice"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / alice (owner) / read fails": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner alice"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / alice (owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner alice"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "revoke for recipient / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / bob (not owner) / healthy": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner bob"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / bob (not owner) / read fails": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner bob"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / bob (not owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner bob"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "revoke for recipient invalid type / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / bob (not owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / bob (not owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / bob (not owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
     }
 }

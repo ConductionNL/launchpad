@@ -25,15 +25,12 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCP\IDBConnection;
-use OCP\IGroupManager;
-use OCP\Notification\IManager as INotificationManager;
 
 /**
  * Service for creating and managing dashboard shares.
@@ -58,18 +55,14 @@ class DashboardShareService {
 	 *
 	 * @param DashboardShareMapper $shareMapper The share mapper.
 	 * @param DashboardMapper $dashboardMapper The dashboard mapper.
-	 * @param IGroupManager $groupManager The group manager.
-	 * @param INotificationManager $notificationManager The notification manager.
 	 * @param IDBConnection $db The DB connection.
-	 * @param DashboardActivityEmitter|null $activity Sends dashboard_shared to the recipients (#713).
+	 * @param ShareNotifier $notifier Announces written shares to their recipients.
 	 */
 	public function __construct(
 		private readonly DashboardShareMapper $shareMapper,
 		private readonly DashboardMapper $dashboardMapper,
-		private readonly IGroupManager $groupManager,
-		private readonly INotificationManager $notificationManager,
 		private readonly IDBConnection $db,
-		private readonly ?DashboardActivityEmitter $activity = null,
+		private readonly ShareNotifier $notifier,
 	) {
 	}//end __construct()
 
@@ -119,7 +112,7 @@ class DashboardShareService {
 		$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
 
 		if ($result['isNew'] === true || $result['isUpgrade'] === true) {
-			$this->notifyShared(
+			$this->notifier->shared(
 				share: $result['share'],
 				sharerUserId: $callerId,
 				dashboard: $dashboard
@@ -228,7 +221,7 @@ class DashboardShareService {
 
 		// Publish notifications after the transaction commits.
 		foreach ($notifyQueue as $share) {
-			$this->notifyShared(
+			$this->notifier->shared(
 				share: $share,
 				sharerUserId: $userId,
 				dashboard: $dashboard
@@ -365,20 +358,11 @@ class DashboardShareService {
 		int $dashboardId,
 		string $dashboardName,
 	): void {
-		$notification = $this->notificationManager->createNotification();
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$notification->setApp('launchpad')
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setUser($newOwnerId)
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setDateTime(new DateTime())
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setObject('dashboard', (string)$dashboardId)
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setSubject('dashboard_ownership_transferred', [$dashboardName]);
-
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$this->notificationManager->notify($notification);
+		$this->notifier->ownershipTransferred(
+			newOwnerId: $newOwnerId,
+			dashboardId: $dashboardId,
+			dashboardName: $dashboardName
+		);
 	}//end notifyOwnershipTransferred()
 
 	/**
@@ -443,103 +427,6 @@ class DashboardShareService {
 			'isUpgrade' => $isUpgrade,
 		];
 	}//end persistShare()
-
-	/**
-	 * Publish `dashboard_shared` notifications for a share.
-	 *
-	 * For `user`-type shares: one notification.
-	 * For `group`-type shares: fan out one notification per current group
-	 * member, excluding the sharer. REQ-SHARE-008.
-	 *
-	 * @param DashboardShare $share The share row.
-	 * @param string $sharerUserId The user who created the share.
-	 * @param Dashboard $dashboard The shared dashboard.
-	 *
-	 * @return void
-	 */
-	private function notifyShared(
-		DashboardShare $share,
-		string $sharerUserId,
-		Dashboard $dashboard,
-	): void {
-		$dashboardName = (string)$dashboard->getName();
-		$recipients = $this->resolveRecipients(
-			share: $share,
-			excludeUserId: $sharerUserId
-		);
-
-		// The activity stream and digest get the same audience as the
-		// notification (engagement-activity-digest D2, issue #713).
-		$this->activity?->shared(
-			dashboard: $dashboard,
-			share: $share,
-			actor: $sharerUserId,
-			recipients: $recipients
-		);
-
-		foreach ($recipients as $recipientId) {
-			$notification = $this->notificationManager->createNotification();
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$notification->setApp('launchpad')
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setUser($recipientId)
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setDateTime(new DateTime())
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setObject('dashboard', (string)$share->getDashboardId())
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setSubject(
-					'dashboard_shared',
-					[
-						$sharerUserId,
-						$dashboardName,
-						(string)$share->getPermissionLevel(),
-					]
-				);
-
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$this->notificationManager->notify($notification);
-		}//end foreach
-	}//end notifyShared()
-
-	/**
-	 * Resolve the recipient user IDs for a share.
-	 *
-	 * @param DashboardShare $share The share.
-	 * @param string $excludeUserId A user ID to exclude (the sharer).
-	 *
-	 * @return string[] The recipient user IDs.
-	 */
-	private function resolveRecipients(
-		DashboardShare $share,
-		string $excludeUserId,
-	): array {
-		if ($share->getShareType() === DashboardShare::SHARE_TYPE_USER) {
-			$uid = (string)$share->getShareWith();
-			if ($uid === $excludeUserId) {
-				return [];
-			}
-
-			return [$uid];
-		}
-
-		// Group share — expand members.
-		$groupId = (string)$share->getShareWith();
-		$group = $this->groupManager->get(gid: $groupId);
-		if ($group === null) {
-			return [];
-		}
-
-		$recipients = [];
-		foreach ($group->getUsers() as $user) {
-			$uid = $user->getUID();
-			if ($uid !== $excludeUserId) {
-				$recipients[] = $uid;
-			}
-		}
-
-		return $recipients;
-	}//end resolveRecipients()
 
 	/**
 	 * Read one entry of a share replace as a grant: an object whose

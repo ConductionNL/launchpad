@@ -32,6 +32,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\AdminTemplateStores;
+use OCA\LaunchPad\Service\ShowcasePlatform;
+use OCA\LaunchPad\Service\ShowcaseStores;
 use OCA\LaunchPad\Service\DashboardOutlets;
 use OCA\LaunchPad\Service\DashboardPlatform;
 use OCA\LaunchPad\Service\DashboardStructure;
@@ -274,12 +277,14 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 			));
 
 		$service = new AdminTemplateService(
-			dashboardMapper:  $this->dashboardMapper,
-			placementMapper:  $this->placementMapper,
-			settingsService:  $this->createMock(AdminSettingsService::class),
-			groupManager:     $this->groupManager,
-			userManager:      $this->createMock(IUserManager::class),
-			eventDispatcher:  $this->eventDispatcher,
+			stores: new AdminTemplateStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				eventDispatcher: $this->eventDispatcher
+			),
+			settingsService: $this->createMock(AdminSettingsService::class),
+			groupManager: $this->groupManager,
+			userManager: $this->createMock(IUserManager::class)
 		);
 
 		$service->deleteTemplate(id: 42);
@@ -318,15 +323,19 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 			));
 
 		$service = new DemoShowcasesService(
-			dashboardMapper:  $this->dashboardMapper,
-			placementMapper:  $this->placementMapper,
-			db:               $this->db,
-			appConfig:        $appConfig,
-			dashboardManager: $this->createMock(IManager::class),
-			logger:           $this->createMock(LoggerInterface::class),
-			lockingProvider:  $this->createMock(ILockingProvider::class),
-			urlGenerator:     $this->createMock(IURLGenerator::class),
-			eventDispatcher:  $this->eventDispatcher,
+			stores: new ShowcaseStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				lockingProvider: $this->createMock(ILockingProvider::class)
+			),
+			platform: new ShowcasePlatform(
+				appConfig: $appConfig,
+				dashboardManager: $this->createMock(IManager::class),
+				urlGenerator: $this->createMock(IURLGenerator::class),
+				eventDispatcher: $this->eventDispatcher
+			),
+			logger: $this->createMock(LoggerInterface::class)
 		);
 
 		$service->uninstallShowcase(showcaseId: 'de-bron');

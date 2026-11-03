@@ -126,39 +126,17 @@ class DashboardVersionService {
 	/**
 	 * Constructor
 	 *
-	 * @param DashboardVersionMapper $versionMapper Version row mapper.
-	 * @param DashboardMapper $dashboardMapper Dashboard row mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper
-	 *                                               (drives snapshot
-	 *                                               payload assembly).
-	 * @param IGroupManager $groupManager Group manager — used
-	 *                                    exclusively for the
-	 *                                    owner-or-admin
-	 *                                    permission guard
-	 *                                    (no group-membership
-	 *                                    lookups).
-	 * @param ICacheFactory $cacheFactory NC cache factory
-	 *                                    supplying the
-	 *                                    debounce backing
-	 *                                    store.
+	 * @param VersionStores   $stores The version, dashboard and placement mappers and the database.
+	 * @param IGroupManager   $groupManager Group manager — used exclusively for the owner-or-admin permission
+	 *                                      guard (no group-membership lookups).
+	 * @param ICacheFactory   $cacheFactory NC cache factory supplying the debounce backing store.
 	 * @param LoggerInterface $logger PSR logger.
-	 * @param IDBConnection|null $db DB connection used to
-	 *                               wrap restoreVersion
-	 *                               in a transaction
-	 *                               (WF1 fix).
-	 *                               Nullable for
-	 *                               backwards-compat
-	 *                               with existing test
-	 *                               doubles.
 	 */
 	public function __construct(
-		private readonly DashboardVersionMapper $versionMapper,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly VersionStores $stores,
 		private readonly IGroupManager $groupManager,
 		private readonly ICacheFactory $cacheFactory,
 		private readonly LoggerInterface $logger,
-		private readonly ?IDBConnection $db = null,
 	) {
 	}//end __construct()
 
@@ -230,7 +208,7 @@ class DashboardVersionService {
 			$coercedNote = $note;
 		}
 
-		$next = ($this->versionMapper->findMaxVersionNumber(
+		$next = ($this->stores->versionMapper->findMaxVersionNumber(
 			dashboardUuid: $uuid
 		) + 1);
 
@@ -248,11 +226,11 @@ class DashboardVersionService {
 		$entity->setNote($coercedNote);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
-		$persisted = $this->versionMapper->insert(entity: $entity);
+		$persisted = $this->stores->versionMapper->insert(entity: $entity);
 
 		// REQ-VERS-006: prune inline so the table never exceeds the
 		// retention limit by more than the single in-flight insert.
-		$this->versionMapper->pruneOldVersions(
+		$this->stores->versionMapper->pruneOldVersions(
 			dashboardUuid: $uuid,
 			keepCount: self::RETENTION_LIMIT
 		);
@@ -304,7 +282,7 @@ class DashboardVersionService {
 			];
 		}
 
-		$rows = $this->versionMapper->findLatestByDashboard(
+		$rows = $this->stores->versionMapper->findLatestByDashboard(
 			dashboardUuid: (string)$dashboard->getUuid(),
 			limit: self::RETENTION_LIMIT
 		);
@@ -349,7 +327,7 @@ class DashboardVersionService {
 			);
 		}
 
-		return $this->versionMapper->findByDashboardAndVersion(
+		return $this->stores->versionMapper->findByDashboardAndVersion(
 			dashboardUuid: (string)$dashboard->getUuid(),
 			versionNumber: $versionNumber
 		);
@@ -448,12 +426,12 @@ class DashboardVersionService {
 
 		$uuid = (string)$dashboard->getUuid();
 
-		$target = $this->versionMapper->findByDashboardAndVersion(
+		$target = $this->stores->versionMapper->findByDashboardAndVersion(
 			dashboardUuid: $uuid,
 			versionNumber: $versionNumber
 		);
 
-		$latest = $this->versionMapper->findMaxVersionNumber(
+		$latest = $this->stores->versionMapper->findMaxVersionNumber(
 			dashboardUuid: $uuid
 		);
 
@@ -470,8 +448,8 @@ class DashboardVersionService {
 		// partial placements. When no db connection is wired (test doubles)
 		// the operations run without an explicit transaction envelope,
 		// preserving backwards-compat.
-		if ($this->db !== null) {
-			$this->db->beginTransaction();
+		if ($this->stores->db !== null) {
+			$this->stores->db->beginTransaction();
 		}
 
 		$snapshotJson = '';
@@ -504,14 +482,14 @@ class DashboardVersionService {
 			$dashboard->setUpdatedAt(
 				(new DateTime())->format(format: 'Y-m-d H:i:s')
 			);
-			$this->dashboardMapper->update(entity: $dashboard);
+			$this->stores->dashboardMapper->update(entity: $dashboard);
 
-			if ($this->db !== null) {
-				$this->db->commit();
+			if ($this->stores->db !== null) {
+				$this->stores->db->commit();
 			}
 		} catch (Throwable $t) {
-			if ($this->db !== null) {
-				$this->db->rollBack();
+			if ($this->stores->db !== null) {
+				$this->stores->db->rollBack();
 			}
 
 			$this->logger->error(
@@ -674,7 +652,7 @@ class DashboardVersionService {
 		$placements = [];
 		if ($dashboardId !== null) {
 			try {
-				$rows = $this->placementMapper->findByDashboardId(
+				$rows = $this->stores->placementMapper->findByDashboardId(
 					dashboardId: $dashboardId
 				);
 				foreach ($rows as $row) {
@@ -734,7 +712,7 @@ class DashboardVersionService {
 		}
 
 		try {
-			$this->placementMapper->deleteByDashboardId(
+			$this->stores->placementMapper->deleteByDashboardId(
 				dashboardId: $dashboardId
 			);
 
@@ -751,7 +729,7 @@ class DashboardVersionService {
 					continue;
 				}
 
-				$this->placementMapper->insert(entity: $entity);
+				$this->stores->placementMapper->insert(entity: $entity);
 			}//end foreach
 		} catch (Throwable $t) {
 			$this->logger->error(

@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\VersionStores;
 use Exception;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -116,12 +117,14 @@ class DashboardVersionServiceTest extends TestCase {
 			->willReturn($this->cache);
 
 		$this->service = new DashboardVersionService(
-			versionMapper: $this->versionMapper,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper
+			),
 			groupManager: $this->groupManager,
 			cacheFactory: $this->cacheFactory,
-			logger: $logger,
+			logger: $logger
 		);
 	}//end setUp()
 
@@ -578,13 +581,15 @@ class DashboardVersionServiceTest extends TestCase {
 		$db->expects($this->never())->method('rollBack');
 
 		$service = new DashboardVersionService(
-			versionMapper:   $this->versionMapper,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			groupManager:    $this->groupManager,
-			cacheFactory:    $this->cacheFactory,
-			logger:          $this->createMock(LoggerInterface::class),
-			db:              $db,
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $db
+			),
+			groupManager: $this->groupManager,
+			cacheFactory: $this->cacheFactory,
+			logger: $this->createMock(LoggerInterface::class)
 		);
 
 		$service->restoreVersion(
@@ -631,13 +636,15 @@ class DashboardVersionServiceTest extends TestCase {
 		$db->expects($this->once())->method('rollBack');
 
 		$service = new DashboardVersionService(
-			versionMapper:   $this->versionMapper,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			groupManager:    $this->groupManager,
-			cacheFactory:    $this->cacheFactory,
-			logger:          $this->createMock(LoggerInterface::class),
-			db:              $db,
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $db
+			),
+			groupManager: $this->groupManager,
+			cacheFactory: $this->cacheFactory,
+			logger: $this->createMock(LoggerInterface::class)
 		);
 
 		$this->expectException(RuntimeException::class);

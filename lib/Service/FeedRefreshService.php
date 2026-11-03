@@ -112,22 +112,16 @@ class FeedRefreshService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IClientService $clientService The HTTP client factory.
-	 * @param IAppConfig $appConfig The app config reader.
-	 * @param IConfig $config The system config reader.
-	 * @param FeedCacheMapper $cacheMapper The feed-cache mapper.
+	 * @param FeedRefreshSources    $sources The HTTP client service, URL validator, feed cache mapper and config.
+	 * @param IAppConfig            $appConfig The app config reader.
 	 * @param WidgetPlacementMapper $placementMapper The widget-placement mapper.
-	 * @param LoggerInterface $logger The diagnostic logger.
-	 * @param UrlSafetyValidator $urlValidator SSRF guard (H3).
+	 * @param LoggerInterface       $logger The diagnostic logger.
 	 */
 	public function __construct(
-		private readonly IClientService $clientService,
+		private readonly FeedRefreshSources $sources,
 		private readonly IAppConfig $appConfig,
-		private readonly IConfig $config,
-		private readonly FeedCacheMapper $cacheMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly LoggerInterface $logger,
-		private readonly UrlSafetyValidator $urlValidator,
 	) {
 	}//end __construct()
 
@@ -201,7 +195,7 @@ class FeedRefreshService {
 	 */
 	public function refreshFeed(string $feedUrl): array {
 		$startedAt = (int)(microtime(as_float: true) * 1000);
-		$row = $this->cacheMapper->upsertUrl(feedUrl: $feedUrl);
+		$row = $this->sources->cacheMapper->upsertUrl(feedUrl: $feedUrl);
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 
 		$rejected = $this->rejectBeforeFetch(row: $row, feedUrl: $feedUrl, now: $now, startedAt: $startedAt);
@@ -245,7 +239,7 @@ class FeedRefreshService {
 		$row->setLastFailureReason(null);
 		$row->setEtag($response['etag']);
 		$row->setLastModified($response['lastModified']);
-		$this->cacheMapper->update(entity: $row);
+		$this->sources->cacheMapper->update(entity: $row);
 
 		return [
 			'status' => 'ok',
@@ -274,7 +268,7 @@ class FeedRefreshService {
 		int $startedAt,
 	): array {
 		$row->setLastFailureReason($reason);
-		$this->cacheMapper->update(entity: $row);
+		$this->sources->cacheMapper->update(entity: $row);
 
 		return [
 			'status' => 'failed',
@@ -309,7 +303,7 @@ class FeedRefreshService {
 		if ($this->isHostAllowed(feedUrl: $feedUrl) === false) {
 			$row->setLastFailureReason('host not in allow-list');
 			$row->setLastFetchedAt($now);
-			$this->cacheMapper->update(entity: $row);
+			$this->sources->cacheMapper->update(entity: $row);
 			$this->logger->warning(
 				message: 'Feed host not in allow-list — skipping fetch',
 				context: [
@@ -326,7 +320,7 @@ class FeedRefreshService {
 
 		// H3: SSRF guard — reject URLs that resolve to private/reserved IP
 		// ranges and enforce HTTPS-only. Delegates to UrlSafetyValidator.
-		if ($this->urlValidator->isSafe(url: $feedUrl) === false) {
+		if ($this->sources->urlValidator->isSafe(url: $feedUrl) === false) {
 			$row->setLastFetchedAt($now);
 			$result = $this->recordFailure(
 				row: $row,
@@ -384,7 +378,7 @@ class FeedRefreshService {
 		if ($statusCode === 304) {
 			// Items untouched — only lastFetchedAt is updated
 			// (REQ-FRJ-004 "items untouched, only lastFetchedAt updated").
-			$this->cacheMapper->update(entity: $row);
+			$this->sources->cacheMapper->update(entity: $row);
 			return [
 				'status' => 'not-modified',
 				'itemCount' => count(value: $row->decodeItems()),
@@ -617,7 +611,7 @@ class FeedRefreshService {
 		FeedCache $row,
 		string $feedUrl,
 	): array {
-		$client = $this->clientService->newClient();
+		$client = $this->sources->clientService->newClient();
 
 		$headers = [
 			'User-Agent' => $this->buildUserAgent(),
@@ -646,10 +640,10 @@ class FeedRefreshService {
 			'allow_redirects' => false,
 		];
 
-		$proxy = (string)$this->config->getSystemValue('proxy', '');
+		$proxy = (string)$this->sources->config->getSystemValue('proxy', '');
 		if ($proxy !== '') {
 			$options['proxy'] = $proxy;
-			$proxyAuth = (string)$this->config->getSystemValue('proxyuserpwd', '');
+			$proxyAuth = (string)$this->sources->config->getSystemValue('proxyuserpwd', '');
 			if ($proxyAuth !== '') {
 				$options['headers']['Proxy-Authorization'] = 'Basic ' . base64_encode(string: $proxyAuth);
 			}
@@ -960,7 +954,7 @@ class FeedRefreshService {
 			'installed_version',
 			'1.0.0'
 		);
-		$instanceUrl = (string)$this->config->getSystemValue(
+		$instanceUrl = (string)$this->sources->config->getSystemValue(
 			'overwrite.cli.url',
 			''
 		);

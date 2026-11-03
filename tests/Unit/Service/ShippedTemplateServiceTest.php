@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
+use OCA\LaunchPad\Service\AdminTemplateStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Command\ExportCommand;
 use OCA\LaunchPad\Command\ImportCommand;
@@ -185,11 +186,13 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = new ShippedTemplateService(
 			importService: $instance['import'],
 			templateService: new AdminTemplateService(
-				dashboardMapper: $instance['dashboardMapper'],
-				placementMapper: $instance['placementMapper'],
+				stores: new AdminTemplateStores(
+					dashboardMapper: $instance['dashboardMapper'],
+					placementMapper: $instance['placementMapper']
+				),
 				settingsService: $this->createMock(AdminSettingsService::class),
 				groupManager: $groupManager,
-				userManager: $this->createMock(IUserManager::class),
+				userManager: $this->createMock(IUserManager::class)
 			),
 			dashboardMapper: $instance['dashboardMapper'],
 			appConfig: $appConfig,

@@ -58,19 +58,17 @@ class DashboardLockApiController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param DashboardLockService $lockService The lock service.
+	 * @param IRequest          $request The HTTP request.
+	 * @param LockSources       $sources The lock service and dashboard mapper.
 	 * @param PermissionService $permissionService Dashboard permission resolver.
-	 * @param DashboardMapper $dashboardMapper UUID → id lookup.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId The calling user ID.
+	 * @param IUserSession      $userSession User session (IUser resolution).
+	 * @param string|null       $userId The calling user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardLockService $lockService,
+		private readonly LockSources $sources,
 		private readonly PermissionService $permissionService,
-		private readonly DashboardMapper $dashboardMapper,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 		private readonly ?string $userId,
@@ -113,7 +111,7 @@ class DashboardLockApiController extends Controller {
 		}
 
 		try {
-			$lock = $this->lockService->acquireLock(
+			$lock = $this->sources->lockService->acquireLock(
 				dashboardUuid: $uuid,
 				userId: $this->userId
 			);
@@ -178,7 +176,7 @@ class DashboardLockApiController extends Controller {
 		}
 
 		try {
-			$lock = $this->lockService->heartbeat(
+			$lock = $this->sources->lockService->heartbeat(
 				dashboardUuid: $uuid,
 				userId: $this->userId
 			);
@@ -235,7 +233,7 @@ class DashboardLockApiController extends Controller {
 		}
 
 		try {
-			$this->lockService->releaseLock(
+			$this->sources->lockService->releaseLock(
 				dashboardUuid: $uuid,
 				userId: $this->userId,
 				allowAdminOverride: true
@@ -289,7 +287,7 @@ class DashboardLockApiController extends Controller {
 		// lock holders for arbitrary UUIDs; return 404 on no-view-access
 		// (same shape as "no lock") to avoid leaking dashboard existence.
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: ['error' => 'Lock not found', 'code' => LockNotFoundException::ERROR_CODE],
@@ -309,7 +307,7 @@ class DashboardLockApiController extends Controller {
 			);
 		}
 
-		$lock = $this->lockService->getLockState(dashboardUuid: $uuid);
+		$lock = $this->sources->lockService->getLockState(dashboardUuid: $uuid);
 		if ($lock === null) {
 			return new JSONResponse(
 				data: [
@@ -355,7 +353,7 @@ class DashboardLockApiController extends Controller {
 		}
 
 		try {
-			$this->lockService->forceRelease(
+			$this->sources->lockService->forceRelease(
 				dashboardUuid: $uuid,
 				adminUserId: $this->userId
 			);

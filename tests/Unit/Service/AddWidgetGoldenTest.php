@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Controller\WidgetApiPolicy;
+use OCA\LaunchPad\Controller\WidgetApiSources;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\WidgetApiController;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -54,6 +57,9 @@ use Throwable;
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
  * @uses   \OCA\LaunchPad\Service\MenuService
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Controller\RequestActor
+ * @uses   \OCA\LaunchPad\Controller\WidgetApiSources
+ * @uses   \OCA\LaunchPad\Controller\WidgetApiPolicy
  */
 class AddWidgetGoldenTest extends TestCase {
 
@@ -197,16 +203,22 @@ class AddWidgetGoldenTest extends TestCase {
 
 			$controller = new WidgetApiController(
 				request: $request,
-				widgetService: $this->service(mapper: $mapper),
+				sources: new WidgetApiSources(
+					widgetService: $this->service(mapper: $mapper),
+					newsWidgetService: $this->createMock(NewsWidgetService::class),
+					calendarService: $this->createMock(CalendarWidgetService::class),
+					placementService: $this->createMock(WidgetPlacementService::class)
+				),
 				permissionService: $permissions,
-				newsWidgetService: $this->createMock(NewsWidgetService::class),
-				calendarService: $this->createMock(CalendarWidgetService::class),
-				placementService: $this->createMock(WidgetPlacementService::class),
-				roleFeaturePerm: $roles,
-				userSession: $session,
-				actionAuth: $this->createMock(ActionAuthService::class),
-				logger: $this->createMock(LoggerInterface::class),
-				userId: 'alice',
+				policy: new WidgetApiPolicy(
+					roleFeaturePerm: $roles,
+					logger: $this->createMock(LoggerInterface::class)
+				),
+				actor: new RequestActor(
+					userSession: $session,
+					actionAuth: $this->createMock(ActionAuthService::class)
+				),
+				userId: 'alice'
 			);
 
 			$response = $controller->addWidget(...$args);

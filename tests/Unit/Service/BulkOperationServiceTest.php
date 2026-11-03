@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\BulkOperationAccess;
+use OCA\LaunchPad\Service\BulkDashboardStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
@@ -102,14 +104,18 @@ class BulkOperationServiceTest extends TestCase {
 			->willReturn(Dashboard::PERMISSION_FULL);
 
 		$this->service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $this->permissionService,
+				groupManager: $this->groupManager,
+				appConfig: $this->appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $this->groupManager,
-			appConfig: $this->appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 	}//end setUp()
 
@@ -244,14 +250,18 @@ class BulkOperationServiceTest extends TestCase {
 		$perm->method('resolveAccessLevel')->willReturn(null);
 
 		$service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $perm,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $perm,
+				groupManager: $this->groupManager,
+				appConfig: $this->appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $this->groupManager,
-			appConfig: $this->appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 
 		$this->dashboardMapper->expects(self::never())->method('delete');
@@ -275,14 +285,18 @@ class BulkOperationServiceTest extends TestCase {
 		$groupManager->method('isAdmin')->willReturn(false);
 
 		$service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $this->permissionService,
+				groupManager: $groupManager,
+				appConfig: $this->appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $groupManager,
-			appConfig: $this->appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 
 		$this->expectException(PermissionDeniedException::class);
@@ -529,14 +543,18 @@ class BulkOperationServiceTest extends TestCase {
 		$appConfig->method('getValueInt')->willReturn(0);
 
 		$service = new BulkOperationService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			permissionService: $this->permissionService,
-			treeService: $this->treeService,
+			stores: new BulkDashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				treeService: $this->treeService
+			),
+			access: new BulkOperationAccess(
+				permissionService: $this->permissionService,
+				groupManager: $this->groupManager,
+				appConfig: $appConfig
+			),
 			activityPublisher: $this->activityPublisher,
-			groupManager: $this->groupManager,
-			appConfig: $appConfig,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 
 		self::assertSame(BulkOperationService::DEFAULT_MAX_PER_REQUEST, $service->getEffectiveCap());

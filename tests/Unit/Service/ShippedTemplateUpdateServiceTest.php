@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
+use OCA\LaunchPad\Service\AdminTemplateStores;
+use OCA\LaunchPad\Service\ResyncStores;
+use OCA\LaunchPad\Service\ShippedTemplateStores;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -112,11 +115,13 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 		$userManager = $this->createMock(IUserManager::class);
 		$userManager->method('get')->willReturn($this->createMock(IUser::class));
 		$adminTemplates = new AdminTemplateService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
+			stores: new AdminTemplateStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper
+			),
 			settingsService: $this->createMock(AdminSettingsService::class),
 			groupManager: $groupManager,
-			userManager: $userManager,
+			userManager: $userManager
 		);
 
 		$this->shipped = new ShippedTemplateService(
@@ -143,20 +148,24 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 
 		$this->updates = new ShippedTemplateUpdateService(
 			shipped: $this->shipped,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			hydrator: new PlacementPayloadHydrator(),
-			resyncService: new TemplateResyncService(
+			stores: new ShippedTemplateStores(
 				dashboardMapper: $this->dashboardMapper,
 				placementMapper: $this->placementMapper,
-				db: $this->db,
+				appConfig: $appConfig,
+				db: $this->db
+			),
+			hydrator: new PlacementPayloadHydrator(),
+			resyncService: new TemplateResyncService(
+				stores: new ResyncStores(
+					dashboardMapper: $this->dashboardMapper,
+					placementMapper: $this->placementMapper,
+					db: $this->db,
+					jobList: $this->createMock(IJobList::class)
+				),
 				activityPublisher: $this->createMock(ActivityPublisher::class),
 				notificationManager: $this->createMock(INotificationManager::class),
-				jobList: $this->createMock(IJobList::class),
-				logger: new NullLogger(),
-			),
-			appConfig: $appConfig,
-			db: $this->db,
+				logger: new NullLogger()
+			)
 		);
 	}
 

@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ResyncStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
@@ -86,13 +87,15 @@ class TemplateResyncServiceTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new TemplateResyncService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			db: $this->db,
+			stores: new ResyncStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				jobList: $this->jobList
+			),
 			activityPublisher: $this->activityPublisher,
 			notificationManager: $this->notificationManager,
-			jobList: $this->jobList,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 	}
 

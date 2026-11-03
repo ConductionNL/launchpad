@@ -52,21 +52,17 @@ class DashboardVersionApiController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request NC request.
-	 * @param DashboardMapper $dashboardMapper Dashboard row lookup.
-	 * @param DashboardVersionService $versionService Version service.
+	 * @param IRequest          $request NC request.
+	 * @param VersionApiSources $sources The dashboard mapper, version service and logger.
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId Current user ID.
+	 * @param IUserSession      $userSession User session (IUser resolution).
+	 * @param string|null       $userId Current user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly DashboardVersionService $versionService,
+		private readonly VersionApiSources $sources,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(
@@ -102,7 +98,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: ['error' => 'Dashboard not found'],
@@ -111,7 +107,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$envelope = $this->versionService->listVersions(
+			$envelope = $this->sources->versionService->listVersions(
 				dashboard: $dashboard,
 				requestingUser: $this->userId
 			);
@@ -153,7 +149,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: ['error' => 'Dashboard not found'],
@@ -162,7 +158,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$version = $this->versionService->fetchSnapshot(
+			$version = $this->sources->versionService->fetchSnapshot(
 				dashboard: $dashboard,
 				versionNumber: $versionNumber,
 				requestingUser: $this->userId
@@ -218,7 +214,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: ['error' => 'Dashboard not found'],
@@ -227,7 +223,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$version = $this->versionService->createExplicitSnapshot(
+			$version = $this->sources->versionService->createExplicitSnapshot(
 				dashboard: $dashboard,
 				requestingUser: $this->userId,
 				note: $note
@@ -274,7 +270,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: ['error' => 'Dashboard not found'],
@@ -283,7 +279,7 @@ class DashboardVersionApiController extends Controller {
 		}
 
 		try {
-			$result = $this->versionService->restoreVersion(
+			$result = $this->sources->versionService->restoreVersion(
 				dashboard: $dashboard,
 				versionNumber: $versionNumber,
 				restoringUser: $this->userId
@@ -323,7 +319,7 @@ class DashboardVersionApiController extends Controller {
 			);
 		}
 
-		$this->logger->error(
+		$this->sources->logger->error(
 			message: 'launchpad: version operation failed',
 			context: ['exception' => $exception]
 		);

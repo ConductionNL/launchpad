@@ -172,25 +172,17 @@ class LiveTileService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether the connector leaf is enabled,
-	 *                                under whichever id it registered.
-	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      Integriq's data-source service
-	 *                                      (REQ-LIVETILE-005 capability probe).
-	 * @param IClientService $clientService HTTP client factory for the direct-URL fetch.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed value cache.
-	 * @param IAppConfig $appConfig Admin config: allow-listed hosts.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or nothing when absent.
+	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
+	 * @param IAppConfig              $appConfig Admin config: allow-listed hosts.
+	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
+	 * @param LoggerInterface         $logger PSR logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or
+	 *                                                    nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IAppManager $appManager,
-		private readonly ContainerInterface $container,
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
+		private readonly ReadingSources $sources,
 		private readonly IAppConfig $appConfig,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly LoggerInterface $logger,
@@ -317,7 +309,7 @@ class LiveTileService {
 	public function isConnectorAvailable(): bool {
 		try {
 			$enabled = FleetAppId::isEnabledForUser(
-				appManager: $this->appManager,
+				appManager: $this->sources->appManager,
 				canonical: self::CONNECTOR_APP
 			);
 			if ($enabled === false) {
@@ -325,7 +317,7 @@ class LiveTileService {
 			}
 
 			return FleetAppId::hasService(
-				container: $this->container,
+				container: $this->sources->container,
 				canonical: self::CONNECTOR_APP,
 				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
 			);
@@ -390,7 +382,7 @@ class LiveTileService {
 
 		try {
 			$service = FleetAppId::getService(
-				container: $this->container,
+				container: $this->sources->container,
 				canonical: self::CONNECTOR_APP,
 				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
 			);
@@ -451,7 +443,7 @@ class LiveTileService {
 		}
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->sources->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -846,7 +838,7 @@ class LiveTileService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
+			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
 		} catch (Throwable $exception) {
 			$this->logger->info(
 				message: 'LiveTileService: cache subsystem unavailable, falling back to direct fetch',

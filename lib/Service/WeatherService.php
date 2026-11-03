@@ -190,26 +190,18 @@ class WeatherService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether `weather_status` is enabled.
-	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      `weather_status`'s forecast service
-	 *                                      (REQ-WEATHER-002 provider reuse).
-	 * @param IClientService $clientService HTTP client factory for the fallback provider fetch.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed reading cache.
-	 * @param IAppConfig $appConfig Admin config: cache TTL, provider URL, API key.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param IConfig $config Reads the requesting user's locale/language and
-	 *                        the system default.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or nothing when absent.
+	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
+	 * @param IAppConfig              $appConfig Admin config: cache TTL, provider URL, API key.
+	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
+	 * @param IConfig                 $config Reads the requesting user's locale/language and the system default.
+	 * @param LoggerInterface         $logger PSR logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or
+	 *                                                    nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IAppManager $appManager,
-		private readonly ContainerInterface $container,
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
+		private readonly ReadingSources $sources,
 		private readonly IAppConfig $appConfig,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly IConfig $config,
@@ -415,15 +407,15 @@ class WeatherService {
 	 */
 	private function fetchFromWeatherStatus(string $units): ?array {
 		try {
-			if ($this->appManager->isEnabledForUser(appId: 'weather_status') === false) {
+			if ($this->sources->appManager->isEnabledForUser(appId: 'weather_status') === false) {
 				return null;
 			}
 
-			if ($this->container->has(id: self::WEATHER_STATUS_SERVICE_CLASS) === false) {
+			if ($this->sources->container->has(id: self::WEATHER_STATUS_SERVICE_CLASS) === false) {
 				return null;
 			}
 
-			$service = $this->container->get(id: self::WEATHER_STATUS_SERVICE_CLASS);
+			$service = $this->sources->container->get(id: self::WEATHER_STATUS_SERVICE_CLASS);
 			if (method_exists(object_or_class: $service, method: 'getForecast') === false
 				|| method_exists(object_or_class: $service, method: 'getLocation') === false
 			) {
@@ -566,7 +558,7 @@ class WeatherService {
 		}
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->sources->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -756,7 +748,7 @@ class WeatherService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_weather_');
+			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_weather_');
 		} catch (Throwable $exception) {
 			$this->logger->info(
 				message: 'WeatherService: cache subsystem unavailable, falling back to direct fetch',

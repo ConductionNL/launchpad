@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\VersionApiSources;
 use Exception;
 use OCA\LaunchPad\Controller\DashboardVersionApiController;
 use OCA\LaunchPad\Db\Dashboard;
@@ -123,12 +124,14 @@ class DashboardVersionApiControllerTest extends TestCase {
 
 		return new DashboardVersionApiController(
 			request: $this->request,
-			dashboardMapper: $this->dashboardMapper,
-			versionService: $this->versionService,
+			sources: new VersionApiSources(
+				dashboardMapper: $this->dashboardMapper,
+				versionService: $this->versionService,
+				logger: $this->createMock(LoggerInterface::class)
+			),
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
-			logger: $this->createMock(LoggerInterface::class),
-			userId: $userId,
+			userId: $userId
 		);
 
 	}//end makeController()

@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Service\DashboardOutlets;
 use OCA\LaunchPad\Service\DashboardLimits;
 use OCA\LaunchPad\Service\DashboardPlatform;
@@ -72,6 +75,9 @@ use ReflectionMethod;
  * @uses   \OCA\LaunchPad\Service\DashboardPlatform
  * @uses   \OCA\LaunchPad\Service\DashboardLimits
  * @uses   \OCA\LaunchPad\Service\DashboardOutlets
+ * @uses   \OCA\LaunchPad\Controller\RequestActor
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
+ * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
  */
 class DashboardServiceCreateGoldenTest extends TestCase {
 
@@ -217,15 +223,21 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
-			dashboardService: $this->service(),
+			services: new DashboardApiServices(
+				dashboardService: $this->service()
+			),
 			permissionService: $permissions,
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $session,
-			actionAuth: $this->createMock(ActionAuthService::class),
-			userId: 'alice',
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			),
+			userId: 'alice'
 		);
 	}//end controller()
 

@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\MetadataSources;
 use OCA\LaunchPad\Controller\DashboardMetadataController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -73,12 +74,14 @@ class DashboardMetadataControllerTest extends TestCase {
 
 		return new DashboardMetadataController(
 			request: $this->request,
-			metadataService: $this->metadataService,
-			dashboardMapper: $this->dashboardMapper,
+			sources: new MetadataSources(
+				metadataService: $this->metadataService,
+				dashboardMapper: $this->dashboardMapper
+			),
 			permissionService: $this->permissionService,
 			actionAuth: $this->actionAuth,
 			userSession: $this->userSession,
-			userId: $userId,
+			userId: $userId
 		);
 	}
 

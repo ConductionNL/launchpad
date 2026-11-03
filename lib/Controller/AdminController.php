@@ -101,49 +101,20 @@ class AdminController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param AdminTemplateService $templateService The admin template service.
-	 * @param AdminSettingsService $settingsService The admin settings service.
-	 * @param IGroupManager $groupManager The Nextcloud group manager.
-	 * @param IUserSession $userSession The current user session.
-	 * @param ExportService $exportService ZIP export service
-	 *                                     (REQ-EXIM-001..003).
-	 * @param ImportService $importService ZIP import service
-	 *                                     (REQ-EXIM-004..008).
-	 * @param RoleService $roleService The LaunchPad role service
-	 *                                 (REQ-ROLE-001..011).
-	 * @param FeedRefreshService $feedRefresh The background feed
-	 *                                        refresh service
-	 *                                        used by the
-	 *                                        on-demand admin
-	 *                                        `refreshFeeds`
-	 *                                        action
-	 *                                        (REQ-BGJOB-FEED-005).
-	 * @param FooterService $footerService Global footer settings + sanitiser
-	 *                                     (REQ-FTR-001..010).
-	 * @param SetupWizardService $setupWizardService Setup-wizard
-	 *                                               orchestrator
-	 *                                               (REQ-WIZ-001..011).
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param TemplateResyncService $resyncService Admin template
-	 *                                             re-sync
-	 *                                             orchestrator
-	 *                                             (REQ-RESYNC-001..005).
+	 * @param IRequest              $request The request.
+	 * @param AdminTemplateTools    $templates The template, resync, export and import services.
+	 * @param AdminSettingsTools    $settings The settings, footer and setup wizard services and the group manager.
+	 * @param IUserSession          $userSession The current user session.
+	 * @param AdminRoleAndFeedTools $roles The role and feed refresh services.
+	 * @param ActionAuthService     $actionAuth ADR-023 action authorization.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AdminTemplateService $templateService,
-		private readonly AdminSettingsService $settingsService,
-		private readonly IGroupManager $groupManager,
+		private readonly AdminTemplateTools $templates,
+		private readonly AdminSettingsTools $settings,
 		private readonly IUserSession $userSession,
-		private readonly ExportService $exportService,
-		private readonly ImportService $importService,
-		private readonly RoleService $roleService,
-		private readonly FeedRefreshService $feedRefresh,
-		private readonly FooterService $footerService,
-		private readonly SetupWizardService $setupWizardService,
+		private readonly AdminRoleAndFeedTools $roles,
 		private readonly ActionAuthService $actionAuth,
-		private readonly TemplateResyncService $resyncService,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -168,7 +139,7 @@ class AdminController extends Controller {
 			);
 		}
 
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
+		if ($this->settings->groupManager->isAdmin(userId: $user->getUID()) === false) {
 			return new JSONResponse(
 				data: ['error' => 'Admin required'],
 				statusCode: Http::STATUS_FORBIDDEN
@@ -187,7 +158,7 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listTemplates(): JSONResponse {
-		$templates = $this->templateService->listTemplates();
+		$templates = $this->templates->templateService->listTemplates();
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $templates)
@@ -206,7 +177,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getTemplate(int $id): JSONResponse {
 		try {
-			$result = $this->templateService->getTemplateWithPlacements(
+			$result = $this->templates->templateService->getTemplateWithPlacements(
 				id: $id
 			);
 			$placements = ResponseHelper::serializeList(
@@ -249,7 +220,7 @@ class AdminController extends Controller {
 		bool $isDefault = false,
 	): JSONResponse {
 		try {
-			$template = $this->templateService->createTemplate(
+			$template = $this->templates->templateService->createTemplate(
 				name: $name,
 				description: $description,
 				targetGroups: $targetGroups,
@@ -301,7 +272,7 @@ class AdminController extends Controller {
 				gridColumns: $gridColumns
 			);
 
-			$template = $this->templateService->updateTemplate(
+			$template = $this->templates->templateService->updateTemplate(
 				id: $id,
 				data: $data
 			);
@@ -326,7 +297,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteTemplate(int $id): JSONResponse {
 		try {
-			$this->templateService->deleteTemplate(id: $id);
+			$this->templates->templateService->deleteTemplate(id: $id);
 
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (\Exception $e) {
@@ -380,7 +351,7 @@ class AdminController extends Controller {
 		}
 
 		try {
-			$result = $this->resyncService->resync(
+			$result = $this->templates->resyncService->resync(
 				templateId: $id,
 				strategy: $strategy,
 				dryRun: $dryRun,
@@ -409,7 +380,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getSettings(): JSONResponse {
 		return ResponseHelper::success(
-			data: $this->settingsService->getSettings()
+			data: $this->settings->settingsService->getSettings()
 		);
 	}//end getSettings()
 
@@ -497,7 +468,7 @@ class AdminController extends Controller {
 		$linkCreateFileExts ??= $linkCreateFileExtensions;
 
 		try {
-			$this->settingsService->updateSettings(
+			$this->settings->settingsService->updateSettings(
 				defaultPermLevel: $defaultPermLevel,
 				allowUserDash: $allowUserDash,
 				allowMultiDash: $allowMultiDash,
@@ -542,7 +513,7 @@ class AdminController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->footerService->getGlobalSettings()
+			data: $this->settings->footerService->getGlobalSettings()
 		);
 	}//end getFooterSettings()
 
@@ -597,7 +568,7 @@ class AdminController extends Controller {
 		}
 
 		try {
-			$this->footerService->updateGlobalSettings(patch: $patch);
+			$this->settings->footerService->updateGlobalSettings(patch: $patch);
 		} catch (InvalidArgumentException $e) {
 			$isOversize = str_contains(
 				haystack: $e->getMessage(),
@@ -654,7 +625,7 @@ class AdminController extends Controller {
 		$userId = (string)$this->userSession->getUser()?->getUID();
 
 		if ($scope === 'site') {
-			return $this->exportService->exportSite(currentUserId: $userId);
+			return $this->templates->exportService->exportSite(currentUserId: $userId);
 		}
 
 		if ($dashboardUuid === null || $dashboardUuid === '') {
@@ -672,7 +643,7 @@ class AdminController extends Controller {
 		}
 
 		try {
-			return $this->exportService->exportDashboard(
+			return $this->templates->exportService->exportDashboard(
 				dashboardUuid: $dashboardUuid,
 				currentUserId: $userId
 			);
@@ -723,7 +694,7 @@ class AdminController extends Controller {
 		$userId = (string)$this->userSession->getUser()?->getUID();
 
 		try {
-			$result = $this->importService->import(
+			$result = $this->templates->importService->import(
 				zipPath: $tmpName,
 				preserveUuids: $preserveUuids,
 				currentUserId: $userId
@@ -769,7 +740,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listRoles(): JSONResponse {
 
-		$assignments = $this->roleService->listAssignments();
+		$assignments = $this->roles->roleService->listAssignments();
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $assignments)
@@ -802,7 +773,7 @@ class AdminController extends Controller {
 		$assignedBy = (string)$this->userSession->getUser()->getUID();
 
 		try {
-			$assignment = $this->roleService->assignRole(
+			$assignment = $this->roles->roleService->assignRole(
 				userId: $userId,
 				groupId: $groupId,
 				role: (string)$role,
@@ -847,7 +818,7 @@ class AdminController extends Controller {
 	public function deleteRole(int $id): JSONResponse {
 
 		try {
-			$this->roleService->removeRole(id: $id);
+			$this->roles->roleService->removeRole(id: $id);
 		} catch (DoesNotExistException) {
 			return ResponseHelper::forbidden(
 				message: 'Role assignment not found'
@@ -887,8 +858,8 @@ class AdminController extends Controller {
 
 		return ResponseHelper::success(
 			data: [
-				'role' => $this->roleService->getEffectiveRole(userId: $userId),
-				'source' => $this->roleService->getRoleSource(userId: $userId),
+				'role' => $this->roles->roleService->getEffectiveRole(userId: $userId),
+				'source' => $this->roles->roleService->getRoleSource(userId: $userId),
 			]
 		);
 	}//end getMyRole()
@@ -930,7 +901,7 @@ class AdminController extends Controller {
 			}
 		}
 
-		$summary = $this->feedRefresh->refreshAll(onlyUrl: $feedUrl);
+		$summary = $this->roles->feedRefresh->refreshAll(onlyUrl: $feedUrl);
 
 		return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
 	}//end refreshFeedsNow()
@@ -971,7 +942,7 @@ class AdminController extends Controller {
 		}
 
 		try {
-			$url = $this->templateService->uploadPreviewImage(
+			$url = $this->templates->templateService->uploadPreviewImage(
 				templateUuid: $uuid,
 				base64DataUrl: $base64
 			);
@@ -1026,7 +997,7 @@ class AdminController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->setupWizardService->getWizardState()
+			data: $this->settings->setupWizardService->getWizardState()
 		);
 	}//end getWizardState()
 
@@ -1048,7 +1019,7 @@ class AdminController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->setupWizardService->markWizardComplete()
+			data: $this->settings->setupWizardService->markWizardComplete()
 		);
 	}//end completeWizard()
 

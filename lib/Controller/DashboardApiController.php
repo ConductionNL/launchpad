@@ -87,63 +87,21 @@ class DashboardApiController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param DashboardService $dashboardService The dashboard service.
-	 * @param PermissionService $permissionService The permission service.
-	 * @param DashboardTreeService $treeService The tree service that
-	 *                                          owns hierarchy
-	 *                                          queries, cycle
-	 *                                          detection, slug
-	 *                                          uniqueness, path
-	 *                                          resolution, and the
-	 *                                          cascade-delete walker
-	 *                                          (REQ-DASH-023..030).
-	 * @param DashboardVersionService $versionService Snapshot service
-	 *                                                (REQ-VERS-001) —
-	 *                                                automatic
-	 *                                                snapshots fire
-	 *                                                after every
-	 *                                                successful PUT
-	 *                                                via the
-	 *                                                debounced
-	 *                                                `captureSnapshot`
-	 *                                                helper.
-	 * @param AnalyticsService $analyticsService The view-analytics
-	 *                                           service used by the
-	 *                                           `viewEvent` endpoint
-	 *                                           (REQ-ANLT-002).
-	 * @param LoggerInterface $logger PSR logger (used by
-	 *                                fork to report
-	 *                                unexpected errors
-	 *                                — REQ-DASH-021).
-	 * @param IUserSession $userSession The user session, used
-	 *                                  to resolve the
-	 *                                  authenticated IUser for
-	 *                                  ADR-023 action checks.
-	 * @param ActionAuthService $actionAuth The ADR-023 action
-	 *                                      authorization service.
-	 * @param string|null $userId The user ID.
-	 * @param QuotaService|null $quotaService The quota-enforcement
-	 *                                        service used to gate
-	 *                                        dashboard creation
-	 *                                        (dashboard-quota-limits).
-	 * @param DashboardTranslationService|null $translationService Says whether a dashboard has more than one language.
-	 * @param MetadataService|null $metadataService Filters the visible list by detail fields.
+	 * @param IRequest             $request The request.
+	 * @param DashboardApiServices $services The dashboard service and the optional quota, translation and
+	 *                                       metadata services.
+	 * @param PermissionService    $permissionService The permission service.
+	 * @param DashboardApiHistory  $history The tree, version and analytics services and the logger.
+	 * @param RequestActor         $actor The user session and the action authorisation service.
+	 * @param string|null          $userId The user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardService $dashboardService,
+		private readonly DashboardApiServices $services,
 		private readonly PermissionService $permissionService,
-		private readonly DashboardTreeService $treeService,
-		private readonly DashboardVersionService $versionService,
-		private readonly AnalyticsService $analyticsService,
-		private readonly LoggerInterface $logger,
-		private readonly IUserSession $userSession,
-		private readonly ActionAuthService $actionAuth,
+		private readonly DashboardApiHistory $history,
+		private readonly RequestActor $actor,
 		private readonly ?string $userId,
-		private readonly ?QuotaService $quotaService = null,
-		private readonly ?DashboardTranslationService $translationService = null,
-		private readonly ?MetadataService $metadataService = null,
 	) {
 		parent::__construct(
 			appName: Application::APP_ID,
@@ -164,18 +122,18 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function list(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.list');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.list');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		$dashboards = $this->dashboardService->getUserDashboards(
+		$dashboards = $this->services->dashboardService->getUserDashboards(
 			userId: $this->userId
 		);
 
@@ -185,14 +143,14 @@ class DashboardApiController extends Controller {
 		// the personal dashboards list. Response shape is
 		// `{items: [...], quota: {...}}`. When the quota service is absent
 		// (legacy test doubles) fall back to the bare-array contract.
-		if ($this->quotaService === null) {
+		if ($this->services->quotaService === null) {
 			return ResponseHelper::success(data: $serialized);
 		}
 
 		return ResponseHelper::success(
 			data: [
 				'items' => $serialized,
-				'quota' => $this->quotaService->getQuotaStatus(
+				'quota' => $this->services->quotaService->getQuotaStatus(
 					userId: $this->userId
 				),
 			]
@@ -212,19 +170,19 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.visible');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.visible');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
 		$items = $this->filterByMetadata(
-			items: $this->dashboardService->getVisibleToUser(
+			items: $this->services->dashboardService->getVisibleToUser(
 				userId: $this->userId
 			)
 		);
@@ -249,14 +207,14 @@ class DashboardApiController extends Controller {
 		// are handled by the store's shape-tolerant unwrap. When the quota
 		// service is absent (legacy test doubles) fall back to the
 		// bare-array contract.
-		if ($this->quotaService === null) {
+		if ($this->services->quotaService === null) {
 			return ResponseHelper::success(data: $serialized);
 		}
 
 		return ResponseHelper::success(
 			data: [
 				'items' => $serialized,
-				'quota' => $this->quotaService->getQuotaStatus(
+				'quota' => $this->services->quotaService->getQuotaStatus(
 					userId: $this->userId
 				),
 			]
@@ -272,18 +230,18 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.get-active');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.get-active');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		$result = $this->dashboardService->getEffectiveDashboard(
+		$result = $this->services->dashboardService->getEffectiveDashboard(
 			userId: $this->userId
 		);
 
@@ -343,18 +301,18 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function show(int $id): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.show');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.show');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		$result = $this->dashboardService->getDashboardForUser(
+		$result = $this->services->dashboardService->getDashboardForUser(
 			dashboardId: $id,
 			userId: $this->userId
 		);
@@ -399,11 +357,11 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/specs/dashboard-language-content/spec.md
 	 */
 	private function hasVariants(string $uuid): bool {
-		if ($this->translationService === null || $uuid === '') {
+		if ($this->services->translationService === null || $uuid === '') {
 			return false;
 		}
 
-		return count($this->translationService->listVariants(dashboardUuid: $uuid)) > 1;
+		return count($this->services->translationService->listVariants(dashboardUuid: $uuid)) > 1;
 	}//end hasVariants()
 
 	/**
@@ -419,11 +377,11 @@ class DashboardApiController extends Controller {
 	 */
 	private function filterByMetadata(array $items): array {
 		$filters = $this->request->getParam('metadata');
-		if ($this->metadataService === null || is_array($filters) === false || $filters === []) {
+		if ($this->services->metadataService === null || is_array($filters) === false || $filters === []) {
 			return $items;
 		}
 
-		$kept = $this->metadataService->filterDashboards(
+		$kept = $this->services->metadataService->filterDashboards(
 			dashboards: array_map(static fn (array $entry) => $entry['dashboard'], $items),
 			metadataFilters: $filters
 		);
@@ -456,12 +414,12 @@ class DashboardApiController extends Controller {
 		}
 
 		$visible = [];
-		foreach ($this->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
+		foreach ($this->services->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
 			$visible[(string)$entry['dashboard']->getUuid()] = true;
 		}
 
 		$crumbs = [];
-		foreach ($this->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
+		foreach ($this->history->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
 			if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
 				$crumbs[] = $crumb + ['hidden' => false];
 				continue;
@@ -522,7 +480,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardService->createDashboard(
+			$dashboard = $this->services->dashboardService->createDashboard(
 				userId: $this->userId,
 				name: $resolved['name'],
 				options: ['seedDefaults' => true] + array_diff_key($resolved, ['name' => true])
@@ -533,7 +491,7 @@ class DashboardApiController extends Controller {
 			// widget) seeded by the service. Returning the placements
 			// here matches the `getActive()` envelope so the store can
 			// populate `widgetPlacements` without an extra round-trip.
-			$placements = $this->dashboardService->findPlacements(
+			$placements = $this->services->dashboardService->findPlacements(
 				dashboardId: $dashboard->getId()
 			);
 
@@ -580,21 +538,21 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
 	private function denyCreate(): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
 		// L3: wire the create action so the matrix entry is enforced —
 		// consistent with all other mutation endpoints (ADR-023).
-		$this->actionAuth->requireAction($user, 'dashboard.create');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.create');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
 		try {
-			$this->dashboardService->assertPersonalDashboardsAllowed();
+			$this->services->dashboardService->assertPersonalDashboardsAllowed();
 		} catch (PersonalDashboardsDisabledException $e) {
 			return new JSONResponse(
 				data: [
@@ -638,12 +596,12 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.update');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.update');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -682,7 +640,7 @@ class DashboardApiController extends Controller {
 				sortOrder: $sortOrder
 			);
 
-			$dashboard = $this->dashboardService->updateDashboard(
+			$dashboard = $this->services->dashboardService->updateDashboard(
 				dashboardId: $id,
 				userId: $this->userId,
 				data: $data
@@ -730,12 +688,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function delete(int $id): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.delete');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.delete');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -744,7 +702,7 @@ class DashboardApiController extends Controller {
 		$cascade = $this->resolveCascadeFlag();
 
 		try {
-			$this->dashboardService->deleteDashboard(
+			$this->services->dashboardService->deleteDashboard(
 				dashboardId: $id,
 				userId: $this->userId,
 				cascade: $cascade
@@ -784,12 +742,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function tree(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.tree');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.tree');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -798,7 +756,7 @@ class DashboardApiController extends Controller {
 		// C1 fix: build the visibility set for the calling user, then ask
 		// the tree service for the structural tree filtered to those UUIDs.
 		// This prevents cross-user IDOR via UUID enumeration through the tree.
-		$visible = $this->dashboardService->getVisibleToUser(
+		$visible = $this->services->dashboardService->getVisibleToUser(
 			userId: $this->userId
 		);
 		$visibleUuids = [];
@@ -809,7 +767,7 @@ class DashboardApiController extends Controller {
 			}
 		}
 
-		$tree = $this->treeService->getFilteredTree(
+		$tree = $this->history->treeService->getFilteredTree(
 			visibleUuids: $visibleUuids
 		);
 
@@ -839,12 +797,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function byPath(string $path = ''): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.by-path');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.by-path');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -854,7 +812,7 @@ class DashboardApiController extends Controller {
 			$path = (string)$this->request->getParam(key: 'path', default: '');
 		}
 
-		$dashboard = $this->treeService->resolvePath(path: $path);
+		$dashboard = $this->history->treeService->resolvePath(path: $path);
 		if ($dashboard === null) {
 			return new JSONResponse(
 				data: [
@@ -886,8 +844,8 @@ class DashboardApiController extends Controller {
 
 		$uuid = (string)$dashboard->getUuid();
 		$serialised = $dashboard->jsonSerialize();
-		$serialised['path'] = $this->treeService->computePath(uuid: $uuid);
-		$serialised['breadcrumbs'] = $this->treeService->computeBreadcrumbs(
+		$serialised['path'] = $this->history->treeService->computePath(uuid: $uuid);
+		$serialised['breadcrumbs'] = $this->history->treeService->computeBreadcrumbs(
 			uuid: $uuid
 		);
 
@@ -919,12 +877,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function computePath(string $uuid = ''): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.compute-path');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.compute-path');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -942,7 +900,7 @@ class DashboardApiController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: ['path' => $this->treeService->computePath(uuid: $uuid)]
+			data: ['path' => $this->history->treeService->computePath(uuid: $uuid)]
 		);
 	}//end computePath()
 
@@ -957,19 +915,19 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function activate(int $id): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.activate');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.activate');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
 		try {
-			$dashboard = $this->dashboardService->activateDashboard(
+			$dashboard = $this->services->dashboardService->activateDashboard(
 				dashboardId: $id,
 				userId: $this->userId
 			);
@@ -995,12 +953,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listGroup(string $groupId): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.list-group');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.list-group');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -1009,7 +967,7 @@ class DashboardApiController extends Controller {
 		// H1: verify the caller is a member of the requested group (or
 		// admin) before returning its dashboards — mirrors the group-
 		// membership check in PermissionService::resolveAccessLevel.
-		if ($this->dashboardService->userCanAccessGroup(
+		if ($this->services->dashboardService->userCanAccessGroup(
 			userId: $this->userId,
 			groupId: $groupId
 		) === false
@@ -1017,7 +975,7 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::forbidden();
 		}
 
-		$dashboards = $this->dashboardService->listGroupDashboards(
+		$dashboards = $this->services->dashboardService->listGroupDashboards(
 			groupId: $groupId
 		);
 
@@ -1064,7 +1022,7 @@ class DashboardApiController extends Controller {
 		);
 
 		try {
-			$dashboard = $this->dashboardService->createGroupShared(
+			$dashboard = $this->services->dashboardService->createGroupShared(
 				actorUserId: $this->userId,
 				groupId: $groupId,
 				name: $resolved['name'],
@@ -1095,12 +1053,12 @@ class DashboardApiController extends Controller {
 		string $groupId,
 		string $uuid,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.get-group');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.get-group');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -1108,7 +1066,7 @@ class DashboardApiController extends Controller {
 
 		// H1: verify the caller is a member of the requested group (or
 		// admin) before fetching the dashboard payload.
-		if ($this->dashboardService->userCanAccessGroup(
+		if ($this->services->dashboardService->userCanAccessGroup(
 			userId: $this->userId,
 			groupId: $groupId
 		) === false
@@ -1117,7 +1075,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardService->findGroupDashboard(
+			$dashboard = $this->services->dashboardService->findGroupDashboard(
 				groupId: $groupId,
 				uuid: $uuid
 			);
@@ -1170,7 +1128,7 @@ class DashboardApiController extends Controller {
 		);
 
 		try {
-			$dashboard = $this->dashboardService->updateGroupShared(
+			$dashboard = $this->services->dashboardService->updateGroupShared(
 				actorUserId: $this->userId,
 				groupId: $groupId,
 				uuid: $uuid,
@@ -1214,7 +1172,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$this->dashboardService->deleteGroupShared(
+			$this->services->dashboardService->deleteGroupShared(
 				actorUserId: $this->userId,
 				groupId: $groupId,
 				uuid: $uuid
@@ -1265,7 +1223,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$this->dashboardService->setGroupDefault(
+			$this->services->dashboardService->setGroupDefault(
 				actorUserId: $this->userId,
 				groupId: $groupId,
 				uuid: $uuid
@@ -1306,18 +1264,18 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setActiveDashboard(?string $uuid = null): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.set-active-dashboard');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.set-active-dashboard');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		$this->dashboardService->setActivePreference(
+		$this->services->dashboardService->setActivePreference(
 			userId: $this->userId,
 			uuid: ($uuid ?? '')
 		);
@@ -1346,18 +1304,18 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setDefaultDashboard(?string $uuid = null): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.set-default-dashboard');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.set-default-dashboard');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		$this->dashboardService->setDefaultPreference(
+		$this->services->dashboardService->setDefaultPreference(
 			userId: $this->userId,
 			uuid: ($uuid ?? '')
 		);
@@ -1375,12 +1333,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getDefaultDashboard(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.get-default-dashboard');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.get-default-dashboard');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -1388,7 +1346,7 @@ class DashboardApiController extends Controller {
 
 		return ResponseHelper::success(
 			data: [
-				'uuid' => $this->dashboardService->getDefaultPreference(
+				'uuid' => $this->services->dashboardService->getDefaultPreference(
 					userId: $this->userId
 				),
 			]
@@ -1435,7 +1393,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$fork = $this->dashboardService->forkAsPersonal(
+			$fork = $this->services->dashboardService->forkAsPersonal(
 				userId: $this->userId,
 				sourceUuid: $uuid,
 				name: $name
@@ -1475,7 +1433,7 @@ class DashboardApiController extends Controller {
 		} catch (\Throwable $t) {
 			// REQ-DASH-021 + ADR-005: log the real cause, return a
 			// stable, generic envelope to the client.
-			$this->logger->error(
+			$this->history->logger->error(
 				message: 'launchpad: fork failed for user {user}: {message}',
 				context: [
 					'user' => $this->userId,
@@ -1508,19 +1466,19 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.publish');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.publish');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
 		try {
-			$dashboard = $this->dashboardService->publishDashboard(
+			$dashboard = $this->services->dashboardService->publishDashboard(
 				uuid: $uuid,
 				userId: $this->userId
 			);
@@ -1552,19 +1510,19 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function unpublish(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.unpublish');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.unpublish');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
 		try {
-			$dashboard = $this->dashboardService->unpublish(
+			$dashboard = $this->services->dashboardService->unpublish(
 				uuid: $uuid,
 				userId: $this->userId
 			);
@@ -1608,12 +1566,12 @@ class DashboardApiController extends Controller {
 		?string $publishAt = null,
 		?string $unpublishAt = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.schedule');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.schedule');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -1632,7 +1590,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$dashboard = $this->dashboardService->schedule(
+			$dashboard = $this->services->dashboardService->schedule(
 				uuid: $uuid,
 				publishAt: $publishAt,
 				userId: $this->userId,
@@ -1696,12 +1654,12 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function viewEvent(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard.view-event');
+		$this->actor->actionAuth->requireAction($user, 'dashboard.view-event');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -1710,7 +1668,7 @@ class DashboardApiController extends Controller {
 		// H4: resolve the dashboard and assert the caller can view it
 		// before recording any counter increment (REQ-ANLT-002).
 		try {
-			$dashboard = $this->dashboardService->findByUuid(uuid: $uuid);
+			$dashboard = $this->services->dashboardService->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return new JSONResponse(
 				data: [
@@ -1730,7 +1688,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$this->analyticsService->recordViewEvent(
+			$this->history->analyticsService->recordViewEvent(
 				dashboardUuid: $uuid,
 				userId: $this->userId
 			);
@@ -1885,7 +1843,7 @@ class DashboardApiController extends Controller {
 			);
 		}
 
-		$existing = $this->dashboardService->getUserDashboards(
+		$existing = $this->services->dashboardService->getUserDashboards(
 			userId: $userId
 		);
 		if (empty($existing) === false
@@ -2027,7 +1985,7 @@ class DashboardApiController extends Controller {
 		}
 
 		try {
-			$this->versionService->captureSnapshot(
+			$this->history->versionService->captureSnapshot(
 				dashboard: $dashboard,
 				snapshotJson: null,
 				createdBy: $this->userId,
@@ -2035,7 +1993,7 @@ class DashboardApiController extends Controller {
 				explicit: false
 			);
 		} catch (\Throwable $t) {
-			$this->logger->warning(
+			$this->history->logger->warning(
 				message: 'launchpad: automatic version snapshot failed',
 				context: ['exception' => $t]
 			);

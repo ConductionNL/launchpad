@@ -52,20 +52,17 @@ class DashboardMetadataController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param MetadataService $metadataService The metadata service facade.
-	 * @param DashboardMapper $dashboardMapper For dashboard lookup.
-	 * @param PermissionService $permissionService Authoritative ACL service
-	 *                                             (replaces inline canRead /
+	 * @param IRequest          $request The HTTP request.
+	 * @param MetadataSources   $sources The metadata service and dashboard mapper.
+	 * @param PermissionService $permissionService Authoritative ACL service (replaces inline canRead /
 	 *                                             canWrite helpers — H5).
 	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId The active user id.
+	 * @param IUserSession      $userSession User session (IUser resolution).
+	 * @param string|null       $userId The active user id.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MetadataService $metadataService,
-		private readonly DashboardMapper $dashboardMapper,
+		private readonly MetadataSources $sources,
 		private readonly PermissionService $permissionService,
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
@@ -121,7 +118,7 @@ class DashboardMetadataController extends Controller {
 			return ResponseHelper::forbidden();
 		}
 
-		$metadata = $this->metadataService->getMetadataForDashboard(
+		$metadata = $this->sources->metadataService->getMetadataForDashboard(
 			dashboardUuid: $uuid
 		);
 
@@ -146,7 +143,7 @@ class DashboardMetadataController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: ['fields' => ResponseHelper::serializeList(entities: $this->metadataService->listFields())]
+			data: ['fields' => ResponseHelper::serializeList(entities: $this->sources->metadataService->listFields())]
 		);
 	}//end fields()
 
@@ -202,7 +199,7 @@ class DashboardMetadataController extends Controller {
 		}
 
 		try {
-			$updated = $this->metadataService->setMetadataForDashboard(
+			$updated = $this->sources->metadataService->setMetadataForDashboard(
 				dashboardUuid: $uuid,
 				keyValues: $metadata
 			);
@@ -228,7 +225,7 @@ class DashboardMetadataController extends Controller {
 	 */
 	private function loadDashboard(string $uuid): ?Dashboard {
 		try {
-			return $this->dashboardMapper->findByUuid(uuid: $uuid);
+			return $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return null;
 		}

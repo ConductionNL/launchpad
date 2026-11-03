@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ConfluenceDashboardWriters;
+use OCA\LaunchPad\Service\ConfluencePageReaders;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -45,6 +47,8 @@ use ReflectionMethod;
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Service\SlugGenerator
+ * @uses   \OCA\LaunchPad\Service\ConfluencePageReaders
+ * @uses   \OCA\LaunchPad\Service\ConfluenceDashboardWriters
  */
 class ConfluencePageDashboardGoldenTest extends TestCase {
 
@@ -71,16 +75,20 @@ class ConfluencePageDashboardGoldenTest extends TestCase {
 			);
 
 			$service = new ConfluenceImportService(
-				parser: $this->createMock(ArchiveParser::class),
-				sanitizer: $this->createMock(HtmlSanitizer::class),
-				macroRenderer: $this->createMock(MacroRenderer::class),
-				linkRewriter: $this->createMock(LinkRewriter::class),
-				dashboardFactory: new DashboardFactory(),
-				treeService: $this->createMock(DashboardTreeService::class),
-				dashboardMapper: $mapper,
-				placementMapper: $this->createMock(WidgetPlacementMapper::class),
+				readers: new ConfluencePageReaders(
+					parser: $this->createMock(ArchiveParser::class),
+					sanitizer: $this->createMock(HtmlSanitizer::class),
+					macroRenderer: $this->createMock(MacroRenderer::class),
+					linkRewriter: $this->createMock(LinkRewriter::class)
+				),
+				writers: new ConfluenceDashboardWriters(
+					dashboardFactory: new DashboardFactory(),
+					treeService: $this->createMock(DashboardTreeService::class),
+					dashboardMapper: $mapper,
+					placementMapper: $this->createMock(WidgetPlacementMapper::class)
+				),
 				db: $this->createMock(IDBConnection::class),
-				logger: $this->createMock(LoggerInterface::class),
+				logger: $this->createMock(LoggerInterface::class)
 			);
 
 			$page = new ParsedPage(relPath: 'p.html', pageId: '42', title: $title, body: '', sortOrder: $sort);

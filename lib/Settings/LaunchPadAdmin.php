@@ -43,28 +43,17 @@ class LaunchPadAdmin implements IDelegatedSettings {
 	/**
 	 * Constructor.
 	 *
-	 * @param IInitialState $initialState The Nextcloud initial-state service.
-	 * @param IGroupManager $groupManager Group manager (full group list).
-	 * @param WidgetService $widgetService Available-widgets descriptor formatter.
-	 * @param AdminSettingMapper $settingMapper Admin settings store
-	 *                                          (legacy configured-groups list).
-	 * @param AdminSettingsService $settingsService Admin-settings service exposing
-	 *                                              the `group_order` setting
+	 * @param IInitialState        $initialState The Nextcloud initial-state service.
+	 * @param IGroupManager        $groupManager Group manager (full group list).
+	 * @param AdminPageSources     $sources The widget service, setting mapper, dashboard service and file service.
+	 * @param AdminSettingsService $settingsService Admin-settings service exposing the `group_order` setting
 	 *                                              (REQ-ASET-012).
-	 * @param DashboardService $dashboardService Dashboard service exposing
-	 *                                           the `allow_user_dashboards`
-	 *                                           flag (REQ-ASET-003).
-	 * @param FileService $fileService link-button-widget extension
-	 *                                 allow-list reader.
 	 */
 	public function __construct(
 		private readonly IInitialState $initialState,
 		private readonly IGroupManager $groupManager,
-		private readonly WidgetService $widgetService,
-		private readonly AdminSettingMapper $settingMapper,
+		private readonly AdminPageSources $sources,
 		private readonly AdminSettingsService $settingsService,
-		private readonly DashboardService $dashboardService,
-		private readonly FileService $fileService,
 	) {
 	}//end __construct()
 
@@ -102,7 +91,7 @@ class LaunchPadAdmin implements IDelegatedSettings {
 		// initial render still shows the admin's previous selection.
 		$configuredGroups = $this->settingsService->getGroupOrder();
 		if ($configuredGroups === []) {
-			$legacy = $this->settingMapper->getValue(
+			$legacy = $this->sources->settingMapper->getValue(
 				key: 'configured_groups',
 				default: []
 			);
@@ -117,7 +106,7 @@ class LaunchPadAdmin implements IDelegatedSettings {
 			}
 		}
 
-		$allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
+		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
 
 		(new InitialStateBuilder(
 			initialState: $this->initialState,
@@ -125,10 +114,10 @@ class LaunchPadAdmin implements IDelegatedSettings {
 		))
 			->setAllGroups($allGroups)
 			->setConfiguredGroups($configuredGroups)
-			->setWidgets($this->widgetService->getAvailableWidgets())
+			->setWidgets($this->sources->widgetService->getAvailableWidgets())
 			->setAllowUserDashboards($allowUserDashboards)
 			->setLinkCreateFileExtensions(
-				$this->fileService->getAllowedExtensions()
+				$this->sources->fileService->getAllowedExtensions()
 			)
 			->apply();
 

@@ -61,48 +61,16 @@ class PageController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The request.
-	 * @param IInitialState $initialState The Nextcloud initial-state service.
-	 * @param IUserSession $userSession Active user session.
-	 * @param WidgetService $widgetService Available-widgets descriptor formatter.
-	 * @param DashboardService $dashboardService Dashboard listing + resolver
-	 *                                           (also exposes the
-	 *                                           `allow_user_dashboards` flag
-	 *                                           — REQ-ASET-003).
-	 * @param AdminTemplateService $adminTemplateService Primary-group routing
-	 *                                                   resolver (REQ-TMPL-012,
-	 *                                                   REQ-TMPL-013).
-	 * @param RoleFeaturePermissionService $roleFeaturePerm Per-user widget
-	 *                                                      allow-list source
-	 *                                                      (REQ-RFP-009..010).
-	 * @param DashboardTreeService $treeService Slug-chain
-	 *                                          resolver used by the
-	 *                                          deep-link route.
-	 * @param LoggerInterface $logger Used to record
-	 *                                silent fallback
-	 *                                when a deep-link
-	 *                                path doesn't
-	 *                                resolve to a
-	 *                                visible dashboard.
-	 * @param AdminSettingsService $adminSettingsService Source of the
-	 *                                                   quick-search
-	 *                                                   no-match
-	 *                                                   fallback-target
-	 *                                                   admin setting
-	 *                                                   (tile-quick-search
-	 *                                                   REQ-QSEARCH-004).
+	 * @param IRequest            $request The request.
+	 * @param PageSources         $sources The initial state, widget, dashboard and admin template services.
+	 * @param IUserSession        $userSession Active user session.
+	 * @param PageSettingsSources $settings The role feature, tree and admin settings services and the logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IInitialState $initialState,
+		private readonly PageSources $sources,
 		private readonly IUserSession $userSession,
-		private readonly WidgetService $widgetService,
-		private readonly DashboardService $dashboardService,
-		private readonly AdminTemplateService $adminTemplateService,
-		private readonly RoleFeaturePermissionService $roleFeaturePerm,
-		private readonly DashboardTreeService $treeService,
-		private readonly LoggerInterface $logger,
-		private readonly AdminSettingsService $adminSettingsService,
+		private readonly PageSettingsSources $settings,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -160,7 +128,7 @@ class PageController extends Controller {
 
 		// Settings are read once and reused below; getSettings() resolves every
 		// safe default, so neither read throws on an unset key.
-		$settings = $this->adminSettingsService->getSettings();
+		$settings = $this->settings->adminSettingsService->getSettings();
 		$bridgedWidgets = $this->resolveBridgedWidgets(settings: $settings);
 
 		$userId = $this->resolveUserId();
@@ -173,7 +141,7 @@ class PageController extends Controller {
 		$visible = [];
 		$active = null;
 		if ($userId !== '') {
-			$isAdmin = $this->dashboardService->isAdmin(userId: $userId);
+			$isAdmin = $this->sources->dashboardService->isAdmin(userId: $userId);
 			// Active first: resolving it can hand a first-time user their copy
 			// of an admin template (REQ-TMPL-019), and the list read after it
 			// must hold that copy or the switcher opens without it.
@@ -182,16 +150,16 @@ class PageController extends Controller {
 				deepLink: $deepLink,
 				primaryGroupId: $primaryGroupId
 			);
-			$visible = $this->dashboardService->getVisibleToUser(userId: $userId);
+			$visible = $this->sources->dashboardService->getVisibleToUser(userId: $userId);
 		}
 
 		$descriptors = $this->splitDescriptors(visible: $visible);
 		$activeState = $this->describeActive(active: $active);
 
-		$allowUserDashboards = $this->dashboardService->getAllowUserDashboards();
+		$allowUserDashboards = $this->sources->dashboardService->getAllowUserDashboards();
 
 		$builder = new InitialStateBuilder(
-			initialState: $this->initialState,
+			initialState: $this->sources->initialState,
 			page: Page::WORKSPACE
 		);
 
@@ -211,7 +179,7 @@ class PageController extends Controller {
 		// `null` = no admin policy for this user (unlimited).
 		$allowedWidgets = null;
 		if ($userId !== '') {
-			$allowedWidgets = $this->roleFeaturePerm->getAllowedWidgetIds(
+			$allowedWidgets = $this->settings->roleFeaturePerm->getAllowedWidgetIds(
 				userId: $userId
 			);
 		}
@@ -283,7 +251,7 @@ class PageController extends Controller {
 			return [];
 		}
 
-		return $this->widgetService->getAvailableWidgets();
+		return $this->sources->widgetService->getAvailableWidgets();
 	}//end resolveBridgedWidgets()
 
 	/**
@@ -303,14 +271,14 @@ class PageController extends Controller {
 	 */
 	private function resolveRoutingGroup(string $userId): array {
 		$primaryGroupId = Dashboard::DEFAULT_GROUP_ID;
-		$primaryGroupName = $this->adminTemplateService->resolvePrimaryGroupDisplayName(
+		$primaryGroupName = $this->sources->adminTemplateService->resolvePrimaryGroupDisplayName(
 			groupId: Dashboard::DEFAULT_GROUP_ID
 		);
 		if ($userId !== '') {
-			$primaryGroupId = $this->adminTemplateService->resolvePrimaryGroup(
+			$primaryGroupId = $this->sources->adminTemplateService->resolvePrimaryGroup(
 				userId: $userId
 			);
-			$primaryGroupName = $this->adminTemplateService->resolvePrimaryGroupDisplayName(
+			$primaryGroupName = $this->sources->adminTemplateService->resolvePrimaryGroupDisplayName(
 				groupId: $primaryGroupId
 			);
 		}
@@ -406,7 +374,7 @@ class PageController extends Controller {
 			return $active;
 		}
 
-		return $this->dashboardService->resolveActiveDashboard(
+		return $this->sources->dashboardService->resolveActiveDashboard(
 			userId: $userId,
 			primaryGroupId: $primaryGroupId
 		);
@@ -429,15 +397,15 @@ class PageController extends Controller {
 	private function resolveDeepLink(string $userId, string $deepLink): ?array {
 		$active = null;
 		try {
-			$resolved = $this->treeService->resolvePath(path: $deepLink);
+			$resolved = $this->settings->treeService->resolvePath(path: $deepLink);
 			if ($resolved !== null) {
-				$active = $this->dashboardService->getDashboardForUser(
+				$active = $this->sources->dashboardService->getDashboardForUser(
 					dashboardId: $resolved->getId(),
 					userId: $userId
 				);
 			}
 		} catch (Throwable $t) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'launchpad: deep-link resolution failed for path "{path}": {message}',
 				context: [
 					'path' => $deepLink,
@@ -447,7 +415,7 @@ class PageController extends Controller {
 		}
 
 		if ($active === null) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'launchpad: deep-link path "{path}" not visible — falling back to default resolver',
 				context: ['path' => $deepLink]
 			);
@@ -477,7 +445,7 @@ class PageController extends Controller {
 		}
 
 		$activeDashboard = $active['dashboard'];
-		$placements = $this->widgetService->getDashboardPlacements(
+		$placements = $this->sources->widgetService->getDashboardPlacements(
 			dashboardId: $activeDashboard->getId()
 		);
 
@@ -508,11 +476,11 @@ class PageController extends Controller {
 	 */
 	private function computeDeepLinkPath(Dashboard $dashboard): string {
 		try {
-			return $this->treeService->computePath(
+			return $this->settings->treeService->computePath(
 				uuid: (string)$dashboard->getUuid()
 			);
 		} catch (Throwable $t) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'launchpad: failed to compute path for active dashboard {uuid}: {message}',
 				context: [
 					'uuid' => (string)$dashboard->getUuid(),

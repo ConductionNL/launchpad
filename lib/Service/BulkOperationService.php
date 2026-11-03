@@ -103,45 +103,16 @@ class BulkOperationService {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardMapper $dashboardMapper The dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper The placement mapper
-	 *                                               (used by the per-uuid
-	 *                                               hard delete cascade).
-	 * @param PermissionService $permissionService Permission resolver
-	 *                                             used for the per-uuid
-	 *                                             admin pre-check
-	 *                                             (REQ-BULK-011).
-	 * @param DashboardTreeService $treeService Cycle / cascade
-	 *                                          service delegated by
-	 *                                          bulk-move + bulk-delete
-	 *                                          (REQ-BULK-001/002).
-	 * @param ActivityPublisher $activityPublisher Single-event audit
-	 *                                             emitter
-	 *                                             (REQ-BULK-009).
-	 * @param IGroupManager $groupManager Used for the "is the
-	 *                                    caller an NC admin"
-	 *                                    short-circuit on the
-	 *                                    permission pre-check.
-	 * @param IAppConfig $appConfig App config for
-	 *                              reading the
-	 *                              per-request cap.
-	 * @param LoggerInterface $logger Diagnostic logger.
-	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
-	 *                                               DashboardDeletedEvent
-	 *                                               (SB1 fix, REQ-CSC-001).
-	 *                                               Nullable for backwards-
-	 *                                               compat.
+	 * @param BulkDashboardStores $stores The dashboard and placement mappers, tree service and event dispatcher.
+	 * @param BulkOperationAccess $access The permission service, group manager and app config.
+	 * @param ActivityPublisher   $activityPublisher Single-event audit emitter (REQ-BULK-009).
+	 * @param LoggerInterface     $logger Diagnostic logger.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly PermissionService $permissionService,
-		private readonly DashboardTreeService $treeService,
+		private readonly BulkDashboardStores $stores,
+		private readonly BulkOperationAccess $access,
 		private readonly ActivityPublisher $activityPublisher,
-		private readonly IGroupManager $groupManager,
-		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
-		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
 	}//end __construct()
 
@@ -246,7 +217,7 @@ class BulkOperationService {
 
 		if ($parentUuid !== null && $parentUuid !== '') {
 			try {
-				$this->dashboardMapper->findByUuid(uuid: $parentUuid);
+				$this->stores->dashboardMapper->findByUuid(uuid: $parentUuid);
 			} catch (DoesNotExistException) {
 				throw new InvalidArgumentException(
 					message: DashboardTreeService::ERR_PARENT_NOT_FOUND
@@ -429,7 +400,7 @@ class BulkOperationService {
 		foreach ($dashboardUuids as $uuid) {
 			$uuidString = (string)$uuid;
 			try {
-				$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuidString);
+				$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuidString);
 			} catch (DoesNotExistException) {
 				$errors[] = [
 					'uuid' => $uuidString,
@@ -449,7 +420,7 @@ class BulkOperationService {
 				// a sibling capability; touching `updatedAt` is the
 				// documented contract surface for "rebuild this row".
 				$dashboard->setUpdatedAt($now);
-				$this->dashboardMapper->update(entity: $dashboard);
+				$this->stores->dashboardMapper->update(entity: $dashboard);
 				$reindexed++;
 			} catch (Throwable $t) {
 				$this->logger->error(
@@ -491,7 +462,7 @@ class BulkOperationService {
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
 	public function getEffectiveCap(): int {
-		$value = $this->appConfig->getValueInt(
+		$value = $this->access->appConfig->getValueInt(
 			Application::APP_ID,
 			self::CONFIG_KEY_MAX_PER_REQUEST,
 			self::DEFAULT_MAX_PER_REQUEST
@@ -527,7 +498,7 @@ class BulkOperationService {
 	 *                                   admin or any UUID is unauthorised.
 	 */
 	private function assertPermissions(array $uuids, string $userId): void {
-		if ($this->groupManager->isAdmin(userId: $userId) === false) {
+		if ($this->access->groupManager->isAdmin(userId: $userId) === false) {
 			throw new PermissionDeniedException(
 				message: 'Administrator privileges required.',
 				deniedUuids: []
@@ -538,7 +509,7 @@ class BulkOperationService {
 		foreach ($uuids as $uuid) {
 			$uuidString = (string)$uuid;
 			try {
-				$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuidString);
+				$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuidString);
 			} catch (DoesNotExistException) {
 				// Missing rows are not a permission failure — they are
 				// routed to the per-uuid `not_found`/`already_deleted`
@@ -546,7 +517,7 @@ class BulkOperationService {
 				continue;
 			}
 
-			$level = $this->permissionService->resolveAccessLevel(
+			$level = $this->access->permissionService->resolveAccessLevel(
 				userId: $userId,
 				dashboard: $dashboard
 			);
@@ -587,7 +558,7 @@ class BulkOperationService {
 		bool $cascade,
 	): array {
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			// REQ-BULK-007: hard delete on a missing row is silent.
 			return [
@@ -603,7 +574,7 @@ class BulkOperationService {
 		$childCount = 0;
 		$rowUuid = (string)$dashboard->getUuid();
 		if ($rowUuid !== '') {
-			$childCount = $this->dashboardMapper->countChildrenByParent(
+			$childCount = $this->stores->dashboardMapper->countChildrenByParent(
 				parentUuid: $rowUuid
 			);
 		}
@@ -682,7 +653,7 @@ class BulkOperationService {
 		bool $dryRun,
 	): array {
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return [
 				'moved' => 0,
@@ -708,7 +679,7 @@ class BulkOperationService {
 		}
 
 		try {
-			$this->treeService->validateParent(
+			$this->stores->treeService->validateParent(
 				movingUuid: $uuid,
 				newParentUuid: $parentUuid
 			);
@@ -735,7 +706,7 @@ class BulkOperationService {
 		try {
 			$dashboard->setParentUuid($parentUuid);
 			$dashboard->setUpdatedAt($now);
-			$this->dashboardMapper->update(entity: $dashboard);
+			$this->stores->dashboardMapper->update(entity: $dashboard);
 
 			return [
 				'moved' => 1,
@@ -782,7 +753,7 @@ class BulkOperationService {
 		bool $dryRun,
 	): array {
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return [
 				'updated' => 0,
@@ -873,20 +844,20 @@ class BulkOperationService {
 		int $childCount,
 	): int {
 		if ($cascade === true && $childCount > 0) {
-			return $this->treeService->deleteSubtree(dashboard: $dashboard);
+			return $this->stores->treeService->deleteSubtree(dashboard: $dashboard);
 		}
 
 		$rowUuid = (string)$dashboard->getUuid();
 
-		$this->placementMapper->deleteByDashboardId(
+		$this->stores->placementMapper->deleteByDashboardId(
 			dashboardId: (int)$dashboard->getId()
 		);
-		$this->dashboardMapper->delete(entity: $dashboard);
+		$this->stores->dashboardMapper->delete(entity: $dashboard);
 
 		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
 		// (REQ-CSC-001).
-		if ($this->eventDispatcher !== null && $rowUuid !== '') {
-			$this->eventDispatcher->dispatchTyped(
+		if ($this->stores->eventDispatcher !== null && $rowUuid !== '') {
+			$this->stores->eventDispatcher->dispatchTyped(
 				new DashboardDeletedEvent(
 					dashboardUuid: $rowUuid,
 					ownerUserId:   (string)($dashboard->getUserId() ?? $userId),
@@ -1067,7 +1038,7 @@ class BulkOperationService {
 		}
 
 		$dashboard->setUpdatedAt($now);
-		$this->dashboardMapper->update(entity: $dashboard);
+		$this->stores->dashboardMapper->update(entity: $dashboard);
 	}//end applyStatusChange()
 
 	/**

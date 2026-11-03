@@ -143,6 +143,31 @@ class AcknowledgementService {
 	}//end acknowledge()
 
 	/**
+	 * Whether a user may acknowledge an announcement: only its live
+	 * audience may, that is the members of the groups its template routes
+	 * to, or, without group routing, the recipients holding a copy. An
+	 * unknown announcement has no audience. Backs the acknowledge guard
+	 * (REQ-ACK-003, ADR-005).
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The user to look for.
+	 *
+	 * @return bool True when the user is in the audience.
+	 *
+	 * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
+	 */
+	public function isAllowedToAcknowledge(string $announcementKey, string $userId): bool {
+		$placements = $this->placementMapper->findByAnnouncementKey(
+			announcementKey: $announcementKey
+		);
+		if (empty($placements) === true) {
+			return false;
+		}
+
+		return in_array(needle: $userId, haystack: $this->resolveAudience(placements: $placements), strict: true);
+	}//end isAllowedToAcknowledge()
+
+	/**
 	 * Determine whether the given placement is an outstanding
 	 * (unacknowledged) mandatory item for `$userId`. Backs the
 	 * forced-delivery gate (REQ-ACK-002) and the re-acknowledge-on-change

@@ -114,6 +114,16 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 - **THEN** the system MUST return `403`
 - **AND** MUST NOT write any receipt for bob
 
+#### Scenario: Only the announcement's audience can acknowledge it
+
+@e2e exclude The audience refusal is asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAUserOutsideTheAudience and AcknowledgementServiceTest::testOnlyTheRoutedGroupMayAcknowledge, a server-side auth contract, not a UI flow.
+
+- **GIVEN** an announcement whose template routes to group "sociaal-domein", and authenticated user "mallory" who is not a member
+- **WHEN** she `POST`s an acknowledgement for that announcement, or for an announcement key that no placement carries
+- **THEN** the system MUST return `403`
+- **AND** MUST NOT write any receipt
+- **AND** the audience MUST be resolved for the session user, never for a user named in the request
+
 ### Requirement: REQ-ACK-004 Admin read-receipt report scoped to the audience
 
 An admin or template owner MUST be able to retrieve a read-receipt report for an

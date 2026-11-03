@@ -295,4 +295,70 @@ class AcknowledgementServiceTest extends TestCase {
 		$this->expectException(exception: DoesNotExistException::class);
 		$this->service->report(announcementKey: 'nope');
 	}
+
+	/**
+	 * Route announcement ak-1 through a template that targets one group of
+	 * the given members.
+	 *
+	 * @param array<int, string> $members The group members.
+	 *
+	 * @return void
+	 */
+	private function routeToGroup(array $members): void {
+		$template = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$template->setId(1);
+		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$template->setTargetGroups(json_encode(['sociaal-domein']));
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->placementMapper->method('findByAnnouncementKey')->willReturnCallback(
+			fn (string $key): array => $key === 'ak-1' ? [$this->makePlacement(key: 'ak-1', dashboardId: 1)] : []
+		);
+		$this->dashboardMapper->method('find')->with(1)->willReturn($template);
+		$group = $this->createMock(originalClassName: IGroup::class);
+		$group->method('getUsers')->willReturn(array_map(fn (string $uid): IUser => $this->makeUser($uid), $members));
+		$this->groupManager->method('get')->with('sociaal-domein')->willReturn($group);
+	}
+
+	/**
+	 * REQ-ACK-003: only a member of the announcement's live audience is in
+	 * its audience; an unknown announcement has nobody in it.
+	 *
+	 * @return void
+	 */
+	public function testIsInAudienceFollowsTheGroupRouting(): void {
+		$this->routeToGroup(members: ['alice', 'carol']);
+
+		$this->assertTrue($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'alice'));
+		$this->assertTrue($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'carol'));
+		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: 'mallory'));
+		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'ak-1', userId: ''));
+		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'nope', userId: 'alice'));
+	}
+
+	/**
+	 * REQ-ACK-003: without group routing the audience is the recipients that
+	 * hold a copy of the announcement.
+	 *
+	 * @return void
+	 */
+	public function testIsInAudienceFallsBackToTheRecipients(): void {
+		$template = new Dashboard();
+		$copy = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$template->setId(1);
+		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$copy->setId(2);
+		$copy->setType(Dashboard::TYPE_USER);
+		$copy->setUserId('bob');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->placementMapper->method('findByAnnouncementKey')->willReturn([
+			$this->makePlacement(key: 'ak-2', dashboardId: 1),
+			$this->makePlacement(key: 'ak-2', dashboardId: 2),
+		]);
+		$this->dashboardMapper->method('find')->willReturnMap([[1, $template], [2, $copy]]);
+
+		$this->assertTrue($this->service->isAllowedToAcknowledge(announcementKey: 'ak-2', userId: 'bob'));
+		$this->assertFalse($this->service->isAllowedToAcknowledge(announcementKey: 'ak-2', userId: 'alice'));
+	}
 }//end class

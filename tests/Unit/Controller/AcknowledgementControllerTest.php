@@ -91,6 +91,49 @@ class AcknowledgementControllerTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	/**
+	 * A user outside the announcement's audience cannot acknowledge it, and
+	 * the audience is checked for the session user, not a request value.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeRefusesAUserOutsideTheAudience(): void {
+		$this->request->method('getParam')->willReturnMap([
+			['announcementKey', '', 'ak-1'],
+			['userId', null, null],
+			['contentVersion', 1, 1],
+		]);
+		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
+			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
+		);
+		$this->service->expects($this->never())->method('acknowledge');
+
+		$response = $this->makeController(userId: 'mallory')->acknowledge();
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}
+
+	/**
+	 * An announcement key nobody is addressed by cannot be acknowledged.
+	 *
+	 * @return void
+	 */
+	public function testAcknowledgeRefusesAnUnknownAnnouncement(): void {
+		$this->request->method('getParam')->willReturnMap([
+			['announcementKey', '', 'made-up'],
+			['userId', null, 'alice'],
+			['contentVersion', 1, 1],
+		]);
+		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
+			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
+		);
+		$this->service->expects($this->never())->method('acknowledge');
+
+		$response = $this->makeController()->acknowledge();
+
+		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
+	}
+
 	public function testAcknowledgeOwnUserSucceeds(): void {
 		$this->request->method('getParam')->willReturnMap([
 			['announcementKey', '', 'ak-1'],
@@ -105,6 +148,9 @@ class AcknowledgementControllerTest extends TestCase {
 		$receipt->setContentVersion(1);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 
+		$this->service->method('isAllowedToAcknowledge')->willReturnCallback(
+			static fn (string $announcementKey, string $userId): bool => $announcementKey === 'ak-1' && $userId === 'alice'
+		);
 		$this->service->expects($this->once())
 			->method('acknowledge')
 			->with('ak-1', 'alice', 1)

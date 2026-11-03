@@ -255,7 +255,7 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 		$actual['tryCreateFromTemplate'] = $this->log;
 
 		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
-			file_put_contents(self::FIXTURE, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+			file_put_contents(self::FIXTURE, self::compact(rows: $actual));
 			$this->markTestIncomplete('Fixture recorded.');
 		}
 
@@ -266,4 +266,20 @@ class DashboardServiceCreateGoldenTest extends TestCase {
 
 		$this->assertSame(array_keys((array) $expected), array_keys($actual));
 	}//end testRowsMatchTheRecordedFixture()
+
+	/**
+	 * The fixture text: one line per case.
+	 *
+	 * @param array<string, mixed> $rows The recorded cases.
+	 *
+	 * @return string
+	 */
+	private static function compact(array $rows): string {
+		$lines = [];
+		foreach ($rows as $case => $row) {
+			$lines[] = json_encode((string) $case, JSON_UNESCAPED_UNICODE).': '.json_encode($row, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		}
+
+		return "{\n".implode(",\n", $lines)."\n}\n";
+	}//end compact()
 }//end class

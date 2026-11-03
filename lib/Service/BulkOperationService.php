@@ -176,11 +176,13 @@ class BulkOperationService {
 		];
 
 		$this->emitAuditEvent(
-			operation: self::OP_DELETE,
-			dashboardCount: count($dashboardUuids),
 			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun
+			audit: [
+				'bulkOperation'  => self::OP_DELETE,
+				'dashboardCount' => count($dashboardUuids),
+				'durationMs'     => $this->elapsedMs(start: $start),
+				'dryRun'         => $dryRun,
+			]
 		);
 
 		return $payload;
@@ -256,11 +258,13 @@ class BulkOperationService {
 		];
 
 		$this->emitAuditEvent(
-			operation: self::OP_MOVE,
-			dashboardCount: count($dashboardUuids),
 			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun
+			audit: [
+				'bulkOperation'  => self::OP_MOVE,
+				'dashboardCount' => count($dashboardUuids),
+				'durationMs'     => $this->elapsedMs(start: $start),
+				'dryRun'         => $dryRun,
+			]
 		);
 
 		return $payload;
@@ -355,11 +359,13 @@ class BulkOperationService {
 		];
 
 		$this->emitAuditEvent(
-			operation: self::OP_STATUS,
-			dashboardCount: count($dashboardUuids),
 			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun,
+			audit: [
+				'bulkOperation'  => self::OP_STATUS,
+				'dashboardCount' => count($dashboardUuids),
+				'durationMs'     => $this->elapsedMs(start: $start),
+				'dryRun'         => $dryRun,
+			],
 			extra: ['publicationStatus' => $publicationStatus]
 		);
 
@@ -444,11 +450,13 @@ class BulkOperationService {
 		];
 
 		$this->emitAuditEvent(
-			operation: self::OP_REINDEX,
-			dashboardCount: count($dashboardUuids),
 			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun
+			audit: [
+				'bulkOperation'  => self::OP_REINDEX,
+				'dashboardCount' => count($dashboardUuids),
+				'durationMs'     => $this->elapsedMs(start: $start),
+				'dryRun'         => $dryRun,
+			]
 		);
 
 		return $payload;
@@ -901,40 +909,26 @@ class BulkOperationService {
 	 * Activity failure is swallowed by the publisher so an audit-log
 	 * problem never rolls back the bulk operation.
 	 *
-	 * @param string $operation The operation label.
-	 * @param int $dashboardCount The batch size.
-	 * @param string $userId The acting NC user ID.
-	 * @param int $durationMs Operation duration.
-	 * @param bool $dryRun True when this was a dry-run.
-	 * @param array<string, mixed> $extra Additional payload fields.
+	 * @param string               $userId The acting NC user ID.
+	 * @param array<string, mixed> $audit  The `bulkOperation` label, the
+	 *                                     `dashboardCount` batch size, the
+	 *                                     `durationMs` and the `dryRun` flag.
+	 * @param array<string, mixed> $extra  Additional payload fields; they win
+	 *                                     over the audit fields.
 	 *
 	 * @return void
 	 */
-	private function emitAuditEvent(
-		string $operation,
-		int $dashboardCount,
-		string $userId,
-		int $durationMs,
-		bool $dryRun,
-		array $extra = [],
-	): void {
+	private function emitAuditEvent(string $userId, array $audit, array $extra=[]): void {
+		$operation = $audit['bulkOperation'];
 		try {
 			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $userId,
 				dashboard: new ActivitySubject(
 					uuid: 'bulk-' . $operation,
-					name: 'Bulk ' . $operation . ' (' . $dashboardCount . ' dashboards)'
+					name: 'Bulk ' . $operation . ' (' . $audit['dashboardCount'] . ' dashboards)'
 				),
-				extraParams: array_merge(
-					[
-						'bulkOperation' => $operation,
-						'dashboardCount' => $dashboardCount,
-						'durationMs' => $durationMs,
-						'dryRun' => $dryRun,
-					],
-					$extra
-				)
+				extraParams: array_merge($audit, $extra)
 			);
 			$this->activityPublisher->publish(row: $row, recipientUserId: $userId);
 		} catch (Throwable $t) {

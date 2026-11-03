@@ -132,13 +132,13 @@ class ActivityCallSitesGoldenTest extends TestCase {
 		$actual = [];
 
 		$bulk = $this->service(BulkOperationService::class, ['activityPublisher' => $this->publisher(), 'logger' => new NullLogger()]);
-		self::invoke($bulk, 'emitAuditEvent', ['delete', 3, 'admin', 12, false]);
-		self::invoke($bulk, 'emitAuditEvent', ['status', 2, 'root', 5, true, ['publicationStatus' => 'published', 'dryRun' => 'x']]);
+		self::invoke($bulk, 'emitAuditEvent', ['admin', ['bulkOperation' => 'delete', 'dashboardCount' => 3, 'durationMs' => 12, 'dryRun' => false]]);
+		self::invoke($bulk, 'emitAuditEvent', ['root', ['bulkOperation' => 'status', 'dashboardCount' => 2, 'durationMs' => 5, 'dryRun' => true], ['publicationStatus' => 'published', 'dryRun' => 'x']]);
 		$actual['bulk'] = $this->rows;
 
 		$this->rows = [];
 		$resync     = $this->service(TemplateResyncService::class, ['activityPublisher' => $this->publisher(), 'logger' => new NullLogger()]);
-		self::invoke($resync, 'emitAuditEvent', [7, 'Intranet', 'merge', 4, 'admin']);
+		self::invoke($resync, 'emitAuditEvent', ['admin', ['templateId' => 7, 'templateName' => 'Intranet', 'strategy' => 'merge', 'affectedCount' => 4]]);
 		$actual['resync'] = $this->rows;
 
 		$this->rows = [];

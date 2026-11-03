@@ -622,21 +622,38 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::forbidden();
 		}
 
+		return $this->applyUpdate(
+			dashboardId: $id,
+			fields: [
+				'name'        => $name,
+				'description' => $description,
+				'placements'  => $placements,
+				'icon'        => $icon,
+				'parentUuid'  => $parentUuid,
+				'slug'        => $slug,
+				'sortOrder'   => $sortOrder,
+			]
+		);
+	}//end update()
+
+	/**
+	 * Apply an allowed update and answer with the saved dashboard.
+	 *
+	 * Captures an automatic version snapshot after a successful save
+	 * (REQ-VERS-001). Parent, slug, depth and cycle violations answer 400
+	 * (REQ-DASH-023..029).
+	 *
+	 * @param int                  $dashboardId The dashboard ID.
+	 * @param array<string, mixed> $fields      The nullable update fields by name, in patch order.
+	 *
+	 * @return JSONResponse The updated dashboard, or the error.
+	 */
+	private function applyUpdate(int $dashboardId, array $fields): JSONResponse {
 		try {
-			$data = $this->buildUpdateData(
-				fields: [
-					'name'        => $name,
-					'description' => $description,
-					'placements'  => $placements,
-					'icon'        => $icon,
-					'parentUuid'  => $parentUuid,
-					'slug'        => $slug,
-					'sortOrder'   => $sortOrder,
-				]
-			);
+			$data = $this->buildUpdateData(fields: $fields);
 
 			$dashboard = $this->services->dashboardService->updateDashboard(
-				dashboardId: $id,
+				dashboardId: $dashboardId,
 				userId: $this->userId,
 				data: $data
 			);
@@ -658,7 +675,7 @@ class DashboardApiController extends Controller {
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
-	}//end update()
+	}//end applyUpdate()
 
 	/**
 	 * Delete a dashboard.

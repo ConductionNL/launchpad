@@ -36,6 +36,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Service\RequestGuard;
+use OCP\IGroupManager;
 
 class DashboardLockApiControllerTest extends TestCase {
 	/** @var IRequest&MockObject */
@@ -76,8 +78,7 @@ class DashboardLockApiControllerTest extends TestCase {
 					lockService: $this->lockService,
 					dashboardMapper: $this->dashboardMapper
 				),
-				actionAuth: $this->actionAuth,
-				userSession: $this->userSession
+				guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->createMock(IGroupManager::class), actionAuth: $this->actionAuth)
 			),
 			permissionService: $this->permissionService,
 			userId: $userId

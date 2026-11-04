@@ -9,12 +9,10 @@
  *  - `GET  /api/admin/cleanup/scan`  — REQ-CLN-004
  *  - `POST /api/admin/cleanup/purge` — REQ-CLN-005
  *
- * Admin enforcement is done at request time via `IGroupManager` and
- * `IUserSession` (mirroring the pattern in
- * {@see \OCA\LaunchPad\Controller\AdminController::requireAdmin()}). Both
- * unauthenticated and non-admin callers receive HTTP 403 — we
- * deliberately do not differentiate to keep the admin surface from
- * leaking which users exist.
+ * Admin enforcement is done at request time via
+ * {@see \OCA\LaunchPad\Service\RequestGuard}. Both unauthenticated and
+ * non-admin callers receive HTTP 403: the two are deliberately not told
+ * apart, so the admin surface does not leak which users exist.
  *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
@@ -33,14 +31,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin endpoints for scan + purge.
@@ -51,14 +48,12 @@ class AdminCleanupController extends Controller {
 	 *
 	 * @param IRequest       $request The request.
 	 * @param CleanupSources $cleanup The cleanup service and category registry.
-	 * @param IUserSession   $userSession Current user.
-	 * @param IGroupManager  $groupManager Admin check.
+	 * @param RequestGuard $guard The session and administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly CleanupSources $cleanup,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -69,22 +64,12 @@ class AdminCleanupController extends Controller {
 	 * @return JSONResponse|null Non-null = caller must be rejected.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+		$refusal = $this->guard->refusal();
+		if ($refusal !== null) {
+			$refusal->setStatus(Http::STATUS_FORBIDDEN);
 		}
 
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
+		return $refusal;
 	}//end assertAdmin()
 
 	/**
@@ -173,7 +158,7 @@ class AdminCleanupController extends Controller {
 		}
 
 		$userId = '';
-		$user = $this->userSession->getUser();
+		$user = $this->guard->userSession->getUser();
 		if ($user !== null) {
 			$userId = $user->getUID();
 		}

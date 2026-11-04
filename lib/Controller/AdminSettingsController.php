@@ -38,6 +38,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -45,7 +46,6 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin-only controller for the group-priority order setting.
@@ -59,13 +59,13 @@ class AdminSettingsController extends Controller {
 	 * @param IRequest $request The HTTP request.
 	 * @param AdminSettingsService $settingsService Persisted-settings service.
 	 * @param IGroupManager $groupManager Group manager (admin check + listing).
-	 * @param IUserSession $userSession Active session accessor.
+	 * @param RequestGuard $guard The session and administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AdminSettingsService $settingsService,
 		private readonly IGroupManager $groupManager,
-		private readonly IUserSession $userSession,
+		private readonly RequestGuard $guard,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -199,18 +199,11 @@ class AdminSettingsController extends Controller {
 	 *                           should return verbatim.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+		$refusal = $this->guard->refusal();
+		if ($refusal === null || $refusal->getStatus() === Http::STATUS_UNAUTHORIZED) {
+			return $refusal;
 		}
 
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return ResponseHelper::forbidden();
-		}
-
-		return null;
+		return ResponseHelper::forbidden();
 	}//end assertAdmin()
 }//end class

@@ -12,6 +12,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\ShippedTemplateTools;
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminShippedTemplateController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
 use OCA\LaunchPad\Service\ShippedTemplateService;
 use OCA\LaunchPad\Service\ShippedTemplateUpdateService;
@@ -24,6 +25,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 /**
  * The shipped template endpoints (REQ-TMPL-018): who may call them and what
@@ -57,8 +59,7 @@ class AdminShippedTemplateControllerTest extends TestCase {
 				updates: $this->updates,
 				logger: new NullLogger()
 			),
-			userSession: $this->userSession,
-			groupManager: $this->groupManager
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 		);
 	}
 

@@ -24,6 +24,7 @@ namespace Unit\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AdminBulkController;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\BulkOperationService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCP\AppFramework\Http;
@@ -34,6 +35,7 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 class AdminBulkControllerTest extends TestCase {
 
@@ -68,8 +70,7 @@ class AdminBulkControllerTest extends TestCase {
 		$this->controller = new AdminBulkController(
 			request: $this->request,
 			bulkService: $this->bulkService,
-			userSession: $this->userSession,
-			groupManager: $this->groupManager,
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
 		);
 	}//end setUp()
 

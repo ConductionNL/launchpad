@@ -42,6 +42,8 @@ use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 /**
  * Bulk status changes, request by request.
@@ -52,6 +54,7 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Service\BulkOperationAccess
  * @uses   \OCA\LaunchPad\Service\BulkStatusRequest
  * @uses   \OCA\LaunchPad\Service\BulkStatusChange
+ * @uses   \OCA\LaunchPad\Service\RequestGuard
  * @uses   \OCA\LaunchPad\Service\PermissionDeniedException
  * @uses   \OCA\LaunchPad\Activity\ActivityRow
  * @uses   \OCA\LaunchPad\Activity\ActivitySubject
@@ -230,7 +233,11 @@ class AdminBulkStatusGoldenTest extends TestCase {
 			activityPublisher: $publisher,
 			logger: $logger
 		);
-		$controller = new AdminBulkController(request: $httpRequest, bulkService: $service, userSession: $session, groupManager: $admins);
+		$controller = new AdminBulkController(
+			request: $httpRequest,
+			bulkService: $service,
+			guard: new RequestGuard(userSession: $session, groupManager: $admins, actionAuth: $this->getMockBuilder(className: ActionAuthService::class)->disableOriginalConstructor()->getMock())
+		);
 
 		[$uuids, $status, $publishAt, $dryRun] = $request;
 		$response = $controller->bulkStatus(dashboardUuids: $uuids, publicationStatus: $status, publishAt: $publishAt, dryRun: $dryRun);

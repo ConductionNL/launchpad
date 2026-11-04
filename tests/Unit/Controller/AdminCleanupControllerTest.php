@@ -34,6 +34,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 /**
  * Unit tests for AdminCleanupController.
@@ -99,8 +101,7 @@ class AdminCleanupControllerTest extends TestCase {
 				cleanupService: $this->cleanupService,
 				registry: $this->registry
 			),
-			groupManager: $this->groupManager,
-			userSession: $this->userSession
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class))
 		);
 	}
 

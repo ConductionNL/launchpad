@@ -23,8 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCP\IUserSession;
+use OCA\LaunchPad\Service\RequestGuard;
 
 /**
  * The lock sources with the session and the ADR-023 action check of the lock API.
@@ -35,14 +34,12 @@ class LockApiCaller {
 	/**
 	 * Constructor.
 	 *
-	 * @param LockSources       $sources The lock service and dashboard mapper.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession      $userSession User session (IUser resolution).
+	 * @param LockSources  $sources The lock service and dashboard mapper.
+	 * @param RequestGuard $guard   The session and ADR-023 action check.
 	 */
 	public function __construct(
 		public readonly LockSources $sources,
-		public readonly ActionAuthService $actionAuth,
-		public readonly IUserSession $userSession,
+		public readonly RequestGuard $guard,
 	) {
 	}//end __construct()
 }//end class

@@ -49,6 +49,8 @@ use Throwable;
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 class AcknowledgementController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -83,7 +85,7 @@ class AcknowledgementController extends Controller {
 
 		$announcementKey = (string)$this->request->getParam(key: 'announcementKey', default: '');
 		if ($announcementKey === '') {
-			return ResponseHelper::failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// Reject any attempt to acknowledge on behalf of another user
@@ -122,7 +124,7 @@ class AcknowledgementController extends Controller {
 				message: 'acknowledge failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $receipt->jsonSerialize());
@@ -192,7 +194,7 @@ class AcknowledgementController extends Controller {
 				message: 'pending failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $result);
@@ -226,13 +228,13 @@ class AcknowledgementController extends Controller {
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'report failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $report);
@@ -267,13 +269,13 @@ class AcknowledgementController extends Controller {
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'reportCsv failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return ResponseHelper::failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$csv = $this->buildCsv(report: $report);

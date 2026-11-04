@@ -43,6 +43,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Controller\MetadataAdminController
  * @covers \OCA\LaunchPad\Service\MetadataService
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Db\MetadataField
  * @uses   \OCA\LaunchPad\Controller\ActionCaller
  */

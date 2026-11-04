@@ -45,6 +45,8 @@ use Throwable;
  * @spec openspec/changes/role-based-content/tasks.md#task-3
  */
 class WidgetApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -645,7 +647,7 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($effectiveLimit < 1 || $effectiveLimit > 50) {
-			return ResponseHelper::failure(message: 'limit out of range (1..50)', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'limit out of range (1..50)', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// M1: data-fetch endpoints only need view permission; canStyleWidget
@@ -708,7 +710,7 @@ class WidgetApiController extends Controller {
 			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
 		} catch (Throwable $exception) {
 			unset($exception);
-			return ResponseHelper::failure(message: 'Placement not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Placement not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// M1: data-fetch endpoint — view permission is sufficient;
@@ -782,7 +784,7 @@ class WidgetApiController extends Controller {
 	private function resolveCalendarRange(string $from, string $to): array {
 		if ($from === '' || $to === '') {
 			return [
-				'error' => ResponseHelper::failure(message: 'Both from and to are required ISO 8601 timestamps', statusCode: Http::STATUS_BAD_REQUEST),
+				'error' => $this->failure(message: 'Both from and to are required ISO 8601 timestamps', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -794,7 +796,7 @@ class WidgetApiController extends Controller {
 		} catch (Throwable $exception) {
 			unset($exception);
 			return [
-				'error' => ResponseHelper::failure(message: 'Invalid date format', statusCode: Http::STATUS_BAD_REQUEST),
+				'error' => $this->failure(message: 'Invalid date format', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -802,7 +804,7 @@ class WidgetApiController extends Controller {
 
 		if ($end < $start) {
 			return [
-				'error' => ResponseHelper::failure(message: '`to` must be greater than or equal to `from`', statusCode: Http::STATUS_BAD_REQUEST),
+				'error' => $this->failure(message: '`to` must be greater than or equal to `from`', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];

@@ -58,6 +58,7 @@ use Throwable;
  * @covers \OCA\LaunchPad\Service\PlacementService
  * @covers \OCA\LaunchPad\Controller\WidgetApiController
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Service\MenuService
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Controller\RequestActor

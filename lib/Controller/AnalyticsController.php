@@ -56,6 +56,8 @@ use OCP\IUserSession;
  * @spec openspec/changes/archive/2026-05-02-dashboard-view-analytics/tasks.md
  */
 class AnalyticsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -105,7 +107,7 @@ class AnalyticsController extends Controller {
 				limit: $limit
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -144,9 +146,9 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}//end try
 
 		return ResponseHelper::success(data: $rows);
@@ -179,7 +181,7 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $summary);
@@ -216,7 +218,7 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return new DataDownloadResponse(

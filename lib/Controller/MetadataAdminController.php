@@ -50,6 +50,8 @@ use OCP\IRequest;
  * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
 class MetadataAdminController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -64,10 +66,7 @@ class MetadataAdminController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly ActionCaller $caller,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -213,10 +212,7 @@ class MetadataAdminController extends Controller {
 		try {
 			$field = $this->metadataService->getField(id: $id);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Field not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return ResponseHelper::success(data: $field->jsonSerialize());
@@ -277,10 +273,7 @@ class MetadataAdminController extends Controller {
 				patch: $patch
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Field not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidMetadataFieldException $exception) {
 			return self::badRequest(message: $exception->getMessage());
 		}
@@ -322,10 +315,7 @@ class MetadataAdminController extends Controller {
 				cascade: $cascade
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Field not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (MetadataFieldHasValuesException $exception) {
 			return new JSONResponse(
 				data: [

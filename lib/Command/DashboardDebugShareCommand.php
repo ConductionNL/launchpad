@@ -93,10 +93,7 @@ class DashboardDebugShareCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$uuid = (string)$input->getArgument(name: 'uuid');
 
 		try {

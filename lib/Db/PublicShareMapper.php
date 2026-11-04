@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Db;
 
-use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -140,7 +139,7 @@ class PublicShareMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
 	 */
 	public function findActiveByDashboardUuid(string $dashboardUuid): array {
-		$now = (new DateTime())->format('Y-m-d H:i:s');
+		$now = $this->now();
 
 		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'))
@@ -174,24 +173,8 @@ class PublicShareMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
 	 */
 	public function softRevoke(int $id): void {
-		$now = (new DateTime())->format('Y-m-d H:i:s');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->update(update: $this->getTableName())
-			->set(
-				key: 'revoked_at',
-				value: $qb->createNamedParameter(value: $now)
-			)
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->updateWhere(set: ['revoked_at' => $this->now()], match: ['id' => $id]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		$qb->executeStatement();
 	}//end softRevoke()
@@ -221,7 +204,7 @@ class PublicShareMapper extends QBMapper {
 
 		$this->cache->set(key: $cacheKey, value: 1, ttl: 60);
 
-		$now = (new DateTime())->format('Y-m-d H:i:s');
+		$now = $this->now();
 
 		$qb = $this->db->getQueryBuilder();
 		$qb->update(update: $this->getTableName())
@@ -258,25 +241,7 @@ class PublicShareMapper extends QBMapper {
 	 * @return void
 	 */
 	private function updateLastViewedAt(int $id): void {
-		$now = (new DateTime())->format('Y-m-d H:i:s');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->update(update: $this->getTableName())
-			->set(
-				key: 'last_viewed_at',
-				value: $qb->createNamedParameter(value: $now)
-			)
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
-
-		$qb->executeStatement();
+		$this->updateWhere(set: ['last_viewed_at' => $this->now()], match: ['id' => $id])->executeStatement();
 	}//end updateLastViewedAt()
 
 	/**
@@ -289,21 +254,8 @@ class PublicShareMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-3
 	 */
 	public function revokeByDashboardUuid(string $dashboardUuid): int {
-		$now = (new DateTime())->format('Y-m-d H:i:s');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->update(update: $this->getTableName())
-			->set(
-				key: 'revoked_at',
-				value: $qb->createNamedParameter(value: $now)
-			)
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->updateWhere(set: ['revoked_at' => $this->now()], match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		return $qb->executeStatement();
 	}//end revokeByDashboardUuid()

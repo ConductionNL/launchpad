@@ -43,6 +43,8 @@ use OCP\IUser;
  * @spec openspec/specs/people-widget/spec.md
  */
 class ProfileFieldsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -59,10 +61,7 @@ class ProfileFieldsController extends Controller {
 		private readonly ActionCaller $caller,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -104,7 +103,7 @@ class ProfileFieldsController extends Controller {
 		try {
 			$fields = $this->profileFields->saveOwnValues(userId: $user->getUID(), values: ($values ?? []));
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: ['fields' => $fields]);
@@ -146,7 +145,7 @@ class ProfileFieldsController extends Controller {
 		try {
 			$saved = $this->profileFields->saveDefinitions(raw: ($fields ?? []));
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: ['fields' => $saved]);

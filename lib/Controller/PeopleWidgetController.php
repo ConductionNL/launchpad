@@ -63,10 +63,7 @@ class PeopleWidgetController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

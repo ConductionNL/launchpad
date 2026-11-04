@@ -72,6 +72,8 @@ use Throwable;
  * @spec openspec/changes/resource-serving/tasks.md
  */
 class ResourceServeController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Cache directive sent on every served resource (REQ-RES-006).
 	 *
@@ -93,10 +95,7 @@ class ResourceServeController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -149,13 +148,7 @@ class ResourceServeController extends Controller {
 
 		// 413 guard — refuse oversize files BEFORE pulling bytes.
 		if ((int)$file->getSize() > ResourceService::MAX_BYTES) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'file_too_large',
-				],
-				statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE
-			);
+			return $this->errorCode(code: 'file_too_large', statusCode: Http::STATUS_REQUEST_ENTITY_TOO_LARGE);
 		}
 
 		try {

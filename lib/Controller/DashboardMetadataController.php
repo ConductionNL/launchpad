@@ -45,6 +45,8 @@ use OCP\IRequest;
  * source of truth for dashboard ACL (H5, REQ-MDFL-008).
  */
 class DashboardMetadataController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -60,10 +62,7 @@ class DashboardMetadataController extends Controller {
 		private readonly PermissionService $permissionService,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -95,10 +94,7 @@ class DashboardMetadataController extends Controller {
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
 		if ($dashboard === null) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// H5: delegate to PermissionService — the single ACL source of truth.
@@ -172,10 +168,7 @@ class DashboardMetadataController extends Controller {
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
 		if ($dashboard === null) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// H5: delegate to PermissionService — canEditDashboardMetadata is

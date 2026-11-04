@@ -47,6 +47,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\LaunchPad\Controller\PeopleWidgetController
  * @covers \OCA\LaunchPad\Service\PeopleWidgetService
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Service\PeopleQuery
  * @uses   \OCA\LaunchPad\Service\PeoplePage
  */

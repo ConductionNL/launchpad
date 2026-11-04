@@ -1,0 +1,206 @@
+{
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache array": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache corrupt": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache int": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache json empty list": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache json list": {
+        "result": [
+            1,
+            "two",
+            null
+        ]
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache json number": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache json object": {
+        "result": {
+            "value": 3,
+            "nested": {
+                "b": [
+                    1,
+                    2
+                ]
+            }
+        }
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache json scalar": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache miss": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\HealthPingService readCache no cache": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache array": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache corrupt": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache int": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache json empty list": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache json list": {
+        "result": [
+            1,
+            "two",
+            null
+        ]
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache json number": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache json object": {
+        "result": {
+            "value": 3,
+            "nested": {
+                "b": [
+                    1,
+                    2
+                ]
+            }
+        }
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache json scalar": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache miss": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readCache no cache": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig both filled": {
+        "result": {
+            "a": 1
+        }
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig content only": {
+        "result": {
+            "location": "Utrecht"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig empty content, empty style": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig empty content, no style": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig empty content, style content not array": {
+        "result": {
+            "content": "text"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig empty content, style with content": {
+        "result": {
+            "url": "https://a.example"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig empty content, style without content": {
+        "result": {
+            "x": 1
+        }
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig no getters": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\LiveTileService readPlacementConfig style only": {
+        "result": {
+            "k": "v"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache array": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache corrupt": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache int": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache json empty list": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache json list": {
+        "result": [
+            1,
+            "two",
+            null
+        ]
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache json number": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache json object": {
+        "result": {
+            "value": 3,
+            "nested": {
+                "b": [
+                    1,
+                    2
+                ]
+            }
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache json scalar": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache miss": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readCache no cache": {
+        "result": null
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig both filled": {
+        "result": {
+            "a": 1
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig content only": {
+        "result": {
+            "location": "Utrecht"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig empty content, empty style": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig empty content, no style": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig empty content, style content not array": {
+        "result": {
+            "content": "text"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig empty content, style with content": {
+        "result": {
+            "url": "https://a.example"
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig empty content, style without content": {
+        "result": {
+            "x": 1
+        }
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig no getters": {
+        "result": []
+    },
+    "OCA\\LaunchPad\\Service\\WeatherService readPlacementConfig style only": {
+        "result": {
+            "k": "v"
+        }
+    }
+}

@@ -43,6 +43,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\LaunchPad\Controller\DashboardTranslationApiController
  * @covers \OCA\LaunchPad\Service\DashboardTranslationService
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\DashboardTranslation
  * @uses   \OCA\LaunchPad\Db\DashboardTranslationMapper

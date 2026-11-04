@@ -29,15 +29,10 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AnalyticsService;
 use OCA\LaunchPad\Service\DashboardService;
-use OCA\LaunchPad\Service\DashboardTranslationService;
 use OCA\LaunchPad\Service\DashboardTreeService;
-use OCA\LaunchPad\Service\DashboardVersionService;
 use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\QuotaService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -46,8 +41,6 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * Controller for dashboard API endpoints.
@@ -84,6 +77,8 @@ use Psr\Log\LoggerInterface;
  * @spec                                             openspec/specs/dashboards/spec.md
  */
 class DashboardApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -103,10 +98,7 @@ class DashboardApiController extends Controller {
 		private readonly RequestActor $actor,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -915,14 +907,7 @@ class DashboardApiController extends Controller {
 		}
 
 		if ($uuid === '') {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'missing_uuid',
-					'message' => 'UUID is required',
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'missing_uuid', message: 'UUID is required');
 		}
 
 		return ResponseHelper::success(
@@ -1106,10 +1091,7 @@ class DashboardApiController extends Controller {
 			);
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// M5: strip internal identity fields from viewer-facing payload.
@@ -1165,10 +1147,7 @@ class DashboardApiController extends Controller {
 			);
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -1206,10 +1185,7 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -1263,10 +1239,7 @@ class DashboardApiController extends Controller {
 			);
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -1448,13 +1421,7 @@ class DashboardApiController extends Controller {
 			// REQ-DASH-020: source not visible — 404 without leaking
 			// existence (use the canonical message rather than echoing
 			// the exception detail).
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Throwable $t) {
 			// REQ-DASH-021 + ADR-005: log the real cause, return a
 			// stable, generic envelope to the client.
@@ -1512,13 +1479,7 @@ class DashboardApiController extends Controller {
 				data: ['dashboard' => $dashboard->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
@@ -1556,13 +1517,7 @@ class DashboardApiController extends Controller {
 				data: ['dashboard' => $dashboard->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
@@ -1619,13 +1574,7 @@ class DashboardApiController extends Controller {
 				data: ['dashboard' => $dashboard->jsonSerialize()]
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
 			return ResponseHelper::invalidArgument(message: $e->getMessage());
 		} catch (\Exception $e) {
@@ -1681,13 +1630,7 @@ class DashboardApiController extends Controller {
 		try {
 			$dashboard = $this->services->dashboardService->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		if ($this->permissionService->canViewDashboard(
@@ -1704,13 +1647,7 @@ class DashboardApiController extends Controller {
 				userId: $this->userId
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse(

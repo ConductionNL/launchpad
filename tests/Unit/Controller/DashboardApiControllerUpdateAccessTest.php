@@ -44,6 +44,7 @@ use RuntimeException;
  *
  * @covers \OCA\LaunchPad\Controller\DashboardApiController
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
  * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
  * @uses   \OCA\LaunchPad\Controller\RequestActor

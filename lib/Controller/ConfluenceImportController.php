@@ -43,6 +43,8 @@ use Throwable;
  * @spec                                 openspec/specs/confluence-html-import/spec.md
  */
 class ConfluenceImportController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -55,10 +57,7 @@ class ConfluenceImportController extends Controller {
 		private readonly ConfluenceImportService $importService,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -78,15 +77,9 @@ class ConfluenceImportController extends Controller {
 		try {
 			$result = $this->importService->dryRun(zipPath: $tmpName);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (Throwable $e) {
-			return new JSONResponse(
-				data: ['error' => 'Confluence dry-run failed: ' . $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Confluence dry-run failed: ' . $e->getMessage(), statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return new JSONResponse(data: $result);
@@ -123,15 +116,9 @@ class ConfluenceImportController extends Controller {
 				parentUuid: $resolvedParent
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (Throwable $e) {
-			return new JSONResponse(
-				data: ['error' => 'Confluence import failed: ' . $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Confluence import failed: ' . $e->getMessage(), statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return new JSONResponse(data: $result);
@@ -148,10 +135,7 @@ class ConfluenceImportController extends Controller {
 			|| isset($upload['tmp_name']) === false
 			|| (string)$upload['tmp_name'] === ''
 		) {
-			return new JSONResponse(
-				data: ['error' => 'No file uploaded under field "file".'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return (string)$upload['tmp_name'];

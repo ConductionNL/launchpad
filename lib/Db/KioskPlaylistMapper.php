@@ -25,10 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Db;
 
-use DateTime;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IURLGenerator;
 
@@ -173,24 +171,8 @@ class KioskPlaylistMapper extends QBMapper {
 	 * @spec openspec/changes/dashboard-kiosk-mode/tasks.md#task-2
 	 */
 	public function softRevoke(int $id): void {
-		$now = (new DateTime())->format('Y-m-d H:i:s');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->update(update: $this->getTableName())
-			->set(
-				key: 'revoked_at',
-				value: $qb->createNamedParameter(value: $now)
-			)
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere($qb->expr()->isNull(x: 'revoked_at'));
+		$qb = $this->updateWhere(set: ['revoked_at' => $this->now()], match: ['id' => $id]);
+		$qb->andWhere($qb->expr()->isNull(x: 'revoked_at'));
 
 		$qb->executeStatement();
 	}//end softRevoke()

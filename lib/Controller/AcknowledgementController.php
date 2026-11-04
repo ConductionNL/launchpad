@@ -27,8 +27,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AcknowledgementService;
-use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -38,7 +36,6 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -52,6 +49,8 @@ use Throwable;
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 class AcknowledgementController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -66,10 +65,7 @@ class AcknowledgementController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -89,10 +85,7 @@ class AcknowledgementController extends Controller {
 
 		$announcementKey = (string)$this->request->getParam(key: 'announcementKey', default: '');
 		if ($announcementKey === '') {
-			return new JSONResponse(
-				data: ['error' => 'announcementKey is required'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// Reject any attempt to acknowledge on behalf of another user
@@ -131,10 +124,7 @@ class AcknowledgementController extends Controller {
 				message: 'acknowledge failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $receipt->jsonSerialize());
@@ -204,10 +194,7 @@ class AcknowledgementController extends Controller {
 				message: 'pending failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $result);
@@ -241,19 +228,13 @@ class AcknowledgementController extends Controller {
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'report failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $report);
@@ -288,19 +269,13 @@ class AcknowledgementController extends Controller {
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
 			$this->tools->logger->error(
 				message: 'reportCsv failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$csv = $this->buildCsv(report: $report);

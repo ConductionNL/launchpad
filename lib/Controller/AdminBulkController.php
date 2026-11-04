@@ -52,6 +52,8 @@ use OCP\IUserSession;
  * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
 class AdminBulkController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -66,10 +68,7 @@ class AdminBulkController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -121,10 +120,7 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return new JSONResponse(
-				data: ['error' => 'dashboardUuids must be an array of strings'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -147,10 +143,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
@@ -181,10 +174,7 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return new JSONResponse(
-				data: ['error' => 'dashboardUuids must be an array of strings'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -206,10 +196,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
@@ -241,17 +228,11 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return new JSONResponse(
-				data: ['error' => 'dashboardUuids must be an array of strings'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if ($publicationStatus === null || trim($publicationStatus) === '') {
-			return new JSONResponse(
-				data: ['error' => 'publicationStatus is required'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'publicationStatus is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -276,10 +257,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
@@ -307,10 +285,7 @@ class AdminBulkController extends Controller {
 
 		$uuids = $this->extractUuids(value: $dashboardUuids);
 		if ($uuids === null) {
-			return new JSONResponse(
-				data: ['error' => 'dashboardUuids must be an array of strings'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->userSession->getUser()?->getUID();
@@ -331,10 +306,7 @@ class AdminBulkController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);

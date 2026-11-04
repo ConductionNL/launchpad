@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Job;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\FeedRefreshService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;

@@ -86,10 +86,7 @@ class ImportCommand extends Command {
 	 *
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$file = (string)($input->getOption(name: 'file') ?? '');
 		$preserveUuids = (bool)$input->getOption(name: 'preserve-uuids');
 		$user = (string)($input->getOption(name: 'user') ?? 'cli');

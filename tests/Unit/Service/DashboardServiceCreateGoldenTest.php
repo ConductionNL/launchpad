@@ -66,6 +66,7 @@ use ReflectionMethod;
  * @covers \OCA\LaunchPad\Controller\DashboardApiController
  * @uses   \OCA\LaunchPad\Service\DashboardFactory
  * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Service\SlugGenerator

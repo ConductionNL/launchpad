@@ -59,10 +59,7 @@ class TemplateController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly ActionAuthService $actionAuth,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

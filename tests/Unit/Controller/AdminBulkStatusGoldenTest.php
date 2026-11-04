@@ -55,6 +55,8 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Service\PermissionDeniedException
  * @uses   \OCA\LaunchPad\Activity\ActivityRow
  * @uses   \OCA\LaunchPad\Activity\ActivitySubject
+ * @uses   \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Db\Dashboard
  */
 class AdminBulkStatusGoldenTest extends TestCase {

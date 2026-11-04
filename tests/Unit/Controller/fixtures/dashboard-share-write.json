@@ -426,9 +426,9 @@
         ]
     },
     "create alice 1 insert fails": {
-        "status": 403,
+        "status": 500,
         "body": {
-            "error": "insert failed"
+            "error": "Internal error"
         },
         "log": [
             "find 1",
@@ -1307,9 +1307,9 @@
         ]
     },
     "create bob 2 insert fails": {
-        "status": 403,
+        "status": 500,
         "body": {
-            "error": "insert failed"
+            "error": "Internal error"
         },
         "log": [
             "find 2",
@@ -2225,9 +2225,9 @@
         ]
     },
     "replace alice 1 insert fails": {
-        "status": 403,
+        "status": 500,
         "body": {
-            "error": "insert failed"
+            "error": "Internal error"
         },
         "log": [
             "find 1",
@@ -2270,9 +2270,9 @@
         ]
     },
     "replace alice 1 commit fails": {
-        "status": 403,
+        "status": 500,
         "body": {
-            "error": "commit failed"
+            "error": "Internal error"
         },
         "log": [
             "find 1",
@@ -2302,7 +2302,10 @@
         ]
     },
     "replace alice 1 numeric recipient": {
-        "thrown": "TypeError",
+        "status": 400,
+        "body": {
+            "error": "shareWith must be a string"
+        },
         "log": [
             "find 1"
         ]
@@ -3234,9 +3237,9 @@
         ]
     },
     "replace bob 2 insert fails": {
-        "status": 403,
+        "status": 500,
         "body": {
-            "error": "insert failed"
+            "error": "Internal error"
         },
         "log": [
             "find 2",
@@ -3279,9 +3282,9 @@
         ]
     },
     "replace bob 2 commit fails": {
-        "status": 403,
+        "status": 500,
         "body": {
-            "error": "commit failed"
+            "error": "Internal error"
         },
         "log": [
             "find 2",
@@ -3311,7 +3314,10 @@
         ]
     },
     "replace bob 2 numeric recipient": {
-        "thrown": "TypeError",
+        "status": 400,
+        "body": {
+            "error": "shareWith must be a string"
+        },
         "log": [
             "find 2"
         ]

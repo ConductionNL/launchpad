@@ -1,0 +1,1789 @@
+{
+    "create / alice (owner) / healthy": {
+        "status": 201,
+        "data": {
+            "id": 11,
+            "dashboardId": 1,
+            "shareType": "user",
+            "shareWith": "carol",
+            "permissionLevel": "view_only",
+            "createdAt": "stamp Y-m-d H:i:s",
+            "updatedAt": "stamp Y-m-d H:i:s"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "insert user:carol:view_only"
+        ],
+        "logged": []
+    },
+    "create / alice (owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "create / alice (owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "insert user:carol:view_only"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "create / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create invalid type / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / alice (owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / alice (owner) / read fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / alice (owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / bob (not owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / bob (not owner) / read fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "create unknown dashboard / bob (not owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "destroy / alice (owner) / healthy": {
+        "status": 204,
+        "data": [],
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "delete 10"
+        ],
+        "logged": []
+    },
+    "destroy / alice (owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "destroy / alice (owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "delete 10"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "destroy / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "destroy / bob (not owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "destroy / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / alice (owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Share not found"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / alice (owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "destroy unknown share / alice (owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Share not found"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / bob (not owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Share not found"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "destroy unknown share / bob (not owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "destroy unknown share / bob (not owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Share not found"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index / alice (owner) / healthy": {
+        "status": 200,
+        "data": [
+            {
+                "id": 10,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "dave",
+                "permissionLevel": "view_only",
+                "createdAt": null,
+                "updatedAt": null
+            }
+        ],
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index / alice (owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "index / alice (owner) / write fails": {
+        "status": 200,
+        "data": [
+            {
+                "id": 10,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "dave",
+                "permissionLevel": "view_only",
+                "createdAt": null,
+                "updatedAt": null
+            }
+        ],
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / alice (owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / alice (owner) / read fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / alice (owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / bob (not owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / bob (not owner) / read fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "index unknown dashboard / bob (not owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace / alice (owner) / healthy": {
+        "status": 200,
+        "data": [
+            {
+                "id": 10,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "dave",
+                "permissionLevel": "view_only",
+                "createdAt": null,
+                "updatedAt": null
+            }
+        ],
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "deleteNotIn 1 keep user:carol",
+            "insert user:carol:view_only"
+        ],
+        "logged": []
+    },
+    "replace / alice (owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "deleteNotIn 1 keep user:carol"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "replace / alice (owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "deleteNotIn 1 keep user:carol"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "replace / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace array recipient / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace empty / alice (owner) / healthy": {
+        "status": 200,
+        "data": [
+            {
+                "id": 10,
+                "dashboardId": 1,
+                "shareType": "user",
+                "shareWith": "dave",
+                "permissionLevel": "view_only",
+                "createdAt": null,
+                "updatedAt": null
+            }
+        ],
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "deleteNotIn 1 keep "
+        ],
+        "logged": []
+    },
+    "replace empty / alice (owner) / read fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "deleteNotIn 1 keep "
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "replace empty / alice (owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [
+            "deleteNotIn 1 keep "
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "replace empty / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace empty / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace empty / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace empty / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace empty / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace empty / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Each share must be an object"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Each share must be an object"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Each share must be an object"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace entry not an array / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "shareWith must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int recipient / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "shareType must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "shareType must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "shareType must be a string"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace int type / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid permissionLevel: own"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid permissionLevel: own"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid permissionLevel: own"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace invalid level / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid permissionLevel: "
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid permissionLevel: "
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid permissionLevel: "
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / bob (not owner) / healthy": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / bob (not owner) / read fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace null level / bob (not owner) / write fails": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "ownerLookups": [
+            1
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / alice (owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / alice (owner) / read fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / alice (owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / bob (not owner) / healthy": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / bob (not owner) / read fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "replace unknown dashboard / bob (not owner) / write fails": {
+        "status": 404,
+        "data": {
+            "error": "Dashboard not found"
+        },
+        "ownerLookups": [
+            404
+        ],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / alice (owner) / healthy": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner alice"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / alice (owner) / read fails": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner alice"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / alice (owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner alice"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "revoke for recipient / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient / bob (not owner) / healthy": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner bob"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / bob (not owner) / read fails": {
+        "status": 200,
+        "data": {
+            "deleted": 2
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner bob"
+        ],
+        "logged": []
+    },
+    "revoke for recipient / bob (not owner) / write fails": {
+        "status": 500,
+        "data": {
+            "error": "Internal error"
+        },
+        "ownerLookups": [],
+        "writes": [
+            "revoke user:carol owner bob"
+        ],
+        "logged": [
+            [
+                "error",
+                "Dashboard share request failed: OCP\\DB\\Exception",
+                "OCP\\DB\\Exception"
+            ]
+        ]
+    },
+    "revoke for recipient invalid type / alice (owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / alice (owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / alice (owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / anonymous / healthy": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / anonymous / read fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / anonymous / write fails": {
+        "status": 401,
+        "data": {
+            "error": "Not logged in"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / bob (not owner) / healthy": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / bob (not owner) / read fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    },
+    "revoke for recipient invalid type / bob (not owner) / write fails": {
+        "status": 400,
+        "data": {
+            "error": "Invalid shareType: team"
+        },
+        "ownerLookups": [],
+        "writes": [],
+        "logged": []
+    }
+}

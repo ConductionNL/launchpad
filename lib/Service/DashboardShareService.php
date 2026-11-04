@@ -24,16 +24,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
-use Exception;
 use InvalidArgumentException;
-use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCP\IDBConnection;
-use OCP\IGroupManager;
-use OCP\Notification\IManager as INotificationManager;
 
 /**
  * Service for creating and managing dashboard shares.
@@ -58,18 +55,14 @@ class DashboardShareService {
 	 *
 	 * @param DashboardShareMapper $shareMapper The share mapper.
 	 * @param DashboardMapper $dashboardMapper The dashboard mapper.
-	 * @param IGroupManager $groupManager The group manager.
-	 * @param INotificationManager $notificationManager The notification manager.
 	 * @param IDBConnection $db The DB connection.
-	 * @param DashboardActivityEmitter|null $activity Sends dashboard_shared to the recipients (#713).
+	 * @param ShareNotifier $notifier Announces written shares to their recipients.
 	 */
 	public function __construct(
 		private readonly DashboardShareMapper $shareMapper,
 		private readonly DashboardMapper $dashboardMapper,
-		private readonly IGroupManager $groupManager,
-		private readonly INotificationManager $notificationManager,
 		private readonly IDBConnection $db,
-		private readonly ?DashboardActivityEmitter $activity = null,
+		private readonly ShareNotifier $notifier,
 	) {
 	}//end __construct()
 
@@ -81,7 +74,7 @@ class DashboardShareService {
 	 *
 	 * @return DashboardShare[] The shares.
 	 *
-	 * @throws Exception When the user is not the dashboard owner.
+	 * @throws ForbiddenException When the user is not the dashboard owner.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -100,7 +93,8 @@ class DashboardShareService {
 	 *
 	 * @return DashboardShare The persisted share.
 	 *
-	 * @throws Exception When the caller is not the owner or input is invalid.
+	 * @throws ForbiddenException When the caller is not the owner.
+	 * @throws InvalidArgumentException When the input is invalid.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -118,7 +112,7 @@ class DashboardShareService {
 		$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
 
 		if ($result['isNew'] === true || $result['isUpgrade'] === true) {
-			$this->notifyShared(
+			$this->notifier->shared(
 				share: $result['share'],
 				sharerUserId: $callerId,
 				dashboard: $dashboard
@@ -137,7 +131,7 @@ class DashboardShareService {
 	 *
 	 * @return void
 	 *
-	 * @throws Exception When the share does not exist or caller is not owner.
+	 * @throws ForbiddenException When the caller is not the owner.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -148,7 +142,7 @@ class DashboardShareService {
 		);
 
 		if ($dashboard->getUserId() !== $callerId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		$this->shareMapper->delete(entity: $share);
@@ -159,7 +153,8 @@ class DashboardShareService {
 	 *
 	 * Deletes every existing share not in the payload, upserts matching
 	 * ones. Publishes one notification per newly-added or upgraded
-	 * recipient only. All DB writes run in a single transaction.
+	 * recipient only. All DB writes run in a single transaction; a database
+	 * error is rethrown after the rollback.
 	 *
 	 * @param int $dashboardId The dashboard ID.
 	 * @param array $shares Array of {shareType, shareWith, permissionLevel}.
@@ -167,8 +162,8 @@ class DashboardShareService {
 	 *
 	 * @return DashboardShare[] The new full share list.
 	 *
-	 * @throws Exception When the caller is not the owner or input is invalid.
-	 * @throws Exception On DB error (rolled back first).
+	 * @throws ForbiddenException When the caller is not the owner.
+	 * @throws InvalidArgumentException When the input is invalid.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
@@ -185,11 +180,7 @@ class DashboardShareService {
 		// Validate all entries up-front before touching the DB.
 		$grants = [];
 		foreach ($shares as $entry) {
-			$grant = new ShareGrant(
-				shareType: $entry['shareType'] ?? '',
-				shareWith: $entry['shareWith'] ?? '',
-				permissionLevel: $entry['permissionLevel'] ?? ''
-			);
+			$grant = $this->grantFrom(entry: $entry);
 			$this->validateInput(grant: $grant);
 			$grants[] = $grant;
 		}
@@ -230,7 +221,7 @@ class DashboardShareService {
 
 		// Publish notifications after the transaction commits.
 		foreach ($notifyQueue as $share) {
-			$this->notifyShared(
+			$this->notifier->shared(
 				share: $share,
 				sharerUserId: $userId,
 				dashboard: $dashboard
@@ -367,20 +358,11 @@ class DashboardShareService {
 		int $dashboardId,
 		string $dashboardName,
 	): void {
-		$notification = $this->notificationManager->createNotification();
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$notification->setApp('launchpad')
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setUser($newOwnerId)
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setDateTime(new DateTime())
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setObject('dashboard', (string)$dashboardId)
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			->setSubject('dashboard_ownership_transferred', [$dashboardName]);
-
-		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-		$this->notificationManager->notify($notification);
+		$this->notifier->ownershipTransferred(
+			newOwnerId: $newOwnerId,
+			dashboardId: $dashboardId,
+			dashboardName: $dashboardName
+		);
 	}//end notifyOwnershipTransferred()
 
 	/**
@@ -447,101 +429,38 @@ class DashboardShareService {
 	}//end persistShare()
 
 	/**
-	 * Publish `dashboard_shared` notifications for a share.
+	 * Read one entry of a share replace as a grant: an object whose
+	 * shareType, shareWith and permissionLevel, when present, are strings.
+	 * A missing field reads as an empty string, which
+	 * {@see self::validateInput()} then rejects.
 	 *
-	 * For `user`-type shares: one notification.
-	 * For `group`-type shares: fan out one notification per current group
-	 * member, excluding the sharer. REQ-SHARE-008.
+	 * @param array|string|int|float|bool|null $entry The entry from the request.
 	 *
-	 * @param DashboardShare $share The share row.
-	 * @param string $sharerUserId The user who created the share.
-	 * @param Dashboard $dashboard The shared dashboard.
+	 * @return ShareGrant The grant.
 	 *
-	 * @return void
+	 * @throws InvalidArgumentException When the entry is not an object or a field is not a string.
 	 */
-	private function notifyShared(
-		DashboardShare $share,
-		string $sharerUserId,
-		Dashboard $dashboard,
-	): void {
-		$dashboardName = (string)$dashboard->getName();
-		$recipients = $this->resolveRecipients(
-			share: $share,
-			excludeUserId: $sharerUserId
-		);
+	private function grantFrom(array|string|int|float|bool|null $entry): ShareGrant {
+		if (is_array($entry) === false) {
+			throw new InvalidArgumentException(message: 'Each share must be an object');
+		}
 
-		// The activity stream and digest get the same audience as the
-		// notification (engagement-activity-digest D2, issue #713).
-		$this->activity?->shared(
-			dashboard: $dashboard,
-			share: $share,
-			actor: $sharerUserId,
-			recipients: $recipients
-		);
-
-		foreach ($recipients as $recipientId) {
-			$notification = $this->notificationManager->createNotification();
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$notification->setApp('launchpad')
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setUser($recipientId)
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setDateTime(new DateTime())
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setObject('dashboard', (string)$share->getDashboardId())
-				// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-				->setSubject(
-					'dashboard_shared',
-					[
-						$sharerUserId,
-						$dashboardName,
-						(string)$share->getPermissionLevel(),
-					]
-				);
-
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$this->notificationManager->notify($notification);
-		}//end foreach
-	}//end notifyShared()
-
-	/**
-	 * Resolve the recipient user IDs for a share.
-	 *
-	 * @param DashboardShare $share The share.
-	 * @param string $excludeUserId A user ID to exclude (the sharer).
-	 *
-	 * @return string[] The recipient user IDs.
-	 */
-	private function resolveRecipients(
-		DashboardShare $share,
-		string $excludeUserId,
-	): array {
-		if ($share->getShareType() === DashboardShare::SHARE_TYPE_USER) {
-			$uid = (string)$share->getShareWith();
-			if ($uid === $excludeUserId) {
-				return [];
+		$fields = [];
+		foreach (['shareType', 'shareWith', 'permissionLevel'] as $field) {
+			$value = $entry[$field] ?? '';
+			if (is_string($value) === false) {
+				throw new InvalidArgumentException(message: $field . ' must be a string');
 			}
 
-			return [$uid];
+			$fields[$field] = $value;
 		}
 
-		// Group share — expand members.
-		$groupId = (string)$share->getShareWith();
-		$group = $this->groupManager->get(gid: $groupId);
-		if ($group === null) {
-			return [];
-		}
-
-		$recipients = [];
-		foreach ($group->getUsers() as $user) {
-			$uid = $user->getUID();
-			if ($uid !== $excludeUserId) {
-				$recipients[] = $uid;
-			}
-		}
-
-		return $recipients;
-	}//end resolveRecipients()
+		return new ShareGrant(
+			shareType: $fields['shareType'],
+			shareWith: $fields['shareWith'],
+			permissionLevel: $fields['permissionLevel']
+		);
+	}//end grantFrom()
 
 	/**
 	 * Validate share type, shareWith, and permission level.
@@ -590,13 +509,13 @@ class DashboardShareService {
 	 *
 	 * @return Dashboard The dashboard.
 	 *
-	 * @throws Exception When the user is not the owner.
+	 * @throws ForbiddenException When the user is not the owner.
 	 */
 	private function assertOwner(int $dashboardId, string $userId): Dashboard {
 		$dashboard = $this->dashboardMapper->find(id: $dashboardId);
 
 		if ($dashboard->getUserId() !== $userId) {
-			throw new Exception(message: 'Access denied');
+			throw new ForbiddenException(message: 'Access denied');
 		}
 
 		return $dashboard;

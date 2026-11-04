@@ -49,6 +49,7 @@ use PHPUnit\Framework\TestCase;
  * @uses \OCA\LaunchPad\Controller\CleanupSources
  * @uses \OCA\LaunchPad\Controller\OrgNavigationSources
  * @uses \OCA\LaunchPad\Controller\ResponseHelper
+ * @uses \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses \OCA\LaunchPad\Service\RequestGuard
  */
 class AdminActingUserTest extends TestCase {

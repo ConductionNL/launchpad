@@ -98,18 +98,17 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		if ($this->db->tableExists(table: self::TARGET_TABLE) === false) {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_ERROR,
-				code: 'CAPABILITY_MISSING',
-				message: 'dashboard-language-content capability is required',
-				context: ['expectedTable' => self::TARGET_TABLE]
+				error: [
+					'exitCode' => CommandService::EXIT_ERROR,
+					'code'     => 'CAPABILITY_MISSING',
+					'message'  => 'dashboard-language-content capability is required',
+					'context'  => ['expectedTable' => self::TARGET_TABLE],
+				]
 			);
 		}
 
@@ -125,9 +124,7 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 				return $this->emitError(
 					input: $input,
 					output: $output,
-					exitCode: CommandService::EXIT_INVALID_ARGS,
-					code: 'ABORTED',
-					message: 'Migration aborted by user.'
+					error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Migration aborted by user.']
 				);
 			}
 		}

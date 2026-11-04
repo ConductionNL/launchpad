@@ -29,27 +29,30 @@ use OCA\LaunchPad\Db\WidgetPlacementMapper;
  */
 class PlacementService {
 	/**
+	 * Grid position, size and content of a new widget placement when the
+	 * caller leaves them out.
+	 */
+	private const DEFAULT_LAYOUT = [
+		'gridX'      => 0,
+		'gridY'      => 0,
+		'gridWidth'  => 4,
+		'gridHeight' => 4,
+		'content'    => null,
+	];
+
+	/**
 	 * Constructor
 	 *
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param TileUpdater $tileUpdater Tile updater service.
-	 * @param PlacementUpdater $placementUpdater Placement updater service.
-	 * @param PublicShareContext|null $publicShareContext Public-share bearer
-	 *                                                    guard (nullable for
-	 *                                                    legacy test doubles).
-	 * @param QuotaService|null $quotaService Widget-quota enforcer
-	 *                                        (dashboard-quota-limits
-	 *                                        REQ-QUOTA-003).
-	 *                                        Nullable to keep
-	 *                                        existing test doubles
-	 *                                        working — when
-	 *                                        absent no quota is
-	 *                                        enforced.
+	 * @param WidgetPlacementMapper   $placementMapper Widget placement mapper.
+	 * @param PlacementUpdaters       $updaters The tile and placement updaters.
+	 * @param PublicShareContext|null $publicShareContext Public-share bearer guard (nullable for legacy test doubles).
+	 * @param QuotaService|null       $quotaService Widget-quota enforcer (dashboard-quota-limits
+	 *                                              REQ-QUOTA-003). Nullable to keep existing test doubles
+	 *                                              working — when absent no quota is enforced.
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly TileUpdater $tileUpdater,
-		private readonly PlacementUpdater $placementUpdater,
+		private readonly PlacementUpdaters $updaters,
 		private readonly ?PublicShareContext $publicShareContext = null,
 		private readonly ?QuotaService $quotaService = null,
 	) {
@@ -60,14 +63,12 @@ class PlacementService {
 	 *
 	 * @param int $dashboardId Dashboard ID.
 	 * @param string $widgetId Widget ID.
-	 * @param int $gridX Grid X position.
-	 * @param int $gridY Grid Y position.
-	 * @param int $gridWidth Grid width.
-	 * @param int $gridHeight Grid height.
-	 * @param array|null $content Optional per-type content payload for
-	 *                            custom widgets (registry-driven types
-	 *                            like `label`, `text`, etc. — shape
-	 *                            matches the type's `defaultContent`).
+	 * @param array $layout Grid position and size (`gridX`, `gridY`,
+	 *                      `gridWidth`, `gridHeight`; default 0, 0, 4 x 4)
+	 *                      and the optional per-type `content` payload for
+	 *                      custom widgets (registry-driven types like
+	 *                      `label`, `text`, etc. — shape matches the type's
+	 *                      `defaultContent`).
 	 *
 	 * @return WidgetPlacement The created widget placement.
 	 *
@@ -77,15 +78,8 @@ class PlacementService {
 	 *
 	 * @spec openspec/changes/dashboard-quota-limits/specs/dashboard-quota-limits/spec.md#req-quota-003-widget-count-enforcement
 	 */
-	public function addWidget(
-		int $dashboardId,
-		string $widgetId,
-		int $gridX = 0,
-		int $gridY = 0,
-		int $gridWidth = 4,
-		int $gridHeight = 4,
-		?array $content = null,
-	): WidgetPlacement {
+	public function addWidget(int $dashboardId, string $widgetId, array $layout=[]): WidgetPlacement {
+		$layout += self::DEFAULT_LAYOUT;
 		// Task-7 of dashboard-public-share — bearer cannot mutate placements.
 		$this->publicShareContext?->requireMutable();
 		// Dashboard-quota-limits REQ-QUOTA-003: enforce the per-dashboard
@@ -98,16 +92,16 @@ class PlacementService {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$placement->setDashboardId($dashboardId);
 		$placement->setWidgetId($widgetId);
-		$placement->setGridX($gridX);
-		$placement->setGridY($gridY);
-		$placement->setGridWidth($gridWidth);
-		$placement->setGridHeight($gridHeight);
+		$placement->setGridX($layout['gridX']);
+		$placement->setGridY($layout['gridY']);
+		$placement->setGridWidth($layout['gridWidth']);
+		$placement->setGridHeight($layout['gridHeight']);
 		$placement->setIsCompulsory(0);
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
 
-		if ($content !== null) {
-			$placement->setContentArray($content);
+		if ($layout['content'] !== null) {
+			$placement->setContentArray($layout['content']);
 		}
 
 		$placement->setCreatedAt($now);
@@ -153,7 +147,7 @@ class PlacementService {
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
 
-		$this->tileUpdater->applyTileConfig(
+		$this->updaters->tileUpdater->applyTileConfig(
 			placement: $placement,
 			tileData: $tileData
 		);
@@ -182,19 +176,19 @@ class PlacementService {
 		$this->publicShareContext?->requireMutable();
 		$placement = $this->placementMapper->find(id: $placementId);
 
-		$this->placementUpdater->applyGridUpdates(
+		$this->updaters->placementUpdater->applyGridUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->placementUpdater->applyDisplayUpdates(
+		$this->updaters->placementUpdater->applyDisplayUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->tileUpdater->applyTileUpdates(
+		$this->updaters->tileUpdater->applyTileUpdates(
 			placement: $placement,
 			data: $data
 		);
-		$this->placementUpdater->applyAcknowledgementUpdates(
+		$this->updaters->placementUpdater->applyAcknowledgementUpdates(
 			placement: $placement,
 			data: $data
 		);

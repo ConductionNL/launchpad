@@ -39,8 +39,6 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardView;
 use OCA\LaunchPad\Db\DashboardViewMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\IAppConfig;
-use OCP\IConfig;
 
 /**
  * Reporting service for the dashboard view-analytics capability.
@@ -95,19 +93,15 @@ class AnalyticsService {
 	 * Constructor.
 	 *
 	 * @param DashboardViewMapper $viewMapper Aggregate-row mapper.
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper for
-	 *                                         name lookups.
-	 * @param UniqueViewerDedup $dedup Unique-viewer dedup
-	 *                                 service.
-	 * @param IAppConfig $appConfig App config for admin settings.
-	 * @param IConfig $config Nextcloud config for user values.
+	 * @param DashboardMapper     $dashboardMapper Dashboard mapper for name lookups.
+	 * @param UniqueViewerDedup   $dedup Unique-viewer dedup service.
+	 * @param AnalyticsConfig     $settings The app and system config.
 	 */
 	public function __construct(
 		private readonly DashboardViewMapper $viewMapper,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly UniqueViewerDedup $dedup,
-		private readonly IAppConfig $appConfig,
-		private readonly IConfig $config,
+		private readonly AnalyticsConfig $settings,
 	) {
 	}//end __construct()
 
@@ -120,7 +114,7 @@ class AnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function isGloballyEnabled(): bool {
-		return $this->appConfig->getValueBool(
+		return $this->settings->appConfig->getValueBool(
 			'launchpad',
 			self::CONFIG_KEY_ENABLED,
 			true
@@ -138,7 +132,7 @@ class AnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function isUserOptedOut(string $userId): bool {
-		$value = $this->config->getUserValue(
+		$value = $this->settings->config->getUserValue(
 			$userId,
 			'launchpad',
 			self::USER_PREF_KEY_OPTOUT,
@@ -158,7 +152,7 @@ class AnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function getRetentionDays(): int {
-		$days = $this->appConfig->getValueInt(
+		$days = $this->settings->appConfig->getValueInt(
 			'launchpad',
 			self::CONFIG_KEY_RETENTION_DAYS,
 			self::DEFAULT_RETENTION_DAYS
@@ -195,7 +189,7 @@ class AnalyticsService {
 			$clamped = self::MAX_RETENTION_DAYS;
 		}
 
-		$this->appConfig->setValueInt(
+		$this->settings->appConfig->setValueInt(
 			'launchpad',
 			self::CONFIG_KEY_RETENTION_DAYS,
 			$clamped

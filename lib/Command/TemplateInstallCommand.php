@@ -123,10 +123,7 @@ class TemplateInstallCommand extends Command {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md#req-cli-012
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$id = (string)$input->getArgument(name: 'id');
 
 		if ((bool)$input->getOption(name: 'update') === true) {
@@ -141,9 +138,11 @@ class TemplateInstallCommand extends Command {
 		try {
 			$result = $this->templates->install(
 				templateId: $id,
-				targetGroups: array_map(callback: 'strval', array: (array)$input->getOption(name: 'group')),
-				makeDefault: (bool)$input->getOption(name: 'default'),
-				force: (bool)$input->getOption(name: 'force')
+				options: [
+					'targetGroups' => array_map(callback: 'strval', array: (array)$input->getOption(name: 'group')),
+					'makeDefault'  => (bool)$input->getOption(name: 'default'),
+					'force'        => (bool)$input->getOption(name: 'force'),
+				]
 			);
 		} catch (InvalidArgumentException $e) {
 			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');

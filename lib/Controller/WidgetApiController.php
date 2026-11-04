@@ -23,21 +23,15 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\PermissionService;
-use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
-use OCA\LaunchPad\Service\WidgetService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -51,39 +45,27 @@ use Throwable;
  * @spec openspec/changes/role-based-content/tasks.md#task-3
  */
 class WidgetApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param WidgetService $widgetService The widget service.
+	 * @param IRequest          $request The request.
+	 * @param WidgetApiSources  $sources The widget, news, calendar and placement services.
 	 * @param PermissionService $permissionService The permission service.
-	 * @param NewsWidgetService $newsWidgetService The news widget service.
-	 * @param CalendarWidgetService $calendarService The calendar widget service (REQ-CAL-003).
-	 * @param WidgetPlacementService $placementService Placement-payload validators (REQ-CONT-006).
-	 * @param RoleFeaturePermissionService $roleFeaturePerm Role-feature filter (REQ-RFP-001..010).
-	 * @param IUserSession $userSession User session, used to resolve the
-	 *                                  authenticated IUser for ADR-023 action checks.
-	 * @param ActionAuthService $actionAuth The ADR-023 action authorization service.
-	 * @param LoggerInterface $logger PSR-3 logger for role-denial audit entries (Task 4).
-	 * @param string|null $userId The user ID.
+	 * @param WidgetApiPolicy   $policy The role feature permission service and the logger.
+	 * @param RequestActor      $actor The user session and the action authorisation service.
+	 * @param string|null       $userId The user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly WidgetService $widgetService,
+		private readonly WidgetApiSources $sources,
 		private readonly PermissionService $permissionService,
-		private readonly NewsWidgetService $newsWidgetService,
-		private readonly CalendarWidgetService $calendarService,
-		private readonly WidgetPlacementService $placementService,
-		private readonly RoleFeaturePermissionService $roleFeaturePerm,
-		private readonly IUserSession $userSession,
-		private readonly ActionAuthService $actionAuth,
-		private readonly LoggerInterface $logger,
+		private readonly WidgetApiPolicy $policy,
+		private readonly RequestActor $actor,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -96,24 +78,24 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listAvailable(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'widget.list-available');
+			$this->actor->actionAuth->requireAction($user, 'widget.list-available');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
 
-		$widgets = $this->widgetService->getAvailableWidgets();
+		$widgets = $this->sources->widgetService->getAvailableWidgets();
 
 		if ($this->userId === null) {
 			return ResponseHelper::success(data: $widgets);
 		}
 
-		$allowed = $this->roleFeaturePerm->getAllowedWidgetIds(
+		$allowed = $this->policy->roleFeaturePerm->getAllowedWidgetIds(
 			userId: $this->userId
 		);
 		if ($allowed === null) {
@@ -156,7 +138,7 @@ class WidgetApiController extends Controller {
 		array $widgets = [],
 		int $limit = 7,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
@@ -166,7 +148,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'widget.get-items');
+			$this->actor->actionAuth->requireAction($user, 'widget.get-items');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
@@ -177,13 +159,13 @@ class WidgetApiController extends Controller {
 		// return HTTP 403 so the caller cannot infer widget existence.
 		$deniedWidgets = [];
 		foreach ($widgets as $widgetId) {
-			if ($this->roleFeaturePerm->isWidgetAllowed(
+			if ($this->policy->roleFeaturePerm->isWidgetAllowed(
 				userId: $this->userId,
 				widgetId: (string)$widgetId
 			) === false
 			) {
 				$deniedWidgets[] = $widgetId;
-				$this->logger->warning(
+				$this->policy->logger->warning(
 					message: 'role_permission_denied',
 					context: [
 						'userId' => $this->userId,
@@ -211,7 +193,7 @@ class WidgetApiController extends Controller {
 		);
 
 		return ResponseHelper::success(
-			data: $this->widgetService->getWidgetItems(
+			data: $this->sources->widgetService->getWidgetItems(
 				userId: $this->userId,
 				widgetIds: $allowedWidgets,
 				limit: $limit
@@ -271,14 +253,16 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$placement = $this->widgetService->addWidget(
+			$placement = $this->sources->widgetService->addWidget(
 				dashboardId: $dashboardId,
 				widgetId: (string)$widgetId,
-				gridX: $gridX,
-				gridY: $gridY,
-				gridWidth: $gridWidth,
-				gridHeight: $gridHeight,
-				content: $contentToPersist
+				layout: [
+					'gridX'      => $gridX,
+					'gridY'      => $gridY,
+					'gridWidth'  => $gridWidth,
+					'gridHeight' => $gridHeight,
+					'content'    => $contentToPersist,
+				]
 			);
 
 			return ResponseHelper::success(
@@ -314,12 +298,12 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'widget.add-widget');
+		$this->actor->actionAuth->requireAction($user, 'widget.add-widget');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -351,7 +335,7 @@ class WidgetApiController extends Controller {
 		// role-feature-permission profile permits. `isWidgetAllowed` returns
 		// `true` when no restriction is configured (null allowed set), so
 		// unconfigured deployments are unaffected.
-		if ($this->roleFeaturePerm->isWidgetAllowed(
+		if ($this->policy->roleFeaturePerm->isWidgetAllowed(
 			userId: $this->userId,
 			widgetId: $widgetId
 		) === false
@@ -434,7 +418,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$this->placementService->validateContainerDepth(
+			$this->sources->placementService->validateContainerDepth(
 				content: $content
 			);
 		} catch (\InvalidArgumentException $depthError) {
@@ -479,12 +463,12 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function addTile(int $dashboardId): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'widget.add-tile');
+		$this->actor->actionAuth->requireAction($user, 'widget.add-tile');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -499,7 +483,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$placement = $this->widgetService->addTileFromArray(
+			$placement = $this->sources->widgetService->addTileFromArray(
 				dashboardId: $dashboardId,
 				tileData: RequestDataExtractor::extractTileData(
 					request: $this->request
@@ -530,12 +514,12 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function updatePlacement(int $placementId): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'widget.update-placement');
+		$this->actor->actionAuth->requireAction($user, 'widget.update-placement');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -565,7 +549,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$placement = $this->widgetService->updatePlacement(
+			$placement = $this->sources->widgetService->updatePlacement(
 				placementId: $placementId,
 				data: RequestDataExtractor::extractPlacementData(
 					request: $this->request
@@ -591,12 +575,12 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function removePlacement(int $placementId): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actionAuth->requireAction($user, 'widget.remove-placement');
+		$this->actor->actionAuth->requireAction($user, 'widget.remove-placement');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
@@ -611,7 +595,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$this->widgetService->removePlacement(
+			$this->sources->widgetService->removePlacement(
 				placementId: $placementId
 			);
 
@@ -642,7 +626,7 @@ class WidgetApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function newsItems(int $placementId, ?int $limit = 10): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
@@ -652,7 +636,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'widget.news-items');
+			$this->actor->actionAuth->requireAction($user, 'widget.news-items');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
@@ -663,10 +647,7 @@ class WidgetApiController extends Controller {
 		}
 
 		if ($effectiveLimit < 1 || $effectiveLimit > 50) {
-			return new JSONResponse(
-				data: ['error' => 'limit out of range (1..50)'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'limit out of range (1..50)', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// M1: data-fetch endpoints only need view permission; canStyleWidget
@@ -679,7 +660,7 @@ class WidgetApiController extends Controller {
 			return ResponseHelper::forbidden();
 		}
 
-		$payload = $this->newsWidgetService->getItemsForPlacement(
+		$payload = $this->sources->newsWidgetService->getItemsForPlacement(
 			placementId: $placementId,
 			limit: $effectiveLimit
 		);
@@ -726,13 +707,10 @@ class WidgetApiController extends Controller {
 		$end = $range['end'];
 
 		try {
-			$placement = $this->widgetService->getPlacement(placementId: $placementId);
+			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
 		} catch (Throwable $exception) {
 			unset($exception);
-			return new JSONResponse(
-				data: ['error' => 'Placement not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Placement not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// M1: data-fetch endpoint — view permission is sufficient;
@@ -748,7 +726,7 @@ class WidgetApiController extends Controller {
 		$config = $this->extractCalendarConfig(placement: $placement);
 
 		try {
-			$result = $this->calendarService->getEvents(
+			$result = $this->sources->calendarService->getEvents(
 				config: $config,
 				from: $start->format(format: \DATE_ATOM),
 				to: $end->format(format: \DATE_ATOM)
@@ -769,7 +747,7 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/specs/widgets/spec.md
 	 */
 	private function denyCalendarEvents(): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
@@ -779,7 +757,7 @@ class WidgetApiController extends Controller {
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'widget.calendar-events');
+			$this->actor->actionAuth->requireAction($user, 'widget.calendar-events');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
@@ -806,10 +784,7 @@ class WidgetApiController extends Controller {
 	private function resolveCalendarRange(string $from, string $to): array {
 		if ($from === '' || $to === '') {
 			return [
-				'error' => new JSONResponse(
-					data: ['error' => 'Both from and to are required ISO 8601 timestamps'],
-					statusCode: Http::STATUS_BAD_REQUEST
-				),
+				'error' => $this->failure(message: 'Both from and to are required ISO 8601 timestamps', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -821,10 +796,7 @@ class WidgetApiController extends Controller {
 		} catch (Throwable $exception) {
 			unset($exception);
 			return [
-				'error' => new JSONResponse(
-					data: ['error' => 'Invalid date format'],
-					statusCode: Http::STATUS_BAD_REQUEST
-				),
+				'error' => $this->failure(message: 'Invalid date format', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -832,10 +804,7 @@ class WidgetApiController extends Controller {
 
 		if ($end < $start) {
 			return [
-				'error' => new JSONResponse(
-					data: ['error' => '`to` must be greater than or equal to `from`'],
-					statusCode: Http::STATUS_BAD_REQUEST
-				),
+				'error' => $this->failure(message: '`to` must be greater than or equal to `from`', statusCode: Http::STATUS_BAD_REQUEST),
 				'start' => null,
 				'end' => null,
 			];
@@ -867,19 +836,19 @@ class WidgetApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function calendars(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null || $this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'widget.calendar-events');
+			$this->actor->actionAuth->requireAction($user, 'widget.calendar-events');
 		} catch (\OCP\AppFramework\OCS\OCSForbiddenException) {
 			return new JSONResponse(data: ['error' => 'Forbidden'], statusCode: Http::STATUS_FORBIDDEN);
 		}
 
 		try {
-			$calendars = $this->calendarService->listCalendars(userId: $this->userId);
+			$calendars = $this->sources->calendarService->listCalendars(userId: $this->userId);
 		} catch (\Exception $exception) {
 			return ResponseHelper::error(exception: $exception);
 		}

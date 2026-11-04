@@ -30,13 +30,8 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Confluence\ArchiveParser;
-use OCA\LaunchPad\Service\Confluence\HtmlSanitizer;
-use OCA\LaunchPad\Service\Confluence\LinkRewriter;
-use OCA\LaunchPad\Service\Confluence\MacroRenderer;
 use OCA\LaunchPad\Service\Confluence\ParsedPage;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
@@ -77,29 +72,18 @@ class ConfluenceImportService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ArchiveParser $parser Archive reader.
-	 * @param HtmlSanitizer $sanitizer HTML allow-list filter.
-	 * @param MacroRenderer $macroRenderer Macro → HTML renderer.
-	 * @param LinkRewriter $linkRewriter Internal-link rewriter.
-	 * @param DashboardFactory $dashboardFactory Dashboard factory.
-	 * @param DashboardTreeService $treeService Tree validation / lookups.
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget mapper.
-	 * @param IDBConnection $db DB connection.
-	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param ConfluencePageReaders      $readers The archive parser, HTML sanitizer, macro renderer and link rewriter.
+	 * @param ConfluenceDashboardWriters $writers The dashboard factory, tree service and dashboard and
+	 *                                            placement mappers.
+	 * @param IDBConnection              $db DB connection.
+	 * @param LoggerInterface            $logger PSR-3 logger. @SuppressWarnings(PHPMD.ExcessiveParameterList)
+	 *                                           Top-level orchestrator must wire every collaborator.
 	 *
 	 * @SuppressWarnings(PHPMD.ExcessiveParameterList)
-	 *      Top-level orchestrator must wire every collaborator.
 	 */
 	public function __construct(
-		private readonly ArchiveParser $parser,
-		private readonly HtmlSanitizer $sanitizer,
-		private readonly MacroRenderer $macroRenderer,
-		private readonly LinkRewriter $linkRewriter,
-		private readonly DashboardFactory $dashboardFactory,
-		private readonly DashboardTreeService $treeService,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly ConfluencePageReaders $readers,
+		private readonly ConfluenceDashboardWriters $writers,
 		private readonly IDBConnection $db,
 		private readonly LoggerInterface $logger,
 	) {
@@ -125,7 +109,7 @@ class ConfluenceImportService {
 	 * @spec openspec/specs/confluence-html-import/spec.md
 	 */
 	public function dryRun(string $zipPath): array {
-		$archive = $this->parser->parse(zipPath: $zipPath);
+		$archive = $this->readers->parser->parse(zipPath: $zipPath);
 		$timestamp = $this->buildTimestamp();
 
 		return [
@@ -161,13 +145,13 @@ class ConfluenceImportService {
 		string $currentUserId,
 		?string $parentUuid = null,
 	): array {
-		$archive = $this->parser->parse(zipPath: $zipPath);
+		$archive = $this->readers->parser->parse(zipPath: $zipPath);
 		$timestamp = $this->buildTimestamp();
 
 		if ($parentUuid !== null && $parentUuid !== '') {
 			// 404 surfaces to caller as a warning — pages still import as roots.
 			try {
-				$this->dashboardMapper->findByUuid(uuid: $parentUuid);
+				$this->writers->dashboardMapper->findByUuid(uuid: $parentUuid);
 			} catch (DoesNotExistException) {
 				$this->logger->warning(
 					message: 'Confluence import: parent dashboard not found, falling back to roots',
@@ -393,22 +377,24 @@ class ConfluenceImportService {
 		$this->db->beginTransaction();
 		try {
 			// Validate parent + depth. NULL parents always pass.
-			$this->treeService->validateParent(
+			$this->writers->treeService->validateParent(
 				movingUuid: null,
 				newParentUuid: $parentUuid
 			);
 
-			$dashboard = $this->dashboardFactory->create(
+			$dashboard = $this->writers->dashboardFactory->create(
 				userId: $currentUserId,
 				name: $page->title,
-				description: null,
-				type: Dashboard::TYPE_USER,
-				groupId: null,
-				gridColumns: 12,
-				permissionLevel: Dashboard::PERMISSION_FULL,
-				parentUuid: $parentUuid,
-				slug: null,
-				sortOrder: $page->sortOrder
+				options: [
+					'description'     => null,
+					'type'            => Dashboard::TYPE_USER,
+					'groupId'         => null,
+					'gridColumns'     => 12,
+					'permissionLevel' => Dashboard::PERMISSION_FULL,
+					'parentUuid'      => $parentUuid,
+					'slug'            => null,
+					'sortOrder'       => $page->sortOrder,
+				]
 			);
 
 			// Suffix slug with pageId on collision so re-import always
@@ -419,14 +405,14 @@ class ConfluenceImportService {
 				pageId: $page->pageId
 			);
 
-			$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+			$persisted = $this->writers->dashboardMapper->insert(entity: $dashboard);
 
 			$placement = $this->buildPlaceholderWidget(
 				dashboardId: (int)$persisted->getId(),
 				page: $page
 			);
 
-			$this->placementMapper->insert(entity: $placement);
+			$this->writers->placementMapper->insert(entity: $placement);
 
 			$this->db->commit();
 
@@ -499,14 +485,14 @@ class ConfluenceImportService {
 
 		foreach ($pages as $page) {
 			try {
-				$dashboard = $this->dashboardMapper->findByUuid(
+				$dashboard = $this->writers->dashboardMapper->findByUuid(
 					uuid: $pageIdToUuid[strtolower(string: $page->pageId)]
 				);
 			} catch (DoesNotExistException) {
 				continue;
 			}
 
-			$placements = $this->placementMapper->findByDashboardId(
+			$placements = $this->writers->placementMapper->findByDashboardId(
 				dashboardId: (int)$dashboard->getId()
 			);
 
@@ -514,12 +500,12 @@ class ConfluenceImportService {
 				continue;
 			}
 
-			$expanded = $this->macroRenderer->render(html: $page->body);
-			$rewriteRes = $this->linkRewriter->rewrite(
+			$expanded = $this->readers->macroRenderer->render(html: $page->body);
+			$rewriteRes = $this->readers->linkRewriter->rewrite(
 				html: $expanded,
 				pageIdToUuid: $pageIdToUuid
 			);
-			$sanitised = $this->sanitizer->sanitize(html: $rewriteRes['html']);
+			$sanitised = $this->readers->sanitizer->sanitize(html: $rewriteRes['html']);
 
 			$placement = $placements[0];
 			$config = $placement->getStyleConfigArray();
@@ -527,7 +513,7 @@ class ConfluenceImportService {
 			$placement->setStyleConfigArray(config: $config);
 			$placement->setUpdatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
 
-			$this->placementMapper->update(entity: $placement);
+			$this->writers->placementMapper->update(entity: $placement);
 
 			$warnings = array_merge($warnings, $rewriteRes['warnings']);
 		}//end foreach
@@ -561,7 +547,7 @@ class ConfluenceImportService {
 		}
 
 		try {
-			$this->treeService->validateSlugUnique(
+			$this->writers->treeService->validateSlugUnique(
 				parentUuid: $parentUuid,
 				slug: $slug
 			);
@@ -575,7 +561,7 @@ class ConfluenceImportService {
 			$candidate = ($slug . '-' . $suffix);
 			// Final fallback: append timestamp segment (always unique).
 			try {
-				$this->treeService->validateSlugUnique(
+				$this->writers->treeService->validateSlugUnique(
 					parentUuid: $parentUuid,
 					slug: $candidate
 				);

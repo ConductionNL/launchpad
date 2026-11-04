@@ -33,7 +33,6 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
-use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -42,33 +41,29 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
  * Admin endpoints for managing bundled demo showcase dashboards.
  */
 class AdminDemoShowcasesController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param DemoShowcasesService $showcasesSvc Showcase service.
-	 * @param IUserSession $userSession Active user session.
+	 * @param IRequest      $request The HTTP request.
+	 * @param ShowcaseTools $showcases The showcase service and logger.
+	 * @param IUserSession  $userSession Active user session.
 	 * @param IGroupManager $groupManager Admin check.
-	 * @param LoggerInterface $logger PSR-3 logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DemoShowcasesService $showcasesSvc,
+		private readonly ShowcaseTools $showcases,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -110,7 +105,7 @@ class AdminDemoShowcasesController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->showcasesSvc->getAvailableShowcases()
+			data: $this->showcases->showcasesSvc->getAvailableShowcases()
 		);
 	}//end index()
 
@@ -144,28 +139,22 @@ class AdminDemoShowcasesController extends Controller {
 		}
 
 		try {
-			$result = $this->showcasesSvc->installShowcase(
+			$result = $this->showcases->showcasesSvc->installShowcase(
 				showcaseId: $id,
 				lang: $lang,
 				force: $force
 			);
 		} catch (ShowcaseNotFoundException $e) {
-			return new JSONResponse(
-				data: ['error' => 'Showcase not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Showcase not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->showcases->logger->error(
 				message: 'Showcase install failed',
 				context: [
 					'showcaseId' => $id,
 					'exception' => $e,
 				]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Showcase installation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Showcase installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}//end try
 
 		$statusCode = Http::STATUS_CREATED;
@@ -203,19 +192,16 @@ class AdminDemoShowcasesController extends Controller {
 		}
 
 		try {
-			$this->showcasesSvc->uninstallShowcase(showcaseId: $id);
+			$this->showcases->showcasesSvc->uninstallShowcase(showcaseId: $id);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->showcases->logger->error(
 				message: 'Showcase uninstall failed',
 				context: [
 					'showcaseId' => $id,
 					'exception' => $e,
 				]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Showcase uninstall failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Showcase uninstall failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);

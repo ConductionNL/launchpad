@@ -46,12 +46,8 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\TemplateNotInstalledException;
-use OCP\IAppConfig;
-use OCP\IDBConnection;
 use RuntimeException;
 use Throwable;
 
@@ -100,22 +96,16 @@ class ShippedTemplateUpdateService {
 	/**
 	 * Constructor.
 	 *
-	 * @param ShippedTemplateService   $shipped         Reads the definition and finds the install.
-	 * @param DashboardMapper          $dashboardMapper Counts the members' copies.
-	 * @param WidgetPlacementMapper    $placementMapper Reads and writes the template's widgets.
-	 * @param PlacementPayloadHydrator $hydrator        Builds a widget from a definition, as the importer does.
-	 * @param TemplateResyncService    $resyncService   Brings the members' copies along.
-	 * @param IAppConfig               $appConfig       Records the installed version.
-	 * @param IDBConnection            $db              One transaction for the template's widgets.
+	 * @param ShippedTemplateService   $shipped Reads the definition and finds the install.
+	 * @param ShippedTemplateStores    $stores The dashboard and placement mappers, the database and app config.
+	 * @param PlacementPayloadHydrator $hydrator Builds a widget from a definition, as the importer does.
+	 * @param TemplateResyncService    $resyncService Brings the members' copies along.
 	 */
 	public function __construct(
 		private readonly ShippedTemplateService $shipped,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly ShippedTemplateStores $stores,
 		private readonly PlacementPayloadHydrator $hydrator,
 		private readonly TemplateResyncService $resyncService,
-		private readonly IAppConfig $appConfig,
-		private readonly IDBConnection $db,
 	) {
 	}//end __construct()
 
@@ -155,7 +145,7 @@ class ShippedTemplateUpdateService {
 
 		$dashboardId = (int)$template->getId();
 		$version = (int)$definition['templateVersion'];
-		$installedVersion = $this->appConfig->getValueInt(
+		$installedVersion = $this->stores->appConfig->getValueInt(
 			Application::APP_ID,
 			ShippedTemplateService::CONFIG_VERSION_PREFIX . $templateId,
 			0
@@ -175,7 +165,7 @@ class ShippedTemplateUpdateService {
 			'removed' => [],
 			'changed' => [],
 			'unchanged' => 0,
-			'copies' => count($this->dashboardMapper->findByBasedOnTemplate(templateId: $dashboardId)),
+			'copies' => count($this->stores->dashboardMapper->findByBasedOnTemplate(templateId: $dashboardId)),
 			'resync' => null,
 		];
 		if ($result['upToDate'] === true) {
@@ -188,7 +178,7 @@ class ShippedTemplateUpdateService {
 		}
 
 		$plan = $this->pair(
-			installed: $this->placementMapper->findByDashboardId(dashboardId: $dashboardId),
+			installed: $this->stores->placementMapper->findByDashboardId(dashboardId: $dashboardId),
 			wanted: $wanted
 		);
 		$result = array_merge($result, $this->describe(plan: $plan));
@@ -197,7 +187,7 @@ class ShippedTemplateUpdateService {
 		}
 
 		$this->apply(template: $template, plan: $plan);
-		$this->appConfig->setValueInt(
+		$this->stores->appConfig->setValueInt(
 			Application::APP_ID,
 			ShippedTemplateService::CONFIG_VERSION_PREFIX . $templateId,
 			$version
@@ -421,28 +411,28 @@ class ShippedTemplateUpdateService {
 	 */
 	private function apply(Dashboard $template, array $plan): void {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-		$this->db->beginTransaction();
+		$this->stores->db->beginTransaction();
 
 		try {
 			foreach ($plan['changed'] as $pair) {
 				$this->copyFields(from: $pair['wanted'], onto: $pair['installed'], now: $now);
-				$this->placementMapper->update(entity: $pair['installed']);
+				$this->stores->placementMapper->update(entity: $pair['installed']);
 			}
 
 			foreach ($plan['added'] as $placement) {
-				$this->placementMapper->insert(entity: $placement);
+				$this->stores->placementMapper->insert(entity: $placement);
 			}
 
 			foreach ($plan['removed'] as $placement) {
-				$this->placementMapper->delete(entity: $placement);
+				$this->stores->placementMapper->delete(entity: $placement);
 			}
 
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$template->setUpdatedAt($now);
-			$this->dashboardMapper->update(entity: $template);
-			$this->db->commit();
+			$this->stores->dashboardMapper->update(entity: $template);
+			$this->stores->db->commit();
 		} catch (Throwable $e) {
-			$this->db->rollBack();
+			$this->stores->db->rollBack();
 			throw new RuntimeException(message: 'Template not updated: ' . $e->getMessage(), previous: $e);
 		}//end try
 	}//end apply()

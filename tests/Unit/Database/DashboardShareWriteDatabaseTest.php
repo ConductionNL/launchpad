@@ -22,6 +22,7 @@ namespace Unit\Database;
 
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareGrant;
 use OCP\Server;
 
 /**
@@ -50,9 +51,7 @@ class DashboardShareWriteDatabaseTest extends RealDatabaseTestCase {
 
 		Server::get(DashboardShareService::class)->addShare(
 			dashboardId: $dashboardId,
-			shareType: 'user',
-			shareWith: $recipient,
-			permissionLevel: 'view_only',
+			grant: new ShareGrant(shareType: 'user', shareWith: $recipient, permissionLevel: 'view_only'),
 			callerId: $owner
 		);
 

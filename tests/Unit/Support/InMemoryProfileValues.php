@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Support;
 
+use OCA\LaunchPad\Db\ProfileFieldValues;
 use OCA\LaunchPad\Db\ProfileValue;
 use OCA\LaunchPad\Db\ProfileValueMapper;
 
@@ -77,24 +78,21 @@ class InMemoryProfileValues extends ProfileValueMapper {
 	/**
 	 * Replace one person's values of one field.
 	 *
-	 * @param string $userId Owner.
-	 * @param string $fieldKey Field key.
-	 * @param string[] $values Values.
-	 * @param string $source Source.
-	 * @param string|null $scope Scope.
+	 * @param string             $userId Owner.
+	 * @param ProfileFieldValues $field  The field, its values and their source.
 	 *
 	 * @return void
 	 */
-	public function replaceValues(string $userId, string $fieldKey, array $values, string $source, ?string $scope = null): void {
-		$this->deleteField($userId, $fieldKey);
-		foreach ($values as $value) {
+	public function replaceValues(string $userId, ProfileFieldValues $field): void {
+		$this->deleteField(userId: $userId, fieldKey: $field->fieldKey);
+		foreach ($field->values as $value) {
 			$row = new ProfileValue();
 			$row->setUserId($userId);
-			$row->setFieldKey($fieldKey);
+			$row->setFieldKey($field->fieldKey);
 			$row->setValue($value);
 			$row->setValueSearch(mb_strtolower($value));
-			$row->setSource($source);
-			$row->setScope($scope);
+			$row->setSource($field->source);
+			$row->setScope($field->scope);
 			$this->rows[] = $row;
 		}
 	}//end replaceValues()

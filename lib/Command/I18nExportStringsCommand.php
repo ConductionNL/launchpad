@@ -121,18 +121,13 @@ class I18nExportStringsCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$appRoot = (string)realpath(path: ($this->appRoot ?? __DIR__ . '/../..'));
 		if ($appRoot === '') {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_ERROR,
-				code: 'INTERNAL_ERROR',
-				message: 'Could not resolve app root directory.'
+				error: ['exitCode' => CommandService::EXIT_ERROR, 'code' => 'INTERNAL_ERROR', 'message' => 'Could not resolve app root directory.']
 			);
 		}
 
@@ -159,10 +154,12 @@ class I18nExportStringsCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'SIGNED_RELEASE',
-				message: 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
-					. 'the new file as a code integrity problem. Pass --output=<path> outside it, or --output=- to print the file.'
+				error: [
+					'exitCode' => CommandService::EXIT_INVALID_ARGS,
+					'code'     => 'SIGNED_RELEASE',
+					'message'  => 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
+						. 'the new file as a code integrity problem. Pass --output=<path> outside it, or --output=- to print the file.',
+				]
 			);
 		}
 

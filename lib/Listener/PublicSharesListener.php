@@ -26,19 +26,17 @@ namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Db\PublicShareMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
-use OCP\EventDispatcher\Event;
-use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Soft-revokes public shares for a deleted dashboard.
  *
- * @implements IEventListener<DashboardDeletedEvent>
  *
  * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
  */
-class PublicSharesListener implements IEventListener {
+class PublicSharesListener extends DashboardCleanupListener {
+	protected const CLEANED = 'soft-revoked %d share(s)';
+
 	/**
 	 * Constructor.
 	 *
@@ -47,48 +45,23 @@ class PublicSharesListener implements IEventListener {
 	 */
 	public function __construct(
 		private readonly PublicShareMapper $shareMapper,
-		private readonly LoggerInterface $logger,
+		LoggerInterface $logger,
 	) {
+		parent::__construct(logger: $logger);
 	}//end __construct()
 
 	/**
-	 * Handle the DashboardDeletedEvent by soft-revoking all active shares.
+	 * Remove the deleted dashboard's rows.
 	 *
-	 * @param Event $event The event.
+	 * @param DashboardDeletedEvent $event The event.
 	 *
-	 * @return void
+	 * @return int The number of rows removed.
 	 *
-	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-6
+	 * @spec openspec/specs/dashboard-cascade-events/spec.md
 	 */
-	public function handle(Event $event): void {
-		if (($event instanceof DashboardDeletedEvent) === false) {
-			return;
-		}
-
-		$uuid = $event->getDashboardUuid();
-
-		try {
-			$count = $this->shareMapper->revokeByDashboardUuid(
-				dashboardUuid: $uuid
-			);
-
-			$this->logger->debug(
-				message: sprintf(
-					'launchpad PublicSharesListener: soft-revoked %d share(s) for dashboard %s',
-					$count,
-					$uuid
-				),
-				context: ['app' => 'launchpad']
-			);
-		} catch (Throwable $t) {
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad PublicSharesListener: failed for dashboard %s: %s',
-					$uuid,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
-		}//end try
-	}//end handle()
+	protected function cleanUp(DashboardDeletedEvent $event): int {
+		return $this->shareMapper->revokeByDashboardUuid(
+			dashboardUuid: $event->getDashboardUuid()
+		);
+	}//end cleanUp()
 }//end class

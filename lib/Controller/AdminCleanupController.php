@@ -33,8 +33,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
-use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -51,25 +49,18 @@ class AdminCleanupController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The request.
-	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
-	 * @param CategoryRegistryService $registry Category registry
-	 *                                          (for unknown-name
-	 *                                          error messages).
-	 * @param IUserSession $userSession Current user.
-	 * @param IGroupManager $groupManager Admin check.
+	 * @param IRequest       $request The request.
+	 * @param CleanupSources $cleanup The cleanup service and category registry.
+	 * @param IUserSession   $userSession Current user.
+	 * @param IGroupManager  $groupManager Admin check.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly OrphanedDataCleanupService $cleanupService,
-		private readonly CategoryRegistryService $registry,
+		private readonly CleanupSources $cleanup,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -115,7 +106,7 @@ class AdminCleanupController extends Controller {
 			return $guard;
 		}
 
-		$cached = $this->cleanupService->getCachedScanResult();
+		$cached = $this->cleanup->cleanupService->getCachedScanResult();
 		if ($cached !== null) {
 			return new JSONResponse(
 				data: array_merge(
@@ -129,7 +120,7 @@ class AdminCleanupController extends Controller {
 			);
 		}
 
-		$result = $this->cleanupService->scan();
+		$result = $this->cleanup->cleanupService->scan();
 
 		return new JSONResponse(
 			data: array_merge(
@@ -175,7 +166,7 @@ class AdminCleanupController extends Controller {
 			return new JSONResponse(
 				data: [
 					'error' => 'Unknown cleanup category in request',
-					'validCategories' => $this->registry->getCategoryNames(),
+					'validCategories' => $this->cleanup->registry->getCategoryNames(),
 				],
 				statusCode: Http::STATUS_BAD_REQUEST
 			);
@@ -187,7 +178,7 @@ class AdminCleanupController extends Controller {
 			$userId = $user->getUID();
 		}
 
-		$result = $this->cleanupService->purge(
+		$result = $this->cleanup->cleanupService->purge(
 			categoryNames: $names,
 			dryRun: ($dryRun ?? false),
 			userId: $userId,
@@ -220,7 +211,7 @@ class AdminCleanupController extends Controller {
 	 * @return array<int, string>|null The validated names or null.
 	 */
 	private function normaliseCategories(array $input): ?array {
-		$known = $this->registry->getCategoryNames();
+		$known = $this->cleanup->registry->getCategoryNames();
 		$normalised = [];
 
 		foreach ($input as $value) {

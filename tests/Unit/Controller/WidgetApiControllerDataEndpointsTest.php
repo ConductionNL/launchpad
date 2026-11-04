@@ -40,6 +40,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\WidgetApiPolicy;
+use OCA\LaunchPad\Controller\WidgetApiSources;
+use OCA\LaunchPad\Controller\RequestActor;
 use DateTimeImmutable;
 use Exception;
 use OCA\LaunchPad\Controller\WidgetApiController;
@@ -150,16 +153,22 @@ class WidgetApiControllerDataEndpointsTest extends TestCase {
 
 		return new WidgetApiController(
 			request: $this->request,
-			widgetService: $this->widgetService,
+			sources: new WidgetApiSources(
+				widgetService: $this->widgetService,
+				newsWidgetService: $this->newsWidgetService,
+				calendarService: $this->calendarService,
+				placementService: $this->createMock(WidgetPlacementService::class)
+			),
 			permissionService: $this->permissionService,
-			newsWidgetService: $this->newsWidgetService,
-			calendarService: $this->calendarService,
-			placementService: $this->createMock(WidgetPlacementService::class),
-			roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			logger: $this->createMock(LoggerInterface::class),
-			userId: $userId,
+			policy: new WidgetApiPolicy(
+				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			),
+			userId: $userId
 		);
 
 	}//end makeController()

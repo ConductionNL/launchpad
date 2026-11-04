@@ -34,16 +34,9 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
-use OCP\App\IAppManager;
-use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
-use OCP\ICacheFactory;
-use OCP\IConfig;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -60,6 +53,8 @@ use Throwable;
  * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherService {
+	use ReadsJsonCache;
+	use ReadsPlacementContent;
 
 	/**
 	 * Default reading cache TTL in seconds (REQ-WEATHER-002). Overridden
@@ -190,30 +185,18 @@ class WeatherService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether `weather_status` is enabled.
-	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      `weather_status`'s forecast service
-	 *                                      (REQ-WEATHER-002 provider reuse).
-	 * @param IClientService $clientService HTTP client factory for the fallback provider fetch.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed reading cache.
-	 * @param IAppConfig $appConfig Admin config: cache TTL, provider URL, API key.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param IConfig $config Reads the requesting user's locale/language and
-	 *                        the system default.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or nothing when absent.
+	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
+	 * @param WeatherSettings         $settings The app and system config.
+	 * @param WeatherStore            $store The placement mapper and logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or
+	 *                                                    nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IAppManager $appManager,
-		private readonly ContainerInterface $container,
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
-		private readonly IAppConfig $appConfig,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly IConfig $config,
-		private readonly LoggerInterface $logger,
+		private readonly ReadingSources $sources,
+		private readonly WeatherSettings $settings,
+		private readonly WeatherStore $store,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
@@ -233,7 +216,7 @@ class WeatherService {
 	 */
 	public function resolveForPlacement(int $placementId, string $userId): array {
 		try {
-			$placement = $this->placementMapper->find(id: $placementId);
+			$placement = $this->store->placementMapper->find(id: $placementId);
 		} catch (Throwable $exception) {
 			return ['error' => 'placement_not_found'];
 		}
@@ -314,37 +297,6 @@ class WeatherService {
 	}//end fetchFresh()
 
 	/**
-	 * Read the placement's `{location, unitsOverride}` config, falling
-	 * back to the legacy `style_config.content` slot for pre-column rows
-	 * (mirrors {@see \OCA\LaunchPad\Controller\FilesWidgetController::loadConfig()}).
-	 *
-	 * @param object $placement The {@see \OCA\LaunchPad\Db\WidgetPlacement} entity.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function readPlacementConfig(object $placement): array {
-		if (method_exists(object_or_class: $placement, method: 'getContentArray') === true) {
-			$content = $placement->getContentArray();
-			if (is_array(value: $content) === true && $content !== []) {
-				return $content;
-			}
-		}
-
-		if (method_exists(object_or_class: $placement, method: 'getStyleConfigArray') === true) {
-			$legacy = $placement->getStyleConfigArray();
-			if (isset($legacy['content']) === true && is_array(value: $legacy['content']) === true) {
-				return $legacy['content'];
-			}
-
-			if (is_array(value: $legacy) === true) {
-				return $legacy;
-			}
-		}
-
-		return [];
-	}//end readPlacementConfig()
-
-	/**
 	 * Derive the units to use: the author's explicit override when set,
 	 * otherwise metric/imperial from the viewing user's Nextcloud locale
 	 * (REQ-WEATHER-003).
@@ -359,9 +311,9 @@ class WeatherService {
 			return $override;
 		}
 
-		$locale = (string)$this->config->getUserValue(userId: $userId, appName: 'core', key: 'locale', default: '');
+		$locale = (string)$this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'locale', default: '');
 		if ($locale === '') {
-			$locale = (string)$this->config->getSystemValue(key: 'default_locale', default: 'en');
+			$locale = (string)$this->settings->config->getSystemValue(key: 'default_locale', default: 'en');
 		}
 
 		$parts = preg_split(pattern: '/[_-]/', subject: $locale);
@@ -388,9 +340,9 @@ class WeatherService {
 	 * @return string A two-letter (or `xx_YY`) language code.
 	 */
 	private function resolveLanguage(string $userId): string {
-		$lang = (string)$this->config->getUserValue(userId: $userId, appName: 'core', key: 'lang', default: '');
+		$lang = (string)$this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'lang', default: '');
 		if ($lang === '') {
-			$lang = (string)$this->config->getSystemValue(key: 'default_language', default: 'en');
+			$lang = (string)$this->settings->config->getSystemValue(key: 'default_language', default: 'en');
 		}
 
 		if ($lang !== '') {
@@ -415,15 +367,15 @@ class WeatherService {
 	 */
 	private function fetchFromWeatherStatus(string $units): ?array {
 		try {
-			if ($this->appManager->isEnabledForUser(appId: 'weather_status') === false) {
+			if ($this->sources->appManager->isEnabledForUser(appId: 'weather_status') === false) {
 				return null;
 			}
 
-			if ($this->container->has(id: self::WEATHER_STATUS_SERVICE_CLASS) === false) {
+			if ($this->sources->container->has(id: self::WEATHER_STATUS_SERVICE_CLASS) === false) {
 				return null;
 			}
 
-			$service = $this->container->get(id: self::WEATHER_STATUS_SERVICE_CLASS);
+			$service = $this->sources->container->get(id: self::WEATHER_STATUS_SERVICE_CLASS);
 			if (method_exists(object_or_class: $service, method: 'getForecast') === false
 				|| method_exists(object_or_class: $service, method: 'getLocation') === false
 			) {
@@ -437,7 +389,7 @@ class WeatherService {
 
 			$locationInfo = $service->getLocation();
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->store->logger->info(
 				message: 'WeatherService: weather_status provider unavailable, falling back',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -533,7 +485,7 @@ class WeatherService {
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	private function fetchFromProviderUrl(string $location, string $units, string $language): ?array {
-		$template = $this->appConfig->getValueString(
+		$template = $this->settings->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_PROVIDER_URL,
 			default: ''
@@ -543,7 +495,7 @@ class WeatherService {
 			return null;
 		}
 
-		$apiKey = $this->appConfig->getValueString(
+		$apiKey = $this->settings->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_PROVIDER_API_KEY,
 			default: ''
@@ -557,7 +509,7 @@ class WeatherService {
 
 		$scheme = strtolower(string: (string)parse_url(url: $url, component: PHP_URL_SCHEME));
 		if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-			$this->logger->warning(
+			$this->store->logger->warning(
 				message: 'WeatherService: provider URL has an invalid scheme, rejecting',
 				context: ['app' => Application::APP_ID]
 			);
@@ -566,7 +518,7 @@ class WeatherService {
 		}
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->sources->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -579,7 +531,7 @@ class WeatherService {
 				]
 			);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->store->logger->info(
 				message: 'WeatherService: provider fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -690,34 +642,6 @@ class WeatherService {
 	}//end buildCacheKey()
 
 	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
-
-	/**
 	 * Shape an internal reading array (which also carries the internal
 	 * `fetchedAtTs` unix timestamp) into the public response contract
 	 * (REQ-WEATHER-001): `{location, tempValue, units, condition,
@@ -756,9 +680,9 @@ class WeatherService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_weather_');
+			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_weather_');
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->store->logger->info(
 				message: 'WeatherService: cache subsystem unavailable, falling back to direct fetch',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -775,7 +699,7 @@ class WeatherService {
 	 * @return integer The TTL in seconds.
 	 */
 	private function cacheTtl(): int {
-		$ttl = $this->appConfig->getValueInt(
+		$ttl = $this->settings->appConfig->getValueInt(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_CACHE_TTL,
 			default: self::DEFAULT_CACHE_TTL

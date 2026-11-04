@@ -93,23 +93,13 @@ class DashboardDebugShareCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$uuid = (string)$input->getArgument(name: 'uuid');
 
 		try {
 			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
-			);
+			return $this->emitDashboardNotFound(input: $input, output: $output, uuid: $uuid);
 		}
 
 		$shares = array_map(

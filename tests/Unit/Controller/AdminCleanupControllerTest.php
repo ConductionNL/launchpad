@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\CleanupSources;
 use OCA\LaunchPad\Controller\AdminCleanupController;
 use OCA\LaunchPad\Db\CleanupResult;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
@@ -94,10 +95,12 @@ class AdminCleanupControllerTest extends TestCase {
 	private function makeController(): AdminCleanupController {
 		return new AdminCleanupController(
 			request: $this->request,
-			cleanupService: $this->cleanupService,
-			registry: $this->registry,
+			cleanup: new CleanupSources(
+				cleanupService: $this->cleanupService,
+				registry: $this->registry
+			),
 			groupManager: $this->groupManager,
-			userSession: $this->userSession,
+			userSession: $this->userSession
 		);
 	}
 

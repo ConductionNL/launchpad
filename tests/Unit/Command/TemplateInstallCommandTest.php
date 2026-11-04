@@ -93,7 +93,7 @@ class TemplateInstallCommandTest extends TestCase {
 
 	public function testInstallsForAGroup(): void {
 		$this->templates->expects(self::once())->method('install')
-			->with('mijn-werkdag', ['medewerkers', 'bestuur'], true, false)
+			->with('mijn-werkdag', ['targetGroups' => ['medewerkers', 'bestuur'], 'makeDefault' => true, 'force' => false])
 			->willReturn(self::installResult(['targetGroups' => ['medewerkers', 'bestuur'], 'isDefault' => true]));
 
 		$tester = new CommandTester($this->command());
@@ -113,7 +113,7 @@ class TemplateInstallCommandTest extends TestCase {
 
 	public function testASecondRunSaysSoAndPassesForce(): void {
 		$this->templates->expects(self::once())->method('install')
-			->with('mijn-werkdag', [], false, true)
+			->with('mijn-werkdag', ['targetGroups' => [], 'makeDefault' => false, 'force' => true])
 			->willReturn(self::installResult(['alreadyInstalled' => true, 'missingWidgets' => ['decidesk']]));
 
 		$tester = new CommandTester($this->command(false));

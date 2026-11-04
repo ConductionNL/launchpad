@@ -53,10 +53,7 @@ class RuleApiController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

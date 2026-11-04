@@ -110,10 +110,7 @@ class I18nCopyNavigationCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$from = $input->getOption(name: 'from');
 		$to = $input->getOption(name: 'to');
 
@@ -123,10 +120,12 @@ class I18nCopyNavigationCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'INVALID_ARGUMENT',
-				message: 'Both --from and --to are required',
-				context: ['from' => $from, 'to' => $to]
+				error: [
+					'exitCode' => CommandService::EXIT_INVALID_ARGS,
+					'code'     => 'INVALID_ARGUMENT',
+					'message'  => 'Both --from and --to are required',
+					'context'  => ['from' => $from, 'to' => $to],
+				]
 			);
 		}
 
@@ -134,10 +133,12 @@ class I18nCopyNavigationCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: "No navigation tree found for language '" . (string)$from . "'",
-				context: ['language' => (string)$from]
+				error: [
+					'exitCode' => CommandService::EXIT_NOT_FOUND,
+					'code'     => 'NOT_FOUND',
+					'message'  => "No navigation tree found for language '" . (string)$from . "'",
+					'context'  => ['language' => (string)$from],
+				]
 			);
 		}
 

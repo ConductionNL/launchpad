@@ -53,9 +53,7 @@ use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\MetadataService;
-use OCP\IURLGenerator;
 use OCP\IUser;
-use OCP\L10N\IFactory;
 use OCP\Search\IProvider;
 use OCP\Search\ISearchQuery;
 use OCP\Search\SearchResult;
@@ -94,18 +92,16 @@ class LaunchPadSearchProvider implements IProvider {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardService $dashboardService The dashboard service.
+	 * @param DashboardService      $dashboardService The dashboard service.
 	 * @param WidgetPlacementMapper $placementMapper The placement mapper.
-	 * @param MetadataService $metadataService The metadata service.
-	 * @param IFactory $l10nFactory The L10N factory.
-	 * @param IURLGenerator $urlGenerator The URL generator.
+	 * @param MetadataService       $metadataService The metadata service.
+	 * @param SearchLinks           $links The l10n factory and URL generator.
 	 */
 	public function __construct(
 		private readonly DashboardService $dashboardService,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly MetadataService $metadataService,
-		private readonly IFactory $l10nFactory,
-		private readonly IURLGenerator $urlGenerator,
+		private readonly SearchLinks $links,
 	) {
 	}//end __construct()
 
@@ -124,7 +120,7 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @return string The translated name.
 	 */
 	public function getName(): string {
-		return $this->l10nFactory->get(app: Application::APP_ID)->t('Dashboards');
+		return $this->links->l10nFactory->get(app: Application::APP_ID)->t('Dashboards');
 	}//end getName()
 
 	/**
@@ -194,7 +190,7 @@ class LaunchPadSearchProvider implements IProvider {
 		}
 
 		$needle = mb_strtolower(string: $term);
-		$l10n = $this->l10nFactory->get(app: Application::APP_ID);
+		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);
 
 		$dashboardEntries = [];
 		$widgetEntries = [];
@@ -444,7 +440,7 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @return SearchResultEntry The result entry.
 	 */
 	private function buildDashboardEntry(Dashboard $dashboard): SearchResultEntry {
-		$l10n = $this->l10nFactory->get(app: Application::APP_ID);
+		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);
 		$name = (string)$dashboard->getName();
 		$description = trim(string: (string)$dashboard->getDescription());
 		$subline = $description;
@@ -534,7 +530,7 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @return string The absolute deep-link URL.
 	 */
 	private function dashboardUrl(string $uuid): string {
-		$base = $this->urlGenerator->linkToRouteAbsolute(
+		$base = $this->links->urlGenerator->linkToRouteAbsolute(
 			routeName: Application::APP_ID . '.page.index'
 		);
 
@@ -576,8 +572,8 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @return string The absolute icon URL.
 	 */
 	private function iconUrl(): string {
-		return $this->urlGenerator->getAbsoluteURL(
-			url: $this->urlGenerator->imagePath(
+		return $this->links->urlGenerator->getAbsoluteURL(
+			url: $this->links->urlGenerator->imagePath(
 				appName: Application::APP_ID,
 				file: 'app.svg'
 			)

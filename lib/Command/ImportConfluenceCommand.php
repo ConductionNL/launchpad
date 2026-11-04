@@ -96,10 +96,7 @@ class ImportConfluenceCommand extends Command {
 	 *
 	 * @spec openspec/specs/confluence-html-import/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$file = (string)($input->getOption(name: 'file') ?? '');
 		$parentPath = (string)($input->getOption(name: 'parent-path') ?? '');
 		$userId = (string)($input->getOption(name: 'user') ?? 'cli');

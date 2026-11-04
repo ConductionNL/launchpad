@@ -77,16 +77,16 @@ class DashboardActivityEmitter {
 	public function shared(Dashboard $dashboard, DashboardShare $share, string $actor, array $recipients): int {
 		return $this->guard(
 			step: fn (): int => $this->publisher->publishToRecipients(
-				type: Extension::EVENT_SHARED,
-				actorUserId: $actor,
-				dashboardUuid: (string) $dashboard->getUuid(),
-				dashboardName: (string) $dashboard->getName(),
-				dashboardLink: '',
-				recipientUserIds: $recipients,
-				extraParams: [
-					'recipient' => (string) $share->getShareWith(),
-					'role'      => (string) $share->getPermissionLevel(),
-				]
+				row: new ActivityRow(
+					type: Extension::EVENT_SHARED,
+					actorUserId: $actor,
+					dashboard: $this->subjectOf(dashboard: $dashboard),
+					extraParams: [
+						'recipient' => (string) $share->getShareWith(),
+						'role'      => (string) $share->getPermissionLevel(),
+					]
+				),
+				recipientUserIds: $recipients
 			)
 		);
 	}//end shared()
@@ -141,33 +141,19 @@ class DashboardActivityEmitter {
 	 * @return int The number of activity rows written.
 	 */
 	private function toAudience(string $type, Dashboard $dashboard, string $actor, ?array $shares=null): int {
-		$uuid  = (string) $dashboard->getUuid();
-		$name  = (string) $dashboard->getName();
+		$row   = new ActivityRow(type: $type, actorUserId: $actor, dashboard: $this->subjectOf(dashboard: $dashboard));
 		$count = 0;
 
 		foreach ($this->groups(dashboard: $dashboard) as $groupId) {
 			if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
 				$count += $this->guard(
-					step: fn (): int => $this->publisher->publishGlobal(
-						type: $type,
-						actorUserId: $actor,
-						dashboardUuid: $uuid,
-						dashboardName: $name,
-						dashboardLink: ''
-					)
+					step: fn (): int => $this->publisher->publishGlobal(row: $row)
 				);
 				continue;
 			}
 
 			$count += $this->guard(
-				step: fn (): int => $this->publisher->publishToGroup(
-					type: $type,
-					actorUserId: $actor,
-					groupId: $groupId,
-					dashboardUuid: $uuid,
-					dashboardName: $name,
-					dashboardLink: ''
-				)
+				step: fn (): int => $this->publisher->publishToGroup(row: $row, groupId: $groupId)
 			);
 		}//end foreach
 
@@ -176,12 +162,8 @@ class DashboardActivityEmitter {
 			if ($share->getShareType() === DashboardShare::SHARE_TYPE_GROUP) {
 				$count += $this->guard(
 					step: fn (): int => $this->publisher->publishToGroup(
-						type: $type,
-						actorUserId: $actor,
-						groupId: (string) $share->getShareWith(),
-						dashboardUuid: $uuid,
-						dashboardName: $name,
-						dashboardLink: ''
+						row: $row,
+						groupId: (string) $share->getShareWith()
 					)
 				);
 				continue;
@@ -192,19 +174,23 @@ class DashboardActivityEmitter {
 
 		if ($users !== []) {
 			$count += $this->guard(
-				step: fn (): int => $this->publisher->publishToRecipients(
-					type: $type,
-					actorUserId: $actor,
-					dashboardUuid: $uuid,
-					dashboardName: $name,
-					dashboardLink: '',
-					recipientUserIds: $users
-				)
+				step: fn (): int => $this->publisher->publishToRecipients(row: $row, recipientUserIds: $users)
 			);
 		}
 
 		return $count;
 	}//end toAudience()
+
+	/**
+	 * The activity subject for a dashboard: its UUID and name, no link.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return ActivitySubject The subject.
+	 */
+	private function subjectOf(Dashboard $dashboard): ActivitySubject {
+		return new ActivitySubject(uuid: (string) $dashboard->getUuid(), name: (string) $dashboard->getName());
+	}//end subjectOf()
 
 	/**
 	 * The groups a dashboard is aimed at: its group for a group dashboard,

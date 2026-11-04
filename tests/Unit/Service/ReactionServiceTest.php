@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ReactionDirectory;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -59,8 +60,10 @@ class ReactionServiceTest extends TestCase {
 			reactionMapper: $this->reactionMapper,
 			dashboardMapper: $this->dashboardMapper,
 			permissionService: $this->permissionService,
-			appConfig: $this->appConfig,
-			userManager: $this->userManager,
+			directory: new ReactionDirectory(
+				appConfig: $this->appConfig,
+				userManager: $this->userManager
+			)
 		);
 	}
 

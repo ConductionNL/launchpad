@@ -117,14 +117,11 @@ class FilesWidgetService {
 	 *                      `folderPath`,
 	 *                      `mimeTypeFilter`, `sortBy`,
 	 *                      `sortDescending`.
-	 * @param string|null $currentSubPath Optional sub-path relative to
-	 *                                    the configured folder (set
-	 *                                    when the user navigates into
-	 *                                    a subfolder).
-	 * @param integer $limit Page size.
-	 * @param string $cursor Opaque cursor (offset string)
-	 *                       supplied by the previous
-	 *                       response.
+	 * @param array $page Optional `currentSubPath` (sub-path relative to the
+	 *                    configured folder, set when the user navigates into
+	 *                    a subfolder; null for the folder itself), `limit`
+	 *                    (page size) and `cursor` (opaque offset string
+	 *                    supplied by the previous response).
 	 *
 	 * @return array{items: list<array<string,mixed>>, nextCursor: ?string}
 	 *
@@ -135,13 +132,11 @@ class FilesWidgetService {
 	 *
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
-	public function getContentsForPlacement(
-		string $userId,
-		array $config,
-		?string $currentSubPath = null,
-		int $limit = self::DEFAULT_LIMIT,
-		string $cursor = '',
-	): array {
+	public function getContentsForPlacement(string $userId, array $config, array $page=[]): array {
+		$page          += ['currentSubPath' => null, 'limit' => self::DEFAULT_LIMIT, 'cursor' => ''];
+		$currentSubPath = $page['currentSubPath'];
+		$limit          = (int)$page['limit'];
+		$cursor         = (string)$page['cursor'];
 		$rootFolder = $this->resolveConfiguredFolder(userId: $userId, config: $config);
 
 		$target = $this->descendInto(

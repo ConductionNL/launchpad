@@ -35,8 +35,6 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\OrgNavigationService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -47,12 +45,13 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Org-wide navigation editor REST surface.
  */
 class AdminOrgNavigationController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Setting key for the global navigation rail position
 	 * (REQ-ONAV-004). Stored in `launchpad_admin_settings` rather than
@@ -79,27 +78,18 @@ class AdminOrgNavigationController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request Inbound request.
-	 * @param OrgNavigationService $service Tree storage + filter
-	 *                                      service.
-	 * @param AdminSettingMapper $settings Persistence layer for
-	 *                                     the position scalar.
-	 * @param IUserSession $userSession Current user session.
-	 * @param IGroupManager $groupManager Admin check for write endpoints.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param IRequest             $request Inbound request.
+	 * @param OrgNavigationSources $sources The org navigation service and the admin setting mapper.
+	 * @param RequestActor         $actor The user session and the action authorisation service.
+	 * @param IGroupManager        $groupManager Admin check for write endpoints.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly OrgNavigationService $service,
-		private readonly AdminSettingMapper $settings,
-		private readonly IUserSession $userSession,
+		private readonly OrgNavigationSources $sources,
+		private readonly RequestActor $actor,
 		private readonly IGroupManager $groupManager,
-		private readonly ActionAuthService $actionAuth,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -108,7 +98,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return JSONResponse|null Non-null = caller must be rejected.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(
 				data: ['error' => 'Not authenticated'],
@@ -140,27 +130,24 @@ class AdminOrgNavigationController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getOrgNavigation(string $lang = OrgNavigationService::DEFAULT_LANGUAGE): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
+			$this->actor->actionAuth->requireAction($user, 'admin-org-navigation.get-org-navigation');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported language'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$tree = $this->service->getTree(language: $language);
-		$filtered = $this->service->filterTreeByUserGroups(
+		$tree = $this->sources->service->getTree(language: $language);
+		$filtered = $this->sources->service->filterTreeByUserGroups(
 			tree: $tree,
 			userId: $user->getUID()
 		);
@@ -197,26 +184,17 @@ class AdminOrgNavigationController extends Controller {
 
 		$language = $this->validateLanguage(language: $lang);
 		if ($language === null) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported language'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Unsupported language', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (is_array($tree) === false) {
-			return new JSONResponse(
-				data: ['error' => 'tree must be an array of node objects'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'tree must be an array of node objects', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
-			$this->service->setTree(tree: $tree, language: $language);
+			$this->sources->service->setTree(tree: $tree, language: $language);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return ResponseHelper::success(
@@ -236,13 +214,13 @@ class AdminOrgNavigationController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getPosition(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
+			$this->actor->actionAuth->requireAction($user, 'admin-org-navigation.get-position');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -279,7 +257,7 @@ class AdminOrgNavigationController extends Controller {
 			);
 		}
 
-		$this->settings->setSetting(
+		$this->sources->settings->setSetting(
 			key: self::SETTING_KEY_POSITION,
 			value: $position
 		);
@@ -317,7 +295,7 @@ class AdminOrgNavigationController extends Controller {
 	 * @return string Always one of {@see self::ALLOWED_POSITIONS}.
 	 */
 	private function readPosition(): string {
-		$raw = $this->settings->getValue(
+		$raw = $this->sources->settings->getValue(
 			key: self::SETTING_KEY_POSITION,
 			default: self::DEFAULT_POSITION
 		);

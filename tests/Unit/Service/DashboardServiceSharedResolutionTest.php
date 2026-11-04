@@ -32,6 +32,11 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -99,20 +104,30 @@ class DashboardServiceSharedResolutionTest extends TestCase {
 		$this->config->method('getUserValue')->willReturn('');
 
 		$this->service = new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			settingMapper: $this->createMock(AdminSettingMapper::class),
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: new DashboardFactory(),
-			dashResolver: $this->dashResolver,
-			treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
-			groupManager: $this->groupManager,
-			adminTemplateService: $this->adminTemplateService,
-			db: $this->createMock(IDBConnection::class),
-			config: $this->config,
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->createMock(PersonalLayerService::class),
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->dashResolver,
+				adminTemplateService: $this->adminTemplateService
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(\OCA\LaunchPad\Service\DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->createMock(IDBConnection::class),
+				config: $this->config,
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 	}//end setUp()
 

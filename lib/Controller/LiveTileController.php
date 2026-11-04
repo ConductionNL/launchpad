@@ -46,8 +46,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -56,26 +54,23 @@ use Throwable;
  * @spec openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request HTTP request.
-	 * @param LiveTileService $liveTileService Resolves + caches + validates live-tile values.
+	 * @param IRequest          $request HTTP request.
+	 * @param LiveTileService   $liveTileService Resolves + caches + validates live-tile values.
 	 * @param PermissionService $permissionService Dashboard/placement permission gate.
-	 * @param IUserSession $userSession Session accessor.
-	 * @param LoggerInterface $logger PSR logger.
+	 * @param SessionLog        $session The session and logger.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly LiveTileService $liveTileService,
 		private readonly PermissionService $permissionService,
-		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
+		private readonly SessionLog $session,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -116,14 +111,11 @@ class LiveTileController extends Controller {
 		try {
 			$reading = $this->liveTileService->resolveForPlacement(placementId: $placementId);
 		} catch (Throwable $exception) {
-			$this->logger->error(
+			$this->session->logger->error(
 				message: 'Unexpected live-tile resolution failure',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unknown_error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->errorCode(code: 'unknown_error', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		if (isset($reading['error']) === true) {
@@ -207,7 +199,7 @@ class LiveTileController extends Controller {
 	 * @return string|null
 	 */
 	private function resolveUserId(): ?string {
-		$user = $this->userSession->getUser();
+		$user = $this->session->userSession->getUser();
 		if ($user === null) {
 			return null;
 		}

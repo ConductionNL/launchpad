@@ -108,9 +108,9 @@ class MetadataService {
 	 * @param string $key The slugified key.
 	 * @param string $label The display label.
 	 * @param string $type One of {@see MetadataField::VALID_TYPES}.
-	 * @param array<int, string>|null $options Option set (select types only).
-	 * @param int $required 0 / 1.
-	 * @param int $sortOrder UI sort order.
+	 * @param array $settings Optional `options` (the option set, select
+	 *                        types only; null), `required` (0 / 1; 0) and
+	 *                        `sortOrder` (UI sort order; 0).
 	 *
 	 * @return MetadataField The persisted entity.
 	 *
@@ -118,14 +118,9 @@ class MetadataService {
 	 *
 	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
 	 */
-	public function createFieldDefinition(
-		string $key,
-		string $label,
-		string $type,
-		?array $options = null,
-		int $required = 0,
-		int $sortOrder = 0,
-	): MetadataField {
+	public function createFieldDefinition(string $key, string $label, string $type, array $settings=[]): MetadataField {
+		$settings += ['options' => null, 'required' => 0, 'sortOrder' => 0];
+		$options   = $settings['options'];
 		self::assertKeyShape(key: $key);
 		self::assertLabelShape(label: $label);
 		self::assertTypeShape(type: $type);
@@ -143,7 +138,7 @@ class MetadataService {
 		$now = (new DateTime())->format(format: 'c');
 		$field = new MetadataField();
 		$requiredFlag = 0;
-		if ($required === 1) {
+		if ($settings['required'] === 1) {
 			$requiredFlag = 1;
 		}
 
@@ -155,7 +150,7 @@ class MetadataService {
 		$field->setLabel($label);
 		$field->setType($type);
 		$field->setRequired($requiredFlag);
-		$field->setSortOrder($sortOrder);
+		$field->setSortOrder($settings['sortOrder']);
 		$field->setCreatedAt($now);
 		$field->setUpdatedAt($now);
 		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters

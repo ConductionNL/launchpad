@@ -71,6 +71,8 @@ use OCP\IUserSession;
  *  move the coupling rather than remove it.
  */
 class TileAnalyticsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -127,7 +129,7 @@ class TileAnalyticsController extends Controller {
 				userId: $user->getUID()
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse(
@@ -196,7 +198,7 @@ class TileAnalyticsController extends Controller {
 				limit: $limit
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -235,7 +237,7 @@ class TileAnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -270,7 +272,7 @@ class TileAnalyticsController extends Controller {
 		try {
 			$csv = $this->tileAnalyticsService->generateCsvExport(period: $period);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::badRequest(code: 'invalid_period', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return new DataDownloadResponse(

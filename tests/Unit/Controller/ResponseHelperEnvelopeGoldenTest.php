@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Controller;
 
+use OCA\LaunchPad\Controller\RespondsWithErrors;
 use OCA\LaunchPad\Controller\ResponseHelper;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -26,14 +27,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Pins the error envelopes of ResponseHelper::failure(), errorCode() and
- * badRequest() to the responses the controllers built inline before, for
- * every message and status the controllers pass. The fixture holds the
- * inline responses, recorded with LAUNCHPAD_GOLDEN_RECORD=1.
+ * Pins the error envelopes of RespondsWithErrors and of
+ * ResponseHelper::invalidArgument() to the responses the controllers built
+ * inline before, for every message and status the controllers pass. The
+ * fixture holds the inline responses, recorded with LAUNCHPAD_GOLDEN_RECORD=1.
  *
  * @covers \OCA\LaunchPad\Controller\ResponseHelper
+ * @covers \OCA\LaunchPad\Controller\RespondsWithErrors
  */
 class ResponseHelperEnvelopeGoldenTest extends TestCase {
+	use RespondsWithErrors;
 
 	private const FIXTURE = __DIR__ . '/fixtures/response-helper-envelopes.json';
 
@@ -121,15 +124,15 @@ class ResponseHelperEnvelopeGoldenTest extends TestCase {
 		}
 
 		if ($kind === 'failure') {
-			return ResponseHelper::failure(message: $value, statusCode: $statusCode);
+			return $this->failure(message: $value, statusCode: $statusCode);
 		}
 
 		if ($kind === 'errorCode') {
-			return ResponseHelper::errorCode(code: $value, statusCode: $statusCode);
+			return $this->errorCode(code: $value, statusCode: $statusCode);
 		}
 
 		[$code, $message] = explode('|', $value, 2);
-		return ResponseHelper::badRequest(code: $code, message: $message);
+		return $this->badRequestWithCode(code: $code, message: $message);
 	}
 
 	/**

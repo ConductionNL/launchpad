@@ -87,6 +87,8 @@ use OCP\IRequest;
  * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
  */
 class AdminController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -484,7 +486,7 @@ class AdminController extends Controller {
 
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (\InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -613,7 +615,7 @@ class AdminController extends Controller {
 		}
 
 		if (in_array(needle: $scope, haystack: ['site', 'dashboard'], strict: true) === false) {
-			return ResponseHelper::failure(message: 'Unsupported scope: ' . $scope, statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'Unsupported scope: ' . $scope, statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$userId = (string)$this->caller->userSession->getUser()?->getUID();
@@ -623,11 +625,11 @@ class AdminController extends Controller {
 		}
 
 		if ($dashboardUuid === null || $dashboardUuid === '') {
-			return ResponseHelper::failure(message: 'dashboardUuid parameter is required when scope=dashboard', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'dashboardUuid parameter is required when scope=dashboard', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (preg_match(pattern: '/^[A-Za-z0-9\-]{8,}$/', subject: $dashboardUuid) !== 1) {
-			return ResponseHelper::failure(message: 'Invalid dashboard UUID format', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'Invalid dashboard UUID format', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
@@ -636,7 +638,7 @@ class AdminController extends Controller {
 				currentUserId: $userId
 			);
 		} catch (DoesNotExistException) {
-			return ResponseHelper::failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 	}//end export()
 
@@ -668,7 +670,7 @@ class AdminController extends Controller {
 			|| isset($upload['tmp_name']) === false
 			|| (string)$upload['tmp_name'] === ''
 		) {
-			return ResponseHelper::failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		$tmpName = (string)$upload['tmp_name'];
@@ -682,7 +684,7 @@ class AdminController extends Controller {
 				currentUserId: $userId
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
@@ -871,7 +873,7 @@ class AdminController extends Controller {
 				)
 			);
 			if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-				return ResponseHelper::failure(message: 'feedUrl must use http:// or https:// scheme.', statusCode: Http::STATUS_BAD_REQUEST);
+				return $this->failure(message: 'feedUrl must use http:// or https:// scheme.', statusCode: Http::STATUS_BAD_REQUEST);
 			}
 		}
 
@@ -905,7 +907,7 @@ class AdminController extends Controller {
 	): JSONResponse {
 
 		if ($base64 === '') {
-			return ResponseHelper::badRequest(code: 'invalid_payload', message: 'Field "base64" is required');
+			return $this->badRequestWithCode(code: 'invalid_payload', message: 'Field "base64" is required');
 		}
 
 		try {
@@ -927,7 +929,7 @@ class AdminController extends Controller {
 			// disallowed image format, oversized payload, SVG sanitiser
 			// rejection, storage failure) returned by ResourceService::upload
 			// — all collapse to a single 400 envelope per REQ-TMPL-017.
-			return ResponseHelper::badRequest(code: 'invalid_image', message: $e->getMessage());
+			return $this->badRequestWithCode(code: 'invalid_image', message: $e->getMessage());
 		}//end try
 
 		return new JSONResponse(

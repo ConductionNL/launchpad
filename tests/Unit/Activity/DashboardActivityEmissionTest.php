@@ -47,6 +47,7 @@ use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
+use OCA\LaunchPad\Service\ShareNotifier;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\ShareGrant;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -127,10 +128,13 @@ class DashboardActivityEmissionTest extends TestCase {
 		return new DashboardShareService(
 			shareMapper: $this->shareMapper,
 			dashboardMapper: $this->dashboardMapper,
-			groupManager: $this->groupManager,
-			notificationManager: $notifications,
 			db: $this->createMock(IDBConnection::class),
-			activity: $this->emitter,
+			notifier: new ShareNotifier(
+				notificationManager: $notifications,
+				groupManager: $this->groupManager,
+				logger: $this->createMock(LoggerInterface::class),
+				activity: $this->emitter
+			),
 		);
 	}
 

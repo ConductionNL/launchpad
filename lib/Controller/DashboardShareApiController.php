@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\DashboardShareService;
 use OCA\LaunchPad\Service\ShareGrant;
 use OCP\AppFramework\Controller;
@@ -33,9 +33,8 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserManager;
+use Throwable;
 
 /**
  * Controller for dashboard sharing API endpoints.
@@ -51,15 +50,13 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @param IRequest $request The request.
 	 * @param DashboardShareService $shareService The share service.
-	 * @param IUserManager $userManager Nextcloud user manager (sharee lookup).
-	 * @param IGroupManager $groupManager Nextcloud group manager (sharee lookup).
+	 * @param ShareApiTools $tools The sharee directories and the logger.
 	 * @param string|null $userId The calling user ID.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly DashboardShareService $shareService,
-		private readonly IUserManager $userManager,
-		private readonly IGroupManager $groupManager,
+		private readonly ShareApiTools $tools,
 		private readonly ?string $userId,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
@@ -98,11 +95,13 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => 'Dashboard not found'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
-		} catch (Exception $e) {
+		} catch (ForbiddenException $e) {
 			return new DataResponse(
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_FORBIDDEN
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end index()
 
@@ -156,11 +155,13 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => 'Dashboard not found'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
-		} catch (Exception $e) {
+		} catch (ForbiddenException $e) {
 			return new DataResponse(
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_FORBIDDEN
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end create()
 
@@ -193,11 +194,13 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => 'Share not found'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
-		} catch (Exception $e) {
+		} catch (ForbiddenException $e) {
 			return new DataResponse(
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_FORBIDDEN
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end destroy()
 
@@ -245,11 +248,13 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => 'Dashboard not found'],
 				statusCode: Http::STATUS_NOT_FOUND
 			);
-		} catch (Exception $e) {
+		} catch (ForbiddenException $e) {
 			return new DataResponse(
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_FORBIDDEN
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end replace()
 
@@ -288,6 +293,8 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_BAD_REQUEST
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}
 	}//end revokeForRecipient()
 
@@ -327,7 +334,7 @@ class DashboardShareApiController extends Controller {
 		}
 
 		$users = [];
-		foreach ($this->userManager->search(pattern: $trimmed, limit: 10) as $user) {
+		foreach ($this->tools->userManager->search(pattern: $trimmed, limit: 10) as $user) {
 			if ($user->getUID() === $this->userId) {
 				continue;
 			}
@@ -339,7 +346,7 @@ class DashboardShareApiController extends Controller {
 		}
 
 		$groups = [];
-		foreach ($this->groupManager->search(search: $trimmed, limit: 10) as $group) {
+		foreach ($this->tools->groupManager->search(search: $trimmed, limit: 10) as $group) {
 			$groups[] = [
 				'id' => $group->getGID(),
 				'displayName' => $group->getDisplayName(),
@@ -350,4 +357,24 @@ class DashboardShareApiController extends Controller {
 			data: ['users' => $users, 'groups' => $groups]
 		);
 	}//end searchSharees()
+
+	/**
+	 * Answer a share request that failed for a reason other than the
+	 * caller's input or access: a neutral 500, with the exception logged.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return DataResponse The 500 response.
+	 */
+	private function internalError(Throwable $exception): DataResponse {
+		$this->tools->logger->error(
+			message: 'Dashboard share request failed: ' . $exception::class,
+			context: ['app' => Application::APP_ID, 'exceptionClass' => $exception::class, 'exception' => $exception]
+		);
+
+		return new DataResponse(
+			data: ['error' => 'Internal error'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end internalError()
 }//end class

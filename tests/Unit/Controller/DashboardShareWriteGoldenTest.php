@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareNotifier;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use OCP\IGroup;
@@ -42,15 +43,21 @@ use OCP\Notification\INotification;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Throwable;
+use OCA\LaunchPad\Controller\ShareApiTools;
+use Psr\Log\LoggerInterface;
 
 /**
  * Share writes, caller by caller.
  *
  * @covers \OCA\LaunchPad\Controller\DashboardShareApiController
  * @covers \OCA\LaunchPad\Service\DashboardShareService
+ * @covers \OCA\LaunchPad\Service\ShareNotifier
  * @uses   \OCA\LaunchPad\Db\Dashboard
  * @uses   \OCA\LaunchPad\Db\DashboardShare
  * @uses   \OCA\LaunchPad\Service\ShareGrant
+ * @uses   \OCA\LaunchPad\Controller\ShareApiTools
+ * @uses   \OCA\LaunchPad\Exception\ForbiddenException
+ * @uses   \OCA\LaunchPad\Exception\ResourceException
  */
 class DashboardShareWriteGoldenTest extends TestCase {
 
@@ -271,16 +278,22 @@ class DashboardShareWriteGoldenTest extends TestCase {
 		$service = new DashboardShareService(
 			shareMapper: $shares,
 			dashboardMapper: $dashboards,
-			groupManager: $groups,
-			notificationManager: $notifications,
 			db: $db,
-			activity: $activity
+			notifier: new ShareNotifier(
+				notificationManager: $notifications,
+				groupManager: $groups,
+				logger: $this->getMockBuilder(className: LoggerInterface::class)->getMock(),
+				activity: $activity
+			)
 		);
 		$controller = new DashboardShareApiController(
 			request: $this->getMockBuilder(className: IRequest::class)->getMock(),
 			shareService: $service,
-			userManager: $this->getMockBuilder(className: IUserManager::class)->getMock(),
-			groupManager: $groups,
+			tools: new ShareApiTools(
+				userManager: $this->getMockBuilder(className: IUserManager::class)->getMock(),
+				groupManager: $groups,
+				logger: $this->getMockBuilder(className: LoggerInterface::class)->getMock()
+			),
 			userId: $caller
 		);
 

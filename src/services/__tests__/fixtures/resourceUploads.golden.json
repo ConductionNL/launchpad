@@ -1,0 +1,582 @@
+{
+	"uploadDataUrl | success": {
+		"result": {
+			"url": "/r/a.png",
+			"name": "a.png",
+			"size": 12
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | success without name and size": {
+		"result": {
+			"url": "/r/b.png",
+			"name": "",
+			"size": 0
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | success without url": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response",
+			"httpStatus": 200
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | error envelope": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "file_too_large",
+			"message": "Too big",
+			"httpStatus": 200
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | unknown status": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response",
+			"httpStatus": 200
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | no body": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response",
+			"httpStatus": 204
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | no response": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | server error envelope": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "file_too_large",
+			"message": "Too big",
+			"httpStatus": 413
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | envelope without message": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "forbidden",
+			"message": "forbidden",
+			"httpStatus": 403
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | envelope with numeric message": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "mime_mismatch",
+			"message": "mime_mismatch",
+			"httpStatus": 400
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | envelope with numeric error": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Bad",
+			"httpStatus": 400
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | envelope with another status": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Unprocessable",
+			"httpStatus": 422
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | not an error envelope": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Gateway",
+			"httpStatus": 502
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | network": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Network Error"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | no message": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadDataUrl | null": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources",
+				{
+					"base64": "data:image/png;base64,AAAA"
+				}
+			]
+		]
+	},
+	"uploadFile | success": {
+		"result": {
+			"url": "/r/a.png",
+			"name": "a.png",
+			"size": 12
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | success without name and size": {
+		"result": {
+			"url": "/r/b.png",
+			"name": "",
+			"size": 0
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | success without url": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response",
+			"httpStatus": 200
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | error envelope": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "file_too_large",
+			"message": "Too big",
+			"httpStatus": 200
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | unknown status": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response",
+			"httpStatus": 200
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | no body": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response",
+			"httpStatus": 204
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | no response": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "unknown_error",
+			"message": "Unexpected server response"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | server error envelope": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "file_too_large",
+			"message": "Too big",
+			"httpStatus": 413
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | envelope without message": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "forbidden",
+			"message": "forbidden",
+			"httpStatus": 403
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | envelope with numeric message": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "mime_mismatch",
+			"message": "mime_mismatch",
+			"httpStatus": 400
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | envelope with numeric error": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Bad",
+			"httpStatus": 400
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | envelope with another status": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Unprocessable",
+			"httpStatus": 422
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | not an error envelope": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Gateway",
+			"httpStatus": 502
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | network": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Network Error"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | no message": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	},
+	"uploadFile | null": {
+		"rejected": {
+			"name": "ResourceUploadError",
+			"code": "network_error",
+			"message": "Network error"
+		},
+		"sent": [
+			[
+				"/index.php/apps/launchpad/api/resources/upload",
+				[
+					[
+						"file",
+						"pic.png",
+						3,
+						"image/png"
+					]
+				]
+			]
+		]
+	}
+}

@@ -1,0 +1,182 @@
+{
+    "empty": {
+        "stored": [],
+        "outcome": "ok"
+    },
+    "enable": {
+        "stored": [
+            [
+                "footer_enabled",
+                true
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "disable": {
+        "stored": [
+            [
+                "footer_enabled",
+                false
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "html": {
+        "stored": [
+            [
+                "footer_html",
+                "<p>Hi <a href=\"https://example.org\" rel=\"noopener noreferrer\" target=\"_blank\">there</a></p>"
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "html null": {
+        "stored": [
+            [
+                "footer_html",
+                ""
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "html variants": {
+        "stored": [
+            [
+                "footer_html",
+                {
+                    "nl": "Hoi",
+                    "en": "Hi"
+                }
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "html bad variant key": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerHtml language variants must be string→string (0)"
+    },
+    "html bad variant value": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerHtml language variants must be string→string (0)"
+    },
+    "html number": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerHtml must be a string, NULL, or a variant map (0)"
+    },
+    "html oversized": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerHtml exceeds 8 KB limit (0)"
+    },
+    "config null": {
+        "stored": [
+            [
+                "footer_config",
+                []
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "config": {
+        "stored": [
+            [
+                "footer_config",
+                {
+                    "organisation": "ACME",
+                    "links": [
+                        {
+                            "label": "Privacy",
+                            "url": "https://example.org/privacy"
+                        }
+                    ],
+                    "copyrightYear": 2026,
+                    "layoutMode": "columns"
+                }
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "config string": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerConfig must be a JSON object (0)"
+    },
+    "config unknown key": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerConfig contains unknown key: nope (0)"
+    },
+    "colours": {
+        "stored": [
+            [
+                "footer_background_color",
+                "#112233"
+            ],
+            [
+                "footer_text_color",
+                "#abc"
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "colours null": {
+        "stored": [
+            [
+                "footer_background_color",
+                null
+            ],
+            [
+                "footer_text_color",
+                null
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "background bad": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerBackgroundColor must be a hex colour string (e.g. #1a1a1a) (0)"
+    },
+    "text bad": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerTextColor must be a hex colour string (e.g. #1a1a1a) (0)"
+    },
+    "text not string": {
+        "stored": [],
+        "outcome": "InvalidArgumentException: footerTextColor must be a hex colour string (e.g. #1a1a1a) (0)"
+    },
+    "all": {
+        "stored": [
+            [
+                "footer_enabled",
+                true
+            ],
+            [
+                "footer_html",
+                "<p>x</p>"
+            ],
+            [
+                "footer_config",
+                []
+            ],
+            [
+                "footer_background_color",
+                "#000000"
+            ],
+            [
+                "footer_text_color",
+                "#ffffff"
+            ]
+        ],
+        "outcome": "ok"
+    },
+    "bad after good": {
+        "stored": [
+            [
+                "footer_enabled",
+                true
+            ],
+            [
+                "footer_html",
+                "<p>x</p>"
+            ]
+        ],
+        "outcome": "InvalidArgumentException: footerBackgroundColor must be a hex colour string (e.g. #1a1a1a) (0)"
+    }
+}

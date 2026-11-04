@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ShowcaseTools;
 use OCA\LaunchPad\Controller\AdminDemoShowcasesController;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
 use OCA\LaunchPad\Service\DemoShowcasesService;
@@ -56,10 +57,12 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 
 		$this->controller = new AdminDemoShowcasesController(
 			request: $this->request,
-			showcasesSvc: $this->service,
+			showcases: new ShowcaseTools(
+				showcasesSvc: $this->service,
+				logger: new NullLogger()
+			),
 			groupManager: $this->groupManager,
-			userSession: $this->userSession,
-			logger: new NullLogger(),
+			userSession: $this->userSession
 		);
 	}
 

@@ -43,6 +43,8 @@ use OCP\IDBConnection;
  *                                                the table contract.
  */
 class RoleAssignmentMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor
 	 *
@@ -66,18 +68,7 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @throws DoesNotExistException When not found.
 	 */
 	public function findById(int $id): RoleAssignment {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end findById()
@@ -108,16 +99,8 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @return RoleAssignment[] Zero or more direct user assignments.
 	 */
 	public function findByUser(string $userId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->orderBy(sort: 'id', order: 'ASC');
+		$qb = $this->selectWhere(match: ['user_id' => $userId]);
+		$qb->orderBy(sort: 'id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByUser()
@@ -130,16 +113,8 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @return RoleAssignment[] Zero or more group assignments.
 	 */
 	public function findByGroup(string $groupId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			)
-			->orderBy(sort: 'id', order: 'ASC');
+		$qb = $this->selectWhere(match: ['group_id' => $groupId]);
+		$qb->orderBy(sort: 'id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByGroup()
@@ -185,21 +160,7 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @return RoleAssignment|null The match or null when none exists.
 	 */
 	public function findUserRole(string $userId, string $role): ?RoleAssignment {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'role',
-					y: $qb->createNamedParameter(value: $role)
-				)
-			);
+		$qb = $this->selectWhere(match: ['user_id' => $userId, 'role' => $role]);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -220,21 +181,7 @@ class RoleAssignmentMapper extends QBMapper {
 		string $groupId,
 		string $role,
 	): ?RoleAssignment {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'role',
-					y: $qb->createNamedParameter(value: $role)
-				)
-			);
+		$qb = $this->selectWhere(match: ['group_id' => $groupId, 'role' => $role]);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -253,14 +200,7 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByUserId(string $userId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'user_id',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['user_id' => $userId]);
 
 		return $qb->executeStatement();
 	}//end deleteByUserId()
@@ -275,14 +215,7 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByGroupId(string $groupId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['group_id' => $groupId]);
 
 		return $qb->executeStatement();
 	}//end deleteByGroupId()
@@ -295,17 +228,7 @@ class RoleAssignmentMapper extends QBMapper {
 	 * @return int The number of rows deleted (0 when no row matched).
 	 */
 	public function deleteById(int $id): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['id' => $id]);
 
 		return $qb->executeStatement();
 	}//end deleteById()

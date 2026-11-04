@@ -66,6 +66,14 @@ use OCA\LaunchPad\Db\Dashboard;
  */
 class FooterService {
 	/**
+	 * Colour fields of the settings patch and the setting each is stored in.
+	 */
+	private const COLOUR_SETTINGS = [
+		'footerBackgroundColor' => AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,
+		'footerTextColor' => AdminSetting::KEY_FOOTER_TEXT_COLOR,
+	];
+
+	/**
 	 * Maximum allowed footer HTML length (REQ-FTR-002 — 8 KB cap).
 	 * Inputs that exceed this MUST be rejected with HTTP 413 by the
 	 * controller — `sanitiseHtml()` throws
@@ -243,87 +251,94 @@ class FooterService {
 		}
 
 		if (array_key_exists(key: 'footerHtml', array: $patch) === true) {
-			$raw = $patch['footerHtml'];
-			$sanitised = '';
-			if ($raw !== null && is_array($raw) === false && is_string($raw) === false) {
-				throw new InvalidArgumentException(
-					message: 'footerHtml must be a string, NULL, or a variant map'
-				);
-			}
-
-			if ($raw === null) {
-				$sanitised = '';
-			}
-
-			if (is_array($raw) === true) {
-				// Language-tagged variant map (REQ-FTR-007). Sanitise
-				// each variant independently.
-				$sanitised = [];
-				foreach ($raw as $locale => $variant) {
-					if (is_string($locale) === false || is_string($variant) === false) {
-						throw new InvalidArgumentException(
-							message: 'footerHtml language variants must be string→string'
-						);
-					}
-
-					$sanitised[$locale] = $this->sanitiseHtml(html: $variant);
-				}
-			}
-
-			if (is_string($raw) === true) {
-				$sanitised = $this->sanitiseHtml(html: $raw);
-			}//end if
-
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_FOOTER_HTML,
-				value: $sanitised
+				value: $this->sanitiseFooterHtml(raw: $patch['footerHtml'])
 			);
-		}//end if
+		}
 
 		if (array_key_exists(key: 'footerConfig', array: $patch) === true) {
-			$rawConfig = $patch['footerConfig'];
-			if ($rawConfig === null) {
-				$rawConfig = [];
-			}
-
-			if (is_array($rawConfig) === false) {
-				throw new InvalidArgumentException(
-					message: 'footerConfig must be a JSON object'
-				);
-			}
-
-			$this->validateStructuredConfig(config: $rawConfig);
-
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_FOOTER_CONFIG,
-				value: $rawConfig
+				value: $this->validatedFooterConfig(rawConfig: $patch['footerConfig'])
 			);
 		}
 
-		if (array_key_exists(key: 'footerBackgroundColor', array: $patch) === true) {
-			$colour = $patch['footerBackgroundColor'];
-			if ($colour !== null) {
-				$this->assertHexColour(value: $colour, fieldName: 'footerBackgroundColor');
+		foreach (self::COLOUR_SETTINGS as $field => $key) {
+			if (array_key_exists(key: $field, array: $patch) === true) {
+				$colour = $patch[$field];
+				if ($colour !== null) {
+					$this->assertHexColour(value: $colour, fieldName: $field);
+				}
+
+				$this->settingMapper->setSetting(key: $key, value: $colour);
 			}
-
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,
-				value: $colour
-			);
-		}
-
-		if (array_key_exists(key: 'footerTextColor', array: $patch) === true) {
-			$colour = $patch['footerTextColor'];
-			if ($colour !== null) {
-				$this->assertHexColour(value: $colour, fieldName: 'footerTextColor');
-			}
-
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_FOOTER_TEXT_COLOR,
-				value: $colour
-			);
 		}
 	}//end updateGlobalSettings()
+
+	/**
+	 * Sanitise the footerHtml value of a patch: NULL clears it, a string is
+	 * sanitised, a language-tagged variant map (REQ-FTR-007) is sanitised
+	 * per variant.
+	 *
+	 * @param mixed $raw The footerHtml value.
+	 *
+	 * @return string|array<string, string> The value to store.
+	 *
+	 * @throws InvalidArgumentException When the value has the wrong shape.
+	 */
+	private function sanitiseFooterHtml(mixed $raw): string|array {
+		if ($raw !== null && is_array($raw) === false && is_string($raw) === false) {
+			throw new InvalidArgumentException(
+				message: 'footerHtml must be a string, NULL, or a variant map'
+			);
+		}
+
+		if (is_string($raw) === true) {
+			return $this->sanitiseHtml(html: $raw);
+		}
+
+		$sanitised = '';
+		if (is_array($raw) === true) {
+			$sanitised = [];
+			foreach ($raw as $locale => $variant) {
+				if (is_string($locale) === false || is_string($variant) === false) {
+					throw new InvalidArgumentException(
+						message: 'footerHtml language variants must be string→string'
+					);
+				}
+
+				$sanitised[$locale] = $this->sanitiseHtml(html: $variant);
+			}
+		}
+
+		return $sanitised;
+	}//end sanitiseFooterHtml()
+
+	/**
+	 * Validate the footerConfig value of a patch; NULL stores an empty config.
+	 *
+	 * @param mixed $rawConfig The footerConfig value.
+	 *
+	 * @return array<string, mixed> The config to store.
+	 *
+	 * @throws InvalidArgumentException When it is not a valid config object.
+	 */
+	private function validatedFooterConfig(mixed $rawConfig): array {
+		if ($rawConfig === null) {
+			$rawConfig = [];
+		}
+
+		if (is_array($rawConfig) === false) {
+			throw new InvalidArgumentException(
+				message: 'footerConfig must be a JSON object'
+			);
+		}
+
+		$this->validateStructuredConfig(config: $rawConfig);
+
+		return $rawConfig;
+	}//end validatedFooterConfig()
 
 	/**
 	 * Sanitise raw footer HTML against the allow-list (REQ-FTR-002,

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Unit\BackgroundJob;
 
+use OCA\LaunchPad\BackgroundJob\PurgeMappers;
 use OCA\LaunchPad\BackgroundJob\PurgeViewsJob;
 use OCA\LaunchPad\Db\DashboardViewMapper;
 use OCA\LaunchPad\Db\TileClickMapper;
@@ -60,9 +61,11 @@ class PurgeViewsJobTest extends TestCase {
 		$this->job = new PurgeViewsJob(
 			time: $this->time,
 			analyticsService: $this->analyticsService,
-			viewMapper: $this->viewMapper,
-			tileClickMapper: $this->tileClickMapper,
-			logger: $this->logger,
+			mappers: new PurgeMappers(
+				viewMapper: $this->viewMapper,
+				tileClickMapper: $this->tileClickMapper
+			),
+			logger: $this->logger
 		);
 	}
 

@@ -99,6 +99,7 @@ import {
 	isSlashFocusShortcut,
 	useTileSearch,
 } from '../composables/useTileSearch.js'
+import { LIST_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 
 let instanceCounter = 0
 
@@ -155,10 +156,7 @@ export default {
 		 * Re-filtered live whenever this changes (e.g. after a dashboard
 		 * switch or a placement add/remove).
 		 */
-		items: {
-			type: Array,
-			default: () => [],
-		},
+		items: LIST_PROP,
 
 		/**
 		 * The `quicksearch_fallback_target` setting value: `'none'`,
@@ -175,10 +173,7 @@ export default {
 		 * config form (REQ-QSEARCH-005). Empty string keeps the built-in
 		 * text, which advertises both focus shortcuts.
 		 */
-		placeholder: {
-			type: String,
-			default: '',
-		},
+		placeholder: TEXT_PROP,
 	},
 
 	emits: ['open', 'filter', 'fallback', 'clear'],

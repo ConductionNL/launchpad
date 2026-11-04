@@ -25,7 +25,6 @@ namespace OCA\LaunchPad\Controller;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\ProfileFieldService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -37,7 +36,6 @@ use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
-use OCP\IUserSession;
 
 /**
  * Custom profile field endpoints.
@@ -45,28 +43,25 @@ use OCP\IUserSession;
  * @spec openspec/specs/people-widget/spec.md
  */
 class ProfileFieldsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request HTTP request.
+	 * @param IRequest            $request HTTP request.
 	 * @param ProfileFieldService $profileFields Profile field service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession Current user.
-	 * @param IGroupManager $groupManager Admin check.
+	 * @param ActionCaller        $caller The session and the action check.
+	 * @param IGroupManager       $groupManager Admin check.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly ProfileFieldService $profileFields,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
+		private readonly ActionCaller $caller,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -78,8 +73,8 @@ class ProfileFieldsController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getOwn(): JSONResponse {
-		$user = $this->userSession->getUser();
-		$guard = $this->guard(user: $user, check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.get-own'));
+		$user = $this->caller->userSession->getUser();
+		$guard = $this->guard(user: $user, check: fn (IUser $caller) => $this->caller->actionAuth->requireAction($caller, 'profile-fields.get-own'));
 		if ($guard !== null || $user === null) {
 			return $guard ?? self::unauthenticated();
 		}
@@ -99,8 +94,8 @@ class ProfileFieldsController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function saveOwn(?array $values = null): JSONResponse {
-		$user = $this->userSession->getUser();
-		$guard = $this->guard(user: $user, check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.save-own'));
+		$user = $this->caller->userSession->getUser();
+		$guard = $this->guard(user: $user, check: fn (IUser $caller) => $this->caller->actionAuth->requireAction($caller, 'profile-fields.save-own'));
 		if ($guard !== null || $user === null) {
 			return $guard ?? self::unauthenticated();
 		}
@@ -108,7 +103,7 @@ class ProfileFieldsController extends Controller {
 		try {
 			$fields = $this->profileFields->saveOwnValues(userId: $user->getUID(), values: ($values ?? []));
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: ['fields' => $fields]);
@@ -123,7 +118,7 @@ class ProfileFieldsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getDefinitions(): JSONResponse {
-		$guard = $this->adminGuard(check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.get-definitions'));
+		$guard = $this->adminGuard(check: fn (IUser $caller) => $this->caller->actionAuth->requireAction($caller, 'profile-fields.get-definitions'));
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -142,7 +137,7 @@ class ProfileFieldsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function saveDefinitions(?array $fields = null): JSONResponse {
-		$guard = $this->adminGuard(check: fn (IUser $caller) => $this->actionAuth->requireAction($caller, 'profile-fields.save-definitions'));
+		$guard = $this->adminGuard(check: fn (IUser $caller) => $this->caller->actionAuth->requireAction($caller, 'profile-fields.save-definitions'));
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -150,7 +145,7 @@ class ProfileFieldsController extends Controller {
 		try {
 			$saved = $this->profileFields->saveDefinitions(raw: ($fields ?? []));
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(data: ['error' => $e->getMessage()], statusCode: Http::STATUS_BAD_REQUEST);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		return new JSONResponse(data: ['fields' => $saved]);
@@ -186,7 +181,7 @@ class ProfileFieldsController extends Controller {
 	 * @return JSONResponse|null An error response, or null when allowed.
 	 */
 	private function adminGuard(callable $check): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user !== null && $this->groupManager->isAdmin(userId: $user->getUID()) === false) {
 			return new JSONResponse(data: ['error' => 'Admin required'], statusCode: Http::STATUS_FORBIDDEN);
 		}

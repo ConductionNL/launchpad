@@ -32,6 +32,14 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\AdminTemplateStores;
+use OCA\LaunchPad\Service\ShowcasePlatform;
+use OCA\LaunchPad\Service\ShowcaseStores;
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -115,21 +123,31 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 	 */
 	private function buildDashboardService(): DashboardService {
 		return new DashboardService(
-			dashboardMapper:      $this->dashboardMapper,
-			placementMapper:      $this->placementMapper,
-			settingMapper:        $this->createMock(AdminSettingMapper::class),
-			templateService:      $this->createMock(TemplateService::class),
-			dashboardFactory:     new DashboardFactory(),
-			dashResolver:         $this->createMock(DashboardResolver::class),
-			treeService:          $this->createMock(DashboardTreeService::class),
-			groupManager:         $this->groupManager,
-			adminTemplateService: $this->createMock(\OCA\LaunchPad\Service\AdminTemplateService::class),
-			db:                   $this->db,
-			config:               $this->createMock(IConfig::class),
-			l10nFactory:          $this->createMock(IFactory::class),
-			logger:               $this->createMock(LoggerInterface::class),
-			personalLayers:       $this->createMock(PersonalLayerService::class),
-			eventDispatcher:      $this->eventDispatcher,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: new DashboardFactory(),
+				dashResolver: $this->createMock(DashboardResolver::class),
+				adminTemplateService: $this->createMock(\OCA\LaunchPad\Service\AdminTemplateService::class)
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->db,
+				config: $this->createMock(IConfig::class),
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class),
+				eventDispatcher: $this->eventDispatcher
+			)
 		);
 	}//end buildDashboardService()
 
@@ -259,12 +277,14 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 			));
 
 		$service = new AdminTemplateService(
-			dashboardMapper:  $this->dashboardMapper,
-			placementMapper:  $this->placementMapper,
-			settingsService:  $this->createMock(AdminSettingsService::class),
-			groupManager:     $this->groupManager,
-			userManager:      $this->createMock(IUserManager::class),
-			eventDispatcher:  $this->eventDispatcher,
+			stores: new AdminTemplateStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				eventDispatcher: $this->eventDispatcher
+			),
+			settingsService: $this->createMock(AdminSettingsService::class),
+			groupManager: $this->groupManager,
+			userManager: $this->createMock(IUserManager::class)
 		);
 
 		$service->deleteTemplate(id: 42);
@@ -303,15 +323,19 @@ class DashboardCascadeEventDispatchTest extends TestCase {
 			));
 
 		$service = new DemoShowcasesService(
-			dashboardMapper:  $this->dashboardMapper,
-			placementMapper:  $this->placementMapper,
-			db:               $this->db,
-			appConfig:        $appConfig,
-			dashboardManager: $this->createMock(IManager::class),
-			logger:           $this->createMock(LoggerInterface::class),
-			lockingProvider:  $this->createMock(ILockingProvider::class),
-			urlGenerator:     $this->createMock(IURLGenerator::class),
-			eventDispatcher:  $this->eventDispatcher,
+			stores: new ShowcaseStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				lockingProvider: $this->createMock(ILockingProvider::class)
+			),
+			platform: new ShowcasePlatform(
+				appConfig: $appConfig,
+				dashboardManager: $this->createMock(IManager::class),
+				urlGenerator: $this->createMock(IURLGenerator::class),
+				eventDispatcher: $this->eventDispatcher
+			),
+			logger: $this->createMock(LoggerInterface::class)
 		);
 
 		$service->uninstallShowcase(showcaseId: 'de-bron');

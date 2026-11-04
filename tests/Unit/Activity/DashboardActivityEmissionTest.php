@@ -26,7 +26,14 @@ declare(strict_types=1);
 
 namespace Unit\Activity;
 
+use OCA\LaunchPad\Service\DashboardOutlets;
+use OCA\LaunchPad\Service\DashboardPlatform;
+use OCA\LaunchPad\Service\DashboardStructure;
+use OCA\LaunchPad\Service\DashboardBuilders;
+use OCA\LaunchPad\Service\DashboardStores;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivitySubject;
+use OCA\LaunchPad\Activity\ActivityRow;
 use OCA\LaunchPad\Activity\DashboardActivityEmitter;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Activity\Extension;
@@ -41,6 +48,7 @@ use OCA\LaunchPad\Service\DashboardFactory;
 use OCA\LaunchPad\Service\DashboardResolver;
 use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareGrant;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\PersonalLayerService;
 use OCA\LaunchPad\Service\TemplateService;
@@ -130,43 +138,52 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->groupManager->method('isAdmin')->willReturn(true);
 
 		return new DashboardService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->createMock(WidgetPlacementMapper::class),
-			settingMapper: $this->createMock(AdminSettingMapper::class),
-			templateService: $this->createMock(TemplateService::class),
-			dashboardFactory: $this->createMock(DashboardFactory::class),
-			dashResolver: $this->createMock(DashboardResolver::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			groupManager: $this->groupManager,
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			db: $this->createMock(IDBConnection::class),
-			config: $this->createMock(IConfig::class),
-			l10nFactory: $this->createMock(IFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
-			personalLayers: $this->createMock(PersonalLayerService::class),
-			footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class),
-			activity: $this->emitter,
+			stores: new DashboardStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->createMock(WidgetPlacementMapper::class),
+				settingMapper: $this->createMock(AdminSettingMapper::class)
+			),
+			builders: new DashboardBuilders(
+				templateService: $this->createMock(TemplateService::class),
+				dashboardFactory: $this->createMock(DashboardFactory::class),
+				dashResolver: $this->createMock(DashboardResolver::class),
+				adminTemplateService: $this->createMock(AdminTemplateService::class)
+			),
+			structure: new DashboardStructure(
+				treeService: $this->createMock(DashboardTreeService::class),
+				personalLayers: $this->createMock(PersonalLayerService::class),
+				footerService: $this->createMock(\OCA\LaunchPad\Service\FooterService::class)
+			),
+			platform: new DashboardPlatform(
+				groupManager: $this->groupManager,
+				db: $this->createMock(IDBConnection::class),
+				config: $this->createMock(IConfig::class),
+				l10nFactory: $this->createMock(IFactory::class)
+			),
+			outlets: new DashboardOutlets(
+				logger: $this->createMock(LoggerInterface::class),
+				activity: $this->emitter
+			)
 		);
 	}
 
 	public function testSharingWithAUserSendsDashboardSharedToThatUser(): void {
 		$this->publisher->expects($this->once())->method('publishToRecipients')
 			->with(
-				Extension::EVENT_SHARED,
-				'alice',
-				'dash-7',
-				'Team board',
-				'',
-				['bob'],
-				$this->callback(static fn (array $p): bool => ($p['recipient'] ?? '') === 'bob')
+				$this->callback(
+					static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_SHARED
+						&& $row->actorUserId === 'alice'
+						&& $row->dashboard == new ActivitySubject(uuid: 'dash-7', name: 'Team board')
+						&& ($row->extraParams['recipient'] ?? '') === 'bob'
+						&& ($row->extraParams['role'] ?? '') === Dashboard::PERMISSION_VIEW_ONLY
+				),
+				['bob']
 			)
 			->willReturn(2);
 
 		$this->shareService($this->dashboard())->addShare(
 			dashboardId: 7,
-			shareType: DashboardShare::SHARE_TYPE_USER,
-			shareWith: 'bob',
-			permissionLevel: Dashboard::PERMISSION_VIEW_ONLY,
+			grant: new ShareGrant(shareType: DashboardShare::SHARE_TYPE_USER, shareWith: 'bob', permissionLevel: Dashboard::PERMISSION_VIEW_ONLY),
 			callerId: 'alice'
 		);
 	}
@@ -177,7 +194,7 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 
 		$this->publisher->expects($this->once())->method('publishToGroup')
-			->with(Extension::EVENT_PUBLISHED, 'alice', 'staff', 'dash-7', 'Team board', '')
+			->with(new ActivityRow(Extension::EVENT_PUBLISHED, 'alice', new ActivitySubject('dash-7', 'Team board')), 'staff')
 			->willReturn(3);
 
 		$service = $this->dashboardService();
@@ -193,7 +210,10 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->shareMapper->method('findByDashboardId')->willReturn([]);
 
 		$this->publisher->expects($this->once())->method('publishToGroup')
-			->with(Extension::EVENT_PUBLISHED, 'alice', 'staff');
+			->with(
+				$this->callback(static fn (ActivityRow $row): bool => $row->type === Extension::EVENT_PUBLISHED && $row->actorUserId === 'alice'),
+				'staff'
+			);
 
 		$this->assertSame(1, $this->dashboardService()->materialiseScheduledDashboards());
 	}
@@ -205,8 +225,8 @@ class DashboardActivityEmissionTest extends TestCase {
 
 		$calls = 0;
 		$this->publisher->method('publishToGroup')->willReturnCallback(
-			function (string $type) use (&$calls): int {
-				$this->assertSame(Extension::EVENT_UPDATED, $type);
+			function (ActivityRow $row) use (&$calls): int {
+				$this->assertSame(Extension::EVENT_UPDATED, $row->type);
 				$calls++;
 				return 1;
 			}
@@ -232,6 +252,20 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->dashboardService()->updateDashboard(dashboardId: 7, userId: 'alice', data: ['name' => 'Mine']);
 	}
 
+	public function testSavingADashboardSharedWithAGroupTellsThatGroup(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->dashboard());
+		$share = new DashboardShare();
+		$share->setShareType(DashboardShare::SHARE_TYPE_GROUP);
+		$share->setShareWith('sales');
+		$this->shareMapper->method('findByDashboardId')->willReturn([$share]);
+
+		$this->publisher->expects($this->never())->method('publishToRecipients');
+		$this->publisher->expects($this->once())->method('publishToGroup')
+			->with(new ActivityRow(Extension::EVENT_UPDATED, 'alice', new ActivitySubject('dash-7', 'Ours')), 'sales');
+
+		$this->dashboardService()->updateDashboard(dashboardId: 7, userId: 'alice', data: ['name' => 'Ours']);
+	}
+
 	public function testSavingADashboardSharedWithAUserTellsThatUser(): void {
 		$this->dashboardMapper->method('find')->willReturn($this->dashboard());
 		$share = new DashboardShare();
@@ -240,7 +274,7 @@ class DashboardActivityEmissionTest extends TestCase {
 		$this->shareMapper->method('findByDashboardId')->willReturn([$share]);
 
 		$this->publisher->expects($this->once())->method('publishToRecipients')
-			->with(Extension::EVENT_UPDATED, 'alice', 'dash-7', 'Ours', '', ['bob']);
+			->with(new ActivityRow(Extension::EVENT_UPDATED, 'alice', new ActivitySubject('dash-7', 'Ours')), ['bob']);
 
 		$this->dashboardService()->updateDashboard(dashboardId: 7, userId: 'alice', data: ['name' => 'Ours']);
 	}

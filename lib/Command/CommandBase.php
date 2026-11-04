@@ -135,10 +135,7 @@ abstract class CommandBase extends Command {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	final protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	final protected function execute(InputInterface $input, OutputInterface $output): int {
 		$started = (int)round(num: (microtime(as_float: true) * 1000));
 		$exitCode = CommandService::EXIT_ERROR;
 		try {
@@ -161,11 +158,13 @@ abstract class CommandBase extends Command {
 		} finally {
 			$finished = (int)round(num: (microtime(as_float: true) * 1000));
 			$this->commandService->audit(
-				command: $this->stripPrefix(name: (string)$this->getName()),
-				args: $this->collectArgsForAudit(input: $input),
-				exitCode: $exitCode,
-				durationMs: ($finished - $started),
-				byUser: $this->resolveByUser()
+				run: [
+					'command'    => $this->stripPrefix(name: (string)$this->getName()),
+					'args'       => $this->collectArgsForAudit(input: $input),
+					'exitCode'   => $exitCode,
+					'durationMs' => ($finished - $started),
+					'byUser'     => $this->resolveByUser(),
+				]
 			);
 		}//end try
 
@@ -243,25 +242,21 @@ abstract class CommandBase extends Command {
 	 * line on stderr (always; `--quiet` does NOT mute errors per
 	 * REQ-CLI-002).
 	 *
-	 * @param InputInterface $input CLI input.
-	 * @param OutputInterface $output CLI output.
-	 * @param int $exitCode Exit code constant.
-	 * @param string $code Stable error identifier.
-	 * @param string $message Human-readable text.
-	 * @param array<string,mixed>|null $context Optional metadata.
+	 * @param InputInterface       $input  CLI input.
+	 * @param OutputInterface      $output CLI output.
+	 * @param array<string, mixed> $error  `exitCode` (exit code constant), `code` (stable error
+	 *                                     identifier), `message` (human-readable text) and optional
+	 *                                     `context` (metadata).
 	 *
 	 * @return int Echoes back the exit code for caller convenience.
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	final protected function emitError(
-		InputInterface $input,
-		OutputInterface $output,
-		int $exitCode,
-		string $code,
-		string $message,
-		?array $context = null,
-	): int {
+	final protected function emitError(InputInterface $input, OutputInterface $output, array $error): int {
+		$exitCode = (int)$error['exitCode'];
+		$code     = (string)$error['code'];
+		$message  = (string)$error['message'];
+		$context  = $error['context'] ?? null;
 		if ($this->isJson(input: $input) === true) {
 			$output->writeln(
 				messages: $this->commandService->encodeEnvelope(
@@ -281,6 +276,22 @@ abstract class CommandBase extends Command {
 
 		return $exitCode;
 	}//end emitError()
+
+	/**
+	 * Emit the not-found error for a dashboard UUID.
+	 *
+	 * @param InputInterface  $input  CLI input.
+	 * @param OutputInterface $output CLI output.
+	 * @param string          $uuid   The UUID that matched no dashboard.
+	 *
+	 * @return int The not-found exit code.
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	final protected function emitDashboardNotFound(InputInterface $input, OutputInterface $output, string $uuid): int {
+		$error = ['exitCode' => CommandService::EXIT_NOT_FOUND, 'code' => 'NOT_FOUND', 'message' => 'Dashboard not found', 'context' => ['uuid' => $uuid]];
+		return $this->emitError(input: $input, output: $output, error: $error);
+	}//end emitDashboardNotFound()
 
 	/**
 	 * Write a line to the dedicated stderr stream when the runtime
@@ -312,7 +323,7 @@ abstract class CommandBase extends Command {
 	 */
 	private function stripPrefix(string $name): string {
 		if (str_starts_with(haystack: $name, needle: 'launchpad:') === true) {
-			return substr(string: $name, offset: 7);
+			return substr(string: $name, offset: strlen(string: 'launchpad:'));
 		}
 
 		return $name;

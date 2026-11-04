@@ -275,132 +275,82 @@ class AdminSettingsService {
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
-	 * Update admin settings.
+	 * The settings updateSettings() writes as given, by input name.
 	 *
-	 * @param string|null $defaultPermLevel Default permission level.
-	 * @param bool|null $allowUserDash Allow user dashboards.
-	 * @param bool|null $allowMultiDash Allow multiple dashboards.
-	 * @param int|null $defaultGridCols Default grid columns.
-	 * @param array|null $linkCreateFileExts link-button-widget
-	 *                                       createFile
-	 *                                       extension
-	 *                                       allow-list
-	 *                                       (REQ-LBN-004).
-	 * @param string|null $defaultSharePermissionLevel Org-wide default share
-	 *                                                 permission level
-	 *                                                 (dashboard-sharing spec).
-	 * @param array|null $forcedShareGroups Groups every new dashboard is
-	 *                                      force-shared with
-	 *                                      (dashboard-sharing spec).
-	 * @param bool|null $legacyWidgetBridgeEnabled Enable / disable the
-	 *                                             legacy widget bridge
-	 *                                             (legacy-widget-bridge
-	 *                                             spec).
-	 * @param int|null $maxDashboardsPerUser Maximum personal
-	 *                                       dashboards per user
-	 *                                       (`0` = unlimited;
-	 *                                       clamped to
-	 *                                       `[0, 10000]`).
-	 *                                       dashboard-quota-limits
-	 *                                       REQ-QUOTA-001.
-	 * @param int|null $maxWidgetsPerDashboard Maximum placements per
-	 *                                         dashboard (`0` =
-	 *                                         unlimited; clamped to
-	 *                                         `[0, 10000]`).
-	 *                                         dashboard-quota-limits
-	 *                                         REQ-QUOTA-001.
-	 * @param string|null $quicksearchFallbackTarget No-match fallback for
-	 *                                               the on-dashboard quick
-	 *                                               search: `'none'`,
-	 *                                               `'unified-search'`, or
-	 *                                               an `https` URL
-	 *                                               template containing
-	 *                                               `{query}`.
-	 *                                               tile-quick-search
-	 *                                               REQ-QSEARCH-004.
-	 * @param bool|null $startPageWithoutNavigation Render the dashboard
-	 *                                              view without the left
-	 *                                              navigation panel
-	 *                                              (runtime-shell
-	 *                                              REQ-SHELL-009).
+	 * @var array<string, string>
+	 */
+	private const PLAIN_SETTINGS = [
+		'defaultPermLevel' => AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
+		'allowUserDash'    => AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
+		'allowMultiDash'   => AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS,
+		'defaultGridCols'  => AdminSetting::KEY_DEFAULT_GRID_COLUMNS,
+	];
+
+	/**
+	 * Update admin settings. A setting that is absent or null is left as it is.
+	 *
+	 * @param array<string, mixed> $settings The settings to write, by name:
+	 *                                       `defaultPermLevel` (default permission level),
+	 *                                       `allowUserDash` and `allowMultiDash` (allow user and
+	 *                                       multiple dashboards), `defaultGridCols` (default grid
+	 *                                       columns), `linkCreateFileExts` (link-button-widget
+	 *                                       createFile extension allow-list, REQ-LBN-004),
+	 *                                       `defaultSharePermissionLevel` and `forcedShareGroups`
+	 *                                       (org-wide default share permission level and the groups
+	 *                                       every new dashboard is force-shared with,
+	 *                                       dashboard-sharing spec), `legacyWidgetBridgeEnabled`
+	 *                                       (legacy-widget-bridge spec), `maxDashboardsPerUser` and
+	 *                                       `maxWidgetsPerDashboard` (quotas, `0` = unlimited,
+	 *                                       clamped to `[0, 10000]`, REQ-QUOTA-001),
+	 *                                       `quicksearchFallbackTarget` (`'none'`,
+	 *                                       `'unified-search'` or an `https` URL template containing
+	 *                                       `{query}`, REQ-QSEARCH-004) and
+	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009).
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When
-	 *                                   `$defaultSharePermissionLevel` or
-	 *                                   `$quicksearchFallbackTarget` is not
-	 *                                   a valid value.
+	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel` or
+	 *                                   `quicksearchFallbackTarget` is not a valid value.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 */
-	public function updateSettings(
-		?string $defaultPermLevel = null,
-		?bool $allowUserDash = null,
-		?bool $allowMultiDash = null,
-		?int $defaultGridCols = null,
-		?array $linkCreateFileExts = null,
-		?string $defaultSharePermissionLevel = null,
-		?array $forcedShareGroups = null,
-		?bool $legacyWidgetBridgeEnabled = null,
-		?int $maxDashboardsPerUser = null,
-		?int $maxWidgetsPerDashboard = null,
-		?string $quicksearchFallbackTarget = null,
-		?bool $startPageWithoutNavigation = null,
-	): void {
-		if ($defaultPermLevel !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
-				value: $defaultPermLevel
-			);
+	public function updateSettings(array $settings): void {
+		foreach (self::PLAIN_SETTINGS as $name => $key) {
+			$this->persistIfGiven(key: $key, value: $settings[$name] ?? null);
 		}
 
-		if ($allowUserDash !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
-				value: $allowUserDash
-			);
-		}
-
-		if ($allowMultiDash !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS,
-				value: $allowMultiDash
-			);
-		}
-
-		if ($defaultGridCols !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_DEFAULT_GRID_COLUMNS,
-				value: $defaultGridCols
-			);
-		}
-
-		if ($linkCreateFileExts !== null) {
+		$extensions = $settings['linkCreateFileExts'] ?? null;
+		if ($extensions !== null) {
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
-				value: $this->normaliseExtensions(input: $linkCreateFileExts)
+				value: $this->normaliseExtensions(input: $extensions)
 			);
 		}
 
-		$this->persistQuotaAndQuicksearchSettings(
-			maxDashboardsPerUser: $maxDashboardsPerUser,
-			maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
-			quicksearchFallbackTarget: $quicksearchFallbackTarget
-		);
+		$this->persistQuotaAndQuicksearchSettings(settings: $settings);
 
 		$this->persistSharingAndBridgeSettings(
-			defaultSharePermissionLevel: $defaultSharePermissionLevel,
-			forcedShareGroups: $forcedShareGroups,
-			legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
+			forcedShareGroups: $settings['forcedShareGroups'] ?? null,
+			legacyWidgetBridgeEnabled: $settings['legacyWidgetBridgeEnabled'] ?? null
 		);
 
-		if ($startPageWithoutNavigation !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION,
-				value: $startPageWithoutNavigation
-			);
-		}
+		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
 	}//end updateSettings()
+
+	/**
+	 * Write one setting when a value is given.
+	 *
+	 * @param string $key   The setting key.
+	 * @param mixed  $value The value, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 */
+	private function persistIfGiven(string $key, mixed $value): void {
+		if ($value !== null) {
+			$this->settingMapper->setSetting(key: $key, value: $value);
+		}
+	}//end persistIfGiven()
 
 	/**
 	 * Persist the per-user quota limits and the quick-search fallback target.
@@ -409,19 +359,19 @@ class AdminSettingsService {
 	 * stays under the method-length threshold. Each value is only written
 	 * when non-null (partial-patch contract).
 	 *
-	 * @param int|null $maxDashboardsPerUser Per-user dashboard quota.
-	 * @param int|null $maxWidgetsPerDashboard Per-dashboard widget quota.
-	 * @param string|null $quicksearchFallbackTarget No-match fallback target.
+	 * @param array<string, mixed> $settings The settings: `maxDashboardsPerUser` (per-user
+	 *                                       dashboard quota), `maxWidgetsPerDashboard`
+	 *                                       (per-dashboard widget quota) and
+	 *                                       `quicksearchFallbackTarget` (no-match fallback target).
 	 *
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException When the fallback target is invalid.
 	 */
-	private function persistQuotaAndQuicksearchSettings(
-		?int $maxDashboardsPerUser,
-		?int $maxWidgetsPerDashboard,
-		?string $quicksearchFallbackTarget,
-	): void {
+	private function persistQuotaAndQuicksearchSettings(array $settings): void {
+		$maxDashboardsPerUser      = $settings['maxDashboardsPerUser'] ?? null;
+		$maxWidgetsPerDashboard    = $settings['maxWidgetsPerDashboard'] ?? null;
+		$quicksearchFallbackTarget = $settings['quicksearchFallbackTarget'] ?? null;
 		// Dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
 		// numeric quotas clamped into `[0, 10000]` so a negative or
 		// out-of-range value is never stored.

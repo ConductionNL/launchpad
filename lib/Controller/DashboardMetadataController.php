@@ -28,10 +28,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -40,7 +37,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Dashboard metadata read/write controller.
@@ -49,32 +45,24 @@ use OCP\IUserSession;
  * source of truth for dashboard ACL (H5, REQ-MDFL-008).
  */
 class DashboardMetadataController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param MetadataService $metadataService The metadata service facade.
-	 * @param DashboardMapper $dashboardMapper For dashboard lookup.
-	 * @param PermissionService $permissionService Authoritative ACL service
-	 *                                             (replaces inline canRead /
+	 * @param IRequest          $request The HTTP request.
+	 * @param MetadataApiCaller $caller The metadata sources, session and action check.
+	 * @param PermissionService $permissionService Authoritative ACL service (replaces inline canRead /
 	 *                                             canWrite helpers — H5).
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId The active user id.
+	 * @param string|null       $userId The active user id.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MetadataService $metadataService,
-		private readonly DashboardMapper $dashboardMapper,
+		private readonly MetadataApiCaller $caller,
 		private readonly PermissionService $permissionService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -93,23 +81,20 @@ class DashboardMetadataController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-metadata.get-metadata');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-metadata.get-metadata');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
 		if ($dashboard === null) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// H5: delegate to PermissionService — the single ACL source of truth.
@@ -121,7 +106,7 @@ class DashboardMetadataController extends Controller {
 			return ResponseHelper::forbidden();
 		}
 
-		$metadata = $this->metadataService->getMetadataForDashboard(
+		$metadata = $this->caller->sources->metadataService->getMetadataForDashboard(
 			dashboardUuid: $uuid
 		);
 
@@ -141,12 +126,12 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function fields(): JSONResponse {
-		if ($this->userId === null || $this->userSession->getUser() === null) {
+		if ($this->userId === null || $this->caller->userSession->getUser() === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		return ResponseHelper::success(
-			data: ['fields' => ResponseHelper::serializeList(entities: $this->metadataService->listFields())]
+			data: ['fields' => ResponseHelper::serializeList(entities: $this->caller->sources->metadataService->listFields())]
 		);
 	}//end fields()
 
@@ -170,23 +155,20 @@ class DashboardMetadataController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-metadata.set-metadata');
+			$this->caller->actionAuth->requireAction($user, 'dashboard-metadata.set-metadata');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
 		if ($dashboard === null) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		// H5: delegate to PermissionService — canEditDashboardMetadata is
@@ -202,7 +184,7 @@ class DashboardMetadataController extends Controller {
 		}
 
 		try {
-			$updated = $this->metadataService->setMetadataForDashboard(
+			$updated = $this->caller->sources->metadataService->setMetadataForDashboard(
 				dashboardUuid: $uuid,
 				keyValues: $metadata
 			);
@@ -228,7 +210,7 @@ class DashboardMetadataController extends Controller {
 	 */
 	private function loadDashboard(string $uuid): ?Dashboard {
 		try {
-			return $this->dashboardMapper->findByUuid(uuid: $uuid);
+			return $this->caller->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return null;
 		}

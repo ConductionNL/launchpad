@@ -76,6 +76,7 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { REQUIRED_TEXT_PROP } from '../../../constants/propDefinitions.js'
 import { api } from '../../../services/api.js'
 
 /**
@@ -99,10 +100,7 @@ export default {
 	},
 
 	props: {
-		dashboardUuid: {
-			type: String,
-			required: true,
-		},
+		dashboardUuid: REQUIRED_TEXT_PROP,
 	},
 
 	/** @spec openspec/specs/dashboard-metadata-fields/spec.md */

@@ -72,7 +72,7 @@ class FileControllerTest extends TestCase {
 
 	public function testHappyPathReturnsSuccessEnvelope(): void {
 		$this->fileService->method('createFile')
-			->with('alice', 'hello.txt', '/', 'hi')
+			->with('alice', 'hello.txt', ['dir' => '/', 'content' => 'hi', 'onExisting' => FileService::ON_EXISTING_REPLACE])
 			->willReturn([
 				'status' => 'success',
 				'fileId' => 42,
@@ -98,7 +98,7 @@ class FileControllerTest extends TestCase {
 	public function testOverwriteFalseOnExistingFileMapsToHttp409(): void {
 		$this->request->method('getParam')->willReturnMap([['overwrite', null, false]]);
 		$this->fileService->expects($this->once())->method('createFile')
-			->with('alice', 'report.docx', '/', '', FileService::ON_EXISTING_REFUSE)
+			->with('alice', 'report.docx', ['dir' => '/', 'content' => '', 'onExisting' => FileService::ON_EXISTING_REFUSE])
 			->willThrowException(new FileAlreadyExistsException());
 
 		$response = $this->controller->createFile(
@@ -113,7 +113,7 @@ class FileControllerTest extends TestCase {
 
 	public function testOverwriteDefaultsToTrue(): void {
 		$this->fileService->expects($this->once())->method('createFile')
-			->with('alice', 'report.docx', '/', '', FileService::ON_EXISTING_REPLACE)
+			->with('alice', 'report.docx', ['dir' => '/', 'content' => '', 'onExisting' => FileService::ON_EXISTING_REPLACE])
 			->willReturn(['status' => 'success', 'fileId' => 1, 'url' => 'u']);
 
 		$response = $this->controller->createFile(filename: 'report.docx');

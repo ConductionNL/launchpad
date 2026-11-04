@@ -46,7 +46,6 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -64,20 +63,16 @@ class ResourceController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param ResourceService $resourceService The upload pipeline.
-	 * @param ResourceUploadRequestParser $parser Parses request body.
-	 * @param IUserSession $userSession Session accessor.
+	 * @param IRequest      $request The HTTP request.
+	 * @param ResourceTools $tools The resource service, upload request parser and logger.
+	 * @param IUserSession  $userSession Session accessor.
 	 * @param IGroupManager $groupManager Admin checker.
-	 * @param LoggerInterface $logger PSR logger.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ResourceService $resourceService,
-		private readonly ResourceUploadRequestParser $parser,
+		private readonly ResourceTools $tools,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(
 			appName: 'launchpad',
@@ -104,12 +99,12 @@ class ResourceController extends Controller {
 	public function upload(): JSONResponse {
 		try {
 			$this->assertAdmin();
-			$base64 = $this->parser->extractBase64(
+			$base64 = $this->tools->parser->extractBase64(
 				request: $this->request,
 				rawBody: $this->readRequestBody()
 			);
 
-			$result = $this->resourceService->upload(
+			$result = $this->tools->resourceService->upload(
 				base64DataUrl: $base64
 			);
 
@@ -126,7 +121,7 @@ class ResourceController extends Controller {
 			// Log storage failures — these usually indicate an
 			// operational problem (disk, permissions, etc.).
 			if ($e instanceof StorageFailureException) {
-				$this->logger->error(
+				$this->tools->logger->error(
 					message: 'Resource upload storage failure',
 					context: ['exception' => $e->getMessage()]
 				);
@@ -136,7 +131,7 @@ class ResourceController extends Controller {
 		} catch (Throwable $e) {
 			// Defence in depth — never leak raw messages on truly
 			// unexpected paths.
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'Unexpected resource upload failure',
 				context: ['exception' => $e->getMessage()]
 			);
@@ -178,7 +173,7 @@ class ResourceController extends Controller {
 				throw new FileMissingException();
 			}
 
-			$result = $this->resourceService->uploadRaw(
+			$result = $this->tools->resourceService->uploadRaw(
 				bytes: $file['bytes'],
 				declaredType: $this->declaredTypeFromName(name: $file['name'])
 			);
@@ -194,7 +189,7 @@ class ResourceController extends Controller {
 			);
 		} catch (ResourceException $e) {
 			if ($e instanceof StorageFailureException) {
-				$this->logger->error(
+				$this->tools->logger->error(
 					message: 'Resource multipart upload storage failure',
 					context: ['exception' => $e->getMessage()]
 				);
@@ -202,7 +197,7 @@ class ResourceController extends Controller {
 
 			return $this->errorResponse(exception: $e);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'Unexpected resource multipart upload failure',
 				context: ['exception' => $e->getMessage()]
 			);

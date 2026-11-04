@@ -27,8 +27,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\AcknowledgementService;
-use OCA\LaunchPad\Service\RoleService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -38,7 +36,6 @@ use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -52,28 +49,23 @@ use Throwable;
  * @spec openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
  */
 class AcknowledgementController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param AcknowledgementService $acknowledgementService The service.
-	 * @param RoleService $roleService LaunchPad role gate.
-	 * @param IGroupManager $groupManager NC admin check.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId Acting user ID.
+	 * @param IRequest             $request The request.
+	 * @param AcknowledgementTools $tools The acknowledgement and role services and the logger.
+	 * @param IGroupManager        $groupManager NC admin check.
+	 * @param string|null          $userId Acting user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AcknowledgementService $acknowledgementService,
-		private readonly RoleService $roleService,
+		private readonly AcknowledgementTools $tools,
 		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -93,10 +85,7 @@ class AcknowledgementController extends Controller {
 
 		$announcementKey = (string)$this->request->getParam(key: 'announcementKey', default: '');
 		if ($announcementKey === '') {
-			return new JSONResponse(
-				data: ['error' => 'announcementKey is required'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		// Reject any attempt to acknowledge on behalf of another user
@@ -109,30 +98,80 @@ class AcknowledgementController extends Controller {
 			);
 		}
 
+		$denied = $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->userId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
 		$contentVersion = (int)$this->request->getParam(key: 'contentVersion', default: 1);
 		if ($contentVersion < 1) {
 			$contentVersion = 1;
 		}
 
+		$invalid = $this->rejectUnpublishedVersion(announcementKey: $announcementKey, contentVersion: $contentVersion);
+		if ($invalid !== null) {
+			return $invalid;
+		}
+
 		try {
-			$receipt = $this->acknowledgementService->acknowledge(
+			$receipt = $this->tools->acknowledgements->acknowledge(
 				announcementKey: $announcementKey,
 				userId: $this->userId,
 				contentVersion: $contentVersion
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'acknowledge failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $receipt->jsonSerialize());
 	}//end acknowledge()
+
+	/**
+	 * Refuse a user outside the announcement's live audience (REQ-ACK-003,
+	 * ADR-005). An unknown announcement has no audience.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param string $userId          The session user.
+	 *
+	 * @return JSONResponse|null The 403, or null when the user may acknowledge.
+	 */
+	private function denyOutsideAudience(string $announcementKey, string $userId): ?JSONResponse {
+		if ($this->tools->acknowledgements->isAllowedToAcknowledge(announcementKey: $announcementKey, userId: $userId) === false) {
+			return ResponseHelper::forbidden(
+				message: 'This announcement is not addressed to you'
+			);
+		}
+
+		return null;
+	}//end denyOutsideAudience()
+
+	/**
+	 * Refuse a content version newer than the announcement's current one for
+	 * the session user (the template's version, or without a template the
+	 * version on the user's own copy), so
+	 * no receipt can exist for content that was not published yet
+	 * (REQ-ACK-005). An older version stays accepted: a copy that has not
+	 * been re-synced yet still shows it.
+	 *
+	 * @param string $announcementKey The announcement identity.
+	 * @param int    $contentVersion  The version from the request.
+	 *
+	 * @return JSONResponse|null The 400, or null when the version is published.
+	 */
+	private function rejectUnpublishedVersion(string $announcementKey, int $contentVersion): ?JSONResponse {
+		$current = $this->tools->acknowledgements->currentContentVersion(announcementKey: $announcementKey, userId: (string)$this->userId);
+		if ($current === null || $contentVersion > $current) {
+			return ResponseHelper::invalidArgument(
+				message: 'contentVersion is not a published version of this announcement'
+			);
+		}
+
+		return null;
+	}//end rejectUnpublishedVersion()
 
 	/**
 	 * GET /api/acknowledgements/pending — the current user's outstanding
@@ -149,16 +188,13 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$result = $this->acknowledgementService->getPending(userId: $this->userId);
+			$result = $this->tools->acknowledgements->getPending(userId: $this->userId);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'pending failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $result);
@@ -188,23 +224,17 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$report = $this->acknowledgementService->report(
+			$report = $this->tools->acknowledgements->report(
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'report failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return ResponseHelper::success(data: $report);
@@ -235,23 +265,17 @@ class AcknowledgementController extends Controller {
 		}
 
 		try {
-			$report = $this->acknowledgementService->report(
+			$report = $this->tools->acknowledgements->report(
 				announcementKey: $announcementKey
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Unknown announcement'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'reportCsv failed: ' . $e->getMessage(),
 				context: ['exception' => $e]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		$csv = $this->buildCsv(report: $report);
@@ -318,11 +342,11 @@ class AcknowledgementController extends Controller {
 			return true;
 		}
 
-		if ($this->roleService->isAdmin(userId: $this->userId) === true) {
+		if ($this->tools->roleService->isAdmin(userId: $this->userId) === true) {
 			return true;
 		}
 
-		$owner = $this->acknowledgementService->resolveOwnerUserId(
+		$owner = $this->tools->acknowledgements->resolveOwnerUserId(
 			announcementKey: $announcementKey
 		);
 

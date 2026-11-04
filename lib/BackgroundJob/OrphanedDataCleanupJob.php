@@ -36,7 +36,6 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJob;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
-use Psr\Log\LoggerInterface;
 
 /**
  * Daily auto-purge job.
@@ -64,26 +63,16 @@ class OrphanedDataCleanupJob extends TimedJob {
 	/**
 	 * Constructor.
 	 *
-	 * @param ITimeFactory $time Time factory
-	 *                           (parent
-	 *                           requirement).
+	 * @param ITimeFactory               $time Time factory (parent requirement).
 	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
-	 * @param CategoryRegistryService $registry Category registry
-	 *                                          for the auto-safe
-	 *                                          default list.
-	 * @param IAppConfig $appConfig App config to
-	 *                              read the
-	 *                              admin-chosen
-	 *                              auto-purge
-	 *                              set.
-	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param CategoryRegistryService    $registry Category registry for the auto-safe default list.
+	 * @param CleanupJobTools            $tools The app config and logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
 		private readonly OrphanedDataCleanupService $cleanupService,
 		private readonly CategoryRegistryService $registry,
-		private readonly IAppConfig $appConfig,
-		private readonly LoggerInterface $logger,
+		private readonly CleanupJobTools $tools,
 	) {
 		parent::__construct(time: $time);
 		$this->setInterval(seconds: self::INTERVAL_SECONDS);
@@ -112,7 +101,7 @@ class OrphanedDataCleanupJob extends TimedJob {
 		$categories = $this->resolveCategories();
 
 		if (count(value: $categories) === 0) {
-			$this->logger->info(
+			$this->tools->logger->info(
 				message: 'launchpad.cleanup.job_skipped reason=no_categories_enabled'
 			);
 			return;
@@ -125,7 +114,7 @@ class OrphanedDataCleanupJob extends TimedJob {
 			source: 'job',
 		);
 
-		$this->logger->info(
+		$this->tools->logger->info(
 			message: sprintf(
 				'launchpad.cleanup.job_run rows=%d duration_ms=%d categories=%s',
 				$result->getTotalRows(),
@@ -147,7 +136,7 @@ class OrphanedDataCleanupJob extends TimedJob {
 	 * @return array<int, string> The category names.
 	 */
 	private function resolveCategories(): array {
-		$raw = $this->appConfig->getValueString(
+		$raw = $this->tools->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_CATEGORIES,
 			default: ''
@@ -159,7 +148,7 @@ class OrphanedDataCleanupJob extends TimedJob {
 
 		$decoded = json_decode(json: $raw, associative: true);
 		if (is_array(value: $decoded) === false) {
-			$this->logger->warning(
+			$this->tools->logger->warning(
 				message: sprintf(
 					'launchpad.cleanup.job_config_invalid raw=%s',
 					$raw

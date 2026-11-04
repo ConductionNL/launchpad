@@ -1,0 +1,1667 @@
+{
+    "clearDefaultTemplates / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "admin_template",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearDefaultTemplates / no row": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "admin_template",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearDefaultTemplates / null count": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "admin_template",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearDefaultTemplates / three": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "admin_template",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearDefaultTemplates / zero": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "admin_template",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults / no cnt column": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults / no row": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults / null count": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults / three": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults / zero": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults no except / no cnt column": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults no except / no row": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults no except / null count": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults no except / three": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "clearGroupDefaults no except / zero": {
+        "returned": 2,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "countByDashboardId / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                9,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardId / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                9,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardId / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                9,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardId / three": {
+        "returned": 3,
+        "bound": [
+            [
+                9,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardId / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                9,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardUuid / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardUuid / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardUuid / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardUuid / three": {
+        "returned": 3,
+        "bound": [
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByDashboardUuid / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByGroup / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByGroup / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByGroup / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByGroup / three": {
+        "returned": 3,
+        "bound": [
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countByGroup / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countChildrenByParent / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                "p-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countChildrenByParent / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                "p-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countChildrenByParent / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                "p-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countChildrenByParent / three": {
+        "returned": 3,
+        "bound": [
+            [
+                "p-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countChildrenByParent / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                "p-1",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countPersonalByUserId / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                "alice",
+                2
+            ],
+            [
+                "user",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countPersonalByUserId / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                "alice",
+                2
+            ],
+            [
+                "user",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countPersonalByUserId / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                "alice",
+                2
+            ],
+            [
+                "user",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countPersonalByUserId / three": {
+        "returned": 3,
+        "bound": [
+            [
+                "alice",
+                2
+            ],
+            [
+                "user",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countPersonalByUserId / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                "alice",
+                2
+            ],
+            [
+                "user",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countReactorsByEmoji / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ],
+            [
+                "x",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countReactorsByEmoji / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ],
+            [
+                "x",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countReactorsByEmoji / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ],
+            [
+                "x",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countReactorsByEmoji / three": {
+        "returned": 3,
+        "bound": [
+            [
+                "d-1",
+                2
+            ],
+            [
+                "x",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countReactorsByEmoji / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                "d-1",
+                2
+            ],
+            [
+                "x",
+                2
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countValuesForField / no cnt column": {
+        "returned": 0,
+        "bound": [
+            [
+                4,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countValuesForField / no row": {
+        "returned": 0,
+        "bound": [
+            [
+                4,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countValuesForField / null count": {
+        "returned": 0,
+        "bound": [
+            [
+                4,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countValuesForField / three": {
+        "returned": 3,
+        "bound": [
+            [
+                4,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "countValuesForField / zero": {
+        "returned": 0,
+        "bound": [
+            [
+                4,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "deactivateAllForUser / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "deactivateAllForUser / no row": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "deactivateAllForUser / null count": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "deactivateAllForUser / three": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "deactivateAllForUser / zero": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "existsFor / no cnt column": {
+        "returned": false,
+        "bound": [
+            [
+                "a-1",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                2,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "existsFor / no row": {
+        "returned": false,
+        "bound": [
+            [
+                "a-1",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                2,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "existsFor / null count": {
+        "returned": false,
+        "bound": [
+            [
+                "a-1",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                2,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "existsFor / three": {
+        "returned": true,
+        "bound": [
+            [
+                "a-1",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                2,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "existsFor / zero": {
+        "returned": false,
+        "bound": [
+            [
+                "a-1",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                2,
+                1
+            ]
+        ],
+        "closed": 1,
+        "fetched": 1
+    },
+    "kiosk softRevoke / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "kiosk softRevoke / no row": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "kiosk softRevoke / null count": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "kiosk softRevoke / three": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "kiosk softRevoke / zero": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setActive / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                7,
+                1
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setActive / no row": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                7,
+                1
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setActive / null count": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                7,
+                1
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setActive / three": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                7,
+                1
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setActive / zero": {
+        "returned": null,
+        "bound": [
+            [
+                0,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "alice",
+                2
+            ],
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                7,
+                1
+            ],
+            [
+                "alice",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setGroupDefaultUuid / no cnt column": {
+        "returned": 2,
+        "bound": [
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setGroupDefaultUuid / no row": {
+        "returned": 2,
+        "bound": [
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setGroupDefaultUuid / null count": {
+        "returned": 2,
+        "bound": [
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setGroupDefaultUuid / three": {
+        "returned": 2,
+        "bound": [
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "setGroupDefaultUuid / zero": {
+        "returned": 2,
+        "bound": [
+            [
+                1,
+                1
+            ],
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "group_shared",
+                2
+            ],
+            [
+                "g1",
+                2
+            ],
+            [
+                "u-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount new / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                6,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount new / no row": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                6,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount new / null count": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                6,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount new / three": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                6,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount new / zero": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                6,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount seen / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount seen / no row": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount seen / null count": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount seen / three": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share incrementViewCount seen / zero": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share revokeByDashboardUuid / no cnt column": {
+        "returned": 2,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share revokeByDashboardUuid / no row": {
+        "returned": 2,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share revokeByDashboardUuid / null count": {
+        "returned": 2,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share revokeByDashboardUuid / three": {
+        "returned": 2,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share revokeByDashboardUuid / zero": {
+        "returned": 2,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                "d-1",
+                2
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share softRevoke / no cnt column": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share softRevoke / no row": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share softRevoke / null count": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share softRevoke / three": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    },
+    "share softRevoke / zero": {
+        "returned": null,
+        "bound": [
+            [
+                "stamp Y-m-d H:i:s",
+                2
+            ],
+            [
+                5,
+                1
+            ]
+        ],
+        "closed": 0,
+        "fetched": 0
+    }
+}

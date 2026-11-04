@@ -26,18 +26,13 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\ServiceDiscoveryService;
-use OCA\LaunchPad\Service\TileService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
-use OCP\IL10N;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for tile API endpoints.
@@ -55,27 +50,18 @@ class TileApiController extends Controller {
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param TileService $tileService The tile service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param IL10N $l10n The localisation helper.
-	 * @param ServiceDiscoveryService $discovery The apps in the user's app menu.
-	 * @param string|null $userId The user ID.
+	 * @param IRequest     $request The request.
+	 * @param TileSources  $sources The tile service, translator and service discovery.
+	 * @param ActionCaller $caller The session and the action check.
+	 * @param string|null  $userId The user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly TileService $tileService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly IL10N $l10n,
-		private readonly ServiceDiscoveryService $discovery,
+		private readonly TileSources $sources,
+		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -97,18 +83,18 @@ class TileApiController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'tile.index');
+			$this->caller->actionAuth->requireAction($user, 'tile.index');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		$tiles = $this->tileService->getUserTiles(userId: $this->userId);
+		$tiles = $this->sources->tileService->getUserTiles(userId: $this->userId);
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $tiles)
@@ -129,18 +115,18 @@ class TileApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function discover(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'tile.discover');
+			$this->caller->actionAuth->requireAction($user, 'tile.discover');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		return new JSONResponse(['apps' => $this->discovery->discover()]);
+		return new JSONResponse(['apps' => $this->sources->discovery->discover()]);
 	}//end discover()
 
 	/**
@@ -161,13 +147,13 @@ class TileApiController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'tile.create');
+			$this->caller->actionAuth->requireAction($user, 'tile.create');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -194,13 +180,13 @@ class TileApiController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'tile.update');
+			$this->caller->actionAuth->requireAction($user, 'tile.update');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -225,13 +211,13 @@ class TileApiController extends Controller {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'tile.destroy');
+			$this->caller->actionAuth->requireAction($user, 'tile.destroy');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -245,7 +231,7 @@ class TileApiController extends Controller {
 	 * @return JSONResponse The envelope `{status, message, replacement}`.
 	 */
 	private function goneResponse(): JSONResponse {
-		$message = $this->l10n->t(
+		$message = $this->sources->l10n->t(
 			'The reusable tile API is no longer available. Use the unified add-widget flow with type:tile instead.'
 		);
 

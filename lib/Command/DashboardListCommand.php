@@ -117,10 +117,7 @@ class DashboardListCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$user = $input->getOption(name: 'user');
 		$group = $input->getOption(name: 'group');
 		$status = $input->getOption(name: 'status');
@@ -183,10 +180,12 @@ class DashboardListCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'INVALID_ARGUMENT',
-				message: 'Invalid --status value: ' . (string)$status,
-				context: ['allowed' => self::ALLOWED_STATUS]
+				error: [
+					'exitCode' => CommandService::EXIT_INVALID_ARGS,
+					'code'     => 'INVALID_ARGUMENT',
+					'message'  => 'Invalid --status value: ' . (string)$status,
+					'context'  => ['allowed' => self::ALLOWED_STATUS],
+				]
 			);
 		}
 
@@ -194,10 +193,12 @@ class DashboardListCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'User not found: ' . (string)$user,
-				context: ['userId' => (string)$user]
+				error: [
+					'exitCode' => CommandService::EXIT_NOT_FOUND,
+					'code'     => 'NOT_FOUND',
+					'message'  => 'User not found: ' . (string)$user,
+					'context'  => ['userId' => (string)$user],
+				]
 			);
 		}
 

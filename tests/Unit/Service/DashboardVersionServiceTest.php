@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\VersionStores;
 use Exception;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -116,12 +117,14 @@ class DashboardVersionServiceTest extends TestCase {
 			->willReturn($this->cache);
 
 		$this->service = new DashboardVersionService(
-			versionMapper: $this->versionMapper,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper
+			),
 			groupManager: $this->groupManager,
 			cacheFactory: $this->cacheFactory,
-			logger: $logger,
+			logger: $logger
 		);
 	}//end setUp()
 
@@ -176,10 +179,12 @@ class DashboardVersionServiceTest extends TestCase {
 
 		$result = $this->service->captureSnapshot(
 			dashboard: $dashboard,
-			snapshotJson: null,
 			createdBy: 'alice',
-			note: null,
-			explicit: false
+			options: [
+				'snapshotJson' => null,
+				'note'         => null,
+				'explicit'     => false,
+			]
 		);
 
 		$this->assertNotNull($result);
@@ -203,10 +208,12 @@ class DashboardVersionServiceTest extends TestCase {
 
 		$result = $this->service->captureSnapshot(
 			dashboard: $dashboard,
-			snapshotJson: '{}',
 			createdBy: 'alice',
-			note: null,
-			explicit: false
+			options: [
+				'snapshotJson' => '{}',
+				'note'         => null,
+				'explicit'     => false,
+			]
 		);
 
 		$this->assertNull($result);
@@ -229,10 +236,12 @@ class DashboardVersionServiceTest extends TestCase {
 
 		$result = $this->service->captureSnapshot(
 			dashboard: $dashboard,
-			snapshotJson: '{"foo":1}',
 			createdBy: 'alice',
-			note: 'manual',
-			explicit: true
+			options: [
+				'snapshotJson' => '{"foo":1}',
+				'note'         => 'manual',
+				'explicit'     => true,
+			]
 		);
 
 		$this->assertNotNull($result);
@@ -550,6 +559,39 @@ class DashboardVersionServiceTest extends TestCase {
 	// =========================================================================
 
 	/**
+	 * An explicit snapshot keeps its note and ignores the debounce; the
+	 * restore first snapshots the current state under the note
+	 * `pre-restore`.
+	 *
+	 * @return void
+	 */
+	public function testExplicitAndPreRestoreSnapshotsCarryTheirNotes(): void {
+		$dashboard = $this->makeDashboard();
+		$notes     = [];
+		$this->cache->method('hasKey')->willReturn(true);
+		$this->versionMapper->method('findMaxVersionNumber')->willReturn(2);
+		$this->versionMapper->method('insert')->willReturnCallback(
+			static function (DashboardVersion $v) use (&$notes): DashboardVersion {
+				$notes[] = [$v->getNote(), $v->getCreatedBy()];
+				return $v;
+			}
+		);
+		$target = new DashboardVersion();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$target->setDashboardUuid('d-uuid-1');
+		$target->setVersionNumber(1);
+		$target->setSnapshotJson('{"old":true}');
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$this->versionMapper->method('findByDashboardAndVersion')->willReturn($target);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+
+		$this->service->createExplicitSnapshot(dashboard: $dashboard, requestingUser: 'alice', note: 'before launch');
+		$this->service->restoreVersion(dashboard: $dashboard, versionNumber: 1, restoringUser: 'alice');
+
+		$this->assertSame([['before launch', 'alice'], ['pre-restore', 'alice']], $notes);
+	}//end testExplicitAndPreRestoreSnapshotsCarryTheirNotes()
+
+	/**
 	 * WF1 regression: restoreVersion wraps DB operations in a transaction
 	 * — beginTransaction and commit are both called when $db is provided.
 	 *
@@ -578,13 +620,15 @@ class DashboardVersionServiceTest extends TestCase {
 		$db->expects($this->never())->method('rollBack');
 
 		$service = new DashboardVersionService(
-			versionMapper:   $this->versionMapper,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			groupManager:    $this->groupManager,
-			cacheFactory:    $this->cacheFactory,
-			logger:          $this->createMock(LoggerInterface::class),
-			db:              $db,
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $db
+			),
+			groupManager: $this->groupManager,
+			cacheFactory: $this->cacheFactory,
+			logger: $this->createMock(LoggerInterface::class)
 		);
 
 		$service->restoreVersion(
@@ -631,13 +675,15 @@ class DashboardVersionServiceTest extends TestCase {
 		$db->expects($this->once())->method('rollBack');
 
 		$service = new DashboardVersionService(
-			versionMapper:   $this->versionMapper,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			groupManager:    $this->groupManager,
-			cacheFactory:    $this->cacheFactory,
-			logger:          $this->createMock(LoggerInterface::class),
-			db:              $db,
+			stores: new VersionStores(
+				versionMapper: $this->versionMapper,
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $db
+			),
+			groupManager: $this->groupManager,
+			cacheFactory: $this->cacheFactory,
+			logger: $this->createMock(LoggerInterface::class)
 		);
 
 		$this->expectException(RuntimeException::class);

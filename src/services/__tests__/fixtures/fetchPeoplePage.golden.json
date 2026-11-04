@@ -1,0 +1,314 @@
+{
+	"none | page": {
+		"result": {
+			"users": [
+				{
+					"id": "u1"
+				}
+			],
+			"total": 31,
+			"hasMore": true
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"none | loose fields": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"none | no data": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"none | no response": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"empty | page": {
+		"result": {
+			"users": [
+				{
+					"id": "u1"
+				}
+			],
+			"total": 31,
+			"hasMore": true
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"empty | loose fields": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"empty | no data": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"empty | no response": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?limit=50&offset=0"
+			]
+		]
+	},
+	"all set | page": {
+		"result": {
+			"users": [
+				{
+					"id": "u1"
+				}
+			],
+			"total": 31,
+			"hasMore": true
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%7B%22field%22%3A%22group%22%2C%22value%22%3A%22sales%22%7D%5D&excludeDisabled=1&sortBy=displayName&limit=10&offset=20"
+			]
+		]
+	},
+	"all set | loose fields": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%7B%22field%22%3A%22group%22%2C%22value%22%3A%22sales%22%7D%5D&excludeDisabled=1&sortBy=displayName&limit=10&offset=20"
+			]
+		]
+	},
+	"all set | no data": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%7B%22field%22%3A%22group%22%2C%22value%22%3A%22sales%22%7D%5D&excludeDisabled=1&sortBy=displayName&limit=10&offset=20"
+			]
+		]
+	},
+	"all set | no response": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%7B%22field%22%3A%22group%22%2C%22value%22%3A%22sales%22%7D%5D&excludeDisabled=1&sortBy=displayName&limit=10&offset=20"
+			]
+		]
+	},
+	"falsy values | page": {
+		"result": {
+			"users": [
+				{
+					"id": "u1"
+				}
+			],
+			"total": 31,
+			"hasMore": true
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%5D&excludeDisabled=0&limit=0&offset=0"
+			]
+		]
+	},
+	"falsy values | loose fields": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%5D&excludeDisabled=0&limit=0&offset=0"
+			]
+		]
+	},
+	"falsy values | no data": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%5D&excludeDisabled=0&limit=0&offset=0"
+			]
+		]
+	},
+	"falsy values | no response": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%5B%5D&excludeDisabled=0&limit=0&offset=0"
+			]
+		]
+	},
+	"null paging | page": {
+		"result": {
+			"users": [
+				{
+					"id": "u1"
+				}
+			],
+			"total": 31,
+			"hasMore": true
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?excludeDisabled=1&sortBy=5&limit=50&offset=0"
+			]
+		]
+	},
+	"null paging | loose fields": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?excludeDisabled=1&sortBy=5&limit=50&offset=0"
+			]
+		]
+	},
+	"null paging | no data": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?excludeDisabled=1&sortBy=5&limit=50&offset=0"
+			]
+		]
+	},
+	"null paging | no response": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?excludeDisabled=1&sortBy=5&limit=50&offset=0"
+			]
+		]
+	},
+	"filters object | page": {
+		"result": {
+			"users": [
+				{
+					"id": "u1"
+				}
+			],
+			"total": 31,
+			"hasMore": true
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%7B%22group%22%3A%22a+%26+b%22%7D&limit=50&offset=0"
+			]
+		]
+	},
+	"filters object | loose fields": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%7B%22group%22%3A%22a+%26+b%22%7D&limit=50&offset=0"
+			]
+		]
+	},
+	"filters object | no data": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%7B%22group%22%3A%22a+%26+b%22%7D&limit=50&offset=0"
+			]
+		]
+	},
+	"filters object | no response": {
+		"result": {
+			"users": [],
+			"total": 0,
+			"hasMore": false
+		},
+		"requested": [
+			[
+				"/index.php/apps/launchpad/api/people?filters=%7B%22group%22%3A%22a+%26+b%22%7D&limit=50&offset=0"
+			]
+		]
+	}
+}

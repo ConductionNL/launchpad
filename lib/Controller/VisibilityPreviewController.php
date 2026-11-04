@@ -51,6 +51,8 @@ use OCP\IRequest;
  * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
  */
 class VisibilityPreviewController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -66,10 +68,7 @@ class VisibilityPreviewController extends Controller {
 		private readonly ConditionalService $conditionalService,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -119,10 +118,7 @@ class VisibilityPreviewController extends Controller {
 			$groups = $this->buildGroupsOverride(context: $context ?? []);
 			$now = $this->buildDatetimeOverride(context: $context ?? []);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				['error' => $e->getMessage()],
-				Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
@@ -135,10 +131,7 @@ class VisibilityPreviewController extends Controller {
 
 			return new JSONResponse($result, Http::STATUS_OK);
 		} catch (Exception $e) {
-			return new JSONResponse(
-				['error' => 'Preview failed'],
-				Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Preview failed', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 	}//end preview()
 

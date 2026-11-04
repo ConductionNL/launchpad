@@ -49,10 +49,7 @@ class RoleFeaturePermissionApiController extends Controller {
 		IRequest $request,
 		private readonly RoleFeaturePermissionService $service,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

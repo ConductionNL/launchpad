@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\LockApiCaller;
+use OCA\LaunchPad\Controller\LockSources;
 use OCA\LaunchPad\Controller\DashboardLockApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardLock;
@@ -69,12 +71,16 @@ class DashboardLockApiControllerTest extends TestCase {
 
 		return new DashboardLockApiController(
 			request: $this->request,
-			lockService: $this->lockService,
+			caller: new LockApiCaller(
+				sources: new LockSources(
+					lockService: $this->lockService,
+					dashboardMapper: $this->dashboardMapper
+				),
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
 			permissionService: $this->permissionService,
-			dashboardMapper: $this->dashboardMapper,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			userId: $userId,
+			userId: $userId
 		);
 	}
 

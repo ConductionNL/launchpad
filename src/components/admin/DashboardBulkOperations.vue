@@ -232,6 +232,56 @@
 <script>
 import { api } from '../../services/api.js'
 
+const CHANGED_COUNT_KEYS = [
+	'deletedCount',
+	'movedCount',
+	'updatedCount',
+	'reindexedCount',
+	'wouldDeleteCount',
+	'wouldMoveCount',
+	'wouldUpdateCount',
+	'wouldReindexCount',
+]
+
+const SKIPPED_COUNT_KEYS = ['skippedCount', 'wouldSkipCount']
+
+/**
+ * The first count among `keys` that is set (not null or undefined), else 0.
+ *
+ * @param {object} data The bulk-result envelope.
+ * @param {string[]} keys The count keys, in order of preference.
+ * @return {number} The count.
+ */
+function firstCount(data, keys) {
+	const key = keys.find((name) => (data[name] ?? null) !== null)
+	return key === undefined ? 0 : data[key]
+}
+
+/**
+ * The server's error text for a failed bulk request, or a generic message.
+ *
+ * @param {Error} e The rejected request's error.
+ * @return {string} The message to show.
+ */
+function bulkErrorMessage(e) {
+	return e?.response?.data?.error || t('launchpad', 'Bulk operation failed')
+}
+
+/**
+ * Summarise a bulk-result envelope for the result panel.
+ *
+ * @param {object} data The bulk-result envelope.
+ * @return {object} The dry-run flag, changed and skipped counts, and errors.
+ */
+function bulkResultSummary(data) {
+	return {
+		dryRun: !!data.dryRun,
+		changed: firstCount(data, CHANGED_COUNT_KEYS),
+		skipped: firstCount(data, SKIPPED_COUNT_KEYS),
+		errors: Array.isArray(data.errors) ? data.errors : [],
+	}
+}
+
 export default {
 	name: 'DashboardBulkOperations',
 
@@ -359,71 +409,78 @@ export default {
 			this.modal = null
 		},
 
+		/**
+		 * Send the pending bulk action to the server.
+		 *
+		 * @param {object} opts The shared request options (dry run).
+		 * @return {Promise|undefined} The request, or undefined for an unknown action.
+		 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+		 */
+		sendBulkRequest(opts) {
+			const requests = {
+				delete: () => api.bulkDeleteDashboards(this.selectedUuids, opts),
+				move: () =>
+					api.bulkMoveDashboards(
+						this.selectedUuids,
+						this.parentUuidOrNull(),
+						opts,
+					),
+
+				status: () =>
+					api.bulkStatusDashboards(
+						this.selectedUuids,
+						this.statusInput,
+						this.statusRequestOptions(opts),
+					),
+
+				reindex: () => api.bulkReindexDashboards(this.selectedUuids, opts),
+			}
+			const action = this.modal.action
+			return Object.hasOwn(requests, action) ? requests[action]() : undefined
+		},
+
+		/**
+		 * The trimmed parent UUID, or null to move to the root.
+		 *
+		 * @return {string|null} The new parent's UUID or null.
+		 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+		 */
+		parentUuidOrNull() {
+			const parent = this.parentUuidInput.trim()
+			return parent === '' ? null : parent
+		},
+
+		/**
+		 * The status request options: the shared options plus the publish
+		 * date when the status is scheduled.
+		 *
+		 * @param {object} opts The shared request options (dry run).
+		 * @return {object} The options for the status request.
+		 * @spec openspec/specs/dashboard-bulk-operations/spec.md
+		 */
+		statusRequestOptions(opts) {
+			const extra = { ...opts }
+			if (this.statusInput === 'scheduled') {
+				extra.publishAt = this.publishAtInput
+			}
+			return extra
+		},
+
 		/** @spec openspec/specs/dashboard-bulk-operations/spec.md */
 		async confirmAction() {
 			this.running = true
 			try {
-				const opts = { dryRun: this.dryRun }
-				let response
-				if (this.modal.action === 'delete') {
-					response = await api.bulkDeleteDashboards(
-						this.selectedUuids,
-						opts,
-					)
-				} else if (this.modal.action === 'move') {
-					const parent =
-						this.parentUuidInput.trim() === ''
-							? null
-							: this.parentUuidInput.trim()
-					response = await api.bulkMoveDashboards(
-						this.selectedUuids,
-						parent,
-						opts,
-					)
-				} else if (this.modal.action === 'status') {
-					const extra = { ...opts }
-					if (this.statusInput === 'scheduled') {
-						extra.publishAt = this.publishAtInput
-					}
-					response = await api.bulkStatusDashboards(
-						this.selectedUuids,
-						this.statusInput,
-						extra,
-					)
-				} else if (this.modal.action === 'reindex') {
-					response = await api.bulkReindexDashboards(
-						this.selectedUuids,
-						opts,
-					)
-				}
-
+				const request = this.sendBulkRequest({ dryRun: this.dryRun })
+				const response = request === undefined ? undefined : await request
 				const data = response?.data || {}
-				const changed =
-					data.deletedCount
-					?? data.movedCount
-					?? data.updatedCount
-					?? data.reindexedCount
-					?? data.wouldDeleteCount
-					?? data.wouldMoveCount
-					?? data.wouldUpdateCount
-					?? data.wouldReindexCount
-					?? 0
-				const skipped = data.skippedCount ?? data.wouldSkipCount ?? 0
-				this.resultSummary = {
-					dryRun: !!data.dryRun,
-					changed,
-					skipped,
-					errors: Array.isArray(data.errors) ? data.errors : [],
-				}
+				this.resultSummary = bulkResultSummary(data)
 
 				if (!data.dryRun) {
 					this.selectedUuids = []
 					this.loadDashboards()
 				}
 			} catch (e) {
-				this.errorMessage =
-					e?.response?.data?.error
-					|| t('launchpad', 'Bulk operation failed')
+				this.errorMessage = bulkErrorMessage(e)
 			} finally {
 				this.running = false
 				this.modal = null

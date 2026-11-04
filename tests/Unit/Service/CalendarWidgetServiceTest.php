@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\FeedFetchTools;
 use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\UrlSafetyValidator;
 use OCP\Http\Client\IClient;
@@ -70,11 +71,13 @@ class CalendarWidgetServiceTest extends TestCase {
 
 		$this->service = new CalendarWidgetService(
 			appConfig: $this->appConfig,
-			cacheFactory: $this->cacheFactory,
-			clientService: $this->clientService,
+			fetch: new FeedFetchTools(
+				cacheFactory: $this->cacheFactory,
+				clientService: $this->clientService,
+				urlValidator: $this->urlValidator
+			),
 			logger: $this->logger,
-			urlValidator: $this->urlValidator,
-			calendarMgr: null,
+			calendarMgr: null
 		);
 	}
 
@@ -86,11 +89,13 @@ class CalendarWidgetServiceTest extends TestCase {
 		$realValidator = new UrlSafetyValidator(appConfig: $this->appConfig);
 		return new CalendarWidgetService(
 			appConfig: $this->appConfig,
-			cacheFactory: $this->cacheFactory,
-			clientService: $this->clientService,
+			fetch: new FeedFetchTools(
+				cacheFactory: $this->cacheFactory,
+				clientService: $this->clientService,
+				urlValidator: $realValidator
+			),
 			logger: $this->logger,
-			urlValidator: $realValidator,
-			calendarMgr: null,
+			calendarMgr: null
 		);
 	}
 

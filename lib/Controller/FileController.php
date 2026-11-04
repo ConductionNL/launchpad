@@ -63,10 +63,7 @@ class FileController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -95,9 +92,11 @@ class FileController extends Controller {
 			$result = $this->fileService->createFile(
 				userId: $userId,
 				filename: ($filename ?? ''),
-				dir: ($dir ?? '/'),
-				content: ($content ?? ''),
-				onExisting: $this->onExisting()
+				write: [
+					'dir'        => ($dir ?? '/'),
+					'content'    => ($content ?? ''),
+					'onExisting' => $this->onExisting(),
+				]
 			);
 
 			return new JSONResponse(

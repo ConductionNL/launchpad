@@ -11,6 +11,7 @@
 
 <script>
 import OrgNavigationEditor from '../OrgNavigationEditor.vue'
+import { LIST_PROP } from '../../../constants/propDefinitions.js'
 
 /**
  * OrgNavigationTab — Beheer ▸ Org navigation tab. Hosts the relocated
@@ -26,10 +27,7 @@ export default {
 
 	props: {
 		/** Groups passed through to the editor for its group picker. */
-		groups: {
-			type: Array,
-			default: () => [],
-		},
+		groups: LIST_PROP,
 	},
 }
 </script>

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\FeedRefreshSources;
 use OCA\LaunchPad\Db\FeedCache;
 use OCA\LaunchPad\Db\FeedCacheMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
@@ -91,13 +92,15 @@ class FeedRefreshServiceTest extends TestCase {
 		$this->urlValidator->method('isSafe')->willReturn(true);
 
 		$this->service = new FeedRefreshService(
-			clientService: $this->clientService,
+			sources: new FeedRefreshSources(
+				clientService: $this->clientService,
+				config: $this->config,
+				cacheMapper: $this->cacheMapper,
+				urlValidator: $this->urlValidator
+			),
 			appConfig: $this->appConfig,
-			config: $this->config,
-			cacheMapper: $this->cacheMapper,
 			placementMapper: $this->placementMapper,
-			logger: $this->logger,
-			urlValidator: $this->urlValidator,
+			logger: $this->logger
 		);
 	}//end setUp()
 

@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\PingSettings;
+use OCA\LaunchPad\Service\PingTransport;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\HealthPingService;
@@ -98,11 +100,15 @@ class HealthPingServiceTest extends TestCase {
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 
 		$this->service = new HealthPingService(
-			clientService: $this->clientService,
-			cacheFactory: $cacheFactory,
-			appConfig: $this->appConfig,
-			placementMapper: $this->placementMapper,
-			logger: $this->logger,
+			transport: new PingTransport(
+				clientService: $this->clientService,
+				cacheFactory: $cacheFactory
+			),
+			settings: new PingSettings(
+				appConfig: $this->appConfig,
+				logger: $this->logger
+			),
+			placementMapper: $this->placementMapper
 		);
 	}//end setUp()
 
@@ -314,11 +320,15 @@ class HealthPingServiceTest extends TestCase {
 		$this->appConfig->method('getValueString')->willReturn('');
 		$this->appConfig->method('getValueInt')->willReturn(HealthPingService::DEFAULT_LATENCY_THRESHOLD_MS);
 		$this->service = new HealthPingService(
-			clientService: $this->clientService,
-			cacheFactory: $cacheFactory,
-			appConfig: $this->appConfig,
-			placementMapper: $this->placementMapper,
-			logger: $this->logger,
+			transport: new PingTransport(
+				clientService: $this->clientService,
+				cacheFactory: $cacheFactory
+			),
+			settings: new PingSettings(
+				appConfig: $this->appConfig,
+				logger: $this->logger
+			),
+			placementMapper: $this->placementMapper
 		);
 
 		$client->expects($this->never())->method('get');

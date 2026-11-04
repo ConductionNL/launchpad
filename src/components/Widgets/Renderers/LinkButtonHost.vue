@@ -89,6 +89,7 @@
 import { CnLinkButtonWidget } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { useInternalActions } from '../../../composables/useInternalActions.js'
+import { OBJECT_PROP } from '../../../constants/propDefinitions.js'
 
 // `@nextcloud/axios` / `@nextcloud/router` / `@nextcloud/dialogs` are loaded
 // lazily inside `onCreateConfirm()` so the registry import graph doesn't drag
@@ -110,16 +111,10 @@ export default {
 
 	props: {
 		/** The placement content blob (`{label, url, actionType, …}`). */
-		content: {
-			type: Object,
-			default: () => ({}),
-		},
+		content: OBJECT_PROP,
 
 		/** The placement (carries `id`). */
-		placement: {
-			type: Object,
-			default: () => ({}),
-		},
+		placement: OBJECT_PROP,
 	},
 
 	data() {

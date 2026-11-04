@@ -40,17 +40,14 @@ use DateTime;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
+use OCA\LaunchPad\Activity\ActivityRow;
+use OCA\LaunchPad\Activity\ActivitySubject;
 use OCA\LaunchPad\Activity\Extension;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\EventDispatcher\IEventDispatcher;
-use OCP\IAppConfig;
-use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -103,45 +100,16 @@ class BulkOperationService {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardMapper $dashboardMapper The dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper The placement mapper
-	 *                                               (used by the per-uuid
-	 *                                               hard delete cascade).
-	 * @param PermissionService $permissionService Permission resolver
-	 *                                             used for the per-uuid
-	 *                                             admin pre-check
-	 *                                             (REQ-BULK-011).
-	 * @param DashboardTreeService $treeService Cycle / cascade
-	 *                                          service delegated by
-	 *                                          bulk-move + bulk-delete
-	 *                                          (REQ-BULK-001/002).
-	 * @param ActivityPublisher $activityPublisher Single-event audit
-	 *                                             emitter
-	 *                                             (REQ-BULK-009).
-	 * @param IGroupManager $groupManager Used for the "is the
-	 *                                    caller an NC admin"
-	 *                                    short-circuit on the
-	 *                                    permission pre-check.
-	 * @param IAppConfig $appConfig App config for
-	 *                              reading the
-	 *                              per-request cap.
-	 * @param LoggerInterface $logger Diagnostic logger.
-	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
-	 *                                               DashboardDeletedEvent
-	 *                                               (SB1 fix, REQ-CSC-001).
-	 *                                               Nullable for backwards-
-	 *                                               compat.
+	 * @param BulkDashboardStores $stores The dashboard and placement mappers, tree service and event dispatcher.
+	 * @param BulkOperationAccess $access The permission service, group manager and app config.
+	 * @param ActivityPublisher   $activityPublisher Single-event audit emitter (REQ-BULK-009).
+	 * @param LoggerInterface     $logger Diagnostic logger.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly PermissionService $permissionService,
-		private readonly DashboardTreeService $treeService,
+		private readonly BulkDashboardStores $stores,
+		private readonly BulkOperationAccess $access,
 		private readonly ActivityPublisher $activityPublisher,
-		private readonly IGroupManager $groupManager,
-		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
-		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
 	}//end __construct()
 
@@ -202,13 +170,8 @@ class BulkOperationService {
 			'dryRun' => $dryRun,
 		];
 
-		$this->emitAuditEvent(
-			operation: self::OP_DELETE,
-			dashboardCount: count($dashboardUuids),
-			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun
-		);
+		$run = ['dashboardUuids' => $dashboardUuids, 'userId' => $userId, 'start' => $start, 'dryRun' => $dryRun];
+		$this->emitAuditEvent(operation: self::OP_DELETE, run: $run);
 
 		return $payload;
 	}//end bulkDelete()
@@ -246,7 +209,7 @@ class BulkOperationService {
 
 		if ($parentUuid !== null && $parentUuid !== '') {
 			try {
-				$this->dashboardMapper->findByUuid(uuid: $parentUuid);
+				$this->stores->dashboardMapper->findByUuid(uuid: $parentUuid);
 			} catch (DoesNotExistException) {
 				throw new InvalidArgumentException(
 					message: DashboardTreeService::ERR_PARENT_NOT_FOUND
@@ -282,13 +245,8 @@ class BulkOperationService {
 			'dryRun' => $dryRun,
 		];
 
-		$this->emitAuditEvent(
-			operation: self::OP_MOVE,
-			dashboardCount: count($dashboardUuids),
-			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun
-		);
+		$run = ['dashboardUuids' => $dashboardUuids, 'userId' => $userId, 'start' => $start, 'dryRun' => $dryRun];
+		$this->emitAuditEvent(operation: self::OP_MOVE, run: $run);
 
 		return $payload;
 	}//end bulkMove()
@@ -301,12 +259,11 @@ class BulkOperationService {
 	 * triple. `publishAt` is required when the target status is
 	 * `scheduled` and is rejected when in the past.
 	 *
-	 * @param string[] $dashboardUuids The dashboards to mutate.
-	 * @param string $publicationStatus The target status enum value.
-	 * @param string|null $publishAt Future ISO-8601 timestamp
-	 *                               (required for `scheduled`).
-	 * @param string $userId The acting NC user ID.
-	 * @param bool $dryRun When true, preview only.
+	 * @param string[]          $dashboardUuids The dashboards to mutate.
+	 * @param BulkStatusRequest $request        Target status, future ISO-8601
+	 *                                          `publishAt` (required for
+	 *                                          `scheduled`) and dry-run flag.
+	 * @param string            $userId         The acting NC user ID.
 	 *
 	 * @return array<string, mixed> The result envelope.
 	 *
@@ -321,11 +278,12 @@ class BulkOperationService {
 	 */
 	public function bulkStatus(
 		array $dashboardUuids,
-		string $publicationStatus,
-		?string $publishAt,
+		BulkStatusRequest $request,
 		string $userId,
-		bool $dryRun = false,
 	): array {
+		$publicationStatus = $request->publicationStatus;
+		$publishAt         = $request->publishAt;
+		$dryRun            = $request->dryRun;
 		$start = microtime(as_float: true);
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
@@ -356,16 +314,15 @@ class BulkOperationService {
 		$updated = 0;
 		$skipped = 0;
 		$errors = [];
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$change = new BulkStatusChange(
+			publicationStatus: $publicationStatus,
+			publishAt: $resolvedPublishAt,
+			now: (new DateTime())->format(format: 'Y-m-d H:i:s'),
+			dryRun: $dryRun
+		);
 
 		foreach ($dashboardUuids as $uuid) {
-			$outcome = $this->statusOneDashboard(
-				uuid: (string)$uuid,
-				publicationStatus: $publicationStatus,
-				resolvedPublishAt: $resolvedPublishAt,
-				now: $now,
-				dryRun: $dryRun
-			);
+			$outcome = $this->statusOneDashboard(uuid: (string)$uuid, change: $change);
 			$updated += $outcome['updated'];
 			$skipped += $outcome['skipped'];
 
@@ -381,14 +338,8 @@ class BulkOperationService {
 			'dryRun' => $dryRun,
 		];
 
-		$this->emitAuditEvent(
-			operation: self::OP_STATUS,
-			dashboardCount: count($dashboardUuids),
-			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun,
-			extra: ['publicationStatus' => $publicationStatus]
-		);
+		$run = ['dashboardUuids' => $dashboardUuids, 'userId' => $userId, 'start' => $start, 'dryRun' => $dryRun];
+		$this->emitAuditEvent(operation: self::OP_STATUS, run: $run + ['extra' => ['publicationStatus' => $publicationStatus]]);
 
 		return $payload;
 	}//end bulkStatus()
@@ -429,7 +380,7 @@ class BulkOperationService {
 		foreach ($dashboardUuids as $uuid) {
 			$uuidString = (string)$uuid;
 			try {
-				$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuidString);
+				$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuidString);
 			} catch (DoesNotExistException) {
 				$errors[] = [
 					'uuid' => $uuidString,
@@ -449,7 +400,7 @@ class BulkOperationService {
 				// a sibling capability; touching `updatedAt` is the
 				// documented contract surface for "rebuild this row".
 				$dashboard->setUpdatedAt($now);
-				$this->dashboardMapper->update(entity: $dashboard);
+				$this->stores->dashboardMapper->update(entity: $dashboard);
 				$reindexed++;
 			} catch (Throwable $t) {
 				$this->logger->error(
@@ -470,13 +421,8 @@ class BulkOperationService {
 			'dryRun' => $dryRun,
 		];
 
-		$this->emitAuditEvent(
-			operation: self::OP_REINDEX,
-			dashboardCount: count($dashboardUuids),
-			userId: $userId,
-			durationMs: $this->elapsedMs(start: $start),
-			dryRun: $dryRun
-		);
+		$run = ['dashboardUuids' => $dashboardUuids, 'userId' => $userId, 'start' => $start, 'dryRun' => $dryRun];
+		$this->emitAuditEvent(operation: self::OP_REINDEX, run: $run);
 
 		return $payload;
 	}//end bulkReindex()
@@ -491,7 +437,7 @@ class BulkOperationService {
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
 	public function getEffectiveCap(): int {
-		$value = $this->appConfig->getValueInt(
+		$value = $this->access->appConfig->getValueInt(
 			Application::APP_ID,
 			self::CONFIG_KEY_MAX_PER_REQUEST,
 			self::DEFAULT_MAX_PER_REQUEST
@@ -527,7 +473,7 @@ class BulkOperationService {
 	 *                                   admin or any UUID is unauthorised.
 	 */
 	private function assertPermissions(array $uuids, string $userId): void {
-		if ($this->groupManager->isAdmin(userId: $userId) === false) {
+		if ($this->access->groupManager->isAdmin(userId: $userId) === false) {
 			throw new PermissionDeniedException(
 				message: 'Administrator privileges required.',
 				deniedUuids: []
@@ -538,7 +484,7 @@ class BulkOperationService {
 		foreach ($uuids as $uuid) {
 			$uuidString = (string)$uuid;
 			try {
-				$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuidString);
+				$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuidString);
 			} catch (DoesNotExistException) {
 				// Missing rows are not a permission failure — they are
 				// routed to the per-uuid `not_found`/`already_deleted`
@@ -546,7 +492,7 @@ class BulkOperationService {
 				continue;
 			}
 
-			$level = $this->permissionService->resolveAccessLevel(
+			$level = $this->access->permissionService->resolveAccessLevel(
 				userId: $userId,
 				dashboard: $dashboard
 			);
@@ -587,7 +533,7 @@ class BulkOperationService {
 		bool $cascade,
 	): array {
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			// REQ-BULK-007: hard delete on a missing row is silent.
 			return [
@@ -603,7 +549,7 @@ class BulkOperationService {
 		$childCount = 0;
 		$rowUuid = (string)$dashboard->getUuid();
 		if ($rowUuid !== '') {
-			$childCount = $this->dashboardMapper->countChildrenByParent(
+			$childCount = $this->stores->dashboardMapper->countChildrenByParent(
 				parentUuid: $rowUuid
 			);
 		}
@@ -682,7 +628,7 @@ class BulkOperationService {
 		bool $dryRun,
 	): array {
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return [
 				'moved' => 0,
@@ -708,7 +654,7 @@ class BulkOperationService {
 		}
 
 		try {
-			$this->treeService->validateParent(
+			$this->stores->treeService->validateParent(
 				movingUuid: $uuid,
 				newParentUuid: $parentUuid
 			);
@@ -735,7 +681,7 @@ class BulkOperationService {
 		try {
 			$dashboard->setParentUuid($parentUuid);
 			$dashboard->setUpdatedAt($now);
-			$this->dashboardMapper->update(entity: $dashboard);
+			$this->stores->dashboardMapper->update(entity: $dashboard);
 
 			return [
 				'moved' => 1,
@@ -764,25 +710,17 @@ class BulkOperationService {
 	 * Apply a publication-status change to a single dashboard as part of a
 	 * {@see self::bulkStatus()} batch.
 	 *
-	 * @param string $uuid The dashboard UUID to mutate.
-	 * @param string $publicationStatus The target status enum value.
-	 * @param string|null $resolvedPublishAt The parsed publishAt.
-	 * @param string $now Current `Y-m-d H:i:s` timestamp.
-	 * @param bool $dryRun When true, preview only.
+	 * @param string           $uuid   The dashboard UUID to mutate.
+	 * @param BulkStatusChange $change The validated change of the batch.
 	 *
 	 * @return array{updated: int, skipped: int, error: array<string, mixed>|null}
 	 *
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
-	private function statusOneDashboard(
-		string $uuid,
-		string $publicationStatus,
-		?string $resolvedPublishAt,
-		string $now,
-		bool $dryRun,
-	): array {
+	private function statusOneDashboard(string $uuid, BulkStatusChange $change): array {
+		$publicationStatus = $change->publicationStatus;
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			return [
 				'updated' => 0,
@@ -797,7 +735,7 @@ class BulkOperationService {
 		// REQ-BULK-007 idempotency: already at target status.
 		if ($dashboard->getPublicationStatus() === $publicationStatus
 			&& ($publicationStatus !== Dashboard::STATUS_SCHEDULED
-			|| $dashboard->getPublishAt() === $resolvedPublishAt)
+			|| $dashboard->getPublishAt() === $change->publishAt)
 		) {
 			return [
 				'updated' => 0,
@@ -809,7 +747,7 @@ class BulkOperationService {
 			];
 		}
 
-		if ($dryRun === true) {
+		if ($change->dryRun === true) {
 			return [
 				'updated' => 1,
 				'skipped' => 0,
@@ -818,12 +756,7 @@ class BulkOperationService {
 		}
 
 		try {
-			$this->applyStatusChange(
-				dashboard: $dashboard,
-				publicationStatus: $publicationStatus,
-				resolvedPublishAt: $resolvedPublishAt,
-				now: $now
-			);
+			$this->applyStatusChange(dashboard: $dashboard, change: $change);
 
 			return [
 				'updated' => 1,
@@ -873,20 +806,20 @@ class BulkOperationService {
 		int $childCount,
 	): int {
 		if ($cascade === true && $childCount > 0) {
-			return $this->treeService->deleteSubtree(dashboard: $dashboard);
+			return $this->stores->treeService->deleteSubtree(dashboard: $dashboard);
 		}
 
 		$rowUuid = (string)$dashboard->getUuid();
 
-		$this->placementMapper->deleteByDashboardId(
+		$this->stores->placementMapper->deleteByDashboardId(
 			dashboardId: (int)$dashboard->getId()
 		);
-		$this->dashboardMapper->delete(entity: $dashboard);
+		$this->stores->dashboardMapper->delete(entity: $dashboard);
 
 		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
 		// (REQ-CSC-001).
-		if ($this->eventDispatcher !== null && $rowUuid !== '') {
-			$this->eventDispatcher->dispatchTyped(
+		if ($this->stores->eventDispatcher !== null && $rowUuid !== '') {
+			$this->stores->eventDispatcher->dispatchTyped(
 				new DashboardDeletedEvent(
 					dashboardUuid: $rowUuid,
 					ownerUserId:   (string)($dashboard->getUserId() ?? $userId),
@@ -928,31 +861,27 @@ class BulkOperationService {
 	 * Activity failure is swallowed by the publisher so an audit-log
 	 * problem never rolls back the bulk operation.
 	 *
-	 * @param string $operation The operation label.
-	 * @param int $dashboardCount The batch size.
-	 * @param string $userId The acting NC user ID.
-	 * @param int $durationMs Operation duration.
-	 * @param bool $dryRun True when this was a dry-run.
-	 * @param array<string, mixed> $extra Additional payload fields.
+	 * @param string               $operation The operation label.
+	 * @param array<string, mixed> $run       The run: `dashboardUuids` (the batch), `userId` (the
+	 *                                        acting NC user ID), `start` (microtime the run began),
+	 *                                        `dryRun` and optional `extra` payload fields.
 	 *
 	 * @return void
 	 */
-	private function emitAuditEvent(
-		string $operation,
-		int $dashboardCount,
-		string $userId,
-		int $durationMs,
-		bool $dryRun,
-		array $extra = [],
-	): void {
+	private function emitAuditEvent(string $operation, array $run): void {
+		$dashboardCount = count($run['dashboardUuids']);
+		$userId         = $run['userId'];
+		$durationMs     = $this->elapsedMs(start: $run['start']);
+		$dryRun         = $run['dryRun'];
+		$extra          = $run['extra'] ?? [];
 		try {
-			$this->activityPublisher->publish(
+			$row = new ActivityRow(
 				type: Extension::EVENT_UPDATED,
 				actorUserId: $userId,
-				recipientUserId: $userId,
-				dashboardUuid: 'bulk-' . $operation,
-				dashboardName: 'Bulk ' . $operation . ' (' . $dashboardCount . ' dashboards)',
-				dashboardLink: '',
+				dashboard: new ActivitySubject(
+					uuid: 'bulk-' . $operation,
+					name: 'Bulk ' . $operation . ' (' . $dashboardCount . ' dashboards)'
+				),
 				extraParams: array_merge(
 					[
 						'bulkOperation' => $operation,
@@ -963,6 +892,7 @@ class BulkOperationService {
 					$extra
 				)
 			);
+			$this->activityPublisher->publish(row: $row, recipientUserId: $userId);
 		} catch (Throwable $t) {
 			// Defensive: ActivityPublisher already swallows; this is a
 			// belt-and-braces guard.
@@ -1031,20 +961,16 @@ class BulkOperationService {
 	 * - DRAFT: clears `publishAt`.
 	 * - SCHEDULED: stores the parsed `publishAt`.
 	 *
-	 * @param Dashboard $dashboard The dashboard to mutate.
-	 * @param string $publicationStatus The target status.
-	 * @param string|null $resolvedPublishAt The parsed publishAt (for
-	 *                                       STATUS_SCHEDULED).
-	 * @param string $now Current timestamp.
+	 * @param Dashboard        $dashboard The dashboard to mutate.
+	 * @param BulkStatusChange $change    Target status, parsed publishAt
+	 *                                    (for STATUS_SCHEDULED) and the
+	 *                                    batch timestamp.
 	 *
 	 * @return void
 	 */
-	private function applyStatusChange(
-		Dashboard $dashboard,
-		string $publicationStatus,
-		?string $resolvedPublishAt,
-		string $now,
-	): void {
+	private function applyStatusChange(Dashboard $dashboard, BulkStatusChange $change): void {
+		$publicationStatus = $change->publicationStatus;
+		$now = $change->now;
 		$dashboard->setPublicationStatus($publicationStatus);
 
 		if ($publicationStatus === Dashboard::STATUS_PUBLISHED) {
@@ -1063,11 +989,11 @@ class BulkOperationService {
 			&& $publicationStatus !== Dashboard::STATUS_DRAFT
 		) {
 			// STATUS_SCHEDULED.
-			$dashboard->setPublishAt($resolvedPublishAt);
+			$dashboard->setPublishAt($change->publishAt);
 		}
 
 		$dashboard->setUpdatedAt($now);
-		$this->dashboardMapper->update(entity: $dashboard);
+		$this->stores->dashboardMapper->update(entity: $dashboard);
 	}//end applyStatusChange()
 
 	/**

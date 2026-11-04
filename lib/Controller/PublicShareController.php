@@ -124,10 +124,7 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end create()
 
@@ -173,10 +170,7 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end index()
 
@@ -220,10 +214,7 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_FORBIDDEN
 			);
 		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->internalError(exception: $e);
 		}//end try
 	}//end destroy()
 
@@ -357,6 +348,26 @@ class PublicShareController extends Controller {
 			);
 		}//end try
 	}//end unlock()
+
+	/**
+	 * Answer an owner request that failed for a reason other than the caller's
+	 * access: a neutral 500, with the exception logged.
+	 *
+	 * @param Exception $exception The failure.
+	 *
+	 * @return DataResponse The 500 response.
+	 */
+	private function internalError(Exception $exception): DataResponse {
+		$this->logger->error(
+			message: 'Public share request failed: ' . $exception::class,
+			context: ['app' => Application::APP_ID, 'exceptionClass' => $exception::class, 'exception' => $exception]
+		);
+
+		return new DataResponse(
+			data: ['error' => 'Internal error'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end internalError()
 
 	/**
 	 * Log a non-sensitive error message.

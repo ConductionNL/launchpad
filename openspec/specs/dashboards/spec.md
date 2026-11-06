@@ -605,6 +605,7 @@ Updates to a group-shared dashboard via `PUT /api/dashboards/group/{groupId}/{uu
 When the workspace page renders for a user, the system MUST resolve which dashboard is "active" by walking the following precedence and stopping at the first match:
 
 1. The dashboard whose UUID equals the user's `active_dashboard_uuid` preference, IF that dashboard is currently visible to the user (per REQ-DASH-013).
+1b. For a user who owns no personal dashboard: the admin template that applies to them (admin-templates REQ-TMPL-019, which also says when the default template waits for step 2).
 2. The `group_shared` dashboard with `isDefault = 1` in the user's primary group (per REQ-DASH-015).
 3. The `group_shared` dashboard with `isDefault = 1` in the synthetic `'default'` group.
 4. The first `group_shared` dashboard (by `sortOrder` ascending, then `createdAt`) in the user's primary group.

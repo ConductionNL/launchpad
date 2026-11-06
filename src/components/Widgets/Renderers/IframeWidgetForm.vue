@@ -90,7 +90,12 @@
 <script>
 import { translate as t } from '@nextcloud/l10n'
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
+import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
 import { validateIframeUrl } from '../../../services/iframeClient.js'
+import { allowListMessage, urlFieldErrors } from '../../../utils/urlAllowList.js'
 
 const DEFAULT_HEIGHT = 400
 
@@ -144,20 +149,14 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values — used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: ['update:content'],
@@ -326,22 +325,7 @@ export default {
 			}
 			const result = await validateIframeUrl(this.assembledContent)
 			this.allowListChecked = result.valid === true
-			if (
-				result.valid === false
-				&& result.errors.includes('host_not_allowed')
-			) {
-				this.urlAllowListError = t(
-					'launchpad',
-					'This host is not on the allow-list.',
-				)
-			} else if (
-				result.valid === false
-				&& result.errors.includes('invalid_url')
-			) {
-				this.urlAllowListError = t('launchpad', 'Enter a valid http(s) URL.')
-			} else {
-				this.urlAllowListError = ''
-			}
+			this.urlAllowListError = allowListMessage(result)
 			this.emitUpdate()
 		},
 
@@ -355,16 +339,7 @@ export default {
 		 * @spec openspec/specs/iframe-embed-widget/spec.md
 		 */
 		validate() {
-			const errors = []
-
-			if (typeof this.url !== 'string' || this.url.trim() === '') {
-				errors.push(t('launchpad', 'URL is required'))
-			} else if (!/^https?:\/\/.+/i.test(this.url.trim())) {
-				errors.push(t('launchpad', 'Enter a valid http(s) URL.'))
-			}
-			if (this.urlAllowListError) {
-				errors.push(this.urlAllowListError)
-			}
+			const errors = urlFieldErrors(this.url, this.urlAllowListError)
 
 			if (typeof this.title !== 'string' || this.title.trim() === '') {
 				errors.push(t('launchpad', 'Title is required'))

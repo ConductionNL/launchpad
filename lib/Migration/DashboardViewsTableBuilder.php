@@ -61,7 +61,7 @@ class DashboardViewsTableBuilder {
 	/**
 	 * Add columns to the `launchpad_dashboard_views` table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -123,7 +123,7 @@ class DashboardViewsTableBuilder {
 	 * predicates used by the admin top / summary / export endpoints
 	 * (REQ-ANLT-006..010).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */

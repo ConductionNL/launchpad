@@ -319,6 +319,14 @@ The frontend MUST use a layered rendering architecture: `DashboardGrid` -> `Widg
 - AND render `TileWidget` directly instead of `WidgetWrapper`
 - AND WidgetWrapper applies transparent background and no padding for tile-type widgetIds
 
+#### Scenario: Chart, stat and table widgets pass through to the nextcloud-vue renderers
+- GIVEN OpenRegister is installed and an author places a `chart`, `stats-block`, `stat`, `gauge`, `delta` or `table` widget whose content names an OpenRegister data source
+- WHEN the widget is rendered
+- THEN `chart` MUST render through `ChartHost.vue` onto nextcloud-vue's `CnChartWidget`, and `stats-block` through `StatsBlockHost.vue` onto `CnStatsBlockWidget` (`RENDERER_OVERRIDES` in `src/constants/widgetRegistry.js`)
+- AND `stat`, `gauge`, `delta` and `table` MUST use the nextcloud-vue registry renderer unchanged
+- AND the figures MUST come from the OpenRegister data source through nextcloud-vue (specs `nextcloud-vue/widget-renderer` and `openregister/aggregation-api`), not from a LaunchPad endpoint
+- AND each of these types MUST be listed in `lib/widget-types.json` so it appears in the widget picker
+
 ### Requirement: Widget Picker (REQ-WDG-010)
 
 The widget picker MUST be implemented as a single modal that handles both creation and editing flows. The modal MUST present a type selector at the top (unless a type was preselected by the caller) followed by the per-type configuration sub-form for the currently selected type. Submit MUST emit `{type, content}` where `content` carries only the fields relevant to the selected type — fields belonging to other types MUST NOT be included.

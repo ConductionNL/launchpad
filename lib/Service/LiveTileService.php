@@ -53,13 +53,8 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Support\FleetAppId;
-use OCP\App\IAppManager;
-use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICache;
-use OCP\ICacheFactory;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -77,6 +72,8 @@ use Throwable;
  * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileService {
+	use ReadsJsonCache;
+	use ReadsPlacementContent;
 
 	/**
 	 * Default value-cache TTL in seconds when a placement has no (or an
@@ -172,28 +169,18 @@ class LiveTileService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether the connector leaf is enabled,
-	 *                                under whichever id it registered.
-	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      Integriq's data-source service
-	 *                                      (REQ-LIVETILE-005 capability probe).
-	 * @param IClientService $clientService HTTP client factory for the direct-URL fetch.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed value cache.
-	 * @param IAppConfig $appConfig Admin config: allow-listed hosts.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or nothing when absent.
+	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
+	 * @param LiveTileSettings        $settings The app config and logger.
+	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or
+	 *                                                    nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IAppManager $appManager,
-		private readonly ContainerInterface $container,
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
-		private readonly IAppConfig $appConfig,
+		private readonly ReadingSources $sources,
+		private readonly LiveTileSettings $settings,
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly LoggerInterface $logger,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
@@ -317,7 +304,7 @@ class LiveTileService {
 	public function isConnectorAvailable(): bool {
 		try {
 			$enabled = FleetAppId::isEnabledForUser(
-				appManager: $this->appManager,
+				appManager: $this->sources->appManager,
 				canonical: self::CONNECTOR_APP
 			);
 			if ($enabled === false) {
@@ -325,12 +312,12 @@ class LiveTileService {
 			}
 
 			return FleetAppId::hasService(
-				container: $this->container,
+				container: $this->sources->container,
 				canonical: self::CONNECTOR_APP,
 				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
 			);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: connector capability probe failed, treating as absent',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -390,7 +377,7 @@ class LiveTileService {
 
 		try {
 			$service = FleetAppId::getService(
-				container: $this->container,
+				container: $this->sources->container,
 				canonical: self::CONNECTOR_APP,
 				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
 			);
@@ -404,7 +391,7 @@ class LiveTileService {
 
 			$result = $service->{self::CONNECTOR_DATASOURCE_METHOD}($sourceId, $valueExpr);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: connector resolve call failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -442,7 +429,7 @@ class LiveTileService {
 		}
 
 		if ($this->isHostAllowed(url: $url) === false) {
-			$this->logger->warning(
+			$this->settings->logger->warning(
 				message: 'LiveTileService: host not on livetile_allowed_hosts, refusing fetch (fail-closed)',
 				context: ['app' => Application::APP_ID]
 			);
@@ -451,7 +438,7 @@ class LiveTileService {
 		}
 
 		try {
-			$client = $this->clientService->newClient();
+			$client = $this->sources->clientService->newClient();
 			$response = $client->get(
 				uri: $url,
 				options: [
@@ -464,7 +451,7 @@ class LiveTileService {
 				]
 			);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: direct-URL fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -708,7 +695,7 @@ class LiveTileService {
 			return false;
 		}
 
-		$raw = $this->appConfig->getValueString(
+		$raw = $this->settings->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_ALLOWED_HOSTS,
 			default: ''
@@ -729,37 +716,6 @@ class LiveTileService {
 
 		return false;
 	}//end isHostAllowed()
-
-	/**
-	 * Read the placement's live-tile config, falling back to the legacy
-	 * `style_config.content` slot for pre-column rows (mirrors
-	 * {@see WeatherService::readPlacementConfig()}).
-	 *
-	 * @param object $placement The {@see \OCA\LaunchPad\Db\WidgetPlacement} entity.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function readPlacementConfig(object $placement): array {
-		if (method_exists(object_or_class: $placement, method: 'getContentArray') === true) {
-			$content = $placement->getContentArray();
-			if (is_array(value: $content) === true && $content !== []) {
-				return $content;
-			}
-		}
-
-		if (method_exists(object_or_class: $placement, method: 'getStyleConfigArray') === true) {
-			$legacy = $placement->getStyleConfigArray();
-			if (isset($legacy['content']) === true && is_array(value: $legacy['content']) === true) {
-				return $legacy['content'];
-			}
-
-			if (is_array(value: $legacy) === true) {
-				return $legacy;
-			}
-		}
-
-		return [];
-	}//end readPlacementConfig()
 
 	/**
 	 * Shape an internal reading array (which also carries the internal
@@ -807,34 +763,6 @@ class LiveTileService {
 	}//end buildCacheKey()
 
 	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
-
-	/**
 	 * Lazily resolve the distributed cache. Returns `null` when the cache
 	 * subsystem is unavailable (e.g. unit tests with a stub factory).
 	 *
@@ -846,9 +774,9 @@ class LiveTileService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
+			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: cache subsystem unavailable, falling back to direct fetch',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);

@@ -71,6 +71,8 @@ use OCP\IUserSession;
  *  move the coupling rather than remove it.
  */
 class TileAnalyticsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -87,10 +89,7 @@ class TileAnalyticsController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -130,13 +129,7 @@ class TileAnalyticsController extends Controller {
 				userId: $user->getUID()
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return new JSONResponse(
@@ -205,14 +198,7 @@ class TileAnalyticsController extends Controller {
 				limit: $limit
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -251,14 +237,7 @@ class TileAnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -293,14 +272,7 @@ class TileAnalyticsController extends Controller {
 		try {
 			$csv = $this->tileAnalyticsService->generateCsvExport(period: $period);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return new DataDownloadResponse(

@@ -34,7 +34,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCA\LaunchPad\Service\FilesWidgetService;
@@ -46,7 +45,6 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -65,25 +63,18 @@ class FilesWidgetController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request HTTP request.
-	 * @param FilesWidgetService $service Files widget service.
-	 * @param WidgetPlacementMapper $placementMapper Placement entity mapper.
-	 * @param PermissionService $permissionService Dashboard permission gate.
-	 * @param IUserSession $userSession Session accessor.
-	 * @param LoggerInterface $logger PSR logger.
+	 * @param IRequest           $request HTTP request.
+	 * @param FilesWidgetSources $sources The files widget service, placement mapper and logger.
+	 * @param PermissionService  $permissionService Dashboard permission gate.
+	 * @param IUserSession       $userSession Session accessor.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly FilesWidgetService $service,
-		private readonly WidgetPlacementMapper $placementMapper,
+		private readonly FilesWidgetSources $sources,
 		private readonly PermissionService $permissionService,
 		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -125,12 +116,10 @@ class FilesWidgetController extends Controller {
 		}
 
 		try {
-			$page = $this->service->getContentsForPlacement(
+			$page = $this->sources->service->getContentsForPlacement(
 				userId: $userId,
 				config: $config,
-				currentSubPath: $currentPath,
-				limit: $limit,
-				cursor: $cursor
+				page: ['currentSubPath' => $currentPath, 'limit' => $limit, 'cursor' => $cursor]
 			);
 
 			return new JSONResponse(
@@ -150,7 +139,7 @@ class FilesWidgetController extends Controller {
 				message: $e->getDisplayMessage()
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->sources->logger->error(
 				message: 'Unexpected files widget contents failure',
 				context: ['exception' => $e->getMessage()]
 			);
@@ -193,7 +182,7 @@ class FilesWidgetController extends Controller {
 		$files = $this->normaliseUploadedFiles();
 
 		try {
-			$result = $this->service->uploadFiles(
+			$result = $this->sources->service->uploadFiles(
 				userId: $userId,
 				config: $config,
 				currentSubPath: $currentPath,
@@ -217,7 +206,7 @@ class FilesWidgetController extends Controller {
 				message: $e->getDisplayMessage()
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->sources->logger->error(
 				message: 'Unexpected files widget upload failure',
 				context: ['exception' => $e->getMessage()]
 			);
@@ -257,7 +246,7 @@ class FilesWidgetController extends Controller {
 		}
 
 		try {
-			$result = $this->service->deleteFile(
+			$result = $this->sources->service->deleteFile(
 				userId: $userId,
 				config: $config,
 				fileId: $fileId
@@ -280,7 +269,7 @@ class FilesWidgetController extends Controller {
 				message: $e->getDisplayMessage()
 			);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->sources->logger->error(
 				message: 'Unexpected files widget delete failure',
 				context: ['exception' => $e->getMessage()]
 			);
@@ -321,7 +310,7 @@ class FilesWidgetController extends Controller {
 	 */
 	private function loadConfig(int $placementId, string $userId): ?array {
 		try {
-			$placement = $this->placementMapper->find(id: $placementId);
+			$placement = $this->sources->placementMapper->find(id: $placementId);
 		} catch (Throwable $e) {
 			return null;
 		}

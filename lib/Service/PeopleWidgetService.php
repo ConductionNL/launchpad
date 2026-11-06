@@ -10,10 +10,10 @@
  * the single contact point between the {@see PeopleWidgetController} HTTP
  * layer and Nextcloud's user / group / account managers.
  *
- * Visibility model (REQ-PPL-004): v1 returns every non-empty profile field
- * unconditionally — scope-based (`$prop->getScope()`) filtering is a
- * documented follow-up. Empty / null values are still omitted from the
- * response, never returned as `null` keys.
+ * Visibility model (REQ-PPL-004, REQ-PEX-004): a standard profile field
+ * whose Nextcloud scope is private shows to its owner only; custom fields
+ * follow their definition's audience. Empty / null values are omitted from
+ * the response, never returned as `null` keys.
  *
  * @category  Service
  * @package   OCA\LaunchPad\Service
@@ -33,6 +33,7 @@ namespace OCA\LaunchPad\Service;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\IGroupManager;
 use OCP\IURLGenerator;
@@ -88,6 +89,28 @@ class PeopleWidgetService {
 	 *
 	 * @var string[]
 	 */
+	/**
+	 * Most name and email matches one search reads (REQ-PEX-003).
+	 *
+	 * @var int
+	 */
+	public const SEARCH_CANDIDATE_CAP = 500;
+
+	/**
+	 * Shortest query that asks the server (REQ-PEX-003).
+	 *
+	 * @var int
+	 */
+	public const MIN_QUERY_LENGTH = 2;
+
+	/**
+	 * The user the current listing is for; decides which fields they may
+	 * see and match (REQ-PEX-004). Set at the start of every listUsers() call.
+	 *
+	 * @var string|null
+	 */
+	private ?string $viewerId = null;
+
 	private const STANDARD_PROPERTIES = [
 		IAccountManager::PROPERTY_PHONE,
 		IAccountManager::PROPERTY_ADDRESS,
@@ -112,6 +135,7 @@ class PeopleWidgetService {
 	 * @param AdminTemplateService $adminTemplateService Single-source-of-truth wrapper around
 	 *                                                   `IGroupManager::getUserGroupIds`
 	 *                                                   (REQ-TMPL-013 grep guard).
+	 * @param ProfileFieldService $profileFields Custom profile fields and their visibility.
 	 */
 	public function __construct(
 		private readonly IUserManager $userManager,
@@ -119,6 +143,7 @@ class PeopleWidgetService {
 		private readonly IAccountManager $accountManager,
 		private readonly IURLGenerator $urlGenerator,
 		private readonly AdminTemplateService $adminTemplateService,
+		private readonly ProfileFieldService $profileFields,
 	) {
 	}//end __construct()
 
@@ -132,33 +157,30 @@ class PeopleWidgetService {
 	 *
 	 * Response shape: `{users: [...], total: int, hasMore: bool}`.
 	 *
-	 * @param array $filters Filter predicate list. Each entry has
-	 *                       the shape `{fieldName, operator, values}`.
-	 * @param bool $excludeDisabled True (default) excludes disabled NC
-	 *                              users from the candidate pool.
-	 * @param bool $showBirthdays False strips the birthdate field from
-	 *                            every result row.
-	 * @param string $sortBy One of `displayName` (default),
-	 *                       `group`, or `recent-activity`.
-	 * @param int $limit Page size (1..MAX_LIMIT).
-	 * @param int $offset Page offset (>=0).
+	 * @param PeopleQuery $request  Filters, sort, search text (2 or more
+	 *                              characters search the whole directory by
+	 *                              name, email and profile fields,
+	 *                              REQ-PEX-003) and page window.
+	 * @param string|null $viewerId The signed-in user the list is for; decides
+	 *                              which fields show and match (REQ-PEX-004).
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 *
 	 * @throws InvalidArgumentException When `limit` exceeds MAX_LIMIT, is
 	 *                                  non-positive, or `offset` is negative;
-	 *                                  or when `sortBy` is `recent-activity`.
+	 *                                  when `sortBy` is `recent-activity`; or
+	 *                                  when the query is shorter than 2 characters.
 	 *
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
-	public function listUsers(
-		array $filters = [],
-		bool $excludeDisabled = true,
-		bool $showBirthdays = true,
-		string $sortBy = 'displayName',
-		int $limit = self::DEFAULT_LIMIT,
-		int $offset = 0,
-	): array {
+	public function listUsers(PeopleQuery $request, ?string $viewerId=null): array {
+		$this->viewerId = $viewerId;
+		$filters = $request->filters;
+		$sortBy = $request->sortBy;
+		$page = $request->page;
+		$limit = $page->limit;
+		$offset = $page->offset;
+
 		if ($limit < 1 || $limit > self::MAX_LIMIT) {
 			throw new InvalidArgumentException(
 				message: 'limit must be between 1 and ' . self::MAX_LIMIT
@@ -177,6 +199,19 @@ class PeopleWidgetService {
 
 		$groupFilter = $this->extractGroupFilter(filters: $filters);
 
+		$query = trim(string: (string)$request->search);
+		if ($query !== '') {
+			if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
+				throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
+			}
+
+			return $this->paginateCandidates(
+				candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
+				window: $page,
+				sortBy: 'displayName'
+			);
+		}
+
 		// No `group` filter AND the default `displayName` sort: page
 		// directly from the backend in display-name order so we never
 		// materialize more IUser objects than the requested window
@@ -184,12 +219,7 @@ class PeopleWidgetService {
 		// former full-directory `IUserManager::search('')` scan on every
 		// People-widget render. REQ-PPL-003.
 		if ($groupFilter === null && $sortBy !== 'group') {
-			return $this->listDirectoryPageByDisplayName(
-				excludeDisabled: $excludeDisabled,
-				showBirthdays: $showBirthdays,
-				limit: $limit,
-				offset: $offset
-			);
+			return $this->listDirectoryPageByDisplayName(window: $page);
 		}
 
 		// Bounded candidate pool: either the union of the filtered group
@@ -204,11 +234,8 @@ class PeopleWidgetService {
 
 		return $this->paginateCandidates(
 			candidates: $candidates,
-			excludeDisabled: $excludeDisabled,
-			showBirthdays: $showBirthdays,
-			sortBy: $sortBy,
-			limit: $limit,
-			offset: $offset
+			window: $page,
+			sortBy: $sortBy
 		);
 	}//end listUsers()
 
@@ -224,25 +251,16 @@ class PeopleWidgetService {
 	 * the exact `total` is derived from `countUsersTotal()` (minus
 	 * `countDisabledUsers()`) so no full scan is needed to size it.
 	 *
-	 * @param bool $excludeDisabled Whether disabled users are excluded.
-	 * @param bool $showBirthdays Whether birthdate is projected.
-	 * @param int $limit Page size (already validated 1..MAX_LIMIT).
-	 * @param int $offset Page offset (already validated >= 0).
+	 * @param PeoplePage $window Disabled users, birthdates, size (already
+	 *                           validated 1..MAX_LIMIT) and offset (>= 0).
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 */
-	private function listDirectoryPageByDisplayName(
-		bool $excludeDisabled,
-		bool $showBirthdays,
-		int $limit,
-		int $offset,
-	): array {
-		$page = $this->collectDisplayNamePage(
-			excludeDisabled: $excludeDisabled,
-			limit: $limit,
-			offset: $offset
-		);
-		$total = $this->countDirectory(excludeDisabled: $excludeDisabled);
+	private function listDirectoryPageByDisplayName(PeoplePage $window): array {
+		$page = $this->collectDisplayNamePage(window: $window);
+		$total = $this->countDirectory(excludeDisabled: $window->excludeDisabled);
+		$offset = $window->offset;
+		$showBirthdays = $window->showBirthdays;
 
 		$users = [];
 		foreach ($page as $user) {
@@ -253,7 +271,7 @@ class PeopleWidgetService {
 		}
 
 		return [
-			'users' => $users,
+			'users' => $this->attachCustomFields(users: $users),
 			'total' => $total,
 			'hasMore' => ($offset + count(value: $page)) < $total,
 		];
@@ -267,17 +285,16 @@ class PeopleWidgetService {
 	 * Reads at most `offset + limit` matches (plus any disabled users
 	 * interleaved in that window) — never the full user table.
 	 *
-	 * @param bool $excludeDisabled Whether disabled users are skipped.
-	 * @param int $limit Number of users to collect.
-	 * @param int $offset Number of matching users to skip first.
+	 * @param PeoplePage $window Whether disabled users are skipped, the
+	 *                           number of users to collect and the number
+	 *                           of matching users to skip first.
 	 *
 	 * @return IUser[] The requested page in display-name order.
 	 */
-	private function collectDisplayNamePage(
-		bool $excludeDisabled,
-		int $limit,
-		int $offset,
-	): array {
+	private function collectDisplayNamePage(PeoplePage $window): array {
+		$excludeDisabled = $window->excludeDisabled;
+		$limit = $window->limit;
+		$offset = $window->offset;
 		$chunkSize = max($limit, self::DEFAULT_LIMIT);
 		$page = [];
 		$toSkip = $offset;
@@ -353,24 +370,20 @@ class PeopleWidgetService {
 	 * Used for the group-filtered path (pool already bounded to group
 	 * membership) and the rare no-filter `group` sort path.
 	 *
-	 * @param IUser[] $candidates The resolved candidate pool.
-	 * @param bool $excludeDisabled Whether disabled users are excluded.
-	 * @param bool $showBirthdays Whether birthdate is projected.
-	 * @param string $sortBy Sort mode (`displayName` or `group`).
-	 * @param int $limit Page size.
-	 * @param int $offset Page offset.
+	 * @param IUser[]    $candidates The resolved candidate pool.
+	 * @param PeoplePage $window     Disabled users, birthdates, size and offset.
+	 * @param string     $sortBy     Sort mode (`displayName` or `group`).
 	 *
 	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
 	 */
 	private function paginateCandidates(
 		array $candidates,
-		bool $excludeDisabled,
-		bool $showBirthdays,
+		PeoplePage $window,
 		string $sortBy,
-		int $limit,
-		int $offset,
 	): array {
-		if ($excludeDisabled === true) {
+		$offset = $window->offset;
+		$showBirthdays = $window->showBirthdays;
+		if ($window->excludeDisabled === true) {
 			$candidates = array_values(
 				array: array_filter(
 					array: $candidates,
@@ -385,7 +398,7 @@ class PeopleWidgetService {
 		$page = array_slice(
 			array: $candidates,
 			offset: $offset,
-			length: $limit
+			length: $window->limit
 		);
 
 		$users = [];
@@ -397,11 +410,72 @@ class PeopleWidgetService {
 		}
 
 		return [
-			'users' => $users,
+			'users' => $this->attachCustomFields(users: $users),
 			'total' => $total,
 			'hasMore' => ($offset + count(value: $page)) < $total,
 		];
 	}//end paginateCandidates()
+
+	/**
+	 * Name, email and profile-field matches for a search (REQ-PEX-003),
+	 * bounded to the configured groups when the widget has a group filter.
+	 *
+	 * @param string $query The search text.
+	 * @param array|null $groupFilter The widget's group filter, or null.
+	 *
+	 * @return IUser[] Matching users, unsorted.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function searchCandidates(string $query, ?array $groupFilter): array {
+		$byUid = [];
+		foreach ($this->userManager->search(pattern: $query, limit: self::SEARCH_CANDIDATE_CAP) as $user) {
+			$byUid[$user->getUID()] = $user;
+		}
+
+		$fieldMatches = $this->profileFields->findMatchingUserIds(viewerId: $this->viewerId, query: $query);
+		foreach ($fieldMatches as $uid) {
+			if (isset($byUid[$uid]) === true) {
+				continue;
+			}
+
+			$user = $this->userManager->get(uid: $uid);
+			if ($user !== null) {
+				$byUid[$uid] = $user;
+			}
+		}
+
+		if ($groupFilter === null) {
+			return array_values(array: $byUid);
+		}
+
+		$members = [];
+		foreach ($this->collectGroupMembers(groupIds: (array)($groupFilter['values'] ?? [])) as $member) {
+			$members[$member->getUID()] = true;
+		}
+
+		return array_values(array: array_intersect_key($byUid, $members));
+	}//end searchCandidates()
+
+	/**
+	 * Add the custom fields the viewer may see to every profile on the page (REQ-PEX-004).
+	 *
+	 * @param array $users Projected profiles.
+	 *
+	 * @return array The profiles with `customFields`.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function attachCustomFields(array $users): array {
+		$uids = array_map(callback: static fn (array $user): string => $user['uid'], array: $users);
+		$fields = $this->profileFields->visibleFieldsFor(viewerId: $this->viewerId, userIds: $uids);
+
+		foreach ($users as $index => $user) {
+			$users[$index]['customFields'] = $fields[$user['uid']] ?? [];
+		}
+
+		return $users;
+	}//end attachCustomFields()
 
 	/**
 	 * Compute the number of days between today (UTC) and the user's next
@@ -670,14 +744,8 @@ class PeopleWidgetService {
 				continue;
 			}
 
-			try {
-				$prop = $account->getProperty(property: $property);
-				$value = $prop->getValue();
-			} catch (Exception $e) {
-				continue;
-			}
-
-			if ($value === '') {
+			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID());
+			if ($value === null || $value === '') {
 				continue;
 			}
 
@@ -696,6 +764,32 @@ class PeopleWidgetService {
 
 		return $fields;
 	}//end buildAccountFields()
+
+	/**
+	 * A standard property's value when the viewer may see it (REQ-PEX-004:
+	 * a private field shows to its owner only), else null.
+	 *
+	 * @param IAccount $account The owner's account.
+	 * @param string $property The property name.
+	 * @param string $ownerId The owner's user id.
+	 *
+	 * @return string|null The value, or null when unreadable or hidden.
+	 *
+	 * @spec openspec/specs/people-widget/spec.md
+	 */
+	private function visibleValue(IAccount $account, string $property, string $ownerId): ?string {
+		try {
+			$prop = $account->getProperty(property: $property);
+		} catch (Exception) {
+			return null;
+		}
+
+		if ($this->profileFields->scopeAllows(scope: $prop->getScope(), viewerId: $this->viewerId, ownerId: $ownerId) === false) {
+			return null;
+		}
+
+		return $prop->getValue();
+	}//end visibleValue()
 
 	/**
 	 * Build an absolute avatar URL pointing at the standard NC route.

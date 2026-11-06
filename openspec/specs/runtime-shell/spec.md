@@ -171,3 +171,89 @@ The shell MUST register a global `document.click` listener on mount (delegated t
 - WHEN the shell unmounts (e.g. user navigates away)
 - THEN `document.removeEventListener('click', handleClickOutside)` MUST be called
 - AND the GridStack instance MUST be destroyed (no DOM leftover, no memory leak)
+
+### Requirement: REQ-SHELL-008 The first-open support note is for administrators
+
+The shared library's first-open support note (`CnSupportDialog`: donate, get support, suggest a feature, review) MUST be mounted for administrators only. `App.vue` passes `:supportDialog="false"` to `CnAppRoot` for every account without the `admin` permission (`utils/permissions.js`), so a member never sees it; for an administrator the library's own once-per-user behaviour applies.
+
+**Why.** Every new user got the note on top of the start page an administrator had just set for their group (#782, seen for three fresh users on 5 October 2026). The note asks for things only an administrator can act on.
+
+**What this does not change.** The first-visit tour ("Welcome to Launchpad") is the library's walkthrough and is declared in `src/manifest.json`. Its first step is `placement: center`, which dims the whole page, header included, on purpose; the library withholds the tour while the support note is open, so the two never stack.
+
+#### Scenario: A member's first visit shows no support note
+- GIVEN Pieter is not an administrator and has never opened LaunchPad
+- WHEN he opens LaunchPad
+- THEN no "Support LaunchPad" dialog MUST open
+
+@e2e exclude The note is mounted by the shared library from one prop; the prop's value per account is pinned by src/__tests__/App.supportNote.spec.js. Not seen in a browser by this change.
+
+#### Scenario: An administrator's first visit keeps the note
+- GIVEN Ruben is an administrator and has never opened LaunchPad
+- WHEN he opens LaunchPad
+- THEN the note MUST open once, as before
+
+@e2e exclude Pinned by src/__tests__/App.supportNote.spec.js.
+
+
+### Requirement: REQ-SHELL-009 Start page without navigation panel
+
+An administrator MUST be able to turn on the option "Start page without navigation panel" (`start_page_without_navigation`, API key `startPageWithoutNavigation`, default `false`) on the admin settings page beside the other layout options. The option is stored with the other admin settings and pushed to the workspace initial state as the optional key `startPageWithoutNavigation`.
+
+When the option is on, the dashboard view (`/` and `/dashboards/:id`) MUST render without the left navigation panel: `App.vue` overrides `CnAppRoot`'s `#menu` slot with a hidden, empty node, so `CnAppNav` is not rendered and `NcAppContent` takes the full width. Every other page (Store, Reports, Flows, the admin pages) keeps the panel.
+
+Everything the panel offered MUST stay reachable on the dashboard view: the dashboards through the dashboard switcher that is already in the workspace's top-right controls, and the panel's other entries (`manifest.menu` in the sections main, footer and settings, after the same permission filter the panel applies; the personal settings dialog; for an administrator the link to Nextcloud's admin settings) through a "Menu" button (`StartPageMenu`) beside the switcher. A member without an active dashboard gets the same button in the empty state. The menu is keyboard reachable with visible focus and uses no colour of its own. An external destination opens in a new tab, as the panel's did.
+
+When the option is off, or the initial state does not carry the key, nothing changes: the panel renders as before and the menu button is not rendered.
+
+**Why.** The Zuiddrecht design (`LpStart`) is a full-width start page under the top bar; the shared library has no prop to leave the panel out (`CnAppRoot.vue`: the `#menu` slot is the override, and Vue renders the slot's default content when the override holds no real node), and hiding the panel with CSS keeps a landmark nobody can see and takes the footer destinations with it.
+
+#### Scenario: The option is off
+- GIVEN the option is off (the default)
+- WHEN a member opens the dashboard view
+- THEN the navigation panel MUST render with its dashboards, footer destinations and settings foldout, and no "Menu" button MUST be rendered
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: The option is on
+- GIVEN an administrator turned the option on
+- WHEN a member opens the dashboard view
+- THEN no navigation panel MUST be rendered, the content MUST take the full width, and the "Menu" button MUST offer Documentation, Store, Reports, Features & roadmap and the personal settings; the dashboard switcher MUST still be beside it
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: Other pages keep the panel
+- GIVEN the option is on
+- WHEN a member opens the Store page
+- THEN the navigation panel MUST render
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+#### Scenario: No destination is lost
+- GIVEN the option is on
+- WHEN the menu is built from the app's manifest for a member and for an administrator
+- THEN every entry the panel would have shown MUST have a destination in the menu, and every router destination MUST be a page the app declares
+
+@e2e openspec/specs/runtime-shell/spec.md#req-shell-009
+
+### Requirement: REQ-SHELL-010 First-visit tour
+
+LaunchPad MUST declare one guided tour in `src/manifest.json` (`walkthrough`, lines 470-525), and the shell MUST hand that manifest to the shared library's `CnAppRoot` (`src/App.vue:16-17`), which draws the tour with `CnWalkthrough`. The tour SHALL be `launchpad:getting-started`, titled "Getting started", triggered on a user's first visit, with three steps in this order: "Welcome to Launchpad" centred on the Workspace page, "Open Dashboards from the menu" pointing at the `dashboards` menu item, and a step pointing at the Flows menu item that the user may skip. Completion MUST be stored per user under `walkthrough_completed_version` against the declared tour `version` (1), so raising the version shows the tour again. Drawing, dimming, skipping and reopening the tour belong to the library; this requirement covers only what LaunchPad declares.
+
+Written on 2026-10-07 after the fact, from the code on `development`; covers parity row `d-tour`. The tour does not visit the admin settings.
+
+@e2e exclude The tour is drawn by nextcloud-vue's CnWalkthrough from a manifest block; no LaunchPad Playwright spec drives it. Written after the fact.
+
+#### Scenario: A first visit starts the tour
+- GIVEN Pieter has never completed the LaunchPad tour
+- WHEN he opens LaunchPad
+- THEN the "Welcome to Launchpad" step MUST open in the centre of the Workspace page
+
+#### Scenario: Opening Dashboards advances the tour
+- GIVEN the tour shows the step "Open Dashboards from the menu"
+- WHEN Pieter clicks Dashboards in the menu and the Workspace route matches
+- THEN the tour MUST move on to the Flows step
+
+#### Scenario: A finished tour stays closed
+- GIVEN Pieter completed tour version 1
+- WHEN he opens LaunchPad again
+- THEN the tour MUST NOT start

@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\LockStore;
+use OCA\LaunchPad\Service\LockDirectory;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardLock;
 use OCA\LaunchPad\Db\DashboardLockMapper;
@@ -114,12 +116,16 @@ class DashboardLockServiceTest extends TestCase {
 			->willReturn(true);
 
 		$this->service = new DashboardLockService(
-			lockMapper: $this->lockMapper,
+			locks: new LockStore(
+				lockMapper: $this->lockMapper,
+				logger: $logger
+			),
 			dashboardMapper: $this->dashboardMapper,
-			userManager: $this->userManager,
-			groupManager: $this->groupManager,
-			logger: $logger,
-			permissionService: $this->permissionService,
+			directory: new LockDirectory(
+				userManager: $this->userManager,
+				groupManager: $this->groupManager
+			),
+			permissionService: $this->permissionService
 		);
 	}
 
@@ -441,12 +447,16 @@ class DashboardLockServiceTest extends TestCase {
 		$dashMapper->method('findByUuid')->willReturn($defaultDashboard);
 
 		return new DashboardLockService(
-			lockMapper: $this->lockMapper,
+			locks: new LockStore(
+				lockMapper: $this->lockMapper,
+				logger: $this->createMock(originalClassName: \Psr\Log\LoggerInterface::class)
+			),
 			dashboardMapper: $dashMapper,
-			userManager: $this->userManager,
-			groupManager: $this->groupManager,
-			logger: $this->createMock(originalClassName: \Psr\Log\LoggerInterface::class),
-			permissionService: $noAccessPermission,
+			directory: new LockDirectory(
+				userManager: $this->userManager,
+				groupManager: $this->groupManager
+			),
+			permissionService: $noAccessPermission
 		);
 	}//end makeServiceWithNoViewAccess()
 

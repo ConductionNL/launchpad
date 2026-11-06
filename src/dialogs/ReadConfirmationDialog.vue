@@ -36,27 +36,27 @@
 			</p>
 		</div>
 		<template #actions>
-			<NcButton variant="tertiary" @click="$emit('update:open', false)">
-				{{ t('launchpad', 'Cancel') }}
-			</NcButton>
-			<NcButton
-				variant="primary"
-				data-testid="read-confirmation-save"
-				@click="save">
-				{{ t('launchpad', 'Save') }}
-			</NcButton>
+			<CnDialogActions
+				:confirmLabel="t('launchpad', 'Save')"
+				:cancelLabel="t('launchpad', 'Cancel')"
+				@cancel="$emit('update:open', false)"
+				@submit="save" />
 		</template>
 	</NcDialog>
 </template>
 
 <script>
 import {
-	NcButton,
+	CnDialogActions,
 	NcCheckboxRadioSwitch,
 	NcDialog,
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import {
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_FLAG_PROP,
+} from '../constants/propDefinitions.js'
 
 /**
  * ReadConfirmationDialog: an editor asks readers to confirm they have read
@@ -70,23 +70,17 @@ export default {
 	name: 'ReadConfirmationDialog',
 
 	components: {
-		NcButton,
+		CnDialogActions,
 		NcCheckboxRadioSwitch,
 		NcDialog,
 		NcTextField,
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
 		/** The widget placement being set up. */
-		placement: {
-			type: Object,
-			default: null,
-		},
+		placement: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['update:open', 'save'],

@@ -202,6 +202,7 @@ import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import VisibilityRuleRow from './VisibilityRuleRow.vue'
 import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
@@ -227,10 +228,7 @@ export default {
 		},
 
 		/** Group-id options for the group-rule / preview-audience pickers. */
-		availableGroups: {
-			type: Array,
-			default: () => [],
-		},
+		availableGroups: LIST_PROP,
 	},
 
 	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved'],

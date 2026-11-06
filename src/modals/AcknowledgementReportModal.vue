@@ -17,6 +17,7 @@
 <template>
 	<NcModal
 		v-if="open"
+		class="launchpad-modal"
 		size="large"
 		:name="t('launchpad', 'Read-receipt report')"
 		@close="$emit('close')">
@@ -104,6 +105,7 @@
 
 <script>
 import { NcButton, NcLoadingIcon, NcModal } from '@conduction/nextcloud-vue'
+import { FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 
 export default {
@@ -116,15 +118,9 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		announcementKey: {
-			type: String,
-			default: '',
-		},
+		announcementKey: TEXT_PROP,
 	},
 
 	emits: ['close'],

@@ -63,6 +63,7 @@ class DemoDataService {
 	 * @param IAppManager        $appManager Resolves this app's path and version.
 	 * @param ContainerInterface $container  Resolves OpenRegister's importer.
 	 * @param LoggerInterface    $logger     Records what was imported.
+	 * @param ProfileFieldService $profileFields Defines the demo profile fields.
 	 *
 	 * @return void
 	 */
@@ -70,6 +71,7 @@ class DemoDataService {
 		private readonly IAppManager $appManager,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly ProfileFieldService $profileFields,
 	) {
 	}//end __construct()
 
@@ -231,6 +233,10 @@ class DemoDataService {
 			version: $this->appManager->getAppVersion(Application::APP_ID),
 			force: true
 		);
+
+		// Widgets-people-expertise-and-fields: the demo profile fields
+		// (office, cost centre, expertise tags), only when none are defined.
+		$this->profileFields->seedDemoDefinitions();
 
 		$imported = [
 			'objects'   => $objects,

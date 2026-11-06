@@ -6,8 +6,8 @@
 <template>
 	<!-- `section-dashboard-registry` is the anchor lib/Settings/connections.json
 	     links the Dashboard registry row to (adopt-connection-registry). Keep the
-	     id stable. The link also carries ?tab=sharing, because BeheerTabs only
-	     renders the active tab. -->
+	     id stable. The link also carries ?tab=sharing, because the admin page
+	     only mounts the open tab's content. -->
 	<div
 		id="section-dashboard-registry"
 		class="registry-settings"

@@ -5,7 +5,7 @@
  *
  * Admin-only HTTP entry points for the dashboard-metadata-fields
  * registry (REQ-MDFL-001..003). All endpoints gate on
- * `IGroupManager::isAdmin` at runtime and return HTTP 403 otherwise
+ * `\OCP\IGroupManager::isAdmin` at runtime and return HTTP 403 otherwise
  * (the `#[NoAdminRequired]` attribute is omitted so the framework
  * already requires authentication; the runtime check adds the admin
  * gate on top — same pattern as `AdminSettingsController`).
@@ -29,7 +29,7 @@ namespace OCA\LaunchPad\Controller;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\InvalidMetadataFieldException;
 use OCA\LaunchPad\Exception\MetadataFieldHasValuesException;
-use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Service\MetadataService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -37,10 +37,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin field-definition CRUD controller.
@@ -52,51 +49,22 @@ use OCP\IUserSession;
  * @spec openspec/specs/dashboard-metadata-fields/spec.md
  */
 class MetadataAdminController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
+	 * @param IRequest        $request The HTTP request.
 	 * @param MetadataService $metadataService The metadata service facade.
-	 * @param IGroupManager $groupManager Admin checker.
-	 * @param IUserSession $userSession Current user session.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly MetadataService $metadataService,
-		private readonly IGroupManager $groupManager,
-		private readonly IUserSession $userSession,
-		private readonly ActionAuthService $actionAuth,
+		private readonly RequestGuard $guard,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * Inline admin guard.
-	 *
-	 * @return JSONResponse|null Non-null = caller must be rejected.
-	 */
-	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end assertAdmin()
 
 	/**
 	 * `GET /api/admin/metadata-fields` — list all field definitions
@@ -108,18 +76,14 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listFields(): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
-				'metadata-admin.list-fields'
-			);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.list-fields');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$fields = $this->metadataService->listFields();
@@ -157,18 +121,14 @@ class MetadataAdminController extends Controller {
 		int $required = 0,
 		int $sortOrder = 0,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
-				'metadata-admin.create-field'
-			);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.create-field');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -176,9 +136,7 @@ class MetadataAdminController extends Controller {
 				key: $key,
 				label: $label,
 				type: $type,
-				options: $options,
-				required: $required,
-				sortOrder: $sortOrder
+				settings: ['options' => $options, 'required' => $required, 'sortOrder' => $sortOrder]
 			);
 		} catch (InvalidMetadataFieldException $exception) {
 			return self::badRequest(message: $exception->getMessage());
@@ -202,27 +160,20 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getField(int $id): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
-				'metadata-admin.get-field'
-			);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.get-field');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
 			$field = $this->metadataService->getField(id: $id);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Field not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		return ResponseHelper::success(data: $field->jsonSerialize());
@@ -253,26 +204,24 @@ class MetadataAdminController extends Controller {
 		?array $options = null,
 		?string $key = null,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
-				'metadata-admin.update-field'
-			);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.update-field');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$patch = self::buildPatch(
-			key: $key,
-			label: $label,
-			sortOrder: $sortOrder,
-			required: $required,
-			options: $options
+			fields: [
+				'key'       => $key,
+				'label'     => $label,
+				'sortOrder' => $sortOrder,
+				'required'  => $required,
+				'options'   => $options,
+			]
 		);
 
 		try {
@@ -281,10 +230,7 @@ class MetadataAdminController extends Controller {
 				patch: $patch
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Field not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidMetadataFieldException $exception) {
 			return self::badRequest(message: $exception->getMessage());
 		}
@@ -306,18 +252,14 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteField(int $id, bool $cascade = false): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		try {
-			$this->actionAuth->requireAction(
-				$this->userSession->getUser(),
-				'metadata-admin.delete-field'
-			);
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.delete-field');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -326,10 +268,7 @@ class MetadataAdminController extends Controller {
 				cascade: $cascade
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Field not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (MetadataFieldHasValuesException $exception) {
 			return new JSONResponse(
 				data: [
@@ -356,43 +295,19 @@ class MetadataAdminController extends Controller {
 	 * The forbidden `key` rename is deliberately forwarded rather than
 	 * dropped — the service rejects it with the documented 400.
 	 *
-	 * @param string|null $key The (forbidden) new slug.
-	 * @param string|null $label The new label.
-	 * @param int|null $sortOrder The new sort order.
-	 * @param int|null $required The new required flag.
-	 * @param array<int, string>|null $options The new option set.
+	 * @param array<string, mixed> $fields The nullable `key` (forbidden
+	 *                                     new slug), `label`, `sortOrder`,
+	 *                                     `required` and `options`.
 	 *
 	 * @return array<string, mixed> The patch payload.
 	 */
-	private static function buildPatch(
-		?string $key,
-		?string $label,
-		?int $sortOrder,
-		?int $required,
-		?array $options,
-	): array {
-		$patch = [];
-		if ($key !== null) {
-			$patch['key'] = $key;
-		}
-
-		if ($label !== null) {
-			$patch['label'] = $label;
-		}
-
-		if ($sortOrder !== null) {
-			$patch['sortOrder'] = $sortOrder;
-		}
-
-		if ($required !== null) {
-			$patch['required'] = $required;
-		}
-
-		if ($options !== null) {
-			$patch['options'] = $options;
-		}
-
-		return $patch;
+	private static function buildPatch(array $fields): array {
+		return array_filter(
+			array: $fields,
+			callback: static function ($value): bool {
+				return $value !== null;
+			}
+		);
 	}//end buildPatch()
 
 	/**

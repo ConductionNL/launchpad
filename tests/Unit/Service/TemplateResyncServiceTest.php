@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ResyncStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
@@ -63,6 +64,13 @@ class TemplateResyncServiceTest extends TestCase {
 	/** @var ActivityPublisher&MockObject */
 	private $activityPublisher;
 
+	/**
+	 * Audit rows whose checks ran.
+	 *
+	 * @var int
+	 */
+	private int $audited = 0;
+
 	/** @var INotificationManager&MockObject */
 	private $notificationManager;
 
@@ -86,13 +94,15 @@ class TemplateResyncServiceTest extends TestCase {
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new TemplateResyncService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			db: $this->db,
+			stores: new ResyncStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper,
+				db: $this->db,
+				jobList: $this->jobList
+			),
 			activityPublisher: $this->activityPublisher,
 			notificationManager: $this->notificationManager,
-			jobList: $this->jobList,
-			logger: $this->logger,
+			logger: $this->logger
 		);
 	}
 
@@ -562,19 +572,17 @@ class TemplateResyncServiceTest extends TestCase {
 
 		$this->activityPublisher->expects($this->once())
 			->method('publish')
-			->willReturnCallback(function (
-				string $type,
-				string $actorUserId,
-				string $recipientUserId,
-				string $dashboardUuid,
-				string $dashboardName,
-				string $dashboardLink,
-				array $extraParams = [],
-			) {
-				$this->assertSame('admin1', $actorUserId);
-				$this->assertSame(1, $extraParams['templateId']);
-				$this->assertSame(TemplateResyncService::STRATEGY_MERGE, $extraParams['strategy']);
-				$this->assertSame(12, $extraParams['affectedCount']);
+			->willReturnCallback(function (\OCA\LaunchPad\Activity\ActivityRow $row, string $recipientUserId) {
+				$this->assertSame('admin1', $row->actorUserId);
+				$this->assertSame('admin1', $recipientUserId);
+				$this->assertSame('template-resync-1', $row->dashboard->uuid);
+				$this->assertSame('Template resync: Marketing Dashboard (merge, 12 copies)', $row->dashboard->name);
+				$this->assertSame(\OCA\LaunchPad\Activity\Extension::EVENT_UPDATED, $row->type);
+				$this->assertSame(
+					['templateResync' => true, 'templateId' => 1, 'strategy' => TemplateResyncService::STRATEGY_MERGE, 'affectedCount' => 12],
+					$row->extraParams
+				);
+				$this->audited++;
 				return true;
 			});
 
@@ -585,6 +593,31 @@ class TemplateResyncServiceTest extends TestCase {
 		);
 
 		$this->assertSame(12, $result['affectedCount']);
+		$this->assertSame(1, $this->audited, 'the audit row reached the publisher and its checks ran');
+	}
+
+	/**
+	 * A failing audit write is logged with the template id and does not
+	 * stop the run.
+	 */
+	public function testAFailedAuditRowIsLoggedAndTheRunCompletes(): void {
+		$this->dashboardMapper->method('find')->willReturn($this->makeTemplate(id: 3));
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([]);
+		$this->placementMapper->method('findByDashboardId')->willReturn([]);
+		$failure = new \RuntimeException('activity down');
+		$this->activityPublisher->method('publish')->willThrowException($failure);
+		$this->logger->expects($this->once())->method('warning')->with(
+			'launchpad.template_resync.audit_event_failed',
+			['templateId' => 3, 'exception' => $failure]
+		);
+
+		$result = $this->service->applyResync(
+			templateId: 3,
+			strategy: TemplateResyncService::STRATEGY_OVERWRITE,
+			actingAdminId: 'admin1'
+		);
+
+		$this->assertSame(0, $result['affectedCount']);
 	}
 
 	public function testAffectedUsersAreNotified(): void {

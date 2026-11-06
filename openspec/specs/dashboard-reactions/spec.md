@@ -34,7 +34,7 @@ Each reaction is stored with the following fields:
 
 ### Admin Settings
 
-- **launchpad.reactions_enabled_default**: Boolean (default: true) — global toggle for reactions feature
+- **launchpad.reactions_enabled_default**: Boolean (default: false). The global toggle for the reactions feature, off until an administrator turns it on, so a dashboard shows no reactions row by default
 - **launchpad.reactions_allowed_emojis**: JSON array of strings (default: `["👍","❤️","🎉","😂","🤔","😢"]`) — whitelist of allowed emoji
 
 ## Requirements

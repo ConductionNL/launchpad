@@ -37,16 +37,10 @@ use DateTime;
 use DateTimeImmutable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
-use OCP\EventDispatcher\IEventDispatcher;
-use OCP\IAppConfig;
-use OCP\IDBConnection;
-use OCP\IURLGenerator;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
 use Psr\Log\LoggerInterface;
@@ -99,6 +93,8 @@ class DemoShowcasesService {
 		'gemeente-duin',
 		'horizon-labs',
 		'van-der-berg',
+		'zuiddrecht-intranet',
+		'zuiddrecht-management',
 	];
 
 	/**
@@ -139,35 +135,14 @@ class DemoShowcasesService {
 	/**
 	 * Constructor.
 	 *
-	 * @param DashboardMapper $dashboardMapper Dashboard data mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget placement mapper.
-	 * @param IDBConnection $db Database connection.
-	 * @param IAppConfig $appConfig App config service.
-	 * @param IManager $dashboardManager Nextcloud dashboard registry.
-	 * @param LoggerInterface $logger PSR-3 logger.
-	 * @param ILockingProvider $lockingProvider Advisory lock provider
-	 *                                          (M8 — concurrency guard
-	 *                                          on installShowcase).
-	 * @param IURLGenerator $urlGenerator URL generator used to
-	 *                                    build routed thumbnail
-	 *                                    URLs that resolve from
-	 *                                    any apps directory.
-	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
-	 *                                               DashboardDeletedEvent
-	 *                                               (SB1 fix, REQ-CSC-001).
-	 *                                               Nullable for backwards-
-	 *                                               compat.
+	 * @param ShowcaseStores   $stores The dashboard and placement mappers, the database and the lock provider.
+	 * @param ShowcasePlatform $platform App config, dashboard manager, URL generator and event dispatcher.
+	 * @param LoggerInterface  $logger PSR-3 logger.
 	 */
 	public function __construct(
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly IDBConnection $db,
-		private readonly IAppConfig $appConfig,
-		private readonly IManager $dashboardManager,
+		private readonly ShowcaseStores $stores,
+		private readonly ShowcasePlatform $platform,
 		private readonly LoggerInterface $logger,
-		private readonly ILockingProvider $lockingProvider,
-		private readonly IURLGenerator $urlGenerator,
-		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
 		$this->placementHydrator = new PlacementPayloadHydrator();
 	}//end __construct()
@@ -266,7 +241,7 @@ class DemoShowcasesService {
 		// one card, not a reason to hide the other five.
 		$thumbnailUrl = null;
 		try {
-			$thumbnailUrl = $this->urlGenerator->imagePath(
+			$thumbnailUrl = $this->platform->urlGenerator->imagePath(
 				Application::APP_ID,
 				'showcases/' . $showcaseId . '.png'
 			);
@@ -331,7 +306,7 @@ class DemoShowcasesService {
 		// before either inserts without this guard.
 		$lockKey = 'launchpad-showcase-install-' . $showcaseId;
 		try {
-			$this->lockingProvider->acquireLock(
+			$this->stores->lockingProvider->acquireLock(
 				path: $lockKey,
 				type: ILockingProvider::LOCK_EXCLUSIVE
 			);
@@ -362,7 +337,7 @@ class DemoShowcasesService {
 				lang: $lang
 			);
 		} finally {
-			$this->lockingProvider->releaseLock(
+			$this->stores->lockingProvider->releaseLock(
 				path: $lockKey,
 				type: ILockingProvider::LOCK_EXCLUSIVE
 			);
@@ -391,20 +366,20 @@ class DemoShowcasesService {
 			sourceLanguage: $lang
 		);
 
-		$this->db->beginTransaction();
+		$this->stores->db->beginTransaction();
 		try {
-			$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+			$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
 			foreach ($valid as $widgetPayload) {
 				$placement = $this->placementHydrator->hydrate(
 					dashboardId: (int)$persisted->getId(),
 					payload: $widgetPayload
 				);
-				$this->placementMapper->insert(entity: $placement);
+				$this->stores->placementMapper->insert(entity: $placement);
 			}
 
-			$this->db->commit();
+			$this->stores->db->commit();
 		} catch (Throwable $e) {
-			$this->db->rollBack();
+			$this->stores->db->rollBack();
 			throw new RuntimeException(
 				message: 'Failed to persist showcase: ' . $e->getMessage(),
 				code: 0,
@@ -455,16 +430,16 @@ class DemoShowcasesService {
 		}
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $existingUuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $existingUuid);
 			$dashId = (int)$dashboard->getId();
-			$this->placementMapper->deleteByDashboardId(dashboardId: $dashId);
-			$this->dashboardMapper->delete(entity: $dashboard);
+			$this->stores->placementMapper->deleteByDashboardId(dashboardId: $dashId);
+			$this->stores->dashboardMapper->delete(entity: $dashboard);
 
 			// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
 			// (REQ-CSC-001).
 			$deletedUuid = (string)$dashboard->getUuid();
-			if ($this->eventDispatcher !== null && $deletedUuid !== '') {
-				$this->eventDispatcher->dispatchTyped(
+			if ($this->platform->eventDispatcher !== null && $deletedUuid !== '') {
+				$this->platform->eventDispatcher->dispatchTyped(
 					new DashboardDeletedEvent(
 						dashboardUuid: $deletedUuid,
 						ownerUserId:   (string)($dashboard->getUserId() ?? ''),
@@ -496,7 +471,7 @@ class DemoShowcasesService {
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
 	public function getInstalledUuid(string $showcaseId): string {
-		return $this->appConfig->getValueString(
+		return $this->platform->appConfig->getValueString(
 			Application::APP_ID,
 			self::CONFIG_PREFIX . $showcaseId,
 			''
@@ -540,7 +515,7 @@ class DemoShowcasesService {
 	 */
 	public function partitionWidgets(array $widgets): array {
 		$registered = [];
-		foreach ($this->dashboardManager->getWidgets() as $widget) {
+		foreach ($this->platform->dashboardManager->getWidgets() as $widget) {
 			$registered[$widget->getId()] = true;
 		}
 
@@ -804,7 +779,7 @@ class DemoShowcasesService {
 	 * @return void
 	 */
 	private function markInstalled(string $showcaseId, string $dashboardUuid): void {
-		$this->appConfig->setValueString(
+		$this->platform->appConfig->setValueString(
 			Application::APP_ID,
 			self::CONFIG_PREFIX . $showcaseId,
 			$dashboardUuid
@@ -819,7 +794,7 @@ class DemoShowcasesService {
 	 * @return void
 	 */
 	private function clearInstalledMarker(string $showcaseId): void {
-		$this->appConfig->deleteKey(
+		$this->platform->appConfig->deleteKey(
 			Application::APP_ID,
 			self::CONFIG_PREFIX . $showcaseId
 		);

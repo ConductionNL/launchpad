@@ -121,9 +121,14 @@
 import { translate as t } from '@nextcloud/l10n'
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
+import {
 	fetchConnectorAvailability,
 	validateLiveTileSource,
 } from '../../../services/liveTileClient.js'
+import { allowListMessage, urlFieldErrors } from '../../../utils/urlAllowList.js'
 
 const MIN_REFRESH_SECONDS = 30
 const DEFAULT_REFRESH_SECONDS = 300
@@ -168,20 +173,14 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values — used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: ['update:content'],
@@ -385,22 +384,7 @@ export default {
 				return
 			}
 			const result = await validateLiveTileSource(this.assembledContent)
-			if (
-				result.valid === false
-				&& result.errors.includes('host_not_allowed')
-			) {
-				this.urlAllowListError = t(
-					'launchpad',
-					'This host is not on the allow-list.',
-				)
-			} else if (
-				result.valid === false
-				&& result.errors.includes('invalid_url')
-			) {
-				this.urlAllowListError = t('launchpad', 'Enter a valid http(s) URL.')
-			} else {
-				this.urlAllowListError = ''
-			}
+			this.urlAllowListError = allowListMessage(result)
 		},
 
 		/**
@@ -416,14 +400,7 @@ export default {
 			const errors = []
 
 			if (this.sourceMode === 'url') {
-				if (typeof this.url !== 'string' || this.url.trim() === '') {
-					errors.push(t('launchpad', 'URL is required'))
-				} else if (!/^https?:\/\/.+/i.test(this.url.trim())) {
-					errors.push(t('launchpad', 'Enter a valid http(s) URL.'))
-				}
-				if (this.urlAllowListError) {
-					errors.push(this.urlAllowListError)
-				}
+				errors.push(...urlFieldErrors(this.url, this.urlAllowListError))
 			} else if (this.sourceMode === 'connector') {
 				if (!this.connectorAvailable) {
 					errors.push(t('launchpad', 'OpenConnector is not available.'))

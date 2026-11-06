@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Job;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\FeedRefreshService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use OCP\IAppConfig;
@@ -86,17 +85,15 @@ class FeedRefreshJob extends TimedJob {
 	 * Constructor — clamps the configured interval and registers it
 	 * with the parent TimedJob.
 	 *
-	 * @param ITimeFactory $time The TimedJob clock.
-	 * @param IAppConfig $appConfig The app config reader.
-	 * @param FeedRefreshService $refreshService The refresh worker.
-	 * @param ILockingProvider $lockingProvider The cluster lock provider.
-	 * @param LoggerInterface $logger The diagnostic logger.
+	 * @param ITimeFactory        $time The TimedJob clock.
+	 * @param IAppConfig          $appConfig The app config reader.
+	 * @param FeedRefreshRunTools $run The feed refresh service and the locking provider.
+	 * @param LoggerInterface     $logger The diagnostic logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
 		private readonly IAppConfig $appConfig,
-		private readonly FeedRefreshService $refreshService,
-		private readonly ILockingProvider $lockingProvider,
+		private readonly FeedRefreshRunTools $run,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);
@@ -124,7 +121,7 @@ class FeedRefreshJob extends TimedJob {
 	 */
 	protected function run(mixed $argument): void {
 		try {
-			$this->lockingProvider->acquireLock(
+			$this->run->lockingProvider->acquireLock(
 				path: self::LOCK_ID,
 				type: ILockingProvider::LOCK_EXCLUSIVE
 			);
@@ -137,7 +134,7 @@ class FeedRefreshJob extends TimedJob {
 		}
 
 		try {
-			$result = $this->refreshService->refreshAll();
+			$result = $this->run->refreshService->refreshAll();
 			$this->logger->info(
 				message: 'FeedRefreshJob tick completed',
 				context: [
@@ -157,7 +154,7 @@ class FeedRefreshJob extends TimedJob {
 				]
 			);
 		} finally {
-			$this->lockingProvider->releaseLock(
+			$this->run->lockingProvider->releaseLock(
 				path: self::LOCK_ID,
 				type: ILockingProvider::LOCK_EXCLUSIVE
 			);

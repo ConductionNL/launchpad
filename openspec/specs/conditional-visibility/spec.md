@@ -436,6 +436,27 @@ When a widget placement is deleted, all its associated conditional rules MUST al
 - THEN all 3 placements and all 6 conditional rules MUST be deleted
 - NOTE: `DashboardService::deleteDashboard()` deletes placements via `placementMapper->deleteByDashboardId()` but does not explicitly handle conditional rules.
 
+### Requirement: Admin overview of widgets with visibility rules (REQ-VIS-012)
+
+The admin settings tab "Versioning and audit" MUST list every widget placement, across all dashboards, that has at least one conditional visibility rule. Each row MUST show the dashboard name, the widget type, the number of rules and the split into include and exclude rules. The list MUST come from `GET /api/admin/widgets/with-rules` (`AdminWidgetRulesController::index`), which only an administrator of the LaunchPad admin settings may call. Synced from the archived change `2026-06-14-refactor-launchpad-ia-alignment` ("Admin Versioning & Audit Tab"); board LpBeheerAnalyse.
+
+#### Scenario: The overview lists rule-bearing widgets
+- GIVEN dashboards in the system hold 12 widget placements with at least one conditional rule
+- WHEN an administrator opens the "Versioning and audit" tab in the LaunchPad admin settings
+- THEN all 12 placements MUST be listed under "Widgets with visibility rules"
+- AND each row MUST show the dashboard name, widget type, rule count, include count and exclude count
+
+#### Scenario: No rules yet
+- GIVEN no widget placement has a conditional rule
+- WHEN an administrator opens the tab
+- THEN the overview MUST show the empty state "No visibility rules yet"
+
+#### Scenario: A non-administrator cannot read the overview
+- GIVEN Pieter is not an administrator
+- WHEN he calls `GET /api/admin/widgets/with-rules`
+- THEN the request MUST be refused with HTTP 403
+- AND no rule data MUST be returned
+
 ## Non-Functional Requirements
 
 - **Performance**: Rule evaluation for a single placement with up to 10 rules MUST complete within 50ms. Total evaluation for a dashboard with 30 placements and 100 rules MUST complete within 500ms.

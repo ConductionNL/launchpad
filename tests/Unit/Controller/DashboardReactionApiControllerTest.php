@@ -19,6 +19,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ReactionTools;
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\DashboardReactionApiController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\ReactionService;
@@ -63,11 +65,15 @@ class DashboardReactionApiControllerTest extends TestCase {
 	private function makeController(?string $userId = 'user1'): DashboardReactionApiController {
 		return new DashboardReactionApiController(
 			request: $this->request,
-			reactionService: $this->reactionService,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			logger: $this->logger,
-			userId: $userId,
+			reactions: new ReactionTools(
+				reactionService: $this->reactionService,
+				logger: $this->logger
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
+			userId: $userId
 		);
 	}//end makeController()
 
@@ -210,11 +216,15 @@ class DashboardReactionApiControllerTest extends TestCase {
 
 		$controller = new DashboardReactionApiController(
 			request: $this->request,
-			reactionService: $this->reactionService,
-			actionAuth: $this->actionAuth,
-			userSession: $anonSession,
-			logger: $this->logger,
-			userId: null,
+			reactions: new ReactionTools(
+				reactionService: $this->reactionService,
+				logger: $this->logger
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $anonSession
+			),
+			userId: null
 		);
 		$response = $controller->getReactions('some-uuid');
 

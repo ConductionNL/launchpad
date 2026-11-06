@@ -34,6 +34,14 @@ use OCP\IDBConnection;
  * @spec    openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class DashboardShareMapper extends QBMapper {
+	use ColumnMatchQueries;
+	use OrphanRowQueries;
+
+	/**
+	 * Parent link for the orphan queries: alias, parent table, parent alias, foreign key.
+	 */
+	private const ORPHAN_LINK = ['s', 'launchpad_dashboards', 'd', 'dashboard_id'];
+
 	/**
 	 * Constructor
 	 *
@@ -58,18 +66,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function find(int $id): DashboardShare {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -83,19 +80,8 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function findByDashboardId(int $dashboardId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboardId()
@@ -113,25 +99,8 @@ class DashboardShareMapper extends QBMapper {
 		int $dashboardId,
 		string $permissionLevel,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'permission_level',
-					y: $qb->createNamedParameter(value: $permissionLevel)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId, 'permission_level' => $permissionLevel]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboardAndLevel()
@@ -153,30 +122,7 @@ class DashboardShareMapper extends QBMapper {
 		string $shareType,
 		string $shareWith,
 	): ?DashboardShare {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'share_type',
-					y: $qb->createNamedParameter(value: $shareType)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'share_with',
-					y: $qb->createNamedParameter(value: $shareWith)
-				)
-			);
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId, 'share_type' => $shareType, 'share_with' => $shareWith]);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -244,17 +190,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardId(int $dashboardId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_id' => $dashboardId]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboardId()
@@ -271,20 +207,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByRecipientUser(string $userId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'share_type',
-					y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_USER)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'share_with',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['share_type' => DashboardShare::SHARE_TYPE_USER, 'share_with' => $userId]);
 
 		return $qb->executeStatement();
 	}//end deleteByRecipientUser()
@@ -331,22 +254,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function countOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('s.id'))
-			->from(from: $this->getTableName(), alias: 's')
-			->leftJoin(
-				fromAlias: 's',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = s.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$count = $result->fetchOne();
-		$result->closeCursor();
-
-		return (int)($count ?? 0);
+		return $this->countOrphanRows(link: self::ORPHAN_LINK);
 	}//end countOrphaned()
 
 	/**
@@ -362,42 +270,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('s.id')
-			->from(from: $this->getTableName(), alias: 's')
-			->leftJoin(
-				fromAlias: 's',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = s.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$ids = [];
-		while (($row = $result->fetch()) !== false) {
-			$ids[] = (int)$row['id'];
-		}
-
-		$result->closeCursor();
-
-		if (count(value: $ids) === 0) {
-			return 0;
-		}
-
-		$delete = $this->db->getQueryBuilder();
-		$delete->delete(delete: $this->getTableName())
-			->where(
-				$delete->expr()->in(
-					x: 'id',
-					y: $delete->createNamedParameter(
-						value: $ids,
-						type: IQueryBuilder::PARAM_INT_ARRAY
-					)
-				)
-			);
-
-		return $delete->executeStatement();
+		return $this->deleteOrphanRows(link: self::ORPHAN_LINK);
 	}//end deleteOrphaned()
 
 	/**

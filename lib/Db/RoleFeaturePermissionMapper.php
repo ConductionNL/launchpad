@@ -33,6 +33,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<RoleFeaturePermission>
  */
 class RoleFeaturePermissionMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -56,18 +58,7 @@ class RoleFeaturePermissionMapper extends QBMapper {
 	 * @throws DoesNotExistException When no row with that id exists.
 	 */
 	public function find(int $id): RoleFeaturePermission {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -96,15 +87,7 @@ class RoleFeaturePermissionMapper extends QBMapper {
 	 * @throws DoesNotExistException When no row exists for the given group.
 	 */
 	public function findByGroupId(string $groupId): RoleFeaturePermission {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			);
+		$qb = $this->selectWhere(match: ['group_id' => $groupId]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByGroupId()

@@ -74,10 +74,7 @@ class DemoShowcasesListCommand extends Command {
 	 *
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$showcases = $this->showcases->getAvailableShowcases();
 
 		if ((bool)$input->getOption(name: 'json') === true) {

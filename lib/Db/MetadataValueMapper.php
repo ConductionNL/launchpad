@@ -35,6 +35,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<MetadataValue>
  */
 class MetadataValueMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -56,15 +58,7 @@ class MetadataValueMapper extends QBMapper {
 	 * @return MetadataValue[] The matching rows.
 	 */
 	public function findByDashboard(string $dashboardUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboard()
@@ -151,14 +145,7 @@ class MetadataValueMapper extends QBMapper {
 	 * @return int The number of rows removed.
 	 */
 	public function deleteByDashboard(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboard()
@@ -172,18 +159,7 @@ class MetadataValueMapper extends QBMapper {
 	 * @return MetadataValue[] The matching rows.
 	 */
 	public function findByField(int $fieldId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'field_id',
-					y: $qb->createNamedParameter(
-						value: $fieldId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['field_id' => $fieldId]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByField()

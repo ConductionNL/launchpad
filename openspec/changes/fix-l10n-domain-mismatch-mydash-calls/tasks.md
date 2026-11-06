@@ -2,19 +2,21 @@
 
 ## Verify scope
 
-- [ ] Task 1: Re-run `grep -rnoP "(?<![A-Za-z_])t\('mydash'" src --include=*.vue --include=*.js` and
+- [x] Task 1: Re-run `grep -rnoP "(?<![A-Za-z_])t\('mydash'" src --include=*.vue --include=*.js` and
   `grep -rnoP "(?<![A-Za-z_])n\('mydash'" src --include=*.vue --include=*.js`
   against current HEAD to confirm the exact call-site count and file list
   before editing (167 calls / 20 files at time of writing; do not trust a
-  stale count if other work has landed in the meantime).
+  stale count if other work has landed in the meantime). Rerun 9 Oct 2026 on
+  build/openspecs-1: 0 calls.
 
 ## Fix call sites
 
-- [ ] Task 2: In each of the 20 affected files, change every
+- [x] Task 2: In each of the 20 affected files, change every
   `t('mydash', …)` (and `n('mydash', …)` if any exist) call to
   `t('launchpad', …)` / `n('launchpad', …)`. Do this as a literal string
   substitution only — do not alter the translated text, placeholders, or
-  argument order.
+  argument order. Done in 006fa4f5 and 3c346d62 (`src/components/DashboardConfigModal.vue`
+  has since moved to `src/modals/`).
   - `src/dialogs/RolePermissionDeleteDialog.vue` (4 calls)
   - `src/dialogs/PublicSharePasswordDialog.vue` (4 calls)
   - `src/components/admin/AdminDemoData.vue` (8 calls)
@@ -35,31 +37,39 @@
   - `src/components/Widgets/VisibilityRulesModal.vue` (27 calls)
   - `src/components/admin/AdminSettings.vue` (12 calls)
   - `src/components/Widgets/WidgetContextMenu.vue` (1 call)
-- [ ] Task 3: Confirm every English source string used in these 20 files
+- [x] Task 3: Confirm every English source string used in these 20 files
   already exists as a key in `l10n/en.json` under the `"launchpad"`
   domain content (spot-check a sample per file) — if any string is
   genuinely new/missing from the bundle, flag it separately rather than
-  silently shipping an unresolvable key.
+  silently shipping an unresolvable key. Checked 9 Oct: 202 literal calls in
+  these files, 15 strings have no catalogue key. Flagged separately: repo-wide
+  320 `t('launchpad', …)` strings have no catalogue key (list in the lane's
+  `build-round/l10n-missing-keys.txt`); that is i18n debt for its own change,
+  not part of this domain fix.
 
 ## Prevent regression
 
-- [ ] Task 4: Add a lint guard (new script under `scripts/`, e.g.
+- [x] Task 4: Add a lint guard (new script under `scripts/`, e.g.
   `scripts/lint-translation-domain.js`, wired into the existing
   `npm run lint` chain alongside `lint:initial-state`) that scans `src/`
   for `t('<literal>'` / `n('<literal>'` calls where `<literal>` is not
   `'launchpad'`, and fails with file:line output if any are found.
-- [ ] Task 5: Add the new script to `package.json`'s `lint` script
+  `scripts/lint-translation-domain.js` exists.
+- [x] Task 5: Add the new script to `package.json`'s `lint` script
   (`"lint": "eslint src && npm run check:manifest && npm run lint:initial-state && npm run lint:translation-domain"`).
+  `package.json` `lint` ends with `npm run lint:translation-domain`.
 
 ## Verification
 
-- [ ] Task 6: Run `npm run lint` and confirm the new guard passes with
-  zero violations after Task 2's fixes.
+- [x] Task 6: Run `npm run lint` and confirm the new guard passes with
+  zero violations after Task 2's fixes. 9 Oct: `node scripts/lint-translation-domain.js`
+  prints OK, exit 0.
 - [ ] Task 7: Manually verify in a Dutch-locale (`nl`) Nextcloud session:
   open the admin Health panel (`HealthPanel.vue`) and the widget
   right-click context menu (`WidgetContextMenu.vue`) and confirm the
   previously-English "Health"/"Healthy"/"Degraded" and "Visibility
-  rules…" strings now render in Dutch.
+  rules…" strings now render in Dutch. (not run: needs the live instance; the
+  `nl` catalogue carries "Health", "Healthy", "Degraded" and "Visibility rules…")
 - [ ] Task 8: Re-run the Vitest suite (`npm run test`) — component tests
   that snapshot or assert on rendered English text for these components
   must still pass since the English fallback text is unchanged for the

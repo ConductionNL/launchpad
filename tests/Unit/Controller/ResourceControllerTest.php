@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ResourceTools;
 use OCA\LaunchPad\Controller\ResourceController;
 use OCA\LaunchPad\Controller\ResourceUploadRequestParser;
 use OCA\LaunchPad\Exception\CorruptImageException;
@@ -77,11 +78,13 @@ class ResourceControllerTest extends TestCase {
 
 		$this->controller = new ResourceController(
 			request: $this->request,
-			resourceService: $this->service,
-			parser: $this->parser,
+			tools: new ResourceTools(
+				resourceService: $this->service,
+				parser: $this->parser,
+				logger: new NullLogger()
+			),
 			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			logger: new NullLogger(),
+			groupManager: $this->groupManager
 		);
 	}//end setUp()
 
@@ -102,11 +105,9 @@ class ResourceControllerTest extends TestCase {
 			) {
 				parent::__construct(
 					request: $request,
-					resourceService: $resourceService,
-					parser: $parser,
+					tools: new ResourceTools(resourceService: $resourceService, parser: $parser, logger: $logger),
 					userSession: $userSession,
 					groupManager: $groupManager,
-					logger: $logger,
 				);
 			}
 
@@ -138,11 +139,9 @@ class ResourceControllerTest extends TestCase {
 			) {
 				parent::__construct(
 					request: $request,
-					resourceService: $resourceService,
-					parser: $parser,
+					tools: new ResourceTools(resourceService: $resourceService, parser: $parser, logger: $logger),
 					userSession: $userSession,
 					groupManager: $groupManager,
-					logger: $logger,
 				);
 			}
 

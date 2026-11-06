@@ -584,3 +584,55 @@ The command `php occ list launchpad` MUST enumerate all registered `launchpad:*`
 - GIVEN an operator sees `launchpad:i18n:export-strings` in `php occ list launchpad` output
 - WHEN they run `php occ launchpad:i18n:export-strings --help`
 - THEN the detailed help text MUST be displayed, providing a path from discovery to usage
+
+### Requirement: REQ-CLI-012 Install a shipped template
+
+`php occ launchpad:template:install <id> [--group=<gid>]... [--default] [--force]`, or `<id> --update [--dry-run]`, MUST add a template that ships with LaunchPad (REQ-TMPL-018) as an admin template, for scripted deploys.
+
+- `--group` names a group whose members get the template. It may be repeated. A group that does not exist MUST fail the command before anything is added.
+- `--default` makes it the default template for everyone without a group template (REQ-TMPL-008).
+- `--force` adds a fresh copy even when the template is already installed.
+
+- `--update` brings the installed template to the version LaunchPad ships, in place, and re-syncs the copies members already have (REQ-TMPL-020). It keeps the template's groups, default flag and name, so it MUST refuse `--group`, `--default` and `--force` with exit 1, before anything runs. It MUST print the old and the new version and one line per widget added (`+`), removed (`-`) and changed (`~`, with what changed), the number of unchanged widgets, and how many members have a copy and how many copies changed. When the installed version is already the shipped one it MUST say so, change nothing and exit 0. When the template is not installed it MUST say so and exit 1.
+- `--dry-run`, with `--update` only, prints the same lines and MUST write nothing. Without `--update` it MUST exit 1.
+
+The command MUST print the template's UUID, its version, its groups and whether it is the default. It MUST name the widgets no app on the instance registers. When personal dashboards are off it MUST say that members will see the template read-only and that its compulsory widgets have no effect (REQ-TMPL-019). Run a second time without `--force`, it MUST add nothing and MUST apply `--group` and `--default` again. It MUST exit 0 on success and 1 on an unknown id, an unknown group or a failed install.
+
+#### Scenario: A deploy script installs the template for a group
+- GIVEN the group "medewerkers" exists and `mijn-werkdag` is not installed
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkers`
+- THEN the command MUST exit 0 and print the new template's UUID
+- AND the template MUST target the group "medewerkers"
+
+@e2e exclude A console command has no browser surface: pinned by TemplateInstallCommandTest::testInstallsForAGroup.
+
+#### Scenario: An unknown group stops the install
+- GIVEN no group "medewerkerz" exists
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --group=medewerkerz`
+- THEN the command MUST exit 1 and name the group
+- AND no template MUST be added
+
+@e2e exclude Pinned by ShippedTemplateServiceTest::testAnUnknownGroupStopsTheInstall and TemplateInstallCommandTest::testAnUnknownGroupExitsOne.
+
+#### Scenario: An operator updates the installed template and reads what changed
+- GIVEN `mijn-werkdag` is installed at version 2 and LaunchPad ships version 3
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --dry-run`
+- THEN the command MUST exit 0, print "Dry run, nothing written." and one line per widget added, removed and changed
+- AND nothing MUST be written
+- WHEN the operator runs the command again without `--dry-run`
+- THEN the command MUST exit 0, print the same lines and how many members' copies changed
+
+@e2e exclude A console command has no browser surface: pinned by TemplateInstallCommandTest::testUpdatePrintsWhatChanges and ::testADryRunSaysNothingWasWritten.
+
+#### Scenario: An update refuses the options that change who gets the template
+- WHEN an operator runs `php occ launchpad:template:install mijn-werkdag --update --group=bestuur`
+- THEN the command MUST exit 1 and say `--update` cannot be combined with `--group`, `--default` or `--force`
+- AND nothing MUST be written
+
+@e2e exclude Pinned by TemplateInstallCommandTest::testUpdateRefusesTheOptionsThatChangeWhoGetsTheTemplate.
+
+#### Scenario: An unknown template id lists the shipped ones
+- WHEN an operator runs `php occ launchpad:template:install does-not-exist`
+- THEN the command MUST exit 1 and list the shipped template ids
+
+@e2e exclude Pinned by TemplateInstallCommandTest::testAnUnknownIdExitsOne.

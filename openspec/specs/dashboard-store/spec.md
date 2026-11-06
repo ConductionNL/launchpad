@@ -1,7 +1,7 @@
 # dashboard-store Specification
 
 ## Purpose
-An administrator can connect LaunchPad to a registry, another OpenRegister instance that publishes dashboard templates, and install a template from the store page as a new dashboard. OpenRegister's store plane owns discovery (the address guard, the token transport and the outcome it reports); LaunchPad owns the install, which goes through the existing dashboard importer and always creates a dashboard, never replaces one. The registry token is write-only, and the store degrades to a not-configured state when OpenRegister is absent.
+An administrator can connect LaunchPad to a registry, another OpenRegister instance that publishes dashboard templates, and install a template from the marketplace page as a new dashboard. OpenRegister's store plane owns discovery (the address guard, the token transport and the outcome it reports); LaunchPad owns the install, which goes through the existing dashboard importer and always creates a dashboard, never replaces one. The registry token is write-only, and the store degrades to a not-configured state when OpenRegister is absent.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ rather than reaching the registry URL.
 #### Scenario: An unconfigured store shows the not-configured state
 
 - **GIVEN** no `registry_url` is configured
-- **WHEN** an administrator opens the Store page
+- **WHEN** an administrator opens the Marketplace page
 - **THEN** `GET /api/store/items` MUST answer 200 with outcome `not_configured`
 - **AND** the page MUST show its not-configured note
 - **AND** it MUST NOT show the unreachable note or an empty result grid
@@ -220,7 +220,7 @@ here would declare a schema and card fields that nothing reads while
 A non-empty `types` list is the specific harm, because it selects the engine's
 federated configuration path. The block on `development` declared
 `openregister.configset` and `openregister.flows`, which trade registers, schemas
-and flows. Had the routes existed, the store page would have offered
+and flows. Had the routes existed, the marketplace page would have offered
 configuration sets to somebody looking for a dashboard.
 
 #### Scenario: No store block is declared
@@ -270,5 +270,5 @@ separate action.
 #### Scenario: The saved registry is the one the store reads
 
 - **GIVEN** an administrator saved a registry URL whose host does not resolve
-- **WHEN** they open the Store page
+- **WHEN** they open the Marketplace page
 - **THEN** the page MUST show the unreachable note rather than the not-configured one

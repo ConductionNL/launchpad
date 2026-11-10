@@ -278,12 +278,8 @@ class AdminBulkController extends Controller {
 
 		$uuids = [];
 		foreach ($value as $item) {
-			if (is_string($item) === false) {
-				return null;
-			}
-
-			$trimmed = trim($item);
-			if ($trimmed === '') {
+			$trimmed = $this->trimmedUuid(item: $item);
+			if ($trimmed === null) {
 				return null;
 			}
 
@@ -292,6 +288,26 @@ class AdminBulkController extends Controller {
 
 		return $uuids;
 	}//end extractUuids()
+
+	/**
+	 * One list item as a trimmed UUID; null when it is not a non-blank string.
+	 *
+	 * @param mixed $item The raw list item.
+	 *
+	 * @return string|null The trimmed UUID.
+	 */
+	private function trimmedUuid(mixed $item): string|null {
+		if (is_string($item) === false) {
+			return null;
+		}
+
+		$trimmed = trim($item);
+		if ($trimmed === '') {
+			return null;
+		}
+
+		return $trimmed;
+	}//end trimmedUuid()
 
 	/**
 	 * Resolve a boolean parameter that may arrive either in the body

@@ -178,9 +178,31 @@ export const DEFAULT_H = 4
  * @spec openspec/specs/grid-layout/spec.md
  */
 export function placeNewWidget(spec, placements) {
-	const w = spec && Number.isFinite(spec.w) && spec.w > 0 ? spec.w : DEFAULT_W
-	const h = spec && Number.isFinite(spec.h) && spec.h > 0 ? spec.h : DEFAULT_H
+	const w = positiveCells(spec?.w, DEFAULT_W)
+	const h = positiveCells(spec?.h, DEFAULT_H)
 
+	return { x: 0, y: lowestBottomEdge(placements), w, h, pushed: [] }
+}
+
+/**
+ * A finite, positive cell count, or the fallback.
+ *
+ * @param {unknown} value the requested cell count.
+ * @param {number} fallback the default cell count.
+ * @return {number} the cell count to use.
+ */
+function positiveCells(value, fallback) {
+	return Number.isFinite(value) && value > 0 ? value : fallback
+}
+
+/**
+ * The lowest occupied bottom edge (`gridY + gridHeight`) of the placements;
+ * a missing `gridY` reads as 0 and a missing `gridHeight` as 1.
+ *
+ * @param {Array<object>} placements current placements (non-arrays read as none).
+ * @return {number} the bottom edge, 0 for an empty dashboard.
+ */
+function lowestBottomEdge(placements) {
 	const safePlacements = Array.isArray(placements) ? placements : []
 	let bottomY = 0
 	for (const p of safePlacements) {
@@ -188,8 +210,7 @@ export function placeNewWidget(spec, placements) {
 		const ph = Number.isFinite(p.gridHeight) ? p.gridHeight : 1
 		bottomY = Math.max(bottomY, y + ph)
 	}
-
-	return { x: 0, y: bottomY, w, h, pushed: [] }
+	return bottomY
 }
 
 /**

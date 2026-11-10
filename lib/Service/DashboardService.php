@@ -2243,8 +2243,35 @@ class DashboardService {
 			actorUserId: $userId
 		);
 
-		$hasPublishAt = ($publishAt !== null && trim($publishAt) !== '');
-		$hasUnpublishAt = ($unpublishAt !== null && trim($unpublishAt) !== '');
+		$window = $this->parsePublicationWindow(publishAt: $publishAt, unpublishAt: $unpublishAt);
+
+		if ($window->publishAt !== null) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+			$dashboard->setPublishAt($window->publishAt);
+		}
+
+		$dashboard->setUnpublishAt($window->unpublishAt);
+		$dashboard->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+
+		return $this->stores->dashboardMapper->update(entity: $dashboard);
+	}//end schedule()
+
+	/**
+	 * Validate and parse the go-live and take-down times of a schedule request.
+	 *
+	 * @param string|null $publishAt   The requested go-live time.
+	 * @param string|null $unpublishAt The requested take-down time.
+	 *
+	 * @return PublicationWindow The parsed times; null where none was given.
+	 *
+	 * @throws InvalidArgumentException When neither is given, either is unparseable
+	 *                                  or past, or the take-down is not after the go-live.
+	 */
+	private function parsePublicationWindow(string|null $publishAt, string|null $unpublishAt): PublicationWindow {
+		$hasPublishAt = $this->isFilledTime(value: $publishAt);
+		$hasUnpublishAt = $this->isFilledTime(value: $unpublishAt);
 		if ($hasPublishAt === false && $hasUnpublishAt === false) {
 			throw new InvalidArgumentException(message: self::ERR_SCHEDULE_PAST_DATE);
 		}
@@ -2256,26 +2283,44 @@ class DashboardService {
 
 		$parsedUnpublish = null;
 		if ($hasUnpublishAt === true) {
-			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
-			// time is also in the future, and after the go-live time.
-			$parsedUnpublish = $this->parseFuturePublishAt(publishAt: (string)$unpublishAt);
-			if ($parsedPublish !== null && $parsedUnpublish <= $parsedPublish) {
-				throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
-			}
+			$parsedUnpublish = $this->parseTakeDownAfter(unpublishAt: (string)$unpublishAt, publishAt: $parsedPublish);
 		}
 
-		if ($parsedPublish !== null) {
-			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
-			$dashboard->setPublishAt($parsedPublish);
+		return new PublicationWindow(publishAt: $parsedPublish, unpublishAt: $parsedUnpublish);
+	}//end parsePublicationWindow()
+
+	/**
+	 * Whether a requested time is given (not null, not blank).
+	 *
+	 * @param string|null $value The requested time.
+	 *
+	 * @return bool
+	 */
+	private function isFilledTime(string|null $value): bool {
+		return $value !== null && trim($value) !== '';
+	}//end isFilledTime()
+
+	/**
+	 * Parse a take-down time that is in the future and after the go-live time.
+	 *
+	 * REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
+	 * time is also in the future, and after the go-live time.
+	 *
+	 * @param string      $unpublishAt The requested take-down time.
+	 * @param string|null $publishAt   The parsed go-live time, or null.
+	 *
+	 * @return string The parsed take-down time.
+	 *
+	 * @throws InvalidArgumentException When it is unparseable, past, or not after the go-live.
+	 */
+	private function parseTakeDownAfter(string $unpublishAt, string|null $publishAt): string {
+		$parsedUnpublish = $this->parseFuturePublishAt(publishAt: $unpublishAt);
+		if ($publishAt !== null && $parsedUnpublish <= $publishAt) {
+			throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
 		}
 
-		$dashboard->setUnpublishAt($parsedUnpublish);
-		$dashboard->setUpdatedAt(
-			(new DateTime())->format(format: 'Y-m-d H:i:s')
-		);
-
-		return $this->stores->dashboardMapper->update(entity: $dashboard);
-	}//end schedule()
+		return $parsedUnpublish;
+	}//end parseTakeDownAfter()
 
 	/**
 	 * Eagerly materialise scheduled dashboards whose `publishAt` is

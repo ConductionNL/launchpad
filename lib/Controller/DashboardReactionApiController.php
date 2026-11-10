@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use Closure;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\PermissionDeniedException;
@@ -37,6 +38,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IUser;
 use Throwable;
 
 /**
@@ -85,7 +87,9 @@ class DashboardReactionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getReactions(string $uuid): JSONResponse {
-		$refusal = $this->refuseCaller(action: 'dashboard-reaction.get-reactions');
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.get-reactions')
+		);
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -116,7 +120,9 @@ class DashboardReactionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function addReaction(string $uuid, string $emoji = ''): JSONResponse {
-		$refusal = $this->refuseCaller(action: 'dashboard-reaction.add-reaction');
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.add-reaction')
+		);
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -147,7 +153,9 @@ class DashboardReactionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function removeReaction(string $uuid, string $emoji): JSONResponse {
-		$refusal = $this->refuseCaller(action: 'dashboard-reaction.remove-reaction');
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.remove-reaction')
+		);
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -189,7 +197,9 @@ class DashboardReactionApiController extends Controller {
 		string $emoji,
 		?string $cursor = null,
 	): JSONResponse {
-		$refusal = $this->refuseCaller(action: 'dashboard-reaction.get-reactors-by-emoji');
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.get-reactors-by-emoji')
+		);
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -212,17 +222,17 @@ class DashboardReactionApiController extends Controller {
 	 * The 401 for a request without a session user; otherwise the action
 	 * check, which throws when the caller's groups may not perform it.
 	 *
-	 * @param string $action The action-matrix key.
+	 * @param Closure(IUser): void $check Runs the action check for the session user.
 	 *
 	 * @return JSONResponse|null The 401, or null when the caller may go on.
 	 */
-	private function refuseCaller(string $action): JSONResponse|null {
+	private function refuseCaller(Closure $check): JSONResponse|null {
 		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->caller->actionAuth->requireAction($user, $action);
+		$check($user);
 		return null;
 	}//end refuseCaller()
 

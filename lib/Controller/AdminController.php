@@ -198,8 +198,8 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createTemplate(
 		string $name,
-		?string $description = null,
-		?array $targetGroups = null,
+		string|null $description = null,
+		array|null $targetGroups = null,
 		string $permissionLevel = Dashboard::PERMISSION_ADD_ONLY,
 		bool $isDefault = false,
 	): JSONResponse {
@@ -241,12 +241,12 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateTemplate(
 		int $id,
-		?string $name = null,
-		?string $description = null,
-		?array $targetGroups = null,
-		?string $permissionLevel = null,
-		?bool $isDefault = null,
-		?int $gridColumns = null,
+		string|null $name = null,
+		string|null $description = null,
+		array|null $targetGroups = null,
+		string|null $permissionLevel = null,
+		bool|null $isDefault = null,
+		int|null $gridColumns = null,
 	): JSONResponse {
 		return $this->saveTemplate(
 			templateId: $id,
@@ -442,22 +442,23 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
-		?string $defaultPermLevel = null,
-		?bool $allowUserDash = null,
-		?bool $allowMultiDash = null,
-		?int $defaultGridCols = null,
-		?array $linkCreateFileExts = null,
-		?string $defaultSharePermissionLevel = null,
-		?array $forcedShareGroups = null,
-		?bool $legacyWidgetBridgeEnabled = null,
-		?int $maxDashboardsPerUser = null,
-		?int $maxWidgetsPerDashboard = null,
-		?string $quicksearchFallbackTarget = null,
-		?string $defaultPermissionLevel = null,
-		?bool $allowUserDashboards = null,
-		?bool $allowMultipleDashboards = null,
-		?int $defaultGridColumns = null,
-		?array $linkCreateFileExtensions = null, ?bool $startPageWithoutNavigation = null,
+		string|null $defaultPermLevel = null,
+		bool|null $allowUserDash = null,
+		bool|null $allowMultiDash = null,
+		int|null $defaultGridCols = null,
+		array|null $linkCreateFileExts = null,
+		string|null $defaultSharePermissionLevel = null,
+		array|null $forcedShareGroups = null,
+		bool|null $legacyWidgetBridgeEnabled = null,
+		int|null $maxDashboardsPerUser = null,
+		int|null $maxWidgetsPerDashboard = null,
+		string|null $quicksearchFallbackTarget = null,
+		string|null $defaultPermissionLevel = null,
+		bool|null $allowUserDashboards = null,
+		bool|null $allowMultipleDashboards = null,
+		int|null $defaultGridColumns = null,
+		array|null $linkCreateFileExtensions = null,
+		bool|null $startPageWithoutNavigation = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -544,20 +545,37 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateFooterSettings(
-		?bool $footerEnabled = null,
+		bool|null $footerEnabled = null,
 		mixed $footerHtml = null,
-		?array $footerConfig = null,
-		?string $footerBackgroundColor = null,
-		?string $footerTextColor = null,
+		array|null $footerConfig = null,
+		string|null $footerBackgroundColor = null,
+		string|null $footerTextColor = null,
 	): JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		// Build the patch from only those args that the caller actually
-		// supplied — `array_key_exists` semantics on the body let admins
-		// explicitly clear a colour by sending `null`.
+		$patch = $this->footerPatch();
+
+		try {
+			$this->settings->footerService->updateGlobalSettings(patch: $patch);
+		} catch (InvalidArgumentException $e) {
+			return $this->footerFailure(exception: $e);
+		}
+
+		return ResponseHelper::success(data: ['status' => 'ok']);
+	}//end updateFooterSettings()
+
+	/**
+	 * The footer patch: only those keys the caller actually supplied.
+	 *
+	 * `array_key_exists` semantics on the body let admins explicitly
+	 * clear a colour by sending `null`.
+	 *
+	 * @return array<string, mixed> The supplied footer keys and their values.
+	 */
+	private function footerPatch(): array {
 		$body = $this->request->getParams();
 		$patch = [];
 		foreach (['footerEnabled', 'footerHtml', 'footerConfig', 'footerBackgroundColor', 'footerTextColor'] as $key) {
@@ -566,26 +584,32 @@ class AdminController extends Controller {
 			}
 		}
 
-		try {
-			$this->settings->footerService->updateGlobalSettings(patch: $patch);
-		} catch (InvalidArgumentException $e) {
-			$isOversize = str_contains(
-				haystack: $e->getMessage(),
-				needle: '8 KB limit'
-			);
-			$status = Http::STATUS_BAD_REQUEST;
-			if ($isOversize === true) {
-				$status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
-			}
+		return $patch;
+	}//end footerPatch()
 
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: $status
-			);
+	/**
+	 * Answer a refused footer patch: 413 when the HTML exceeds the 8 KB
+	 * cap, 400 for every other validation failure.
+	 *
+	 * @param InvalidArgumentException $exception The validation failure.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function footerFailure(InvalidArgumentException $exception): JSONResponse {
+		$isOversize = str_contains(
+			haystack: $exception->getMessage(),
+			needle: '8 KB limit'
+		);
+		$status = Http::STATUS_BAD_REQUEST;
+		if ($isOversize === true) {
+			$status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
 		}
 
-		return ResponseHelper::success(data: ['status' => 'ok']);
-	}//end updateFooterSettings()
+		return new JSONResponse(
+			data: ['error' => $exception->getMessage()],
+			statusCode: $status
+		);
+	}//end footerFailure()
 
 	/**
 	 * Export a single dashboard or the entire site as a ZIP archive.

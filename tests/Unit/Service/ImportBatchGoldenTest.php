@@ -121,4 +121,97 @@ class ImportBatchGoldenTest extends TestCase {
 		);
 		$this->assertSame([[10, 'text', 0], [10, 'label', 0], [12, 'text', 1]], $inserted);
 	}
+
+	/**
+	 * @return array<string, array{0: string|null, 1: string}>
+	 */
+	public static function badArchives(): array {
+		return [
+			'manifest not json' => ['{', 'manifest.json is not valid JSON'],
+			'manifest scalar' => ['"x"', 'manifest.json is not valid JSON'],
+			'both fields missing' => ['{}', 'Manifest missing required field(s): schemaVersion, scope'],
+			'scope missing' => ['{"schemaVersion":1}', 'Manifest missing required field(s): scope'],
+			'version as string' => ['{"schemaVersion":"1","scope":"site"}', 'Unsupported manifest schema version: 1. Only version 1 is supported.'],
+			'version zero' => ['{"schemaVersion":0,"scope":"site"}', 'Unsupported manifest schema version: 0. Only version 1 is supported.'],
+			'newer version' => ['{"schemaVersion":3,"scope":"site"}', 'Unsupported manifest schema version: 3. Only version 1 is supported. Upgrade LaunchPad to import archives of version 3.'],
+			'no manifest' => [null, 'manifest.json not found in archive'],
+		];
+	}
+
+	/**
+	 * @dataProvider badArchives
+	 */
+	public function testManifestRefusals(?string $manifest, string $message): void {
+		$path = (string)tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-import-golden-');
+		$zip = new ZipArchive();
+		$zip->open(filename: $path, flags: ZipArchive::OVERWRITE);
+		$zip->addFromString(name: ($manifest === null ? 'other.json' : 'manifest.json'), content: (string)$manifest);
+		$zip->close();
+
+		$service = new ImportService(
+			dashboardMapper: $this->createMock(originalClassName: DashboardMapper::class),
+			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+			db: $this->createMock(originalClassName: IDBConnection::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+
+		try {
+			$service->import(zipPath: $path, preserveUuids: false, currentUserId: 'admin');
+			$this->fail('expected a refusal');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertSame($message, $e->getMessage());
+		} finally {
+			@unlink(filename: $path);
+		}
+	}
+
+	public function testMissingAndNonZipFilesAreRefused(): void {
+		$service = new ImportService(
+			dashboardMapper: $this->createMock(originalClassName: DashboardMapper::class),
+			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+			db: $this->createMock(originalClassName: IDBConnection::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+		$text = (string)tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-import-golden-');
+		file_put_contents($text, 'not a zip');
+
+		foreach (['/nonexistent/launchpad.zip', $text] as $path) {
+			try {
+				$service->import(zipPath: $path, preserveUuids: false, currentUserId: 'admin');
+				$this->fail('expected a refusal');
+			} catch (\InvalidArgumentException $e) {
+				$this->assertSame('Uploaded file is not a valid ZIP archive', $e->getMessage());
+			}
+		}
+
+		@unlink(filename: $text);
+	}
+
+	public function testCollisionResultShape(): void {
+		$path = (string)tempnam(directory: sys_get_temp_dir(), prefix: 'launchpad-import-golden-');
+		$zip = new ZipArchive();
+		$zip->open(filename: $path, flags: ZipArchive::OVERWRITE);
+		$zip->addFromString(name: 'manifest.json', content: '{"schemaVersion":1,"scope":"site"}');
+		$zip->addFromString(name: 'dashboards/a.json', content: '{"uuid":"uuid-a","name":"A","widgets":[]}');
+		$zip->close();
+
+		$dashboards = $this->createMock(originalClassName: DashboardMapper::class);
+		$dashboards->method('findByUuid')->willReturn(new Dashboard());
+		$dashboards->expects($this->never())->method('insert');
+		$service = new ImportService(
+			dashboardMapper: $dashboards,
+			placementMapper: $this->createMock(originalClassName: WidgetPlacementMapper::class),
+			db: $this->createMock(originalClassName: IDBConnection::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class)
+		);
+
+		$result = $service->import(zipPath: $path, preserveUuids: true, currentUserId: 'admin');
+		@unlink(filename: $path);
+
+		$this->assertSame(['status', 'manifest', 'importedDashboardCount', 'skippedDashboardCount', 'errors', 'dashboards'], array_keys($result));
+		$this->assertSame(['schemaVersion' => 1, 'scope' => 'site'], $result['manifest']);
+		$this->assertSame([0, 0, []], [$result['importedDashboardCount'], $result['skippedDashboardCount'], $result['dashboards']]);
+		$this->assertCount(1, $result['errors']);
+		$this->assertSame($result['status'], $result['errors'][0]['type'] ?? $result['status']);
+	}
 }

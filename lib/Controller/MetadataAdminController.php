@@ -76,12 +76,7 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listFields(): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.list-fields');
+		$refusal = $this->callerRefusal(action: 'metadata-admin.list-fields');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -117,16 +112,11 @@ class MetadataAdminController extends Controller {
 		string $key = '',
 		string $label = '',
 		string $type = '',
-		?array $options = null,
+		array|null $options = null,
 		int $required = 0,
 		int $sortOrder = 0,
 	): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.create-field');
+		$refusal = $this->callerRefusal(action: 'metadata-admin.create-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -160,12 +150,7 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getField(int $id): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.get-field');
+		$refusal = $this->callerRefusal(action: 'metadata-admin.get-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -198,18 +183,13 @@ class MetadataAdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateField(
 		int $id,
-		?string $label = null,
-		?int $sortOrder = null,
-		?int $required = null,
-		?array $options = null,
-		?string $key = null,
+		string|null $label = null,
+		int|null $sortOrder = null,
+		int|null $required = null,
+		array|null $options = null,
+		string|null $key = null,
 	): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.update-field');
+		$refusal = $this->callerRefusal(action: 'metadata-admin.update-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -252,12 +232,7 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteField(int $id, bool $cascade = false): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$refusal = $this->guard->actionRefusal(action: 'metadata-admin.delete-field');
+		$refusal = $this->callerRefusal(action: 'metadata-admin.delete-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -270,18 +245,41 @@ class MetadataAdminController extends Controller {
 		} catch (DoesNotExistException) {
 			return $this->failure(message: 'Field not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (MetadataFieldHasValuesException $exception) {
-			return new JSONResponse(
-				data: [
-					'error' => MetadataFieldHasValuesException::ERROR_CODE,
-					'message' => $exception->getMessage(),
-					'valueCount' => $exception->getValueCount(),
-				],
-				statusCode: Http::STATUS_CONFLICT
-			);
+			return self::fieldInUse(exception: $exception);
 		}
 
 		return ResponseHelper::success(data: ['status' => 'ok']);
 	}//end deleteField()
+
+	/**
+	 * The refusal of a caller who is not signed in, not an admin, or may
+	 * not perform the action; null when the caller may go on.
+	 *
+	 * @param string $action The action-matrix key.
+	 *
+	 * @return JSONResponse|null The refusal, or null.
+	 */
+	private function callerRefusal(string $action): JSONResponse|null {
+		return $this->guard->refusal() ?? $this->guard->actionRefusal(action: $action);
+	}//end callerRefusal()
+
+	/**
+	 * The 409 for deleting a field that still has values.
+	 *
+	 * @param MetadataFieldHasValuesException $exception The refusal.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private static function fieldInUse(MetadataFieldHasValuesException $exception): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => MetadataFieldHasValuesException::ERROR_CODE,
+				'message' => $exception->getMessage(),
+				'valueCount' => $exception->getValueCount(),
+			],
+			statusCode: Http::STATUS_CONFLICT
+		);
+	}//end fieldInUse()
 
 	/**
 	 * Build the update patch from the individual nullable parameters.

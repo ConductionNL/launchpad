@@ -141,6 +141,28 @@ class ImportService {
 		bool $preserveUuids,
 		string $currentUserId,
 	): array {
+		$zip = $this->openArchive(zipPath: $zipPath);
+
+		try {
+			return $this->importArchive(
+				zip: $zip,
+				run: new DashboardImportRun(currentUserId: $currentUserId, preserveUuids: $preserveUuids)
+			);
+		} finally {
+			$zip->close();
+		}
+	}//end import()
+
+	/**
+	 * Open an uploaded archive read-only.
+	 *
+	 * @param string $zipPath Path to the uploaded ZIP file.
+	 *
+	 * @return ZipArchive The open archive.
+	 *
+	 * @throws InvalidArgumentException When it is missing or not a ZIP.
+	 */
+	private function openArchive(string $zipPath): ZipArchive {
 		if (file_exists(filename: $zipPath) === false) {
 			throw new InvalidArgumentException(
 				message: 'Uploaded file is not a valid ZIP archive'
@@ -154,38 +176,56 @@ class ImportService {
 			);
 		}
 
-		try {
-			$manifest = $this->validateZipStructure(zip: $zip);
-			$dashboards = $this->readDashboards(zip: $zip);
-			$collisions = $this->detectUuidCollisions(dashboards: $dashboards);
+		return $zip;
+	}//end openArchive()
 
-			if ($preserveUuids === true && $collisions !== []) {
-				return [
-					'status' => self::ERR_UUID_COLLISION,
-					'manifest' => $manifest,
-					'importedDashboardCount' => 0,
-					'skippedDashboardCount' => 0,
-					'errors' => $collisions,
-					'dashboards' => [],
-				];
-			}
+	/**
+	 * Validate an open archive and import its dashboards, unless kept UUIDs
+	 * collide with existing ones.
+	 *
+	 * @param ZipArchive         $zip The open archive.
+	 * @param DashboardImportRun $run The batch.
+	 *
+	 * @return array<string, mixed> The import result.
+	 */
+	private function importArchive(ZipArchive $zip, DashboardImportRun $run): array {
+		$manifest = $this->validateZipStructure(zip: $zip);
+		$dashboards = $this->readDashboards(zip: $zip);
+		$collisions = $this->detectUuidCollisions(dashboards: $dashboards);
 
-			$remapped = $this->remapUuids(
-				dashboards: $dashboards,
-				preserveUuids: $preserveUuids
-			);
+		if ($run->preserveUuids === true && $collisions !== []) {
+			return $this->collisionResult(manifest: $manifest, collisions: $collisions);
+		}
 
-			return [
-				'status' => 'ok',
-				'manifest' => $manifest,
-			] + $this->importDashboardBatch(
-				dashboards: $remapped,
-				run: new DashboardImportRun(currentUserId: $currentUserId, preserveUuids: $preserveUuids)
-			);
-		} finally {
-			$zip->close();
-		}//end try
-	}//end import()
+		$remapped = $this->remapUuids(
+			dashboards: $dashboards,
+			preserveUuids: $run->preserveUuids
+		);
+
+		return [
+			'status' => 'ok',
+			'manifest' => $manifest,
+		] + $this->importDashboardBatch(dashboards: $remapped, run: $run);
+	}//end importArchive()
+
+	/**
+	 * The result of an import refused because kept UUIDs collide.
+	 *
+	 * @param array<string, mixed>             $manifest   The validated manifest.
+	 * @param array<int, array<string, mixed>> $collisions The collision errors.
+	 *
+	 * @return array<string, mixed> The import result.
+	 */
+	private function collisionResult(array $manifest, array $collisions): array {
+		return [
+			'status' => self::ERR_UUID_COLLISION,
+			'manifest' => $manifest,
+			'importedDashboardCount' => 0,
+			'skippedDashboardCount' => 0,
+			'errors' => $collisions,
+			'dashboards' => [],
+		];
+	}//end collisionResult()
 
 	/**
 	 * Validate the manifest and return its decoded payload.
@@ -199,6 +239,23 @@ class ImportService {
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
 	public function validateZipStructure(ZipArchive $zip): array {
+		$decoded = $this->decodeManifest(zip: $zip);
+		$this->assertManifestFields(manifest: $decoded);
+		$this->assertSchemaVersion(version: $decoded['schemaVersion']);
+
+		return $decoded;
+	}//end validateZipStructure()
+
+	/**
+	 * Read and decode the archive's manifest.json.
+	 *
+	 * @param ZipArchive $zip The open archive.
+	 *
+	 * @return array<string, mixed> The decoded manifest.
+	 *
+	 * @throws InvalidArgumentException When it is missing or not a JSON object.
+	 */
+	private function decodeManifest(ZipArchive $zip): array {
 		$raw = $zip->getFromName(name: 'manifest.json');
 		if ($raw === false) {
 			throw new InvalidArgumentException(
@@ -213,10 +270,22 @@ class ImportService {
 			);
 		}
 
-		$required = ['schemaVersion', 'scope'];
+		return $decoded;
+	}//end decodeManifest()
+
+	/**
+	 * Refuse a manifest without schemaVersion or scope.
+	 *
+	 * @param array<string, mixed> $manifest The decoded manifest.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException Naming every missing field.
+	 */
+	private function assertManifestFields(array $manifest): void {
 		$missing = [];
-		foreach ($required as $field) {
-			if (array_key_exists(key: $field, array: $decoded) === false) {
+		foreach (['schemaVersion', 'scope'] as $field) {
+			if (array_key_exists(key: $field, array: $manifest) === false) {
 				$missing[] = $field;
 			}
 		}
@@ -226,24 +295,42 @@ class ImportService {
 				message: 'Manifest missing required field(s): ' . implode(separator: ', ', array: $missing)
 			);
 		}
+	}//end assertManifestFields()
 
-		$version = $decoded['schemaVersion'];
+	/**
+	 * Refuse a schema version other than {@see self::SCHEMA_VERSION}.
+	 *
+	 * @param mixed $version The manifest's schemaVersion.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException With upgrade advice for a newer version.
+	 */
+	private function assertSchemaVersion(mixed $version): void {
 		if (is_int($version) === false || $version !== self::SCHEMA_VERSION) {
-			$head = 'Unsupported manifest schema version: ' . (string)$version . '.';
-			$tail = ' Only version ' . (string)self::SCHEMA_VERSION . ' is supported.';
-			// An archive from a NEWER LaunchPad is the one case the admin can
-			// act on, and REQ-EXIM-009 asks for them to be told how. A version
-			// below 1 is not an older format, it is a broken manifest, so it
-			// gets no such advice.
-			if (is_int($version) === true && $version > self::SCHEMA_VERSION) {
-				$tail .= ' Upgrade LaunchPad to import archives of version ' . (string)$version . '.';
-			}
+			throw new InvalidArgumentException(message: $this->unsupportedVersionMessage(version: $version));
+		}
+	}//end assertSchemaVersion()
 
-			throw new InvalidArgumentException(message: ($head . $tail));
+	/**
+	 * The refusal message of an unsupported schema version. An archive from
+	 * a NEWER LaunchPad is the one case the admin can act on, and
+	 * REQ-EXIM-009 asks for them to be told how. A version below 1 is not an
+	 * older format, it is a broken manifest, so it gets no such advice.
+	 *
+	 * @param mixed $version The manifest's schemaVersion.
+	 *
+	 * @return string The message.
+	 */
+	private function unsupportedVersionMessage(mixed $version): string {
+		$head = 'Unsupported manifest schema version: ' . (string)$version . '.';
+		$tail = ' Only version ' . (string)self::SCHEMA_VERSION . ' is supported.';
+		if (is_int($version) === true && $version > self::SCHEMA_VERSION) {
+			$tail .= ' Upgrade LaunchPad to import archives of version ' . (string)$version . '.';
 		}
 
-		return $decoded;
-	}//end validateZipStructure()
+		return $head . $tail;
+	}//end unsupportedVersionMessage()
 
 	/**
 	 * Re-map UUIDs across dashboards when `preserveUuids=false`.

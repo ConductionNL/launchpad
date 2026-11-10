@@ -327,44 +327,74 @@ class FilesWidgetController extends Controller {
 		}
 
 		$names = ($raw['name'] ?? null);
-		$tmps = ($raw['tmp_name'] ?? null);
-		$sizes = ($raw['size'] ?? null);
-		$errors = ($raw['error'] ?? null);
+		if (is_array($names) === true) {
+			return $this->multipleUploads(raw: $raw);
+		}
+
+		if ($names !== null) {
+			return [$this->singleUpload(raw: $raw)];
+		}
+
+		return [];
+	}//end normaliseUploadedFiles()
+
+	/**
+	 * The entries of a `files[]` upload, where every field is a list.
+	 *
+	 * @param array<string,mixed> $raw The `$_FILES['files']` entry; its `name` is a list.
+	 *
+	 * @return array<int, array{name:string, tmp_name:string, size:int, error:int}>
+	 */
+	private function multipleUploads(array $raw): array {
+		$names = $raw['name'];
+		$tmps = $this->listOrEmpty(value: ($raw['tmp_name'] ?? null));
+		$sizes = $this->listOrEmpty(value: ($raw['size'] ?? null));
+		$errors = $this->listOrEmpty(value: ($raw['error'] ?? null));
 
 		$entries = [];
-		if (is_array($names) === true) {
-			$count = count($names);
-			if (is_array($tmps) === false) {
-				$tmps = [];
-			}
-
-			if (is_array($sizes) === false) {
-				$sizes = [];
-			}
-
-			if (is_array($errors) === false) {
-				$errors = [];
-			}
-
-			for ($i = 0; $i < $count; $i++) {
-				$entries[] = [
-					'name' => (string)($names[$i] ?? ''),
-					'tmp_name' => (string)($tmps[$i] ?? ''),
-					'size' => (int)($sizes[$i] ?? 0),
-					'error' => (int)($errors[$i] ?? UPLOAD_ERR_NO_FILE),
-				];
-			}
-		} elseif ($names !== null) {
+		$count = count($names);
+		for ($i = 0; $i < $count; $i++) {
 			$entries[] = [
-				'name' => (string)$names,
-				'tmp_name' => (string)($tmps ?? ''),
-				'size' => (int)($sizes ?? 0),
-				'error' => (int)($errors ?? UPLOAD_ERR_NO_FILE),
+				'name' => (string)($names[$i] ?? ''),
+				'tmp_name' => (string)($tmps[$i] ?? ''),
+				'size' => (int)($sizes[$i] ?? 0),
+				'error' => (int)($errors[$i] ?? UPLOAD_ERR_NO_FILE),
 			];
-		}//end if
+		}
 
 		return $entries;
-	}//end normaliseUploadedFiles()
+	}//end multipleUploads()
+
+	/**
+	 * The entry of a single-file upload.
+	 *
+	 * @param array<string,mixed> $raw The `$_FILES['files']` entry; its `name` is set and not a list.
+	 *
+	 * @return array{name:string, tmp_name:string, size:int, error:int}
+	 */
+	private function singleUpload(array $raw): array {
+		return [
+			'name' => (string)$raw['name'],
+			'tmp_name' => (string)($raw['tmp_name'] ?? ''),
+			'size' => (int)($raw['size'] ?? 0),
+			'error' => (int)($raw['error'] ?? UPLOAD_ERR_NO_FILE),
+		];
+	}//end singleUpload()
+
+	/**
+	 * The value when it is a list, else an empty list.
+	 *
+	 * @param mixed $value An upload field.
+	 *
+	 * @return array<int|string, mixed>
+	 */
+	private function listOrEmpty(mixed $value): array {
+		if (is_array($value) === false) {
+			return [];
+		}
+
+		return $value;
+	}//end listOrEmpty()
 
 	/**
 	 * Build a 401 envelope for the anonymous case.

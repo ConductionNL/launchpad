@@ -86,7 +86,7 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function list(string $uuid): JSONResponse {
-		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.list');
+		$denied = $this->actionRefusal(action: 'dashboard-translation.list') ?? $this->assertOwner(uuid: $uuid);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -129,7 +129,7 @@ class DashboardTranslationApiController extends Controller {
 		?string $widgetTreeJson = null,
 		?string $copyFrom = null,
 	): JSONResponse {
-		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.create');
+		$denied = $this->actionRefusal(action: 'dashboard-translation.create') ?? $this->assertOwner(uuid: $uuid);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -245,7 +245,7 @@ class DashboardTranslationApiController extends Controller {
 		?string $description = null,
 		?string $widgetTreeJson = null,
 	): JSONResponse {
-		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.update');
+		$denied = $this->actionRefusal(action: 'dashboard-translation.update') ?? $this->assertOwner(uuid: $uuid);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -279,7 +279,7 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid, string $lang): JSONResponse {
-		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.destroy');
+		$denied = $this->actionRefusal(action: 'dashboard-translation.destroy') ?? $this->assertOwner(uuid: $uuid);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -329,7 +329,7 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setPrimary(string $uuid, string $lang): JSONResponse {
-		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.set-primary');
+		$denied = $this->actionRefusal(action: 'dashboard-translation.set-primary') ?? $this->assertOwner(uuid: $uuid);
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -385,7 +385,7 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function resolved(string $uuid): JSONResponse {
-		$denied = $this->guardCaller(action: 'dashboard-translation.resolved');
+		$denied = $this->actionRefusal(action: 'dashboard-translation.resolved');
 		if ($denied !== null) {
 			return $denied;
 		}
@@ -589,7 +589,7 @@ class DashboardTranslationApiController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null when the caller may proceed.
 	 */
-	private function guardCaller(string $action): ?JSONResponse {
+	private function actionRefusal(string $action): ?JSONResponse {
 		$user = $this->caller->userSession->getUser();
 		if ($this->userId === null || $user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
@@ -602,24 +602,7 @@ class DashboardTranslationApiController extends Controller {
 		}
 
 		return null;
-	}//end guardCaller()
-
-	/**
-	 * {@see self::guardCaller()}, then refuse anyone but the dashboard's owner.
-	 *
-	 * @param string $uuid   The dashboard UUID.
-	 * @param string $action The action identifier to require.
-	 *
-	 * @return JSONResponse|null The refusal, or null when the caller may proceed.
-	 */
-	private function guardOwnedAction(string $uuid, string $action): ?JSONResponse {
-		$denied = $this->guardCaller(action: $action);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		return $this->assertOwner(uuid: $uuid);
-	}//end guardOwnedAction()
+	}//end actionRefusal()
 
 	/**
 	 * Build the patch payload from individual nullable parameters.

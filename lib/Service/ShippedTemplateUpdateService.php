@@ -135,14 +135,7 @@ class ShippedTemplateUpdateService {
 	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
 	 */
 	public function update(string $templateId, bool $dryRun = false, string $userId = 'cli'): array {
-		$definition = $this->shipped->readDefinition(templateId: $templateId);
-		$run = new ShippedTemplateUpdateRun(
-			templateId: $templateId,
-			installed: new InstalledShippedTemplate(
-				definition: $definition,
-				template: $this->installedTemplate(templateId: $templateId)
-			)
-		);
+		$run = $this->updateRunFor(templateId: $templateId);
 
 		$result = $this->versionReport(run: $run, dryRun: $dryRun);
 		if ($result['upToDate'] === true) {
@@ -156,11 +149,45 @@ class ShippedTemplateUpdateService {
 		}
 
 		$this->applyPlan(run: $run, plan: $plan);
+
+		return $this->appliedResult(result: $result, resync: $this->resyncCopies(run: $run, userId: $userId));
+	}//end update()
+
+	/**
+	 * Read a shipped template's definition and find its installed template.
+	 *
+	 * @param string $templateId The shipped template id.
+	 *
+	 * @return ShippedTemplateUpdateRun The update.
+	 *
+	 * @throws TemplateNotInstalledException When it was never installed here.
+	 */
+	private function updateRunFor(string $templateId): ShippedTemplateUpdateRun {
+		$definition = $this->shipped->readDefinition(templateId: $templateId);
+
+		return new ShippedTemplateUpdateRun(
+			templateId: $templateId,
+			installed: new InstalledShippedTemplate(
+				definition: $definition,
+				template: $this->installedTemplate(templateId: $templateId)
+			)
+		);
+	}//end updateRunFor()
+
+	/**
+	 * Mark a report as applied and attach the resync outcome.
+	 *
+	 * @param array<string, mixed>                                $result The report.
+	 * @param array{async: bool, affectedCount: int, totalCopies: int} $resync The resync outcome.
+	 *
+	 * @return array<string, mixed> The final report.
+	 */
+	private function appliedResult(array $result, array $resync): array {
 		$result['applied'] = true;
-		$result['resync'] = $this->resyncCopies(run: $run, userId: $userId);
+		$result['resync'] = $resync;
 
 		return $result;
-	}//end update()
+	}//end appliedResult()
 
 	/**
 	 * The installed template dashboard of a shipped template.

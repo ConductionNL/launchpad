@@ -179,7 +179,7 @@ class ConfluenceImportService {
 	 *
 	 * @return string|null The parent UUID to slot root pages under, or null.
 	 */
-	private function existingRootParent(?string $parentUuid): ?string {
+	private function existingRootParent(string|null $parentUuid): string|null {
 		if ($parentUuid === null || $parentUuid === '') {
 			return $parentUuid;
 		}
@@ -340,23 +340,37 @@ class ConfluenceImportService {
 				pageId: $page->pageId
 			);
 
-			$persisted = $this->writers->dashboardMapper->insert(entity: $dashboard);
-
-			$placement = $this->buildPlaceholderWidget(
-				dashboardId: (int)$persisted->getId(),
-				page: $page
-			);
-
-			$this->writers->placementMapper->insert(entity: $placement);
+			$dashboardUuid = $this->insertWithPlaceholderWidget(dashboard: $dashboard, page: $page);
 
 			$this->db->commit();
 
-			return (string)$persisted->getUuid();
+			return $dashboardUuid;
 		} catch (Throwable $e) {
 			$this->db->rollBack();
 			throw $e;
 		}//end try
 	}//end createDashboardForPage()
+
+	/**
+	 * Insert the page's dashboard and its placeholder text widget.
+	 *
+	 * @param Dashboard  $dashboard The unsaved dashboard.
+	 * @param ParsedPage $page      The source page.
+	 *
+	 * @return string The new dashboard UUID.
+	 */
+	private function insertWithPlaceholderWidget(Dashboard $dashboard, ParsedPage $page): string {
+		$persisted = $this->writers->dashboardMapper->insert(entity: $dashboard);
+
+		$placement = $this->buildPlaceholderWidget(
+			dashboardId: (int)$persisted->getId(),
+			page: $page
+		);
+
+		$this->writers->placementMapper->insert(entity: $placement);
+
+		return (string)$persisted->getUuid();
+	}//end insertWithPlaceholderWidget()
 
 	/**
 	 * The dashboard factory options for one imported page.

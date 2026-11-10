@@ -279,4 +279,62 @@ class CalendarWidgetServiceTest extends TestCase {
 		$this->assertSame([], $result['events']);
 		$this->assertNotEmpty($result['failures']);
 	}
+
+	/**
+	 * Internal events: no calendar manager, a bad range, a failing search,
+	 * and the principal filter on calendar key / uri / name.
+	 *
+	 * @return void
+	 */
+	public function testFetchInternalEventsGuardsAndFiltersByPrincipal(): void {
+		$this->assertSame(['events' => [], 'failures' => []], $this->service->fetchInternalEvents([], '2026-01-01', '2026-01-31'));
+
+		$calendars = $this->createMock(\OCP\Calendar\IManager::class);
+		$searches  = [];
+		$calendars->method('search')->willReturnCallback(
+			function (string $pattern, array $searchProperties, array $options) use (&$searches): array {
+				$searches[] = [$pattern, $searchProperties, $options['timerange']['start']->format('c'), $options['timerange']['end']->format('c')];
+				if ($options['timerange']['start']->format('Y') === '1999') {
+					throw new \RuntimeException('caldav down');
+				}
+				return [
+					['calendar-key' => 'work', 'calendar-name' => 'Work', 'objects' => []],
+					['calendarUri' => 'home', 'calendarName' => 'Home', 'objects' => []],
+					['calendar-key' => 'other', 'calendarName' => 'Shared', 'objects' => []],
+				];
+			}
+		);
+		$warnings = [];
+		$logger   = $this->createMock(LoggerInterface::class);
+		$logger->method('warning')->willReturnCallback(
+			function (string $message) use (&$warnings): void {
+				$warnings[] = $message;
+			}
+		);
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $this->urlValidator),
+			logger: $logger,
+			calendarMgr: $calendars
+		);
+
+		$this->assertSame(['events' => [], 'failures' => ['internal: invalid date range']], $service->fetchInternalEvents([], 'not a date', '2026-01-31'));
+		$this->assertSame(['events' => [], 'failures' => ['internal: caldav down']], $service->fetchInternalEvents([], '1999-01-01', '1999-01-31'));
+
+		$count = static fn (array $result): array => [count($result['events']), $result['failures']];
+		$this->assertSame([3, []], $count($service->fetchInternalEvents([], '2026-01-01', '2026-01-31')));
+		$this->assertSame([2, []], $count($service->fetchInternalEvents(['work', 'Home'], '2026-01-01', '2026-01-31')));
+		$this->assertSame([1, []], $count($service->fetchInternalEvents(['Shared'], '2026-01-01', '2026-01-31')));
+		$this->assertSame([0, []], $count($service->fetchInternalEvents(['nope'], '2026-01-01', '2026-01-31')));
+		$this->assertSame(
+			$service->normalizeInternalEvent(raw: ['calendarUri' => 'home', 'calendarName' => 'Home', 'objects' => []]),
+			$service->fetchInternalEvents(['home'], '2026-01-01', '2026-01-31')['events'][0]
+		);
+
+		$this->assertCount(6, $searches);
+		$this->assertSame(['', [], '1999-01-01T00:00:00+00:00', '1999-01-31T00:00:00+00:00'], $searches[0]);
+		$this->assertSame(2, count($warnings));
+		$this->assertStringStartsWith('Calendar widget received malformed from/to: ', $warnings[0]);
+		$this->assertSame('Calendar widget internal search failed: caldav down', $warnings[1]);
+	}//end testFetchInternalEventsGuardsAndFiltersByPrincipal()
 }

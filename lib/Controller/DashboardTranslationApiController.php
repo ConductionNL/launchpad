@@ -140,9 +140,9 @@ class DashboardTranslationApiController extends Controller {
 			);
 		}
 
-		try {
-			$variant = $this->translations->translationService->createVariant(
-				dashboardUuid: $uuid,
+		return $this->createVariantResponse(
+			uuid: $uuid,
+			draft: new TranslationVariantDraft(
 				languageCode: (string)$languageCode,
 				content: [
 					'name'             => $name,
@@ -150,6 +150,24 @@ class DashboardTranslationApiController extends Controller {
 					'widgetTreeJson'   => $widgetTreeJson,
 					'copyFromLanguage' => $copyFrom,
 				]
+			)
+		);
+	}//end create()
+
+	/**
+	 * Create the variant and answer 201, or map the failure.
+	 *
+	 * @param string                  $uuid  The dashboard UUID.
+	 * @param TranslationVariantDraft $draft The variant to create.
+	 *
+	 * @return JSONResponse The created variant or the error envelope.
+	 */
+	private function createVariantResponse(string $uuid, TranslationVariantDraft $draft): JSONResponse {
+		try {
+			$variant = $this->translations->translationService->createVariant(
+				dashboardUuid: $uuid,
+				languageCode: $draft->languageCode,
+				content: $draft->content
 			);
 
 			return new JSONResponse(
@@ -161,7 +179,7 @@ class DashboardTranslationApiController extends Controller {
 		} catch (Exception $e) {
 			return $this->mapCreateFailure(exception: $e);
 		}//end try
-	}//end create()
+	}//end createVariantResponse()
 
 	/**
 	 * Test whether an optional string parameter carries no value.

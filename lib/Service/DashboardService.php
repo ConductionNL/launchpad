@@ -371,55 +371,12 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function resolveEffectiveDashboard(string $userId): ?array {
-		// Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
-		// then the auto-overwriting last-used preference (REQ-DASH-019),
-		// both against the user's full visible set. This honours a
-		// group/default (showcase) dashboard whose `user_id` is NULL —
-		// not just personal `is_active` rows — so the API-driven view
-		// matches the server-rendered landing URL, which
-		// resolveActiveDashboard() resolves the same way. A stale pref
-		// (UUID no longer visible) falls through to the legacy chain.
-		$defaultUuid = $this->getDefaultPreference(userId: $userId);
-		$activeUuid = (string)$this->platform->config->getUserValue(
-			userId: $userId,
-			appName: Application::APP_ID,
-			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
-			default: ''
-		);
-		if ($defaultUuid !== '' || $activeUuid !== '') {
-			$visible = $this->getVisibleToUser(userId: $userId);
-			// Default pin wins over last-used — same precedence as
-			// resolveActiveDashboard() steps 0 then 1.
-			foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
-				if ($prefUuid === '') {
-					continue;
-				}
-
-				foreach ($visible as $entry) {
-					$candidate = $entry['dashboard'];
-					if ((string)$candidate->getUuid() === $prefUuid) {
-						$placements = $this->stores->placementMapper->findByDashboardId(
-							dashboardId: $candidate->getId()
-						);
-						return $this->builders->dashResolver->buildResult(
-							dashboard: $candidate,
-							placements: $placements
-						);
-					}
-				}
-			}
-		}//end if
-
-		$result = $this->builders->dashResolver->tryGetActiveDashboard(
-			userId: $userId
-		);
+		$result = $this->resolvePreferredEffectiveDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
 
-		$result = $this->builders->dashResolver->tryActivateExistingDashboard(
-			userId: $userId
-		);
+		$result = $this->resolveOwnedEffectiveDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
@@ -429,12 +386,138 @@ class DashboardService {
 			return $result;
 		}
 
-		// REQ-SHARE-002: a dashboard someone deliberately shared with this
-		// user beats auto-provisioning a brand-new one from a template.
-		// Placed AFTER both owned-dashboard steps (same precedence as
-		// resolveActiveDashboard step 6b) and BEFORE the template step
-		// because tryCreateFromTemplate WRITES — it would otherwise mint an
-		// empty personal dashboard and permanently bury the share.
+		return $this->resolveSharedOrTemplateDashboard(userId: $userId);
+	}//end resolveEffectiveDashboard()
+
+	/**
+	 * Steps 0-1 of {@see self::resolveEffectiveDashboard()}: the pinned
+	 * default, then the last-used preference.
+	 *
+	 * Both resolve against the user's full visible set. This honours a
+	 * group/default (showcase) dashboard whose `user_id` is NULL — not
+	 * just personal `is_active` rows — so the API-driven view matches the
+	 * server-rendered landing URL, which resolveActiveDashboard() resolves
+	 * the same way. A stale pref (UUID no longer visible) falls through to
+	 * the legacy chain.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The built result, or null when neither preference is visible.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function resolvePreferredEffectiveDashboard(string $userId): ?array {
+		$defaultUuid = $this->getDefaultPreference(userId: $userId);
+		$activeUuid = $this->getLastUsedPreference(userId: $userId);
+		if ($defaultUuid === '' && $activeUuid === '') {
+			return null;
+		}
+
+		$visible = $this->getVisibleToUser(userId: $userId);
+		// Default pin wins over last-used — same precedence as
+		// resolveActiveDashboard() steps 0 then 1.
+		foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
+			$candidate = $this->findVisibleByUuid(visible: $visible, uuid: $prefUuid);
+			if ($candidate !== null) {
+				return $this->buildResultWithPlacements(dashboard: $candidate);
+			}
+		}
+
+		return null;
+	}//end resolvePreferredEffectiveDashboard()
+
+	/**
+	 * The auto-overwriting last-used dashboard preference (REQ-DASH-019).
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return string The stored UUID, or '' when unset.
+	 */
+	private function getLastUsedPreference(string $userId): string {
+		return (string)$this->platform->config->getUserValue(
+			userId: $userId,
+			appName: Application::APP_ID,
+			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
+			default: ''
+		);
+	}//end getLastUsedPreference()
+
+	/**
+	 * The visible dashboard with this UUID; null for an empty UUID or no match.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
+	 * @param string                                                  $uuid    The preferred UUID.
+	 *
+	 * @return Dashboard|null The first match.
+	 */
+	private function findVisibleByUuid(array $visible, string $uuid): ?Dashboard {
+		if ($uuid === '') {
+			return null;
+		}
+
+		foreach ($visible as $entry) {
+			$candidate = $entry['dashboard'];
+			if ((string)$candidate->getUuid() === $uuid) {
+				return $candidate;
+			}
+		}
+
+		return null;
+	}//end findVisibleByUuid()
+
+	/**
+	 * The resolver result for a dashboard with its placements loaded.
+	 *
+	 * @param Dashboard $dashboard The resolved dashboard.
+	 *
+	 * @return array The built result.
+	 */
+	private function buildResultWithPlacements(Dashboard $dashboard): array {
+		$placements = $this->stores->placementMapper->findByDashboardId(
+			dashboardId: $dashboard->getId()
+		);
+		return $this->builders->dashResolver->buildResult(
+			dashboard: $dashboard,
+			placements: $placements
+		);
+	}//end buildResultWithPlacements()
+
+	/**
+	 * The user's legacy `is_active` personal dashboard, else the first
+	 * existing one, activated.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The result, or null when the user owns none.
+	 */
+	private function resolveOwnedEffectiveDashboard(string $userId): ?array {
+		$result = $this->builders->dashResolver->tryGetActiveDashboard(
+			userId: $userId
+		);
+		if ($result !== null) {
+			return $result;
+		}
+
+		return $this->builders->dashResolver->tryActivateExistingDashboard(
+			userId: $userId
+		);
+	}//end resolveOwnedEffectiveDashboard()
+
+	/**
+	 * A dashboard shared with the user, else a new one from a template.
+	 *
+	 * REQ-SHARE-002: a dashboard someone deliberately shared with this
+	 * user beats auto-provisioning a brand-new one from a template.
+	 * Placed AFTER both owned-dashboard steps (same precedence as
+	 * resolveActiveDashboard step 6b) and BEFORE the template step
+	 * because tryCreateFromTemplate WRITES — it would otherwise mint an
+	 * empty personal dashboard and permanently bury the share.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The result.
+	 */
+	private function resolveSharedOrTemplateDashboard(string $userId): ?array {
 		$result = $this->builders->dashResolver->tryGetSharedDashboard(
 			userId: $userId,
 			userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
@@ -446,7 +529,7 @@ class DashboardService {
 		}
 
 		return $this->tryCreateFromTemplate(userId: $userId);
-	}//end resolveEffectiveDashboard()
+	}//end resolveSharedOrTemplateDashboard()
 
 	/**
 	 * The user's role layout when their groups carry one, else the instance default.

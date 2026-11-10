@@ -114,15 +114,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function list(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.list');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.list');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboards = $this->services->dashboardService->getUserDashboards(
@@ -162,15 +156,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.visible');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.visible');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$items = $this->filterByMetadata(
@@ -222,15 +210,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.get-active');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.get-active');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$result = $this->services->dashboardService->getEffectiveDashboard(
@@ -293,15 +275,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function show(int $id): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.show');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.show');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$result = $this->services->dashboardService->getDashboardForUser(
@@ -525,17 +501,11 @@ class DashboardApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
 	private function denyCreate(): ?JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
 		// L3: wire the create action so the matrix entry is enforced —
 		// consistent with all other mutation endpoints (ADR-023).
-		$this->actor->actionAuth->requireAction($user, 'dashboard.create');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.create');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -614,15 +584,9 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 */
 	private function denyUpdate(int $dashboardId, bool $metadataOnly): ?JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.update');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.update');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// REQ-PERM-007: Metadata-only updates (name, description, icon) are
@@ -706,15 +670,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function delete(int $id): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.delete');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.delete');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$cascade = $this->resolveCascadeFlag();
@@ -760,15 +718,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function tree(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.tree');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.tree');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// C1 fix: build the visibility set for the calling user, then ask
@@ -815,15 +767,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function byPath(string $path = ''): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.by-path');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.by-path');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		if ($path === '') {
@@ -895,15 +841,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function computePath(string $uuid = ''): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.compute-path');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.compute-path');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		if ($uuid === '') {
@@ -926,15 +866,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function activate(int $id): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.activate');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.activate');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -964,15 +898,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listGroup(string $groupId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.list-group');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.list-group');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H1: verify the caller is a member of the requested group (or
@@ -1063,15 +991,9 @@ class DashboardApiController extends Controller {
 		string $groupId,
 		string $uuid,
 	): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.get-group');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.get-group');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H1: verify the caller is a member of the requested group (or
@@ -1262,15 +1184,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setActiveDashboard(?string $uuid = null): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.set-active-dashboard');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.set-active-dashboard');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$this->services->dashboardService->setActivePreference(
@@ -1302,15 +1218,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setDefaultDashboard(?string $uuid = null): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.set-default-dashboard');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.set-default-dashboard');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$this->services->dashboardService->setDefaultPreference(
@@ -1331,15 +1241,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getDefaultDashboard(): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.get-default-dashboard');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.get-default-dashboard');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return ResponseHelper::success(
@@ -1458,15 +1362,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.publish');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.publish');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -1496,15 +1394,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function unpublish(string $uuid): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.unpublish');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.unpublish');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -1546,15 +1438,9 @@ class DashboardApiController extends Controller {
 		?string $publishAt = null,
 		?string $unpublishAt = null,
 	): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.schedule');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.schedule');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
@@ -1614,15 +1500,9 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function viewEvent(string $uuid): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
-		}
-
-		$this->actor->actionAuth->requireAction($user, 'dashboard.view-event');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.view-event');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H4: resolve the dashboard and assert the caller can view it

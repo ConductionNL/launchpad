@@ -450,13 +450,7 @@ class BulkOperationService {
 		$rowUuid = (string)$dashboard->getUuid();
 		$childCount = $this->childCountOf(rowUuid: $rowUuid);
 		if ($childCount > 0 && $delete->cascade === false) {
-			return $outcome->skipped(
-				error: [
-					'uuid' => $rowUuid,
-					'reason' => DashboardHasChildrenException::ERROR_CODE,
-					'childCount' => $childCount,
-				]
-			);
+			return $outcome->skipped(error: $this->hasChildrenError(rowUuid: $rowUuid, childCount: $childCount));
 		}
 
 		if ($delete->dryRun === true) {
@@ -473,14 +467,43 @@ class BulkOperationService {
 				)
 			);
 		} catch (Throwable $t) {
-			$this->logger->error(
-				message: 'BulkOperationService::bulkDelete failed for uuid',
-				context: ['uuid' => $rowUuid, 'exception' => $t]
-			);
-
-			return $outcome->failed(error: $outcome->transactionError(uuid: $rowUuid, failure: $t));
+			return $this->deleteFailed(rowUuid: $rowUuid, failure: $t);
 		}//end try
 	}//end deleteOneDashboard()
+
+	/**
+	 * The per-uuid error for a dashboard that has children while cascading is off.
+	 *
+	 * @param string $rowUuid    The dashboard's UUID.
+	 * @param int    $childCount Its direct child count.
+	 *
+	 * @return array{uuid: string, reason: string, childCount: int}
+	 */
+	private function hasChildrenError(string $rowUuid, int $childCount): array {
+		return [
+			'uuid' => $rowUuid,
+			'reason' => DashboardHasChildrenException::ERROR_CODE,
+			'childCount' => $childCount,
+		];
+	}//end hasChildrenError()
+
+	/**
+	 * Log a failed delete and answer its outcome.
+	 *
+	 * @param string    $rowUuid The dashboard's UUID.
+	 * @param Throwable $failure The failure.
+	 *
+	 * @return array{deleted: int, skipped: int, error: array<string, mixed>}
+	 */
+	private function deleteFailed(string $rowUuid, Throwable $failure): array {
+		$this->logger->error(
+			message: 'BulkOperationService::bulkDelete failed for uuid',
+			context: ['uuid' => $rowUuid, 'exception' => $failure]
+		);
+
+		$outcome = new BulkOutcome(countKey: 'deleted');
+		return $outcome->failed(error: $outcome->transactionError(uuid: $rowUuid, failure: $failure));
+	}//end deleteFailed()
 
 	/**
 	 * Re-parent a single dashboard as part of a {@see self::bulkMove()}

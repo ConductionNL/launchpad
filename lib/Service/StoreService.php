@@ -93,6 +93,14 @@ class StoreService {
 	private const DESCRIPTOR_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreDescriptor';
 
 	/**
+	 * Fully-qualified name of the engine's store listing value object: the
+	 * descriptor's read side (app id, remote schema and register, card fields).
+	 *
+	 * Held as a string for the same reason as DESCRIPTOR_CLASS.
+	 */
+	private const LISTING_CLASS = 'OCA\\OpenRegister\\AppHost\\Service\\StoreListing';
+
+	/**
 	 * Outcome reported when there is nothing to talk to.
 	 */
 	public const OUTCOME_NOT_CONFIGURED = 'not_configured';
@@ -362,17 +370,20 @@ class StoreService {
 	 * @psalm-suppress MixedMethodCall Instantiated from a class string by design.
 	 */
 	private function descriptor(): object {
-		$class = self::DESCRIPTOR_CLASS;
-		if (class_exists($class) === false) {
+		$class        = self::DESCRIPTOR_CLASS;
+		$listingClass = self::LISTING_CLASS;
+		if (class_exists($class) === false || class_exists($listingClass) === false) {
 			throw new RuntimeException(message: 'OpenRegister store descriptor is unavailable.');
 		}
 
+		// No sharing part: LaunchPad declares no shareable types and does not publish.
 		return new $class(
-			appId: Application::APP_ID,
-			schema: self::REMOTE_SCHEMA,
-			defaultRegister: self::DEFAULT_REGISTER,
-			cardFields: self::CARD_FIELDS,
-			types: []
+			listing: new $listingClass(
+				appId: Application::APP_ID,
+				schema: self::REMOTE_SCHEMA,
+				defaultRegister: self::DEFAULT_REGISTER,
+				cardFields: self::CARD_FIELDS
+			)
 		);
 	}//end descriptor()
 

@@ -21,13 +21,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use OCA\LaunchPad\Db\Dashboard;
-
 /**
- * The values one ShippedTemplateUpdateService::update() works with: the
- * template id, its shipped definition, the installed template dashboard,
- * the dry-run flag and the acting user. Built by update() and never
- * handed out.
+ * One ShippedTemplateUpdateService::update(): the shipped template id and
+ * its installed template. Built by update() and never handed out.
  *
  * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
  */
@@ -35,40 +31,12 @@ final class ShippedTemplateUpdateRun {
 	/**
 	 * Constructor
 	 *
-	 * @param string               $templateId The shipped template id.
-	 * @param array<string, mixed> $definition The shipped definition.
-	 * @param Dashboard            $template   The installed template dashboard.
-	 * @param boolean              $dryRun     Whether only to report.
-	 * @param string               $userId     The acting user.
+	 * @param string                   $templateId The shipped template id.
+	 * @param InstalledShippedTemplate $installed  Its definition and installed dashboard.
 	 */
 	public function __construct(
 		public readonly string $templateId,
-		public readonly array $definition,
-		public readonly Dashboard $template,
-		public readonly bool $dryRun,
-		public readonly string $userId,
+		public readonly InstalledShippedTemplate $installed,
 	) {
 	}//end __construct()
-
-	/**
-	 * The installed template's dashboard id.
-	 *
-	 * @return integer
-	 *
-	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
-	 */
-	public function dashboardId(): int {
-		return (int)$this->template->getId();
-	}//end dashboardId()
-
-	/**
-	 * The shipped definition's version.
-	 *
-	 * @return integer
-	 *
-	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
-	 */
-	public function version(): int {
-		return (int)$this->definition['templateVersion'];
-	}//end version()
 }//end class

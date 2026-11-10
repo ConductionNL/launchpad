@@ -141,6 +141,17 @@ class DashboardViewMapper extends QBMapper {
 			->orderBy(sort: 'view_count_sum', order: 'DESC')
 			->setMaxResults(maxResults: $limit);
 
+		return $this->fetchTopDashboardRows(qb: $qb);
+	}//end findTopDashboardsInRange()
+
+	/**
+	 * Run the top-dashboards query and map its aggregate rows.
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchTopDashboardRows(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$rows = [];
 		while (($row = $cursor->fetch()) !== false) {
@@ -154,7 +165,7 @@ class DashboardViewMapper extends QBMapper {
 		$cursor->closeCursor();
 
 		return $rows;
-	}//end findTopDashboardsInRange()
+	}//end fetchTopDashboardRows()
 
 	/**
 	 * Compute instance-wide totals across an inclusive date range
@@ -193,6 +204,17 @@ class DashboardViewMapper extends QBMapper {
 				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			);
 
+		return $this->fetchInstanceSummary(qb: $qb);
+	}//end findInstanceSummaryInRange()
+
+	/**
+	 * Run the instance-summary query and map its single row (zeros when there is none).
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchInstanceSummary(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$row = $cursor->fetch();
 		$cursor->closeCursor();
@@ -210,7 +232,7 @@ class DashboardViewMapper extends QBMapper {
 			'totalUniqueViewers' => (int)($row['total_unique'] ?? 0),
 			'dashboardCount' => (int)($row['dashboard_count'] ?? 0),
 		];
-	}//end findInstanceSummaryInRange()
+	}//end fetchInstanceSummary()
 
 	/**
 	 * Find every aggregate row in an inclusive date range, ordered

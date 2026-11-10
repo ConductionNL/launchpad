@@ -118,6 +118,17 @@ class TileClickMapper extends QBMapper {
 			->orderBy(sort: 'click_count_sum', order: 'DESC')
 			->setMaxResults(maxResults: $limit);
 
+		return $this->fetchTopTileRows(qb: $qb);
+	}//end findTopTilesInRange()
+
+	/**
+	 * Run the top-tiles query and map its aggregate rows.
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchTopTileRows(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$rows = [];
 		while (($row = $cursor->fetch()) !== false) {
@@ -132,7 +143,7 @@ class TileClickMapper extends QBMapper {
 		$cursor->closeCursor();
 
 		return $rows;
-	}//end findTopTilesInRange()
+	}//end fetchTopTileRows()
 
 	/**
 	 * Find every aggregate row for one dashboard's tiles within an
@@ -179,6 +190,17 @@ class TileClickMapper extends QBMapper {
 			->groupBy('placement_uuid')
 			->orderBy(sort: 'click_count_sum', order: 'DESC');
 
+		return $this->fetchDashboardTileRows(qb: $qb);
+	}//end findByDashboardInRange()
+
+	/**
+	 * Run a dashboard's per-tile query and map its aggregate rows.
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchDashboardTileRows(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$rows = [];
 		while (($row = $cursor->fetch()) !== false) {
@@ -192,7 +214,7 @@ class TileClickMapper extends QBMapper {
 		$cursor->closeCursor();
 
 		return $rows;
-	}//end findByDashboardInRange()
+	}//end fetchDashboardTileRows()
 
 	/**
 	 * Find every aggregate row in an inclusive date range, ordered

@@ -262,12 +262,7 @@ class PublicShareController extends Controller {
 				password: $password,
 				ipAddress: $ipAddress
 			);
-			$status = Http::STATUS_UNAUTHORIZED;
-			if ($isSuccess === true) {
-				$status = Http::STATUS_OK;
-			}
-
-			return new DataResponse(data: ['access' => $isSuccess], statusCode: $status);
+			return $this->accessAnswer(isSuccess: $isSuccess);
 		} catch (MaxDelayReached) {
 			return new DataResponse(
 				data: ['error' => 'Too many attempts'],
@@ -410,4 +405,20 @@ class PublicShareController extends Controller {
 			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
 		);
 	}//end loggedFailure()
+
+	/**
+	 * The unlock answer: `{access: bool}`, 200 when granted, 401 when not.
+	 *
+	 * @param bool $isSuccess Whether the password matched.
+	 *
+	 * @return DataResponse
+	 */
+	private function accessAnswer(bool $isSuccess): DataResponse {
+		$status = Http::STATUS_UNAUTHORIZED;
+		if ($isSuccess === true) {
+			$status = Http::STATUS_OK;
+		}
+
+		return new DataResponse(data: ['access' => $isSuccess], statusCode: $status);
+	}//end accessAnswer()
 }//end class

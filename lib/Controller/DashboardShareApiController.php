@@ -260,8 +260,24 @@ class DashboardShareApiController extends Controller {
 			return new DataResponse(data: ['users' => [], 'groups' => []]);
 		}
 
+		$users = $this->matchingUsers(pattern: $trimmed);
+		$groups = $this->matchingGroups(pattern: $trimmed);
+
+		return new DataResponse(
+			data: ['users' => $users, 'groups' => $groups]
+		);
+	}//end searchSharees()
+
+	/**
+	 * Up to 10 users matching the pattern, the caller left out.
+	 *
+	 * @param string $pattern The trimmed search query.
+	 *
+	 * @return array<int, array{id: string, displayName: string}>
+	 */
+	private function matchingUsers(string $pattern): array {
 		$users = [];
-		foreach ($this->tools->userManager->search(pattern: $trimmed, limit: 10) as $user) {
+		foreach ($this->tools->userManager->search(pattern: $pattern, limit: 10) as $user) {
 			if ($user->getUID() === $this->userId) {
 				continue;
 			}
@@ -272,18 +288,27 @@ class DashboardShareApiController extends Controller {
 			];
 		}
 
+		return $users;
+	}//end matchingUsers()
+
+	/**
+	 * Up to 10 groups matching the pattern.
+	 *
+	 * @param string $pattern The trimmed search query.
+	 *
+	 * @return array<int, array{id: string, displayName: string}>
+	 */
+	private function matchingGroups(string $pattern): array {
 		$groups = [];
-		foreach ($this->tools->groupManager->search(search: $trimmed, limit: 10) as $group) {
+		foreach ($this->tools->groupManager->search(search: $pattern, limit: 10) as $group) {
 			$groups[] = [
 				'id' => $group->getGID(),
 				'displayName' => $group->getDisplayName(),
 			];
 		}
 
-		return new DataResponse(
-			data: ['users' => $users, 'groups' => $groups]
-		);
-	}//end searchSharees()
+		return $groups;
+	}//end matchingGroups()
 
 	/**
 	 * Answer a share request that failed for a reason other than the

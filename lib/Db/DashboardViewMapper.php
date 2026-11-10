@@ -27,6 +27,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -89,16 +90,10 @@ class DashboardViewMapper extends QBMapper {
 	): array {
 		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 		$qb->andWhere(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->orderBy(sort: 'view_bucket', order: 'ASC');
 
@@ -137,16 +132,10 @@ class DashboardViewMapper extends QBMapper {
 			)
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->groupBy('dashboard_uuid')
 			->orderBy(sort: 'view_count_sum', order: 'DESC')
@@ -198,16 +187,10 @@ class DashboardViewMapper extends QBMapper {
 			)
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			);
 
 		$cursor = $qb->executeQuery();
@@ -247,16 +230,10 @@ class DashboardViewMapper extends QBMapper {
 		$qb->select('*')
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'view_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->orderBy(sort: 'dashboard_uuid', order: 'ASC')
 			->addOrderBy(sort: 'view_bucket', order: 'ASC');
@@ -343,4 +320,34 @@ class DashboardViewMapper extends QBMapper {
 
 		return $qb->executeStatement();
 	}//end deleteByDashboard()
+
+	/**
+	 * The `view_bucket >= startDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb        The query being built.
+	 * @param string        $startDate Inclusive lower bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketFrom(IQueryBuilder $qb, string $startDate): string {
+		return $qb->expr()->gte(
+			x: 'view_bucket',
+			y: $qb->createNamedParameter(value: $startDate)
+		);
+	}//end bucketFrom()
+
+	/**
+	 * The `view_bucket <= endDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb      The query being built.
+	 * @param string        $endDate Inclusive upper bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketUntil(IQueryBuilder $qb, string $endDate): string {
+		return $qb->expr()->lte(
+			x: 'view_bucket',
+			y: $qb->createNamedParameter(value: $endDate)
+		);
+	}//end bucketUntil()
 }//end class

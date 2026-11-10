@@ -29,6 +29,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -108,16 +109,10 @@ class TileClickMapper extends QBMapper {
 			)
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->groupBy('placement_uuid')
 			->orderBy(sort: 'click_count_sum', order: 'DESC')
@@ -176,16 +171,10 @@ class TileClickMapper extends QBMapper {
 				)
 			)
 			->andWhere(
-				$qb->expr()->gte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->groupBy('placement_uuid')
 			->orderBy(sort: 'click_count_sum', order: 'DESC');
@@ -223,16 +212,10 @@ class TileClickMapper extends QBMapper {
 		$qb->select('*')
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->orderBy(sort: 'placement_uuid', order: 'ASC')
 			->addOrderBy(sort: 'click_bucket', order: 'ASC');
@@ -321,4 +304,34 @@ class TileClickMapper extends QBMapper {
 
 		return $qb->executeStatement();
 	}//end deleteByPlacement()
+
+	/**
+	 * The `click_bucket >= startDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb        The query being built.
+	 * @param string        $startDate Inclusive lower bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketFrom(IQueryBuilder $qb, string $startDate): string {
+		return $qb->expr()->gte(
+			x: 'click_bucket',
+			y: $qb->createNamedParameter(value: $startDate)
+		);
+	}//end bucketFrom()
+
+	/**
+	 * The `click_bucket <= endDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb      The query being built.
+	 * @param string        $endDate Inclusive upper bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketUntil(IQueryBuilder $qb, string $endDate): string {
+		return $qb->expr()->lte(
+			x: 'click_bucket',
+			y: $qb->createNamedParameter(value: $endDate)
+		);
+	}//end bucketUntil()
 }//end class

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\IUser;
 use OCP\IUserSession;
 
 /**
@@ -45,4 +47,21 @@ class MetadataApiCaller {
 		public readonly IUserSession $userSession,
 	) {
 	}//end __construct()
+
+	/**
+	 * The signed-in user when they may perform the action, else the 401/403 refusal.
+	 *
+	 * @param string|null $userId The controller's user ID.
+	 * @param string      $action The action identifier to require.
+	 *
+	 * @return IUser|JSONResponse The user, or the refusal.
+	 *
+	 * @see ActionCaller::authorise()
+	 *
+	 * @spec openspec/specs/dashboard-metadata-fields/spec.md
+	 */
+	public function authorise(string|null $userId, string $action): IUser|JSONResponse {
+		$caller = new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession);
+		return $caller->authorise(userId: $userId, action: $action);
+	}//end authorise()
 }//end class

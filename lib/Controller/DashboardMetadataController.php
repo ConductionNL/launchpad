@@ -35,7 +35,6 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 
 /**
@@ -77,19 +76,9 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-metadata.get-metadata');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-metadata.get-metadata');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
@@ -151,19 +140,9 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-metadata.set-metadata');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-metadata.set-metadata');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);

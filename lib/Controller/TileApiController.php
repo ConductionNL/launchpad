@@ -31,7 +31,6 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 
 /**
@@ -79,19 +78,9 @@ class TileApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'tile.index');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.index');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		$tiles = $this->sources->tileService->getUserTiles(userId: $this->userId);
@@ -115,15 +104,9 @@ class TileApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function discover(): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'tile.discover');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.discover');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		return new JSONResponse(['apps' => $this->sources->discovery->discover()]);
@@ -143,19 +126,9 @@ class TileApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function create(): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'tile.create');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.create');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		return $this->goneResponse();
@@ -176,19 +149,9 @@ class TileApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function update(): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'tile.update');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.update');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		return $this->goneResponse();
@@ -207,19 +170,9 @@ class TileApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'tile.destroy');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.destroy');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		return $this->goneResponse();

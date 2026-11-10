@@ -27,7 +27,6 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -67,19 +66,9 @@ class RuleApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getRules(int $placementId): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'rule.get-rules');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.get-rules');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		try {
@@ -125,19 +114,9 @@ class RuleApiController extends Controller {
 		?array $ruleConfig = null,
 		bool $isInclude = true,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'rule.add-rule');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.add-rule');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		// Validate body shape explicitly so missing fields return a clean
@@ -207,19 +186,9 @@ class RuleApiController extends Controller {
 		?array $ruleConfig = null,
 		?bool $isInclude = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'rule.update-rule');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.update-rule');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		try {
@@ -267,19 +236,9 @@ class RuleApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function deleteRule(int $ruleId): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'rule.delete-rule');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.delete-rule');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		try {
@@ -328,4 +287,13 @@ class RuleApiController extends Controller {
 
 		return $data;
 	}//end buildRuleUpdateData()
+
+	/**
+	 * The session and the ADR-023 action check, for {@see ActionCaller::authorise()}.
+	 *
+	 * @return ActionCaller The caller.
+	 */
+	private function actionCaller(): ActionCaller {
+		return new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession);
+	}//end actionCaller()
 }//end class

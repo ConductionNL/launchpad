@@ -34,7 +34,6 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -107,19 +106,9 @@ class PeopleWidgetController extends Controller {
 		?int $offset = 0,
 		?string $q = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'people-widget.get-users');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'people-widget.get-users');
+		if ($user instanceof JSONResponse) {
+			return $user;
 		}
 
 		try {
@@ -196,4 +185,13 @@ class PeopleWidgetController extends Controller {
 		// Re-key so PHPStan is happy with the array<int, ...> shape.
 		return array_values(array: $decoded);
 	}//end parseFilters()
+
+	/**
+	 * The session and the ADR-023 action check, for {@see ActionCaller::authorise()}.
+	 *
+	 * @return ActionCaller The caller.
+	 */
+	private function actionCaller(): ActionCaller {
+		return new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession);
+	}//end actionCaller()
 }//end class

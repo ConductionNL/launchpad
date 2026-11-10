@@ -94,11 +94,7 @@ class ExportCommand extends Command {
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$target = new ExportTarget(
-			scope: (string)$input->getOption(name: 'scope'),
-			dashboardUuid: (string)($input->getOption(name: 'dashboard-uuid') ?? ''),
-			outputPath: (string)($input->getOption(name: 'output') ?? '')
-		);
+		$target = new ExportTarget(input: $input);
 
 		$optionError = self::optionError(target: $target);
 		if ($optionError !== null) {

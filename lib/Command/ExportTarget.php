@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
+use Symfony\Component\Console\Input\InputInterface;
+
 /**
  * The scope, dashboard UUID and archive path of one export run.
  *
@@ -30,16 +32,36 @@ namespace OCA\LaunchPad\Command;
  */
 final class ExportTarget {
 	/**
-	 * Constructor.
+	 * `site` or `dashboard`.
 	 *
-	 * @param string $scope         `site` or `dashboard`.
-	 * @param string $dashboardUuid Dashboard UUID (when scope=dashboard), else empty.
-	 * @param string $outputPath    Destination file path.
+	 * @var string
 	 */
-	public function __construct(
-		public readonly string $scope,
-		public readonly string $dashboardUuid,
-		public readonly string $outputPath,
-	) {
+	public readonly string $scope;
+
+	/**
+	 * Dashboard UUID (when scope=dashboard), else empty.
+	 *
+	 * @var string
+	 */
+	public readonly string $dashboardUuid;
+
+	/**
+	 * Destination file path, empty when `--output` is missing.
+	 *
+	 * @var string
+	 */
+	public readonly string $outputPath;
+
+	/**
+	 * Read the export target from the command options.
+	 *
+	 * @param InputInterface $input CLI input.
+	 *
+	 * @spec openspec/specs/dashboard-export-import/spec.md
+	 */
+	public function __construct(InputInterface $input) {
+		$this->scope = (string)$input->getOption(name: 'scope');
+		$this->outputPath = (string)($input->getOption(name: 'output') ?? '');
+		$this->dashboardUuid = (string)($input->getOption(name: 'dashboard-uuid') ?? '');
 	}//end __construct()
 }//end class

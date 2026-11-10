@@ -439,17 +439,8 @@ class LiveTileService {
 
 		try {
 			$client = $this->sources->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'connect_timeout' => self::CONNECT_TIMEOUT,
-					'timeout' => self::REQUEST_TIMEOUT,
-					'http_errors' => false,
-					// No auto-redirect — a 3xx to an unexpected host would
-					// bypass the allow-list check above.
-					'allow_redirects' => false,
-				]
-			);
+			$response = (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
+				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
 			$this->settings->logger->info(
 				message: 'LiveTileService: direct-URL fetch failed',

@@ -131,23 +131,13 @@ class ApplyActionBaseline implements IRepairStep {
 			0
 		);
 		if ($applied >= self::BASELINE_VERSION) {
-			$output->info(
-				sprintf(
-					'Action baseline v%d already applied — nothing to do.',
-					$applied
-				)
-			);
+			$output->info($this->alreadyAppliedLine(applied: $applied));
 			return;
 		}
 
 		$baseline = $this->baselineSince(applied: $applied, baseline: $this->readBaseline());
 		if (count($baseline) === 0) {
-			$output->warning(
-				'actions.seed.json unreadable or declares no baseline actions — matrix left unchanged.'
-			);
-			$this->logger->warning(
-				'[launchpad] ADR-023 baseline seed unreadable at ' . self::SEED_PATH
-			);
+			$this->reportUnreadableSeed(output: $output);
 			return;
 		}
 
@@ -167,6 +157,36 @@ class ApplyActionBaseline implements IRepairStep {
 
 		$output->info($this->summaryLine(broadened: $merge['broadened'], preserved: $merge['preserved']));
 	}//end run()
+
+	/**
+	 * The line reported when the baseline was applied before.
+	 *
+	 * @param int $applied The stored baseline version.
+	 *
+	 * @return string
+	 */
+	private function alreadyAppliedLine(int $applied): string {
+		return sprintf(
+			'Action baseline v%d already applied — nothing to do.',
+			$applied
+		);
+	}//end alreadyAppliedLine()
+
+	/**
+	 * Report and log a seed file that is unreadable or declares no baseline.
+	 *
+	 * @param IOutput $output The repair output.
+	 *
+	 * @return void
+	 */
+	private function reportUnreadableSeed(IOutput $output): void {
+		$output->warning(
+			'actions.seed.json unreadable or declares no baseline actions — matrix left unchanged.'
+		);
+		$this->logger->warning(
+			'[launchpad] ADR-023 baseline seed unreadable at ' . self::SEED_PATH
+		);
+	}//end reportUnreadableSeed()
 
 	/**
 	 * Lay the baseline over the matrix.

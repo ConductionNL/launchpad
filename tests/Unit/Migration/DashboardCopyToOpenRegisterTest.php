@@ -5,9 +5,9 @@
  *
  * Pins how Version002000Date20260519000000 hands a legacy dashboard row to
  * OpenRegister's ObjectService::saveObject(). The object service is a recording
- * double with OpenRegister's saveObject() parameter list, so a call that passes
- * register and schema in the object position fails its type check and the row
- * is counted as failed.
+ * double with OpenRegister's saveObject() parameter list, which takes register
+ * and schema inside ObjectSaveOptions, so a call that passes them any other way
+ * fails and the row is counted as failed.
  *
  * @category  Test
  * @package   Unit\Migration
@@ -25,6 +25,7 @@ namespace Unit\Migration;
 
 use Doctrine\DBAL\Schema\Schema;
 use OCA\LaunchPad\Migration\Version002000Date20260519000000;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCP\DB\IResult;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\QueryBuilder\IExpressionBuilder;
@@ -34,6 +35,8 @@ use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+
+require_once __DIR__ . '/../../Stubs/OpenRegisterStubs.php';
 
 /**
  * The dashboard copy saves each legacy row as the object, under the launchpad register and dashboard schema.
@@ -56,20 +59,21 @@ class DashboardCopyToOpenRegisterTest extends TestCase {
 			/**
 			 * Record a save with OpenRegister's saveObject() parameter list.
 			 *
-			 * @param array|object $object   The object data.
-			 * @param array|null   $extend   Properties to extend.
-			 * @param mixed        $register The register.
-			 * @param mixed        $schema   The schema.
+			 * @param array|object      $object  The object data.
+			 * @param ObjectSaveOptions $options The register, schema and save options.
 			 *
 			 * @return object The saved object.
 			 */
 			public function saveObject(
 				array|object $object,
-				?array $extend = [],
-				mixed $register = null,
-				mixed $schema = null,
+				ObjectSaveOptions $options = new ObjectSaveOptions(),
 			): object {
-				$this->calls[] = ['object' => $object, 'extend' => $extend, 'register' => $register, 'schema' => $schema];
+				$this->calls[] = [
+					'object' => $object,
+					'extend' => $options->extend,
+					'register' => $options->target->register,
+					'schema' => $options->target->schema,
+				];
 				return new \stdClass();
 			}
 		};

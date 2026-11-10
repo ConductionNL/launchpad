@@ -26,6 +26,7 @@ use DateTimeInterface;
 use OCA\LaunchPad\Db\ConditionalRule;
 use OCA\LaunchPad\Db\ConditionalRuleMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 
@@ -182,9 +183,28 @@ class ConditionalService {
 	 * @spec openspec/specs/conditional-visibility/spec.md
 	 */
 	public function listAllRules(): array {
-		$rules = $this->ruleMapper->findAll();
+		$counts = self::countsByPlacement(rules: $this->ruleMapper->findAll());
 
-		// Aggregate per placement id.
+		$rows = [];
+		foreach ($counts as $placementId => $agg) {
+			$row = $this->overviewRow(placementId: $placementId, counts: $agg);
+			if ($row !== null) {
+				$rows[] = $row;
+			}
+		}
+
+		return $rows;
+	}//end listAllRules()
+
+	/**
+	 * Aggregate the rules per placement id: the rule count and the
+	 * include / exclude breakdown, in first-seen order.
+	 *
+	 * @param ConditionalRule[] $rules Every rule.
+	 *
+	 * @return array<int, array{placementId: int, ruleCount: int, includeCount: int, excludeCount: int}>
+	 */
+	private static function countsByPlacement(array $rules): array {
 		$byPlacement = [];
 		foreach ($rules as $rule) {
 			$placementId = $rule->getWidgetPlacementId();
@@ -206,40 +226,52 @@ class ConditionalService {
 			$byPlacement[$placementId][$counterKey]++;
 		}
 
-		$rows = [];
-		foreach ($byPlacement as $placementId => $agg) {
-			try {
-				$placement = $this->placementMapper->find(id: $placementId);
-			} catch (DoesNotExistException) {
-				// Orphaned rule — placement gone. Skip so the overview only
-				// lists live placements.
-				continue;
-			}
+		return $byPlacement;
+	}//end countsByPlacement()
 
-			$dashboardId = $placement->getDashboardId();
-			$dashboardName = null;
-			try {
-				$dashboard = $this->dashboardMapper->find(id: $dashboardId);
-				$dashboardName = $dashboard->getName();
-			} catch (DoesNotExistException) {
-				// Dashboard gone but placement somehow remains — still list
-				// the placement, just without a resolved name.
-				$dashboardId = null;
-			}
+	/**
+	 * The overview row of one rule-bearing placement; null for an
+	 * orphaned rule whose placement is gone, so the overview only lists
+	 * live placements.
+	 *
+	 * @param int                $placementId The placement id.
+	 * @param array<string, int> $counts      The placement's rule counts.
+	 *
+	 * @return array<string, mixed>|null The row, or null.
+	 */
+	private function overviewRow(int $placementId, array $counts): array|null {
+		try {
+			$placement = $this->placementMapper->find(id: $placementId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
 
-			$rows[] = [
-				'placementId' => $placementId,
-				'dashboardId' => $dashboardId,
-				'dashboardName' => $dashboardName,
-				'widgetType' => $placement->getWidgetId(),
-				'ruleCount' => $agg['ruleCount'],
-				'includeCount' => $agg['includeCount'],
-				'excludeCount' => $agg['excludeCount'],
-			];
-		}//end foreach
+		return ['placementId' => $placementId] + $this->owningDashboard(placement: $placement) + [
+			'widgetType' => $placement->getWidgetId(),
+			'ruleCount' => $counts['ruleCount'],
+			'includeCount' => $counts['includeCount'],
+			'excludeCount' => $counts['excludeCount'],
+		];
+	}//end overviewRow()
 
-		return $rows;
-	}//end listAllRules()
+	/**
+	 * The id and name of a placement's dashboard. When the dashboard is
+	 * gone but the placement somehow remains, the placement is still
+	 * listed, just without a resolved dashboard.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array{dashboardId: int|null, dashboardName: string|null}
+	 */
+	private function owningDashboard(WidgetPlacement $placement): array {
+		try {
+			$dashboard = $this->dashboardMapper->find(id: $placement->getDashboardId());
+		} catch (DoesNotExistException) {
+			return ['dashboardId' => null, 'dashboardName' => null];
+		}
+
+		return ['dashboardId' => $placement->getDashboardId(), 'dashboardName' => $dashboard->getName()];
+	}//end owningDashboard()
 
 	/**
 	 * Fetch a single rule by its primary key.

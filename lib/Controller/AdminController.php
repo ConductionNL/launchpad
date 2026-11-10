@@ -343,7 +343,11 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		$actingAdminId = $this->actingAdminId();
+		$user = $this->caller->userSession->getUser();
+		$actingAdminId = '';
+		if ($user !== null) {
+			$actingAdminId = $user->getUID();
+		}
 
 		try {
 			$result = $this->templates->resyncService->resync(
@@ -364,20 +368,6 @@ class AdminController extends Controller {
 			return ResponseHelper::error(exception: $e);
 		}//end try
 	}//end resyncTemplate()
-
-	/**
-	 * The UID of the signed-in admin, or an empty string without a session user.
-	 *
-	 * @return string The acting admin's UID.
-	 */
-	private function actingAdminId(): string {
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return '';
-		}
-
-		return $user->getUID();
-	}//end actingAdminId()
 
 	/**
 	 * Get admin settings.

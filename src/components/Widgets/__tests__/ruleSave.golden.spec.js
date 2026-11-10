@@ -152,3 +152,55 @@ describe('VisibilityRuleRow.buildRuleConfig', () => {
 		expect(ruleConfigFor('time', { days }).days).not.toBe(days)
 	})
 })
+
+describe('ConditionalVisibilityEditor.load response shapes', () => {
+	it.each([
+		[{ rules: [{ id: 1, x: 1 }] }, [{ id: 1, x: 1, _localKey: undefined }]],
+		[{ data: { rules: [{ id: 2 }] } }, [{ id: 2, _localKey: undefined }]],
+		[{ data: { other: 1 } }, []],
+		[[{ id: 3 }], [{ id: 3, _localKey: undefined }]],
+		[null, []],
+		[{ rules: 'x' }, []],
+	])('reads %j', async (data, expected) => {
+		api.getWidgetRules.mockResolvedValue({ data })
+		const wrapper = mount(ConditionalVisibilityEditor, { propsData: { placementId: 10 }, shallow: true })
+		await flush()
+		expect(wrapper.vm.rules).toEqual(expected)
+		expect(wrapper.vm.loading).toBe(false)
+	})
+
+	it('logs a failed load and empties the list; skips the call without a placement', async () => {
+		const error = new Error('x')
+		api.getWidgetRules.mockRejectedValue(error)
+		const wrapper = mount(ConditionalVisibilityEditor, { propsData: { placementId: 10 }, shallow: true })
+		await flush()
+		expect(logger.error).toHaveBeenCalledWith('Failed to load visibility rules:', error)
+		expect(wrapper.vm.rules).toEqual([])
+		api.getWidgetRules.mockClear()
+		await wrapper.setProps({ placementId: null })
+		wrapper.vm.rules = [{ id: 1 }]
+		await wrapper.vm.load()
+		expect(api.getWidgetRules).not.toHaveBeenCalled()
+		expect(wrapper.vm.rules).toEqual([])
+	})
+})
+
+describe('VisibilityRuleRow.hasAtLeastOneValidDate', () => {
+	it.each([
+		[{}, false],
+		[{ startDate: '', endDate: '' }, false],
+		[{ startDate: '2026-01-01' }, true],
+		[{ endDate: '2026-01-01' }, true],
+		[{ startDate: '2026-1-1' }, false],
+		[{ startDate: '2026-01-01', endDate: 'x' }, false],
+		[{ startDate: 'x', endDate: '2026-01-01' }, false],
+		[{ startDate: 5 }, false],
+	])('judges %j', (ruleConfig, expected) => {
+		const wrapper = mount(VisibilityRuleRow, {
+			propsData: { rule: { ruleType: 'date', ruleConfig: {}, isInclude: true }, availableGroups: [] },
+			shallow: true,
+		})
+		wrapper.vm.local.ruleConfig = ruleConfig
+		expect(wrapper.vm.hasAtLeastOneValidDate()).toBe(expected)
+	})
+})

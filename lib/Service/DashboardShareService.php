@@ -236,7 +236,11 @@ class DashboardShareService {
 		$this->db->beginTransaction();
 		$committed = false;
 		try {
-			$this->shareMapper->deleteNotIn(dashboardId: $dashboardId, keepKeys: $keepKeys);
+			// Remove shares not in payload.
+			$this->shareMapper->deleteNotIn(
+				dashboardId: $dashboardId,
+				keepKeys: $keepKeys
+			);
 
 			foreach ($grants as $grant) {
 				$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
@@ -251,7 +255,7 @@ class DashboardShareService {
 			if ($committed === false) {
 				$this->db->rollBack();
 			}
-		}
+		}//end try
 
 		return $notifyQueue;
 	}//end replaceInTransaction()

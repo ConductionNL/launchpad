@@ -554,6 +554,28 @@ class DashboardVersionServiceTest extends TestCase {
 		$this->assertSame(1, $result['version']->getVersionNumber());
 	}//end testAdminMayRestoreOtherUsersDashboard()
 
+	/**
+	 * Neither owner nor admin: the restore is refused before anything is read or written.
+	 *
+	 * @return void
+	 */
+	public function testNonOwnerMayNotRestore(): void {
+		$dashboard = $this->makeDashboard(userId: 'alice');
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->versionMapper->expects($this->never())->method('findByDashboardAndVersion');
+		$this->versionMapper->expects($this->never())->method('insert');
+		$this->dashboardMapper->expects($this->never())->method('update');
+
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage(DashboardVersionService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN);
+
+		$this->service->restoreVersion(
+			dashboard: $dashboard,
+			versionNumber: 1,
+			restoringUser: 'bob'
+		);
+	}//end testNonOwnerMayNotRestore()
+
 	// =========================================================================
 	// WF1: restoreVersion transaction envelope (wave-12 regression tests)
 	// =========================================================================

@@ -114,7 +114,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function list(): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.list');
+		$refusal = $this->actionRefusal(action: 'dashboard.list');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -129,18 +129,7 @@ class DashboardApiController extends Controller {
 		// the personal dashboards list. Response shape is
 		// `{items: [...], quota: {...}}`. When the quota service is absent
 		// (legacy test doubles) fall back to the bare-array contract.
-		if ($this->services->quotaService === null) {
-			return ResponseHelper::success(data: $serialized);
-		}
-
-		return ResponseHelper::success(
-			data: [
-				'items' => $serialized,
-				'quota' => $this->services->quotaService->getQuotaStatus(
-					userId: $this->userId
-				),
-			]
-		);
+		return $this->withQuota(serialized: $serialized);
 	}//end list()
 
 	/**
@@ -156,7 +145,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function visible(): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.visible');
+		$refusal = $this->actionRefusal(action: 'dashboard.visible');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -187,18 +176,7 @@ class DashboardApiController extends Controller {
 		// are handled by the store's shape-tolerant unwrap. When the quota
 		// service is absent (legacy test doubles) fall back to the
 		// bare-array contract.
-		if ($this->services->quotaService === null) {
-			return ResponseHelper::success(data: $serialized);
-		}
-
-		return ResponseHelper::success(
-			data: [
-				'items' => $serialized,
-				'quota' => $this->services->quotaService->getQuotaStatus(
-					userId: $this->userId
-				),
-			]
-		);
+		return $this->withQuota(serialized: $serialized);
 	}//end visible()
 
 	/**
@@ -210,7 +188,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getActive(): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.get-active');
+		$refusal = $this->actionRefusal(action: 'dashboard.get-active');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -275,7 +253,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function show(int $id): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.show');
+		$refusal = $this->actionRefusal(action: 'dashboard.show');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -503,7 +481,7 @@ class DashboardApiController extends Controller {
 	private function denyCreate(): ?JSONResponse {
 		// L3: wire the create action so the matrix entry is enforced —
 		// consistent with all other mutation endpoints (ADR-023).
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.create');
+		$refusal = $this->actionRefusal(action: 'dashboard.create');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -511,14 +489,7 @@ class DashboardApiController extends Controller {
 		try {
 			$this->services->dashboardService->assertPersonalDashboardsAllowed();
 		} catch (PersonalDashboardsDisabledException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => $e->getErrorCode(),
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->personalDashboardsDisabled(exception: $e);
 		}
 
 		return null;
@@ -584,7 +555,7 @@ class DashboardApiController extends Controller {
 	 * @return JSONResponse|null The refusal, or null to proceed.
 	 */
 	private function denyUpdate(int $dashboardId, bool $metadataOnly): ?JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.update');
+		$refusal = $this->actionRefusal(action: 'dashboard.update');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -670,7 +641,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function delete(int $id): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.delete');
+		$refusal = $this->actionRefusal(action: 'dashboard.delete');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -718,7 +689,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function tree(): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.tree');
+		$refusal = $this->actionRefusal(action: 'dashboard.tree');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -767,7 +738,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function byPath(string $path = ''): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.by-path');
+		$refusal = $this->actionRefusal(action: 'dashboard.by-path');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -841,7 +812,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function computePath(string $uuid = ''): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.compute-path');
+		$refusal = $this->actionRefusal(action: 'dashboard.compute-path');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -866,7 +837,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function activate(int $id): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.activate');
+		$refusal = $this->actionRefusal(action: 'dashboard.activate');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -898,7 +869,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listGroup(string $groupId): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.list-group');
+		$refusal = $this->actionRefusal(action: 'dashboard.list-group');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -991,7 +962,7 @@ class DashboardApiController extends Controller {
 		string $groupId,
 		string $uuid,
 	): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.get-group');
+		$refusal = $this->actionRefusal(action: 'dashboard.get-group');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -1184,7 +1155,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setActiveDashboard(?string $uuid = null): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.set-active-dashboard');
+		$refusal = $this->actionRefusal(action: 'dashboard.set-active-dashboard');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -1218,7 +1189,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setDefaultDashboard(?string $uuid = null): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.set-default-dashboard');
+		$refusal = $this->actionRefusal(action: 'dashboard.set-default-dashboard');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -1241,7 +1212,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getDefaultDashboard(): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.get-default-dashboard');
+		$refusal = $this->actionRefusal(action: 'dashboard.get-default-dashboard');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -1309,14 +1280,7 @@ class DashboardApiController extends Controller {
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (PersonalDashboardsDisabledException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => $e->getErrorCode(),
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->personalDashboardsDisabled(exception: $e);
 		} catch (QuotaExceededException $e) {
 			// Dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
 			// per-user dashboard quota — HTTP 409 with the structured body.
@@ -1362,25 +1326,17 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function publish(string $uuid): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.publish');
+		$refusal = $this->actionRefusal(action: 'dashboard.publish');
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		try {
-			$dashboard = $this->services->dashboardService->publishDashboard(
+		return $this->publicationResponse(
+			operation: fn (): Dashboard => $this->services->dashboardService->publishDashboard(
 				uuid: $uuid,
 				userId: $this->userId
-			);
-
-			return ResponseHelper::success(
-				data: ['dashboard' => $dashboard->jsonSerialize()]
-			);
-		} catch (DoesNotExistException) {
-			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
-		} catch (\Exception $e) {
-			return $this->mapPublicationError(exception: $e);
-		}//end try
+			)
+		);
 	}//end publish()
 
 	/**
@@ -1394,16 +1350,75 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function unpublish(string $uuid): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.unpublish');
+		$refusal = $this->actionRefusal(action: 'dashboard.unpublish');
 		if ($refusal !== null) {
 			return $refusal;
 		}
 
-		try {
-			$dashboard = $this->services->dashboardService->unpublish(
+		return $this->publicationResponse(
+			operation: fn (): Dashboard => $this->services->dashboardService->unpublish(
 				uuid: $uuid,
 				userId: $this->userId
-			);
+			)
+		);
+	}//end unpublish()
+
+	/**
+	 * The serialised dashboards, with the user's quota status when the quota service is wired.
+	 *
+	 * Dashboard-quota-limits REQ-QUOTA-006: additive quota envelope on the
+	 * personal dashboards list. Response shape is `{items: [...], quota: {...}}`.
+	 * When the quota service is absent (legacy test doubles) fall back to the
+	 * bare-array contract.
+	 *
+	 * @param array<int, mixed> $serialized The serialised dashboards.
+	 *
+	 * @return JSONResponse The success response.
+	 */
+	private function withQuota(array $serialized): JSONResponse {
+		if ($this->services->quotaService === null) {
+			return ResponseHelper::success(data: $serialized);
+		}
+
+		return ResponseHelper::success(
+			data: [
+				'items' => $serialized,
+				'quota' => $this->services->quotaService->getQuotaStatus(
+					userId: $this->userId
+				),
+			]
+		);
+	}//end withQuota()
+
+	/**
+	 * The 403 answer when personal dashboards are switched off.
+	 *
+	 * @param PersonalDashboardsDisabledException $exception The refusal.
+	 *
+	 * @return JSONResponse The error envelope.
+	 */
+	private function personalDashboardsDisabled(PersonalDashboardsDisabledException $exception): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'error',
+				'error' => $exception->getErrorCode(),
+				'message' => $exception->getMessage(),
+			],
+			statusCode: Http::STATUS_FORBIDDEN
+		);
+	}//end personalDashboardsDisabled()
+
+	/**
+	 * Run a publication change and answer with the dashboard, 404 when unknown,
+	 * or the mapped publication error.
+	 *
+	 * @param \Closure $operation Runs the change and returns the updated dashboard.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private function publicationResponse(\Closure $operation): JSONResponse {
+		try {
+			$dashboard = $operation();
 
 			return ResponseHelper::success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
@@ -1413,7 +1428,20 @@ class DashboardApiController extends Controller {
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
-	}//end unpublish()
+	}//end publicationResponse()
+
+	/**
+	 * The caller guard: the refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see RequestActor::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->actor->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 
 	/**
 	 * Schedule a dashboard for automatic publication. REQ-DASH-034.
@@ -1438,7 +1466,7 @@ class DashboardApiController extends Controller {
 		?string $publishAt = null,
 		?string $unpublishAt = null,
 	): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.schedule');
+		$refusal = $this->actionRefusal(action: 'dashboard.schedule');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -1500,7 +1528,7 @@ class DashboardApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function viewEvent(string $uuid): JSONResponse {
-		$refusal = $this->actor->refusal(userId: $this->userId, action: 'dashboard.view-event');
+		$refusal = $this->actionRefusal(action: 'dashboard.view-event');
 		if ($refusal !== null) {
 			return $refusal;
 		}

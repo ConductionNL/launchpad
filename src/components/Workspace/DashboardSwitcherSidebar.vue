@@ -86,395 +86,136 @@
 		<div class="dashboard-switcher-sidebar__body">
 			<!-- dashboard-language-and-details-tabs REQ-MDUI-003 -->
 			<DetailFilter :fields="filterFields" @change="$emit('filter', $event)" />
-			<!-- 1. Primary group dashboards -->
-			<section
-				v-if="primaryGroupDashboards.length > 0"
-				class="dashboard-switcher-sidebar__section"
-				data-section="group">
-				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ primaryGroupHeading }}
-				</h3>
-				<ul class="dashboard-switcher-sidebar__list">
-					<li
-						v-for="{ dashboard, depth, hasChildren } in treeRows(
-							primaryGroupDashboards,
-						)"
-						:key="`group-${dashboard.id}`"
-						class="dashboard-switcher-sidebar__item"
-						:class="{ active: isActive(dashboard.id) }"
-						:data-depth="depth"
-						:style="depthStyle(depth)"
-						data-source="group"
-						tabindex="0"
-						role="button"
-						:aria-label="dashboard.name"
-						@click="onSwitch(dashboard.id, 'group')"
-						@keydown.enter="onSwitch(dashboard.id, 'group')"
-						@keydown.space.prevent="onSwitch(dashboard.id, 'group')">
-						<button
-							v-if="hasChildren"
-							type="button"
-							class="dashboard-switcher-sidebar__expander"
-							:data-testid="`tree-expand-${dashboard.uuid}`"
-							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
+			<!--
+				Sections in order: 1. primary group dashboards, 2. default group
+				dashboards, 3. personal dashboards, 4. dashboards shared with
+				the user (REQ-SHARE-002). Only visible sections render, with a
+				divider before every section that follows another.
+			-->
+			<template
+				v-for="(section, index) in visibleSections"
+				:key="section.source">
+				<hr v-if="index > 0" class="dashboard-switcher-sidebar__divider" />
+
+				<section
+					class="dashboard-switcher-sidebar__section"
+					:data-section="section.source">
+					<h3 class="dashboard-switcher-sidebar__heading">
+						{{ section.heading }}
+					</h3>
+					<ul class="dashboard-switcher-sidebar__list">
+						<li
+							v-for="{ dashboard, depth, hasChildren } in treeRows(
+								section.dashboards,
+							)"
+							:key="`${section.source}-${dashboard.id}`"
+							class="dashboard-switcher-sidebar__item"
+							:class="{
+								'dashboard-switcher-sidebar__item--personal':
+									section.source === 'user',
+								active: isActive(dashboard.id),
+							}"
+							:data-depth="depth"
+							:style="depthStyle(depth)"
+							:data-source="section.source"
+							tabindex="0"
+							role="button"
+							:aria-label="dashboard.name"
+							@click="onSwitch(dashboard.id, section.source)"
+							@keydown.enter="onSwitch(dashboard.id, section.source)"
+							@keydown.space.prevent="onSwitch(dashboard.id, section.source)">
+							<button
+								v-if="hasChildren"
+								type="button"
+								class="dashboard-switcher-sidebar__expander"
+								:data-testid="`tree-expand-${dashboard.uuid}`"
+								:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
+								:aria-label="
+									isExpanded(dashboard)
+										? t('launchpad', 'Collapse {name}', {
+												name: dashboard.name,
+											})
+										: t('launchpad', 'Expand {name}', {
+												name: dashboard.name,
+											})
+								"
+								@click.stop="toggleExpanded(dashboard)"
+								@keydown.enter.stop
+								@keydown.space.stop>
+								<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
+								<ChevronRight v-else :size="16" />
+							</button>
+							<span class="dashboard-switcher-sidebar__icon">
+								<CnDashboardIcon :name="dashboard.icon" :size="20" />
+							</span>
+							<span
+								v-if="isDefaultDashboard(dashboard)"
+								class="dashboard-switcher-sidebar__default-marker"
+								:title="
+									t(
+										'launchpad',
+										'Default dashboard — opens automatically when you visit LaunchPad',
+									)
+								"
+								:aria-label="t('launchpad', 'Default dashboard')">
+								<Star :size="16" />
+							</span>
+							<span class="dashboard-switcher-sidebar__label">{{
+								dashboard.name
+							}}</span>
+							<DashboardRowActions
+								:dashboard="dashboard"
+								:source="section.source"
+								:canEdit="canEdit"
+								:defaultUuid="defaultUuid"
+								:isEditMode="isEditMode"
+								:activeDashboardId="activeDashboardId"
+								@toggleEdit="onRowToggleEdit(dashboard, section.source)"
+								@openConfig="onRowOpenConfig(dashboard, section.source)"
+								@addCustomWidget="
+									onRowAddCustomWidget(dashboard, section.source)
+								"
+								@delete="onRowDelete(dashboard, section.source)"
+								@setDefault="onRowSetDefault(dashboard, section.source)" />
+						</li>
+					</ul>
+
+					<!--
+						REQ-SWITCH-008: dedicated "Add Dashboard" card button. Lives
+						BELOW the personal list (not inside the <ul>), still inside
+						the scroll container, gated on `allowUserDashboards`. Same
+						emit contract as the removed inline row.
+					-->
+					<div
+						v-if="section.source === 'user' && allowUserDashboards"
+						class="dashboard-switcher-sidebar__add-dashboard-card">
+						<NcButton
+							variant="secondary"
+							wide
+							data-action="create"
+							data-testid="add-dashboard-button"
+							:disabled="dashboardQuotaReached"
+							:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
 							:aria-label="
-								isExpanded(dashboard)
-									? t('launchpad', 'Collapse {name}', {
-											name: dashboard.name,
-										})
-									: t('launchpad', 'Expand {name}', {
-											name: dashboard.name,
-										})
+								dashboardQuotaReached
+									? dashboardQuotaTooltip
+									: t('launchpad', 'Add dashboard')
 							"
-							@click.stop="toggleExpanded(dashboard)"
-							@keydown.enter.stop
-							@keydown.space.stop>
-							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
-							<ChevronRight v-else :size="16" />
-						</button>
-						<span class="dashboard-switcher-sidebar__icon">
-							<CnDashboardIcon :name="dashboard.icon" :size="20" />
-						</span>
-						<span
-							v-if="isDefaultDashboard(dashboard)"
-							class="dashboard-switcher-sidebar__default-marker"
-							:title="
-								t(
-									'launchpad',
-									'Default dashboard — opens automatically when you visit LaunchPad',
-								)
-							"
-							:aria-label="t('launchpad', 'Default dashboard')">
-							<Star :size="16" />
-						</span>
-						<span class="dashboard-switcher-sidebar__label">{{
-							dashboard.name
-						}}</span>
-						<DashboardRowActions
-							:dashboard="dashboard"
-							source="group"
-							:canEdit="canEdit"
-							:defaultUuid="defaultUuid"
-							:isEditMode="isEditMode"
-							:activeDashboardId="activeDashboardId"
-							@toggleEdit="onRowToggleEdit(dashboard, 'group')"
-							@openConfig="onRowOpenConfig(dashboard, 'group')"
-							@addCustomWidget="
-								onRowAddCustomWidget(dashboard, 'group')
-							"
-							@delete="onRowDelete(dashboard, 'group')"
-							@setDefault="onRowSetDefault(dashboard, 'group')" />
-					</li>
-				</ul>
-			</section>
-
-			<!-- Divider 1 ↔ 2 -->
-			<hr
-				v-if="
-					primaryGroupDashboards.length > 0
-					&& defaultGroupDashboards.length > 0
-				"
-				class="dashboard-switcher-sidebar__divider" />
-
-			<!-- 2. Default group dashboards -->
-			<section
-				v-if="defaultGroupDashboards.length > 0"
-				class="dashboard-switcher-sidebar__section"
-				data-section="default">
-				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('launchpad', 'Default') }}
-				</h3>
-				<ul class="dashboard-switcher-sidebar__list">
-					<li
-						v-for="{ dashboard, depth, hasChildren } in treeRows(
-							defaultGroupDashboards,
-						)"
-						:key="`default-${dashboard.id}`"
-						class="dashboard-switcher-sidebar__item"
-						:class="{ active: isActive(dashboard.id) }"
-						:data-depth="depth"
-						:style="depthStyle(depth)"
-						data-source="default"
-						tabindex="0"
-						role="button"
-						:aria-label="dashboard.name"
-						@click="onSwitch(dashboard.id, 'default')"
-						@keydown.enter="onSwitch(dashboard.id, 'default')"
-						@keydown.space.prevent="onSwitch(dashboard.id, 'default')">
-						<button
-							v-if="hasChildren"
-							type="button"
-							class="dashboard-switcher-sidebar__expander"
-							:data-testid="`tree-expand-${dashboard.uuid}`"
-							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
-							:aria-label="
-								isExpanded(dashboard)
-									? t('launchpad', 'Collapse {name}', {
-											name: dashboard.name,
-										})
-									: t('launchpad', 'Expand {name}', {
-											name: dashboard.name,
-										})
-							"
-							@click.stop="toggleExpanded(dashboard)"
-							@keydown.enter.stop
-							@keydown.space.stop>
-							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
-							<ChevronRight v-else :size="16" />
-						</button>
-						<span class="dashboard-switcher-sidebar__icon">
-							<CnDashboardIcon :name="dashboard.icon" :size="20" />
-						</span>
-						<span
-							v-if="isDefaultDashboard(dashboard)"
-							class="dashboard-switcher-sidebar__default-marker"
-							:title="
-								t(
-									'launchpad',
-									'Default dashboard — opens automatically when you visit LaunchPad',
-								)
-							"
-							:aria-label="t('launchpad', 'Default dashboard')">
-							<Star :size="16" />
-						</span>
-						<span class="dashboard-switcher-sidebar__label">{{
-							dashboard.name
-						}}</span>
-						<DashboardRowActions
-							:dashboard="dashboard"
-							source="default"
-							:canEdit="canEdit"
-							:defaultUuid="defaultUuid"
-							:isEditMode="isEditMode"
-							:activeDashboardId="activeDashboardId"
-							@toggleEdit="onRowToggleEdit(dashboard, 'default')"
-							@openConfig="onRowOpenConfig(dashboard, 'default')"
-							@addCustomWidget="
-								onRowAddCustomWidget(dashboard, 'default')
-							"
-							@delete="onRowDelete(dashboard, 'default')"
-							@setDefault="onRowSetDefault(dashboard, 'default')" />
-					</li>
-				</ul>
-			</section>
-
-			<!-- Divider before personal section (only when prev section non-empty) -->
-			<hr
-				v-if="
-					(primaryGroupDashboards.length > 0
-						|| defaultGroupDashboards.length > 0)
-					&& showPersonalSection
-				"
-				class="dashboard-switcher-sidebar__divider" />
-
-			<!-- 3. Personal dashboards -->
-			<section
-				v-if="showPersonalSection"
-				class="dashboard-switcher-sidebar__section"
-				data-section="user">
-				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('launchpad', 'My Dashboards') }}
-				</h3>
-				<ul class="dashboard-switcher-sidebar__list">
-					<li
-						v-for="{ dashboard, depth, hasChildren } in treeRows(
-							userDashboards,
-						)"
-						:key="`user-${dashboard.id}`"
-						class="dashboard-switcher-sidebar__item dashboard-switcher-sidebar__item--personal"
-						:class="{ active: isActive(dashboard.id) }"
-						:data-depth="depth"
-						:style="depthStyle(depth)"
-						data-source="user"
-						tabindex="0"
-						role="button"
-						:aria-label="dashboard.name"
-						@click="onSwitch(dashboard.id, 'user')"
-						@keydown.enter="onSwitch(dashboard.id, 'user')"
-						@keydown.space.prevent="onSwitch(dashboard.id, 'user')">
-						<button
-							v-if="hasChildren"
-							type="button"
-							class="dashboard-switcher-sidebar__expander"
-							:data-testid="`tree-expand-${dashboard.uuid}`"
-							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
-							:aria-label="
-								isExpanded(dashboard)
-									? t('launchpad', 'Collapse {name}', {
-											name: dashboard.name,
-										})
-									: t('launchpad', 'Expand {name}', {
-											name: dashboard.name,
-										})
-							"
-							@click.stop="toggleExpanded(dashboard)"
-							@keydown.enter.stop
-							@keydown.space.stop>
-							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
-							<ChevronRight v-else :size="16" />
-						</button>
-						<span class="dashboard-switcher-sidebar__icon">
-							<CnDashboardIcon :name="dashboard.icon" :size="20" />
-						</span>
-						<span
-							v-if="isDefaultDashboard(dashboard)"
-							class="dashboard-switcher-sidebar__default-marker"
-							:title="
-								t(
-									'launchpad',
-									'Default dashboard — opens automatically when you visit LaunchPad',
-								)
-							"
-							:aria-label="t('launchpad', 'Default dashboard')">
-							<Star :size="16" />
-						</span>
-						<span class="dashboard-switcher-sidebar__label">{{
-							dashboard.name
-						}}</span>
-						<DashboardRowActions
-							:dashboard="dashboard"
-							source="user"
-							:canEdit="canEdit"
-							:defaultUuid="defaultUuid"
-							:isEditMode="isEditMode"
-							:activeDashboardId="activeDashboardId"
-							@toggleEdit="onRowToggleEdit(dashboard, 'user')"
-							@openConfig="onRowOpenConfig(dashboard, 'user')"
-							@addCustomWidget="
-								onRowAddCustomWidget(dashboard, 'user')
-							"
-							@delete="onRowDelete(dashboard, 'user')"
-							@setDefault="onRowSetDefault(dashboard, 'user')" />
-					</li>
-				</ul>
-
-				<!--
-					REQ-SWITCH-008: dedicated "Add Dashboard" card button. Lives
-					BELOW the personal list (not inside the <ul>), still inside
-					the scroll container, gated on `allowUserDashboards`. Same
-					emit contract as the removed inline row.
-				-->
-				<div
-					v-if="allowUserDashboards"
-					class="dashboard-switcher-sidebar__add-dashboard-card">
-					<NcButton
-						variant="secondary"
-						wide
-						data-action="create"
-						data-testid="add-dashboard-button"
-						:disabled="dashboardQuotaReached"
-						:title="dashboardQuotaReached ? dashboardQuotaTooltip : null"
-						:aria-label="
-							dashboardQuotaReached
-								? dashboardQuotaTooltip
-								: t('launchpad', 'Add dashboard')
-						"
-						@click="onCreate">
-						<template #icon>
-							<Plus :size="20" />
-						</template>
-						{{ t('launchpad', 'Add dashboard') }}
-					</NcButton>
-					<p
-						v-if="dashboardQuotaReached"
-						class="dashboard-switcher-sidebar__quota-hint"
-						data-testid="dashboard-quota-hint">
-						{{ dashboardQuotaTooltip }}
-					</p>
-				</div>
-			</section>
-
-			<!-- Divider before the shared section -->
-			<hr
-				v-if="
-					sharedDashboards.length > 0
-					&& (primaryGroupDashboards.length > 0
-						|| defaultGroupDashboards.length > 0
-						|| showPersonalSection)
-				"
-				class="dashboard-switcher-sidebar__divider" />
-
-			<!-- 4. Dashboards shared with the user (REQ-SHARE-002) -->
-			<section
-				v-if="sharedDashboards.length > 0"
-				class="dashboard-switcher-sidebar__section"
-				data-section="shared">
-				<h3 class="dashboard-switcher-sidebar__heading">
-					{{ t('launchpad', 'Shared with you') }}
-				</h3>
-				<ul class="dashboard-switcher-sidebar__list">
-					<li
-						v-for="{ dashboard, depth, hasChildren } in treeRows(
-							sharedDashboards,
-						)"
-						:key="`shared-${dashboard.id}`"
-						class="dashboard-switcher-sidebar__item"
-						:class="{ active: isActive(dashboard.id) }"
-						:data-depth="depth"
-						:style="depthStyle(depth)"
-						data-source="shared"
-						tabindex="0"
-						role="button"
-						:aria-label="dashboard.name"
-						@click="onSwitch(dashboard.id, 'shared')"
-						@keydown.enter="onSwitch(dashboard.id, 'shared')"
-						@keydown.space.prevent="onSwitch(dashboard.id, 'shared')">
-						<button
-							v-if="hasChildren"
-							type="button"
-							class="dashboard-switcher-sidebar__expander"
-							:data-testid="`tree-expand-${dashboard.uuid}`"
-							:aria-expanded="isExpanded(dashboard) ? 'true' : 'false'"
-							:aria-label="
-								isExpanded(dashboard)
-									? t('launchpad', 'Collapse {name}', {
-											name: dashboard.name,
-										})
-									: t('launchpad', 'Expand {name}', {
-											name: dashboard.name,
-										})
-							"
-							@click.stop="toggleExpanded(dashboard)"
-							@keydown.enter.stop
-							@keydown.space.stop>
-							<ChevronDown v-if="isExpanded(dashboard)" :size="16" />
-							<ChevronRight v-else :size="16" />
-						</button>
-						<span class="dashboard-switcher-sidebar__icon">
-							<CnDashboardIcon :name="dashboard.icon" :size="20" />
-						</span>
-						<span
-							v-if="isDefaultDashboard(dashboard)"
-							class="dashboard-switcher-sidebar__default-marker"
-							:title="
-								t(
-									'launchpad',
-									'Default dashboard — opens automatically when you visit LaunchPad',
-								)
-							"
-							:aria-label="t('launchpad', 'Default dashboard')">
-							<Star :size="16" />
-						</span>
-						<span class="dashboard-switcher-sidebar__label">{{
-							dashboard.name
-						}}</span>
-						<DashboardRowActions
-							:dashboard="dashboard"
-							source="shared"
-							:canEdit="canEdit"
-							:defaultUuid="defaultUuid"
-							:isEditMode="isEditMode"
-							:activeDashboardId="activeDashboardId"
-							@toggleEdit="onRowToggleEdit(dashboard, 'shared')"
-							@openConfig="onRowOpenConfig(dashboard, 'shared')"
-							@addCustomWidget="
-								onRowAddCustomWidget(dashboard, 'shared')
-							"
-							@delete="onRowDelete(dashboard, 'shared')"
-							@setDefault="onRowSetDefault(dashboard, 'shared')" />
-					</li>
-				</ul>
-			</section>
+							@click="onCreate">
+							<template #icon>
+								<Plus :size="20" />
+							</template>
+							{{ t('launchpad', 'Add dashboard') }}
+						</NcButton>
+						<p
+							v-if="dashboardQuotaReached"
+							class="dashboard-switcher-sidebar__quota-hint"
+							data-testid="dashboard-quota-hint">
+							{{ dashboardQuotaTooltip }}
+						</p>
+					</div>
+				</section>
+			</template>
 		</div>
 
 		<!--
@@ -685,6 +426,24 @@ export default {
 		 */
 		sharedDashboards() {
 			return this.groupDashboards.filter((d) => d.source === 'shared')
+		},
+
+		/**
+		 * The sections that render, in order, each with its `source`
+		 * discriminator (load-bearing for the emits), heading and rows.
+		 * Empty sections are left out entirely (no orphan headings); the
+		 * personal section shows when it has rows or creation is allowed.
+		 *
+		 * @return {Array<{source: string, heading: string, dashboards: Array<object>}>} the visible sections.
+		 * @spec openspec/specs/dashboard-switcher/spec.md
+		 */
+		visibleSections() {
+			return [
+				{ source: 'group', heading: this.primaryGroupHeading, dashboards: this.primaryGroupDashboards, visible: this.primaryGroupDashboards.length > 0 },
+				{ source: 'default', heading: t('launchpad', 'Default'), dashboards: this.defaultGroupDashboards, visible: this.defaultGroupDashboards.length > 0 },
+				{ source: 'user', heading: t('launchpad', 'My Dashboards'), dashboards: this.userDashboards, visible: this.showPersonalSection },
+				{ source: 'shared', heading: t('launchpad', 'Shared with you'), dashboards: this.sharedDashboards, visible: this.sharedDashboards.length > 0 },
+			].filter((section) => section.visible)
 		},
 
 		/** @spec openspec/specs/dashboard-switcher/spec.md */

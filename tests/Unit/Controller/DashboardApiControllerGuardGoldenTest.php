@@ -63,7 +63,7 @@ class DashboardApiControllerGuardGoldenTest extends TestCase {
 				continue;
 			}
 			$body = implode('', array_slice($lines, $method->getStartLine() - 1, $method->getEndLine() - $method->getStartLine() + 1));
-			if (preg_match('/requireAction|Not authenticated|->refusal\(|denyCreate/', $body) !== 1) {
+			if (preg_match('/requireAction|Not authenticated|actionRefusal\(|denyCreate/', $body) !== 1) {
 				continue;
 			}
 			foreach (self::SCENARIOS as $scenario) {

@@ -40,6 +40,7 @@ use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
+use OCP\Http\Client\IResponse;
 use OCP\IAppConfig;
 use OCP\ICache;
 use OCP\ICacheFactory;
@@ -506,6 +507,30 @@ class CalendarWidgetService {
 			);
 		}
 
+		$response = $this->requestIcs(url: $url);
+
+		$body = (string)$response->getBody();
+		if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
+			throw new RuntimeException(
+				message: 'ICS response exceeds 1MB cap'
+			);
+		}
+
+		$this->cache->set(key: $cacheKey, value: $body, ttl: $this->icsCacheTtl());
+
+		return $body;
+	}//end fetchIcsBody()
+
+	/**
+	 * GET the ICS URL without following redirects, reporting the call either way.
+	 *
+	 * @param string $url The validated ICS URL.
+	 *
+	 * @return IResponse The response.
+	 *
+	 * @throws Throwable The client's failure, after it is reported.
+	 */
+	private function requestIcs(string $url): IResponse {
 		try {
 			$client = $this->fetch->clientService->newClient();
 			$response = $client->get(
@@ -533,13 +558,15 @@ class CalendarWidgetService {
 			httpStatus: (int)$response->getStatusCode()
 		);
 
-		$body = (string)$response->getBody();
-		if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
-			throw new RuntimeException(
-				message: 'ICS response exceeds 1MB cap'
-			);
-		}
+		return $response;
+	}//end requestIcs()
 
+	/**
+	 * The configured ICS cache lifetime, or the default when unset or not positive.
+	 *
+	 * @return int Seconds.
+	 */
+	private function icsCacheTtl(): int {
 		$ttl = $this->appConfig->getValueInt(
 			app: 'launchpad',
 			key: self::CONFIG_KEY_CACHE_TTL,
@@ -549,10 +576,8 @@ class CalendarWidgetService {
 			$ttl = self::DEFAULT_CACHE_TTL_SECONDS;
 		}
 
-		$this->cache->set(key: $cacheKey, value: $body, ttl: $ttl);
-
-		return $body;
-	}//end fetchIcsBody()
+		return $ttl;
+	}//end icsCacheTtl()
 
 	/**
 	 * Parse a raw ICS body and expand recurring events into instances.

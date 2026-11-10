@@ -3508,57 +3508,100 @@ class DashboardService {
 		Dashboard $dashboard,
 		array $data,
 	): void {
-		$movingUuid = $dashboard->getUuid();
-
-		// Track the parent the slug uniqueness check should fire against.
-		$effectiveParent = $dashboard->getParentUuid();
-
 		if (array_key_exists(key: 'parentUuid', array: $data) === true) {
-			$newParent = $data['parentUuid'];
-			if ($newParent !== null && is_string($newParent) === false) {
-				$newParent = (string)$newParent;
-			}
-
-			// REQ-DASH-028: cycle + depth before applying.
-			$this->structure->treeService->validateParent(
-				movingUuid: $movingUuid,
-				newParentUuid: $newParent
-			);
-
-			$dashboard->setParentUuid($newParent);
-			$effectiveParent = $newParent;
+			$this->applyParentUpdate(dashboard: $dashboard, newParent: $data['parentUuid']);
 		}
 
+		// The slug uniqueness check fires against the parent as it stands
+		// after any re-parenting above.
 		if (array_key_exists(key: 'slug', array: $data) === true) {
-			$newSlug = $data['slug'];
-			if ($newSlug !== null && is_string($newSlug) === false) {
-				$newSlug = (string)$newSlug;
-			}
-
-			if ($newSlug !== null && $newSlug !== '') {
-				if (SlugGenerator::isValid(slug: $newSlug) === false) {
-					throw new InvalidArgumentException(
-						message: 'Slug must match [a-z0-9_-]+ and be at most 128 characters'
-					);
-				}
-
-				// REQ-DASH-024: per-parent uniqueness — exclude the row
-				// being updated so no-op writes succeed.
-				$this->structure->treeService->validateSlugUnique(
-					parentUuid: $effectiveParent,
-					slug: $newSlug,
-					excludeUuid: $movingUuid
-				);
-			}
-
-			$dashboard->setSlug($newSlug);
-		}//end if
+			$this->applySlugUpdate(dashboard: $dashboard, newSlug: $data['slug']);
+		}
 
 		if (array_key_exists(key: 'sortOrder', array: $data) === true) {
 			$sortOrder = $data['sortOrder'];
 			$dashboard->setSortOrder((int)$sortOrder);
 		}
 	}//end applyTreeUpdates()
+
+	/**
+	 * Re-parent the dashboard after the REQ-DASH-028 cycle + depth check.
+	 *
+	 * @param Dashboard $dashboard The dashboard being updated.
+	 * @param mixed     $newParent The requested parent UUID (NULL for root).
+	 *
+	 * @return void
+	 */
+	private function applyParentUpdate(Dashboard $dashboard, mixed $newParent): void {
+		$newParent = $this->stringOrNull(value: $newParent);
+
+		$this->structure->treeService->validateParent(
+			movingUuid: $dashboard->getUuid(),
+			newParentUuid: $newParent
+		);
+
+		$dashboard->setParentUuid($newParent);
+	}//end applyParentUpdate()
+
+	/**
+	 * Set the slug; a non-empty one must be well-formed and unique under the dashboard's parent.
+	 *
+	 * @param Dashboard $dashboard The dashboard being updated.
+	 * @param mixed     $newSlug   The requested slug.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the slug is malformed or taken.
+	 */
+	private function applySlugUpdate(Dashboard $dashboard, mixed $newSlug): void {
+		$newSlug = $this->stringOrNull(value: $newSlug);
+		if ($newSlug !== null && $newSlug !== '') {
+			$this->assertSlugAllowed(dashboard: $dashboard, slug: $newSlug);
+		}
+
+		$dashboard->setSlug($newSlug);
+	}//end applySlugUpdate()
+
+	/**
+	 * Refuse a malformed slug, then one a sibling already owns.
+	 *
+	 * @param Dashboard $dashboard The dashboard being updated.
+	 * @param string    $slug      The non-empty requested slug.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the slug is malformed or taken.
+	 */
+	private function assertSlugAllowed(Dashboard $dashboard, string $slug): void {
+		if (SlugGenerator::isValid(slug: $slug) === false) {
+			throw new InvalidArgumentException(
+				message: 'Slug must match [a-z0-9_-]+ and be at most 128 characters'
+			);
+		}
+
+		// REQ-DASH-024: per-parent uniqueness — exclude the row
+		// being updated so no-op writes succeed.
+		$this->structure->treeService->validateSlugUnique(
+			parentUuid: $dashboard->getParentUuid(),
+			slug: $slug,
+			excludeUuid: $dashboard->getUuid()
+		);
+	}//end assertSlugAllowed()
+
+	/**
+	 * The value as a string, NULL kept as NULL.
+	 *
+	 * @param mixed $value A payload value.
+	 *
+	 * @return string|null The cast value.
+	 */
+	private function stringOrNull(mixed $value): string|null {
+		if ($value !== null && is_string($value) === false) {
+			return (string)$value;
+		}
+
+		return $value;
+	}//end stringOrNull()
 
 	/**
 	 * Assert the actor is allowed to mutate the dashboard's publication

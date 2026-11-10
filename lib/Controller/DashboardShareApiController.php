@@ -74,35 +74,20 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function index(int $id): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$shares = $this->shareService->listShares(
-				dashboardId: $id,
-				userId: $this->userId
-			);
-			$serialized = array_map(
-				callback: static fn ($share) => $share->jsonSerialize(),
-				array: $shares
-			);
-			return new DataResponse(data: $serialized);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (ForbiddenException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Throwable $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->serializeShares(
+					shares: $this->shareService->listShares(
+						dashboardId: $id,
+						userId: $this->userId
+					)
+				)
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end index()
 
 	/**
@@ -125,44 +110,24 @@ class DashboardShareApiController extends Controller {
 		?string $permissionLevel = null,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$share = $this->shareService->addShare(
-				dashboardId: $id,
-				grant: new ShareGrant(
-					shareType: (string)$shareType,
-					shareWith: (string)$shareWith,
-					permissionLevel: (string)$permissionLevel
-				),
-				callerId: $this->userId
-			);
-			return new DataResponse(
-				data: $share->jsonSerialize(),
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->shareService->addShare(
+					dashboardId: $id,
+					grant: new ShareGrant(
+						shareType: (string)$shareType,
+						shareWith: (string)$shareWith,
+						permissionLevel: (string)$permissionLevel
+					),
+					callerId: $this->userId
+				)->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
-			);
-		} catch (InvalidArgumentException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (ForbiddenException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Throwable $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end create()
 
 	/**
@@ -177,31 +142,19 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function destroy(int $shareId): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$this->shareService->removeShare(
-				shareId: $shareId,
-				callerId: $this->userId
-			);
-			return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Share not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (ForbiddenException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Throwable $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+		return $this->respond(
+			operation: function () use ($shareId): DataResponse {
+				$this->shareService->removeShare(
+					shareId: $shareId,
+					callerId: $this->userId
+				);
+				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
+			},
+			notFound: 'Share not found'
+		);
 	}//end destroy()
 
 	/**
@@ -217,45 +170,25 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function replace(int $id, ?array $shares = null): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		if ($shares === null) {
 			$shares = [];
 		}
 
-		try {
-			$newShares = $this->shareService->replaceShares(
-				dashboardId: $id,
-				shares: $shares,
-				userId: $this->userId
-			);
-			$serialized = array_map(
-				callback: static fn ($share) => $share->jsonSerialize(),
-				array: $newShares
-			);
-			return new DataResponse(data: $serialized);
-		} catch (InvalidArgumentException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (ForbiddenException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Throwable $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->serializeShares(
+					shares: $this->shareService->replaceShares(
+						dashboardId: $id,
+						shares: $shares,
+						userId: $this->userId
+					)
+				)
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end replace()
 
 	/**
@@ -275,10 +208,7 @@ class DashboardShareApiController extends Controller {
 		string $shareWith,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		try {
@@ -318,10 +248,7 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function searchSharees(string $query = ''): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		$trimmed = trim(string: $query);
@@ -377,4 +304,63 @@ class DashboardShareApiController extends Controller {
 			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
 		);
 	}//end internalError()
+
+	/**
+	 * The 401 answer for a caller without a session.
+	 *
+	 * @return DataResponse The 401 response.
+	 */
+	private function notLoggedIn(): DataResponse {
+		return new DataResponse(
+			data: ['error' => 'Not logged in'],
+			statusCode: Http::STATUS_UNAUTHORIZED
+		);
+	}//end notLoggedIn()
+
+	/**
+	 * Run a share operation and map its failures: invalid input → 400,
+	 * unknown dashboard or share → 404, not the owner → 403, anything
+	 * else → a logged 500.
+	 *
+	 * @param \Closure $operation Runs the service call and builds the success response.
+	 * @param string   $notFound  The 404 message.
+	 *
+	 * @return DataResponse The response.
+	 */
+	private function respond(\Closure $operation, string $notFound): DataResponse {
+		try {
+			return $operation();
+		} catch (InvalidArgumentException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (DoesNotExistException) {
+			return new DataResponse(
+				data: ['error' => $notFound],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (ForbiddenException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
+		}//end try
+	}//end respond()
+
+	/**
+	 * The shares as plain arrays.
+	 *
+	 * @param array<int, \OCA\LaunchPad\Db\DashboardShare> $shares The share entities.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function serializeShares(array $shares): array {
+		return array_map(
+			callback: static fn ($share) => $share->jsonSerialize(),
+			array: $shares
+		);
+	}//end serializeShares()
 }//end class

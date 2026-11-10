@@ -175,85 +175,135 @@ class LaunchPadSearchProvider implements IProvider {
 			return SearchResult::complete(name: $providerName, entries: []);
 		}
 
-		try {
-			$visible = $this->dashboardService->getVisibleToUser(
-				userId: $user->getUID()
-			);
-		} catch (Throwable) {
-			// REQ-SRCH-005: fail safe — never leak when the permission
-			// boundary cannot resolve.
-			return SearchResult::complete(name: $providerName, entries: []);
-		}
-
+		$visible = $this->visibleDashboards(user: $user);
 		if (count($visible) === 0) {
 			return SearchResult::complete(name: $providerName, entries: []);
 		}
 
-		$needle = mb_strtolower(string: $term);
-		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);
-
-		$dashboardEntries = [];
-		$widgetEntries = [];
-		$metadataEntries = [];
+		$buckets = new SearchBuckets(
+			needle: mb_strtolower(string: $term),
+			l10n: $this->links->l10nFactory->get(app: Application::APP_ID)
+		);
 
 		foreach ($visible as $entry) {
-			$dashboard = $entry['dashboard'];
+			$this->collectMatches(dashboard: $entry['dashboard'], buckets: $buckets);
+		}
 
-			// --- Dashboard name + description (REQ-SRCH-002) ---
-			if (count($dashboardEntries) < self::PER_BUCKET_LIMIT) {
-				if ($this->matchesDashboard(dashboard: $dashboard, needle: $needle) === true) {
-					$dashboardEntries[] = $this->buildDashboardEntry(
-						dashboard: $dashboard
-					);
-				}
-			}
-
-			// --- Widget content (REQ-SRCH-003) ---
-			if (count($widgetEntries) < self::PER_BUCKET_LIMIT) {
-				$matchedPlacements = $this->findMatchingTextPlacements(
-					dashboard: $dashboard,
-					needle: $needle
-				);
-				foreach ($matchedPlacements as $placement) {
-					if (count($widgetEntries) >= self::PER_BUCKET_LIMIT) {
-						break;
-					}
-
-					$widgetEntries[] = $this->buildWidgetEntry(
-						dashboard: $dashboard,
-						placement: $placement,
-						l10n: $l10n
-					);
-				}
-			}
-
-			// --- Metadata-field values (REQ-SRCH-004) ---
-			if (count($metadataEntries) < self::PER_BUCKET_LIMIT) {
-				$matchedMetadata = $this->findMatchingMetadata(
-					dashboard: $dashboard,
-					needle: $needle
-				);
-				foreach ($matchedMetadata as $key => $value) {
-					if (count($metadataEntries) >= self::PER_BUCKET_LIMIT) {
-						break;
-					}
-
-					$metadataEntries[] = $this->buildMetadataEntry(
-						dashboard: $dashboard,
-						fieldKey: (string)$key,
-						fieldValue: $value,
-						l10n: $l10n
-					);
-				}
-			}
-		}//end foreach
-
-		// Rank tiers: title/description first, then widget body, then
-		// metadata. REQ-SRCH-006 / REQ-SRCH-011 (UI grouping).
-		$entries = array_merge($dashboardEntries, $widgetEntries, $metadataEntries);
-
-		return SearchResult::complete(name: $providerName, entries: $entries);
+		return SearchResult::complete(name: $providerName, entries: $buckets->rankedEntries());
 	}//end search()
+
+	/**
+	 * The dashboards the user may see; none when the permission boundary
+	 * cannot resolve (REQ-SRCH-005: fail safe, never leak).
+	 *
+	 * @param IUser $user The searching user.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> The visible dashboards.
+	 */
+	private function visibleDashboards(IUser $user): array {
+		try {
+			return $this->dashboardService->getVisibleToUser(
+				userId: $user->getUID()
+			);
+		} catch (Throwable) {
+			return [];
+		}
+	}//end visibleDashboards()
+
+	/**
+	 * Add one dashboard's matches to every bucket that still has room.
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
+		$this->collectDashboardMatch(dashboard: $dashboard, buckets: $buckets);
+		$this->collectWidgetMatches(dashboard: $dashboard, buckets: $buckets);
+		$this->collectMetadataMatches(dashboard: $dashboard, buckets: $buckets);
+	}//end collectMatches()
+
+	/**
+	 * Dashboard name + description (REQ-SRCH-002).
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectDashboardMatch(Dashboard $dashboard, SearchBuckets $buckets): void {
+		if (count($buckets->dashboardEntries) >= self::PER_BUCKET_LIMIT) {
+			return;
+		}
+
+		if ($this->matchesDashboard(dashboard: $dashboard, needle: $buckets->needle) === true) {
+			$buckets->dashboardEntries[] = $this->buildDashboardEntry(
+				dashboard: $dashboard
+			);
+		}
+	}//end collectDashboardMatch()
+
+	/**
+	 * Widget content (REQ-SRCH-003).
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectWidgetMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
+		if (count($buckets->widgetEntries) >= self::PER_BUCKET_LIMIT) {
+			return;
+		}
+
+		$matchedPlacements = $this->findMatchingTextPlacements(
+			dashboard: $dashboard,
+			needle: $buckets->needle
+		);
+		foreach ($matchedPlacements as $placement) {
+			if (count($buckets->widgetEntries) >= self::PER_BUCKET_LIMIT) {
+				break;
+			}
+
+			$buckets->widgetEntries[] = $this->buildWidgetEntry(
+				dashboard: $dashboard,
+				placement: $placement,
+				l10n: $buckets->l10n
+			);
+		}
+	}//end collectWidgetMatches()
+
+	/**
+	 * Metadata-field values (REQ-SRCH-004).
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectMetadataMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
+		if (count($buckets->metadataEntries) >= self::PER_BUCKET_LIMIT) {
+			return;
+		}
+
+		$matchedMetadata = $this->findMatchingMetadata(
+			dashboard: $dashboard,
+			needle: $buckets->needle
+		);
+		foreach ($matchedMetadata as $key => $value) {
+			if (count($buckets->metadataEntries) >= self::PER_BUCKET_LIMIT) {
+				break;
+			}
+
+			$buckets->metadataEntries[] = $this->buildMetadataEntry(
+				dashboard: $dashboard,
+				fieldKey: (string)$key,
+				fieldValue: $value,
+				l10n: $buckets->l10n
+			);
+		}
+	}//end collectMetadataMatches()
 
 	/**
 	 * Whether a dashboard's name or description contains the needle

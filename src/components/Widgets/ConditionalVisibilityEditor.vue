@@ -216,6 +216,45 @@ function unwrapData(data) {
 	return data && data.data ? data.data : data
 }
 
+/**
+ * The rule list of a rules response: `{rules}`, `{data: {rules}}` or a bare
+ * array; anything else reads as no rules.
+ *
+ * @param {object|Array|null} data The response body.
+ * @return {Array<object>} the rules.
+ */
+function rulesFromResponse(data) {
+	const payload = rulesPayload(data)
+	if (Array.isArray(payload.rules)) {
+		return payload.rules
+	}
+	return Array.isArray(data) ? data : []
+}
+
+/**
+ * The object of a rules response that carries the `rules` key.
+ *
+ * @param {object|Array|null} data The response body.
+ * @return {object} the payload, `{}` when there is none.
+ */
+function rulesPayload(data) {
+	return data && data.rules ? data : data && data.data ? data.data : {}
+}
+
+/**
+ * Rules as editor rows: persisted, so without a local draft key.
+ *
+ * @param {Array<object>} list The rules.
+ * @return {Array<object>} the rows.
+ */
+function editableRules(list) {
+	return list.map((r) => ({
+		...r,
+		id: r.id,
+		_localKey: undefined,
+	}))
+}
+
 export default {
 	name: 'ConditionalVisibilityEditor',
 
@@ -335,22 +374,16 @@ export default {
 				this.rules = []
 				return
 			}
+			await this.loadRules()
+		},
+
+		/** Fetch the placement's rules, clearing them when the fetch fails. */
+		async loadRules() {
 			this.loading = true
 			this.preview.reset()
 			try {
 				const { data } = await api.getWidgetRules(this.placementId)
-				const payload =
-					data && data.rules ? data : data && data.data ? data.data : {}
-				const list = Array.isArray(payload.rules)
-					? payload.rules
-					: Array.isArray(data)
-						? data
-						: []
-				this.rules = list.map((r) => ({
-					...r,
-					id: r.id,
-					_localKey: undefined,
-				}))
+				this.rules = editableRules(rulesFromResponse(data))
 			} catch (error) {
 				logger.error('Failed to load visibility rules:', error)
 				this.rules = []

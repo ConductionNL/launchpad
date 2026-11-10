@@ -511,18 +511,20 @@ export default {
 		/** @spec openspec/specs/conditional-visibility-editor/spec.md */
 		hasAtLeastOneValidDate() {
 			const { startDate, endDate } = this.local.ruleConfig
-			const hasStart = !!startDate
-			const hasEnd = !!endDate
-			if (!hasStart && !hasEnd) {
+			if (!startDate && !endDate) {
 				return false
 			}
-			if (hasStart && !this.isValidDate(startDate)) {
-				return false
-			}
-			if (hasEnd && !this.isValidDate(endDate)) {
-				return false
-			}
-			return true
+			return this.isBlankOrValidDate(startDate) && this.isBlankOrValidDate(endDate)
+		},
+
+		/**
+		 * Whether an optional date bound is unset or a valid YYYY-MM-DD.
+		 *
+		 * @param {unknown} value The date bound.
+		 * @return {boolean} true when it does not block saving.
+		 */
+		isBlankOrValidDate(value) {
+			return !value || this.isValidDate(value)
 		},
 
 		/**

@@ -76,7 +76,7 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listFields(): JSONResponse {
-		$refusal = $this->callerRefusal(action: 'metadata-admin.list-fields');
+		$refusal = $this->guard->refusal() ?? $this->guard->actionRefusal(action: 'metadata-admin.list-fields');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -116,7 +116,7 @@ class MetadataAdminController extends Controller {
 		int $required = 0,
 		int $sortOrder = 0,
 	): JSONResponse {
-		$refusal = $this->callerRefusal(action: 'metadata-admin.create-field');
+		$refusal = $this->guard->refusal() ?? $this->guard->actionRefusal(action: 'metadata-admin.create-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -150,7 +150,7 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getField(int $id): JSONResponse {
-		$refusal = $this->callerRefusal(action: 'metadata-admin.get-field');
+		$refusal = $this->guard->refusal() ?? $this->guard->actionRefusal(action: 'metadata-admin.get-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -189,7 +189,7 @@ class MetadataAdminController extends Controller {
 		array|null $options = null,
 		string|null $key = null,
 	): JSONResponse {
-		$refusal = $this->callerRefusal(action: 'metadata-admin.update-field');
+		$refusal = $this->guard->refusal() ?? $this->guard->actionRefusal(action: 'metadata-admin.update-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -232,7 +232,7 @@ class MetadataAdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteField(int $id, bool $cascade = false): JSONResponse {
-		$refusal = $this->callerRefusal(action: 'metadata-admin.delete-field');
+		$refusal = $this->guard->refusal() ?? $this->guard->actionRefusal(action: 'metadata-admin.delete-field');
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -250,18 +250,6 @@ class MetadataAdminController extends Controller {
 
 		return ResponseHelper::success(data: ['status' => 'ok']);
 	}//end deleteField()
-
-	/**
-	 * The refusal of a caller who is not signed in, not an admin, or may
-	 * not perform the action; null when the caller may go on.
-	 *
-	 * @param string $action The action-matrix key.
-	 *
-	 * @return JSONResponse|null The refusal, or null.
-	 */
-	private function callerRefusal(string $action): JSONResponse|null {
-		return $this->guard->refusal() ?? $this->guard->actionRefusal(action: $action);
-	}//end callerRefusal()
 
 	/**
 	 * The 409 for deleting a field that still has values.

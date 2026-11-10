@@ -96,6 +96,50 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 	}//end testEveryEndpointAnswersAsRecorded()
 
 	/**
+	 * The uploaded `files[]` entries are normalised from both PHP upload shapes.
+	 *
+	 * @return void
+	 */
+	public function testUploadedFilesAreNormalised(): void {
+		$normalise = new \ReflectionMethod(FilesWidgetController::class, 'normaliseUploadedFiles');
+		$controller = $this->controller(uid: 'alice', failure: null);
+		$cases = [
+			'none' => null,
+			'not an array' => 'x',
+			'no name' => ['tmp_name' => '/t'],
+			'single' => ['name' => 'a.txt', 'tmp_name' => '/t/a', 'size' => '12', 'error' => '0'],
+			'single bare' => ['name' => 'a.txt'],
+			'multiple' => ['name' => ['a', 'b'], 'tmp_name' => ['/t/a'], 'size' => [3, 4], 'error' => 'oops'],
+			'multiple bare' => ['name' => ['a']],
+		];
+
+		$actual = [];
+		$saved  = $_FILES;
+		foreach ($cases as $name => $files) {
+			$_FILES = ($files === null) ? [] : ['files' => $files];
+			$actual[$name] = $normalise->invoke($controller);
+		}
+		$_FILES = $saved;
+
+		$none = UPLOAD_ERR_NO_FILE;
+		$this->assertSame(
+			[
+				'none' => [],
+				'not an array' => [],
+				'no name' => [],
+				'single' => [['name' => 'a.txt', 'tmp_name' => '/t/a', 'size' => 12, 'error' => 0]],
+				'single bare' => [['name' => 'a.txt', 'tmp_name' => '', 'size' => 0, 'error' => $none]],
+				'multiple' => [
+					['name' => 'a', 'tmp_name' => '/t/a', 'size' => 3, 'error' => $none],
+					['name' => 'b', 'tmp_name' => '', 'size' => 4, 'error' => $none],
+				],
+				'multiple bare' => [['name' => 'a', 'tmp_name' => '', 'size' => 0, 'error' => $none]],
+			],
+			$actual
+		);
+	}//end testUploadedFilesAreNormalised()
+
+	/**
 	 * The controller over a mocked service.
 	 *
 	 * @param string|null     $uid     The session user, or null for none.

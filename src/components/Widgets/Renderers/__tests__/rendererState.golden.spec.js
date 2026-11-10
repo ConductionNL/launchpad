@@ -236,3 +236,94 @@ describe('FilesWidget contents fetch state', () => {
 		expect(axios.get).not.toHaveBeenCalled()
 	})
 })
+
+describe('FilesWidget upload and delete', () => {
+	it('uploads every chosen file into the current folder, then refetches and clears the input', async () => {
+		axios.get.mockResolvedValue({ data: { items: [], nextCursor: null } })
+		axios.post.mockResolvedValue({})
+		const wrapper = mountFiles()
+		await flushPromises()
+		const input = { value: 'C:\\fake' }
+		Object.defineProperty(wrapper.vm.$refs, 'fileInput', { value: input, configurable: true })
+		const files = [new File(['a'], 'a.txt'), new File(['b'], 'b.txt')]
+
+		await wrapper.vm.onFileInputChange({ target: { files } })
+		await flushPromises()
+
+		const [url, formData, options] = axios.post.mock.calls[0]
+		expect(url).toBe('/apps/launchpad/api/widgets/files/7/upload')
+		expect(formData.getAll('files[]').map((f) => f.name)).toEqual(['a.txt', 'b.txt'])
+		expect(options).toEqual({ params: { currentPath: '/' } })
+		expect(axios.get).toHaveBeenCalledTimes(2)
+		expect(input.value).toBe('')
+	})
+
+	it('refetches after a failed upload and ignores an empty selection', async () => {
+		axios.get.mockResolvedValue({ data: { items: [], nextCursor: null } })
+		axios.post.mockRejectedValue(new Error('boom'))
+		const wrapper = mountFiles()
+		await flushPromises()
+
+		await wrapper.vm.onFileInputChange({ target: { files: [] } })
+		expect(axios.post).not.toHaveBeenCalled()
+
+		await wrapper.vm.onFileInputChange({ target: { files: [new File(['a'], 'a.txt')] } })
+		await flushPromises()
+		expect(axios.post).toHaveBeenCalledTimes(1)
+		expect(axios.get).toHaveBeenCalledTimes(2)
+	})
+
+	it('drops a deleted file, and refetches when the delete fails', async () => {
+		axios.get.mockResolvedValue({ data: { items: [{ fileId: 1, name: 'a' }, { fileId: 2, name: 'b' }], nextCursor: null } })
+		axios.delete.mockResolvedValueOnce({})
+		const wrapper = mountFiles()
+		await flushPromises()
+
+		wrapper.vm.confirmTarget = { fileId: 1 }
+		await wrapper.vm.performDelete()
+		expect(axios.delete).toHaveBeenLastCalledWith('/apps/launchpad/api/widgets/files/7/files/1')
+		expect(wrapper.vm.items).toEqual([{ fileId: 2, name: 'b' }])
+		expect(wrapper.vm.confirmTarget).toBe(null)
+
+		axios.delete.mockRejectedValueOnce(new Error('boom'))
+		wrapper.vm.confirmTarget = { fileId: 2 }
+		await wrapper.vm.performDelete()
+		await flushPromises()
+		expect(axios.get).toHaveBeenCalledTimes(2)
+		expect(wrapper.vm.confirmTarget).toBe(null)
+
+		await wrapper.vm.performDelete()
+		expect(axios.delete).toHaveBeenCalledTimes(2)
+	})
+})
+
+describe('form validation order', () => {
+	it('lists news errors per row in order, then the filter error', () => {
+		const vm = mount(NewsWidgetForm, {
+			props: { value: { feedUrls: ['ftp://x', '', 'https://ok', 5], metadataFilter: { fieldKey: ' ' } } },
+		}).vm
+		expect(vm.validate()).toEqual([
+			'Feed URL must start with http:// or https://',
+			'Empty feed URL — remove it or fill it in',
+			'Empty feed URL — remove it or fill it in',
+			'Metadata field key is required when filter is enabled',
+		])
+	})
+
+	it('lists live-tile connector errors before the expression error and skips source checks in another mode', () => {
+		const vm = mount(LiveTileWidgetForm, { props: { value: { sourceMode: 'connector', sourceId: 3 } } }).vm
+		vm.sourceMode = 'connector'
+		vm.connectorAvailable = false
+		expect(vm.validate()).toEqual([
+			'OpenConnector is not available.',
+			'Source id is required',
+			'Value expression is required',
+		])
+		vm.sourceMode = 'other'
+		expect(vm.validate()).toEqual(['Value expression is required'])
+		vm.sourceMode = 'url'
+		vm.url = ''
+		vm.valueExpr = '$.x'
+		expect(vm.validate().length).toBeGreaterThan(0)
+	})
+})

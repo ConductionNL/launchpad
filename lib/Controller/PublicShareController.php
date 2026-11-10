@@ -199,12 +199,7 @@ class PublicShareController extends Controller {
 		$ipAddress = $this->request->getRemoteAddress();
 
 		// Accept password from X-Share-Password header if not in query.
-		if ($password === null || $password === '') {
-			$headerPassword = $this->request->getHeader('X-Share-Password');
-			if ($headerPassword !== '') {
-				$password = $headerPassword;
-			}
-		}
+		$password = $this->passwordOrHeader(password: $password);
 
 		try {
 			$result = $this->shareService->renderShareContent(
@@ -218,18 +213,7 @@ class PublicShareController extends Controller {
 			// content hydration) trips ShareReadOnlyException.
 			$this->shareContext->markBearer(token: $token);
 
-			$shareData = $result['share']->jsonSerialize();
-			unset($shareData['createdBy']);
-			return new DataResponse(
-				data: [
-					'share' => $shareData,
-					'dashboard' => $result['dashboard']->jsonSerialize(),
-					'placements' => array_map(
-						callback: static fn ($placement) => $placement->jsonSerialize(),
-						array: $result['placements']
-					),
-				]
-			);
+			return new DataResponse(data: $this->renderPayload(result: $result));
 		} catch (SharePasswordRequiredException) {
 			return new DataResponse(
 				data: ['passwordRequired' => true],
@@ -241,11 +225,7 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->loggedFailure(exception: $e);
 		}//end try
 	}//end show()
 
@@ -299,11 +279,7 @@ class PublicShareController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->loggedFailure(exception: $e);
 		}//end try
 	}//end unlock()
 
@@ -379,4 +355,59 @@ class PublicShareController extends Controller {
 			context: ['app' => Application::APP_ID]
 		);
 	}//end logError()
+
+	/**
+	 * The query password, or the X-Share-Password header when the query has none.
+	 *
+	 * @param string|null $password The query password.
+	 *
+	 * @return string|null
+	 */
+	private function passwordOrHeader(string|null $password): string|null {
+		if ($password !== null && $password !== '') {
+			return $password;
+		}
+
+		$headerPassword = $this->request->getHeader('X-Share-Password');
+		if ($headerPassword !== '') {
+			return $headerPassword;
+		}
+
+		return $password;
+	}//end passwordOrHeader()
+
+	/**
+	 * The read-only render payload; the share's creator is left out.
+	 *
+	 * @param array<string, mixed> $result The rendered share: `share`, `dashboard` and `placements`.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function renderPayload(array $result): array {
+		$shareData = $result['share']->jsonSerialize();
+		unset($shareData['createdBy']);
+		return [
+			'share' => $shareData,
+			'dashboard' => $result['dashboard']->jsonSerialize(),
+			'placements' => array_map(
+				callback: static fn ($placement) => $placement->jsonSerialize(),
+				array: $result['placements']
+			),
+		];
+	}//end renderPayload()
+
+	/**
+	 * Log a public request failure and answer the neutral 500.
+	 *
+	 * @param Exception $exception The failure.
+	 *
+	 * @return DataResponse
+	 */
+	private function loggedFailure(Exception $exception): DataResponse {
+		$this->logError(message: $exception->getMessage());
+		return new DataResponse(
+			data: ['error' => 'Internal error'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end loggedFailure()
 }//end class

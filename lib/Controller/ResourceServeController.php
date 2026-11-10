@@ -53,6 +53,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use Closure;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\ResourceService;
@@ -63,6 +64,7 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 use Throwable;
 
@@ -126,7 +128,9 @@ class ResourceServeController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getResource(string $filename): StreamResponse|JSONResponse {
-		$refusal = $this->callerRefusal(action: 'resource-serve.get-resource');
+		$refusal = $this->callerRefusal(
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'resource-serve.get-resource')
+		);
 		if ($refusal !== null) {
 			return $refusal;
 		}
@@ -181,18 +185,18 @@ class ResourceServeController extends Controller {
 	 * The 401 for a request without a session user, or the 403 when the
 	 * caller's groups may not perform the action; null when allowed.
 	 *
-	 * @param string $action The action-matrix key.
+	 * @param Closure(IUser): void $check Runs the action check for the session user.
 	 *
 	 * @return JSONResponse|null The refusal, or null.
 	 */
-	private function callerRefusal(string $action): JSONResponse|null {
+	private function callerRefusal(Closure $check): JSONResponse|null {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, $action);
+			$check($user);
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -224,7 +228,9 @@ class ResourceServeController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listResources(): JSONResponse {
-		$refusal = $this->callerRefusal(action: 'resource-serve.list-resources');
+		$refusal = $this->callerRefusal(
+			check: fn (IUser $user) => $this->actionAuth->requireAction($user, 'resource-serve.list-resources')
+		);
 		if ($refusal !== null) {
 			return $refusal;
 		}

@@ -180,8 +180,7 @@ class ImportService {
 				'manifest' => $manifest,
 			] + $this->importDashboardBatch(
 				dashboards: $remapped,
-				currentUserId: $currentUserId,
-				preserveUuids: $preserveUuids
+				run: new DashboardImportRun(currentUserId: $currentUserId, preserveUuids: $preserveUuids)
 			);
 		} finally {
 			$zip->close();
@@ -301,89 +300,120 @@ class ImportService {
 	 * record cannot poison the batch (REQ-EXIM-011).
 	 *
 	 * @param array<int, array<string, mixed>> $dashboards Decoded dashboards.
-	 * @param string $currentUserId Importing UID.
-	 * @param bool $preserveUuids Preserve flag.
+	 * @param DashboardImportRun               $run        The batch: importing UID, preserve flag, tally.
 	 *
 	 * @return array{importedDashboardCount:int, skippedDashboardCount:int,
 	 *               errors:array<int, array<string,mixed>>,
 	 *               dashboards:array<int, array{sourceUuid:string, uuid:string, id:int}>}
 	 */
-	private function importDashboardBatch(
-		array $dashboards,
-		string $currentUserId,
-		bool $preserveUuids,
-	): array {
-		$imported = 0;
-		$skipped = 0;
-		$errors = [];
-		$created = [];
-
+	private function importDashboardBatch(array $dashboards, DashboardImportRun $run): array {
 		foreach ($dashboards as $payload) {
-			// The archive's UUID, not the one a remap may have minted: it is
-			// what the admin can find in their file.
-			$uuid = $this->reportableUuid(payload: $payload);
-			$missing = $this->validateDashboardPayload(payload: $payload);
-			if ($missing !== null) {
-				$skipped++;
-				$errors[] = $this->invalidDashboardError(payload: $payload, missing: $missing);
+			$this->importOneDashboard(run: $run, payload: $payload);
+		}
+
+		return $run->summary();
+	}//end importDashboardBatch()
+
+	/**
+	 * Import one dashboard of the batch, or record why it was skipped.
+	 *
+	 * @param DashboardImportRun   $run     The batch.
+	 * @param array<string, mixed> $payload The decoded dashboard.
+	 *
+	 * @return void
+	 */
+	private function importOneDashboard(DashboardImportRun $run, array $payload): void {
+		// The archive's UUID, not the one a remap may have minted: it is
+		// what the admin can find in their file.
+		$uuid = $this->reportableUuid(payload: $payload);
+		$missing = $this->validateDashboardPayload(payload: $payload);
+		if ($missing !== null) {
+			$run->recordSkipped(error: $this->invalidDashboardError(payload: $payload, missing: $missing));
+			return;
+		}
+
+		$this->db->beginTransaction();
+		try {
+			$persisted = $this->persistDashboard(run: $run, payload: $payload);
+			$this->db->commit();
+			$run->recordImported(sourceUuid: $uuid, persisted: $persisted);
+		} catch (Throwable $e) {
+			$this->db->rollBack();
+			$run->recordSkipped(error: $this->failedDashboardError(payload: $payload, exception: $e));
+		}
+	}//end importOneDashboard()
+
+	/**
+	 * Insert one dashboard and its widget placements.
+	 *
+	 * @param DashboardImportRun   $run     The batch.
+	 * @param array<string, mixed> $payload The decoded dashboard.
+	 *
+	 * @return Dashboard The inserted dashboard.
+	 */
+	private function persistDashboard(DashboardImportRun $run, array $payload): Dashboard {
+		$dashboard = $this->buildEntity(
+			payload: $payload,
+			currentUserId: $run->currentUserId,
+			preserveUuids: $run->preserveUuids
+		);
+
+		$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+		$this->insertPlacements(persisted: $persisted, widgets: ($payload['widgets'] ?? []));
+
+		return $persisted;
+	}//end persistDashboard()
+
+	/**
+	 * Insert a placement for every widget entry that is an object; other
+	 * entries, and a widgets value that is not a list, are ignored.
+	 *
+	 * @param Dashboard $persisted The inserted dashboard.
+	 * @param mixed     $widgets   The dashboard's widgets value.
+	 *
+	 * @return void
+	 */
+	private function insertPlacements(Dashboard $persisted, mixed $widgets): void {
+		if (is_array($widgets) === false) {
+			return;
+		}
+
+		foreach ($widgets as $widgetPayload) {
+			if (is_array($widgetPayload) === false) {
 				continue;
 			}
 
-			$this->db->beginTransaction();
-			try {
-				$dashboard = $this->buildEntity(
-					payload: $payload,
-					currentUserId: $currentUserId,
-					preserveUuids: $preserveUuids
-				);
+			$placement = $this->placementHydrator->hydrate(
+				dashboardId: (int)$persisted->getId(),
+				payload: $widgetPayload,
+				asTemplate: $persisted->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
+			);
+			$this->placementMapper->insert(entity: $placement);
+		}
+	}//end insertPlacements()
 
-				$persisted = $this->dashboardMapper->insert(entity: $dashboard);
-
-				$widgets = $payload['widgets'] ?? [];
-				if (is_array($widgets) === true) {
-					foreach ($widgets as $widgetPayload) {
-						if (is_array($widgetPayload) === false) {
-							continue;
-						}
-
-						$placement = $this->placementHydrator->hydrate(
-							dashboardId: (int)$persisted->getId(),
-							payload: $widgetPayload,
-							asTemplate: $persisted->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
-						);
-						$this->placementMapper->insert(entity: $placement);
-					}
-				}
-
-				$this->db->commit();
-				$imported++;
-				$created[] = [
-					'sourceUuid' => $uuid,
-					'uuid' => (string)$persisted->getUuid(),
-					'id' => (int)$persisted->getId(),
-				];
-			} catch (Throwable $e) {
-				$this->db->rollBack();
-				$skipped++;
-				$errors[] = [
-					'type' => self::ERR_INVALID_DASHBOARD,
-					'uuid' => $this->reportableUuid(payload: $payload),
-					'message' => 'Failed to import dashboard: ' . $e->getMessage(),
-				];
-				$this->logger->warning(
-					message: 'Skipped dashboard during import',
-					context: ['uuid' => $uuid, 'exception' => $e]
-				);
-			}//end try
-		}//end foreach
-
-		return [
-			'importedDashboardCount' => $imported,
-			'skippedDashboardCount' => $skipped,
-			'errors' => $errors,
-			'dashboards' => $created,
+	/**
+	 * The error entry of a dashboard whose insert failed; logs the skip.
+	 *
+	 * @param array<string, mixed> $payload   The decoded dashboard.
+	 * @param Throwable            $exception Why it failed.
+	 *
+	 * @return array<string, mixed> The error entry.
+	 */
+	private function failedDashboardError(array $payload, Throwable $exception): array {
+		$uuid = $this->reportableUuid(payload: $payload);
+		$error = [
+			'type' => self::ERR_INVALID_DASHBOARD,
+			'uuid' => $uuid,
+			'message' => 'Failed to import dashboard: ' . $exception->getMessage(),
 		];
-	}//end importDashboardBatch()
+		$this->logger->warning(
+			message: 'Skipped dashboard during import',
+			context: ['uuid' => $uuid, 'exception' => $exception]
+		);
+
+		return $error;
+	}//end failedDashboardError()
 
 	/**
 	 * Read decoded dashboards from the archive.

@@ -66,6 +66,8 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 			'unknown placement' => ['alice', 404, null],
 			'no permission' => ['alice', 2, null],
 			'ok' => ['alice', 1, null],
+			'legacy content slot' => ['alice', 3, null],
+			'legacy style config' => ['alice', 4, null],
 			'folder gone' => ['alice', 1, new FolderNotFoundException()],
 			'no access' => ['alice', 1, new NoAccessException()],
 			'crash' => ['alice', 1, new RuntimeException('boom')],
@@ -171,6 +173,13 @@ class FilesWidgetControllerEndpointsGoldenTest extends TestCase {
 				$placement->setId($id);
 				$placement->setDashboardId($id * 10);
 				$placement->setContentArray(['fileId' => 9]);
+				if ($id === 3) {
+					$placement->setContentArray([]);
+					$placement->setStyleConfigArray(config: ['color' => 'red', 'content' => ['fileId' => 5]]);
+				} elseif ($id === 4) {
+					$placement->setContentArray([]);
+					$placement->setStyleConfigArray(config: ['fileId' => 6]);
+				}
 				return $placement;
 			}
 		);

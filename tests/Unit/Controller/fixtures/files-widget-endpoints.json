@@ -50,6 +50,52 @@
         ],
         []
     ],
+    "contents / legacy content slot": [
+        200,
+        {
+            "done": "getContentsForPlacement"
+        },
+        [
+            [
+                "getContentsForPlacement",
+                [
+                    "alice",
+                    {
+                        "fileId": 5
+                    },
+                    {
+                        "currentSubPath": "/sub",
+                        "limit": 5,
+                        "cursor": "c"
+                    }
+                ]
+            ]
+        ],
+        []
+    ],
+    "contents / legacy style config": [
+        200,
+        {
+            "done": "getContentsForPlacement"
+        },
+        [
+            [
+                "getContentsForPlacement",
+                [
+                    "alice",
+                    {
+                        "fileId": 6
+                    },
+                    {
+                        "currentSubPath": "/sub",
+                        "limit": 5,
+                        "cursor": "c"
+                    }
+                ]
+            ]
+        ],
+        []
+    ],
     "contents / folder gone": [
         404,
         {
@@ -179,6 +225,46 @@
         ],
         []
     ],
+    "upload / legacy content slot": [
+        200,
+        {
+            "done": "uploadFiles"
+        },
+        [
+            [
+                "uploadFiles",
+                [
+                    "alice",
+                    {
+                        "fileId": 5
+                    },
+                    "/sub",
+                    []
+                ]
+            ]
+        ],
+        []
+    ],
+    "upload / legacy style config": [
+        200,
+        {
+            "done": "uploadFiles"
+        },
+        [
+            [
+                "uploadFiles",
+                [
+                    "alice",
+                    {
+                        "fileId": 6
+                    },
+                    "/sub",
+                    []
+                ]
+            ]
+        ],
+        []
+    ],
     "upload / folder gone": [
         404,
         {
@@ -291,6 +377,44 @@
                     "alice",
                     {
                         "fileId": 9
+                    },
+                    77
+                ]
+            ]
+        ],
+        []
+    ],
+    "destroy / legacy content slot": [
+        200,
+        {
+            "done": "deleteFile"
+        },
+        [
+            [
+                "deleteFile",
+                [
+                    "alice",
+                    {
+                        "fileId": 5
+                    },
+                    77
+                ]
+            ]
+        ],
+        []
+    ],
+    "destroy / legacy style config": [
+        200,
+        {
+            "done": "deleteFile"
+        },
+        [
+            [
+                "deleteFile",
+                [
+                    "alice",
+                    {
+                        "fileId": 6
                     },
                     77
                 ]

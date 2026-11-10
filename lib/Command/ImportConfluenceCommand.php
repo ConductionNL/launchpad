@@ -99,7 +99,7 @@ class ImportConfluenceCommand extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$request = new ConfluenceImportRequest(input: $input);
 
-		$fileError = FileOptionCheck::error(option: 'file', path: $request->file);
+		$fileError = (new FileOptionCheck())->error(option: 'file', path: $request->file);
 		if ($fileError !== null) {
 			$output->writeln(messages: $fileError);
 			return self::FAILURE;

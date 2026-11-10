@@ -130,7 +130,7 @@ class SetupCommand extends Command {
 	 * @return array<string, mixed>|null The parsed config, or null.
 	 */
 	private function readConfig(string $configPath, OutputInterface $output): array|null {
-		$pathError = FileOptionCheck::error(option: 'config', path: $configPath);
+		$pathError = (new FileOptionCheck())->error(option: 'config', path: $configPath);
 		if ($pathError !== null) {
 			$output->writeln(messages: $pathError);
 			return null;

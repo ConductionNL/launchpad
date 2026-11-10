@@ -40,7 +40,7 @@ final class FileOptionCheck {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	public static function error(string $option, string $path): string|null {
+	public function error(string $option, string $path): string|null {
 		if ($path === '') {
 			return '<error>--' . $option . ' parameter is required</error>';
 		}

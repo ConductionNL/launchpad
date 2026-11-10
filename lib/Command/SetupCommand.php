@@ -41,6 +41,18 @@ use Throwable;
  */
 class SetupCommand extends Command {
 	/**
+	 * The steps whose sibling capabilities ship later, by step number:
+	 * their name and the YAML key that would configure them.
+	 *
+	 * @var array<int, array{name: string, key: string}>
+	 */
+	private const PENDING_STEPS = [
+		3 => ['name' => 'Demo data', 'key' => 'demo_packages'],
+		4 => ['name' => 'Admin roles', 'key' => 'admin_role_group'],
+		5 => ['name' => 'Footer config', 'key' => 'footer_config'],
+	];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param SetupWizardService $wizardService Wizard orchestrator.
@@ -86,31 +98,8 @@ class SetupCommand extends Command {
 	 * @spec openspec/specs/setup-wizard/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$configPath = (string)($input->getOption(name: 'config') ?? '');
-
-		if ($configPath === '') {
-			$output->writeln(messages: '<error>--config parameter is required</error>');
-			return self::FAILURE;
-		}
-
-		if (file_exists(filename: $configPath) === false) {
-			$output->writeln(messages: '<error>File not found: ' . $configPath . '</error>');
-			return self::FAILURE;
-		}
-
-		try {
-			$config = Yaml::parseFile(filename: $configPath);
-		} catch (ParseException $e) {
-			$output->writeln(
-				messages: '<error>Invalid setup.yaml: ' . $e->getMessage() . '</error>'
-			);
-			return self::FAILURE;
-		}
-
-		if (is_array($config) === false) {
-			$output->writeln(
-				messages: '<error>Invalid setup.yaml: top-level structure must be a map.</error>'
-			);
+		$config = $this->readConfig(configPath: (string)($input->getOption(name: 'config') ?? ''), output: $output);
+		if ($config === null) {
 			return self::FAILURE;
 		}
 
@@ -122,15 +111,7 @@ class SetupCommand extends Command {
 			);
 		}
 
-		try {
-			$this->applySteps(config: $config, output: $output);
-		} catch (InvalidArgumentException $e) {
-			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
-			return self::FAILURE;
-		} catch (Throwable $e) {
-			$output->writeln(
-				messages: '<error>Setup failed: ' . $e->getMessage() . '</error>'
-			);
+		if ($this->runSteps(config: $config, output: $output) === false) {
 			return self::FAILURE;
 		}
 
@@ -138,6 +119,84 @@ class SetupCommand extends Command {
 		$output->writeln(messages: 'Setup wizard completed successfully.');
 		return self::SUCCESS;
 	}//end execute()
+
+	/**
+	 * Read the setup file; print why and answer null when it is missing,
+	 * not valid YAML or not a map.
+	 *
+	 * @param string          $configPath The `--config` value.
+	 * @param OutputInterface $output     CLI output.
+	 *
+	 * @return array<string, mixed>|null The parsed config, or null.
+	 */
+	private function readConfig(string $configPath, OutputInterface $output): array|null {
+		$pathError = self::pathError(configPath: $configPath);
+		if ($pathError !== null) {
+			$output->writeln(messages: $pathError);
+			return null;
+		}
+
+		try {
+			$config = Yaml::parseFile(filename: $configPath);
+		} catch (ParseException $e) {
+			$output->writeln(
+				messages: '<error>Invalid setup.yaml: ' . $e->getMessage() . '</error>'
+			);
+			return null;
+		}
+
+		if (is_array($config) === false) {
+			$output->writeln(
+				messages: '<error>Invalid setup.yaml: top-level structure must be a map.</error>'
+			);
+			return null;
+		}
+
+		return $config;
+	}//end readConfig()
+
+	/**
+	 * The error line for a missing `--config` or a file that does not exist.
+	 *
+	 * @param string $configPath The `--config` value.
+	 *
+	 * @return string|null The error line, or null when the file exists.
+	 */
+	private static function pathError(string $configPath): string|null {
+		if ($configPath === '') {
+			return '<error>--config parameter is required</error>';
+		}
+
+		if (file_exists(filename: $configPath) === false) {
+			return '<error>File not found: ' . $configPath . '</error>';
+		}
+
+		return null;
+	}//end pathError()
+
+	/**
+	 * Apply the steps; print the reason and answer false when one fails.
+	 *
+	 * @param array<string,mixed> $config Parsed YAML config.
+	 * @param OutputInterface     $output CLI output.
+	 *
+	 * @return bool True when every step applied.
+	 */
+	private function runSteps(array $config, OutputInterface $output): bool {
+		try {
+			$this->applySteps(config: $config, output: $output);
+		} catch (InvalidArgumentException $e) {
+			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
+			return false;
+		} catch (Throwable $e) {
+			$output->writeln(
+				messages: '<error>Setup failed: ' . $e->getMessage() . '</error>'
+			);
+			return false;
+		}
+
+		return true;
+	}//end runSteps()
 
 	/**
 	 * Apply each non-Welcome step in order, logging progress + idempotency.
@@ -151,24 +210,9 @@ class SetupCommand extends Command {
 		$output->writeln(messages: 'Step 1: Welcome... done');
 
 		$this->applyGroupOrderStep(config: $config, output: $output);
-		$this->skipUnimplementedStep(
-			stepNumber: 3,
-			stepName: 'Demo data',
-			present: array_key_exists(key: 'demo_packages', array: $config),
-			output: $output
-		);
-		$this->skipUnimplementedStep(
-			stepNumber: 4,
-			stepName: 'Admin roles',
-			present: array_key_exists(key: 'admin_role_group', array: $config),
-			output: $output
-		);
-		$this->skipUnimplementedStep(
-			stepNumber: 5,
-			stepName: 'Footer config',
-			present: array_key_exists(key: 'footer_config', array: $config),
-			output: $output
-		);
+		foreach (array_keys(self::PENDING_STEPS) as $stepNumber) {
+			$output->writeln(messages: self::pendingStepLine(stepNumber: $stepNumber, config: $config));
+		}
 
 		$output->writeln(messages: 'Step 6: Done... done');
 	}//end applySteps()
@@ -210,30 +254,20 @@ class SetupCommand extends Command {
 	}//end applyGroupOrderStep()
 
 	/**
-	 * Log a placeholder for steps whose sibling capabilities ship later.
+	 * The placeholder line of a step whose sibling capability ships later.
 	 *
-	 * @param int $stepNumber Step index for the log line.
-	 * @param string $stepName Human-readable step name.
-	 * @param bool $present Whether the YAML key was provided.
-	 * @param OutputInterface $output CLI output.
+	 * @param int                 $stepNumber Step index, a key of PENDING_STEPS.
+	 * @param array<string,mixed> $config     Parsed YAML config.
 	 *
-	 * @return void
+	 * @return string The log line.
 	 */
-	private function skipUnimplementedStep(
-		int $stepNumber,
-		string $stepName,
-		bool $present,
-		OutputInterface $output,
-	): void {
-		if ($present === false) {
-			$output->writeln(
-				messages: 'Step ' . $stepNumber . ': ' . $stepName . '... skipped (not in config)'
-			);
-			return;
+	private static function pendingStepLine(int $stepNumber, array $config): string {
+		$step = self::PENDING_STEPS[$stepNumber];
+		$state = 'skipped (not in config)';
+		if (array_key_exists(key: $step['key'], array: $config) === true) {
+			$state = 'skipped (capability pending)';
 		}
 
-		$output->writeln(
-			messages: 'Step ' . $stepNumber . ': ' . $stepName . '... skipped (capability pending)'
-		);
-	}//end skipUnimplementedStep()
+		return 'Step ' . $stepNumber . ': ' . $step['name'] . '... ' . $state;
+	}//end pendingStepLine()
 }//end class

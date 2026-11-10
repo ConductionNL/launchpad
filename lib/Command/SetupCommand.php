@@ -130,7 +130,7 @@ class SetupCommand extends Command {
 	 * @return array<string, mixed>|null The parsed config, or null.
 	 */
 	private function readConfig(string $configPath, OutputInterface $output): array|null {
-		$pathError = self::pathError(configPath: $configPath);
+		$pathError = FileOptionCheck::error(option: 'config', path: $configPath);
 		if ($pathError !== null) {
 			$output->writeln(messages: $pathError);
 			return null;
@@ -154,25 +154,6 @@ class SetupCommand extends Command {
 
 		return $config;
 	}//end readConfig()
-
-	/**
-	 * The error line for a missing `--config` or a file that does not exist.
-	 *
-	 * @param string $configPath The `--config` value.
-	 *
-	 * @return string|null The error line, or null when the file exists.
-	 */
-	private static function pathError(string $configPath): string|null {
-		if ($configPath === '') {
-			return '<error>--config parameter is required</error>';
-		}
-
-		if (file_exists(filename: $configPath) === false) {
-			return '<error>File not found: ' . $configPath . '</error>';
-		}
-
-		return null;
-	}//end pathError()
 
 	/**
 	 * Apply the steps; print the reason and answer false when one fails.

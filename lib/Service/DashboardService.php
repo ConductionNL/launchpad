@@ -153,6 +153,77 @@ class DashboardService {
 	public const ERR_UNPUBLISH_BEFORE_PUBLISH = 'unpublishAt must be after publishAt';
 
 	/**
+	 * The default widget set of a brand-new dashboard.
+	 *
+	 * A tile with `iconType` `url` names a bundled image under
+	 * `launchpad/img/`; {@see self::defaultWidgetSeeds()} resolves it.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private const DEFAULT_WIDGET_SEEDS = [
+		[
+			'widgetId' => 'tile',
+			'gridX' => 0,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 0,
+			'tile' => [
+				'title' => 'Conduction',
+				'icon' => 'conduction-logo.png',
+				'iconType' => 'url',
+				'backgroundColor' => '#ffffff',
+				'textColor' => '#000000',
+				'linkType' => 'url',
+				'linkValue' => 'https://conduction.nl',
+			],
+		],
+		[
+			'widgetId' => 'tile',
+			'gridX' => 4,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 1,
+			'tile' => [
+				'title' => 'Sendent',
+				'icon' => 'sendent-logo.png',
+				'iconType' => 'url',
+				'backgroundColor' => '#ffffff',
+				'textColor' => '#000000',
+				'linkType' => 'url',
+				'linkValue' => 'https://sendent.com',
+			],
+		],
+		[
+			'widgetId' => 'tile',
+			'gridX' => 8,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 2,
+			'tile' => [
+				'title' => 'Nextcloud',
+				'icon' => 'icon-nextcloud',
+				'iconType' => 'class',
+				'backgroundColor' => '#0082c9',
+				'textColor' => '#ffffff',
+				'linkType' => 'url',
+				'linkValue' => 'https://nextcloud.com',
+			],
+		],
+		[
+			'widgetId' => 'files',
+			'gridX' => 0,
+			'gridY' => 3,
+			'gridWidth' => 12,
+			'gridHeight' => 5,
+			'sortOrder' => 3,
+			'tile' => null,
+		],
+	];
+
+	/**
 	 * Constructor
 	 *
 	 * @param DashboardStores    $stores The dashboard, placement, admin-setting and lock mappers.
@@ -2990,68 +3061,15 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function defaultWidgetSeeds(): array {
-		return [
-			[
-				'widgetId' => 'tile',
-				'gridX' => 0,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 0,
-				'tile' => [
-					'title' => 'Conduction',
-					'icon' => $this->appImagePath(image: 'conduction-logo.png'),
-					'iconType' => 'url',
-					'backgroundColor' => '#ffffff',
-					'textColor' => '#000000',
-					'linkType' => 'url',
-					'linkValue' => 'https://conduction.nl',
-				],
-			],
-			[
-				'widgetId' => 'tile',
-				'gridX' => 4,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 1,
-				'tile' => [
-					'title' => 'Sendent',
-					'icon' => $this->appImagePath(image: 'sendent-logo.png'),
-					'iconType' => 'url',
-					'backgroundColor' => '#ffffff',
-					'textColor' => '#000000',
-					'linkType' => 'url',
-					'linkValue' => 'https://sendent.com',
-				],
-			],
-			[
-				'widgetId' => 'tile',
-				'gridX' => 8,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 2,
-				'tile' => [
-					'title' => 'Nextcloud',
-					'icon' => 'icon-nextcloud',
-					'iconType' => 'class',
-					'backgroundColor' => '#0082c9',
-					'textColor' => '#ffffff',
-					'linkType' => 'url',
-					'linkValue' => 'https://nextcloud.com',
-				],
-			],
-			[
-				'widgetId' => 'files',
-				'gridX' => 0,
-				'gridY' => 3,
-				'gridWidth' => 12,
-				'gridHeight' => 5,
-				'sortOrder' => 3,
-				'tile' => null,
-			],
-		];
+		$seeds = self::DEFAULT_WIDGET_SEEDS;
+		foreach ($seeds as $index => $seed) {
+			// A `url` icon names a bundled image; resolve it to the app's real web root.
+			if (($seed['tile']['iconType'] ?? null) === 'url') {
+				$seeds[$index]['tile']['icon'] = $this->appImagePath(image: $seed['tile']['icon']);
+			}
+		}
+
+		return $seeds;
 	}//end defaultWidgetSeeds()
 
 	/**

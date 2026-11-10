@@ -102,52 +102,19 @@ class FilesWidgetController extends Controller {
 		int $limit = FilesWidgetService::DEFAULT_LIMIT,
 		string $cursor = '',
 	): JSONResponse {
-		$userId = $this->resolveUserId();
-		if ($userId === null) {
-			return $this->unauthorised();
+		$access = $this->grantedPlacement(placementId: $placementId);
+		if ($access instanceof JSONResponse) {
+			return $access;
 		}
 
-		$config = $this->loadConfig(placementId: $placementId, userId: $userId);
-		if ($config === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'forbidden'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		try {
-			$page = $this->sources->service->getContentsForPlacement(
-				userId: $userId,
-				config: $config,
+		return $this->respond(
+			operation: fn (): array => $this->sources->service->getContentsForPlacement(
+				userId: $access->userId,
+				config: $access->config,
 				page: ['currentSubPath' => $currentPath, 'limit' => $limit, 'cursor' => $cursor]
-			);
-
-			return new JSONResponse(
-				data: $page,
-				statusCode: Http::STATUS_OK
-			);
-		} catch (FolderNotFoundException $e) {
-			return $this->errorResponse(
-				error: 'folder_not_found',
-				status: Http::STATUS_NOT_FOUND,
-				message: $e->getDisplayMessage()
-			);
-		} catch (NoAccessException $e) {
-			return $this->errorResponse(
-				error: 'no_access',
-				status: Http::STATUS_FORBIDDEN,
-				message: $e->getDisplayMessage()
-			);
-		} catch (Throwable $e) {
-			$this->sources->logger->error(
-				message: 'Unexpected files widget contents failure',
-				context: ['exception' => $e->getMessage()]
-			);
-			return $this->errorResponse(
-				error: 'unknown_error',
-				status: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			),
+			action: 'contents'
+		);
 	}//end contents()
 
 	/**
@@ -166,55 +133,22 @@ class FilesWidgetController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function upload(int $placementId, string $currentPath = '/'): JSONResponse {
-		$userId = $this->resolveUserId();
-		if ($userId === null) {
-			return $this->unauthorised();
-		}
-
-		$config = $this->loadConfig(placementId: $placementId, userId: $userId);
-		if ($config === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'forbidden'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+		$access = $this->grantedPlacement(placementId: $placementId);
+		if ($access instanceof JSONResponse) {
+			return $access;
 		}
 
 		$files = $this->normaliseUploadedFiles();
 
-		try {
-			$result = $this->sources->service->uploadFiles(
-				userId: $userId,
-				config: $config,
+		return $this->respond(
+			operation: fn (): array => $this->sources->service->uploadFiles(
+				userId: $access->userId,
+				config: $access->config,
 				currentSubPath: $currentPath,
 				uploadedFiles: $files
-			);
-
-			return new JSONResponse(
-				data: $result,
-				statusCode: Http::STATUS_OK
-			);
-		} catch (FolderNotFoundException $e) {
-			return $this->errorResponse(
-				error: 'folder_not_found',
-				status: Http::STATUS_NOT_FOUND,
-				message: $e->getDisplayMessage()
-			);
-		} catch (NoAccessException $e) {
-			return $this->errorResponse(
-				error: 'no_access',
-				status: Http::STATUS_FORBIDDEN,
-				message: $e->getDisplayMessage()
-			);
-		} catch (Throwable $e) {
-			$this->sources->logger->error(
-				message: 'Unexpected files widget upload failure',
-				context: ['exception' => $e->getMessage()]
-			);
-			return $this->errorResponse(
-				error: 'unknown_error',
-				status: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			),
+			action: 'upload'
+		);
 	}//end upload()
 
 	/**
@@ -232,6 +166,32 @@ class FilesWidgetController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(int $placementId, int $fileId): JSONResponse {
+		$access = $this->grantedPlacement(placementId: $placementId);
+		if ($access instanceof JSONResponse) {
+			return $access;
+		}
+
+		return $this->respond(
+			operation: fn (): array => $this->sources->service->deleteFile(
+				userId: $access->userId,
+				config: $access->config,
+				fileId: $fileId
+			),
+			action: 'delete'
+		);
+	}//end destroy()
+
+	/**
+	 * The signed-in user and the placement's folder config, else the 401 or 403 refusal.
+	 *
+	 * A missing placement and one the user may not write to both answer 403,
+	 * so missing-vs-no-access is indistinguishable to the client.
+	 *
+	 * @param integer $placementId Widget placement id.
+	 *
+	 * @return FilesWidgetAccess|JSONResponse The grant, or the refusal.
+	 */
+	private function grantedPlacement(int $placementId): FilesWidgetAccess|JSONResponse {
 		$userId = $this->resolveUserId();
 		if ($userId === null) {
 			return $this->unauthorised();
@@ -245,15 +205,22 @@ class FilesWidgetController extends Controller {
 			);
 		}
 
-		try {
-			$result = $this->sources->service->deleteFile(
-				userId: $userId,
-				config: $config,
-				fileId: $fileId
-			);
+		return new FilesWidgetAccess(userId: $userId, config: $config);
+	}//end grantedPlacement()
 
+	/**
+	 * Run a files operation: its result as HTTP 200, a missing folder as 404,
+	 * a refused folder as 403, anything else logged and 500.
+	 *
+	 * @param \Closure $operation Runs the service call and returns its result.
+	 * @param string   $action    The operation's name in the log line.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private function respond(\Closure $operation, string $action): JSONResponse {
+		try {
 			return new JSONResponse(
-				data: $result,
+				data: $operation(),
 				statusCode: Http::STATUS_OK
 			);
 		} catch (FolderNotFoundException $e) {
@@ -270,7 +237,7 @@ class FilesWidgetController extends Controller {
 			);
 		} catch (Throwable $e) {
 			$this->sources->logger->error(
-				message: 'Unexpected files widget delete failure',
+				message: 'Unexpected files widget ' . $action . ' failure',
 				context: ['exception' => $e->getMessage()]
 			);
 			return $this->errorResponse(
@@ -278,7 +245,7 @@ class FilesWidgetController extends Controller {
 				status: Http::STATUS_INTERNAL_SERVER_ERROR
 			);
 		}//end try
-	}//end destroy()
+	}//end respond()
 
 	/**
 	 * Resolve the active user's UID, or `null` for anonymous.

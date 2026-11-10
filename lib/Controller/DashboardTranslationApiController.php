@@ -256,21 +256,13 @@ class DashboardTranslationApiController extends Controller {
 			widgetTreeJson: $widgetTreeJson
 		);
 
-		try {
-			$variant = $this->translations->translationService->updateVariant(
+		return $this->respondWithVariant(
+			operation: fn () => $this->translations->translationService->updateVariant(
 				dashboardUuid: $uuid,
 				languageCode: $lang,
 				patch: $patch
-			);
-
-			return ResponseHelper::success(
-				data: ['translation' => $variant->jsonSerialize()]
-			);
-		} catch (DoesNotExistException) {
-			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
-		} catch (Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
+			)
+		);
 	}//end update()
 
 	/**
@@ -342,11 +334,24 @@ class DashboardTranslationApiController extends Controller {
 			return $denied;
 		}
 
-		try {
-			$variant = $this->translations->translationService->promoteVariantToPrimary(
+		return $this->respondWithVariant(
+			operation: fn () => $this->translations->translationService->promoteVariantToPrimary(
 				dashboardUuid: $uuid,
 				languageCode: $lang
-			);
+			)
+		);
+	}//end setPrimary()
+
+	/**
+	 * Run a variant operation and answer with the variant, 404 when it is unknown.
+	 *
+	 * @param \Closure $operation Returns the changed variant.
+	 *
+	 * @return JSONResponse The variant or the error envelope.
+	 */
+	private function respondWithVariant(\Closure $operation): JSONResponse {
+		try {
+			$variant = $operation();
 
 			return ResponseHelper::success(
 				data: ['translation' => $variant->jsonSerialize()]
@@ -355,8 +360,8 @@ class DashboardTranslationApiController extends Controller {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return ResponseHelper::error(exception: $e);
-		}
-	}//end setPrimary()
+		}//end try
+	}//end respondWithVariant()
 
 	/**
 	 * GET /api/dashboards/{uuid}/resolved — resolve the dashboard's
@@ -391,6 +396,18 @@ class DashboardTranslationApiController extends Controller {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
+		return $this->resolvedResponse(uuid: $uuid, dashboard: $dashboard);
+	}//end resolved()
+
+	/**
+	 * The resolved payload for the request's language, 404 when a strict `?lang=` has no variant.
+	 *
+	 * @param string    $uuid      The dashboard UUID.
+	 * @param Dashboard $dashboard The dashboard entity.
+	 *
+	 * @return JSONResponse The resolved payload or the error envelope.
+	 */
+	private function resolvedResponse(string $uuid, Dashboard $dashboard): JSONResponse {
 		$variant = $this->resolveVariant(
 			uuid: $uuid,
 			dashboard: $dashboard,
@@ -415,7 +432,7 @@ class DashboardTranslationApiController extends Controller {
 				'isFallback' => $variant['isFallback'],
 			]
 		);
-	}//end resolved()
+	}//end resolvedResponse()
 
 	/**
 	 * Resolve the translation variant this request should render.

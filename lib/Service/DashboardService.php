@@ -406,7 +406,7 @@ class DashboardService {
 	 *
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
-	private function resolvePreferredEffectiveDashboard(string $userId): ?array {
+	private function resolvePreferredEffectiveDashboard(string $userId): array|null {
 		$defaultUuid = $this->getDefaultPreference(userId: $userId);
 		$activeUuid = $this->getLastUsedPreference(userId: $userId);
 		if ($defaultUuid === '' && $activeUuid === '') {

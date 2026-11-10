@@ -245,6 +245,113 @@ import {
 	TEXT_PROP,
 } from '../../constants/propDefinitions.js'
 
+/**
+ * The dashboards of a list that carry a uuid, keyed by it.
+ *
+ * @param {Array<object>} list Dashboards of one section.
+ * @return {Map<string, object>} the dashboards by uuid.
+ */
+function indexByUuid(list) {
+	const byUuid = new Map()
+	for (const dashboard of list) {
+		if (dashboard?.uuid) {
+			byUuid.set(dashboard.uuid, dashboard)
+		}
+	}
+	return byUuid
+}
+
+/**
+ * Split a section into roots and children-per-parent. A parent outside
+ * the section, or a dashboard naming itself, counts as no parent.
+ *
+ * @param {Array<object>} list Dashboards of one section.
+ * @param {Map<string, object>} byUuid The section's dashboards by uuid.
+ * @return {{roots: Array<object>, children: Map<string, Array<object>>}} the forest.
+ */
+function splitForest(list, byUuid) {
+	const children = new Map()
+	const roots = []
+	for (const dashboard of list) {
+		const parent = dashboard?.parentUuid
+		if (parent && parent !== dashboard.uuid && byUuid.has(parent)) {
+			appendChild(children, { parent, dashboard })
+		} else {
+			roots.push(dashboard)
+		}
+	}
+	return { roots, children }
+}
+
+/**
+ * Add a dashboard to its parent's children.
+ *
+ * @param {Map<string, Array<object>>} children Children per parent uuid.
+ * @param {{parent: string, dashboard: object}} link The parent uuid and the child.
+ */
+function appendChild(children, link) {
+	if (!children.has(link.parent)) {
+		children.set(link.parent, [])
+	}
+	children.get(link.parent).push(link.dashboard)
+}
+
+/**
+ * Flatten a forest depth-first into rows, descending into a parent only
+ * when it is open; each dashboard renders once.
+ *
+ * @param {{roots: Array<object>, children: Map<string, Array<object>>}} forest The forest.
+ * @param {function(string): boolean} isOpen Whether a parent uuid is expanded.
+ * @return {Array<{dashboard: object, depth: number, hasChildren: boolean}>} Rows to render.
+ */
+function flattenTree(forest, isOpen) {
+	const rows = []
+	const seen = new Set()
+	const walk = (dashboard, depth) => {
+		if (!markSeen(seen, dashboard)) {
+			return
+		}
+		const kids = childrenOf(forest, dashboard.uuid)
+		rows.push({ dashboard, depth, hasChildren: kids.length > 0 })
+		if (kids.length > 0 && isOpen(dashboard.uuid)) {
+			for (const kid of kids) {
+				walk(kid, depth + 1)
+			}
+		}
+	}
+	for (const root of forest.roots) {
+		walk(root, 0)
+	}
+	return rows
+}
+
+/**
+ * Record a dashboard as rendered, keyed by uuid (or id without one).
+ *
+ * @param {Set<string|number>} seen The keys rendered so far.
+ * @param {object} dashboard The dashboard.
+ * @return {boolean} false when it was already rendered.
+ */
+function markSeen(seen, dashboard) {
+	const key = dashboard.uuid ?? dashboard.id
+	if (seen.has(key)) {
+		return false
+	}
+	seen.add(key)
+	return true
+}
+
+/**
+ * The children of a parent uuid, [] when it has none.
+ *
+ * @param {{children: Map<string, Array<object>>}} forest The forest.
+ * @param {string} uuid The parent uuid.
+ * @return {Array<object>} the children.
+ */
+function childrenOf(forest, uuid) {
+	return forest.children.get(uuid) ?? []
+}
+
 export default {
 	name: 'DashboardSwitcherSidebar',
 
@@ -530,49 +637,13 @@ export default {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		treeRows(list) {
-			const byUuid = new Map()
-			for (const dashboard of list) {
-				if (dashboard?.uuid) {
-					byUuid.set(dashboard.uuid, dashboard)
-				}
-			}
-			const children = new Map()
-			const roots = []
-			for (const dashboard of list) {
-				const parent = dashboard?.parentUuid
-				if (parent && parent !== dashboard.uuid && byUuid.has(parent)) {
-					if (!children.has(parent)) {
-						children.set(parent, [])
-					}
-					children.get(parent).push(dashboard)
-				} else {
-					roots.push(dashboard)
-				}
-			}
+			const byUuid = indexByUuid(list)
+			const forest = splitForest(list, byUuid)
 			const openChain = this.activeChain(byUuid)
-			const rows = []
-			const seen = new Set()
-			const walk = (dashboard, depth) => {
-				if (seen.has(dashboard.uuid ?? dashboard.id)) {
-					return
-				}
-				seen.add(dashboard.uuid ?? dashboard.id)
-				const kids = children.get(dashboard.uuid) ?? []
-				rows.push({ dashboard, depth, hasChildren: kids.length > 0 })
-				if (
-					kids.length > 0
-					&& (this.expanded[dashboard.uuid] === true
-						|| openChain.has(dashboard.uuid))
-				) {
-					for (const kid of kids) {
-						walk(kid, depth + 1)
-					}
-				}
-			}
-			for (const root of roots) {
-				walk(root, 0)
-			}
-			return rows
+			return flattenTree(
+				forest,
+				(uuid) => this.expanded[uuid] === true || openChain.has(uuid),
+			)
 		},
 
 		/**

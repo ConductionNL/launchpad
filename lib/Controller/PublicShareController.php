@@ -96,36 +96,21 @@ class PublicShareController extends Controller {
 		?string $expiresAt = null,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$share = $this->shareService->createPublicShare(
-				dashboardUuid: $uuid,
-				callerId: $this->userId,
-				password: $password,
-				expiresAt: $expiresAt
-			);
-			return new DataResponse(
-				data: $share->jsonSerialize(),
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->shareService->createPublicShare(
+					dashboardUuid: $uuid,
+					callerId: $this->userId,
+					password: $password,
+					expiresAt: $expiresAt
+				)->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end create()
 
 	/**
@@ -142,36 +127,21 @@ class PublicShareController extends Controller {
 	#[NoAdminRequired]
 	public function index(string $uuid): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$shares = $this->shareService->listActiveShares(
-				dashboardUuid: $uuid,
-				callerId: $this->userId
-			);
-			return new DataResponse(
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
 				data: array_map(
 					callback: static fn ($share) => $share->jsonSerialize(),
-					array: $shares
+					array: $this->shareService->listActiveShares(
+						dashboardUuid: $uuid,
+						callerId: $this->userId
+					)
 				)
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end index()
 
 	/**
@@ -190,32 +160,20 @@ class PublicShareController extends Controller {
 	#[NoAdminRequired]
 	public function destroy(string $uuid, int $id): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$this->shareService->revokeShare(
-				dashboardUuid: $uuid,
-				shareId: $id,
-				callerId: $this->userId
-			);
-			return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-		} catch (DoesNotExistException|ShareNotFoundException) {
-			return new DataResponse(
-				data: ['error' => 'Not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			return $this->internalError(exception: $e);
-		}//end try
+		return $this->respond(
+			operation: function () use ($uuid, $id): DataResponse {
+				$this->shareService->revokeShare(
+					dashboardUuid: $uuid,
+					shareId: $id,
+					callerId: $this->userId
+				);
+				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
+			},
+			notFound: 'Not found'
+		);
 	}//end destroy()
 
 	/**
@@ -368,6 +326,45 @@ class PublicShareController extends Controller {
 			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
 		);
 	}//end internalError()
+
+	/**
+	 * The 401 answer for a caller without a session.
+	 *
+	 * @return DataResponse
+	 */
+	private function notLoggedIn(): DataResponse {
+		return new DataResponse(
+			data: ['error' => 'Not logged in'],
+			statusCode: Http::STATUS_UNAUTHORIZED
+		);
+	}//end notLoggedIn()
+
+	/**
+	 * Run an owner operation: unknown dashboard or share → 404 with the given
+	 * message, not authorized → 403, anything else → the logged 500.
+	 *
+	 * @param \Closure $operation Runs the operation and builds the success response.
+	 * @param string   $notFound  The 404 message.
+	 *
+	 * @return DataResponse
+	 */
+	private function respond(\Closure $operation, string $notFound): DataResponse {
+		try {
+			return $operation();
+		} catch (DoesNotExistException|ShareNotFoundException) {
+			return new DataResponse(
+				data: ['error' => $notFound],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (OCSForbiddenException) {
+			return new DataResponse(
+				data: ['error' => 'Not authorized'],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (Exception $e) {
+			return $this->internalError(exception: $e);
+		}//end try
+	}//end respond()
 
 	/**
 	 * Log a non-sensitive error message.

@@ -108,15 +108,23 @@ final class ParentFirstPageOrder {
 		}
 
 		$parentKey = strtolower(string: $page->parentPageId);
-		if ($parentKey !== $key
-			&& isset($this->byPageId[$parentKey]) === true
-			&& isset($this->emitted[$parentKey]) === false
-		) {
-			return $parentKey;
+		if ($parentKey === $key || $this->isKnownAndNotEmitted(key: $parentKey) === false) {
+			return null;
 		}
 
-		return null;
+		return $parentKey;
 	}//end pendingParentKey()
+
+	/**
+	 * Whether the key belongs to a known page that is not emitted yet.
+	 *
+	 * @param string $key A lower-cased pageId.
+	 *
+	 * @return bool
+	 */
+	private function isKnownAndNotEmitted(string $key): bool {
+		return isset($this->byPageId[$key]) === true && isset($this->emitted[$key]) === false;
+	}//end isKnownAndNotEmitted()
 
 	/**
 	 * Append the page unless its pageId was emitted already.

@@ -184,18 +184,33 @@ class ConfluenceImportService {
 			return $parentUuid;
 		}
 
-		try {
-			$this->writers->dashboardMapper->findByUuid(uuid: $parentUuid);
-		} catch (DoesNotExistException) {
-			$this->logger->warning(
-				message: 'Confluence import: parent dashboard not found, falling back to roots',
-				context: ['parentUuid' => $parentUuid]
-			);
-			return null;
+		if ($this->dashboardExists(uuid: $parentUuid) === true) {
+			return $parentUuid;
 		}
 
-		return $parentUuid;
+		$this->logger->warning(
+			message: 'Confluence import: parent dashboard not found, falling back to roots',
+			context: ['parentUuid' => $parentUuid]
+		);
+		return null;
 	}//end existingRootParent()
+
+	/**
+	 * Whether a dashboard with this UUID exists.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return bool True when the mapper finds it.
+	 */
+	private function dashboardExists(string $uuid): bool {
+		try {
+			$this->writers->dashboardMapper->findByUuid(uuid: $uuid);
+		} catch (DoesNotExistException) {
+			return false;
+		}
+
+		return true;
+	}//end dashboardExists()
 
 	/**
 	 * Create the dashboard for one page and tally the outcome.
@@ -314,16 +329,7 @@ class ConfluenceImportService {
 			$dashboard = $this->writers->dashboardFactory->create(
 				userId: $currentUserId,
 				name: $page->title,
-				options: [
-					'description'     => null,
-					'type'            => Dashboard::TYPE_USER,
-					'groupId'         => null,
-					'gridColumns'     => 12,
-					'permissionLevel' => Dashboard::PERMISSION_FULL,
-					'parentUuid'      => $parentUuid,
-					'slug'            => null,
-					'sortOrder'       => $page->sortOrder,
-				]
+				options: $this->pageDashboardOptions(page: $page, parentUuid: $parentUuid)
 			);
 
 			// Suffix slug with pageId on collision so re-import always
@@ -351,6 +357,27 @@ class ConfluenceImportService {
 			throw $e;
 		}//end try
 	}//end createDashboardForPage()
+
+	/**
+	 * The dashboard factory options for one imported page.
+	 *
+	 * @param ParsedPage  $page       The parsed page.
+	 * @param string|null $parentUuid Resolved parent dashboard UUID.
+	 *
+	 * @return array<string, mixed> The factory options.
+	 */
+	private function pageDashboardOptions(ParsedPage $page, ?string $parentUuid): array {
+		return [
+			'description'     => null,
+			'type'            => Dashboard::TYPE_USER,
+			'groupId'         => null,
+			'gridColumns'     => 12,
+			'permissionLevel' => Dashboard::PERMISSION_FULL,
+			'parentUuid'      => $parentUuid,
+			'slug'            => null,
+			'sortOrder'       => $page->sortOrder,
+		];
+	}//end pageDashboardOptions()
 
 	/**
 	 * Build the placeholder text widget for a freshly-inserted dashboard.
@@ -413,42 +440,65 @@ class ConfluenceImportService {
 		$warnings = [];
 
 		foreach ($pages as $page) {
-			try {
-				$dashboard = $this->writers->dashboardMapper->findByUuid(
-					uuid: $pageIdToUuid[strtolower(string: $page->pageId)]
-				);
-			} catch (DoesNotExistException) {
-				continue;
-			}
-
-			$placements = $this->writers->placementMapper->findByDashboardId(
-				dashboardId: (int)$dashboard->getId()
+			$warnings = array_merge(
+				$warnings,
+				$this->backfillPageWidget(page: $page, pageIdToUuid: $pageIdToUuid)
 			);
-
-			if ($placements === []) {
-				continue;
-			}
-
-			$expanded = $this->readers->macroRenderer->render(html: $page->body);
-			$rewriteRes = $this->readers->linkRewriter->rewrite(
-				html: $expanded,
-				pageIdToUuid: $pageIdToUuid
-			);
-			$sanitised = $this->readers->sanitizer->sanitize(html: $rewriteRes['html']);
-
-			$placement = $placements[0];
-			$config = $placement->getStyleConfigArray();
-			$config['text'] = $sanitised;
-			$placement->setStyleConfigArray(config: $config);
-			$placement->setUpdatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
-
-			$this->writers->placementMapper->update(entity: $placement);
-
-			$warnings = array_merge($warnings, $rewriteRes['warnings']);
-		}//end foreach
+		}
 
 		return $warnings;
 	}//end backfillWidgetContent()
+
+	/**
+	 * Write one page's sanitised + rewritten HTML into its text widget.
+	 *
+	 * @param ParsedPage            $page         The created page.
+	 * @param array<string, string> $pageIdToUuid PageId (lower) → uuid.
+	 *
+	 * @return array<int, string> Warnings collected during link rewriting.
+	 */
+	private function backfillPageWidget(ParsedPage $page, array $pageIdToUuid): array {
+		$placements = $this->importedPagePlacements(uuid: $pageIdToUuid[strtolower(string: $page->pageId)]);
+		if ($placements === []) {
+			return [];
+		}
+
+		$expanded = $this->readers->macroRenderer->render(html: $page->body);
+		$rewriteRes = $this->readers->linkRewriter->rewrite(
+			html: $expanded,
+			pageIdToUuid: $pageIdToUuid
+		);
+		$sanitised = $this->readers->sanitizer->sanitize(html: $rewriteRes['html']);
+
+		$placement = $placements[0];
+		$config = $placement->getStyleConfigArray();
+		$config['text'] = $sanitised;
+		$placement->setStyleConfigArray(config: $config);
+		$placement->setUpdatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
+
+		$this->writers->placementMapper->update(entity: $placement);
+
+		return $rewriteRes['warnings'];
+	}//end backfillPageWidget()
+
+	/**
+	 * The widget placements of an imported dashboard; none when it is gone.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return WidgetPlacement[] The placements.
+	 */
+	private function importedPagePlacements(string $uuid): array {
+		try {
+			$dashboard = $this->writers->dashboardMapper->findByUuid(uuid: $uuid);
+		} catch (DoesNotExistException) {
+			return [];
+		}
+
+		return $this->writers->placementMapper->findByDashboardId(
+			dashboardId: (int)$dashboard->getId()
+		);
+	}//end importedPagePlacements()
 
 	/**
 	 * Append `-<pageId>` to the slug when a sibling already owns it.
@@ -482,26 +532,48 @@ class ConfluenceImportService {
 			);
 			return $dashboard;
 		} catch (\InvalidArgumentException) {
-			$suffix = SlugGenerator::slugify(name: $pageId);
-			if ($suffix === '') {
-				$suffix = (string)random_int(min: 1000, max: 9999);
-			}
-
-			$candidate = ($slug . '-' . $suffix);
-			// Final fallback: append timestamp segment (always unique).
-			try {
-				$this->writers->treeService->validateSlugUnique(
-					parentUuid: $parentUuid,
-					slug: $candidate
-				);
-			} catch (\InvalidArgumentException) {
-				$candidate = ($candidate . '-' . (string)time());
-			}
-
-			$dashboard->setSlug($candidate);
+			$candidate = ($slug . '-' . $this->pageIdSlugSuffix(pageId: $pageId));
+			$dashboard->setSlug($this->timestampedWhenTaken(candidate: $candidate, parentUuid: $parentUuid));
 			return $dashboard;
 		}//end try
 	}//end ensureUniqueSlug()
+
+	/**
+	 * The slug suffix for a page: its slugified pageId, or a random number when that is empty.
+	 *
+	 * @param string $pageId The Confluence page identifier.
+	 *
+	 * @return string The suffix.
+	 */
+	private function pageIdSlugSuffix(string $pageId): string {
+		$suffix = SlugGenerator::slugify(name: $pageId);
+		if ($suffix === '') {
+			$suffix = (string)random_int(min: 1000, max: 9999);
+		}
+
+		return $suffix;
+	}//end pageIdSlugSuffix()
+
+	/**
+	 * The candidate slug, or with a timestamp segment appended when a sibling owns it.
+	 *
+	 * @param string      $candidate  The suffixed slug.
+	 * @param string|null $parentUuid The resolved parent UUID.
+	 *
+	 * @return string The slug to use (the timestamp fallback is always unique).
+	 */
+	private function timestampedWhenTaken(string $candidate, ?string $parentUuid): string {
+		try {
+			$this->writers->treeService->validateSlugUnique(
+				parentUuid: $parentUuid,
+				slug: $candidate
+			);
+		} catch (\InvalidArgumentException) {
+			$candidate = ($candidate . '-' . (string)time());
+		}
+
+		return $candidate;
+	}//end timestampedWhenTaken()
 
 	/**
 	 * Build the timestamp segment for the asset folder.

@@ -206,6 +206,16 @@ import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
+/**
+ * A response body's `data` envelope when present, else the body itself.
+ *
+ * @param {object|null} data The response body.
+ * @return {object|null} the rule.
+ */
+function unwrapData(data) {
+	return data && data.data ? data.data : data
+}
+
 export default {
 	name: 'ConditionalVisibilityEditor',
 
@@ -401,32 +411,53 @@ export default {
 			this.setRowBusy(row, true)
 			try {
 				if (row.id !== null && row.id !== undefined) {
-					const { data } = await api.updateRule(row.id, payload)
-					const updated = data && data.data ? data.data : data
-					const index = this.rules.indexOf(row)
-					if (index !== -1) {
-						this.rules[index] = { ...row, ...updated }
-					}
-					this.$emit('ruleUpdated')
+					await this.updateSavedRule(row, payload)
 				} else {
-					const { data } = await api.addWidgetRule(
-						this.placementId,
-						payload,
-					)
-					const created = data && data.data ? data.data : data
-					const index = this.rules.indexOf(row)
-					if (index !== -1 && created && created.id) {
-						this.rules[index] = { ...created, _localKey: undefined }
-					} else {
-						await this.load()
-					}
-					this.$emit('ruleAdded')
+					await this.createDraftRule(row, payload)
 				}
 			} catch (error) {
 				logger.error('Failed to save visibility rule:', error)
 			} finally {
 				this.setRowBusy(row, false)
 			}
+		},
+
+		/**
+		 * Write a persisted rule and merge the server's copy into its row.
+		 *
+		 * @param {object} row The persisted rule row.
+		 * @param {object} payload Rule fields to write.
+		 */
+		async updateSavedRule(row, payload) {
+			const { data } = await api.updateRule(row.id, payload)
+			const updated = unwrapData(data)
+			const index = this.rules.indexOf(row)
+			if (index !== -1) {
+				this.rules[index] = { ...row, ...updated }
+			}
+			this.$emit('ruleUpdated')
+		},
+
+		/**
+		 * Create a draft rule and swap the draft row for the created rule;
+		 * reload the list when the response carries no id.
+		 *
+		 * @param {object} row The draft rule row.
+		 * @param {object} payload Rule fields to write.
+		 */
+		async createDraftRule(row, payload) {
+			const { data } = await api.addWidgetRule(
+				this.placementId,
+				payload,
+			)
+			const created = unwrapData(data)
+			const index = this.rules.indexOf(row)
+			if (index !== -1 && created && created.id) {
+				this.rules[index] = { ...created, _localKey: undefined }
+			} else {
+				await this.load()
+			}
+			this.$emit('ruleAdded')
 		},
 
 		/**

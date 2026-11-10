@@ -243,6 +243,57 @@ const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 /**
+ * The canonical `time` ruleConfig: the window, plus the days when any.
+ *
+ * @param {object} ruleConfig The draft config.
+ * @return {object} the canonical config.
+ */
+function timeRuleConfig(ruleConfig) {
+	const config = {
+		startTime: ruleConfig.startTime,
+		endTime: ruleConfig.endTime,
+	}
+	if (
+		Array.isArray(ruleConfig.days)
+		&& ruleConfig.days.length > 0
+	) {
+		config.days = [...ruleConfig.days]
+	}
+	return config
+}
+
+/**
+ * The canonical `date` ruleConfig, without empty optional keys.
+ *
+ * @param {object} ruleConfig The draft config.
+ * @return {object} the canonical config.
+ */
+function dateRuleConfig(ruleConfig) {
+	const config = {}
+	if (ruleConfig.startDate) {
+		config.startDate = ruleConfig.startDate
+	}
+	if (ruleConfig.endDate) {
+		config.endDate = ruleConfig.endDate
+	}
+	return config
+}
+
+/**
+ * The builder of the canonical ruleConfig per rule type.
+ */
+const RULE_CONFIG_BUILDERS = Object.freeze({
+	group: (ruleConfig) => ({ groups: [...(ruleConfig.groups || [])] }),
+	time: timeRuleConfig,
+	date: dateRuleConfig,
+	attribute: (ruleConfig) => ({
+		attribute: ruleConfig.attribute,
+		operator: ruleConfig.operator || 'equals',
+		value: ruleConfig.value,
+	}),
+})
+
+/**
  * Build a pristine, type-correct `ruleConfig` for a given ruleType. Used
  * both to seed a fresh row and to reset operands when the author switches
  * ruleType mid-edit.
@@ -568,41 +619,11 @@ export default {
 		 * @return {object} the canonical ruleConfig blob.
 		 */
 		buildRuleConfig() {
-			switch (this.local.ruleType) {
-				case 'group':
-					return { groups: [...(this.local.ruleConfig.groups || [])] }
-				case 'time': {
-					const config = {
-						startTime: this.local.ruleConfig.startTime,
-						endTime: this.local.ruleConfig.endTime,
-					}
-					if (
-						Array.isArray(this.local.ruleConfig.days)
-						&& this.local.ruleConfig.days.length > 0
-					) {
-						config.days = [...this.local.ruleConfig.days]
-					}
-					return config
-				}
-				case 'date': {
-					const config = {}
-					if (this.local.ruleConfig.startDate) {
-						config.startDate = this.local.ruleConfig.startDate
-					}
-					if (this.local.ruleConfig.endDate) {
-						config.endDate = this.local.ruleConfig.endDate
-					}
-					return config
-				}
-				case 'attribute':
-					return {
-						attribute: this.local.ruleConfig.attribute,
-						operator: this.local.ruleConfig.operator || 'equals',
-						value: this.local.ruleConfig.value,
-					}
-				default:
-					return {}
+			const ruleType = this.local.ruleType
+			if (!Object.hasOwn(RULE_CONFIG_BUILDERS, ruleType)) {
+				return {}
 			}
+			return RULE_CONFIG_BUILDERS[ruleType](this.local.ruleConfig)
 		},
 
 		/**

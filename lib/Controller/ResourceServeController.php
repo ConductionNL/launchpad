@@ -126,17 +126,29 @@ class ResourceServeController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getResource(string $filename): StreamResponse|JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->callerRefusal(action: 'resource-serve.get-resource');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		try {
-			$this->actionAuth->requireAction($user, 'resource-serve.get-resource');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$bytes = $this->fileBytes(filename: $filename);
+		if ($bytes instanceof JSONResponse) {
+			return $bytes;
 		}
 
+		return $this->buildStreamResponse(filename: $filename, bytes: $bytes);
+	}//end getResource()
+
+	/**
+	 * The bytes of a resource file: 404 for an unsafe name, a missing or
+	 * unreadable file, 413 for a file over the cap (refused BEFORE pulling
+	 * bytes).
+	 *
+	 * @param string $filename The requested file name.
+	 *
+	 * @return string|JSONResponse The bytes, or the error response.
+	 */
+	private function fileBytes(string $filename): string|JSONResponse {
 		if ($this->isUnsafeFilename(filename: $filename) === true) {
 			return $this->notFoundResponse();
 		}
@@ -162,8 +174,31 @@ class ResourceServeController extends Controller {
 			return $this->notFoundResponse();
 		}
 
-		return $this->buildStreamResponse(filename: $filename, bytes: $bytes);
-	}//end getResource()
+		return $bytes;
+	}//end fileBytes()
+
+	/**
+	 * The 401 for a request without a session user, or the 403 when the
+	 * caller's groups may not perform the action; null when allowed.
+	 *
+	 * @param string $action The action-matrix key.
+	 *
+	 * @return JSONResponse|null The refusal, or null.
+	 */
+	private function callerRefusal(string $action): JSONResponse|null {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		try {
+			$this->actionAuth->requireAction($user, $action);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
+
+		return null;
+	}//end callerRefusal()
 
 	/**
 	 * Handle `GET /api/resources` — list uploaded resources.
@@ -189,17 +224,28 @@ class ResourceServeController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listResources(): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->callerRefusal(action: 'resource-serve.list-resources');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		try {
-			$this->actionAuth->requireAction($user, 'resource-serve.list-resources');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
+		$resources = $this->resourceEntries();
 
+		return new JSONResponse(
+			data: [
+				'status' => 'success',
+				'resources' => $resources,
+			],
+			statusCode: Http::STATUS_OK
+		);
+	}//end listResources()
+
+	/**
+	 * Every resource as `{name, url, size, modifiedAt}`, newest first.
+	 *
+	 * @return list<array<string, mixed>> The resources.
+	 */
+	private function resourceEntries(): array {
 		$files = $this->serving->serve->listFiles();
 
 		$resources = [];
@@ -230,14 +276,8 @@ class ResourceServeController extends Controller {
 			array: $resources
 		);
 
-		return new JSONResponse(
-			data: [
-				'status' => 'success',
-				'resources' => $resources,
-			],
-			statusCode: Http::STATUS_OK
-		);
-	}//end listResources()
+		return $resources;
+	}//end resourceEntries()
 
 	/**
 	 * Decide whether a route filename argument is unsafe.

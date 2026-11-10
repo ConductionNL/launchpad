@@ -1,0 +1,370 @@
+{
+    "contents / no session": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized",
+            "message": "Authentication required"
+        },
+        [],
+        []
+    ],
+    "contents / unknown placement": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [],
+        []
+    ],
+    "contents / no permission": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [],
+        []
+    ],
+    "contents / ok": [
+        200,
+        {
+            "done": "getContentsForPlacement"
+        },
+        [
+            [
+                "getContentsForPlacement",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    {
+                        "currentSubPath": "/sub",
+                        "limit": 5,
+                        "cursor": "c"
+                    }
+                ]
+            ]
+        ],
+        []
+    ],
+    "contents / folder gone": [
+        404,
+        {
+            "status": "error",
+            "error": "folder_not_found",
+            "message": "The configured folder no longer exists"
+        },
+        [
+            [
+                "getContentsForPlacement",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    {
+                        "currentSubPath": "/sub",
+                        "limit": 5,
+                        "cursor": "c"
+                    }
+                ]
+            ]
+        ],
+        []
+    ],
+    "contents / no access": [
+        403,
+        {
+            "status": "error",
+            "error": "no_access",
+            "message": "You don't have access to this folder"
+        },
+        [
+            [
+                "getContentsForPlacement",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    {
+                        "currentSubPath": "/sub",
+                        "limit": 5,
+                        "cursor": "c"
+                    }
+                ]
+            ]
+        ],
+        []
+    ],
+    "contents / crash": [
+        500,
+        {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        [
+            [
+                "getContentsForPlacement",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    {
+                        "currentSubPath": "/sub",
+                        "limit": 5,
+                        "cursor": "c"
+                    }
+                ]
+            ]
+        ],
+        [
+            [
+                "Unexpected files widget contents failure",
+                {
+                    "exception": "boom"
+                }
+            ]
+        ]
+    ],
+    "upload / no session": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized",
+            "message": "Authentication required"
+        },
+        [],
+        []
+    ],
+    "upload / unknown placement": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [],
+        []
+    ],
+    "upload / no permission": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [],
+        []
+    ],
+    "upload / ok": [
+        200,
+        {
+            "done": "uploadFiles"
+        },
+        [
+            [
+                "uploadFiles",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    "/sub",
+                    []
+                ]
+            ]
+        ],
+        []
+    ],
+    "upload / folder gone": [
+        404,
+        {
+            "status": "error",
+            "error": "folder_not_found",
+            "message": "The configured folder no longer exists"
+        },
+        [
+            [
+                "uploadFiles",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    "/sub",
+                    []
+                ]
+            ]
+        ],
+        []
+    ],
+    "upload / no access": [
+        403,
+        {
+            "status": "error",
+            "error": "no_access",
+            "message": "You don't have access to this folder"
+        },
+        [
+            [
+                "uploadFiles",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    "/sub",
+                    []
+                ]
+            ]
+        ],
+        []
+    ],
+    "upload / crash": [
+        500,
+        {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        [
+            [
+                "uploadFiles",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    "/sub",
+                    []
+                ]
+            ]
+        ],
+        [
+            [
+                "Unexpected files widget upload failure",
+                {
+                    "exception": "boom"
+                }
+            ]
+        ]
+    ],
+    "destroy / no session": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized",
+            "message": "Authentication required"
+        },
+        [],
+        []
+    ],
+    "destroy / unknown placement": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [],
+        []
+    ],
+    "destroy / no permission": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [],
+        []
+    ],
+    "destroy / ok": [
+        200,
+        {
+            "done": "deleteFile"
+        },
+        [
+            [
+                "deleteFile",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    77
+                ]
+            ]
+        ],
+        []
+    ],
+    "destroy / folder gone": [
+        404,
+        {
+            "status": "error",
+            "error": "folder_not_found",
+            "message": "The configured folder no longer exists"
+        },
+        [
+            [
+                "deleteFile",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    77
+                ]
+            ]
+        ],
+        []
+    ],
+    "destroy / no access": [
+        403,
+        {
+            "status": "error",
+            "error": "no_access",
+            "message": "You don't have access to this folder"
+        },
+        [
+            [
+                "deleteFile",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    77
+                ]
+            ]
+        ],
+        []
+    ],
+    "destroy / crash": [
+        500,
+        {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        [
+            [
+                "deleteFile",
+                [
+                    "alice",
+                    {
+                        "fileId": 9
+                    },
+                    77
+                ]
+            ]
+        ],
+        [
+            [
+                "Unexpected files widget delete failure",
+                {
+                    "exception": "boom"
+                }
+            ]
+        ]
+    ]
+}

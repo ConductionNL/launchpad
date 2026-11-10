@@ -136,6 +136,42 @@ class ShippedTemplateUpdateService {
 	 */
 	public function update(string $templateId, bool $dryRun = false, string $userId = 'cli'): array {
 		$definition = $this->shipped->readDefinition(templateId: $templateId);
+		$run = new ShippedTemplateUpdateRun(
+			templateId: $templateId,
+			definition: $definition,
+			template: $this->installedTemplate(templateId: $templateId),
+			dryRun: $dryRun,
+			userId: $userId
+		);
+
+		$result = $this->versionReport(run: $run);
+		if ($result['upToDate'] === true) {
+			return $result;
+		}
+
+		$plan = $this->planFor(run: $run);
+		$result = array_merge($result, $this->describe(plan: $plan));
+		if ($dryRun === true) {
+			return $result;
+		}
+
+		$this->applyPlan(run: $run, plan: $plan);
+		$result['applied'] = true;
+		$result['resync'] = $this->resyncCopies(run: $run);
+
+		return $result;
+	}//end update()
+
+	/**
+	 * The installed template dashboard of a shipped template.
+	 *
+	 * @param string $templateId The shipped template id.
+	 *
+	 * @return Dashboard The template dashboard.
+	 *
+	 * @throws TemplateNotInstalledException When it was never installed here.
+	 */
+	private function installedTemplate(string $templateId): Dashboard {
 		$template = $this->shipped->findInstalled(templateId: $templateId);
 		if ($template === null) {
 			throw new TemplateNotInstalledException(
@@ -143,73 +179,126 @@ class ShippedTemplateUpdateService {
 			);
 		}
 
-		$dashboardId = (int)$template->getId();
-		$version = (int)$definition['templateVersion'];
+		return $template;
+	}//end installedTemplate()
+
+	/**
+	 * The report before any pairing: who the template is, the installed
+	 * and shipped versions, and empty change lists.
+	 *
+	 * @param ShippedTemplateUpdateRun $run The update.
+	 *
+	 * @return array<string, mixed> The report.
+	 */
+	private function versionReport(ShippedTemplateUpdateRun $run): array {
 		$installedVersion = $this->stores->appConfig->getValueInt(
 			Application::APP_ID,
-			ShippedTemplateService::CONFIG_VERSION_PREFIX . $templateId,
+			ShippedTemplateService::CONFIG_VERSION_PREFIX . $run->templateId,
 			0
 		);
 
-		$result = [
-			'templateId' => $templateId,
-			'uuid' => (string)$template->getUuid(),
-			'id' => $dashboardId,
-			'name' => (string)$template->getName(),
-			'installedVersion' => $installedVersion,
-			'version' => $version,
-			'upToDate' => $installedVersion >= $version,
-			'dryRun' => $dryRun,
-			'applied' => false,
-			'added' => [],
-			'removed' => [],
-			'changed' => [],
-			'unchanged' => 0,
-			'copies' => count($this->stores->dashboardMapper->findByBasedOnTemplate(templateId: $dashboardId)),
-			'resync' => null,
+		return $this->templateIdentity(run: $run)
+			+ $this->versionState(run: $run, installedVersion: $installedVersion)
+			+ ['added' => [], 'removed' => [], 'changed' => [], 'unchanged' => 0]
+			+ [
+				'copies' => count($this->stores->dashboardMapper->findByBasedOnTemplate(templateId: $run->dashboardId())),
+				'resync' => null,
+			];
+	}//end versionReport()
+
+	/**
+	 * Which template the report is about.
+	 *
+	 * @param ShippedTemplateUpdateRun $run The update.
+	 *
+	 * @return array{templateId: string, uuid: string, id: int, name: string}
+	 */
+	private function templateIdentity(ShippedTemplateUpdateRun $run): array {
+		return [
+			'templateId' => $run->templateId,
+			'uuid' => (string)$run->template->getUuid(),
+			'id' => $run->dashboardId(),
+			'name' => (string)$run->template->getName(),
 		];
-		if ($result['upToDate'] === true) {
-			return $result;
-		}
+	}//end templateIdentity()
 
+	/**
+	 * The version part of the report.
+	 *
+	 * @param ShippedTemplateUpdateRun $run              The update.
+	 * @param integer                  $installedVersion The recorded installed version.
+	 *
+	 * @return array{installedVersion: int, version: int, upToDate: bool, dryRun: bool, applied: bool}
+	 */
+	private function versionState(ShippedTemplateUpdateRun $run, int $installedVersion): array {
+		return [
+			'installedVersion' => $installedVersion,
+			'version' => $run->version(),
+			'upToDate' => $installedVersion >= $run->version(),
+			'dryRun' => $run->dryRun,
+			'applied' => false,
+		];
+	}//end versionState()
+
+	/**
+	 * Pair the installed placements with the shipped widgets.
+	 *
+	 * @param ShippedTemplateUpdateRun $run The update.
+	 *
+	 * @return array<string, mixed> The plan.
+	 */
+	private function planFor(ShippedTemplateUpdateRun $run): array {
 		$wanted = [];
-		foreach ($definition['dashboard']['widgets'] as $payload) {
-			$wanted[] = $this->hydrator->hydrate(dashboardId: $dashboardId, payload: (array)$payload, asTemplate: true);
+		foreach ($run->definition['dashboard']['widgets'] as $payload) {
+			$wanted[] = $this->hydrator->hydrate(dashboardId: $run->dashboardId(), payload: (array)$payload, asTemplate: true);
 		}
 
-		$plan = $this->pair(
-			installed: $this->stores->placementMapper->findByDashboardId(dashboardId: $dashboardId),
+		return $this->pair(
+			installed: $this->stores->placementMapper->findByDashboardId(dashboardId: $run->dashboardId()),
 			wanted: $wanted
 		);
-		$result = array_merge($result, $this->describe(plan: $plan));
-		if ($dryRun === true) {
-			return $result;
-		}
+	}//end planFor()
 
-		$this->apply(template: $template, plan: $plan);
+	/**
+	 * Apply the plan to the template and record the new version.
+	 *
+	 * @param ShippedTemplateUpdateRun $run  The update.
+	 * @param array<string, mixed>     $plan The pairing plan.
+	 *
+	 * @return void
+	 */
+	private function applyPlan(ShippedTemplateUpdateRun $run, array $plan): void {
+		$this->apply(template: $run->template, plan: $plan);
 		$this->stores->appConfig->setValueInt(
 			Application::APP_ID,
-			ShippedTemplateService::CONFIG_VERSION_PREFIX . $templateId,
-			$version
+			ShippedTemplateService::CONFIG_VERSION_PREFIX . $run->templateId,
+			$run->version()
 		);
-		$result['applied'] = true;
+	}//end applyPlan()
 
-		// Merge: a member's own widgets stay, every template widget is
-		// brought in line, compulsory ones included (REQ-RESYNC-003, -004).
+	/**
+	 * Merge the updated template into every copy: a member's own widgets
+	 * stay, every template widget is brought in line, compulsory ones
+	 * included (REQ-RESYNC-003, -004).
+	 *
+	 * @param ShippedTemplateUpdateRun $run The update.
+	 *
+	 * @return array{async: bool, affectedCount: int, totalCopies: int}
+	 */
+	private function resyncCopies(ShippedTemplateUpdateRun $run): array {
 		$resync = $this->resyncService->resync(
-			templateId: $dashboardId,
+			templateId: $run->dashboardId(),
 			strategy: TemplateResyncService::STRATEGY_MERGE,
 			dryRun: false,
-			actingAdminId: $userId
+			actingAdminId: $run->userId
 		);
-		$result['resync'] = [
+
+		return [
 			'async' => ($resync['async'] ?? false) === true,
 			'affectedCount' => (int)($resync['affectedCount'] ?? 0),
 			'totalCopies' => (int)($resync['totalCopies'] ?? 0),
 		];
-
-		return $result;
-	}//end update()
+	}//end resyncCopies()
 
 	/**
 	 * Pair the installed widgets with the new version's, in three passes.

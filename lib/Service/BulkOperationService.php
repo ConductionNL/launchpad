@@ -144,24 +144,13 @@ class BulkOperationService {
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
 
-		$deleted = 0;
-		$skipped = 0;
-		$errors = [];
-
+		$delete = new BulkDeleteChange(userId: $userId, dryRun: $dryRun, cascade: $cascade);
+		$outcomes = [];
 		foreach ($dashboardUuids as $uuid) {
-			$outcome = $this->deleteOneDashboard(
-				uuid: (string)$uuid,
-				userId: $userId,
-				dryRun: $dryRun,
-				cascade: $cascade
-			);
-			$deleted += $outcome['deleted'];
-			$skipped += $outcome['skipped'];
-
-			if ($outcome['error'] !== null) {
-				$errors[] = $outcome['error'];
-			}
+			$outcomes[] = $this->deleteOneDashboard(uuid: (string)$uuid, delete: $delete);
 		}
+
+		[$deleted, $skipped, $errors] = (new BulkOutcome(countKey: 'deleted'))->tally(outcomes: $outcomes);
 
 		$payload = [
 			$this->countKey(dryRun: $dryRun, real: 'deletedCount', preview: 'wouldDeleteCount') => $deleted,
@@ -217,26 +206,17 @@ class BulkOperationService {
 			}
 		}
 
-		$moved = 0;
-		$skipped = 0;
-		$errors = [];
-
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-
+		$move = new BulkMoveChange(
+			parentUuid: $parentUuid,
+			now: (new DateTime())->format(format: 'Y-m-d H:i:s'),
+			dryRun: $dryRun
+		);
+		$outcomes = [];
 		foreach ($dashboardUuids as $uuid) {
-			$outcome = $this->moveOneDashboard(
-				uuid: (string)$uuid,
-				parentUuid: $parentUuid,
-				now: $now,
-				dryRun: $dryRun
-			);
-			$moved += $outcome['moved'];
-			$skipped += $outcome['skipped'];
+			$outcomes[] = $this->moveOneDashboard(uuid: (string)$uuid, move: $move);
+		}
 
-			if ($outcome['error'] !== null) {
-				$errors[] = $outcome['error'];
-			}
-		}//end foreach
+		[$moved, $skipped, $errors] = (new BulkOutcome(countKey: 'moved'))->tally(outcomes: $outcomes);
 
 		$payload = [
 			$this->countKey(dryRun: $dryRun, real: 'movedCount', preview: 'wouldMoveCount') => $moved,
@@ -311,25 +291,18 @@ class BulkOperationService {
 			$resolvedPublishAt = $this->parseFutureDate(publishAt: $publishAt);
 		}
 
-		$updated = 0;
-		$skipped = 0;
-		$errors = [];
 		$change = new BulkStatusChange(
 			publicationStatus: $publicationStatus,
 			publishAt: $resolvedPublishAt,
 			now: (new DateTime())->format(format: 'Y-m-d H:i:s'),
 			dryRun: $dryRun
 		);
-
+		$outcomes = [];
 		foreach ($dashboardUuids as $uuid) {
-			$outcome = $this->statusOneDashboard(uuid: (string)$uuid, change: $change);
-			$updated += $outcome['updated'];
-			$skipped += $outcome['skipped'];
+			$outcomes[] = $this->statusOneDashboard(uuid: (string)$uuid, change: $change);
+		}
 
-			if ($outcome['error'] !== null) {
-				$errors[] = $outcome['error'];
-			}
-		}//end foreach
+		[$updated, $skipped, $errors] = (new BulkOutcome(countKey: 'updated'))->tally(outcomes: $outcomes);
 
 		$payload = [
 			$this->countKey(dryRun: $dryRun, real: 'updatedCount', preview: 'wouldUpdateCount') => $updated,
@@ -517,94 +490,54 @@ class BulkOperationService {
 	 * `deleted`/`skipped` members are added to the batch counters and a
 	 * non-NULL `error` is appended to the batch error list.
 	 *
-	 * @param string $uuid The dashboard UUID to delete.
-	 * @param string $userId The acting NC user ID.
-	 * @param bool $dryRun When true, preview only.
-	 * @param bool $cascade When true, recurse into children.
+	 * @param string           $uuid   The dashboard UUID to delete.
+	 * @param BulkDeleteChange $delete The delete of the batch.
 	 *
 	 * @return array{deleted: int, skipped: int, error: array<string, mixed>|null}
 	 *
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
-	private function deleteOneDashboard(
-		string $uuid,
-		string $userId,
-		bool $dryRun,
-		bool $cascade,
-	): array {
+	private function deleteOneDashboard(string $uuid, BulkDeleteChange $delete): array {
+		$outcome = new BulkOutcome(countKey: 'deleted');
 		try {
 			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
 			// REQ-BULK-007: hard delete on a missing row is silent.
-			return [
-				'deleted' => 0,
-				'skipped' => 1,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_ALREADY_DELETED,
-				],
-			];
+			return $outcome->skipped(error: $outcome->uuidError(uuid: $uuid, reason: self::REASON_ALREADY_DELETED));
 		}
 
-		$childCount = 0;
 		$rowUuid = (string)$dashboard->getUuid();
-		if ($rowUuid !== '') {
-			$childCount = $this->stores->dashboardMapper->countChildrenByParent(
-				parentUuid: $rowUuid
-			);
-		}
-
-		if ($childCount > 0 && $cascade === false) {
-			return [
-				'deleted' => 0,
-				'skipped' => 1,
-				'error' => [
+		$childCount = $this->childCountOf(rowUuid: $rowUuid);
+		if ($childCount > 0 && $delete->cascade === false) {
+			return $outcome->skipped(
+				error: [
 					'uuid' => $rowUuid,
 					'reason' => DashboardHasChildrenException::ERROR_CODE,
 					'childCount' => $childCount,
-				],
-			];
+				]
+			);
 		}
 
-		if ($dryRun === true) {
-			$increment = 1;
-			if ($cascade === true && $childCount > 0) {
-				$increment = ($childCount + 1);
-			}
-
-			return [
-				'deleted' => $increment,
-				'skipped' => 0,
-				'error' => null,
-			];
+		if ($delete->dryRun === true) {
+			return $outcome->counted(count: $this->previewDeleteCount(delete: $delete, childCount: $childCount));
 		}
 
 		try {
-			return [
-				'deleted' => $this->performDelete(
+			return $outcome->counted(
+				count: $this->performDelete(
 					dashboard: $dashboard,
-					userId: $userId,
-					cascade: $cascade,
+					userId: $delete->userId,
+					cascade: $delete->cascade,
 					childCount: $childCount
-				),
-				'skipped' => 0,
-				'error' => null,
-			];
+				)
+			);
 		} catch (Throwable $t) {
 			$this->logger->error(
 				message: 'BulkOperationService::bulkDelete failed for uuid',
 				context: ['uuid' => $rowUuid, 'exception' => $t]
 			);
 
-			return [
-				'deleted' => 0,
-				'skipped' => 0,
-				'error' => [
-					'uuid' => $rowUuid,
-					'reason' => self::REASON_TRANSACTION_FAILED,
-					'detail' => $t->getMessage(),
-				],
-			];
+			return $outcome->failed(error: $outcome->transactionError(uuid: $rowUuid, failure: $t));
 		}//end try
 	}//end deleteOneDashboard()
 
@@ -612,97 +545,48 @@ class BulkOperationService {
 	 * Re-parent a single dashboard as part of a {@see self::bulkMove()}
 	 * batch.
 	 *
-	 * @param string $uuid The dashboard UUID to move.
-	 * @param string|null $parentUuid The new parent UUID (NULL ⇒ root).
-	 * @param string $now Current `Y-m-d H:i:s` timestamp.
-	 * @param bool $dryRun When true, preview only.
+	 * @param string         $uuid The dashboard UUID to move.
+	 * @param BulkMoveChange $move The move of the batch.
 	 *
 	 * @return array{moved: int, skipped: int, error: array<string, mixed>|null}
 	 *
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
-	private function moveOneDashboard(
-		string $uuid,
-		?string $parentUuid,
-		string $now,
-		bool $dryRun,
-	): array {
+	private function moveOneDashboard(string $uuid, BulkMoveChange $move): array {
+		$outcome = new BulkOutcome(countKey: 'moved');
 		try {
 			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return [
-				'moved' => 0,
-				'skipped' => 0,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_NOT_FOUND,
-				],
-			];
+			return $outcome->failed(error: $outcome->uuidError(uuid: $uuid, reason: self::REASON_NOT_FOUND));
 		}
 
-		$current = $dashboard->getParentUuid();
-		if (($current ?? '') === ($parentUuid ?? '')) {
+		if (($dashboard->getParentUuid() ?? '') === ($move->parentUuid ?? '')) {
 			// REQ-BULK-007 idempotency: already at target parent.
-			return [
-				'moved' => 0,
-				'skipped' => 1,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_PARENT_ALREADY_MATCH,
-				],
-			];
+			return $outcome->skipped(error: $outcome->uuidError(uuid: $uuid, reason: self::REASON_PARENT_ALREADY_MATCH));
+		}
+
+		$cycle = $this->cycleError(uuid: $uuid, parentUuid: $move->parentUuid);
+		if ($cycle !== null) {
+			return $outcome->failed(error: $cycle);
+		}
+
+		if ($move->dryRun === true) {
+			return $outcome->counted(count: 1);
 		}
 
 		try {
-			$this->stores->treeService->validateParent(
-				movingUuid: $uuid,
-				newParentUuid: $parentUuid
-			);
-		} catch (InvalidArgumentException $e) {
-			return [
-				'moved' => 0,
-				'skipped' => 0,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_CYCLE_DETECTED,
-					'detail' => $e->getMessage(),
-				],
-			];
-		}
-
-		if ($dryRun === true) {
-			return [
-				'moved' => 1,
-				'skipped' => 0,
-				'error' => null,
-			];
-		}
-
-		try {
-			$dashboard->setParentUuid($parentUuid);
-			$dashboard->setUpdatedAt($now);
+			$dashboard->setParentUuid($move->parentUuid);
+			$dashboard->setUpdatedAt($move->now);
 			$this->stores->dashboardMapper->update(entity: $dashboard);
 
-			return [
-				'moved' => 1,
-				'skipped' => 0,
-				'error' => null,
-			];
+			return $outcome->counted(count: 1);
 		} catch (Throwable $t) {
 			$this->logger->error(
 				message: 'BulkOperationService::bulkMove failed for uuid',
 				context: ['uuid' => $uuid, 'exception' => $t]
 			);
 
-			return [
-				'moved' => 0,
-				'skipped' => 0,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_TRANSACTION_FAILED,
-					'detail' => $t->getMessage(),
-				],
-			];
+			return $outcome->failed(error: $outcome->transactionError(uuid: $uuid, failure: $t));
 		}//end try
 	}//end moveOneDashboard()
 
@@ -718,68 +602,110 @@ class BulkOperationService {
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
 	private function statusOneDashboard(string $uuid, BulkStatusChange $change): array {
-		$publicationStatus = $change->publicationStatus;
+		$outcome = new BulkOutcome(countKey: 'updated');
 		try {
 			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return [
-				'updated' => 0,
-				'skipped' => 0,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_NOT_FOUND,
-				],
-			];
+			return $outcome->failed(error: $outcome->uuidError(uuid: $uuid, reason: self::REASON_NOT_FOUND));
 		}
 
 		// REQ-BULK-007 idempotency: already at target status.
-		if ($dashboard->getPublicationStatus() === $publicationStatus
-			&& ($publicationStatus !== Dashboard::STATUS_SCHEDULED
-			|| $dashboard->getPublishAt() === $change->publishAt)
-		) {
-			return [
-				'updated' => 0,
-				'skipped' => 1,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_STATUS_ALREADY_MATCH,
-				],
-			];
+		if ($this->statusAlreadyMatches(dashboard: $dashboard, change: $change) === true) {
+			return $outcome->skipped(error: $outcome->uuidError(uuid: $uuid, reason: self::REASON_STATUS_ALREADY_MATCH));
 		}
 
 		if ($change->dryRun === true) {
-			return [
-				'updated' => 1,
-				'skipped' => 0,
-				'error' => null,
-			];
+			return $outcome->counted(count: 1);
 		}
 
 		try {
 			$this->applyStatusChange(dashboard: $dashboard, change: $change);
 
-			return [
-				'updated' => 1,
-				'skipped' => 0,
-				'error' => null,
-			];
+			return $outcome->counted(count: 1);
 		} catch (Throwable $t) {
 			$this->logger->error(
 				message: 'BulkOperationService::bulkStatus failed for uuid',
 				context: ['uuid' => $uuid, 'exception' => $t]
 			);
 
-			return [
-				'updated' => 0,
-				'skipped' => 0,
-				'error' => [
-					'uuid' => $uuid,
-					'reason' => self::REASON_TRANSACTION_FAILED,
-					'detail' => $t->getMessage(),
-				],
-			];
+			return $outcome->failed(error: $outcome->transactionError(uuid: $uuid, failure: $t));
 		}//end try
 	}//end statusOneDashboard()
+
+	/**
+	 * Whether the dashboard already has the target status (and, for
+	 * `scheduled`, the target publish time).
+	 *
+	 * @param Dashboard        $dashboard The dashboard.
+	 * @param BulkStatusChange $change    The change of the batch.
+	 *
+	 * @return bool
+	 */
+	private function statusAlreadyMatches(Dashboard $dashboard, BulkStatusChange $change): bool {
+		$publicationStatus = $change->publicationStatus;
+		return $dashboard->getPublicationStatus() === $publicationStatus
+			&& ($publicationStatus !== Dashboard::STATUS_SCHEDULED
+			|| $dashboard->getPublishAt() === $change->publishAt);
+	}//end statusAlreadyMatches()
+
+	/**
+	 * The cycle / depth refusal for re-parenting, or NULL when the move is allowed.
+	 *
+	 * @param string      $uuid       The dashboard UUID to move.
+	 * @param string|null $parentUuid The new parent UUID (NULL ⇒ root).
+	 *
+	 * @return array<string, mixed>|null The per-uuid error.
+	 */
+	private function cycleError(string $uuid, string|null $parentUuid): array|null {
+		try {
+			$this->stores->treeService->validateParent(
+				movingUuid: $uuid,
+				newParentUuid: $parentUuid
+			);
+		} catch (InvalidArgumentException $e) {
+			return [
+				'uuid' => $uuid,
+				'reason' => self::REASON_CYCLE_DETECTED,
+				'detail' => $e->getMessage(),
+			];
+		}
+
+		return null;
+	}//end cycleError()
+
+	/**
+	 * The dashboard's direct child count; 0 for a row without a UUID.
+	 *
+	 * @param string $rowUuid The dashboard's UUID.
+	 *
+	 * @return int
+	 */
+	private function childCountOf(string $rowUuid): int {
+		if ($rowUuid === '') {
+			return 0;
+		}
+
+		return $this->stores->dashboardMapper->countChildrenByParent(
+			parentUuid: $rowUuid
+		);
+	}//end childCountOf()
+
+	/**
+	 * How many dashboards a dry-run delete would remove: the dashboard, plus
+	 * its children when cascading.
+	 *
+	 * @param BulkDeleteChange $delete     The delete of the batch.
+	 * @param int              $childCount The dashboard's direct child count.
+	 *
+	 * @return int
+	 */
+	private function previewDeleteCount(BulkDeleteChange $delete, int $childCount): int {
+		if ($delete->cascade === true && $childCount > 0) {
+			return ($childCount + 1);
+		}
+
+		return 1;
+	}//end previewDeleteCount()
 
 	/**
 	 * Perform the actual delete for one dashboard, cascading when asked.

@@ -41,7 +41,7 @@ final class GroupIdFilter {
 	 *
 	 * @spec openspec/specs/role-feature-permissions/spec.md
 	 */
-	public static function restrict(IQueryBuilder $qb, array $groupIds): IQueryBuilder {
+	public function restrict(IQueryBuilder $qb, array $groupIds): IQueryBuilder {
 		return $qb->where(
 			$qb->expr()->in(
 				x: 'group_id',

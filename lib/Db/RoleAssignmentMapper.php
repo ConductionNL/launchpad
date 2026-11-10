@@ -136,7 +136,7 @@ class RoleAssignmentMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from(from: $this->getTableName());
-		GroupIdFilter::restrict(qb: $qb, groupIds: $groupIds)
+		(new GroupIdFilter())->restrict(qb: $qb, groupIds: $groupIds)
 			->orderBy(sort: 'group_id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);

@@ -108,7 +108,7 @@ class RoleFeaturePermissionMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from(from: $this->getTableName());
-		GroupIdFilter::restrict(qb: $qb, groupIds: $groupIds);
+		(new GroupIdFilter())->restrict(qb: $qb, groupIds: $groupIds);
 
 		return $this->findEntities(query: $qb);
 	}//end findByGroupIds()

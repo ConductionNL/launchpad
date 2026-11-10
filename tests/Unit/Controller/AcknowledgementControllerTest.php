@@ -456,4 +456,81 @@ class AcknowledgementControllerTest extends TestCase {
 			actual: $response->getStatus()
 		);
 	}
+
+	/**
+	 * The 401s, the missing key, the version clamp, and the 404 and
+	 * logged 500 answers of every endpoint.
+	 *
+	 * @return void
+	 */
+	public function testEveryRemainingAnswer(): void {
+		$anonymous = $this->makeController(userId: null);
+		foreach ([$anonymous->acknowledge(), $anonymous->pending(), $anonymous->report(announcementKey: 'k'), $anonymous->reportCsv(announcementKey: 'k')] as $response) {
+			$this->assertSame(401, $response->getStatus());
+		}
+
+		$params = ['announcementKey' => '', 'contentVersion' => -4];
+		$this->request->method('getParam')->willReturnCallback(
+			function (string $key, mixed $default = null) use (&$params): mixed {
+				return $params[$key] ?? $default;
+			}
+		);
+		$this->assertSame(
+			[400, ['error' => 'announcementKey is required']],
+			[$this->makeController()->acknowledge()->getStatus(), $this->makeController()->acknowledge()->getData()]
+		);
+
+		$params['announcementKey'] = 'k';
+		$logged = [];
+		$this->logger->method('error')->willReturnCallback(function (string $message) use (&$logged): void {
+			$logged[] = $message;
+		});
+		$this->service->method('isAllowedToAcknowledge')->willReturn(true);
+		$this->service->method('currentContentVersion')->willReturn(1);
+		$this->service->expects($this->once())->method('acknowledge')->with('k', 'alice', 1)
+			->willThrowException(new \RuntimeException('db down'));
+		$this->service->method('getPending')->willThrowException(new \RuntimeException('db down'));
+		$this->groupManager->method('isAdmin')->willReturn(true);
+		$reports = [
+			new \OCP\AppFramework\Db\DoesNotExistException('none'),
+			new \RuntimeException('db down'),
+			new \OCP\AppFramework\Db\DoesNotExistException('none'),
+			new \RuntimeException('db down'),
+		];
+		$this->service->method('report')->willReturnCallback(function () use (&$reports) {
+			$next = array_shift($reports);
+			if ($next instanceof \Throwable) {
+				throw $next;
+			}
+
+			return $next;
+		});
+
+		$controller = $this->makeController();
+		$answers = [];
+		foreach ([
+			$controller->acknowledge(),
+			$controller->pending(),
+			$controller->report(announcementKey: 'k'),
+			$controller->report(announcementKey: 'k'),
+			$controller->reportCsv(announcementKey: 'k'),
+			$controller->reportCsv(announcementKey: 'k'),
+		] as $response) {
+			$answers[] = [$response->getStatus(), $response->getData()];
+		}
+
+		$this->assertSame(
+			[
+				[500, ['error' => 'Operation failed']],
+				[500, ['error' => 'Operation failed']],
+				[404, ['error' => 'Unknown announcement']],
+				[500, ['error' => 'Operation failed']],
+				[404, ['error' => 'Unknown announcement']],
+				[500, ['error' => 'Operation failed']],
+			],
+			$answers
+		);
+		$this->assertSame(['acknowledge failed: db down', 'pending failed: db down', 'report failed: db down', 'reportCsv failed: db down'], $logged);
+
+	}
 }//end class

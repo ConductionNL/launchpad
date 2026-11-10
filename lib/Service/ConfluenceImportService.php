@@ -148,73 +148,86 @@ class ConfluenceImportService {
 		$archive = $this->readers->parser->parse(zipPath: $zipPath);
 		$timestamp = $this->buildTimestamp();
 
-		if ($parentUuid !== null && $parentUuid !== '') {
-			// 404 surfaces to caller as a warning — pages still import as roots.
-			try {
-				$this->writers->dashboardMapper->findByUuid(uuid: $parentUuid);
-			} catch (DoesNotExistException) {
-				$this->logger->warning(
-					message: 'Confluence import: parent dashboard not found, falling back to roots',
-					context: ['parentUuid' => $parentUuid]
-				);
-				$parentUuid = null;
-			}
-		}
+		$run = new ConfluenceImportRun(
+			currentUserId: $currentUserId,
+			rootParentUuid: $this->existingRootParent(parentUuid: $parentUuid)
+		);
 
 		$ordered = $this->orderParentsBeforeChildren(pages: $archive->pages);
-		$pageIdToUuid = [];
-		$pageIdToOrder = [];
-		$createdCount = 0;
-		$skippedCount = 0;
-		$errors = [];
-		$rewriteWarnings = $archive->warnings;
-
+		$archiveWarnings = $archive->warnings;
 		foreach ($ordered as $page) {
-			$resolvedParent = $this->resolveParentUuid(
-				page: $page,
-				pageIdToUuid: $pageIdToUuid,
-				rootParentUuid: $parentUuid
-			);
+			$this->importPage(page: $page, run: $run);
+		}
 
-			try {
-				$dashboardUuid = $this->createDashboardForPage(
-					page: $page,
-					parentUuid: $resolvedParent,
-					currentUserId: $currentUserId
-				);
-
-				$pageIdToUuid[strtolower(string: $page->pageId)] = $dashboardUuid;
-				$pageIdToOrder[$page->pageId] = $page;
-				$createdCount++;
-			} catch (Throwable $e) {
-				$skippedCount++;
-				$errors[] = [
-					'pageId' => $page->pageId,
-					'reason' => $e->getMessage(),
-				];
-				$this->logger->warning(
-					message: 'Confluence page skipped during import',
-					context: ['pageId' => $page->pageId, 'exception' => $e]
-				);
-			}//end try
-		}//end foreach
-
-		$rewriteWarnings = array_merge(
-			$rewriteWarnings,
+		$warnings = array_merge(
+			$archiveWarnings,
 			$this->backfillWidgetContent(
-				pages: $pageIdToOrder,
-				pageIdToUuid: $pageIdToUuid
+				pages: $run->createdPages,
+				pageIdToUuid: $run->pageIdToUuid
 			)
 		);
 
-		return [
-			'createdDashboardCount' => $createdCount,
-			'skippedPageCount' => $skippedCount,
-			'errors' => $errors,
-			'warnings' => $rewriteWarnings,
-			'assetFolder' => 'LaunchPad/Imports/' . $timestamp,
-		];
+		return $run->result(warnings: $warnings, assetFolder: 'LaunchPad/Imports/' . $timestamp);
 	}//end import()
+
+	/**
+	 * The requested root parent UUID when that dashboard exists.
+	 *
+	 * A missing parent is logged and the pages import as roots (REQ-CFLI-011).
+	 *
+	 * @param string|null $parentUuid The requested parent dashboard UUID.
+	 *
+	 * @return string|null The parent UUID to slot root pages under, or null.
+	 */
+	private function existingRootParent(?string $parentUuid): ?string {
+		if ($parentUuid === null || $parentUuid === '') {
+			return $parentUuid;
+		}
+
+		try {
+			$this->writers->dashboardMapper->findByUuid(uuid: $parentUuid);
+		} catch (DoesNotExistException) {
+			$this->logger->warning(
+				message: 'Confluence import: parent dashboard not found, falling back to roots',
+				context: ['parentUuid' => $parentUuid]
+			);
+			return null;
+		}
+
+		return $parentUuid;
+	}//end existingRootParent()
+
+	/**
+	 * Create the dashboard for one page and tally the outcome.
+	 *
+	 * @param ParsedPage          $page The page to import.
+	 * @param ConfluenceImportRun $run  The import in progress.
+	 *
+	 * @return void
+	 */
+	private function importPage(ParsedPage $page, ConfluenceImportRun $run): void {
+		$resolvedParent = $this->resolveParentUuid(
+			page: $page,
+			pageIdToUuid: $run->pageIdToUuid,
+			rootParentUuid: $run->rootParentUuid
+		);
+
+		try {
+			$dashboardUuid = $this->createDashboardForPage(
+				page: $page,
+				parentUuid: $resolvedParent,
+				currentUserId: $run->currentUserId
+			);
+
+			$run->recordCreated(page: $page, dashboardUuid: $dashboardUuid);
+		} catch (Throwable $e) {
+			$run->recordSkipped(page: $page, reason: $e);
+			$this->logger->warning(
+				message: 'Confluence page skipped during import',
+				context: ['pageId' => $page->pageId, 'exception' => $e]
+			);
+		}//end try
+	}//end importPage()
 
 	/**
 	 * Topologically order pages so every parent is created before its
@@ -225,15 +238,6 @@ class ConfluenceImportService {
 	 *
 	 * @return ParsedPage[] Ordered list (parents first).
 	 *
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-	 *      Two-pass topological order with a sibling sort and parent
-	 *      cycle detection — splitting into helpers would require
-	 *      passing the per-pass closure state across method boundaries.
-	 * @SuppressWarnings(PHPMD.NPathComplexity)
-	 *      Same two-pass ordering: the acyclic-path count is the product of
-	 *      the independent per-page checks (known parent, self-reference,
-	 *      already-resolved, cycle break), which multiply even though the
-	 *      passes themselves stay flat.
 	 */
 	private function orderParentsBeforeChildren(array $pages): array {
 		$byPageId = [];
@@ -241,44 +245,7 @@ class ConfluenceImportService {
 			$byPageId[strtolower(string: $page->pageId)] = $page;
 		}
 
-		$resolved = [];
-		$emitted = [];
-
-		$emit = static function (ParsedPage $page) use (&$emitted, &$resolved): void {
-			$key = strtolower(string: $page->pageId);
-			if (isset($emitted[$key]) === true) {
-				return;
-			}
-
-			$emitted[$key] = true;
-			$resolved[] = $page;
-		};
-
-		$visit = function (ParsedPage $page) use (&$visit, &$emitted, &$byPageId, $emit): void {
-			$key = strtolower(string: $page->pageId);
-			if (isset($emitted[$key]) === true) {
-				return;
-			}
-
-			$parentKey = null;
-			if ($page->parentPageId !== null) {
-				$parentKey = strtolower(string: $page->parentPageId);
-			}
-
-			if ($parentKey !== null
-				&& $parentKey !== $key
-				&& isset($byPageId[$parentKey]) === true
-				&& isset($emitted[$parentKey]) === false
-			) {
-				$visit($byPageId[$parentKey]);
-			}
-
-			$emit($page);
-		};
-
-		foreach ($pages as $page) {
-			$visit($page);
-		}
+		$resolved = (new ParentFirstPageOrder(byPageId: $byPageId))->order(pages: $pages);
 
 		// Stable secondary sort within siblings by parent + sortOrder.
 		usort(
@@ -289,45 +256,7 @@ class ConfluenceImportService {
 		);
 
 		// Re-apply parent-before-children after the sort.
-		$emitted = [];
-		$finalOrder = [];
-		$reEmit = static function (ParsedPage $page) use (&$emitted, &$finalOrder): void {
-			$key = strtolower(string: $page->pageId);
-			if (isset($emitted[$key]) === true) {
-				return;
-			}
-
-			$emitted[$key] = true;
-			$finalOrder[] = $page;
-		};
-
-		$reVisit = function (ParsedPage $page) use (&$reVisit, &$emitted, &$byPageId, $reEmit): void {
-			$key = strtolower(string: $page->pageId);
-			if (isset($emitted[$key]) === true) {
-				return;
-			}
-
-			$parentKey = null;
-			if ($page->parentPageId !== null) {
-				$parentKey = strtolower(string: $page->parentPageId);
-			}
-
-			if ($parentKey !== null
-				&& $parentKey !== $key
-				&& isset($byPageId[$parentKey]) === true
-				&& isset($emitted[$parentKey]) === false
-			) {
-				$reVisit($byPageId[$parentKey]);
-			}
-
-			$reEmit($page);
-		};
-
-		foreach ($resolved as $page) {
-			$reVisit($page);
-		}
-
-		return $finalOrder;
+		return (new ParentFirstPageOrder(byPageId: $byPageId))->order(pages: $resolved);
 	}//end orderParentsBeforeChildren()
 
 	/**

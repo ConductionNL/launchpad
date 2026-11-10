@@ -400,4 +400,36 @@ class CalendarWidgetServiceTest extends TestCase {
 
 		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
 	}//end testNormalizeInternalEventReadsEveryShape()
+
+	/**
+	 * A safe URL outside the allow-list is reported and never fetched.
+	 *
+	 * @return void
+	 */
+	public function testFetchExternalIcsEventsReportsUrlsOutsideTheAllowList(): void {
+		$validator = $this->createMock(UrlSafetyValidator::class);
+		$validator->method('isSafe')->willReturn(true);
+		$validator->method('checkAllowList')->willReturn(false);
+		$this->clientService->expects($this->never())->method('newClient');
+		$infos  = [];
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->method('info')->willReturnCallback(
+			function (string $message) use (&$infos): void {
+				$infos[] = $message;
+			}
+		);
+
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $validator),
+			logger: $logger,
+			calendarMgr: null
+		);
+
+		$this->assertSame(
+			['events' => [], 'failures' => ['external: not in allow-list https://cal.example/a.ics']],
+			$service->fetchExternalIcsEvents(urls: ['https://cal.example/a.ics'], from: '2026-05-01T00:00:00Z', to: '2026-05-31T23:59:59Z')
+		);
+		$this->assertSame(['Calendar widget URL not in allow-list: https://cal.example/a.ics'], $infos);
+	}//end testFetchExternalIcsEventsReportsUrlsOutsideTheAllowList()
 }

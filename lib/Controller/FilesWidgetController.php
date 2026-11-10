@@ -34,6 +34,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCA\LaunchPad\Service\FilesWidgetService;
@@ -292,11 +293,23 @@ class FilesWidgetController extends Controller {
 			return null;
 		}
 
-		// Registry-driven custom widgets persist their per-type config
-		// in the `content` column (added in Version001025). Older rows
-		// that pre-date the column may still carry the blob inside the
-		// legacy `style_config.content` slot, so we fall back to that
-		// shape when the dedicated column is empty.
+		return $this->placementConfig(placement: $placement);
+	}//end loadConfig()
+
+	/**
+	 * The placement's parsed folder config.
+	 *
+	 * Registry-driven custom widgets persist their per-type config
+	 * in the `content` column (added in Version001025). Older rows
+	 * that pre-date the column may still carry the blob inside the
+	 * legacy `style_config.content` slot, so we fall back to that
+	 * shape when the dedicated column is empty.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function placementConfig(WidgetPlacement $placement): array {
 		$content = $placement->getContentArray();
 		if ($content !== []) {
 			return $content;
@@ -308,7 +321,7 @@ class FilesWidgetController extends Controller {
 		}
 
 		return $legacy;
-	}//end loadConfig()
+	}//end placementConfig()
 
 	/**
 	 * Convert PHP's `$_FILES` super-global into a flat list of

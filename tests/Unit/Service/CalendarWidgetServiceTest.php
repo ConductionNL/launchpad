@@ -361,4 +361,43 @@ class CalendarWidgetServiceTest extends TestCase {
 		$this->expectExceptionMessage('ICS URL failed re-validation (SSRF guard)');
 		$service->fetchIcsBody('https://cal.example/a.ics');
 	}//end testFetchIcsBodyRevalidatesBeforeTheRequest()
+
+	/**
+	 * Internal search results normalise the same from every shape NC returns.
+	 *
+	 * @return void
+	 */
+	public function testNormalizeInternalEventReadsEveryShape(): void {
+		$start = new \DateTimeImmutable('2026-03-01T09:00:00+00:00');
+		$cases = [
+			'objects pairs' => [
+				'calendar-key' => 'work', 'calendar-name' => 'Work', 'calendar-color' => '#f00', 'allDay' => 1,
+				'objects' => [[
+					'SUMMARY' => ['Stand-up', []], 'DTSTART' => [$start, []], 'DTEND' => ['2026-03-01T09:15:00+00:00', []],
+					'LOCATION' => [['Room 1', []], ['Room 2', []]], 'DESCRIPTION' => ['', []], 'UID' => ['u-1', []],
+				]],
+			],
+			'raw wins over object' => [
+				'SUMMARY' => 'Raw title', 'UID' => 'raw-uid', 'objects' => [['SUMMARY' => ['Object title', []], 'UID' => ['obj-uid', []]]],
+			],
+			'flat keys' => [
+				'calendarUri' => 'home', 'calendarName' => 'Home', 'title' => 'Flat', 'start' => '2026-03-02', 'end' => '2026-03-03',
+				'location' => 'Hall', 'description' => 'Notes', 'uid' => 'flat-uid',
+			],
+			'nothing' => [],
+			'empty title and blank location' => ['objects' => [['SUMMARY' => ['', []], 'LOCATION' => ['', []], 'DTSTART' => [42, []]]]],
+		];
+
+		$actual = [];
+		foreach ($cases as $name => $raw) {
+			$actual[$name] = $this->service->normalizeInternalEvent($raw);
+		}
+
+		$fixture = __DIR__.'/fixtures/calendar-internal-events.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+		}
+
+		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
+	}//end testNormalizeInternalEventReadsEveryShape()
 }

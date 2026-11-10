@@ -126,7 +126,7 @@ class DashboardReactionMapper extends QBMapper {
 				alias: 'cnt'
 			)
 			->from(from: $this->getTableName());
-		DashboardUuidCondition::restrict(qb: $qb, dashboardUuid: $dashboardUuid)
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid)
 			->groupBy(groupBys: 'emoji');
 
 		$result = $qb->executeQuery();

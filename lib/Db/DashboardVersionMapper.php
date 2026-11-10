@@ -127,7 +127,7 @@ class DashboardVersionMapper extends QBMapper {
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$qb->select($qb->func()->max('version_number'))
 			->from(from: $this->getTableName());
-		DashboardUuidCondition::restrict(qb: $qb, dashboardUuid: $dashboardUuid);
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid);
 
 		return self::fetchScalar(qb: $qb);
 	}//end findMaxVersionNumber()
@@ -144,7 +144,7 @@ class DashboardVersionMapper extends QBMapper {
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$qb->select($qb->func()->count('*'))
 			->from(from: $this->getTableName());
-		DashboardUuidCondition::restrict(qb: $qb, dashboardUuid: $dashboardUuid);
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid);
 
 		return self::fetchScalar(qb: $qb);
 	}//end countByDashboard()
@@ -252,7 +252,7 @@ class DashboardVersionMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('version_number')
 			->from(from: $this->getTableName());
-		DashboardUuidCondition::restrict(qb: $qb, dashboardUuid: $dashboardUuid)
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid)
 			->orderBy(sort: 'version_number', order: 'DESC')
 			->setMaxResults(maxResults: $keepCount);
 

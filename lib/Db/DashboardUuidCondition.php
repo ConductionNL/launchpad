@@ -41,7 +41,7 @@ final class DashboardUuidCondition {
 	 *
 	 * @spec openspec/specs/dashboard-versioning/spec.md
 	 */
-	public static function restrict(IQueryBuilder $qb, string $dashboardUuid): IQueryBuilder {
+	public function restrict(IQueryBuilder $qb, string $dashboardUuid): IQueryBuilder {
 		return $qb->where(
 			$qb->expr()->eq(
 				x: 'dashboard_uuid',

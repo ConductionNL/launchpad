@@ -631,7 +631,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function export(
 		string $scope = 'site',
-		?string $dashboardUuid = null,
+		string|null $dashboardUuid = null,
 	): StreamResponse|JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
@@ -648,6 +648,19 @@ class AdminController extends Controller {
 			return $this->templates->exportService->exportSite(currentUserId: $userId);
 		}
 
+		return $this->exportOneDashboard(dashboardUuid: $dashboardUuid, userId: $userId);
+	}//end export()
+
+	/**
+	 * Export one dashboard after checking its UUID: 400 when it is missing
+	 * or malformed, 404 when no dashboard answers to it.
+	 *
+	 * @param string|null $dashboardUuid The dashboard UUID from the request.
+	 * @param string      $userId        The exporting admin.
+	 *
+	 * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
+	 */
+	private function exportOneDashboard(string|null $dashboardUuid, string $userId): StreamResponse|JSONResponse {
 		if ($dashboardUuid === null || $dashboardUuid === '') {
 			return $this->failure(message: 'dashboardUuid parameter is required when scope=dashboard', statusCode: Http::STATUS_BAD_REQUEST);
 		}
@@ -664,7 +677,7 @@ class AdminController extends Controller {
 		} catch (DoesNotExistException) {
 			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
-	}//end export()
+	}//end exportOneDashboard()
 
 	/**
 	 * Import a previously-exported ZIP archive.
@@ -687,17 +700,10 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		// Multipart uploads bind to $_FILES; PHP only populates this for
-		// POST requests, which is what the route declares (REQ-EXIM-004).
-		$upload = $_FILES['file'] ?? null;
-		if (is_array($upload) === false
-			|| isset($upload['tmp_name']) === false
-			|| (string)$upload['tmp_name'] === ''
-		) {
+		$tmpName = $this->uploadedArchivePath();
+		if ($tmpName === null) {
 			return $this->failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
-
-		$tmpName = (string)$upload['tmp_name'];
 
 		$userId = (string)$this->caller->userSession->getUser()?->getUID();
 
@@ -711,6 +717,39 @@ class AdminController extends Controller {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
+		return $this->importSummary(result: $result);
+	}//end import()
+
+	/**
+	 * The temporary path of the uploaded ZIP archive, or null when no
+	 * file was uploaded under the `file` field.
+	 *
+	 * Multipart uploads bind to $_FILES; PHP only populates this for
+	 * POST requests, which is what the route declares (REQ-EXIM-004).
+	 *
+	 * @return string|null The temporary path, or null.
+	 */
+	private function uploadedArchivePath(): string|null {
+		$upload = $_FILES['file'] ?? null;
+		if (is_array($upload) === false
+			|| isset($upload['tmp_name']) === false
+			|| (string)$upload['tmp_name'] === ''
+		) {
+			return null;
+		}
+
+		return (string)$upload['tmp_name'];
+	}//end uploadedArchivePath()
+
+	/**
+	 * Answer an import result: 409 with zero counts on a UUID collision,
+	 * otherwise the imported and skipped counts.
+	 *
+	 * @param array<string, mixed> $result The import service result.
+	 *
+	 * @return JSONResponse The import summary.
+	 */
+	private function importSummary(array $result): JSONResponse {
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
 			return new JSONResponse(
 				data: [
@@ -729,7 +768,7 @@ class AdminController extends Controller {
 				'errors' => $result['errors'],
 			]
 		);
-	}//end import()
+	}//end importSummary()
 
 	/**
 	 * List every role assignment in the system (REQ-ROLE-006). NC-admin only.
@@ -770,9 +809,9 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createRole(
-		?string $userId = null,
-		?string $groupId = null,
-		?string $role = null,
+		string|null $userId = null,
+		string|null $groupId = null,
+		string|null $role = null,
 	): JSONResponse {
 
 		$assignedBy = (string)$this->caller->userSession->getUser()->getUID();
@@ -785,21 +824,9 @@ class AdminController extends Controller {
 				assignedBy: $assignedBy
 			);
 		} catch (DuplicateRoleAssignmentException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getDisplayMessage(),
-					'errorCode' => $e->getErrorCode(),
-				],
-				statusCode: Http::STATUS_CONFLICT
-			);
+			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_CONFLICT);
 		} catch (InvalidRoleAssignmentException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getDisplayMessage(),
-					'errorCode' => $e->getErrorCode(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return ResponseHelper::success(
@@ -807,6 +834,24 @@ class AdminController extends Controller {
 			statusCode: Http::STATUS_CREATED
 		);
 	}//end createRole()
+
+	/**
+	 * The error envelope of a refused role assignment.
+	 *
+	 * @param ResourceException $exception  The refusal.
+	 * @param int               $statusCode The HTTP status to answer with.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function roleFailure(ResourceException $exception, int $statusCode): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => $exception->getDisplayMessage(),
+				'errorCode' => $exception->getErrorCode(),
+			],
+			statusCode: $statusCode
+		);
+	}//end roleFailure()
 
 	/**
 	 * Delete a role assignment by ID (REQ-ROLE-004). NC-admin only.

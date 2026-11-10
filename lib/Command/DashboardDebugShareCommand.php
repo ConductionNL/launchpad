@@ -122,20 +122,9 @@ class DashboardDebugShareCommand extends CommandBase {
 			'viewCount' => 0,
 		];
 
-		if ($this->isJson(input: $input) === true) {
-			$this->emitSuccess(input: $input, output: $output, data: $payload);
-			return CommandService::EXIT_SUCCESS;
-		}
-
-		if ($this->isQuiet(input: $input) === false) {
-			$output->writeln(
-				messages: (string)json_encode(
-					value: $payload,
-					flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-				)
-			);
-		}
-
-		return CommandService::EXIT_SUCCESS;
+		return $this->emitPrettyPayload(
+			streams: new CommandStreams(input: $input, output: $output),
+			payload: $payload
+		);
 	}//end handle()
 }//end class

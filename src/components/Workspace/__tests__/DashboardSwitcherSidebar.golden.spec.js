@@ -55,7 +55,11 @@ const rows = {
 }
 
 function bodyHtml(wrapper) {
-	return wrapper.find('.dashboard-switcher-sidebar__body').html().replace(/<!--[\s\S]*?-->/g, '')
+	return wrapper.find('.dashboard-switcher-sidebar__body').html()
+		.replace(/<!--[\s\S]*?-->/g, '')
+		.split('\n')
+		.filter((line) => line.trim() !== '')
+		.join('\n')
 }
 
 describe('DashboardSwitcherSidebar body markup', () => {

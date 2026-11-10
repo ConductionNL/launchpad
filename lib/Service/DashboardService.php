@@ -1610,47 +1610,19 @@ class DashboardService {
 		?string $primaryGroupId,
 	): ?array {
 		// Normalise the sentinel so steps 2-5 can rely on it.
-		$groupId = $primaryGroupId;
-		if ($primaryGroupId === null || $primaryGroupId === '') {
-			$groupId = Dashboard::DEFAULT_GROUP_ID;
-		}
+		$groupId = $this->normalisedGroupId(primaryGroupId: $primaryGroupId);
 
 		// Pre-fetch all visible dashboards once — used for the pref lookup
 		// and to avoid redundant DB round-trips.
 		$visible = $this->getVisibleToUser(userId: $userId);
 
-		// Build a UUID-keyed index for O(1) pref lookup.
-		// @var array<string, array{dashboard: Dashboard, source: string}> $byUuid.
-		$byUuid = [];
-		foreach ($visible as $entry) {
-			$uuid = (string)$entry['dashboard']->getUuid();
-			if ($uuid !== '') {
-				$byUuid[$uuid] = $entry;
-			}
-		}
-
-		// Step 0 (wave3.7): explicit default — if the user has pinned
-		// a default dashboard via the per-row "Set as default" action,
-		// it always wins over the auto-overwriting `active_dashboard_uuid`
-		// pref so visiting `/apps/launchpad/` consistently opens the same
-		// dashboard regardless of where the user navigated last.
-		$pinned = $this->resolvePreferredDashboard(
+		// Steps 0-1: the pinned default, then the saved preference.
+		$preferred = $this->resolvePreferredActiveDashboard(
 			userId: $userId,
-			byUuid: $byUuid,
-			prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
+			byUuid: $this->indexVisibleByUuid(visible: $visible)
 		);
-		if ($pinned !== null) {
-			return $pinned;
-		}
-
-		// Step 1: saved preference.
-		$saved = $this->resolvePreferredDashboard(
-			userId: $userId,
-			byUuid: $byUuid,
-			prefKey: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
-		);
-		if ($saved !== null) {
-			return $saved;
+		if ($preferred !== null) {
+			return $preferred;
 		}
 
 		// Steps 2-3: group-shared with isDefault = 1.
@@ -1666,7 +1638,90 @@ class DashboardService {
 			return $groupShared;
 		}
 
-		// Step 6: first personal dashboard.
+		return $this->findFirstPersonalOrShared(visible: $visible);
+	}//end resolveActiveDashboard()
+
+	/**
+	 * The primary group, or {@see Dashboard::DEFAULT_GROUP_ID} for none.
+	 *
+	 * @param string|null $primaryGroupId The user's primary group ID.
+	 *
+	 * @return string The group ID steps 2-5 resolve against.
+	 */
+	private function normalisedGroupId(string|null $primaryGroupId): string {
+		if ($primaryGroupId === null || $primaryGroupId === '') {
+			return Dashboard::DEFAULT_GROUP_ID;
+		}
+
+		return $primaryGroupId;
+	}//end normalisedGroupId()
+
+	/**
+	 * A UUID-keyed index of the visible set for O(1) pref lookup.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
+	 *
+	 * @return array<string, array{dashboard: Dashboard, source: string}> The index; empty UUIDs left out.
+	 */
+	private function indexVisibleByUuid(array $visible): array {
+		$byUuid = [];
+		foreach ($visible as $entry) {
+			$uuid = (string)$entry['dashboard']->getUuid();
+			if ($uuid !== '') {
+				$byUuid[$uuid] = $entry;
+			}
+		}
+
+		return $byUuid;
+	}//end indexVisibleByUuid()
+
+	/**
+	 * Steps 0-1 of {@see self::resolveActiveDashboard()}.
+	 *
+	 * Step 0 (wave3.7): explicit default — if the user has pinned a
+	 * default dashboard via the per-row "Set as default" action, it always
+	 * wins over the auto-overwriting `active_dashboard_uuid` pref so
+	 * visiting `/apps/launchpad/` consistently opens the same dashboard
+	 * regardless of where the user navigated last. Step 1: saved preference.
+	 *
+	 * @param string                                                     $userId The user ID.
+	 * @param array<string, array{dashboard: Dashboard, source: string}> $byUuid UUID-keyed visible index.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|null The hit, or null to fall through.
+	 */
+	private function resolvePreferredActiveDashboard(string $userId, array $byUuid): ?array {
+		$pinned = $this->resolvePreferredDashboard(
+			userId: $userId,
+			byUuid: $byUuid,
+			prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
+		);
+		if ($pinned !== null) {
+			return $pinned;
+		}
+
+		return $this->resolvePreferredDashboard(
+			userId: $userId,
+			byUuid: $byUuid,
+			prefKey: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
+		);
+	}//end resolvePreferredActiveDashboard()
+
+	/**
+	 * Steps 6-7 of {@see self::resolveActiveDashboard()}.
+	 *
+	 * Step 6: first personal dashboard. Step 6b (REQ-SHARE-002): first
+	 * dashboard shared WITH the user. Deliberately the LAST resort — after
+	 * the saved preference, every group-shared candidate and every personal
+	 * dashboard — so a share can never hijack a selection the user or their
+	 * admin already made. It only ever fires for a user who would otherwise
+	 * land on the empty state, which is exactly the case that made sharing
+	 * inert. Step 7: nothing found ⇒ NULL.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|null The hit, or null.
+	 */
+	private function findFirstPersonalOrShared(array $visible): ?array {
 		$personal = $this->findFirstBySource(
 			visible: $visible,
 			source: Dashboard::SOURCE_USER
@@ -1675,18 +1730,11 @@ class DashboardService {
 			return $personal;
 		}
 
-		// Step 6b (REQ-SHARE-002): first dashboard shared WITH the user.
-		// Deliberately the LAST resort — after the saved preference, every
-		// group-shared candidate and every personal dashboard — so a share
-		// can never hijack a selection the user or their admin already made.
-		// It only ever fires for a user who would otherwise land on the
-		// empty state, which is exactly the case that made sharing inert.
-		// Step 7: nothing found ⇒ NULL.
 		return $this->findFirstBySource(
 			visible: $visible,
 			source: Dashboard::SOURCE_SHARED
 		);
-	}//end resolveActiveDashboard()
+	}//end findFirstPersonalOrShared()
 
 	/**
 	 * Resolve a user-preference dashboard pointer, self-healing a stale

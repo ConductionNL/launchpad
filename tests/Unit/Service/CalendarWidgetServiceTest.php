@@ -337,4 +337,28 @@ class CalendarWidgetServiceTest extends TestCase {
 		$this->assertStringStartsWith('Calendar widget received malformed from/to: ', $warnings[0]);
 		$this->assertSame('Calendar widget internal search failed: caldav down', $warnings[1]);
 	}//end testFetchInternalEventsGuardsAndFiltersByPrincipal()
+
+	/**
+	 * A cache miss re-validates the URL before any request; a refused URL is never fetched.
+	 *
+	 * @return void
+	 */
+	public function testFetchIcsBodyRevalidatesBeforeTheRequest(): void {
+		$validator = $this->createMock(UrlSafetyValidator::class);
+		$validator->method('isSafe')->willReturn(false);
+		$validator->method('checkAllowList')->willReturn(true);
+		$this->cache->method('get')->willReturn(null);
+		$this->clientService->expects($this->never())->method('newClient');
+
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $validator),
+			logger: $this->logger,
+			calendarMgr: null
+		);
+
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('ICS URL failed re-validation (SSRF guard)');
+		$service->fetchIcsBody('https://cal.example/a.ics');
+	}//end testFetchIcsBodyRevalidatesBeforeTheRequest()
 }

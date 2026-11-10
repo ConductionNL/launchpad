@@ -93,7 +93,10 @@ class FileController extends Controller {
 				write: $this->writeOptions(dir: $dir, content: $content)
 			);
 
-			return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+			return new JSONResponse(
+				data: $result,
+				statusCode: Http::STATUS_OK
+			);
 		} catch (ForbiddenException $e) {
 			return $this->unauthenticated();
 		} catch (ResourceException $e) {

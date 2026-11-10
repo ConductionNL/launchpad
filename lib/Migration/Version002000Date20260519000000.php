@@ -180,7 +180,7 @@ class Version002000Date20260519000000 extends SimpleMigrationStep {
 						'isDefault' => ((int)($row['is_default'] ?? 0)) === 1,
 					];
 
-					$objectService->saveObject(self::REGISTER, self::SCHEMA, $data);
+					$objectService->saveObject(object: $data, register: self::REGISTER, schema: self::SCHEMA);
 					$migrated++;
 				} catch (\Throwable $innerEx) {
 					$failed++;

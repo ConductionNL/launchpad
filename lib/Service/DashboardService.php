@@ -331,25 +331,23 @@ class DashboardService {
 			$sharedLevel = $this->sharedPermissionLevel(dashboard: $dashboard, userId: $userId);
 		}
 
+		$layered = $this->withPersonalLayer(
+			placements: $placements,
+			dashboard: $dashboard,
+			userId: $userId
+		);
+
 		if ($sharedLevel !== null) {
 			return [
 				'dashboard' => $dashboard,
-				'placements' => $this->withPersonalLayer(
-					placements: $placements,
-					dashboard: $dashboard,
-					userId: $userId
-				),
+				'placements' => $layered,
 				'permissionLevel' => $sharedLevel,
 			];
 		}
 
 		return $this->builders->dashResolver->buildResult(
 			dashboard: $dashboard,
-			placements: $this->withPersonalLayer(
-				placements: $placements,
-				dashboard: $dashboard,
-				userId: $userId
-			)
+			placements: $layered
 		);
 	}//end getDashboardForUser()
 

@@ -25,7 +25,6 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -136,16 +135,8 @@ class RoleAssignmentMapper extends QBMapper {
 
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->in(
-					x: 'group_id',
-					y: $qb->createNamedParameter(
-						value: $groupIds,
-						type: IQueryBuilder::PARAM_STR_ARRAY
-					)
-				)
-			)
+			->from(from: $this->getTableName());
+		GroupIdFilter::restrict(qb: $qb, groupIds: $groupIds)
 			->orderBy(sort: 'group_id', order: 'ASC');
 
 		return $this->findEntities(query: $qb);

@@ -248,61 +248,94 @@ class CalendarWidgetService {
 	 * @spec openspec/specs/calendar-widget/spec.md
 	 */
 	public function fetchInternalEvents(array $principals, string $from, string $to): array {
-		$events = [];
-		$failures = [];
-
 		if ($this->calendarMgr === null) {
 			return [
-				'events' => $events,
-				'failures' => $failures,
+				'events' => [],
+				'failures' => [],
 			];
 		}
 
-		try {
-			$startObj = new DateTimeImmutable(datetime: $from);
-			$endObj = new DateTimeImmutable(datetime: $to);
-		} catch (Throwable $exception) {
-			$this->logger->warning(
-				message: 'Calendar widget received malformed from/to: ' . $exception->getMessage()
-			);
+		$timerange = $this->parseTimerange(from: $from, to: $to);
+		if ($timerange === null) {
 			return [
-				'events' => $events,
+				'events' => [],
 				'failures' => ['internal: invalid date range'],
 			];
 		}
 
 		try {
-			$matches = $this->calendarMgr->search(
-				pattern: '',
-				searchProperties: [],
-				options: [
-					'timerange' => [
-						'start' => $startObj,
-						'end' => $endObj,
-					],
-				],
-				limit: null,
-				offset: null
-			);
+			$matches = $this->searchTimerange(calendars: $this->calendarMgr, timerange: $timerange);
 		} catch (Throwable $exception) {
 			$this->logger->warning(
 				message: 'Calendar widget internal search failed: ' . $exception->getMessage()
 			);
 			return [
-				'events' => $events,
+				'events' => [],
 				'failures' => ['internal: ' . $exception->getMessage()],
 			];
-		}//end try
+		}
 
+		return [
+			'events' => $this->eventsInScope(matches: $matches, principals: $principals),
+			'failures' => [],
+		];
+	}//end fetchInternalEvents()
+
+	/**
+	 * The search time range; NULL (logged) when either bound is malformed.
+	 *
+	 * @param string $from ISO-8601 lower bound.
+	 * @param string $to   ISO-8601 upper bound.
+	 *
+	 * @return array{start: DateTimeImmutable, end: DateTimeImmutable}|null
+	 */
+	private function parseTimerange(string $from, string $to): array|null {
+		try {
+			return [
+				'start' => new DateTimeImmutable(datetime: $from),
+				'end' => new DateTimeImmutable(datetime: $to),
+			];
+		} catch (Throwable $exception) {
+			$this->logger->warning(
+				message: 'Calendar widget received malformed from/to: ' . $exception->getMessage()
+			);
+			return null;
+		}
+	}//end parseTimerange()
+
+	/**
+	 * Every calendar object of the user in the time range.
+	 *
+	 * @param IManager                                                  $calendars The calendar manager.
+	 * @param array{start: DateTimeImmutable, end: DateTimeImmutable} $timerange The time range.
+	 *
+	 * @return array<int, mixed> The raw search matches.
+	 */
+	private function searchTimerange(IManager $calendars, array $timerange): array {
+		return $calendars->search(
+			pattern: '',
+			searchProperties: [],
+			options: [
+				'timerange' => $timerange,
+			],
+			limit: null,
+			offset: null
+		);
+	}//end searchTimerange()
+
+	/**
+	 * The normalised events of the matches whose calendar the caller asked for.
+	 *
+	 * @param array<int, mixed> $matches    The raw search matches.
+	 * @param string[]          $principals Calendar keys or names to keep; empty keeps all.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function eventsInScope(array $matches, array $principals): array {
+		$events = [];
 		foreach ($matches as $match) {
 			$matchArr = (array)$match;
-
-			$calId = (string)($matchArr['calendar-key'] ?? $matchArr['calendarUri'] ?? '');
-			$calName = (string)($matchArr['calendar-name'] ?? $matchArr['calendarName'] ?? '');
-
-			if ($principals !== [] && in_array(needle: $calId, haystack: $principals, strict: true) === false
-				&& in_array(needle: $calName, haystack: $principals, strict: true) === false
-			) {
+			if ($this->isCalendarInScope(match: $matchArr, principals: $principals) === false) {
 				// Caller restricted to a subset; skip out-of-scope calendars.
 				continue;
 			}
@@ -310,11 +343,28 @@ class CalendarWidgetService {
 			$events[] = $this->normalizeInternalEvent(raw: $matchArr);
 		}
 
-		return [
-			'events' => $events,
-			'failures' => $failures,
-		];
-	}//end fetchInternalEvents()
+		return $events;
+	}//end eventsInScope()
+
+	/**
+	 * Whether the match's calendar (by key or name) is among the principals; all are when none are given.
+	 *
+	 * @param array<string, mixed> $match      One raw search match.
+	 * @param string[]             $principals Calendar keys or names to keep.
+	 *
+	 * @return bool
+	 */
+	private function isCalendarInScope(array $match, array $principals): bool {
+		if ($principals === []) {
+			return true;
+		}
+
+		$calId = (string)($match['calendar-key'] ?? $match['calendarUri'] ?? '');
+		$calName = (string)($match['calendar-name'] ?? $match['calendarName'] ?? '');
+
+		return in_array(needle: $calId, haystack: $principals, strict: true) === true
+			|| in_array(needle: $calName, haystack: $principals, strict: true) === true;
+	}//end isCalendarInScope()
 
 	/**
 	 * Fetch events from a list of external ICS URLs.

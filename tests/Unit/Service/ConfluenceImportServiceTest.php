@@ -23,6 +23,7 @@ namespace Unit\Service;
 
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Confluence\ArchiveParser;
 use OCA\LaunchPad\Service\Confluence\HtmlSanitizer;
@@ -174,6 +175,110 @@ class ConfluenceImportServiceTest extends TestCase {
 		$this->assertSame(4, $result['createdDashboardCount']);
 		$this->assertSame(0, $result['skippedPageCount']);
 	}//end testImportSlotsRootPagesUnderAnExistingParent()
+
+	/**
+	 * A taken slug gets the pageId suffix, then a timestamp when that is taken too.
+	 *
+	 * @return void
+	 */
+	public function testEnsureUniqueSlugSuffixesThePageIdThenATimestamp(): void {
+		$this->assertSame('board', $this->uniqueSlug(slug: 'board', pageId: 'P 7', taken: []));
+		$this->assertSame('', $this->uniqueSlug(slug: '', pageId: 'P 7', taken: ['']));
+		$this->assertSame('board-p-7', $this->uniqueSlug(slug: 'board', pageId: 'P 7', taken: ['board']));
+		$this->assertMatchesRegularExpression('/^board-p-7-\d{9,}$/', $this->uniqueSlug(slug: 'board', pageId: 'P 7', taken: ['board', 'board-p-7']));
+		$this->assertMatchesRegularExpression('/^board-\d{4}$/', $this->uniqueSlug(slug: 'board', pageId: '!!!', taken: ['board']));
+	}//end testEnsureUniqueSlugSuffixesThePageIdThenATimestamp()
+
+	/**
+	 * Each created page's first widget gets the rendered, rewritten, sanitised body.
+	 *
+	 * @return void
+	 */
+	public function testBackfillWritesTheSanitisedBodyAndCollectsWarnings(): void {
+		$mapper = $this->createMock(DashboardMapper::class);
+		$mapper->method('findByUuid')->willReturnCallback(
+			static function (string $uuid): Dashboard {
+				if ($uuid === 'u-gone') {
+					throw new DoesNotExistException('no');
+				}
+
+				$dashboard = new Dashboard();
+				$dashboard->setId(($uuid === 'u-a') ? 1 : 2);
+				return $dashboard;
+			}
+		);
+
+		$first = new WidgetPlacement();
+		$first->setStyleConfigArray(config: ['text' => '', 'color' => 'red']);
+		$updated    = [];
+		$placements = $this->createMock(WidgetPlacementMapper::class);
+		$placements->method('findByDashboardId')->willReturnCallback(
+			static fn (int $dashboardId): array => ($dashboardId === 1) ? [$first, new WidgetPlacement()] : []
+		);
+		$placements->method('update')->willReturnCallback(
+			static function (WidgetPlacement $placement) use (&$updated): WidgetPlacement {
+				$updated[] = $placement->getStyleConfigArray();
+				return $placement;
+			}
+		);
+
+		$macro = $this->createMock(MacroRenderer::class);
+		$macro->method('render')->willReturnCallback(static fn (string $html): string => 'm('.$html.')');
+		$links = $this->createMock(LinkRewriter::class);
+		$links->method('rewrite')->willReturnCallback(
+			static fn (string $html, array $pageIdToUuid): array => ['html' => 'l('.$html.')', 'warnings' => ['w '.count($pageIdToUuid)]]
+		);
+		$clean = $this->createMock(HtmlSanitizer::class);
+		$clean->method('sanitize')->willReturnCallback(static fn (string $html): string => 's('.$html.')');
+
+		$service = new ConfluenceImportService(
+			readers: new ConfluencePageReaders(parser: $this->createMock(ArchiveParser::class), sanitizer: $clean, macroRenderer: $macro, linkRewriter: $links),
+			writers: new ConfluenceDashboardWriters(
+				dashboardFactory: new DashboardFactory(),
+				treeService: $this->createMock(DashboardTreeService::class),
+				dashboardMapper: $mapper,
+				placementMapper: $placements
+			),
+			db: $this->createMock(IDBConnection::class),
+			logger: $this->createMock(LoggerInterface::class)
+		);
+
+		$warnings = (new ReflectionMethod(ConfluenceImportService::class, 'backfillWidgetContent'))->invoke(
+			$service,
+			['A' => $this->page(id: 'A', sort: 0, parent: null), 'gone' => $this->page(id: 'gone', sort: 0, parent: null), 'b' => $this->page(id: 'b', sort: 0, parent: null)],
+			['a' => 'u-a', 'gone' => 'u-gone', 'b' => 'u-b']
+		);
+
+		$this->assertSame(['w 3'], $warnings);
+		$this->assertSame([['text' => 's(l(m(<p>A</p>)))', 'color' => 'red']], $updated);
+	}//end testBackfillWritesTheSanitisedBodyAndCollectsWarnings()
+
+	/**
+	 * Run the private slug step against a set of taken slugs.
+	 *
+	 * @param string   $slug   The factory-derived slug.
+	 * @param string   $pageId The page id.
+	 * @param string[] $taken  Slugs a sibling already owns.
+	 *
+	 * @return string The slug the dashboard ends with.
+	 */
+	private function uniqueSlug(string $slug, string $pageId, array $taken): string {
+		$tree = $this->createMock(DashboardTreeService::class);
+		$tree->method('validateSlugUnique')->willReturnCallback(
+			static function (?string $parentUuid, string $slug) use ($taken): void {
+				if (in_array($slug, $taken, true) === true) {
+					throw new \InvalidArgumentException('taken');
+				}
+			}
+		);
+
+		$dashboard = new Dashboard();
+		$dashboard->setSlug($slug);
+		$service = $this->service(tree: $tree, logger: $this->createMock(LoggerInterface::class), parentExists: false);
+		(new ReflectionMethod(ConfluenceImportService::class, 'ensureUniqueSlug'))->invoke($service, $dashboard, 'p-1', $pageId);
+
+		return (string) $dashboard->getSlug();
+	}//end uniqueSlug()
 
 	/**
 	 * Run the private ordering step.

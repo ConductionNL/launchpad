@@ -728,11 +728,7 @@ class WidgetApiController extends Controller {
 	 */
 	private function resolveCalendarRange(string $from, string $to): array {
 		if ($from === '' || $to === '') {
-			return [
-				'error' => $this->failure(message: 'Both from and to are required ISO 8601 timestamps', statusCode: Http::STATUS_BAD_REQUEST),
-				'start' => null,
-				'end' => null,
-			];
+			return $this->rangeRefusal(message: 'Both from and to are required ISO 8601 timestamps');
 		}
 
 		try {
@@ -740,19 +736,11 @@ class WidgetApiController extends Controller {
 			$end = new DateTimeImmutable(datetime: $to);
 		} catch (Throwable $exception) {
 			unset($exception);
-			return [
-				'error' => $this->failure(message: 'Invalid date format', statusCode: Http::STATUS_BAD_REQUEST),
-				'start' => null,
-				'end' => null,
-			];
+			return $this->rangeRefusal(message: 'Invalid date format');
 		}
 
 		if ($end < $start) {
-			return [
-				'error' => $this->failure(message: '`to` must be greater than or equal to `from`', statusCode: Http::STATUS_BAD_REQUEST),
-				'start' => null,
-				'end' => null,
-			];
+			return $this->rangeRefusal(message: '`to` must be greater than or equal to `from`');
 		}
 
 		// Defensive 1-year cap per design D1 to bound RRULE expansion.
@@ -816,6 +804,40 @@ class WidgetApiController extends Controller {
 	 * }
 	 */
 	private function extractCalendarConfig(object $placement): array {
+		$widgetContent = $this->calendarWidgetContent(placement: $placement);
+
+		return [
+			'internalCalendars' => $this->nonEmptyStrings(values: (array)($widgetContent['internalCalendars'] ?? [])),
+			'externalIcsUrls' => $this->nonEmptyStrings(values: (array)($widgetContent['externalIcsUrls'] ?? [])),
+			'viewMode' => (string)($widgetContent['viewMode'] ?? 'agenda'),
+			'daysAhead' => (int)($widgetContent['daysAhead'] ?? 14),
+			'colorByCalendar' => (bool)($widgetContent['colorByCalendar'] ?? true),
+		];
+	}//end extractCalendarConfig()
+
+	/**
+	 * A range refusal: HTTP 400 with the message, no bounds.
+	 *
+	 * @param string $message The client message.
+	 *
+	 * @return array{error: JSONResponse, start: null, end: null}
+	 */
+	private function rangeRefusal(string $message): array {
+		return [
+			'error' => $this->failure(message: $message, statusCode: Http::STATUS_BAD_REQUEST),
+			'start' => null,
+			'end' => null,
+		];
+	}//end rangeRefusal()
+
+	/**
+	 * The placement's widget content as an array (decoded when stored as JSON; empty when unreadable).
+	 *
+	 * @param object $placement The widget placement.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function calendarWidgetContent(object $placement): array {
 		$serialized = [];
 		if (method_exists(object_or_class: $placement, method: 'jsonSerialize') === true) {
 			$serialized = (array)$placement->jsonSerialize();
@@ -831,33 +853,24 @@ class WidgetApiController extends Controller {
 			}
 		}
 
-		$widgetContent = (array)$widgetContent;
+		return (array)$widgetContent;
+	}//end calendarWidgetContent()
 
-		$internal = (array)($widgetContent['internalCalendars'] ?? []);
-		$external = (array)($widgetContent['externalIcsUrls'] ?? []);
-
-		// Cast every entry to string for safety; drop empty strings.
-		$internal = array_values(
+	/**
+	 * Every entry cast to string, empty strings dropped, re-indexed.
+	 *
+	 * @param array<int|string, mixed> $values The configured entries.
+	 *
+	 * @return string[]
+	 */
+	private function nonEmptyStrings(array $values): array {
+		return array_values(
 			array: array_filter(
-				array: array_map(callback: 'strval', array: $internal),
+				array: array_map(callback: 'strval', array: $values),
 				callback: static fn (string $value): bool => $value !== ''
 			)
 		);
-		$external = array_values(
-			array: array_filter(
-				array: array_map(callback: 'strval', array: $external),
-				callback: static fn (string $value): bool => $value !== ''
-			)
-		);
-
-		return [
-			'internalCalendars' => $internal,
-			'externalIcsUrls' => $external,
-			'viewMode' => (string)($widgetContent['viewMode'] ?? 'agenda'),
-			'daysAhead' => (int)($widgetContent['daysAhead'] ?? 14),
-			'colorByCalendar' => (bool)($widgetContent['colorByCalendar'] ?? true),
-		];
-	}//end extractCalendarConfig()
+	}//end nonEmptyStrings()
 
 	/**
 	 * The caller guard: no session user → 401, no user ID → 401, a denied

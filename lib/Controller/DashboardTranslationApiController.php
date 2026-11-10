@@ -47,6 +47,16 @@ class DashboardTranslationApiController extends Controller {
 	use RespondsWithErrors;
 
 	/**
+	 * Error code per refused-delete message; anything else is `invalid_state`.
+	 *
+	 * @var array<string, string>
+	 */
+	private const DELETE_FAILURE_CODES = [
+		DashboardTranslationService::ERR_LAST_VARIANT => 'last_variant',
+		DashboardTranslationService::ERR_DELETE_PRIMARY => 'primary_variant',
+	];
+
+	/**
 	 * Constructor
 	 *
 	 * @param IRequest           $request The request.
@@ -76,20 +86,9 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function list(string $uuid): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.list');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		$ownerCheck = $this->assertOwner(uuid: $uuid);
-		if ($ownerCheck !== null) {
-			return $ownerCheck;
+		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.list');
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		$variants = $this->translations->translationService->listVariants(
@@ -130,20 +129,9 @@ class DashboardTranslationApiController extends Controller {
 		?string $widgetTreeJson = null,
 		?string $copyFrom = null,
 	): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.create');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		$ownerCheck = $this->assertOwner(uuid: $uuid);
-		if ($ownerCheck !== null) {
-			return $ownerCheck;
+		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.create');
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		if ($this->isBlank(value: $languageCode) === true) {
@@ -239,20 +227,9 @@ class DashboardTranslationApiController extends Controller {
 		?string $description = null,
 		?string $widgetTreeJson = null,
 	): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.update');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		$ownerCheck = $this->assertOwner(uuid: $uuid);
-		if ($ownerCheck !== null) {
-			return $ownerCheck;
+		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.update');
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		$patch = $this->buildPatch(
@@ -292,20 +269,9 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uuid, string $lang): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.destroy');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		$ownerCheck = $this->assertOwner(uuid: $uuid);
-		if ($ownerCheck !== null) {
-			return $ownerCheck;
+		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.destroy');
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		try {
@@ -318,23 +284,27 @@ class DashboardTranslationApiController extends Controller {
 		} catch (DoesNotExistException) {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
-			$errorCode = 'invalid_state';
-			if ($e->getMessage() === DashboardTranslationService::ERR_LAST_VARIANT) {
-				$errorCode = 'last_variant';
-			} elseif ($e->getMessage() === DashboardTranslationService::ERR_DELETE_PRIMARY) {
-				$errorCode = 'primary_variant';
-			}
-
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => $errorCode,
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->mapDeleteFailure(exception: $e);
 		}//end try
 	}//end destroy()
+
+	/**
+	 * Map a refused delete to HTTP 400 with its error code.
+	 *
+	 * @param Exception $exception The service refusal.
+	 *
+	 * @return JSONResponse The error envelope.
+	 */
+	private function mapDeleteFailure(Exception $exception): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'error',
+				'error' => (self::DELETE_FAILURE_CODES[$exception->getMessage()] ?? 'invalid_state'),
+				'message' => $exception->getMessage(),
+			],
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end mapDeleteFailure()
 
 	/**
 	 * POST /api/dashboards/{uuid}/translations/{lang}/set-primary —
@@ -349,20 +319,9 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setPrimary(string $uuid, string $lang): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.set-primary');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		$ownerCheck = $this->assertOwner(uuid: $uuid);
-		if ($ownerCheck !== null) {
-			return $ownerCheck;
+		$denied = $this->guardOwnedAction(uuid: $uuid, action: 'dashboard-translation.set-primary');
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		try {
@@ -403,15 +362,9 @@ class DashboardTranslationApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function resolved(string $uuid): JSONResponse {
-		$user = $this->caller->userSession->getUser();
-		if ($this->userId === null || $user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-translation.resolved');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$denied = $this->guardCaller(action: 'dashboard-translation.resolved');
+		if ($denied !== null) {
+			return $denied;
 		}
 
 		try {
@@ -593,6 +546,45 @@ class DashboardTranslationApiController extends Controller {
 
 		return null;
 	}//end assertOwner()
+
+	/**
+	 * Refuse an anonymous caller (401) or one the action guard denies (403).
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or null when the caller may proceed.
+	 */
+	private function guardCaller(string $action): ?JSONResponse {
+		$user = $this->caller->userSession->getUser();
+		if ($this->userId === null || $user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		try {
+			$this->caller->actionAuth->requireAction($user, $action);
+		} catch (OCSForbiddenException) {
+			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		}
+
+		return null;
+	}//end guardCaller()
+
+	/**
+	 * {@see self::guardCaller()}, then refuse anyone but the dashboard's owner.
+	 *
+	 * @param string $uuid   The dashboard UUID.
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or null when the caller may proceed.
+	 */
+	private function guardOwnedAction(string $uuid, string $action): ?JSONResponse {
+		$denied = $this->guardCaller(action: $action);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		return $this->assertOwner(uuid: $uuid);
+	}//end guardOwnedAction()
 
 	/**
 	 * Build the patch payload from individual nullable parameters.

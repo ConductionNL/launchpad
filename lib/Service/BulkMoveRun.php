@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BulkMoveChange
+ * BulkMoveRun
  *
  * One validated bulk re-parent, applied to every dashboard of the batch
  * (REQ-BULK-002).
@@ -26,20 +26,30 @@ namespace OCA\LaunchPad\Service;
  * Target parent, the batch timestamp and the preview flag shared by every
  * dashboard of one bulk move.
  *
+ * Built and filled by {@see BulkOperationService}; never leaves it.
+ *
  * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-final class BulkMoveChange {
+final class BulkMoveRun {
+
 	/**
-	 * Constructor.
+	 * The new parent UUID (NULL ⇒ root).
 	 *
-	 * @param string|null $parentUuid The new parent UUID (NULL ⇒ root).
-	 * @param string $now The batch `Y-m-d H:i:s` timestamp.
-	 * @param bool $dryRun When true, preview only.
+	 * @var string|null
 	 */
-	public function __construct(
-		public readonly string|null $parentUuid,
-		public readonly string $now,
-		public readonly bool $dryRun,
-	) {
-	}//end __construct()
+	public string|null $parentUuid;
+
+	/**
+	 * The batch `Y-m-d H:i:s` timestamp.
+	 *
+	 * @var string
+	 */
+	public string $now;
+
+	/**
+	 * When true, preview only.
+	 *
+	 * @var bool
+	 */
+	public bool $dryRun;
 }//end class

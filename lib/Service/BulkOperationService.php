@@ -144,7 +144,10 @@ class BulkOperationService {
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
 
-		$delete = new BulkDeleteChange(userId: $userId, dryRun: $dryRun, cascade: $cascade);
+		$delete = new BulkDeleteRun();
+		$delete->userId = $userId;
+		$delete->dryRun = $dryRun;
+		$delete->cascade = $cascade;
 		$outcomes = [];
 		foreach ($dashboardUuids as $uuid) {
 			$outcomes[] = $this->deleteOneDashboard(uuid: (string)$uuid, delete: $delete);
@@ -196,21 +199,12 @@ class BulkOperationService {
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
 
-		if ($parentUuid !== null && $parentUuid !== '') {
-			try {
-				$this->stores->dashboardMapper->findByUuid(uuid: $parentUuid);
-			} catch (DoesNotExistException) {
-				throw new InvalidArgumentException(
-					message: DashboardTreeService::ERR_PARENT_NOT_FOUND
-				);
-			}
-		}
+		$this->assertParentExists(parentUuid: $parentUuid);
 
-		$move = new BulkMoveChange(
-			parentUuid: $parentUuid,
-			now: (new DateTime())->format(format: 'Y-m-d H:i:s'),
-			dryRun: $dryRun
-		);
+		$move = new BulkMoveRun();
+		$move->parentUuid = $parentUuid;
+		$move->now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$move->dryRun = $dryRun;
 		$outcomes = [];
 		foreach ($dashboardUuids as $uuid) {
 			$outcomes[] = $this->moveOneDashboard(uuid: (string)$uuid, move: $move);
@@ -268,28 +262,7 @@ class BulkOperationService {
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
 
-		$allowed = [
-			Dashboard::STATUS_DRAFT,
-			Dashboard::STATUS_PUBLISHED,
-			Dashboard::STATUS_SCHEDULED,
-		];
-
-		if (in_array(needle: $publicationStatus, haystack: $allowed, strict: true) === false) {
-			throw new InvalidArgumentException(
-				message: 'publicationStatus must be one of: draft, published, scheduled'
-			);
-		}
-
-		$resolvedPublishAt = null;
-		if ($publicationStatus === Dashboard::STATUS_SCHEDULED) {
-			if ($publishAt === null || trim($publishAt) === '') {
-				throw new InvalidArgumentException(
-					message: 'publishAt is required when publicationStatus is "scheduled"'
-				);
-			}
-
-			$resolvedPublishAt = $this->parseFutureDate(publishAt: $publishAt);
-		}
+		$resolvedPublishAt = $this->validatedPublishAt(publicationStatus: $publicationStatus, publishAt: $publishAt);
 
 		$change = new BulkStatusChange(
 			publicationStatus: $publicationStatus,
@@ -346,47 +319,15 @@ class BulkOperationService {
 		$this->assertPermissions(uuids: $dashboardUuids, userId: $userId);
 		$this->assertWithinCap(uuids: $dashboardUuids);
 
-		$reindexed = 0;
-		$errors = [];
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-
+		$reindex = new BulkReindexRun();
+		$reindex->now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$reindex->dryRun = $dryRun;
+		$outcomes = [];
 		foreach ($dashboardUuids as $uuid) {
-			$uuidString = (string)$uuid;
-			try {
-				$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuidString);
-			} catch (DoesNotExistException) {
-				$errors[] = [
-					'uuid' => $uuidString,
-					'reason' => self::REASON_NOT_FOUND,
-				];
-				continue;
-			}
+			$outcomes[] = $this->reindexOneDashboard(uuid: (string)$uuid, reindex: $reindex);
+		}
 
-			if ($dryRun === true) {
-				$reindexed++;
-				continue;
-			}
-
-			try {
-				// Mark the dashboard dirty so the unified-search provider
-				// re-ingests it on the next pass. The provider lives in
-				// a sibling capability; touching `updatedAt` is the
-				// documented contract surface for "rebuild this row".
-				$dashboard->setUpdatedAt($now);
-				$this->stores->dashboardMapper->update(entity: $dashboard);
-				$reindexed++;
-			} catch (Throwable $t) {
-				$this->logger->error(
-					message: 'BulkOperationService::bulkReindex failed for uuid',
-					context: ['uuid' => $uuidString, 'exception' => $t]
-				);
-				$errors[] = [
-					'uuid' => $uuidString,
-					'reason' => self::REASON_REINDEX_FAILED,
-					'detail' => $t->getMessage(),
-				];
-			}
-		}//end foreach
+		[$reindexed, , $errors] = (new BulkOutcome(countKey: 'reindexed'))->tally(outcomes: $outcomes);
 
 		$payload = [
 			$this->countKey(dryRun: $dryRun, real: 'reindexedCount', preview: 'wouldReindexCount') => $reindexed,
@@ -491,13 +432,13 @@ class BulkOperationService {
 	 * non-NULL `error` is appended to the batch error list.
 	 *
 	 * @param string           $uuid   The dashboard UUID to delete.
-	 * @param BulkDeleteChange $delete The delete of the batch.
+	 * @param BulkDeleteRun $delete The delete of the batch.
 	 *
 	 * @return array{deleted: int, skipped: int, error: array<string, mixed>|null}
 	 *
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
-	private function deleteOneDashboard(string $uuid, BulkDeleteChange $delete): array {
+	private function deleteOneDashboard(string $uuid, BulkDeleteRun $delete): array {
 		$outcome = new BulkOutcome(countKey: 'deleted');
 		try {
 			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
@@ -546,13 +487,13 @@ class BulkOperationService {
 	 * batch.
 	 *
 	 * @param string         $uuid The dashboard UUID to move.
-	 * @param BulkMoveChange $move The move of the batch.
+	 * @param BulkMoveRun $move The move of the batch.
 	 *
 	 * @return array{moved: int, skipped: int, error: array<string, mixed>|null}
 	 *
 	 * @spec openspec/specs/dashboard-bulk-operations/spec.md
 	 */
-	private function moveOneDashboard(string $uuid, BulkMoveChange $move): array {
+	private function moveOneDashboard(string $uuid, BulkMoveRun $move): array {
 		$outcome = new BulkOutcome(countKey: 'moved');
 		try {
 			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
@@ -633,6 +574,109 @@ class BulkOperationService {
 	}//end statusOneDashboard()
 
 	/**
+	 * Refuse a move under a parent dashboard that does not exist.
+	 *
+	 * @param string|null $parentUuid The new parent UUID (NULL or '' ⇒ root).
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the parent does not exist.
+	 */
+	private function assertParentExists(string|null $parentUuid): void {
+		if ($parentUuid === null || $parentUuid === '') {
+			return;
+		}
+
+		try {
+			$this->stores->dashboardMapper->findByUuid(uuid: $parentUuid);
+		} catch (DoesNotExistException) {
+			throw new InvalidArgumentException(
+				message: DashboardTreeService::ERR_PARENT_NOT_FOUND
+			);
+		}
+	}//end assertParentExists()
+
+	/**
+	 * Validate the target status and resolve its publish time (only `scheduled` has one).
+	 *
+	 * @param string      $publicationStatus The target status.
+	 * @param string|null $publishAt         The requested ISO-8601 publish time.
+	 *
+	 * @return string|null The parsed publish time, or NULL.
+	 *
+	 * @throws InvalidArgumentException When the status is not in the enum, or a
+	 *                                  `scheduled` status has no future publish time.
+	 */
+	private function validatedPublishAt(string $publicationStatus, string|null $publishAt): string|null {
+		$allowed = [
+			Dashboard::STATUS_DRAFT,
+			Dashboard::STATUS_PUBLISHED,
+			Dashboard::STATUS_SCHEDULED,
+		];
+
+		if (in_array(needle: $publicationStatus, haystack: $allowed, strict: true) === false) {
+			throw new InvalidArgumentException(
+				message: 'publicationStatus must be one of: draft, published, scheduled'
+			);
+		}
+
+		if ($publicationStatus !== Dashboard::STATUS_SCHEDULED) {
+			return null;
+		}
+
+		if ($publishAt === null || trim($publishAt) === '') {
+			throw new InvalidArgumentException(
+				message: 'publishAt is required when publicationStatus is "scheduled"'
+			);
+		}
+
+		return $this->parseFutureDate(publishAt: $publishAt);
+	}//end validatedPublishAt()
+
+	/**
+	 * Mark one dashboard dirty for re-indexing as part of a {@see self::bulkReindex()} batch.
+	 *
+	 * @param string         $uuid    The dashboard UUID.
+	 * @param BulkReindexRun $reindex The reindex of the batch.
+	 *
+	 * @return array{reindexed: int, skipped: int, error: array<string, mixed>|null}
+	 */
+	private function reindexOneDashboard(string $uuid, BulkReindexRun $reindex): array {
+		$outcome = new BulkOutcome(countKey: 'reindexed');
+		try {
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
+		} catch (DoesNotExistException) {
+			return $outcome->failed(error: $outcome->uuidError(uuid: $uuid, reason: self::REASON_NOT_FOUND));
+		}
+
+		if ($reindex->dryRun === true) {
+			return $outcome->counted(count: 1);
+		}
+
+		try {
+			// Mark the dashboard dirty so the unified-search provider
+			// re-ingests it on the next pass. The provider lives in
+			// a sibling capability; touching `updatedAt` is the
+			// documented contract surface for "rebuild this row".
+			$dashboard->setUpdatedAt($reindex->now);
+			$this->stores->dashboardMapper->update(entity: $dashboard);
+			return $outcome->counted(count: 1);
+		} catch (Throwable $t) {
+			$this->logger->error(
+				message: 'BulkOperationService::bulkReindex failed for uuid',
+				context: ['uuid' => $uuid, 'exception' => $t]
+			);
+			return $outcome->failed(
+				error: [
+					'uuid' => $uuid,
+					'reason' => self::REASON_REINDEX_FAILED,
+					'detail' => $t->getMessage(),
+				]
+			);
+		}//end try
+	}//end reindexOneDashboard()
+
+	/**
 	 * Whether the dashboard already has the target status (and, for
 	 * `scheduled`, the target publish time).
 	 *
@@ -694,12 +738,12 @@ class BulkOperationService {
 	 * How many dashboards a dry-run delete would remove: the dashboard, plus
 	 * its children when cascading.
 	 *
-	 * @param BulkDeleteChange $delete     The delete of the batch.
+	 * @param BulkDeleteRun $delete     The delete of the batch.
 	 * @param int              $childCount The dashboard's direct child count.
 	 *
 	 * @return int
 	 */
-	private function previewDeleteCount(BulkDeleteChange $delete, int $childCount): int {
+	private function previewDeleteCount(BulkDeleteRun $delete, int $childCount): int {
 		if ($delete->cascade === true && $childCount > 0) {
 			return ($childCount + 1);
 		}

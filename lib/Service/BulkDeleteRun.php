@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BulkDeleteChange
+ * BulkDeleteRun
  *
  * One bulk delete, applied to every dashboard of the batch
  * (REQ-BULK-001).
@@ -26,20 +26,30 @@ namespace OCA\LaunchPad\Service;
  * The acting user, the preview flag and the cascade choice shared by every
  * dashboard of one bulk delete.
  *
+ * Built and filled by {@see BulkOperationService}; never leaves it.
+ *
  * @spec openspec/specs/dashboard-bulk-operations/spec.md
  */
-final class BulkDeleteChange {
+final class BulkDeleteRun {
+
 	/**
-	 * Constructor.
+	 * The acting NC user ID.
 	 *
-	 * @param string $userId The acting NC user ID.
-	 * @param bool $dryRun When true, preview only.
-	 * @param bool $cascade When true, recurse into children.
+	 * @var string
 	 */
-	public function __construct(
-		public readonly string $userId,
-		public readonly bool $dryRun,
-		public readonly bool $cascade,
-	) {
-	}//end __construct()
+	public string $userId;
+
+	/**
+	 * When true, preview only.
+	 *
+	 * @var bool
+	 */
+	public bool $dryRun;
+
+	/**
+	 * When true, recurse into children.
+	 *
+	 * @var bool
+	 */
+	public bool $cascade;
 }//end class

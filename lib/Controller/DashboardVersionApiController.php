@@ -74,9 +74,9 @@ class DashboardVersionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listVersions(string $uuid): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-version.list-versions');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'dashboard-version.list-versions');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -112,9 +112,9 @@ class DashboardVersionApiController extends Controller {
 		string $uuid,
 		int $versionNumber,
 	): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-version.fetch-version');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'dashboard-version.fetch-version');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -161,9 +161,9 @@ class DashboardVersionApiController extends Controller {
 		string $uuid,
 		?string $note = null,
 	): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-version.create-version');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'dashboard-version.create-version');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -204,9 +204,9 @@ class DashboardVersionApiController extends Controller {
 		string $uuid,
 		int $versionNumber,
 	): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-version.restore-version');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'dashboard-version.restore-version');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -260,4 +260,17 @@ class DashboardVersionApiController extends Controller {
 
 		return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 	}//end mapServiceException()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

@@ -106,9 +106,9 @@ class ManifestController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'manifest.index');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'manifest.index');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// Retrieve ObjectService lazily — OpenRegister may not be enabled on
@@ -492,4 +492,17 @@ class ManifestController extends Controller {
 		];
 
 	}//end buildManifest()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

@@ -27,7 +27,6 @@ use OCA\LaunchPad\Service\ActionAuthService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
-use OCP\IUser;
 use OCP\IUserSession;
 
 /**
@@ -49,18 +48,18 @@ class ActionCaller {
 	}//end __construct()
 
 	/**
-	 * The signed-in user when they may perform the action, else the refusal.
+	 * The refusal for a caller who may not perform the action, or NULL to proceed.
 	 *
 	 * No user ID or no session user is a 401; a denied ADR-023 action is a 403.
 	 *
 	 * @param string|null $userId The controller's user ID.
 	 * @param string      $action The action identifier to require.
 	 *
-	 * @return IUser|JSONResponse The user, or the 401/403 response.
+	 * @return JSONResponse|null The 401/403 response, or NULL to proceed.
 	 *
 	 * @spec openspec/specs/dashboard-reactions/spec.md
 	 */
-	public function authorise(string|null $userId, string $action): IUser|JSONResponse {
+	public function refusal(string|null $userId, string $action): ?JSONResponse {
 		if ($userId === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
@@ -76,6 +75,6 @@ class ActionCaller {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		return $user;
-	}//end authorise()
+		return null;
+	}//end refusal()
 }//end class

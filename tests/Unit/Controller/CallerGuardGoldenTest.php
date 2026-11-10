@@ -106,7 +106,7 @@ class CallerGuardGoldenTest extends TestCase {
 				continue;
 			}
 			$body = implode('', array_slice($lines, $method->getStartLine() - 1, $method->getEndLine() - $method->getStartLine() + 1));
-			if (preg_match('/requireAction|Not authenticated|->authorise\(/', $body) === 1) {
+			if (preg_match('/requireAction|Not authenticated|actionRefusal\(/', $body) === 1) {
 				$methods[] = $method;
 			}
 		}

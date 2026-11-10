@@ -78,9 +78,9 @@ class TileApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.index');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'tile.index');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$tiles = $this->sources->tileService->getUserTiles(userId: $this->userId);
@@ -104,9 +104,9 @@ class TileApiController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function discover(): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.discover');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'tile.discover');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return new JSONResponse(['apps' => $this->sources->discovery->discover()]);
@@ -126,9 +126,9 @@ class TileApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function create(): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.create');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'tile.create');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->goneResponse();
@@ -149,9 +149,9 @@ class TileApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function update(): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.update');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'tile.update');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->goneResponse();
@@ -170,9 +170,9 @@ class TileApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'tile.destroy');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'tile.destroy');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->goneResponse();
@@ -197,4 +197,17 @@ class TileApiController extends Controller {
 			statusCode: Http::STATUS_GONE
 		);
 	}//end goneResponse()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

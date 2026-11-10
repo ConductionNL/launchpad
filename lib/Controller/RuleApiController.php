@@ -66,9 +66,9 @@ class RuleApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getRules(int $placementId): JSONResponse {
-		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.get-rules');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'rule.get-rules');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -114,9 +114,9 @@ class RuleApiController extends Controller {
 		?array $ruleConfig = null,
 		bool $isInclude = true,
 	): JSONResponse {
-		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.add-rule');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'rule.add-rule');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// Validate body shape explicitly so missing fields return a clean
@@ -186,9 +186,9 @@ class RuleApiController extends Controller {
 		?array $ruleConfig = null,
 		?bool $isInclude = null,
 	): JSONResponse {
-		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.update-rule');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'rule.update-rule');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -236,9 +236,9 @@ class RuleApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function deleteRule(int $ruleId): JSONResponse {
-		$user = $this->actionCaller()->authorise(userId: $this->userId, action: 'rule.delete-rule');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'rule.delete-rule');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -289,11 +289,15 @@ class RuleApiController extends Controller {
 	}//end buildRuleUpdateData()
 
 	/**
-	 * The session and the ADR-023 action check, for {@see ActionCaller::authorise()}.
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
 	 *
-	 * @return ActionCaller The caller.
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
 	 */
-	private function actionCaller(): ActionCaller {
-		return new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession);
-	}//end actionCaller()
+	private function actionRefusal(string $action): ?JSONResponse {
+		return (new ActionCaller(actionAuth: $this->actionAuth, userSession: $this->userSession))->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

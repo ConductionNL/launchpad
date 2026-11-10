@@ -76,9 +76,9 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-metadata.get-metadata');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'dashboard-metadata.get-metadata');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
@@ -140,9 +140,9 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
-		$user = $this->caller->authorise(userId: $this->userId, action: 'dashboard-metadata.set-metadata');
-		if ($user instanceof JSONResponse) {
-			return $user;
+		$refusal = $this->actionRefusal(action: 'dashboard-metadata.set-metadata');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
@@ -194,4 +194,17 @@ class DashboardMetadataController extends Controller {
 			return null;
 		}
 	}//end loadDashboard()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

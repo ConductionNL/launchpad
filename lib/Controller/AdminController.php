@@ -343,11 +343,7 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		$user = $this->caller->userSession->getUser();
-		$actingAdminId = '';
-		if ($user !== null) {
-			$actingAdminId = $user->getUID();
-		}
+		$actingAdminId = $this->actingAdminId();
 
 		try {
 			$result = $this->templates->resyncService->resync(
@@ -368,6 +364,20 @@ class AdminController extends Controller {
 			return ResponseHelper::error(exception: $e);
 		}//end try
 	}//end resyncTemplate()
+
+	/**
+	 * The UID of the signed-in admin, or an empty string without a session user.
+	 *
+	 * @return string The acting admin's UID.
+	 */
+	private function actingAdminId(): string {
+		$user = $this->caller->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end actingAdminId()
 
 	/**
 	 * Get admin settings.
@@ -457,8 +467,7 @@ class AdminController extends Controller {
 		bool|null $allowUserDashboards = null,
 		bool|null $allowMultipleDashboards = null,
 		int|null $defaultGridColumns = null,
-		array|null $linkCreateFileExtensions = null,
-		bool|null $startPageWithoutNavigation = null,
+		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;

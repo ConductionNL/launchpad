@@ -86,6 +86,57 @@ class PublicShareControllerCrudGoldenTest extends TestCase {
 	}//end testEndpointsMatchTheRecording()
 
 	/**
+	 * The public render takes the header password when the query has none,
+	 * marks the bearer and strips the creator from the share.
+	 *
+	 * @return void
+	 */
+	public function testShowUsesTheHeaderPasswordAndHidesTheCreator(): void {
+		$cases = [];
+		foreach ([[null, 'hdr'], ['', 'hdr'], ['query', 'hdr'], [null, '']] as [$query, $header]) {
+			$share = new PublicShare();
+			$share->setToken('tok');
+			$share->setCreatedBy('alice');
+			$dashboard = new \OCA\LaunchPad\Db\Dashboard();
+			$dashboard->setName('Board');
+			$placement = new \OCA\LaunchPad\Db\WidgetPlacement();
+			$placement->setWidgetId('text');
+
+			$seen    = [];
+			$service = $this->createMock(PublicShareService::class);
+			$service->method('renderShareContent')->willReturnCallback(
+				function (string $token, string $ipAddress, ?string $password) use (&$seen, $share, $dashboard, $placement): array {
+					$seen[] = [$token, $ipAddress, $password];
+					return ['share' => $share, 'dashboard' => $dashboard, 'placements' => [$placement]];
+				}
+			);
+			$context = $this->createMock(PublicShareContext::class);
+			$context->method('markBearer')->willReturnCallback(
+				function (string $token) use (&$seen): void {
+					$seen[] = ['bearer', $token];
+				}
+			);
+			$request = $this->createMock(IRequest::class);
+			$request->method('getRemoteAddress')->willReturn('10.0.0.1');
+			$request->method('getHeader')->willReturnCallback(static fn (string $name): string => ($name === 'X-Share-Password') ? $header : '');
+
+			$controller = new PublicShareController(request: $request, shareService: $service, shareContext: $context, logger: $this->createMock(LoggerInterface::class), userId: null);
+			$data       = $controller->show(token: 'tok', password: $query)->getData();
+			$cases[]    = [$seen, array_key_exists('createdBy', $data['share']), $data['dashboard']['name'], count($data['placements'])];
+		}
+
+		$this->assertSame(
+			[
+				[[['tok', '10.0.0.1', 'hdr'], ['bearer', 'tok']], false, 'Board', 1],
+				[[['tok', '10.0.0.1', 'hdr'], ['bearer', 'tok']], false, 'Board', 1],
+				[[['tok', '10.0.0.1', 'query'], ['bearer', 'tok']], false, 'Board', 1],
+				[[['tok', '10.0.0.1', null], ['bearer', 'tok']], false, 'Board', 1],
+			],
+			$cases
+		);
+	}//end testShowUsesTheHeaderPasswordAndHidesTheCreator()
+
+	/**
 	 * The controller over a recording service mock.
 	 *
 	 * @param string|null     $userId  The signed-in user.

@@ -494,11 +494,9 @@ class PermissionService {
 		?int $dashboardId = null,
 		?Dashboard $dashboard = null,
 	): ?string {
+		$dashboard = ($dashboard ?? $this->findDashboard(dashboardId: $dashboardId));
 		if ($dashboard === null) {
-			$dashboard = $this->findDashboard(dashboardId: $dashboardId);
-			if ($dashboard === null) {
-				return null;
-			}
+			return null;
 		}
 
 		// Group-shared dashboards bypass the ownership-vs-share path:
@@ -508,6 +506,19 @@ class PermissionService {
 			return $this->groupSharedAccessLevel(userId: $userId, dashboard: $dashboard);
 		}
 
+		return $this->ownedOrSharedAccessLevel(userId: $userId, dashboard: $dashboard);
+	}//end resolveAccessLevel()
+
+	/**
+	 * The access level on a personal dashboard: its effective level for
+	 * the owner, the shared level for anyone else.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return string|null The access level, or NULL for no access.
+	 */
+	private function ownedOrSharedAccessLevel(string $userId, Dashboard $dashboard): ?string {
 		if ($dashboard->getUserId() === $userId) {
 			return $this->getEffectivePermissionLevel(
 				dashboard: $dashboard,
@@ -516,7 +527,7 @@ class PermissionService {
 		}
 
 		return $this->sharedAccessLevel(userId: $userId, dashboard: $dashboard);
-	}//end resolveAccessLevel()
+	}//end ownedOrSharedAccessLevel()
 
 	/**
 	 * The access level on a group-shared dashboard: its effective level

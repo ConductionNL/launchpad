@@ -202,56 +202,50 @@ class WidgetPlacementMapper extends QBMapper {
 	 */
 	public function updatePositions(array $updates): void {
 		foreach ($updates as $update) {
-			$qb = $this->db->getQueryBuilder();
-			$qb->update(update: $this->getTableName())
-				->set(
-					key: 'grid_x',
-					value: $qb->createNamedParameter(
-						value: $update['gridX'] ?? 0,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'grid_y',
-					value: $qb->createNamedParameter(
-						value: $update['gridY'] ?? 0,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'grid_width',
-					value: $qb->createNamedParameter(
-						value: $update['gridWidth'] ?? 4,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'grid_height',
-					value: $qb->createNamedParameter(
-						value: $update['gridHeight'] ?? 4,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'updated_at',
-					value: $qb->createNamedParameter(
-						value: new DateTime(),
-						type: IQueryBuilder::PARAM_DATETIME_MUTABLE
-					)
-				)
-				->where(
-					$qb->expr()->eq(
-						x: 'id',
-						y: $qb->createNamedParameter(
-							value: $update['id'],
-							type: IQueryBuilder::PARAM_INT
-						)
-					)
-				);
-
-			$qb->executeStatement();
-		}//end foreach
+			$this->updatePosition(update: $update);
+		}
 	}//end updatePositions()
+
+	/**
+	 * Write the grid position of one placement and stamp `updated_at`.
+	 *
+	 * Missing coordinates default to 0, missing sizes to 4.
+	 *
+	 * @param mixed $update One `{id, gridX?, gridY?, gridWidth?, gridHeight?}` entry
+	 *                      (untyped like the incoming list, so a malformed entry
+	 *                      fails exactly where it always did).
+	 *
+	 * @return void
+	 */
+	private function updatePosition(mixed $update): void {
+		$columns = [
+			'grid_x' => ($update['gridX'] ?? 0),
+			'grid_y' => ($update['gridY'] ?? 0),
+			'grid_width' => ($update['gridWidth'] ?? 4),
+			'grid_height' => ($update['gridHeight'] ?? 4),
+		];
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->update(update: $this->getTableName());
+		foreach ($columns as $column => $value) {
+			$qb->set(
+				key: $column,
+				value: $qb->createNamedParameter(value: $value, type: IQueryBuilder::PARAM_INT)
+			);
+		}
+
+		$qb->set(
+			key: 'updated_at',
+			value: $qb->createNamedParameter(value: new DateTime(), type: IQueryBuilder::PARAM_DATETIME_MUTABLE)
+		)->where(
+			$qb->expr()->eq(
+				x: 'id',
+				y: $qb->createNamedParameter(value: $update['id'], type: IQueryBuilder::PARAM_INT)
+			)
+		);
+
+		$qb->executeStatement();
+	}//end updatePosition()
 
 	/**
 	 * Clone all placements from one dashboard to another.
@@ -284,46 +278,12 @@ class WidgetPlacementMapper extends QBMapper {
 
 		foreach ($rows as $row) {
 			$clone = new WidgetPlacement();
-			// Force the new dashboard id — the rest of the fields below
-			// are byte-for-byte copies of the source row.
+			// Force the new dashboard id — the rest of the fields are
+			// byte-for-byte copies of the source row.
 			$clone->setDashboardId($targetDashboardId);
-			$clone->setWidgetId($row->getWidgetId());
-			$clone->setGridX($row->getGridX());
-			$clone->setGridY($row->getGridY());
-			$clone->setGridWidth($row->getGridWidth());
-			$clone->setGridHeight($row->getGridHeight());
-			$clone->setIsCompulsory($row->getIsCompulsory());
-			$clone->setIsVisible($row->getIsVisible());
-			$clone->setStyleConfig($row->getStyleConfig());
-			$clone->setCustomTitle($row->getCustomTitle());
-			$clone->setCustomIcon($row->getCustomIcon());
-			$clone->setShowTitle($row->getShowTitle());
-			$clone->setSortOrder($row->getSortOrder());
-			$clone->setTileType($row->getTileType());
-			$clone->setTileTitle($row->getTileTitle());
-			// REQ-DASH-022: same `/apps/launchpad/resource/...` URL — no
-			// file is duplicated in app data, both dashboards reference
-			// the shared resource record.
-			$clone->setTileIcon($row->getTileIcon());
-			$clone->setTileIconType($row->getTileIconType());
-			$clone->setTileBackgroundColor($row->getTileBackgroundColor());
-			$clone->setTileTextColor($row->getTileTextColor());
-			$clone->setTileLinkType($row->getTileLinkType());
-			$clone->setTileLinkValue($row->getTileLinkValue());
-			// REQ-DASH-020: `content` carries the widget configuration —
-			// for `nc-widget` rows the `{"widgetId": ...}` JSON that tells
-			// the renderer what to load. Dropping it forks widgets into a
-			// sourceless "No items available" state.
-			$clone->setContent($row->getContent());
-			// REQ-ACK-001: preserve the acknowledgement requirement and the
-			// shared `announcementKey` on fork so a forked dashboard keeps the
-			// same announcement identity.
-			$clone->setRequiresAcknowledgement($row->getRequiresAcknowledgement());
-			$clone->setAcknowledgementPrompt($row->getAcknowledgementPrompt());
-			$clone->setAcknowledgementDeadline($row->getAcknowledgementDeadline());
-			$clone->setReacknowledgeOnChange($row->getReacknowledgeOnChange());
-			$clone->setAcknowledgementContentVersion($row->getAcknowledgementContentVersion());
-			$clone->setAnnouncementKey($row->getAnnouncementKey());
+			$this->copyLayout(row: $row, clone: $clone);
+			$this->copyTile(row: $row, clone: $clone);
+			$this->copyAcknowledgement(row: $row, clone: $clone);
 			$clone->setCreatedAt($now);
 			$clone->setUpdatedAt($now);
 
@@ -333,6 +293,78 @@ class WidgetPlacementMapper extends QBMapper {
 
 		return $count;
 	}//end cloneToDashboard()
+
+	/**
+	 * Copy the widget, grid, style and content fields of a placement.
+	 *
+	 * REQ-DASH-020: `content` carries the widget configuration — for
+	 * `nc-widget` rows the `{"widgetId": ...}` JSON that tells the renderer
+	 * what to load. Dropping it forks widgets into a sourceless "No items
+	 * available" state.
+	 *
+	 * @param WidgetPlacement $row   The source placement.
+	 * @param WidgetPlacement $clone The clone being built.
+	 *
+	 * @return void
+	 */
+	private function copyLayout(WidgetPlacement $row, WidgetPlacement $clone): void {
+		$clone->setWidgetId($row->getWidgetId());
+		$clone->setGridX($row->getGridX());
+		$clone->setGridY($row->getGridY());
+		$clone->setGridWidth($row->getGridWidth());
+		$clone->setGridHeight($row->getGridHeight());
+		$clone->setIsCompulsory($row->getIsCompulsory());
+		$clone->setIsVisible($row->getIsVisible());
+		$clone->setStyleConfig($row->getStyleConfig());
+		$clone->setCustomTitle($row->getCustomTitle());
+		$clone->setCustomIcon($row->getCustomIcon());
+		$clone->setShowTitle($row->getShowTitle());
+		$clone->setSortOrder($row->getSortOrder());
+	}//end copyLayout()
+
+	/**
+	 * Copy the tile fields and the widget content of a placement.
+	 *
+	 * REQ-DASH-022: the tile icon keeps the same `/apps/launchpad/resource/...`
+	 * URL — no file is duplicated in app data, both dashboards reference the
+	 * shared resource record.
+	 *
+	 * @param WidgetPlacement $row   The source placement.
+	 * @param WidgetPlacement $clone The clone being built.
+	 *
+	 * @return void
+	 */
+	private function copyTile(WidgetPlacement $row, WidgetPlacement $clone): void {
+		$clone->setTileType($row->getTileType());
+		$clone->setTileTitle($row->getTileTitle());
+		$clone->setTileIcon($row->getTileIcon());
+		$clone->setTileIconType($row->getTileIconType());
+		$clone->setTileBackgroundColor($row->getTileBackgroundColor());
+		$clone->setTileTextColor($row->getTileTextColor());
+		$clone->setTileLinkType($row->getTileLinkType());
+		$clone->setTileLinkValue($row->getTileLinkValue());
+		$clone->setContent($row->getContent());
+	}//end copyTile()
+
+	/**
+	 * Copy the acknowledgement requirement of a placement.
+	 *
+	 * REQ-ACK-001: the shared `announcementKey` is preserved on fork so a
+	 * forked dashboard keeps the same announcement identity.
+	 *
+	 * @param WidgetPlacement $row   The source placement.
+	 * @param WidgetPlacement $clone The clone being built.
+	 *
+	 * @return void
+	 */
+	private function copyAcknowledgement(WidgetPlacement $row, WidgetPlacement $clone): void {
+		$clone->setRequiresAcknowledgement($row->getRequiresAcknowledgement());
+		$clone->setAcknowledgementPrompt($row->getAcknowledgementPrompt());
+		$clone->setAcknowledgementDeadline($row->getAcknowledgementDeadline());
+		$clone->setReacknowledgeOnChange($row->getReacknowledgeOnChange());
+		$clone->setAcknowledgementContentVersion($row->getAcknowledgementContentVersion());
+		$clone->setAnnouncementKey($row->getAnnouncementKey());
+	}//end copyAcknowledgement()
 
 	/**
 	 * Count placement rows whose `dashboard_id` no longer points at

@@ -338,41 +338,10 @@ class AcknowledgementService {
 
 		$audience = $this->resolveAudience(placements: $placements);
 
-		// Map userId => acknowledgedAt for the current version.
-		$ackMap = [];
-		$receipts = $this->acknowledgementMapper->findByAnnouncement(
-			announcementKey: $announcementKey,
-			contentVersion: $contentVersion
-		);
-		foreach ($receipts as $receipt) {
-			$rid = (string)$receipt->getUserId();
-			$ackMap[$rid] = $receipt->getAcknowledgedAtFormatted();
-		}
-
-		$acknowledged = [];
-		$pending = [];
-		$rows = [];
-		foreach ($audience as $uid) {
-			if (array_key_exists($uid, $ackMap) === true) {
-				$acknowledged[] = [
-					'userId' => $uid,
-					'acknowledgedAt' => $ackMap[$uid],
-				];
-				$rows[] = [
-					'userId' => $uid,
-					'status' => 'acknowledged',
-					'acknowledgedAt' => $ackMap[$uid],
-				];
-				continue;
-			}
-
-			$pending[] = $uid;
-			$rows[] = [
-				'userId' => $uid,
-				'status' => 'pending',
-				'acknowledgedAt' => null,
-			];
-		}//end foreach
+		$ackMap = $this->acknowledgedAtByUser(announcementKey: $announcementKey, contentVersion: $contentVersion);
+		$rows = $this->reportRows(audience: $audience, ackMap: $ackMap);
+		$acknowledged = $this->acknowledgedEntries(rows: $rows);
+		$pending = $this->pendingUserIds(rows: $rows);
 
 		return [
 			'announcementKey' => $announcementKey,
@@ -386,6 +355,97 @@ class AcknowledgementService {
 			'rows' => $rows,
 		];
 	}//end report()
+
+	/**
+	 * Map userId => acknowledgedAt for the current version.
+	 *
+	 * @param string $announcementKey The announcement key.
+	 * @param int    $contentVersion  The current content version.
+	 *
+	 * @return array<string, string|null>
+	 */
+	private function acknowledgedAtByUser(string $announcementKey, int $contentVersion): array {
+		$ackMap = [];
+		$receipts = $this->acknowledgementMapper->findByAnnouncement(
+			announcementKey: $announcementKey,
+			contentVersion: $contentVersion
+		);
+		foreach ($receipts as $receipt) {
+			$rid = (string)$receipt->getUserId();
+			$ackMap[$rid] = $receipt->getAcknowledgedAtFormatted();
+		}
+
+		return $ackMap;
+	}//end acknowledgedAtByUser()
+
+	/**
+	 * One report row per audience member, in audience order.
+	 *
+	 * @param string[]                   $audience The audience user IDs.
+	 * @param array<string, string|null> $ackMap   userId => acknowledgedAt.
+	 *
+	 * @return array<int, array{userId: string, status: string, acknowledgedAt: string|null}>
+	 */
+	private function reportRows(array $audience, array $ackMap): array {
+		$rows = [];
+		foreach ($audience as $uid) {
+			if (array_key_exists($uid, $ackMap) === true) {
+				$rows[] = [
+					'userId' => $uid,
+					'status' => 'acknowledged',
+					'acknowledgedAt' => $ackMap[$uid],
+				];
+				continue;
+			}
+
+			$rows[] = [
+				'userId' => $uid,
+				'status' => 'pending',
+				'acknowledgedAt' => null,
+			];
+		}
+
+		return $rows;
+	}//end reportRows()
+
+	/**
+	 * The acknowledged rows as `{userId, acknowledgedAt}`.
+	 *
+	 * @param array<int, array{userId: string, status: string, acknowledgedAt: string|null}> $rows The report rows.
+	 *
+	 * @return array<int, array{userId: string, acknowledgedAt: string|null}>
+	 */
+	private function acknowledgedEntries(array $rows): array {
+		$acknowledged = [];
+		foreach ($rows as $row) {
+			if ($row['status'] === 'acknowledged') {
+				$acknowledged[] = [
+					'userId' => $row['userId'],
+					'acknowledgedAt' => $row['acknowledgedAt'],
+				];
+			}
+		}
+
+		return $acknowledged;
+	}//end acknowledgedEntries()
+
+	/**
+	 * The user IDs of the pending rows.
+	 *
+	 * @param array<int, array{userId: string, status: string, acknowledgedAt: string|null}> $rows The report rows.
+	 *
+	 * @return string[]
+	 */
+	private function pendingUserIds(array $rows): array {
+		$pending = [];
+		foreach ($rows as $row) {
+			if ($row['status'] === 'pending') {
+				$pending[] = $row['userId'];
+			}
+		}
+
+		return $pending;
+	}//end pendingUserIds()
 
 	/**
 	 * Resolve the owning user id of the announcement's blueprint dashboard,

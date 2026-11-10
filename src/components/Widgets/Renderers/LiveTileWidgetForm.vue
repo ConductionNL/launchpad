@@ -146,6 +146,37 @@ const DEFAULT_CONTENT = Object.freeze({
 	linkTarget: 'same-tab',
 })
 
+const SOURCE_FIELDS = Object.freeze(['label', 'sourceMode', 'url', 'sourceId', 'valueExpr', 'refresh'])
+const LINK_FIELDS = Object.freeze(['linkUrl', 'linkTarget'])
+
+/**
+ * The stored value of each named field, or its default when unset or null.
+ *
+ * @param {object} initial The stored content.
+ * @param {Array<string>} fields The field names.
+ * @return {object} the fields to edit.
+ */
+function storedOrDefault(initial, fields) {
+	return Object.fromEntries(
+		fields.map((field) => [field, initial[field] ?? DEFAULT_CONTENT[field]]),
+	)
+}
+
+/**
+ * The number-format fields of the form, read over the default format.
+ *
+ * @param {object|null|undefined} stored The stored format.
+ * @return {object} formatPrefix, formatSuffix and formatThousands.
+ */
+function formatFields(stored) {
+	const format = { ...DEFAULT_CONTENT.format, ...(stored || {}) }
+	return {
+		formatPrefix: format.prefix,
+		formatSuffix: format.suffix,
+		formatThousands: !!format.thousands,
+	}
+}
+
 /**
  * LiveTileWidgetForm — `CnAddWidgetModal` sub-form for creating or editing a
  * `livetile` placement (REQ-LIVETILE-002/004/005).
@@ -187,21 +218,11 @@ export default {
 
 	data() {
 		const initial = this.editingWidget?.content || this.value || {}
-		const format = { ...DEFAULT_CONTENT.format, ...(initial.format || {}) }
-		const badge = { ...DEFAULT_CONTENT.badge, ...(initial.badge || {}) }
 		return {
-			label: initial.label ?? DEFAULT_CONTENT.label,
-			sourceMode: initial.sourceMode ?? DEFAULT_CONTENT.sourceMode,
-			url: initial.url ?? DEFAULT_CONTENT.url,
-			sourceId: initial.sourceId ?? DEFAULT_CONTENT.sourceId,
-			valueExpr: initial.valueExpr ?? DEFAULT_CONTENT.valueExpr,
-			refresh: initial.refresh ?? DEFAULT_CONTENT.refresh,
-			formatPrefix: format.prefix,
-			formatSuffix: format.suffix,
-			formatThousands: !!format.thousands,
-			badge,
-			linkUrl: initial.linkUrl ?? DEFAULT_CONTENT.linkUrl,
-			linkTarget: initial.linkTarget ?? DEFAULT_CONTENT.linkTarget,
+			...storedOrDefault(initial, SOURCE_FIELDS),
+			...formatFields(initial.format),
+			badge: { ...DEFAULT_CONTENT.badge, ...(initial.badge || {}) },
+			...storedOrDefault(initial, LINK_FIELDS),
 			connectorAvailable: false,
 			urlAllowListError: '',
 			MIN_REFRESH_SECONDS,
@@ -397,26 +418,48 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		validate() {
-			const errors = []
-
-			if (this.sourceMode === 'url') {
-				errors.push(...urlFieldErrors(this.url, this.urlAllowListError))
-			} else if (this.sourceMode === 'connector') {
-				if (!this.connectorAvailable) {
-					errors.push(t('launchpad', 'OpenConnector is not available.'))
-				}
-				if (
-					typeof this.sourceId !== 'string'
-					|| this.sourceId.trim() === ''
-				) {
-					errors.push(t('launchpad', 'Source id is required'))
-				}
-			}
+			const errors = this.sourceErrors()
 
 			if (typeof this.valueExpr !== 'string' || this.valueExpr.trim() === '') {
 				errors.push(t('launchpad', 'Value expression is required'))
 			}
 
+			return errors
+		},
+
+		/**
+		 * The errors of the chosen source: the URL checks in `url` mode, the
+		 * connector checks in `connector` mode.
+		 *
+		 * @return {string[]} the source errors.
+		 */
+		sourceErrors() {
+			if (this.sourceMode === 'url') {
+				return [...urlFieldErrors(this.url, this.urlAllowListError)]
+			}
+			if (this.sourceMode === 'connector') {
+				return this.connectorErrors()
+			}
+			return []
+		},
+
+		/**
+		 * The errors of `connector` mode: OpenConnector must be available and
+		 * a source id chosen.
+		 *
+		 * @return {string[]} the connector errors.
+		 */
+		connectorErrors() {
+			const errors = []
+			if (!this.connectorAvailable) {
+				errors.push(t('launchpad', 'OpenConnector is not available.'))
+			}
+			if (
+				typeof this.sourceId !== 'string'
+				|| this.sourceId.trim() === ''
+			) {
+				errors.push(t('launchpad', 'Source id is required'))
+			}
 			return errors
 		},
 	},

@@ -85,7 +85,9 @@ class WidgetApiController extends Controller {
 
 		$widgets = $this->sources->widgetService->getAvailableWidgets();
 
-		return ResponseHelper::success(data: $this->allowedWidgets(widgets: $widgets));
+		$filter = new AllowedWidgetFilter(roleFeaturePerm: $this->policy->roleFeaturePerm, userId: $this->userId);
+
+		return ResponseHelper::success(data: $filter->filter(widgets: $widgets));
 	}//end listAvailable()
 
 	/**
@@ -108,51 +110,6 @@ class WidgetApiController extends Controller {
 
 		return null;
 	}//end denyListAvailable()
-
-	/**
-	 * The widgets the signed-in user's role-feature profile permits; every
-	 * widget without a user or when nothing is configured
-	 * (backwards-compat).
-	 *
-	 * @param array<int, array<string, mixed>> $widgets The available widgets.
-	 *
-	 * @return array<int, array<string, mixed>> The permitted widgets.
-	 */
-	private function allowedWidgets(array $widgets): array {
-		if ($this->userId === null) {
-			return $widgets;
-		}
-
-		$allowed = $this->policy->roleFeaturePerm->getAllowedWidgetIds(
-			userId: $this->userId
-		);
-		if ($allowed === null) {
-			// Backwards-compat: nothing configured, return everything.
-			return $widgets;
-		}
-
-		return self::widgetsWithIdIn(widgets: $widgets, allowed: $allowed);
-	}//end allowedWidgets()
-
-	/**
-	 * The widgets whose non-empty id is in the allowed list, in order.
-	 *
-	 * @param array<int, array<string, mixed>> $widgets The available widgets.
-	 * @param array<int, string>               $allowed The allowed widget ids.
-	 *
-	 * @return array<int, array<string, mixed>> The kept widgets.
-	 */
-	private static function widgetsWithIdIn(array $widgets, array $allowed): array {
-		$kept = [];
-		foreach ($widgets as $widget) {
-			$id = (string)($widget['id'] ?? '');
-			if ($id !== '' && in_array(needle: $id, haystack: $allowed, strict: true) === true) {
-				$kept[] = $widget;
-			}
-		}
-
-		return $kept;
-	}//end widgetsWithIdIn()
 
 	/**
 	 * Get widget items for specified widgets.
@@ -915,58 +872,17 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/specs/widgets/spec.md
 	 */
 	private function resolveCalendarRange(string $from, string $to): array {
-		if ($from === '' || $to === '') {
-			return $this->rangeRefusal(message: 'Both from and to are required ISO 8601 timestamps');
-		}
-
-		try {
-			$start = new DateTimeImmutable(datetime: $from);
-			$end = new DateTimeImmutable(datetime: $to);
-		} catch (Throwable $exception) {
-			unset($exception);
-			return $this->rangeRefusal(message: 'Invalid date format');
-		}
-
-		return $this->orderedRange(start: $start, end: $end);
-	}//end resolveCalendarRange()
-
-	/**
-	 * The range of two parsed instants, refused when it ends before it
-	 * starts, with the end capped one year after the start.
-	 *
-	 * @param DateTimeImmutable $start The range start.
-	 * @param DateTimeImmutable $end   The requested range end.
-	 *
-	 * @return array{error: JSONResponse|null, start: DateTimeImmutable|null, end: DateTimeImmutable|null}
-	 */
-	private function orderedRange(DateTimeImmutable $start, DateTimeImmutable $end): array {
-		if ($end < $start) {
-			return $this->rangeRefusal(message: '`to` must be greater than or equal to `from`');
+		$range = (new CalendarRangeParser())->parse(from: $from, to: $to);
+		if ($range['refusal'] !== null) {
+			return $this->rangeRefusal(message: $range['refusal']);
 		}
 
 		return [
 			'error' => null,
-			'start' => $start,
-			'end' => self::cappedEnd(start: $start, end: $end),
+			'start' => $range['start'],
+			'end' => $range['end'],
 		];
-	}//end orderedRange()
-
-	/**
-	 * Defensive 1-year cap per design D1 to bound RRULE expansion.
-	 *
-	 * @param DateTimeImmutable $start The range start.
-	 * @param DateTimeImmutable $end   The requested range end.
-	 *
-	 * @return DateTimeImmutable The end, at most one year after the start.
-	 */
-	private static function cappedEnd(DateTimeImmutable $start, DateTimeImmutable $end): DateTimeImmutable {
-		$maxEnd = $start->modify(modifier: '+1 year');
-		if ($end > $maxEnd) {
-			return $maxEnd;
-		}
-
-		return $end;
-	}//end cappedEnd()
+	}//end resolveCalendarRange()
 
 	/**
 	 * List the current user's internal Nextcloud calendars so the calendar

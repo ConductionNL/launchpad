@@ -36,6 +36,20 @@ use OCA\LaunchPad\Db\FeedCacheMapper;
 final class FeedRefreshRun {
 
 	/**
+	 * The feed URL.
+	 *
+	 * @var string
+	 */
+	public readonly string $feedUrl;
+
+	/**
+	 * Refresh start time in epoch milliseconds.
+	 *
+	 * @var integer
+	 */
+	public readonly int $startedAt;
+
+	/**
 	 * The cache row being refreshed.
 	 *
 	 * @var FeedCache
@@ -50,20 +64,21 @@ final class FeedRefreshRun {
 	public readonly string $now;
 
 	/**
-	 * Constructor
+	 * Note the start time, load or create the cache row, then take the
+	 * fetch timestamp — in that order.
 	 *
-	 * @param string $feedUrl   The feed URL.
-	 * @param int    $startedAt Refresh start time in epoch milliseconds.
+	 * @param FeedCacheMapper $mapper  The feed-cache mapper.
+	 * @param string          $feedUrl The feed URL.
 	 */
-	private function __construct(
-		public readonly string $feedUrl,
-		public readonly int $startedAt,
-	) {
+	private function __construct(FeedCacheMapper $mapper, string $feedUrl) {
+		$this->feedUrl = $feedUrl;
+		$this->startedAt = self::nowMs();
+		$this->row = $mapper->upsertUrl(feedUrl: $feedUrl);
+		$this->now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 	}//end __construct()
 
 	/**
-	 * Start a refresh: note the start time, load or create the cache row,
-	 * then take the fetch timestamp — in that order.
+	 * Start a refresh of one feed URL.
 	 *
 	 * @param FeedCacheMapper $mapper  The feed-cache mapper.
 	 * @param string          $feedUrl The feed URL.
@@ -73,11 +88,7 @@ final class FeedRefreshRun {
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
 	public static function start(FeedCacheMapper $mapper, string $feedUrl): self {
-		$run = new self(feedUrl: $feedUrl, startedAt: self::nowMs());
-		$run->row = $mapper->upsertUrl(feedUrl: $feedUrl);
-		$run->now = (new DateTime())->format(format: 'Y-m-d H:i:s');
-
-		return $run;
+		return new self(mapper: $mapper, feedUrl: $feedUrl);
 	}//end start()
 
 	/**

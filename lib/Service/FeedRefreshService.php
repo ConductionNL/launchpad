@@ -758,8 +758,8 @@ class FeedRefreshService {
 	 */
 	private function parseFeedBody(string $body, string $feedUrl): array {
 		$xml = $this->loadFeedXml(body: $body);
-		$sourceTitle = $this->extractFeedTitle(xml: $xml, feedUrl: $feedUrl);
-		$items = $this->extractItems(xml: $xml, feedUrl: $feedUrl, sourceTitle: $sourceTitle);
+		$source = new FeedSource(url: $feedUrl, title: $this->extractFeedTitle(xml: $xml, feedUrl: $feedUrl));
+		$items = $this->extractItems(xml: $xml, source: $source);
 
 		// Sort newest-first by pubDate.
 		usort(
@@ -822,35 +822,22 @@ class FeedRefreshService {
 	 * empty list, so an empty feed is not a parse failure.
 	 *
 	 * @param SimpleXMLElement $xml The parsed feed document.
-	 * @param string $feedUrl The feed URL (for sourceUrl).
-	 * @param string $sourceTitle Resolved channel/feed title.
+	 * @param FeedSource $source The feed URL and resolved channel/feed title.
 	 *
 	 * @return array<int, array<string, mixed>> Normalised items, unsorted.
 	 */
-	private function extractItems(
-		SimpleXMLElement $xml,
-		string $feedUrl,
-		string $sourceTitle,
-	): array {
+	private function extractItems(SimpleXMLElement $xml, FeedSource $source): array {
 		$items = [];
 
 		// RSS 2.0 — <channel><item>...
 		if (isset($xml->channel) === true && isset($xml->channel->item) === true) {
 			foreach ($xml->channel->item as $item) {
-				$items[] = $this->normaliseRssItem(
-					item: $item,
-					feedUrl: $feedUrl,
-					sourceTitle: $sourceTitle
-				);
+				$items[] = $this->normaliseRssItem(item: $item, source: $source);
 			}
 		} elseif (isset($xml->entry) === true) {
 			// Atom 1.0 — <feed><entry>...
 			foreach ($xml->entry as $entry) {
-				$items[] = $this->normaliseAtomEntry(
-					entry: $entry,
-					feedUrl: $feedUrl,
-					sourceTitle: $sourceTitle
-				);
+				$items[] = $this->normaliseAtomEntry(entry: $entry, source: $source);
 			}
 		}
 
@@ -896,18 +883,9 @@ class FeedRefreshService {
 		SimpleXMLElement $xml,
 		string $feedUrl,
 	): string {
-		if (isset($xml->channel) === true && isset($xml->channel->title) === true) {
-			$title = trim(string: (string)$xml->channel->title);
-			if ($title !== '') {
-				return $title;
-			}
-		}
-
-		if (isset($xml->title) === true) {
-			$title = trim(string: (string)$xml->title);
-			if ($title !== '') {
-				return $title;
-			}
+		$title = self::declaredTitle(xml: $xml);
+		if ($title !== '') {
+			return $title;
 		}
 
 		$host = (string)parse_url(url: $feedUrl, component: PHP_URL_HOST);
@@ -919,112 +897,173 @@ class FeedRefreshService {
 	}//end extractFeedTitle()
 
 	/**
-	 * Normalise a single RSS 2.0 item to the news-widget schema.
+	 * The trimmed channel title (RSS), else the trimmed feed title (Atom),
+	 * or '' when neither is present and non-blank.
 	 *
-	 * @param SimpleXMLElement $item The RSS item element.
-	 * @param string $feedUrl The feed URL.
-	 * @param string $sourceTitle The channel title.
+	 * @param SimpleXMLElement $xml The parsed feed.
 	 *
-	 * @return array<string, mixed>
+	 * @return string
 	 */
-	private function normaliseRssItem(
-		SimpleXMLElement $item,
-		string $feedUrl,
-		string $sourceTitle,
-	): array {
-		$title = trim(string: (string)($item->title ?? ''));
-		$summary = trim(string: (string)($item->description ?? ''));
-		$link = trim(string: (string)($item->link ?? ''));
-		$pubDate = trim(string: (string)($item->pubDate ?? ''));
-		$guidValue = trim(string: (string)($item->guid ?? ''));
-		$thumbnail = null;
-
-		if (isset($item->enclosure) === true) {
-			$attrs = $item->enclosure->attributes();
-			if ($attrs !== null && isset($attrs['type']) === true) {
-				$type = (string)$attrs['type'];
-				if (str_starts_with(haystack: $type, needle: 'image/') === true) {
-					$thumbnail = (string)$attrs['url'];
-				}
+	private static function declaredTitle(SimpleXMLElement $xml): string {
+		if (isset($xml->channel) === true && isset($xml->channel->title) === true) {
+			$title = trim(string: (string)$xml->channel->title);
+			if ($title !== '') {
+				return $title;
 			}
 		}
 
-		$guid = hash(algo: 'sha256', data: ($title . $pubDate . $feedUrl));
-		if ($guidValue !== '') {
-			$guid = $guidValue;
+		if (isset($xml->title) === true) {
+			return trim(string: (string)$xml->title);
 		}
 
-		return [
-			'guid' => $guid,
-			'title' => $title,
-			'summary' => $summary,
-			'link' => $link,
-			'pubDate' => $pubDate,
-			'sourceUrl' => $feedUrl,
-			'sourceTitle' => $sourceTitle,
-			'thumbnailUrl' => $thumbnail,
-		];
+		return '';
+	}//end declaredTitle()
+
+	/**
+	 * Normalise a single RSS 2.0 item to the news-widget schema.
+	 *
+	 * @param SimpleXMLElement $item The RSS item element.
+	 * @param FeedSource $source The feed URL and channel title.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function normaliseRssItem(SimpleXMLElement $item, FeedSource $source): array {
+		return self::itemRecord(
+			fields: [
+				'id' => trim(string: (string)($item->guid ?? '')),
+				'title' => trim(string: (string)($item->title ?? '')),
+				'summary' => trim(string: (string)($item->description ?? '')),
+				'link' => trim(string: (string)($item->link ?? '')),
+				'pubDate' => trim(string: (string)($item->pubDate ?? '')),
+				'thumbnailUrl' => self::rssThumbnail(item: $item),
+			],
+			source: $source
+		);
 	}//end normaliseRssItem()
+
+	/**
+	 * The URL of an RSS item's enclosure when its type is `image/*`, else null.
+	 *
+	 * @param SimpleXMLElement $item The RSS item element.
+	 *
+	 * @return string|null
+	 */
+	private static function rssThumbnail(SimpleXMLElement $item): ?string {
+		if (isset($item->enclosure) === false) {
+			return null;
+		}
+
+		$attrs = $item->enclosure->attributes();
+		if ($attrs === null || isset($attrs['type']) === false) {
+			return null;
+		}
+
+		if (str_starts_with(haystack: (string)$attrs['type'], needle: 'image/') === true) {
+			return (string)$attrs['url'];
+		}
+
+		return null;
+	}//end rssThumbnail()
 
 	/**
 	 * Normalise a single Atom 1.0 entry to the news-widget schema.
 	 *
 	 * @param SimpleXMLElement $entry The Atom entry element.
-	 * @param string $feedUrl The feed URL.
-	 * @param string $sourceTitle The feed title.
+	 * @param FeedSource $source The feed URL and feed title.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function normaliseAtomEntry(
-		SimpleXMLElement $entry,
-		string $feedUrl,
-		string $sourceTitle,
-	): array {
-		$title = trim(string: (string)($entry->title ?? ''));
-		$summary = trim(string: (string)($entry->summary ?? ''));
-		if ($summary === '') {
-			$summary = trim(string: (string)($entry->content ?? ''));
-		}
+	private function normaliseAtomEntry(SimpleXMLElement $entry, FeedSource $source): array {
+		return self::itemRecord(
+			fields: [
+				'id' => trim(string: (string)($entry->id ?? '')),
+				'title' => trim(string: (string)($entry->title ?? '')),
+				'summary' => self::firstNonBlank(node: $entry, names: ['summary', 'content']),
+				'link' => self::atomAlternateLink(entry: $entry),
+				'pubDate' => self::firstNonBlank(node: $entry, names: ['published', 'updated']),
+				'thumbnailUrl' => null,
+			],
+			source: $source
+		);
+	}//end normaliseAtomEntry()
 
-		$link = '';
-		if (isset($entry->link) === true) {
-			foreach ($entry->link as $linkElement) {
-				$attrs = $linkElement->attributes();
-				if ($attrs === null) {
-					continue;
-				}
-
-				$rel = (string)($attrs['rel'] ?? 'alternate');
-				$href = (string)($attrs['href'] ?? '');
-				if ($rel === 'alternate' && $href !== '') {
-					$link = $href;
-					break;
-				}
+	/**
+	 * The first child, out of `$names`, whose trimmed text is not empty;
+	 * '' when none is.
+	 *
+	 * @param SimpleXMLElement $node Parent element.
+	 * @param string[] $names Child names, tried in order.
+	 *
+	 * @return string
+	 */
+	private static function firstNonBlank(SimpleXMLElement $node, array $names): string {
+		foreach ($names as $name) {
+			$text = trim(string: (string)($node->$name ?? ''));
+			if ($text !== '') {
+				return $text;
 			}
 		}
 
-		$pubDate = trim(string: (string)($entry->published ?? ''));
-		if ($pubDate === '') {
-			$pubDate = trim(string: (string)($entry->updated ?? ''));
+		return '';
+	}//end firstNonBlank()
+
+	/**
+	 * The href of an Atom entry's first non-empty `alternate` link (a link
+	 * without `rel` counts as alternate), or '' without one.
+	 *
+	 * @param SimpleXMLElement $entry The Atom entry element.
+	 *
+	 * @return string
+	 */
+	private static function atomAlternateLink(SimpleXMLElement $entry): string {
+		if (isset($entry->link) === false) {
+			return '';
 		}
 
-		$idValue = trim(string: (string)($entry->id ?? ''));
-		$guid = hash(algo: 'sha256', data: ($title . $pubDate . $feedUrl));
-		if ($idValue !== '') {
-			$guid = $idValue;
+		foreach ($entry->link as $linkElement) {
+			$attrs = $linkElement->attributes();
+			if ($attrs === null) {
+				continue;
+			}
+
+			$rel = (string)($attrs['rel'] ?? 'alternate');
+			$href = (string)($attrs['href'] ?? '');
+			if ($rel === 'alternate' && $href !== '') {
+				return $href;
+			}
+		}
+
+		return '';
+	}//end atomAlternateLink()
+
+	/**
+	 * Complete the fields read from one entry into the news-widget item:
+	 * the entry id, or `sha256(title . pubDate . feedUrl)` when it has
+	 * none, plus the feed source.
+	 *
+	 * @param array<string, string|null> $fields Fields read from the entry: id, title, summary, link, pubDate
+	 *                                           (strings) and thumbnailUrl (string or null).
+	 * @param FeedSource $source The feed URL and title.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function itemRecord(array $fields, FeedSource $source): array {
+		$guid = $fields['id'];
+		if ($guid === '') {
+			$guid = hash(algo: 'sha256', data: ($fields['title'] . $fields['pubDate'] . $source->url));
 		}
 
 		return [
 			'guid' => $guid,
-			'title' => $title,
-			'summary' => $summary,
-			'link' => $link,
-			'pubDate' => $pubDate,
-			'sourceUrl' => $feedUrl,
-			'sourceTitle' => $sourceTitle,
-			'thumbnailUrl' => null,
+			'title' => $fields['title'],
+			'summary' => $fields['summary'],
+			'link' => $fields['link'],
+			'pubDate' => $fields['pubDate'],
+			'sourceUrl' => $source->url,
+			'sourceTitle' => $source->title,
+			'thumbnailUrl' => $fields['thumbnailUrl'],
 		];
-	}//end normaliseAtomEntry()
+	}//end itemRecord()
 
 	/**
 	 * Build the User-Agent header per REQ-FRJ-012.

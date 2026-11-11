@@ -198,8 +198,8 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createTemplate(
 		string $name,
-		?string $description = null,
-		?array $targetGroups = null,
+		string|null $description = null,
+		array|null $targetGroups = null,
 		string $permissionLevel = Dashboard::PERMISSION_ADD_ONLY,
 		bool $isDefault = false,
 	): JSONResponse {
@@ -241,12 +241,12 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateTemplate(
 		int $id,
-		?string $name = null,
-		?string $description = null,
-		?array $targetGroups = null,
-		?string $permissionLevel = null,
-		?bool $isDefault = null,
-		?int $gridColumns = null,
+		string|null $name = null,
+		string|null $description = null,
+		array|null $targetGroups = null,
+		string|null $permissionLevel = null,
+		bool|null $isDefault = null,
+		int|null $gridColumns = null,
 	): JSONResponse {
 		return $this->saveTemplate(
 			templateId: $id,
@@ -442,22 +442,22 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
-		?string $defaultPermLevel = null,
-		?bool $allowUserDash = null,
-		?bool $allowMultiDash = null,
-		?int $defaultGridCols = null,
-		?array $linkCreateFileExts = null,
-		?string $defaultSharePermissionLevel = null,
-		?array $forcedShareGroups = null,
-		?bool $legacyWidgetBridgeEnabled = null,
-		?int $maxDashboardsPerUser = null,
-		?int $maxWidgetsPerDashboard = null,
-		?string $quicksearchFallbackTarget = null,
-		?string $defaultPermissionLevel = null,
-		?bool $allowUserDashboards = null,
-		?bool $allowMultipleDashboards = null,
-		?int $defaultGridColumns = null,
-		?array $linkCreateFileExtensions = null, ?bool $startPageWithoutNavigation = null,
+		string|null $defaultPermLevel = null,
+		bool|null $allowUserDash = null,
+		bool|null $allowMultiDash = null,
+		int|null $defaultGridCols = null,
+		array|null $linkCreateFileExts = null,
+		string|null $defaultSharePermissionLevel = null,
+		array|null $forcedShareGroups = null,
+		bool|null $legacyWidgetBridgeEnabled = null,
+		int|null $maxDashboardsPerUser = null,
+		int|null $maxWidgetsPerDashboard = null,
+		string|null $quicksearchFallbackTarget = null,
+		string|null $defaultPermissionLevel = null,
+		bool|null $allowUserDashboards = null,
+		bool|null $allowMultipleDashboards = null,
+		int|null $defaultGridColumns = null,
+		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -544,20 +544,37 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateFooterSettings(
-		?bool $footerEnabled = null,
+		bool|null $footerEnabled = null,
 		mixed $footerHtml = null,
-		?array $footerConfig = null,
-		?string $footerBackgroundColor = null,
-		?string $footerTextColor = null,
+		array|null $footerConfig = null,
+		string|null $footerBackgroundColor = null,
+		string|null $footerTextColor = null,
 	): JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		// Build the patch from only those args that the caller actually
-		// supplied — `array_key_exists` semantics on the body let admins
-		// explicitly clear a colour by sending `null`.
+		$patch = $this->footerPatch();
+
+		try {
+			$this->settings->footerService->updateGlobalSettings(patch: $patch);
+		} catch (InvalidArgumentException $e) {
+			return $this->footerFailure(exception: $e);
+		}
+
+		return ResponseHelper::success(data: ['status' => 'ok']);
+	}//end updateFooterSettings()
+
+	/**
+	 * The footer patch: only those keys the caller actually supplied.
+	 *
+	 * `array_key_exists` semantics on the body let admins explicitly
+	 * clear a colour by sending `null`.
+	 *
+	 * @return array<string, mixed> The supplied footer keys and their values.
+	 */
+	private function footerPatch(): array {
 		$body = $this->request->getParams();
 		$patch = [];
 		foreach (['footerEnabled', 'footerHtml', 'footerConfig', 'footerBackgroundColor', 'footerTextColor'] as $key) {
@@ -566,26 +583,32 @@ class AdminController extends Controller {
 			}
 		}
 
-		try {
-			$this->settings->footerService->updateGlobalSettings(patch: $patch);
-		} catch (InvalidArgumentException $e) {
-			$isOversize = str_contains(
-				haystack: $e->getMessage(),
-				needle: '8 KB limit'
-			);
-			$status = Http::STATUS_BAD_REQUEST;
-			if ($isOversize === true) {
-				$status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
-			}
+		return $patch;
+	}//end footerPatch()
 
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: $status
-			);
+	/**
+	 * Answer a refused footer patch: 413 when the HTML exceeds the 8 KB
+	 * cap, 400 for every other validation failure.
+	 *
+	 * @param InvalidArgumentException $exception The validation failure.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function footerFailure(InvalidArgumentException $exception): JSONResponse {
+		$isOversize = str_contains(
+			haystack: $exception->getMessage(),
+			needle: '8 KB limit'
+		);
+		$status = Http::STATUS_BAD_REQUEST;
+		if ($isOversize === true) {
+			$status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
 		}
 
-		return ResponseHelper::success(data: ['status' => 'ok']);
-	}//end updateFooterSettings()
+		return new JSONResponse(
+			data: ['error' => $exception->getMessage()],
+			statusCode: $status
+		);
+	}//end footerFailure()
 
 	/**
 	 * Export a single dashboard or the entire site as a ZIP archive.
@@ -607,7 +630,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function export(
 		string $scope = 'site',
-		?string $dashboardUuid = null,
+		string|null $dashboardUuid = null,
 	): StreamResponse|JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
@@ -624,6 +647,19 @@ class AdminController extends Controller {
 			return $this->templates->exportService->exportSite(currentUserId: $userId);
 		}
 
+		return $this->exportOneDashboard(dashboardUuid: $dashboardUuid, userId: $userId);
+	}//end export()
+
+	/**
+	 * Export one dashboard after checking its UUID: 400 when it is missing
+	 * or malformed, 404 when no dashboard answers to it.
+	 *
+	 * @param string|null $dashboardUuid The dashboard UUID from the request.
+	 * @param string      $userId        The exporting admin.
+	 *
+	 * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
+	 */
+	private function exportOneDashboard(string|null $dashboardUuid, string $userId): StreamResponse|JSONResponse {
 		if ($dashboardUuid === null || $dashboardUuid === '') {
 			return $this->failure(message: 'dashboardUuid parameter is required when scope=dashboard', statusCode: Http::STATUS_BAD_REQUEST);
 		}
@@ -640,7 +676,7 @@ class AdminController extends Controller {
 		} catch (DoesNotExistException) {
 			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
-	}//end export()
+	}//end exportOneDashboard()
 
 	/**
 	 * Import a previously-exported ZIP archive.
@@ -663,17 +699,10 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		// Multipart uploads bind to $_FILES; PHP only populates this for
-		// POST requests, which is what the route declares (REQ-EXIM-004).
-		$upload = $_FILES['file'] ?? null;
-		if (is_array($upload) === false
-			|| isset($upload['tmp_name']) === false
-			|| (string)$upload['tmp_name'] === ''
-		) {
+		$tmpName = $this->uploadedArchivePath();
+		if ($tmpName === null) {
 			return $this->failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
-
-		$tmpName = (string)$upload['tmp_name'];
 
 		$userId = (string)$this->caller->userSession->getUser()?->getUID();
 
@@ -687,6 +716,39 @@ class AdminController extends Controller {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
+		return $this->importSummary(result: $result);
+	}//end import()
+
+	/**
+	 * The temporary path of the uploaded ZIP archive, or null when no
+	 * file was uploaded under the `file` field.
+	 *
+	 * Multipart uploads bind to $_FILES; PHP only populates this for
+	 * POST requests, which is what the route declares (REQ-EXIM-004).
+	 *
+	 * @return string|null The temporary path, or null.
+	 */
+	private function uploadedArchivePath(): string|null {
+		$upload = $_FILES['file'] ?? null;
+		if (is_array($upload) === false
+			|| isset($upload['tmp_name']) === false
+			|| (string)$upload['tmp_name'] === ''
+		) {
+			return null;
+		}
+
+		return (string)$upload['tmp_name'];
+	}//end uploadedArchivePath()
+
+	/**
+	 * Answer an import result: 409 with zero counts on a UUID collision,
+	 * otherwise the imported and skipped counts.
+	 *
+	 * @param array<string, mixed> $result The import service result.
+	 *
+	 * @return JSONResponse The import summary.
+	 */
+	private function importSummary(array $result): JSONResponse {
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
 			return new JSONResponse(
 				data: [
@@ -705,7 +767,7 @@ class AdminController extends Controller {
 				'errors' => $result['errors'],
 			]
 		);
-	}//end import()
+	}//end importSummary()
 
 	/**
 	 * List every role assignment in the system (REQ-ROLE-006). NC-admin only.
@@ -746,9 +808,9 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createRole(
-		?string $userId = null,
-		?string $groupId = null,
-		?string $role = null,
+		string|null $userId = null,
+		string|null $groupId = null,
+		string|null $role = null,
 	): JSONResponse {
 
 		$assignedBy = (string)$this->caller->userSession->getUser()->getUID();
@@ -761,21 +823,9 @@ class AdminController extends Controller {
 				assignedBy: $assignedBy
 			);
 		} catch (DuplicateRoleAssignmentException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getDisplayMessage(),
-					'errorCode' => $e->getErrorCode(),
-				],
-				statusCode: Http::STATUS_CONFLICT
-			);
+			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_CONFLICT);
 		} catch (InvalidRoleAssignmentException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getDisplayMessage(),
-					'errorCode' => $e->getErrorCode(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return ResponseHelper::success(
@@ -783,6 +833,24 @@ class AdminController extends Controller {
 			statusCode: Http::STATUS_CREATED
 		);
 	}//end createRole()
+
+	/**
+	 * The error envelope of a refused role assignment.
+	 *
+	 * @param ResourceException $exception  The refusal.
+	 * @param int               $statusCode The HTTP status to answer with.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function roleFailure(ResourceException $exception, int $statusCode): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => $exception->getDisplayMessage(),
+				'errorCode' => $exception->getErrorCode(),
+			],
+			statusCode: $statusCode
+		);
+	}//end roleFailure()
 
 	/**
 	 * Delete a role assignment by ID (REQ-ROLE-004). NC-admin only.

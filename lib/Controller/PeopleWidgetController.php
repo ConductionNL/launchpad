@@ -122,15 +122,11 @@ class PeopleWidgetController extends Controller {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
+
 		try {
 			$parsedFilters = $this->parseFilters(raw: $filters);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_BAD_REQUEST,
-				logger: $this->logger,
-				message: 'Invalid filters parameter'
-			);
+			return $this->badRequest(exception: $e, message: 'Invalid filters parameter');
 		}
 
 		try {
@@ -149,16 +145,28 @@ class PeopleWidgetController extends Controller {
 				viewerId: $user->getUID(),
 			);
 		} catch (InvalidArgumentException $e) {
-			return ResponseHelper::error(
-				exception: $e,
-				statusCode: Http::STATUS_BAD_REQUEST,
-				logger: $this->logger,
-				message: 'Invalid request parameters'
-			);
+			return $this->badRequest(exception: $e, message: 'Invalid request parameters');
 		}
 
 		return ResponseHelper::success(data: $payload);
 	}//end getUsers()
+
+	/**
+	 * A logged HTTP 400 for a rejected request parameter.
+	 *
+	 * @param InvalidArgumentException $exception The rejection.
+	 * @param string                   $message   The log message.
+	 *
+	 * @return JSONResponse The error envelope.
+	 */
+	private function badRequest(InvalidArgumentException $exception, string $message): JSONResponse {
+		return ResponseHelper::error(
+			exception: $exception,
+			statusCode: Http::STATUS_BAD_REQUEST,
+			logger: $this->logger,
+			message: $message
+		);
+	}//end badRequest()
 
 	/**
 	 * Parse the JSON-encoded `filters` query parameter. Returns `[]` when

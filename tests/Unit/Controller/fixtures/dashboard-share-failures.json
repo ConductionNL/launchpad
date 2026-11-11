@@ -410,9 +410,9 @@
         "logged": []
     },
     "destroy unknown share / alice (owner) / healthy": {
-        "status": 404,
+        "status": 403,
         "data": {
-            "error": "Share not found"
+            "error": "Access denied"
         },
         "ownerLookups": [],
         "writes": [],
@@ -434,9 +434,9 @@
         ]
     },
     "destroy unknown share / alice (owner) / write fails": {
-        "status": 404,
+        "status": 403,
         "data": {
-            "error": "Share not found"
+            "error": "Access denied"
         },
         "ownerLookups": [],
         "writes": [],
@@ -470,9 +470,9 @@
         "logged": []
     },
     "destroy unknown share / bob (not owner) / healthy": {
-        "status": 404,
+        "status": 403,
         "data": {
-            "error": "Share not found"
+            "error": "Access denied"
         },
         "ownerLookups": [],
         "writes": [],
@@ -494,9 +494,9 @@
         ]
     },
     "destroy unknown share / bob (not owner) / write fails": {
-        "status": 404,
+        "status": 403,
         "data": {
-            "error": "Share not found"
+            "error": "Access denied"
         },
         "ownerLookups": [],
         "writes": [],

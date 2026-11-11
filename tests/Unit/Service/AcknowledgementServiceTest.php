@@ -686,4 +686,54 @@ class AcknowledgementServiceTest extends TestCase {
 
 		$this->service->acknowledge(announcementKey: 'ak-1', userId: 'alice', contentVersion: 2);
 	}
-}//end class
+
+	/**
+	 * The full report: audience order, receipts, rows and counts.
+	 *
+	 * @return void
+	 */
+	public function testReportListsEveryRecipientInAudienceOrder(): void {
+		// Template dashboard (id 1) routing to group "sociaal-domein".
+		$template = new Dashboard();
+		// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$template->setId(1);
+		$template->setUuid('tmpl-uuid');
+		$template->setName('HR 2026');
+		$template->setType(Dashboard::TYPE_ADMIN_TEMPLATE);
+		$template->setTargetGroups(json_encode(['sociaal-domein']));
+		// phpcs:enable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+
+		$blueprint = $this->makePlacement(key: 'ak-1', dashboardId: 1, version: 1);
+
+		$this->placementMapper->method('findByAnnouncementKey')
+			->with('ak-1')->willReturn([$blueprint]);
+		$this->dashboardMapper->method('find')->with(1)->willReturn($template);
+
+		// Live audience {alice, bob, carol}.
+		$group = $this->createMock(originalClassName: IGroup::class);
+		$group->method('getUsers')->willReturn([
+			$this->makeUser(uid: 'alice'),
+			$this->makeUser(uid: 'bob'),
+			$this->makeUser(uid: 'carol'),
+		]);
+		$this->groupManager->method('get')->with('sociaal-domein')->willReturn($group);
+
+		// Alice and carol acknowledged version 1.
+		$this->ackMapper->method('findByAnnouncement')
+			->with('ak-1', 1)
+			->willReturn([
+				$this->makeReceipt(key: 'ak-1', userId: 'alice', version: 1),
+				$this->makeReceipt(key: 'ak-1', userId: 'carol', version: 1),
+			]);
+
+		$report = $this->service->report(announcementKey: 'ak-1');
+
+		$fixture = __DIR__.'/fixtures/acknowledgement-report.json';
+		$actual  = json_decode((string) json_encode($report), true);
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+		}
+
+		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
+	}//end testReportListsEveryRecipientInAudienceOrder()
+}

@@ -133,18 +133,8 @@ class ImportLaunchpadRegister implements IRepairStep {
 		}
 
 		try {
-			$path = $this->appManager->getAppPath('launchpad') . self::REGISTER_PATH;
-			if (is_file($path) === false) {
-				$output->warning('LaunchPad register descriptor not found: ' . $path);
-				return;
-			}
-
-			// The importer takes the DECODED descriptor. Its sibling
-			// importFromFilePath() expects a Nextcloud-root-relative path and
-			// would fail closed on this absolute one.
-			$data = json_decode((string)file_get_contents($path), true);
-			if (is_array($data) === false) {
-				$output->warning('LaunchPad register descriptor is not valid JSON: ' . $path);
+			$data = $this->readDescriptor(output: $output);
+			if ($data === null) {
 				return;
 			}
 
@@ -161,4 +151,32 @@ class ImportLaunchpadRegister implements IRepairStep {
 			$output->warning('LaunchPad register import skipped: ' . $e->getMessage());
 		}//end try
 	}//end run()
+
+	/**
+	 * The decoded register descriptor; null (after a warning) when the
+	 * file is missing or not valid JSON.
+	 *
+	 * The importer takes the DECODED descriptor. Its sibling
+	 * importFromFilePath() expects a Nextcloud-root-relative path and
+	 * would fail closed on this absolute one.
+	 *
+	 * @param IOutput $output The repair output.
+	 *
+	 * @return array|null The descriptor, or null.
+	 */
+	private function readDescriptor(IOutput $output): array|null {
+		$path = $this->appManager->getAppPath('launchpad') . self::REGISTER_PATH;
+		if (is_file($path) === false) {
+			$output->warning('LaunchPad register descriptor not found: ' . $path);
+			return null;
+		}
+
+		$data = json_decode((string)file_get_contents($path), true);
+		if (is_array($data) === false) {
+			$output->warning('LaunchPad register descriptor is not valid JSON: ' . $path);
+			return null;
+		}
+
+		return $data;
+	}//end readDescriptor()
 }//end class

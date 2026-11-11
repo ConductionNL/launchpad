@@ -244,4 +244,69 @@ class TemplateInstallCommandTest extends TestCase {
 		self::assertSame(1, $tester->execute(['id' => 'mijn-werkdag', '--dry-run' => true]));
 		self::assertStringContainsString('--dry-run only works together with --update', $tester->getDisplay());
 	}
+
+	/**
+	 * The full output of an install with every note, line by line.
+	 */
+	public function testTheInstallOutputInFull(): void {
+		$this->templates->method('install')
+			->willReturn(self::installResult(['missingWidgets' => ['decidesk', 'pipelinq']]));
+
+		$tester = new CommandTester($this->command(false));
+		self::assertSame(0, $tester->execute(['id' => 'mijn-werkdag']));
+		self::assertSame(
+			"Installed template mijn-werkdag version 1 (UUID: uuid-1).\n"
+			. "Groups: (none). Default for everyone: no.\n"
+			. "No app on this instance registers these widgets, so they will show empty: decidesk, pipelinq\n"
+			. "Its lists read these registers: dossiq, pipelinq. A list whose register is not on this instance is hidden for members.\n"
+			. "Personal dashboards are off. Members will see this template read-only and its compulsory widgets have no effect."
+			. " Turn on \"allow personal dashboards\" in the LaunchPad admin settings to give each member their own copy.\n",
+			$tester->getDisplay()
+		);
+	}
+
+	/**
+	 * The full output of an update, and of an update re-synced in the background.
+	 */
+	public function testTheUpdateOutputInFull(): void {
+		$this->updates->method('update')->willReturnOnConsecutiveCalls(
+			self::updateResult(),
+			self::updateResult(['added' => [], 'removed' => [], 'changed' => [], 'resync' => ['async' => true]]),
+			self::updateResult(['resync' => []])
+		);
+
+		$tester = new CommandTester($this->command());
+		self::assertSame(0, $tester->execute(['id' => 'mijn-werkdag', '--update' => true]));
+		self::assertSame(
+			"Updated template mijn-werkdag from version 2 to version 3 (UUID: uuid-1).\n"
+			. "  + added:   Mijn tickets (object-list)\n"
+			. "  - removed: Oud (text)\n"
+			. "  ~ changed: Mijn zaken (object-list) (position, settings)\n"
+			. "  = unchanged: 3 widgets\n"
+			. "Members with a copy of this template: 4. Copies changed: 4. A widget a member added stays.\n",
+			$tester->getDisplay()
+		);
+
+		self::assertSame(0, $tester->execute(['id' => 'mijn-werkdag', '--update' => true]));
+		self::assertSame(
+			"Updated template mijn-werkdag from version 2 to version 3 (UUID: uuid-1).\n"
+			. "  = unchanged: 3 widgets\n"
+			. "Members with a copy of this template: 4. Their copies are updated in the background. A widget a member added stays.\n",
+			$tester->getDisplay()
+		);
+
+		self::assertSame(0, $tester->execute(['id' => 'mijn-werkdag', '--update' => true]));
+		self::assertStringEndsWith("Copies changed: 0. A widget a member added stays.\n", $tester->getDisplay());
+	}
+
+	/**
+	 * An update that fails unexpectedly says so and exits one.
+	 */
+	public function testAFailedUpdateExitsOne(): void {
+		$this->updates->method('update')->willThrowException(new RuntimeException('locked'));
+
+		$tester = new CommandTester($this->command());
+		self::assertSame(1, $tester->execute(['id' => 'mijn-werkdag', '--update' => true]));
+		self::assertSame("Update failed: locked\n", $tester->getDisplay());
+	}
 }

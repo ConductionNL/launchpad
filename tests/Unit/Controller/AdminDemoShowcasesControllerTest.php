@@ -176,4 +176,33 @@ class AdminDemoShowcasesControllerTest extends TestCase {
 		$response = $this->controller->destroy(id: 'de-bron');
 		$this->assertSame(expected: Http::STATUS_FORBIDDEN, actual: $response->getStatus());
 	}
+
+	/**
+	 * An unexpected install failure is logged with the showcase id and
+	 * answered with a 500; a missing showcase answers its 404 body.
+	 *
+	 * @return void
+	 */
+	public function testInstallFailureAnswers(): void {
+		$this->loginAsAdmin();
+		$failure = new \RuntimeException('disk');
+		$this->service->method('installShowcase')->willReturnOnConsecutiveCalls(
+			$this->throwException(new ShowcaseNotFoundException(message: 'gone')),
+			$this->throwException($failure)
+		);
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->once())->method('error')->with('Showcase install failed', ['showcaseId' => 'de-bron', 'exception' => $failure]);
+		$controller = new AdminDemoShowcasesController(
+			request: $this->request,
+			showcases: new ShowcaseTools(showcasesSvc: $this->service, logger: $logger),
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class)),
+		);
+
+		$missing = $controller->install(id: 'de-bron');
+		$failed = $controller->install(id: 'de-bron');
+		$this->assertSame(
+			[[404, ['error' => 'Showcase not found']], [500, ['error' => 'Showcase installation failed']]],
+			[[$missing->getStatus(), $missing->getData()], [$failed->getStatus(), $failed->getData()]]
+		);
+	}
 }

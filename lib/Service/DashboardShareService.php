@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 
 /**
@@ -131,15 +132,20 @@ class DashboardShareService {
 	 *
 	 * @return void
 	 *
-	 * @throws ForbiddenException When the caller is not the owner.
+	 * @throws ForbiddenException When the caller is not the owner, or the share does not exist.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	public function removeShare(int $shareId, string $callerId): void {
-		$share = $this->shareMapper->find(id: $shareId);
-		$dashboard = $this->dashboardMapper->find(
-			id: (int)$share->getDashboardId()
-		);
+		try {
+			$share     = $this->shareMapper->find(id: $shareId);
+			$dashboard = $this->dashboardMapper->find(
+				id: (int)$share->getDashboardId()
+			);
+		} catch (DoesNotExistException) {
+			// A missing share answers like someone else's, so share ids cannot be probed.
+			throw new ForbiddenException(message: 'Access denied');
+		}
 
 		if ($dashboard->getUserId() !== $callerId) {
 			throw new ForbiddenException(message: 'Access denied');
@@ -178,6 +184,32 @@ class DashboardShareService {
 		);
 
 		// Validate all entries up-front before touching the DB.
+		$grants = $this->validatedGrants(shares: $shares);
+
+		$notifyQueue = $this->replaceInTransaction(dashboardId: $dashboardId, grants: $grants);
+
+		// Publish notifications after the transaction commits.
+		foreach ($notifyQueue as $share) {
+			$this->notifier->shared(
+				share: $share,
+				sharerUserId: $userId,
+				dashboard: $dashboard
+			);
+		}
+
+		return $this->shareMapper->findByDashboardId(dashboardId: $dashboardId);
+	}//end replaceShares()
+
+	/**
+	 * Turn every payload entry into a validated grant.
+	 *
+	 * @param array $shares The payload entries.
+	 *
+	 * @return ShareGrant[] The grants, in payload order.
+	 *
+	 * @throws InvalidArgumentException When any entry is invalid.
+	 */
+	private function validatedGrants(array $shares): array {
 		$grants = [];
 		foreach ($shares as $entry) {
 			$grant = $this->grantFrom(entry: $entry);
@@ -185,10 +217,24 @@ class DashboardShareService {
 			$grants[] = $grant;
 		}
 
-		// Build the keep-key set for deletion.
+		return $grants;
+	}//end validatedGrants()
+
+	/**
+	 * Replace the shares of a dashboard with the grants in one transaction.
+	 *
+	 * Shares whose `type:with` key is not granted are deleted first; every
+	 * grant is then upserted. Rolls back when any step throws.
+	 *
+	 * @param int          $dashboardId The dashboard ID.
+	 * @param ShareGrant[] $grants      The validated grants.
+	 *
+	 * @return DashboardShare[] The new and upgraded shares to notify.
+	 */
+	private function replaceInTransaction(int $dashboardId, array $grants): array {
 		$keepKeys = [];
-		foreach ($shares as $entry) {
-			$keepKeys[] = $entry['shareType'] . ':' . $entry['shareWith'];
+		foreach ($grants as $grant) {
+			$keepKeys[] = $grant->shareType . ':' . $grant->shareWith;
 		}
 
 		$notifyQueue = [];
@@ -202,10 +248,8 @@ class DashboardShareService {
 				keepKeys: $keepKeys
 			);
 
-			// Upsert each entry.
 			foreach ($grants as $grant) {
 				$result = $this->persistShare(dashboardId: $dashboardId, grant: $grant);
-
 				if ($result['isNew'] === true || $result['isUpgrade'] === true) {
 					$notifyQueue[] = $result['share'];
 				}
@@ -219,17 +263,8 @@ class DashboardShareService {
 			}
 		}//end try
 
-		// Publish notifications after the transaction commits.
-		foreach ($notifyQueue as $share) {
-			$this->notifier->shared(
-				share: $share,
-				sharerUserId: $userId,
-				dashboard: $dashboard
-			);
-		}
-
-		return $this->shareMapper->findByDashboardId(dashboardId: $dashboardId);
-	}//end replaceShares()
+		return $notifyQueue;
+	}//end replaceInTransaction()
 
 	/**
 	 * Remove every share where the caller is the owner AND the share targets
@@ -375,40 +410,58 @@ class DashboardShareService {
 	 * @return array{share: DashboardShare, isNew: bool, isUpgrade: bool}
 	 */
 	private function persistShare(int $dashboardId, ShareGrant $grant): array {
-		$shareType = $grant->shareType;
-		$shareWith = $grant->shareWith;
-		$permissionLevel = $grant->permissionLevel;
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$existing = $this->shareMapper->findShare(
 			dashboardId: $dashboardId,
-			shareType: $shareType,
-			shareWith: $shareWith
+			shareType: $grant->shareType,
+			shareWith: $grant->shareWith
 		);
 
 		if ($existing === null) {
-			// Insert new share.
-			$share = new DashboardShare();
-			$share->setDashboardId($dashboardId);
-			$share->setShareType($shareType);
-			$share->setShareWith($shareWith);
-			$share->setPermissionLevel($permissionLevel);
-			$share->setCreatedAt($now);
-			$share->setUpdatedAt($now);
-
 			return [
-				'share' => $this->shareMapper->insert(entity: $share),
+				'share' => $this->insertShare(dashboardId: $dashboardId, grant: $grant),
 				'isNew' => true,
 				'isUpgrade' => false,
 			];
 		}
 
-		// Detect upgrade.
-		$oldLevel = (string)$existing->getPermissionLevel();
-		$newOrder = (self::LEVEL_ORDER[$permissionLevel] ?? 0);
-		$oldOrder = (self::LEVEL_ORDER[$oldLevel] ?? 0);
-		$isUpgrade = ($newOrder > $oldOrder);
+		return $this->changeLevel(existing: $existing, permissionLevel: $grant->permissionLevel);
+	}//end persistShare()
 
-		// No-op: same level.
+	/**
+	 * Insert a new share row for a grant.
+	 *
+	 * @param int        $dashboardId The dashboard ID.
+	 * @param ShareGrant $grant       The validated grant.
+	 *
+	 * @return DashboardShare The inserted share.
+	 */
+	private function insertShare(int $dashboardId, ShareGrant $grant): DashboardShare {
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+
+		$share = new DashboardShare();
+		$share->setDashboardId($dashboardId);
+		$share->setShareType($grant->shareType);
+		$share->setShareWith($grant->shareWith);
+		$share->setPermissionLevel($grant->permissionLevel);
+		$share->setCreatedAt($now);
+		$share->setUpdatedAt($now);
+
+		return $this->shareMapper->insert(entity: $share);
+	}//end insertShare()
+
+	/**
+	 * Move an existing share to a permission level.
+	 *
+	 * The same level is a no-op; a different level is written, and flagged
+	 * as an upgrade only when it ranks higher than the old one.
+	 *
+	 * @param DashboardShare $existing        The existing share.
+	 * @param string         $permissionLevel The requested level.
+	 *
+	 * @return array{share: DashboardShare, isNew: bool, isUpgrade: bool}
+	 */
+	private function changeLevel(DashboardShare $existing, string $permissionLevel): array {
+		$oldLevel = (string)$existing->getPermissionLevel();
 		if ($oldLevel === $permissionLevel) {
 			return [
 				'share' => $existing,
@@ -417,16 +470,17 @@ class DashboardShareService {
 			];
 		}
 
-		// Update level.
+		$isUpgrade = ((self::LEVEL_ORDER[$permissionLevel] ?? 0) > (self::LEVEL_ORDER[$oldLevel] ?? 0));
+
 		$existing->setPermissionLevel($permissionLevel);
-		$existing->setUpdatedAt($now);
+		$existing->setUpdatedAt((new DateTime())->format(format: 'Y-m-d H:i:s'));
 
 		return [
 			'share' => $this->shareMapper->update(entity: $existing),
 			'isNew' => false,
 			'isUpgrade' => $isUpgrade,
 		];
-	}//end persistShare()
+	}//end changeLevel()
 
 	/**
 	 * Read one entry of a share replace as a grant: an object whose

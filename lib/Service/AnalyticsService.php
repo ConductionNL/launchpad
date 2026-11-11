@@ -417,19 +417,7 @@ class AnalyticsService {
 
 		foreach ($rows as $row) {
 			$uuid = (string)$row->getDashboardUuid();
-			if (array_key_exists(key: $uuid, array: $nameByUuid) === false) {
-				$name = '';
-				try {
-					$dashboard = $this->dashboardMapper->findByUuid(
-						uuid: $uuid
-					);
-					$name = (string)$dashboard->getName();
-				} catch (DoesNotExistException) {
-					$name = '';
-				}
-
-				$nameByUuid[$uuid] = $name;
-			}
+			$nameByUuid[$uuid] ??= $this->dashboardName(uuid: $uuid);
 
 			$output[] = self::csvLine(
 				cells: [
@@ -440,10 +428,28 @@ class AnalyticsService {
 					(string)$row->getUniqueViewerCount(),
 				]
 			);
-		}//end foreach
+		}
 
 		return implode(separator: "\r\n", array: $output) . "\r\n";
 	}//end generateCsvExport()
+
+	/**
+	 * The name of a dashboard; empty when it no longer exists.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return string The name.
+	 */
+	private function dashboardName(string $uuid): string {
+		try {
+			$dashboard = $this->dashboardMapper->findByUuid(
+				uuid: $uuid
+			);
+			return (string)$dashboard->getName();
+		} catch (DoesNotExistException) {
+			return '';
+		}
+	}//end dashboardName()
 
 	/**
 	 * Compute a filename suitable for the CSV export attachment

@@ -1,0 +1,517 @@
+{
+    "DashboardMetadataController::getMetadata / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardMetadataController::getMetadata / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardMetadataController::getMetadata / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-metadata.get-metadata"
+        ]
+    },
+    "DashboardMetadataController::getMetadata / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard-metadata.get-metadata"
+        ]
+    },
+    "DashboardMetadataController::fields / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardMetadataController::fields / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardMetadataController::fields / action denied": {
+        "thrown": "Error",
+        "asked": []
+    },
+    "DashboardMetadataController::fields / allowed": {
+        "thrown": "Error",
+        "asked": []
+    },
+    "DashboardMetadataController::setMetadata / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardMetadataController::setMetadata / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardMetadataController::setMetadata / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-metadata.set-metadata"
+        ]
+    },
+    "DashboardMetadataController::setMetadata / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard-metadata.set-metadata"
+        ]
+    },
+    "DashboardVersionApiController::listVersions / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::listVersions / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::listVersions / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-version.list-versions"
+        ]
+    },
+    "DashboardVersionApiController::listVersions / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard-version.list-versions"
+        ]
+    },
+    "DashboardVersionApiController::fetchVersion / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::fetchVersion / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::fetchVersion / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-version.fetch-version"
+        ]
+    },
+    "DashboardVersionApiController::fetchVersion / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard-version.fetch-version"
+        ]
+    },
+    "DashboardVersionApiController::createVersion / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::createVersion / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::createVersion / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-version.create-version"
+        ]
+    },
+    "DashboardVersionApiController::createVersion / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard-version.create-version"
+        ]
+    },
+    "DashboardVersionApiController::restoreVersion / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::restoreVersion / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "DashboardVersionApiController::restoreVersion / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-version.restore-version"
+        ]
+    },
+    "DashboardVersionApiController::restoreVersion / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "dashboard-version.restore-version"
+        ]
+    },
+    "ManifestController::index / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "ManifestController::index / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "ManifestController::index / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "manifest.index"
+        ]
+    },
+    "ManifestController::index / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "manifest.index"
+        ]
+    },
+    "PeopleWidgetController::getUsers / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "PeopleWidgetController::getUsers / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "PeopleWidgetController::getUsers / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "people-widget.get-users"
+        ]
+    },
+    "PeopleWidgetController::getUsers / allowed": {
+        "status": 200,
+        "asked": [
+            "people-widget.get-users"
+        ]
+    },
+    "RuleApiController::getRules / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::getRules / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::getRules / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "rule.get-rules"
+        ]
+    },
+    "RuleApiController::getRules / allowed": {
+        "status": 200,
+        "asked": [
+            "rule.get-rules"
+        ]
+    },
+    "RuleApiController::addRule / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::addRule / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::addRule / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "rule.add-rule"
+        ]
+    },
+    "RuleApiController::addRule / allowed": {
+        "status": 400,
+        "asked": [
+            "rule.add-rule"
+        ]
+    },
+    "RuleApiController::updateRule / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::updateRule / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::updateRule / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "rule.update-rule"
+        ]
+    },
+    "RuleApiController::updateRule / allowed": {
+        "thrown": "TypeError",
+        "asked": [
+            "rule.update-rule"
+        ]
+    },
+    "RuleApiController::deleteRule / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::deleteRule / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "RuleApiController::deleteRule / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "rule.delete-rule"
+        ]
+    },
+    "RuleApiController::deleteRule / allowed": {
+        "thrown": "TypeError",
+        "asked": [
+            "rule.delete-rule"
+        ]
+    },
+    "TileApiController::index / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::index / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::index / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile.index"
+        ]
+    },
+    "TileApiController::index / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile.index"
+        ]
+    },
+    "TileApiController::discover / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::discover / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::discover / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile.discover"
+        ]
+    },
+    "TileApiController::discover / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile.discover"
+        ]
+    },
+    "TileApiController::create / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::create / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::create / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile.create"
+        ]
+    },
+    "TileApiController::create / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile.create"
+        ]
+    },
+    "TileApiController::update / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::update / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::update / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile.update"
+        ]
+    },
+    "TileApiController::update / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile.update"
+        ]
+    },
+    "TileApiController::destroy / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::destroy / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": []
+    },
+    "TileApiController::destroy / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "tile.destroy"
+        ]
+    },
+    "TileApiController::destroy / allowed": {
+        "thrown": "Error",
+        "asked": [
+            "tile.destroy"
+        ]
+    }
+}

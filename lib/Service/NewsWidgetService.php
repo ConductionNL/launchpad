@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DOMDocument;
+use DOMNode;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -101,6 +102,42 @@ class NewsWidgetService {
 	private const FETCH_TIMEOUT_SECONDS = 10;
 
 	/**
+	 * Default of each boolean config field (REQ-NEWS-002).
+	 *
+	 * @var array<string, bool>
+	 */
+	private const BOOL_FIELD_DEFAULTS = [
+		'showThumbnails' => true,
+		'showSummary' => true,
+	];
+
+	/**
+	 * Default, lower bound and upper bound of each integer config field
+	 * (REQ-NEWS-002).
+	 *
+	 * @var array<string, array{0: int, 1: int, 2: int}>
+	 */
+	private const INT_FIELD_RANGES = [
+		'itemLimit' => [10, 1, 50],
+		'summaryMaxChars' => [200, 0, 5000],
+	];
+
+	/**
+	 * HTTP client options of a live feed fetch.
+	 *
+	 * C1/H3: redirect-following is disabled so an attacker cannot chain a
+	 * public URL to an internal redirect target (SSRF via open redirect).
+	 *
+	 * @var array<string, int|bool>
+	 */
+	private const FETCH_OPTIONS = [
+		'timeout' => self::FETCH_TIMEOUT_SECONDS,
+		'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
+		'verify' => true,
+		'allow_redirects' => false,
+	];
+
+	/**
 	 * Lazily resolved {@see ICache} backing the per-feed payload cache.
 	 * Created on first use so unit tests can construct the service
 	 * with a stub `ICacheFactory` that never gets called.
@@ -149,16 +186,8 @@ class NewsWidgetService {
 	 */
 	public function getItemsForPlacement(int $placementId, int $limit = 10): array {
 		$clamped = $this->clampLimit(limit: $limit);
-
-		try {
-			$placement = $this->placementMapper->find(id: $placementId);
-		} catch (DoesNotExistException $e) {
-			return $this->emptyResponse();
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				message: 'NewsWidget: failed to resolve placement ' . $placementId,
-				context: ['exception' => $e]
-			);
+		$placement = $this->findPlacement(placementId: $placementId);
+		if ($placement === null) {
 			return $this->emptyResponse();
 		}
 
@@ -175,11 +204,30 @@ class NewsWidgetService {
 			return $this->emptyResponse();
 		}
 
-		return $this->fetchAndMergeFeeds(
-			feedUrls: $config['feedUrls'],
-			limit: $clamped
-		);
+		return $this->fetchAndMergeFeeds(feedUrls: $config['feedUrls'], limit: $clamped);
 	}//end getItemsForPlacement()
+
+	/**
+	 * The placement with this id, or null when it does not exist or cannot
+	 * be read (logged).
+	 *
+	 * @param integer $placementId Placement entity id.
+	 *
+	 * @return WidgetPlacement|null
+	 */
+	private function findPlacement(int $placementId): ?WidgetPlacement {
+		try {
+			return $this->placementMapper->find(id: $placementId);
+		} catch (DoesNotExistException $e) {
+			return null;
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				message: 'NewsWidget: failed to resolve placement ' . $placementId,
+				context: ['exception' => $e]
+			);
+			return null;
+		}
+	}//end findPlacement()
 
 	/**
 	 * Parse the placement's persisted JSON content into the canonical
@@ -208,37 +256,42 @@ class NewsWidgetService {
 		// the `content` column; `style_config` only carries chrome
 		// (background/title). Read `content` first, falling back to
 		// `style_config` for any legacy placement that stored config there.
-		$decoded = $this->decodeStyleConfigBlob(raw: $placement->getContent());
-		if ($decoded === [] || $this->extractFeedUrls(decoded: $decoded) === []) {
-			$legacy = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
-			if ($legacy !== []) {
-				$decoded = $legacy;
-			}
-		}
+		$decoded = $this->readConfigBlob(placement: $placement);
 
 		return [
 			'feedUrls' => $this->extractFeedUrls(decoded: $decoded),
 			'layout' => $this->extractLayout(decoded: $decoded),
-			'itemLimit' => $this->extractIntInRange(
-				decoded: $decoded,
-				key: 'itemLimit',
-				default: 10,
-				min: 1,
-				max: 50
-			),
-			'showThumbnails' => $this->extractBool(decoded: $decoded, key: 'showThumbnails', default: true),
-			'showSummary' => $this->extractBool(decoded: $decoded, key: 'showSummary', default: true),
-			'summaryMaxChars' => $this->extractIntInRange(
-				decoded: $decoded,
-				key: 'summaryMaxChars',
-				default: 200,
-				min: 0,
-				max: 5000
-			),
+			'itemLimit' => $this->extractIntInRange(decoded: $decoded, key: 'itemLimit'),
+			'showThumbnails' => $this->extractBool(decoded: $decoded, key: 'showThumbnails'),
+			'showSummary' => $this->extractBool(decoded: $decoded, key: 'showSummary'),
+			'summaryMaxChars' => $this->extractIntInRange(decoded: $decoded, key: 'summaryMaxChars'),
 			'dateFormat' => $this->extractDateFormat(decoded: $decoded),
 			'metadataFilter' => $this->extractMetadataFilter(decoded: $decoded),
 		];
 	}//end extractNewsConfig()
+
+	/**
+	 * Decoded config of a placement: its `content` column, or its legacy
+	 * `style_config` column when `content` holds no feed URLs and the
+	 * legacy column is not empty.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array<string, mixed> Decoded content map (empty when invalid).
+	 */
+	private function readConfigBlob(WidgetPlacement $placement): array {
+		$decoded = $this->decodeStyleConfigBlob(raw: $placement->getContent());
+		if ($decoded !== [] && $this->extractFeedUrls(decoded: $decoded) !== []) {
+			return $decoded;
+		}
+
+		$legacy = $this->decodeStyleConfigBlob(raw: $placement->getStyleConfig());
+		if ($legacy !== []) {
+			return $legacy;
+		}
+
+		return $decoded;
+	}//end readConfigBlob()
 
 	/**
 	 * Parse the widget's persisted JSON blob and unwrap the outer
@@ -281,20 +334,33 @@ class NewsWidgetService {
 
 		$out = [];
 		foreach ($candidates as $candidate) {
-			if (is_string(value: $candidate) === false || $candidate === '') {
-				continue;
-			}
-
-			// C1: accept HTTPS only — plain HTTP leaks feed content in
-			// transit and bypasses the SSRF guard's scheme check.
-			$lower = strtolower(string: $candidate);
-			if (str_starts_with(haystack: $lower, needle: 'https://') === true) {
+			if (self::isHttpsUrl(candidate: $candidate) === true) {
 				$out[] = $candidate;
 			}
 		}
 
 		return $out;
 	}//end extractFeedUrls()
+
+	/**
+	 * Whether a configured feed URL is a non-empty string starting with
+	 * `https://` (any case).
+	 *
+	 * C1: accept HTTPS only — plain HTTP leaks feed content in transit and
+	 * bypasses the SSRF guard's scheme check.
+	 *
+	 * @param mixed $candidate Configured entry.
+	 *
+	 * @return boolean
+	 */
+	private static function isHttpsUrl(mixed $candidate): bool {
+		if (is_string(value: $candidate) === false || $candidate === '') {
+			return false;
+		}
+
+		$lower = strtolower(string: $candidate);
+		return str_starts_with(haystack: $lower, needle: 'https://');
+	}//end isHttpsUrl()
 
 	/**
 	 * Extract the layout enum (`list` | `grid` | `carousel`).
@@ -315,17 +381,16 @@ class NewsWidgetService {
 	}//end extractLayout()
 
 	/**
-	 * Extract a clamped int field.
+	 * Extract a clamped int field; its default and range come from
+	 * INT_FIELD_RANGES.
 	 *
 	 * @param array<string, mixed> $decoded Decoded config map.
-	 * @param string $key Field key.
-	 * @param integer $default Default value when missing/invalid.
-	 * @param integer $min Lower bound.
-	 * @param integer $max Upper bound.
+	 * @param string $key Field key (a key of INT_FIELD_RANGES).
 	 *
 	 * @return integer
 	 */
-	private function extractIntInRange(array $decoded, string $key, int $default, int $min, int $max): int {
+	private function extractIntInRange(array $decoded, string $key): int {
+		[$default, $min, $max] = self::INT_FIELD_RANGES[$key];
 		$value = $decoded[$key] ?? null;
 		if (is_int(value: $value) === false) {
 			return $default;
@@ -335,17 +400,17 @@ class NewsWidgetService {
 	}//end extractIntInRange()
 
 	/**
-	 * Extract a boolean field with default fallback.
+	 * Extract a boolean field; its default (used when the key is missing)
+	 * comes from BOOL_FIELD_DEFAULTS.
 	 *
 	 * @param array<string, mixed> $decoded Decoded config map.
-	 * @param string $key Field key.
-	 * @param boolean $default Default value when missing.
+	 * @param string $key Field key (a key of BOOL_FIELD_DEFAULTS).
 	 *
 	 * @return boolean
 	 */
-	private function extractBool(array $decoded, string $key, bool $default): bool {
+	private function extractBool(array $decoded, string $key): bool {
 		if (array_key_exists(key: $key, array: $decoded) === false) {
-			return $default;
+			return self::BOOL_FIELD_DEFAULTS[$key];
 		}
 
 		return $decoded[$key] === true;
@@ -413,68 +478,114 @@ class NewsWidgetService {
 			return $this->emptyResponse();
 		}
 
-		$allItems = [];
-		$failedUrls = [];
-
-		foreach ($feedUrls as $url) {
-			// C1: SSRF guard — reject non-HTTPS, private IPs, and any host
-			// not in the admin allow-list (default-deny when list is
-			// non-empty; open when list is empty per REQ-NEWS-006).
-			if ($this->fetch->urlValidator->isSafe(url: $url) === false) {
-				$this->logger->warning(
-					message: 'NewsWidget: URL rejected by SSRF guard',
-					context: ['url' => $url]
-				);
-				$failedUrls[] = $url;
-				continue;
-			}
-
-			if ($this->checkAllowList(url: $url) === false) {
-				$this->logger->warning(
-					message: 'NewsWidget: URL skipped by allow-list',
-					context: ['url' => $url]
-				);
-				$failedUrls[] = $url;
-				continue;
-			}
-
-			$payload = $this->fetchFeedPayload(url: $url);
-			if ($payload === null) {
-				$failedUrls[] = $url;
-				continue;
-			}
-
-			try {
-				$parsed = $this->parseRssFeed(
-					feedContent: $payload,
-					sourceUrl: $url,
-					sourceTitle: $url
-				);
-			} catch (Throwable $e) {
-				$this->logger->warning(
-					message: 'NewsWidget: feed parse failed for ' . $url,
-					context: ['exception' => $e]
-				);
-				$failedUrls[] = $url;
-				continue;
-			}
-
-			foreach ($parsed as $item) {
-				$allItems[] = $item;
-			}
-		}//end foreach
-
-		$deduped = $this->deduplicateItems(items: $allItems);
-		$sorted = $this->sortItemsByDate(items: $deduped);
-		$sliced = array_slice(array: $sorted, offset: 0, length: $limit);
+		$collected = $this->collectFeedItems(feedUrls: $feedUrls);
 
 		return [
-			'items' => $sliced,
-			'feedsFailed' => count(value: $failedUrls),
-			// No array_values(): $failedUrls is already a list.
-			'failedUrls' => $failedUrls,
+			'items' => $this->rankItems(items: $collected['items'], limit: $limit),
+			'feedsFailed' => count(value: $collected['failedUrls']),
+			// No array_values(): failedUrls is already a list.
+			'failedUrls' => $collected['failedUrls'],
 		];
 	}//end fetchAndMergeFeeds()
+
+	/**
+	 * Fetch and parse every feed URL in order, tolerating failures.
+	 *
+	 * @param array<int, string> $feedUrls List of feed URLs.
+	 *
+	 * @return array{items: array<int, array<string, mixed>>, failedUrls: array<int, string>}
+	 */
+	private function collectFeedItems(array $feedUrls): array {
+		$allItems = [];
+		$failedUrls = [];
+		foreach ($feedUrls as $url) {
+			$parsed = $this->fetchFeedItems(url: $url);
+			if ($parsed === null) {
+				$failedUrls[] = $url;
+				continue;
+			}
+
+			array_push($allItems, ...$parsed);
+		}
+
+		return ['items' => $allItems, 'failedUrls' => $failedUrls];
+	}//end collectFeedItems()
+
+	/**
+	 * Deduplicate, sort newest first and cap the merged items.
+	 *
+	 * @param array<int, array<string, mixed>> $items Merged items.
+	 * @param integer $limit Hard cap on returned item count.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function rankItems(array $items, int $limit): array {
+		$deduped = $this->deduplicateItems(items: $items);
+		$sorted = $this->sortItemsByDate(items: $deduped);
+
+		return array_slice(array: $sorted, offset: 0, length: $limit);
+	}//end rankItems()
+
+	/**
+	 * Guard, fetch and parse one feed URL.
+	 *
+	 * @param string $url Feed URL.
+	 *
+	 * @return array<int, array<string, mixed>>|null Parsed items, or null
+	 *                                               when the feed failed.
+	 */
+	private function fetchFeedItems(string $url): ?array {
+		if ($this->isFeedUrlAccepted(url: $url) === false) {
+			return null;
+		}
+
+		$payload = $this->fetchFeedPayload(url: $url);
+		if ($payload === null) {
+			return null;
+		}
+
+		try {
+			return $this->parseRssFeed(feedContent: $payload, sourceUrl: $url, sourceTitle: $url);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				message: 'NewsWidget: feed parse failed for ' . $url,
+				context: ['exception' => $e]
+			);
+			return null;
+		}
+	}//end fetchFeedItems()
+
+	/**
+	 * Whether a feed URL passes the SSRF guard and the admin allow-list,
+	 * logging the reason when it does not.
+	 *
+	 * C1: SSRF guard — reject non-HTTPS, private IPs, and any host not in
+	 * the admin allow-list (default-deny when list is non-empty; open when
+	 * list is empty per REQ-NEWS-006).
+	 *
+	 * @param string $url Feed URL.
+	 *
+	 * @return boolean True when the URL may be fetched.
+	 */
+	private function isFeedUrlAccepted(string $url): bool {
+		if ($this->fetch->urlValidator->isSafe(url: $url) === false) {
+			$this->logger->warning(
+				message: 'NewsWidget: URL rejected by SSRF guard',
+				context: ['url' => $url]
+			);
+			return false;
+		}
+
+		if ($this->checkAllowList(url: $url) === false) {
+			$this->logger->warning(
+				message: 'NewsWidget: URL skipped by allow-list',
+				context: ['url' => $url]
+			);
+			return false;
+		}
+
+		return true;
+	}//end isFeedUrlAccepted()
 
 	/**
 	 * Parse a raw feed payload (RSS 2.0 or Atom 1.0) into the canonical
@@ -500,51 +611,62 @@ class NewsWidgetService {
 			return [];
 		}
 
-		$items = [];
-		$rootName = $xml->getName();
+		$source = new FeedSource(url: $sourceUrl, title: $sourceTitle);
 
 		// Atom 1.0: <feed><entry/>…</feed>.
-		if ($rootName === 'feed') {
-			$resolvedTitle = $sourceTitle;
-			if (isset($xml->title) === true) {
-				$resolvedTitle = (string)$xml->title;
-			}
-
-			foreach ($xml->entry as $entry) {
-				$items[] = $this->normaliseAtomEntry(
-					entry: $entry,
-					sourceUrl: $sourceUrl,
-					sourceTitle: $resolvedTitle
-				);
-			}
-
-			return $items;
+		if ($xml->getName() === 'feed') {
+			return $this->normaliseAtomFeed(feed: $xml, source: $source->titledBy(node: $xml));
 		}
 
-		// RSS 2.0 (<rss><channel>) plus the bare <channel> some publishers ship.
+		return $this->normaliseRssFeed(xml: $xml, fallback: $source);
+	}//end parseRssFeed()
+
+	/**
+	 * Convert every `<entry>` of an Atom feed into the canonical item shape.
+	 *
+	 * @param SimpleXMLElement $feed The Atom `<feed>` root.
+	 * @param FeedSource $source Feed URL and resolved display name.
+	 *
+	 * @return array<int, array<string, mixed>> Parsed items.
+	 */
+	private function normaliseAtomFeed(SimpleXMLElement $feed, FeedSource $source): array {
+		$items = [];
+		foreach ($feed->entry as $entry) {
+			$items[] = $this->normaliseAtomEntry(entry: $entry, source: $source);
+		}
+
+		return $items;
+	}//end normaliseAtomFeed()
+
+	/**
+	 * Convert every `<item>` of an RSS 2.0 channel into the canonical item
+	 * shape, accepting the bare `<channel>` root some publishers ship.
+	 *
+	 * @param SimpleXMLElement $xml The parsed feed document.
+	 * @param FeedSource $fallback Feed URL and the display name used when
+	 *                             the channel has no title.
+	 *
+	 * @return array<int, array<string, mixed>> Parsed items, empty for an
+	 *                                          unsupported root.
+	 */
+	private function normaliseRssFeed(SimpleXMLElement $xml, FeedSource $fallback): array {
+		$rootName = $xml->getName();
 		$channel = self::resolveRssChannel(xml: $xml, rootName: $rootName);
 		if ($channel === null) {
 			$this->logger->info(
-				message: 'NewsWidget: unsupported feed root <' . $rootName . '> for ' . $sourceUrl
+				message: 'NewsWidget: unsupported feed root <' . $rootName . '> for ' . $fallback->url
 			);
 			return [];
 		}
 
-		$resolvedTitle = $sourceTitle;
-		if (isset($channel->title) === true) {
-			$resolvedTitle = (string)$channel->title;
-		}
-
+		$source = $fallback->titledBy(node: $channel);
+		$items = [];
 		foreach ($channel->item as $item) {
-			$items[] = $this->normaliseRssItem(
-				item: $item,
-				sourceUrl: $sourceUrl,
-				sourceTitle: $resolvedTitle
-			);
+			$items[] = $this->normaliseRssItem(item: $item, source: $source);
 		}
 
 		return $items;
-	}//end parseRssFeed()
+	}//end normaliseRssFeed()
 
 	/**
 	 * Parse a raw feed payload, logging and returning null when the XML is
@@ -617,29 +739,39 @@ class NewsWidgetService {
 		$seen = [];
 		$out = [];
 		foreach ($items as $item) {
-			$guid = '';
-			if (isset($item['guid']) === true) {
-				$guid = (string)$item['guid'];
-			}
-
-			if ($guid === '' || isset($seen[$guid]) === true) {
-				if ($guid === '') {
-					// Items missing a guid bypass the dedupe map but
-					// still flow through so we don't lose them; the
-					// synthetic guid in normaliseRssItem / normaliseAtomEntry
-					// ensures this path is rarely hit.
-					$out[] = $item;
-				}
-
+			// Items missing a guid bypass the dedupe map but still flow
+			// through so we don't lose them; the synthetic guid in
+			// normaliseRssItem / normaliseAtomEntry ensures this path is
+			// rarely hit.
+			$guid = self::itemGuid(item: $item);
+			if ($guid !== '' && isset($seen[$guid]) === true) {
 				continue;
 			}
 
-			$seen[$guid] = true;
+			if ($guid !== '') {
+				$seen[$guid] = true;
+			}
+
 			$out[] = $item;
-		}//end foreach
+		}
 
 		return $out;
 	}//end deduplicateItems()
+
+	/**
+	 * An item's guid as a string, or '' when it has none.
+	 *
+	 * @param array<string, mixed> $item Item.
+	 *
+	 * @return string
+	 */
+	private static function itemGuid(array $item): string {
+		if (isset($item['guid']) === true) {
+			return (string)$item['guid'];
+		}
+
+		return '';
+	}//end itemGuid()
 
 	/**
 	 * Sort items by ISO 8601 `pubDate`, descending (newest first).
@@ -654,37 +786,52 @@ class NewsWidgetService {
 	 */
 	public function sortItemsByDate(array $items): array {
 		$sortable = $items;
-		usort(
-			array: $sortable,
-			callback: function (array $a, array $b): int {
-				$aTs = false;
-				if (isset($a['pubDate']) === true) {
-					$aTs = strtotime(datetime: (string)$a['pubDate']);
-				}
-
-				$bTs = false;
-				if (isset($b['pubDate']) === true) {
-					$bTs = strtotime(datetime: (string)$b['pubDate']);
-				}
-
-				if ($aTs === false && $bTs === false) {
-					return 0;
-				}
-
-				if ($aTs === false) {
-					return 1;
-				}
-
-				if ($bTs === false) {
-					return -1;
-				}
-
-				return ($bTs <=> $aTs);
-			}
-		);
+		usort(array: $sortable, callback: self::compareByPubDateDesc(...));
 
 		return $sortable;
 	}//end sortItemsByDate()
+
+	/**
+	 * Order two items newest first; items without a parseable pubDate
+	 * sink below dated ones and keep their relative order.
+	 *
+	 * @param array<string, mixed> $a First item.
+	 * @param array<string, mixed> $b Second item.
+	 *
+	 * @return integer
+	 */
+	private static function compareByPubDateDesc(array $a, array $b): int {
+		$aTs = self::pubDateTimestamp(item: $a);
+		$bTs = self::pubDateTimestamp(item: $b);
+		if ($aTs === false && $bTs === false) {
+			return 0;
+		}
+
+		if ($aTs === false) {
+			return 1;
+		}
+
+		if ($bTs === false) {
+			return -1;
+		}
+
+		return ($bTs <=> $aTs);
+	}//end compareByPubDateDesc()
+
+	/**
+	 * Unix timestamp of an item's pubDate, or false when absent or unparseable.
+	 *
+	 * @param array<string, mixed> $item Item.
+	 *
+	 * @return integer|false
+	 */
+	private static function pubDateTimestamp(array $item): int|false {
+		if (isset($item['pubDate']) === false) {
+			return false;
+		}
+
+		return strtotime(datetime: (string)$item['pubDate']);
+	}//end pubDateTimestamp()
 
 	/**
 	 * Allow-list the small set of inline tags safe to render inside a
@@ -709,16 +856,51 @@ class NewsWidgetService {
 		// be neutralised; reuse PHP's HTML parser via DOMDocument so we
 		// can rewrite href attributes safely without false-positives on
 		// body text containing the substring.
-		// C2: LIBXML_NOENT removed — resolves entities (XXE risk).
+		$document = self::loadSummaryDocument(html: $stripped);
+		self::neutraliseAnchors(document: $document);
+
+		// Re-serialise just the wrapper's children so we don't leak
+		// <html><body> from DOMDocument's auto-wrapping.
+		$body = $document->getElementsByTagName(qualifiedName: 'div')->item(index: 0);
+		if ($body === null) {
+			return $stripped;
+		}
+
+		return self::serialiseChildren(document: $document, parent: $body);
+	}//end sanitiseSummaryHtml()
+
+	/**
+	 * Parse stripped summary HTML inside a `<div>` wrapper, silencing
+	 * libxml's warnings for the duration of the parse.
+	 *
+	 * C2: LIBXML_NOENT removed — resolves entities (XXE risk).
+	 *
+	 * @param string $html Tag-stripped summary HTML.
+	 *
+	 * @return DOMDocument
+	 */
+	private static function loadSummaryDocument(string $html): DOMDocument {
 		$previousErrors = libxml_use_internal_errors(use_errors: true);
 		$document = new DOMDocument();
 		$document->loadHTML(
-			source: '<?xml encoding="UTF-8"><div>' . $stripped . '</div>',
+			source: '<?xml encoding="UTF-8"><div>' . $html . '</div>',
 			options: LIBXML_NONET
 		);
 		libxml_clear_errors();
 		libxml_use_internal_errors(use_errors: $previousErrors);
 
+		return $document;
+	}//end loadSummaryDocument()
+
+	/**
+	 * Point `javascript:` and `data:` anchors at `#` and force `rel` on
+	 * every anchor.
+	 *
+	 * @param DOMDocument $document Parsed summary document.
+	 *
+	 * @return void
+	 */
+	private static function neutraliseAnchors(DOMDocument $document): void {
 		$anchors = $document->getElementsByTagName(qualifiedName: 'a');
 		foreach ($anchors as $anchor) {
 			$href = $anchor->getAttribute(qualifiedName: 'href');
@@ -731,16 +913,19 @@ class NewsWidgetService {
 
 			$anchor->setAttribute(qualifiedName: 'rel', value: 'noopener noreferrer');
 		}
+	}//end neutraliseAnchors()
 
-		// Re-serialise just the wrapper's children so we don't leak
-		// <html><body> from DOMDocument's auto-wrapping.
-		$body = $document->getElementsByTagName(qualifiedName: 'div')->item(index: 0);
-		if ($body === null) {
-			return $stripped;
-		}
-
+	/**
+	 * Serialise the child nodes of a parent element as HTML.
+	 *
+	 * @param DOMDocument $document Document the parent belongs to.
+	 * @param DOMNode $parent The wrapper element.
+	 *
+	 * @return string
+	 */
+	private static function serialiseChildren(DOMDocument $document, DOMNode $parent): string {
 		$out = '';
-		foreach ($body->childNodes as $child) {
+		foreach ($parent->childNodes as $child) {
 			$serialised = $document->saveHTML(node: $child);
 			if (is_string(value: $serialised) === true) {
 				$out .= $serialised;
@@ -748,7 +933,7 @@ class NewsWidgetService {
 		}
 
 		return $out;
-	}//end sanitiseSummaryHtml()
+	}//end serialiseChildren()
 
 	/**
 	 * Whether the supplied URL's hostname is permitted by the admin
@@ -830,75 +1015,123 @@ class NewsWidgetService {
 	 */
 	private function fetchFeedPayload(string $url): ?string {
 		$cache = $this->getCache();
-		$cacheKey = 'feed_' . sha1(string: $url);
-
-		$cached = $this->readCachedPayload(cache: $cache, cacheKey: $cacheKey);
+		$cached = $this->readCachedPayload(cache: $cache, cacheKey: self::feedCacheKey(url: $url));
 		if ($cached !== null) {
 			return $cached;
 		}
 
 		try {
-			$client = $this->fetch->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'timeout' => self::FETCH_TIMEOUT_SECONDS,
-					'connect_timeout' => self::FETCH_TIMEOUT_SECONDS,
-					'verify' => true,
-					// C1/H3: disable redirect-following so an attacker
-					// cannot chain a public URL to an internal redirect
-					// target (SSRF via open redirect).
-					'allow_redirects' => false,
-				]
-			);
-
-			$statusCode = $response->getStatusCode();
-			if ($statusCode < 200 || $statusCode >= 300) {
-				$this->logger->warning(
-					message: 'NewsWidget: feed fetch returned HTTP ' . $statusCode . ' for ' . $url
-				);
-				$this->fetch->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
-				return null;
-			}
-
-			$this->fetch->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
-
-			$body = (string)$response->getBody();
-			if ($body === '') {
-				return null;
-			}
-
-			// C1: body cap — reject oversized payloads before XML parse.
-			if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
-				$this->logger->warning(
-					message: 'NewsWidget: feed response exceeds 1MB cap, skipping ' . $url
-				);
-				return null;
-			}
-
-			if ($cache !== null) {
-				$ttl = $this->appConfig->getValueInt(
-					app: Application::APP_ID,
-					key: 'news_widget_feed_cache_ttl_seconds',
-					default: self::DEFAULT_CACHE_TTL
-				);
-				$cache->set(key: $cacheKey, value: $body, ttl: $ttl);
-			}
-
-			return $body;
+			return $this->fetchAndCachePayload(url: $url, cache: $cache);
 		} catch (Throwable $e) {
-			$this->logger->warning(
-				message: 'NewsWidget: feed fetch failed for ' . $url,
-				context: ['exception' => $e]
+			$this->reportFetchFailure(url: $url, exception: $e);
+			return null;
+		}
+	}//end fetchFeedPayload()
+
+	/**
+	 * Cache key of one feed URL's payload.
+	 *
+	 * @param string $url Feed URL.
+	 *
+	 * @return string
+	 */
+	private static function feedCacheKey(string $url): string {
+		return 'feed_' . sha1(string: $url);
+	}//end feedCacheKey()
+
+	/**
+	 * Fetch a feed live and store an accepted payload in the cache for the
+	 * configured TTL.
+	 *
+	 * @param string $url Feed URL.
+	 * @param ICache|null $cache The resolved cache, or null when unavailable.
+	 *
+	 * @return string|null Raw feed payload, or null when rejected.
+	 */
+	private function fetchAndCachePayload(string $url, ?ICache $cache): ?string {
+		$body = $this->fetchLiveBody(url: $url);
+		if ($body !== null && $cache !== null) {
+			$ttl = $this->appConfig->getValueInt(
+				app: Application::APP_ID,
+				key: 'news_widget_feed_cache_ttl_seconds',
+				default: self::DEFAULT_CACHE_TTL
 			);
-			$this->fetch->connectionReporter?->reportCall(
-				key: ConnectionReporter::KEY_NEWS_FEEDS,
-				url: $url,
-				httpStatus: $this->fetch->connectionReporter->httpStatusOf(exception: $e)
+			$cache->set(key: self::feedCacheKey(url: $url), value: $body, ttl: $ttl);
+		}
+
+		return $body;
+	}//end fetchAndCachePayload()
+
+	/**
+	 * GET a feed URL without following redirects and report the status to
+	 * the connection registry.
+	 *
+	 * @param string $url Feed URL.
+	 *
+	 * @return string|null Raw feed payload, or null when the status, an
+	 *                     empty body or the size cap rejects it.
+	 */
+	private function fetchLiveBody(string $url): ?string {
+		$client = $this->fetch->clientService->newClient();
+		$response = $client->get(uri: $url, options: self::FETCH_OPTIONS);
+
+		$statusCode = $response->getStatusCode();
+		if ($statusCode < 200 || $statusCode >= 300) {
+			$this->logger->warning(
+				message: 'NewsWidget: feed fetch returned HTTP ' . $statusCode . ' for ' . $url
+			);
+			$this->fetch->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
+			return null;
+		}
+
+		$this->fetch->connectionReporter?->reportCall(key: ConnectionReporter::KEY_NEWS_FEEDS, url: $url, httpStatus: $statusCode);
+
+		return $this->acceptBody(url: $url, body: (string)$response->getBody());
+	}//end fetchLiveBody()
+
+	/**
+	 * The response body, or null when it is empty or over the size cap.
+	 *
+	 * @param string $url Feed URL (for logging).
+	 * @param string $body Response body.
+	 *
+	 * @return string|null
+	 */
+	private function acceptBody(string $url, string $body): ?string {
+		if ($body === '') {
+			return null;
+		}
+
+		// C1: body cap — reject oversized payloads before XML parse.
+		if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
+			$this->logger->warning(
+				message: 'NewsWidget: feed response exceeds 1MB cap, skipping ' . $url
 			);
 			return null;
-		}//end try
-	}//end fetchFeedPayload()
+		}
+
+		return $body;
+	}//end acceptBody()
+
+	/**
+	 * Log a failed feed fetch and report it to the connection registry.
+	 *
+	 * @param string $url Feed URL.
+	 * @param Throwable $exception What the fetch threw.
+	 *
+	 * @return void
+	 */
+	private function reportFetchFailure(string $url, Throwable $exception): void {
+		$this->logger->warning(
+			message: 'NewsWidget: feed fetch failed for ' . $url,
+			context: ['exception' => $exception]
+		);
+		$this->fetch->connectionReporter?->reportCall(
+			key: ConnectionReporter::KEY_NEWS_FEEDS,
+			url: $url,
+			httpStatus: $this->fetch->connectionReporter->httpStatusOf(exception: $exception)
+		);
+	}//end reportFetchFailure()
 
 	/**
 	 * Read a previously cached feed payload.
@@ -977,84 +1210,138 @@ class NewsWidgetService {
 	 * Convert a single Atom `<entry>` into the canonical item shape.
 	 *
 	 * @param SimpleXMLElement $entry The Atom entry node.
-	 * @param string $sourceUrl The feed URL.
-	 * @param string $sourceTitle The display name for the feed.
+	 * @param FeedSource $source The feed URL and display name.
 	 *
 	 * @return array<string, mixed> Canonical item.
 	 */
-	private function normaliseAtomEntry(SimpleXMLElement $entry, string $sourceUrl, string $sourceTitle): array {
-		$title = self::childText(node: $entry, names: ['title']);
-		$summary = self::childText(node: $entry, names: ['summary', 'content']);
-		$pubDate = self::childText(node: $entry, names: ['updated', 'published']);
-		$guid = self::childText(node: $entry, names: ['id']);
-
-		$link = '';
-		if (isset($entry->link) === true) {
-			// Atom links are <link href="…"/>.
-			$href = $entry->link['href'] ?? null;
-			if ($href !== null) {
-				$link = (string)$href;
-			}
-		}
-
-		if ($guid === '') {
-			$guid = sha1(string: $title . '|' . $pubDate . '|' . $sourceUrl);
-		}
-
-		return [
-			'guid' => $guid,
-			'title' => $title,
-			'summary' => $this->sanitiseSummaryHtml(html: $summary),
-			'link' => $link,
-			'pubDate' => $pubDate,
-			'sourceUrl' => $sourceUrl,
-			'sourceTitle' => $sourceTitle,
-			'thumbnailUrl' => null,
-		];
+	private function normaliseAtomEntry(SimpleXMLElement $entry, FeedSource $source): array {
+		return $this->canonicalItem(
+			fields: [
+				'guid' => self::childText(node: $entry, names: ['id']),
+				'title' => self::childText(node: $entry, names: ['title']),
+				'summary' => self::childText(node: $entry, names: ['summary', 'content']),
+				'link' => self::atomLink(entry: $entry),
+				'pubDate' => self::childText(node: $entry, names: ['updated', 'published']),
+				'thumbnailUrl' => null,
+			],
+			source: $source
+		);
 	}//end normaliseAtomEntry()
+
+	/**
+	 * The `href` of an Atom entry's `<link href="…"/>`, or '' without one.
+	 *
+	 * @param SimpleXMLElement $entry The Atom entry node.
+	 *
+	 * @return string
+	 */
+	private static function atomLink(SimpleXMLElement $entry): string {
+		if (isset($entry->link) === false) {
+			return '';
+		}
+
+		$href = $entry->link['href'] ?? null;
+		if ($href === null) {
+			return '';
+		}
+
+		return (string)$href;
+	}//end atomLink()
 
 	/**
 	 * Convert a single RSS `<item>` into the canonical item shape.
 	 *
 	 * @param SimpleXMLElement $item The RSS item node.
-	 * @param string $sourceUrl The feed URL.
-	 * @param string $sourceTitle The display name for the feed.
+	 * @param FeedSource $source The feed URL and display name.
 	 *
 	 * @return array<string, mixed> Canonical item.
 	 */
-	private function normaliseRssItem(SimpleXMLElement $item, string $sourceUrl, string $sourceTitle): array {
-		$title = self::childText(node: $item, names: ['title']);
-		$summary = self::childText(node: $item, names: ['description']);
-		$link = self::childText(node: $item, names: ['link']);
-		$pubDate = self::childText(node: $item, names: ['pubDate']);
-		$guid = self::childText(node: $item, names: ['guid']);
-
-		if ($guid === '') {
-			$guid = sha1(string: $title . '|' . $pubDate . '|' . $sourceUrl);
-		}
-
-		$thumbnail = null;
-		if (isset($item->enclosure) === true) {
-			$url = $item->enclosure['url'] ?? null;
-			$type = $item->enclosure['type'] ?? null;
-			if ($url !== null
-				&& ($type === null || str_starts_with(haystack: (string)$type, needle: 'image/') === true)
-			) {
-				$thumbnail = (string)$url;
-			}
-		}
-
-		return [
-			'guid' => $guid,
-			'title' => $title,
-			'summary' => $this->sanitiseSummaryHtml(html: $summary),
-			'link' => $link,
-			'pubDate' => $pubDate,
-			'sourceUrl' => $sourceUrl,
-			'sourceTitle' => $sourceTitle,
-			'thumbnailUrl' => $thumbnail,
-		];
+	private function normaliseRssItem(SimpleXMLElement $item, FeedSource $source): array {
+		return $this->canonicalItem(
+			fields: [
+				'guid' => self::childText(node: $item, names: ['guid']),
+				'title' => self::childText(node: $item, names: ['title']),
+				'summary' => self::childText(node: $item, names: ['description']),
+				'link' => self::childText(node: $item, names: ['link']),
+				'pubDate' => self::childText(node: $item, names: ['pubDate']),
+				'thumbnailUrl' => self::rssThumbnail(item: $item),
+			],
+			source: $source
+		);
 	}//end normaliseRssItem()
+
+	/**
+	 * The URL of an RSS item's image enclosure (an enclosure without a
+	 * type counts as an image), or null without one.
+	 *
+	 * @param SimpleXMLElement $item The RSS item node.
+	 *
+	 * @return string|null
+	 */
+	private static function rssThumbnail(SimpleXMLElement $item): ?string {
+		if (isset($item->enclosure) === false) {
+			return null;
+		}
+
+		$url = $item->enclosure['url'] ?? null;
+		$type = $item->enclosure['type'] ?? null;
+		if ($url !== null && self::isImageEnclosureType(type: $type) === true) {
+			return (string)$url;
+		}
+
+		return null;
+	}//end rssThumbnail()
+
+	/**
+	 * Whether an enclosure type marks an image; a missing type counts as one.
+	 *
+	 * @param SimpleXMLElement|null $type The enclosure's `type` attribute.
+	 *
+	 * @return boolean
+	 */
+	private static function isImageEnclosureType(?SimpleXMLElement $type): bool {
+		return $type === null || str_starts_with(haystack: (string)$type, needle: 'image/') === true;
+	}//end isImageEnclosureType()
+
+	/**
+	 * Complete the fields read from one feed entry into the canonical item
+	 * shape: a synthetic `sha1(title|pubDate|sourceUrl)` guid when the
+	 * entry has none, the sanitised summary and the feed source.
+	 *
+	 * @param array<string, string|null> $fields Fields read from the entry: guid, title, summary, link,
+	 *                                           pubDate (strings) and thumbnailUrl (string or null).
+	 * @param FeedSource $source The feed URL and display name.
+	 *
+	 * @return array<string, mixed> Canonical item.
+	 */
+	private function canonicalItem(array $fields, FeedSource $source): array {
+		return [
+			'guid' => self::guidOf(fields: $fields, source: $source),
+			'title' => $fields['title'],
+			'summary' => $this->sanitiseSummaryHtml(html: $fields['summary']),
+			'link' => $fields['link'],
+			'pubDate' => $fields['pubDate'],
+			'sourceUrl' => $source->url,
+			'sourceTitle' => $source->title,
+			'thumbnailUrl' => $fields['thumbnailUrl'],
+		];
+	}//end canonicalItem()
+
+	/**
+	 * The entry's own guid, or `sha1(title|pubDate|sourceUrl)` when empty.
+	 *
+	 * @param array{guid: string, title: string, pubDate: string} $fields Fields read from the entry.
+	 * @param FeedSource $source The feed URL and display name.
+	 *
+	 * @return string
+	 */
+	private static function guidOf(array $fields, FeedSource $source): string {
+		if ($fields['guid'] !== '') {
+			return $fields['guid'];
+		}
+
+		return sha1(string: $fields['title'] . '|' . $fields['pubDate'] . '|' . $source->url);
+	}//end guidOf()
 
 	/**
 	 * Canonical empty response so callers don't repeat the literal.

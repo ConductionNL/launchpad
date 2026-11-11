@@ -26,6 +26,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use Exception;
+use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
@@ -38,6 +40,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IGroupManager;
 use OCP\Security\Bruteforce\IThrottler;
+use RuntimeException;
 use OCP\Security\Bruteforce\MaxDelayReached;
 use OCP\Security\IHasher;
 use OCP\Security\ISecureRandom;
@@ -109,6 +112,8 @@ class PublicShareService {
 	 *
 	 * @throws DoesNotExistException When dashboard not found.
 	 * @throws OCSForbiddenException Via 403 on auth failure.
+	 * @throws InvalidArgumentException When expiresAt is given but is not a date.
+	 * @throws RuntimeException When the share cannot be stored.
 	 *
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
 	 *
@@ -121,6 +126,7 @@ class PublicShareService {
 	public function createPublicShare(
 		string $dashboardUuid,
 		string $callerId,
+		#[\SensitiveParameter]
 		?string $password = null,
 		?string $expiresAt = null,
 	): PublicShare {
@@ -157,14 +163,25 @@ class PublicShareService {
 				$parsed = DateTime::createFromFormat('Y-m-d H:i:s', $expiresAt);
 			}
 
-			if ($parsed !== false) {
-				// phpcs:disable CustomSn.Functions.NamedParameters
-				$share->setExpiresAt($parsed->format('Y-m-d H:i:s'));
-				// phpcs:enable CustomSn.Functions.NamedParameters
+			if ($parsed === false) {
+				throw new InvalidArgumentException(message: 'expiresAt is not a valid date');
 			}
+
+			// phpcs:disable CustomSn.Functions.NamedParameters
+			$share->setExpiresAt($parsed->format('Y-m-d H:i:s'));
+			// phpcs:enable CustomSn.Functions.NamedParameters
 		}
 
-		$saved = $this->shareMapper->insert(entity: $share);
+		try {
+			$saved = $this->shareMapper->insert(entity: $share);
+		} catch (Exception $e) {
+			// The database error carries the token and password hash; only its class is kept.
+			$this->logger->error(
+				message: 'launchpad: storing a public share failed',
+				context: ['app' => 'launchpad', 'exceptionClass' => $e::class]
+			);
+			throw new RuntimeException(message: 'The public share could not be stored');
+		}
 
 		$this->logger->debug(
 			message: sprintf('launchpad: public share created for dashboard %s', $dashboardUuid),
@@ -259,6 +276,7 @@ class PublicShareService {
 	public function renderShareContent(
 		string $token,
 		string $ipAddress,
+		#[\SensitiveParameter]
 		?string $password = null,
 	): array {
 		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
@@ -319,6 +337,7 @@ class PublicShareService {
 	 */
 	public function unlockShare(
 		string $token,
+		#[\SensitiveParameter]
 		string $password,
 		string $ipAddress,
 	): bool {

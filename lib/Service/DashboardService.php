@@ -752,49 +752,101 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function createDashboard(string $userId, string $name, array $options=[]): Dashboard {
-		$options   += self::CREATE_DEFAULTS;
-		$parentUuid = $options['parentUuid'];
-		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
-		$this->limits->publicShareContext?->requireMutable();
-		// Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
-		// dashboard quota at the single creation choke point so every
-		// user-initiated surface (REST create, CLI, template
-		// instantiation) is bound. Admin provisioning paths wrap their
-		// calls in QuotaService::runProvisioning() to bypass this
-		// (REQ-QUOTA-004). Runs before any DB write.
-		$this->limits->quotaService?->assertCanCreateDashboard(userId: $userId);
-		// REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
-		// depth checks BEFORE the entity is built so the request is
-		// rejected without a partial row in memory.
-		$this->structure->treeService->validateParent(
-			movingUuid: null,
-			newParentUuid: $parentUuid
-		);
+		$options += self::CREATE_DEFAULTS;
+		$this->assertMayCreate(userId: $userId, parentUuid: $options['parentUuid']);
 
 		$dashboard = $this->builders->dashboardFactory->create(
 			userId: $userId,
 			name: $name,
-			options: [
-				'description' => $options['description'],
-				'parentUuid'  => $parentUuid,
-				'slug'        => $options['slug'],
-				'sortOrder'   => $options['sortOrder'],
-			]
+			options: self::factoryOptions(options: $options)
 		);
+		$this->applyNewIcon(dashboard: $dashboard, icon: $options['icon']);
+		$this->assertNewSlugUnique(dashboard: $dashboard, parentUuid: $options['parentUuid']);
 
-		// Icon is an opaque string (registry key or URL) — see the
-		// `dashboard-icons` capability. NULL/empty means "use the
-		// frontend default glyph".
-		if ($options['icon'] !== null && $options['icon'] !== '') {
+		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
+
+		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
+		$this->completeNewDashboard(persisted: $persisted, options: $options);
+
+		return $persisted;
+	}//end createDashboard()
+
+	/**
+	 * The checks every dashboard creation passes first, before any DB
+	 * write or entity is built.
+	 *
+	 * Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+	 * Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
+	 * dashboard quota at the single creation choke point so every
+	 * user-initiated surface (REST create, CLI, template
+	 * instantiation) is bound. Admin provisioning paths wrap their
+	 * calls in QuotaService::runProvisioning() to bypass this
+	 * (REQ-QUOTA-004). REQ-DASH-023, REQ-DASH-028: parent existence +
+	 * cycle + depth checks BEFORE the entity is built so the request is
+	 * rejected without a partial row in memory.
+	 *
+	 * @param string      $userId     The user ID.
+	 * @param string|null $parentUuid The requested parent, or null for a root.
+	 *
+	 * @return void
+	 */
+	private function assertMayCreate(string $userId, ?string $parentUuid): void {
+		$this->limits->publicShareContext?->requireMutable();
+		$this->limits->quotaService?->assertCanCreateDashboard(userId: $userId);
+		$this->structure->treeService->validateParent(
+			movingUuid: null,
+			newParentUuid: $parentUuid
+		);
+	}//end assertMayCreate()
+
+	/**
+	 * The options the dashboard factory takes from the create options.
+	 *
+	 * @param array<string, mixed> $options The create options with defaults.
+	 *
+	 * @return array<string, mixed> The factory options.
+	 */
+	private static function factoryOptions(array $options): array {
+		return [
+			'description' => $options['description'],
+			'parentUuid'  => $options['parentUuid'],
+			'slug'        => $options['slug'],
+			'sortOrder'   => $options['sortOrder'],
+		];
+	}//end factoryOptions()
+
+	/**
+	 * Set a new dashboard's icon when one was given.
+	 *
+	 * Icon is an opaque string (registry key or URL) — see the
+	 * `dashboard-icons` capability. NULL/empty means "use the
+	 * frontend default glyph".
+	 *
+	 * @param Dashboard   $dashboard The new dashboard.
+	 * @param string|null $icon      The requested icon.
+	 *
+	 * @return void
+	 */
+	private function applyNewIcon(Dashboard $dashboard, ?string $icon): void {
+		if ($icon !== null && $icon !== '') {
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setIcon($options['icon']);
+			$dashboard->setIcon($icon);
 		}
+	}//end applyNewIcon()
 
-		// REQ-DASH-024: slug uniqueness within parent scope. The
-		// factory may have emitted NULL when the name yields no legal
-		// characters and the caller did not supply an explicit slug —
-		// skip the unique check in that case (NULL slugs are simply
-		// unaddressable by path).
+	/**
+	 * REQ-DASH-024: slug uniqueness within parent scope. The
+	 * factory may have emitted NULL when the name yields no legal
+	 * characters and the caller did not supply an explicit slug —
+	 * skip the unique check in that case (NULL slugs are simply
+	 * unaddressable by path).
+	 *
+	 * @param Dashboard   $dashboard  The new dashboard.
+	 * @param string|null $parentUuid The parent, or null for a root.
+	 *
+	 * @return void
+	 */
+	private function assertNewSlugUnique(Dashboard $dashboard, ?string $parentUuid): void {
 		$resolvedSlug = $dashboard->getSlug();
 		if ($resolvedSlug !== null && $resolvedSlug !== '') {
 			$this->structure->treeService->validateSlugUnique(
@@ -802,42 +854,60 @@ class DashboardService {
 				slug: $resolvedSlug
 			);
 		}
+	}//end assertNewSlugUnique()
 
-		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
+	/**
+	 * Seed a stored dashboard's primary translation and, when asked, its
+	 * default widgets.
+	 *
+	 * User-initiated dashboards (the "+" affordance in the sidebar)
+	 * arrive here with $seedDefaults=true and are bootstrapped with
+	 * the standard tile + files bundle. The bootstrap path
+	 * (tryCreateFromTemplate) keeps $seedDefaults=false because it
+	 * runs its own role-default-driven seed afterwards and would
+	 * otherwise double-seed.
+	 *
+	 * @param Dashboard            $persisted The stored dashboard.
+	 * @param array<string, mixed> $options   The create options with defaults.
+	 *
+	 * @return void
+	 */
+	private function completeNewDashboard(Dashboard $persisted, array $options): void {
+		$this->seedPrimaryTranslation(dashboard: $persisted);
 
-		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
-
-		// REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
-		// a primary translation row in the owner's Nextcloud locale (or
-		// the default fallback when no preference is set). The seed is
-		// best-effort — failure here does not abort dashboard creation,
-		// because the legacy materialiser keeps reads working until the
-		// seed retries via a subsequent translation API call.
-		if ($this->structure->translationService !== null) {
-			try {
-				$this->structure->translationService->seedPrimaryFor(
-					dashboard: $persisted
-				);
-			} catch (Throwable $t) {
-				$this->outlets->logger->warning(
-					message: 'launchpad: failed to seed primary translation: {message}',
-					context: ['message' => $t->getMessage()]
-				);
-			}
-		}
-
-		// User-initiated dashboards (the "+" affordance in the sidebar)
-		// arrive here with $seedDefaults=true and are bootstrapped with
-		// the standard tile + files bundle. The bootstrap path
-		// (tryCreateFromTemplate) keeps $seedDefaults=false because it
-		// runs its own role-default-driven seed afterwards and would
-		// otherwise double-seed.
 		if ($options['seedDefaults'] === true) {
 			$this->seedDefaultWidgets(dashboardId: $persisted->getId());
 		}
+	}//end completeNewDashboard()
 
-		return $persisted;
-	}//end createDashboard()
+	/**
+	 * REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
+	 * a primary translation row in the owner's Nextcloud locale (or
+	 * the default fallback when no preference is set). The seed is
+	 * best-effort — failure here does not abort dashboard creation,
+	 * because the legacy materialiser keeps reads working until the
+	 * seed retries via a subsequent translation API call.
+	 *
+	 * @param Dashboard $dashboard The stored dashboard.
+	 *
+	 * @return void
+	 */
+	private function seedPrimaryTranslation(Dashboard $dashboard): void {
+		if ($this->structure->translationService === null) {
+			return;
+		}
+
+		try {
+			$this->structure->translationService->seedPrimaryFor(
+				dashboard: $dashboard
+			);
+		} catch (Throwable $t) {
+			$this->outlets->logger->warning(
+				message: 'launchpad: failed to seed primary translation: {message}',
+				context: ['message' => $t->getMessage()]
+			);
+		}
+	}//end seedPrimaryTranslation()
 
 	/**
 	 * Update a dashboard.
@@ -1945,19 +2015,7 @@ class DashboardService {
 	 */
 	private function resolveTemplateRung(string $userId): ?array {
 		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
-		if ($template === null) {
-			return null;
-		}
-
-		// "First time" means: owns nothing yet. Whoever has a personal
-		// dashboard already made, or was given, their start.
-		if ($this->stores->dashboardMapper->findByUserId(userId: $userId) !== []) {
-			return null;
-		}
-
-		if ($template->getTargetGroupsArray() === []
-			&& $this->hasPrimaryGroupDefault(userId: $userId) === true
-		) {
+		if ($template === null || $this->templateStepsAside(userId: $userId, template: $template) === true) {
 			return null;
 		}
 
@@ -1965,6 +2023,38 @@ class DashboardService {
 			return ['dashboard' => $template, 'viewOnly' => true];
 		}
 
+		return ['dashboard' => $this->copyTemplateFor(userId: $userId, template: $template), 'viewOnly' => false];
+	}//end resolveTemplateRung()
+
+	/**
+	 * Whether the applicable template is not this user's start: they own
+	 * a dashboard already, or the template targets no group and their
+	 * primary group has a default of its own.
+	 *
+	 * "First time" means: owns nothing yet. Whoever has a personal
+	 * dashboard already made, or was given, their start.
+	 *
+	 * @param string    $userId   The user.
+	 * @param Dashboard $template The applicable template.
+	 *
+	 * @return bool True when the template is not shown.
+	 */
+	private function templateStepsAside(string $userId, Dashboard $template): bool {
+		return $this->stores->dashboardMapper->findByUserId(userId: $userId) !== []
+			|| ($template->getTargetGroupsArray() === []
+			&& $this->hasPrimaryGroupDefault(userId: $userId) === true);
+	}//end templateStepsAside()
+
+	/**
+	 * Copy the template for the user and make the copy their active
+	 * dashboard.
+	 *
+	 * @param string    $userId   The user.
+	 * @param Dashboard $template The applicable template.
+	 *
+	 * @return Dashboard The copy.
+	 */
+	private function copyTemplateFor(string $userId, Dashboard $template): Dashboard {
 		$copy = $this->builders->templateService->createDashboardFromTemplate(
 			userId: $userId,
 			template: $template
@@ -1976,8 +2066,8 @@ class DashboardService {
 			value: (string)$copy->getUuid()
 		);
 
-		return ['dashboard' => $copy, 'viewOnly' => false];
-	}//end resolveTemplateRung()
+		return $copy;
+	}//end copyTemplateFor()
 
 	/**
 	 * Whether the user's primary group has a default group dashboard.
@@ -3030,10 +3120,7 @@ class DashboardService {
 	 */
 	private function tryCreateFromTemplate(string $userId): ?array {
 		$allowUserDashboards = $this->getAllowUserDashboards();
-
-		$template = $this->builders->templateService->getApplicableTemplate(
-			userId: $userId
-		);
+		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
 
 		if ($template !== null) {
 			return $this->builders->dashResolver->handleTemplateResult(
@@ -3044,59 +3131,95 @@ class DashboardService {
 		}
 
 		if ($allowUserDashboards === true) {
-			// 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
-			// `validateSlugUnique()` looks for any root dashboard with this
-			// slug, whoever owns it, and every auto-provisioned dashboard is
-			// named 'My Dashboard'. So the SECOND user ever to reach this
-			// branch got `Slug must be unique among siblings` and the request
-			// answered HTTP 500 with no dashboard at all. Measured on a fresh
-			// instance: the first user provisioned, the next one 500'd.
-			$dashboard = $this->createDashboard(
-				userId: $userId,
-				name: 'My Dashboard',
-				options: ['slug' => $this->uniqueRootSlugFor(userId: $userId)]
-			);
-
-			// REQ-RFP-002: when no admin template applies, prefer seeding
-			// from the user's RoleLayoutDefault rows. Only fall back to the
-			// hardcoded recommendations + activity pair when no role-defaults
-			// exist for any of the user's groups (or the user is in no group).
-			// The dependency is nullable to keep legacy PHPUnit doubles (built
-			// before role-based-content shipped) working — when null we treat
-			// it as "no defaults seeded" so the legacy hardcoded fallback runs.
-			$seeded = 0;
-			if ($this->limits->roleFeaturePerm !== null) {
-				$seeded = $this->limits->roleFeaturePerm->seedLayoutFromRoleDefaults(
-					userId: $userId,
-					dashboard: $dashboard
-				);
-			}
-
-			// The comment above says the hardcoded pair is a FALLBACK, and it
-			// was not: it was created on every path, so a role-seeded layout
-			// came out carrying the role defaults AND tile/tile/tile/files.
-			$placements = [];
-			if ($seeded > 0) {
-				$placements = $this->stores->placementMapper->findByDashboardId(
-					dashboardId: $dashboard->getId()
-				);
-			}
-
-			if ($seeded === 0) {
-				$placements = $this->createDefaultPlacements(
-					dashboardId: $dashboard->getId()
-				);
-			}
-
-			return [
-				'dashboard' => $dashboard,
-				'placements' => $placements,
-				'permissionLevel' => Dashboard::PERMISSION_FULL,
-			];
-		}//end if
+			return $this->provisionPersonalDashboard(userId: $userId);
+		}
 
 		return null;
 	}//end tryCreateFromTemplate()
+
+	/**
+	 * Provision a user's first personal dashboard, laid out from their
+	 * role defaults or, without any, the default bundle.
+	 *
+	 * 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
+	 * `validateSlugUnique()` looks for any root dashboard with this
+	 * slug, whoever owns it, and every auto-provisioned dashboard is
+	 * named 'My Dashboard'. So the SECOND user ever to reach this
+	 * branch got `Slug must be unique among siblings` and the request
+	 * answered HTTP 500 with no dashboard at all. Measured on a fresh
+	 * instance: the first user provisioned, the next one 500'd.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array{dashboard: Dashboard, placements: array, permissionLevel: string}
+	 */
+	private function provisionPersonalDashboard(string $userId): array {
+		$dashboard = $this->createDashboard(
+			userId: $userId,
+			name: 'My Dashboard',
+			options: ['slug' => $this->uniqueRootSlugFor(userId: $userId)]
+		);
+
+		$seeded = $this->seedFromRoleDefaults(userId: $userId, dashboard: $dashboard);
+
+		return [
+			'dashboard' => $dashboard,
+			'placements' => $this->provisionedPlacements(dashboard: $dashboard, seeded: $seeded),
+			'permissionLevel' => Dashboard::PERMISSION_FULL,
+		];
+	}//end provisionPersonalDashboard()
+
+	/**
+	 * REQ-RFP-002: when no admin template applies, prefer seeding
+	 * from the user's RoleLayoutDefault rows. The dependency is nullable
+	 * to keep legacy PHPUnit doubles (built before role-based-content
+	 * shipped) working — when null we treat it as "no defaults seeded" so
+	 * the legacy hardcoded fallback runs.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The provisioned dashboard.
+	 *
+	 * @return int The number of placements seeded from role defaults.
+	 */
+	private function seedFromRoleDefaults(string $userId, Dashboard $dashboard): int {
+		if ($this->limits->roleFeaturePerm === null) {
+			return 0;
+		}
+
+		return $this->limits->roleFeaturePerm->seedLayoutFromRoleDefaults(
+			userId: $userId,
+			dashboard: $dashboard
+		);
+	}//end seedFromRoleDefaults()
+
+	/**
+	 * The provisioned dashboard's placements: the role-seeded ones, or —
+	 * only when nothing was seeded — the hardcoded default bundle.
+	 *
+	 * The hardcoded pair is a FALLBACK: it used to be created on every
+	 * path, so a role-seeded layout came out carrying the role defaults
+	 * AND tile/tile/tile/files.
+	 *
+	 * @param Dashboard $dashboard The provisioned dashboard.
+	 * @param int       $seeded    The number of role-seeded placements.
+	 *
+	 * @return array The placements.
+	 */
+	private function provisionedPlacements(Dashboard $dashboard, int $seeded): array {
+		if ($seeded > 0) {
+			return $this->stores->placementMapper->findByDashboardId(
+				dashboardId: $dashboard->getId()
+			);
+		}
+
+		if ($seeded === 0) {
+			return $this->createDefaultPlacements(
+				dashboardId: $dashboard->getId()
+			);
+		}
+
+		return [];
+	}//end provisionedPlacements()
 
 	/**
 	 * Create default widget placements for a new dashboard.

@@ -1,0 +1,67 @@
+{
+    "objects pairs": {
+        "uid": "u-1",
+        "title": "Stand-up",
+        "start": "2026-03-01T09:00:00+00:00",
+        "end": "2026-03-01T09:15:00+00:00",
+        "allDay": true,
+        "location": "Room 1",
+        "description": null,
+        "calendarId": "work",
+        "calendarName": "Work",
+        "color": "#f00",
+        "source": "internal"
+    },
+    "raw wins over object": {
+        "uid": "raw-uid",
+        "title": "Raw title",
+        "start": "",
+        "end": "",
+        "allDay": false,
+        "location": null,
+        "description": null,
+        "calendarId": "",
+        "calendarName": "",
+        "color": null,
+        "source": "internal"
+    },
+    "flat keys": {
+        "uid": "flat-uid",
+        "title": "Flat",
+        "start": "2026-03-02",
+        "end": "2026-03-03",
+        "allDay": false,
+        "location": "Hall",
+        "description": "Notes",
+        "calendarId": "home",
+        "calendarName": "Home",
+        "color": null,
+        "source": "internal"
+    },
+    "nothing": {
+        "uid": "",
+        "title": "Untitled",
+        "start": "",
+        "end": "",
+        "allDay": false,
+        "location": null,
+        "description": null,
+        "calendarId": "",
+        "calendarName": "",
+        "color": null,
+        "source": "internal"
+    },
+    "empty title and blank location": {
+        "uid": "",
+        "title": "Untitled",
+        "start": "",
+        "end": "",
+        "allDay": false,
+        "location": null,
+        "description": null,
+        "calendarId": "",
+        "calendarName": "",
+        "color": null,
+        "source": "internal"
+    }
+}

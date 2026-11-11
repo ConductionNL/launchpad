@@ -40,6 +40,7 @@ use DateTimeInterface;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCP\Calendar\IManager;
+use OCP\Http\Client\IResponse;
 use OCP\IAppConfig;
 use OCP\ICache;
 use OCP\ICacheFactory;
@@ -95,6 +96,20 @@ class CalendarWidgetService {
 	 * @var int
 	 */
 	public const MAX_RESPONSE_SIZE_BYTES = 1048576;
+
+	/**
+	 * The flat key that carries each VEVENT property in older search result shapes.
+	 *
+	 * @var array<string, string>
+	 */
+	private const FLAT_EVENT_KEYS = [
+		'SUMMARY' => 'title',
+		'DTSTART' => 'start',
+		'DTEND' => 'end',
+		'LOCATION' => 'location',
+		'DESCRIPTION' => 'description',
+		'UID' => 'uid',
+	];
 
 	/**
 	 * Cache namespace used by ICacheFactory::createDistributed().
@@ -248,61 +263,94 @@ class CalendarWidgetService {
 	 * @spec openspec/specs/calendar-widget/spec.md
 	 */
 	public function fetchInternalEvents(array $principals, string $from, string $to): array {
-		$events = [];
-		$failures = [];
-
 		if ($this->calendarMgr === null) {
 			return [
-				'events' => $events,
-				'failures' => $failures,
+				'events' => [],
+				'failures' => [],
 			];
 		}
 
-		try {
-			$startObj = new DateTimeImmutable(datetime: $from);
-			$endObj = new DateTimeImmutable(datetime: $to);
-		} catch (Throwable $exception) {
-			$this->logger->warning(
-				message: 'Calendar widget received malformed from/to: ' . $exception->getMessage()
-			);
+		$timerange = $this->parseTimerange(from: $from, to: $to);
+		if ($timerange === null) {
 			return [
-				'events' => $events,
+				'events' => [],
 				'failures' => ['internal: invalid date range'],
 			];
 		}
 
 		try {
-			$matches = $this->calendarMgr->search(
-				pattern: '',
-				searchProperties: [],
-				options: [
-					'timerange' => [
-						'start' => $startObj,
-						'end' => $endObj,
-					],
-				],
-				limit: null,
-				offset: null
-			);
+			$matches = $this->searchTimerange(calendars: $this->calendarMgr, timerange: $timerange);
 		} catch (Throwable $exception) {
 			$this->logger->warning(
 				message: 'Calendar widget internal search failed: ' . $exception->getMessage()
 			);
 			return [
-				'events' => $events,
+				'events' => [],
 				'failures' => ['internal: ' . $exception->getMessage()],
 			];
-		}//end try
+		}
 
+		return [
+			'events' => $this->eventsInScope(matches: $matches, principals: $principals),
+			'failures' => [],
+		];
+	}//end fetchInternalEvents()
+
+	/**
+	 * The search time range; NULL (logged) when either bound is malformed.
+	 *
+	 * @param string $from ISO-8601 lower bound.
+	 * @param string $to   ISO-8601 upper bound.
+	 *
+	 * @return array{start: DateTimeImmutable, end: DateTimeImmutable}|null
+	 */
+	private function parseTimerange(string $from, string $to): array|null {
+		try {
+			return [
+				'start' => new DateTimeImmutable(datetime: $from),
+				'end' => new DateTimeImmutable(datetime: $to),
+			];
+		} catch (Throwable $exception) {
+			$this->logger->warning(
+				message: 'Calendar widget received malformed from/to: ' . $exception->getMessage()
+			);
+			return null;
+		}
+	}//end parseTimerange()
+
+	/**
+	 * Every calendar object of the user in the time range.
+	 *
+	 * @param IManager                                                  $calendars The calendar manager.
+	 * @param array{start: DateTimeImmutable, end: DateTimeImmutable} $timerange The time range.
+	 *
+	 * @return array<int, mixed> The raw search matches.
+	 */
+	private function searchTimerange(IManager $calendars, array $timerange): array {
+		return $calendars->search(
+			pattern: '',
+			searchProperties: [],
+			options: [
+				'timerange' => $timerange,
+			],
+			limit: null,
+			offset: null
+		);
+	}//end searchTimerange()
+
+	/**
+	 * The normalised events of the matches whose calendar the caller asked for.
+	 *
+	 * @param array<int, mixed> $matches    The raw search matches.
+	 * @param string[]          $principals Calendar keys or names to keep; empty keeps all.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function eventsInScope(array $matches, array $principals): array {
+		$events = [];
 		foreach ($matches as $match) {
 			$matchArr = (array)$match;
-
-			$calId = (string)($matchArr['calendar-key'] ?? $matchArr['calendarUri'] ?? '');
-			$calName = (string)($matchArr['calendar-name'] ?? $matchArr['calendarName'] ?? '');
-
-			if ($principals !== [] && in_array(needle: $calId, haystack: $principals, strict: true) === false
-				&& in_array(needle: $calName, haystack: $principals, strict: true) === false
-			) {
+			if ($this->isCalendarInScope(match: $matchArr, principals: $principals) === false) {
 				// Caller restricted to a subset; skip out-of-scope calendars.
 				continue;
 			}
@@ -310,11 +358,28 @@ class CalendarWidgetService {
 			$events[] = $this->normalizeInternalEvent(raw: $matchArr);
 		}
 
-		return [
-			'events' => $events,
-			'failures' => $failures,
-		];
-	}//end fetchInternalEvents()
+		return $events;
+	}//end eventsInScope()
+
+	/**
+	 * Whether the match's calendar (by key or name) is among the principals; all are when none are given.
+	 *
+	 * @param array<string, mixed> $match      One raw search match.
+	 * @param string[]             $principals Calendar keys or names to keep.
+	 *
+	 * @return bool
+	 */
+	private function isCalendarInScope(array $match, array $principals): bool {
+		if ($principals === []) {
+			return true;
+		}
+
+		$calId = (string)($match['calendar-key'] ?? $match['calendarUri'] ?? '');
+		$calName = (string)($match['calendar-name'] ?? $match['calendarName'] ?? '');
+
+		return in_array(needle: $calId, haystack: $principals, strict: true) === true
+			|| in_array(needle: $calName, haystack: $principals, strict: true) === true;
+	}//end isCalendarInScope()
 
 	/**
 	 * Fetch events from a list of external ICS URLs.
@@ -339,15 +404,9 @@ class CalendarWidgetService {
 		foreach ($urls as $url) {
 			$url = (string)$url;
 
-			if ($this->validateUrl(url: $url) === false) {
-				$failures[] = 'external: rejected URL ' . $url;
-				$this->logger->info(message: 'Calendar widget rejected external URL: ' . $url);
-				continue;
-			}
-
-			if ($this->checkAllowList(url: $url) === false) {
-				$failures[] = 'external: not in allow-list ' . $url;
-				$this->logger->info(message: 'Calendar widget URL not in allow-list: ' . $url);
+			$refusal = $this->externalUrlRefusal(url: $url);
+			if ($refusal !== null) {
+				$failures[] = $refusal;
 				continue;
 			}
 
@@ -381,6 +440,28 @@ class CalendarWidgetService {
 			'failures' => $failures,
 		];
 	}//end fetchExternalIcsEvents()
+
+	/**
+	 * The failure entry (logged) for an external URL that is unsafe or not
+	 * in the allow-list; NULL when it may be fetched.
+	 *
+	 * @param string $url The external ICS URL.
+	 *
+	 * @return string|null
+	 */
+	private function externalUrlRefusal(string $url): string|null {
+		if ($this->validateUrl(url: $url) === false) {
+			$this->logger->info(message: 'Calendar widget rejected external URL: ' . $url);
+			return 'external: rejected URL ' . $url;
+		}
+
+		if ($this->checkAllowList(url: $url) === false) {
+			$this->logger->info(message: 'Calendar widget URL not in allow-list: ' . $url);
+			return 'external: not in allow-list ' . $url;
+		}
+
+		return null;
+	}//end externalUrlRefusal()
 
 	/**
 	 * Validate an external ICS URL.
@@ -456,6 +537,30 @@ class CalendarWidgetService {
 			);
 		}
 
+		$response = $this->requestIcs(url: $url);
+
+		$body = (string)$response->getBody();
+		if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
+			throw new RuntimeException(
+				message: 'ICS response exceeds 1MB cap'
+			);
+		}
+
+		$this->cache->set(key: $cacheKey, value: $body, ttl: $this->icsCacheTtl());
+
+		return $body;
+	}//end fetchIcsBody()
+
+	/**
+	 * GET the ICS URL without following redirects, reporting the call either way.
+	 *
+	 * @param string $url The validated ICS URL.
+	 *
+	 * @return IResponse The response.
+	 *
+	 * @throws Throwable The client's failure, after it is reported.
+	 */
+	private function requestIcs(string $url): IResponse {
 		try {
 			$client = $this->fetch->clientService->newClient();
 			$response = $client->get(
@@ -483,13 +588,15 @@ class CalendarWidgetService {
 			httpStatus: (int)$response->getStatusCode()
 		);
 
-		$body = (string)$response->getBody();
-		if (strlen(string: $body) > self::MAX_RESPONSE_SIZE_BYTES) {
-			throw new RuntimeException(
-				message: 'ICS response exceeds 1MB cap'
-			);
-		}
+		return $response;
+	}//end requestIcs()
 
+	/**
+	 * The configured ICS cache lifetime, or the default when unset or not positive.
+	 *
+	 * @return int Seconds.
+	 */
+	private function icsCacheTtl(): int {
 		$ttl = $this->appConfig->getValueInt(
 			app: 'launchpad',
 			key: self::CONFIG_KEY_CACHE_TTL,
@@ -499,10 +606,8 @@ class CalendarWidgetService {
 			$ttl = self::DEFAULT_CACHE_TTL_SECONDS;
 		}
 
-		$this->cache->set(key: $cacheKey, value: $body, ttl: $ttl);
-
-		return $body;
-	}//end fetchIcsBody()
+		return $ttl;
+	}//end icsCacheTtl()
 
 	/**
 	 * Parse a raw ICS body and expand recurring events into instances.
@@ -691,31 +796,12 @@ class CalendarWidgetService {
 		// properties live under objects[0], each as a [value, parameters]
 		// pair (see extractSearchValue). Fall back to flat keys for other
 		// shapes (older NC / test fixtures).
-		$obj = ($raw['objects'][0] ?? $raw);
-
-		$titleFromRaw = $this->extractSearchValue(prop: $raw['SUMMARY'] ?? null);
-		$titleFromObj = $this->extractSearchValue(prop: $obj['SUMMARY'] ?? null);
-		$titleVal = ($titleFromRaw ?? $titleFromObj ?? ($raw['title'] ?? null));
-
-		$startFromRaw = $this->extractSearchValue(prop: $raw['DTSTART'] ?? null);
-		$startFromObj = $this->extractSearchValue(prop: $obj['DTSTART'] ?? null);
-		$startVal = ($startFromRaw ?? $startFromObj ?? ($raw['start'] ?? null));
-
-		$endFromRaw = $this->extractSearchValue(prop: $raw['DTEND'] ?? null);
-		$endFromObj = $this->extractSearchValue(prop: $obj['DTEND'] ?? null);
-		$endVal = ($endFromRaw ?? $endFromObj ?? ($raw['end'] ?? null));
-
-		$locFromRaw = $this->extractSearchValue(prop: $raw['LOCATION'] ?? null);
-		$locFromObj = $this->extractSearchValue(prop: $obj['LOCATION'] ?? null);
-		$locVal = ($locFromRaw ?? $locFromObj ?? ($raw['location'] ?? null));
-
-		$descFromRaw = $this->extractSearchValue(prop: $raw['DESCRIPTION'] ?? null);
-		$descFromObj = $this->extractSearchValue(prop: $obj['DESCRIPTION'] ?? null);
-		$descVal = ($descFromRaw ?? $descFromObj ?? ($raw['description'] ?? null));
-
-		$uidFromRaw = $this->extractSearchValue(prop: $raw['UID'] ?? null);
-		$uidFromObj = $this->extractSearchValue(prop: $obj['UID'] ?? null);
-		$uidVal = ($uidFromRaw ?? $uidFromObj ?? ($raw['uid'] ?? null));
+		$titleVal = $this->searchProperty(raw: $raw, name: 'SUMMARY');
+		$startVal = $this->searchProperty(raw: $raw, name: 'DTSTART');
+		$endVal = $this->searchProperty(raw: $raw, name: 'DTEND');
+		$locVal = $this->searchProperty(raw: $raw, name: 'LOCATION');
+		$descVal = $this->searchProperty(raw: $raw, name: 'DESCRIPTION');
+		$uidVal = $this->searchProperty(raw: $raw, name: 'UID');
 
 		$title = (string)($titleVal ?? '');
 		$resolvedTitle = 'Untitled';
@@ -723,15 +809,6 @@ class CalendarWidgetService {
 			$resolvedTitle = $title;
 		}
 
-		$resolvedLocation = null;
-		if ($locVal !== null && $locVal !== '') {
-			$resolvedLocation = (string)$locVal;
-		}
-
-		$resolvedDescription = null;
-		if ($descVal !== null && $descVal !== '') {
-			$resolvedDescription = (string)$descVal;
-		}
 
 		return [
 			'uid' => (string)($uidVal ?? ''),
@@ -739,14 +816,51 @@ class CalendarWidgetService {
 			'start' => $this->scalarDateToIso(value: $startVal),
 			'end' => $this->scalarDateToIso(value: $endVal),
 			'allDay' => (bool)($raw['allDay'] ?? false),
-			'location' => $resolvedLocation,
-			'description' => $resolvedDescription,
+			'location' => $this->filledOrNull(value: $locVal),
+			'description' => $this->filledOrNull(value: $descVal),
 			'calendarId' => (string)($raw['calendar-key'] ?? $raw['calendarUri'] ?? ''),
 			'calendarName' => (string)($raw['calendar-name'] ?? $raw['calendarName'] ?? ''),
 			'color' => $raw['calendar-color'] ?? null,
 			'source' => 'internal',
 		];
 	}//end normalizeInternalEvent()
+
+	/**
+	 * One VEVENT property of an internal search result.
+	 *
+	 * NC Calendar search results vary across versions; the VEVENT
+	 * properties live under objects[0], each as a [value, parameters]
+	 * pair (see extractSearchValue). The result's own property wins, then
+	 * the object's, then the flat key of other shapes (older NC / test
+	 * fixtures).
+	 *
+	 * @param array<string, mixed> $raw  The raw search result.
+	 * @param string               $name The VEVENT property name (a key of {@see self::FLAT_EVENT_KEYS}).
+	 *
+	 * @return mixed The value, or NULL.
+	 */
+	private function searchProperty(array $raw, string $name): mixed {
+		$obj = ($raw['objects'][0] ?? $raw);
+		$fromRaw = $this->extractSearchValue(prop: $raw[$name] ?? null);
+		$fromObj = $this->extractSearchValue(prop: $obj[$name] ?? null);
+
+		return ($fromRaw ?? $fromObj ?? ($raw[self::FLAT_EVENT_KEYS[$name]] ?? null));
+	}//end searchProperty()
+
+	/**
+	 * The value as a string, or NULL when it is NULL or empty.
+	 *
+	 * @param mixed $value A search property value.
+	 *
+	 * @return string|null
+	 */
+	private function filledOrNull(mixed $value): string|null {
+		if ($value === null || $value === '') {
+			return null;
+		}
+
+		return (string)$value;
+	}//end filledOrNull()
 
 	/**
 	 * Coerce a search-result date value to an ISO 8601 string.

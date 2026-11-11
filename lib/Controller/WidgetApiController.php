@@ -78,6 +78,23 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listAvailable(): JSONResponse {
+		$denial = $this->denyListAvailable();
+		if ($denial !== null) {
+			return $denial;
+		}
+
+		$widgets = $this->sources->widgetService->getAvailableWidgets();
+
+		return ResponseHelper::success(data: $this->allowedWidgets(widgets: $widgets));
+	}//end listAvailable()
+
+	/**
+	 * The caller guard of {@see self::listAvailable()}: no session user
+	 * → 401, a denied ADR-023 action → 403; NULL to proceed.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 */
+	private function denyListAvailable(): ?JSONResponse {
 		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
@@ -89,10 +106,21 @@ class WidgetApiController extends Controller {
 			return new JSONResponse(['error' => 'Forbidden'], \OCP\AppFramework\Http::STATUS_FORBIDDEN);
 		}
 
-		$widgets = $this->sources->widgetService->getAvailableWidgets();
+		return null;
+	}//end denyListAvailable()
 
+	/**
+	 * The widgets the signed-in user's role-feature profile permits; every
+	 * widget without a user or when nothing is configured
+	 * (backwards-compat).
+	 *
+	 * @param array<int, array<string, mixed>> $widgets The available widgets.
+	 *
+	 * @return array<int, array<string, mixed>> The permitted widgets.
+	 */
+	private function allowedWidgets(array $widgets): array {
 		if ($this->userId === null) {
-			return ResponseHelper::success(data: $widgets);
+			return $widgets;
 		}
 
 		$allowed = $this->policy->roleFeaturePerm->getAllowedWidgetIds(
@@ -100,26 +128,31 @@ class WidgetApiController extends Controller {
 		);
 		if ($allowed === null) {
 			// Backwards-compat: nothing configured, return everything.
-			return ResponseHelper::success(data: $widgets);
+			return $widgets;
 		}
 
-		$filtered = array_values(
-			array: array_filter(
-				array: $widgets,
-				callback: function (array $widget) use ($allowed): bool {
-					$id = (string)($widget['id'] ?? '');
-					return $id !== ''
-						&& in_array(
-							needle: $id,
-							haystack: $allowed,
-							strict: true
-						);
-				}
-			)
-		);
+		return self::widgetsWithIdIn(widgets: $widgets, allowed: $allowed);
+	}//end allowedWidgets()
 
-		return ResponseHelper::success(data: $filtered);
-	}//end listAvailable()
+	/**
+	 * The widgets whose non-empty id is in the allowed list, in order.
+	 *
+	 * @param array<int, array<string, mixed>> $widgets The available widgets.
+	 * @param array<int, string>               $allowed The allowed widget ids.
+	 *
+	 * @return array<int, array<string, mixed>> The kept widgets.
+	 */
+	private static function widgetsWithIdIn(array $widgets, array $allowed): array {
+		$kept = [];
+		foreach ($widgets as $widget) {
+			$id = (string)($widget['id'] ?? '');
+			if ($id !== '' && in_array(needle: $id, haystack: $allowed, strict: true) === true) {
+				$kept[] = $widget;
+			}
+		}
+
+		return $kept;
+	}//end widgetsWithIdIn()
 
 	/**
 	 * Get widget items for specified widgets.
@@ -213,41 +246,66 @@ class WidgetApiController extends Controller {
 			return $depthDenial;
 		}
 
-		// Forward the per-type content payload (registry-driven custom
-		// widgets carry their config here — `label`, `text`, `image`, etc.).
-		// Tolerant of legacy callers that send only `widgetId` and grid
-		// coords with no content blob: $contentParam stays null and
-		// PlacementService leaves the column NULL.
-		$contentToPersist = null;
-		if (is_array($contentParam) === true) {
-			$contentToPersist = $contentParam;
-		}
+		$layout = [
+			'gridX'      => $gridX,
+			'gridY'      => $gridY,
+			'gridWidth'  => $gridWidth,
+			'gridHeight' => $gridHeight,
+			'content'    => self::contentToPersist(content: $contentParam),
+		];
 
-		try {
-			$placement = $this->sources->widgetService->addWidget(
+		return $this->createPlacement(
+			create: fn (): object => $this->sources->widgetService->addWidget(
 				dashboardId: $dashboardId,
 				widgetId: (string)$widgetId,
-				layout: [
-					'gridX'      => $gridX,
-					'gridY'      => $gridY,
-					'gridWidth'  => $gridWidth,
-					'gridHeight' => $gridHeight,
-					'content'    => $contentToPersist,
-				]
-			);
+				layout: $layout
+			)
+		);
+	}//end addWidget()
 
+	/**
+	 * The per-type content payload to persist with a new widget.
+	 *
+	 * Registry-driven custom widgets carry their config here — `label`,
+	 * `text`, `image`, etc. Tolerant of legacy callers that send only
+	 * `widgetId` and grid coords with no content blob: the content stays
+	 * null and PlacementService leaves the column NULL.
+	 *
+	 * @param mixed $content The request's `content` parameter.
+	 *
+	 * @return array<string, mixed>|null The content, or null.
+	 */
+	private static function contentToPersist(mixed $content): ?array {
+		if (is_array($content) === true) {
+			return $content;
+		}
+
+		return null;
+	}//end contentToPersist()
+
+	/**
+	 * Create a placement and answer 201 with it, mapping the widget quota
+	 * to 409 and any other failure to the generic error.
+	 *
+	 * @param callable(): object $create Creates the placement.
+	 *
+	 * @return JSONResponse The placement, or the error.
+	 */
+	private function createPlacement(callable $create): JSONResponse {
+		try {
 			return ResponseHelper::success(
-				data: $placement->jsonSerialize(),
+				data: $create()->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
 			);
 		} catch (QuotaExceededException $e) {
-			// Dashboard-quota-limits REQ-QUOTA-003: dashboard is at the
-			// widget limit — HTTP 409 with the structured body.
+			// Dashboard-quota-limits REQ-QUOTA-003: the dashboard is at the
+			// widget limit (tiles are placements too) — HTTP 409 with the
+			// structured body.
 			return ResponseHelper::quotaExceeded(exception: $e);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
-	}//end addWidget()
+	}//end createPlacement()
 
 	/**
 	 * Resolve the guard chain for {@see self::addWidget()}.
@@ -269,23 +327,55 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse {
+		$refusal = $this->denyWithoutSession(action: 'widget.add-widget');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		return $this->denyWidgetChoice(dashboardId: $dashboardId, widgetId: $widgetId);
+	}//end denyAddWidget()
+
+	/**
+	 * The caller guard of the placement mutations: no session user → 401,
+	 * the ADR-023 action required (a denial throws), no user ID → 401;
+	 * NULL to proceed.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 */
+	private function denyWithoutSession(string $action): ?JSONResponse {
 		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.add-widget');
+		$this->actor->actionAuth->requireAction($user, $action);
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		// Validate the widgetId parameter explicitly so a missing /
-		// empty value returns 400 rather than letting PHP's TypeError
-		// bubble up to a 500. The route declared `string $widgetId`
-		// (non-nullable) before — Newman's drift test sends a body
-		// without the field and used to crash the dispatcher.
-		if ($widgetId === null || $widgetId === '') {
+		return null;
+	}//end denyWithoutSession()
+
+	/**
+	 * Refuse a widget the request does not name, or one the user may not
+	 * add to this dashboard.
+	 *
+	 * Validate the widgetId parameter explicitly so a missing /
+	 * empty value returns 400 rather than letting PHP's TypeError
+	 * bubble up to a 500. The route declared `string $widgetId`
+	 * (non-nullable) before — Newman's drift test sends a body
+	 * without the field and used to crash the dispatcher.
+	 *
+	 * @param int         $dashboardId The dashboard ID.
+	 * @param string|null $widgetId    The widget type ID.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 */
+	private function denyWidgetChoice(int $dashboardId, ?string $widgetId): ?JSONResponse {
+		if (self::isBlankId(id: $widgetId) === true) {
 			return ResponseHelper::error(
 				exception: new InvalidArgumentException(
 					'Missing required field: widgetId'
@@ -294,28 +384,48 @@ class WidgetApiController extends Controller {
 			);
 		}
 
-		if ($this->permissionService->canAddWidget(
-			userId: $this->userId,
-			dashboardId: $dashboardId
-		) === false
-		) {
-			return ResponseHelper::forbidden();
-		}
-
-		// REQ-RFP-001 / REQ-RFP-003: a user may only add a widget that their
-		// role-feature-permission profile permits. `isWidgetAllowed` returns
-		// `true` when no restriction is configured (null allowed set), so
-		// unconfigured deployments are unaffected.
-		if ($this->policy->roleFeaturePerm->isWidgetAllowed(
-			userId: $this->userId,
-			widgetId: $widgetId
-		) === false
-		) {
+		if ($this->mayAddWidget(dashboardId: $dashboardId, widgetId: (string)$widgetId) === false) {
 			return ResponseHelper::forbidden();
 		}
 
 		return null;
-	}//end denyAddWidget()
+	}//end denyWidgetChoice()
+
+	/**
+	 * Whether an id is missing or empty.
+	 *
+	 * @param string|null $id The id.
+	 *
+	 * @return bool True when blank.
+	 */
+	private static function isBlankId(?string $id): bool {
+		return $id === null || $id === '';
+	}//end isBlankId()
+
+	/**
+	 * Whether the user may add this widget to this dashboard: the
+	 * dashboard permission, then the role-feature profile.
+	 *
+	 * REQ-RFP-001 / REQ-RFP-003: a user may only add a widget that their
+	 * role-feature-permission profile permits. `isWidgetAllowed` returns
+	 * `true` when no restriction is configured (null allowed set), so
+	 * unconfigured deployments are unaffected.
+	 *
+	 * @param int    $dashboardId The dashboard ID.
+	 * @param string $widgetId    The widget type ID.
+	 *
+	 * @return bool True when both permit it.
+	 */
+	private function mayAddWidget(int $dashboardId, string $widgetId): bool {
+		return $this->permissionService->canAddWidget(
+			userId: $this->userId,
+			dashboardId: $dashboardId
+		) !== false
+			&& $this->policy->roleFeaturePerm->isWidgetAllowed(
+				userId: $this->userId,
+				widgetId: $widgetId
+			) !== false;
+	}//end mayAddWidget()
 
 	/**
 	 * Guard the mandatory-read acknowledgement fields on a placement
@@ -336,23 +446,7 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	private function denyAcknowledgementChange(int $placementId): ?JSONResponse {
-		$ackFields = [
-			'requiresAcknowledgement',
-			'acknowledgementPrompt',
-			'acknowledgementDeadline',
-			'reacknowledgeOnChange',
-			'acknowledgementContentVersion',
-		];
-
-		$touchesAck = false;
-		foreach ($ackFields as $ackField) {
-			if ($this->request->getParam(key: $ackField) !== null) {
-				$touchesAck = true;
-				break;
-			}
-		}
-
-		if ($touchesAck === false) {
+		if ($this->touchesAcknowledgement() === false) {
 			return null;
 		}
 
@@ -368,6 +462,29 @@ class WidgetApiController extends Controller {
 
 		return null;
 	}//end denyAcknowledgementChange()
+
+	/**
+	 * Whether the request sets any acknowledgement field.
+	 *
+	 * @return bool True when at least one acknowledgement field is present.
+	 */
+	private function touchesAcknowledgement(): bool {
+		$ackFields = [
+			'requiresAcknowledgement',
+			'acknowledgementPrompt',
+			'acknowledgementDeadline',
+			'reacknowledgeOnChange',
+			'acknowledgementContentVersion',
+		];
+
+		foreach ($ackFields as $ackField) {
+			if ($this->request->getParam(key: $ackField) !== null) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end touchesAcknowledgement()
 
 	/**
 	 * Validate the container-nesting depth of an inbound content payload.
@@ -434,45 +551,49 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function addTile(int $dashboardId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->denyWithoutSession(action: 'widget.add-tile');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.add-tile');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
-		}
-
-		if ($this->permissionService->canAddWidget(
-			userId: $this->userId,
-			dashboardId: $dashboardId
-		) === false
-		) {
+		if ($this->mayAddTo(dashboardId: $dashboardId) === false) {
 			return ResponseHelper::forbidden();
 		}
 
-		try {
-			$placement = $this->sources->widgetService->addTileFromArray(
-				dashboardId: $dashboardId,
-				tileData: RequestDataExtractor::extractTileData(
-					request: $this->request
-				)
-			);
-
-			return ResponseHelper::success(
-				data: $placement->jsonSerialize(),
-				statusCode: Http::STATUS_CREATED
-			);
-		} catch (QuotaExceededException $e) {
-			// Dashboard-quota-limits REQ-QUOTA-003: tiles are placements
-			// and bound by the widget quota — HTTP 409 structured body.
-			return ResponseHelper::quotaExceeded(exception: $e);
-		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
+		return $this->createPlacement(
+			create: fn (): object => $this->addTileFromRequest(dashboardId: $dashboardId)
+		);
 	}//end addTile()
+
+	/**
+	 * Whether the user may add widgets or tiles to a dashboard.
+	 *
+	 * @param int $dashboardId The dashboard ID.
+	 *
+	 * @return bool True when allowed.
+	 */
+	private function mayAddTo(int $dashboardId): bool {
+		return $this->permissionService->canAddWidget(
+			userId: $this->userId,
+			dashboardId: $dashboardId
+		) !== false;
+	}//end mayAddTo()
+
+	/**
+	 * Add the tile the request describes to a dashboard.
+	 *
+	 * @param int $dashboardId The dashboard ID.
+	 *
+	 * @return object The created placement.
+	 */
+	private function addTileFromRequest(int $dashboardId): object {
+		return $this->sources->widgetService->addTileFromArray(
+			dashboardId: $dashboardId,
+			tileData: RequestDataExtractor::extractTileData(
+				request: $this->request
+			)
+		);
+	}//end addTileFromRequest()
 
 	/**
 	 * Update a widget placement.
@@ -485,22 +606,34 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function updatePlacement(int $placementId): JSONResponse {
-		$user = $this->actor->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->denyWithoutSession(action: 'widget.update-placement');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actor->actionAuth->requireAction($user, 'widget.update-placement');
-
-		if ($this->userId === null) {
-			return ResponseHelper::unauthorized();
+		$denial = $this->denyPlacementUpdate(placementId: $placementId);
+		if ($denial !== null) {
+			return $denial;
 		}
 
-		if ($this->permissionService->canStyleWidget(
-			userId: $this->userId,
-			placementId: $placementId
-		) === false
-		) {
+		try {
+			return $this->updatedPlacement(placementId: $placementId);
+		} catch (\Exception $e) {
+			return ResponseHelper::error(exception: $e);
+		}
+	}//end updatePlacement()
+
+	/**
+	 * Refuse a placement update the user may not style, one that sets an
+	 * acknowledgement requirement the user may not manage, or one whose
+	 * container content nests too deep.
+	 *
+	 * @param int $placementId The placement ID.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 */
+	private function denyPlacementUpdate(int $placementId): ?JSONResponse {
+		if ($this->mayStyle(placementId: $placementId) === false) {
 			return ResponseHelper::forbidden();
 		}
 
@@ -512,28 +645,44 @@ class WidgetApiController extends Controller {
 		// REQ-CONT-006: validate the container depth invariant on
 		// update too — a placement can grow nested children via PUT
 		// without ever going through addWidget.
-		$depthDenial = $this->denyContainerDepth(
+		return $this->denyContainerDepth(
 			content: $this->request->getParam(key: 'content')
 		);
-		if ($depthDenial !== null) {
-			return $depthDenial;
-		}
+	}//end denyPlacementUpdate()
 
-		try {
-			$placement = $this->sources->widgetService->updatePlacement(
-				placementId: $placementId,
-				data: RequestDataExtractor::extractPlacementData(
-					request: $this->request
-				)
-			);
+	/**
+	 * Whether the user may restyle a placement.
+	 *
+	 * @param int $placementId The placement ID.
+	 *
+	 * @return bool True when allowed.
+	 */
+	private function mayStyle(int $placementId): bool {
+		return $this->permissionService->canStyleWidget(
+			userId: $this->userId,
+			placementId: $placementId
+		) !== false;
+	}//end mayStyle()
 
-			return ResponseHelper::success(
-				data: $placement->jsonSerialize()
-			);
-		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
-	}//end updatePlacement()
+	/**
+	 * Apply the request's placement fields and answer with the placement.
+	 *
+	 * @param int $placementId The placement ID.
+	 *
+	 * @return JSONResponse The updated placement.
+	 */
+	private function updatedPlacement(int $placementId): JSONResponse {
+		$placement = $this->sources->widgetService->updatePlacement(
+			placementId: $placementId,
+			data: RequestDataExtractor::extractPlacementData(
+				request: $this->request
+			)
+		);
+
+		return ResponseHelper::success(
+			data: $placement->jsonSerialize()
+		);
+	}//end updatedPlacement()
 
 	/**
 	 * Remove a widget placement.
@@ -602,12 +751,35 @@ class WidgetApiController extends Controller {
 			return $refusal;
 		}
 
-		$effectiveLimit = $limit;
-		if ($effectiveLimit === null) {
-			$effectiveLimit = 10;
+		return $this->newsFor(placementId: $placementId, limit: self::effectiveNewsLimit(limit: $limit));
+	}//end newsItems()
+
+	/**
+	 * The news limit to use: 10 when none was given.
+	 *
+	 * @param int|null $limit The requested limit.
+	 *
+	 * @return int The limit.
+	 */
+	private static function effectiveNewsLimit(?int $limit): int {
+		if ($limit === null) {
+			return 10;
 		}
 
-		if ($effectiveLimit < 1 || $effectiveLimit > 50) {
+		return $limit;
+	}//end effectiveNewsLimit()
+
+	/**
+	 * Check the limit and the view permission, then answer with the news
+	 * items.
+	 *
+	 * @param int $placementId The placement ID.
+	 * @param int $limit       The effective limit.
+	 *
+	 * @return JSONResponse The items, or the refusal.
+	 */
+	private function newsFor(int $placementId, int $limit): JSONResponse {
+		if ($limit < 1 || $limit > 50) {
 			return $this->failure(message: 'limit out of range (1..50)', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
@@ -620,11 +792,11 @@ class WidgetApiController extends Controller {
 
 		$payload = $this->sources->newsWidgetService->getItemsForPlacement(
 			placementId: $placementId,
-			limit: $effectiveLimit
+			limit: $limit
 		);
 
 		return ResponseHelper::success(data: $payload);
-	}//end newsItems()
+	}//end newsFor()
 
 	/**
 	 * Get aggregated events for a calendar-widget placement.
@@ -661,9 +833,19 @@ class WidgetApiController extends Controller {
 			return $range['error'];
 		}
 
-		$start = $range['start'];
-		$end = $range['end'];
+		return $this->calendarEventsIn(placementId: $placementId, range: $range);
+	}//end calendarEvents()
 
+	/**
+	 * Look the placement up, check the view permission, then answer with
+	 * its events inside the range.
+	 *
+	 * @param int                                                     $placementId The placement ID.
+	 * @param array{start: DateTimeImmutable, end: DateTimeImmutable} $range       The resolved range.
+	 *
+	 * @return JSONResponse The events, or the refusal or error.
+	 */
+	private function calendarEventsIn(int $placementId, array $range): JSONResponse {
 		try {
 			$placement = $this->sources->widgetService->getPlacement(placementId: $placementId);
 		} catch (Throwable $exception) {
@@ -678,20 +860,32 @@ class WidgetApiController extends Controller {
 			return $refusal;
 		}
 
+		return $this->calendarEventsOf(placement: $placement, range: $range);
+	}//end calendarEventsIn()
+
+	/**
+	 * Answer with a calendar placement's events inside the range.
+	 *
+	 * @param object                                                  $placement The calendar placement.
+	 * @param array{start: DateTimeImmutable, end: DateTimeImmutable} $range     The resolved range.
+	 *
+	 * @return JSONResponse The events, or the error.
+	 */
+	private function calendarEventsOf(object $placement, array $range): JSONResponse {
 		$config = $this->extractCalendarConfig(placement: $placement);
 
 		try {
 			$result = $this->sources->calendarService->getEvents(
 				config: $config,
-				from: $start->format(format: \DATE_ATOM),
-				to: $end->format(format: \DATE_ATOM)
+				from: $range['start']->format(format: \DATE_ATOM),
+				to: $range['end']->format(format: \DATE_ATOM)
 			);
 		} catch (\Exception $exception) {
 			return ResponseHelper::error(exception: $exception);
 		}
 
 		return ResponseHelper::success(data: $result);
-	}//end calendarEvents()
+	}//end calendarEventsOf()
 
 	/**
 	 * Resolve the authentication / authorisation guard chain for
@@ -739,22 +933,46 @@ class WidgetApiController extends Controller {
 			return $this->rangeRefusal(message: 'Invalid date format');
 		}
 
+		return $this->orderedRange(start: $start, end: $end);
+	}//end resolveCalendarRange()
+
+	/**
+	 * The range of two parsed instants, refused when it ends before it
+	 * starts, with the end capped one year after the start.
+	 *
+	 * @param DateTimeImmutable $start The range start.
+	 * @param DateTimeImmutable $end   The requested range end.
+	 *
+	 * @return array{error: JSONResponse|null, start: DateTimeImmutable|null, end: DateTimeImmutable|null}
+	 */
+	private function orderedRange(DateTimeImmutable $start, DateTimeImmutable $end): array {
 		if ($end < $start) {
 			return $this->rangeRefusal(message: '`to` must be greater than or equal to `from`');
-		}
-
-		// Defensive 1-year cap per design D1 to bound RRULE expansion.
-		$maxEnd = $start->modify(modifier: '+1 year');
-		if ($end > $maxEnd) {
-			$end = $maxEnd;
 		}
 
 		return [
 			'error' => null,
 			'start' => $start,
-			'end' => $end,
+			'end' => self::cappedEnd(start: $start, end: $end),
 		];
-	}//end resolveCalendarRange()
+	}//end orderedRange()
+
+	/**
+	 * Defensive 1-year cap per design D1 to bound RRULE expansion.
+	 *
+	 * @param DateTimeImmutable $start The range start.
+	 * @param DateTimeImmutable $end   The requested range end.
+	 *
+	 * @return DateTimeImmutable The end, at most one year after the start.
+	 */
+	private static function cappedEnd(DateTimeImmutable $start, DateTimeImmutable $end): DateTimeImmutable {
+		$maxEnd = $start->modify(modifier: '+1 year');
+		if ($end > $maxEnd) {
+			return $maxEnd;
+		}
+
+		return $end;
+	}//end cappedEnd()
 
 	/**
 	 * List the current user's internal Nextcloud calendars so the calendar

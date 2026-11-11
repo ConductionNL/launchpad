@@ -292,52 +292,38 @@ class PeopleWidgetService {
 	 * @return IUser[] The requested page in display-name order.
 	 */
 	private function collectDisplayNamePage(PeoplePage $window): array {
-		$excludeDisabled = $window->excludeDisabled;
-		$limit = $window->limit;
-		$offset = $window->offset;
-		$chunkSize = max($limit, self::DEFAULT_LIMIT);
-		$page = [];
-		$toSkip = $offset;
+		$collector = new DisplayNamePageCollector(window: $window);
+		$chunkSize = max($window->limit, self::DEFAULT_LIMIT);
 		$backendOffset = 0;
 
-		$pageCount = 0;
-		while ($pageCount < $limit) {
-			$batch = $this->userManager->searchDisplayName(
-				pattern: '',
-				limit: $chunkSize,
-				offset: $backendOffset
-			);
-			$batchCount = count(value: $batch);
-			if ($batchCount === 0) {
-				break;
-			}
-
-			foreach ($batch as $user) {
-				if ($excludeDisabled === true && $user->isEnabled() === false) {
-					continue;
-				}
-
-				if ($toSkip > 0) {
-					$toSkip--;
-					continue;
-				}
-
-				$page[] = $user;
-				$pageCount++;
-				if ($pageCount >= $limit) {
-					break;
-				}
-			}
-
-			$backendOffset += $batchCount;
-			if ($batchCount < $chunkSize) {
+		while ($collector->isFull() === false) {
+			$batch = $this->displayNameBatch(offset: $backendOffset, chunkSize: $chunkSize);
+			$collector->takeFrom(users: $batch);
+			$backendOffset += count(value: $batch);
+			if (count(value: $batch) < $chunkSize) {
 				// Backend exhausted — no more pages to stream.
 				break;
 			}
-		}//end while
+		}
 
-		return $page;
+		return $collector->page();
 	}//end collectDisplayNamePage()
+
+	/**
+	 * One chunk of the directory in display-name order.
+	 *
+	 * @param int $offset    The backend offset.
+	 * @param int $chunkSize The chunk size.
+	 *
+	 * @return IUser[] The users.
+	 */
+	private function displayNameBatch(int $offset, int $chunkSize): array {
+		return $this->userManager->searchDisplayName(
+			pattern: '',
+			limit: $chunkSize,
+			offset: $offset
+		);
+	}//end displayNameBatch()
 
 	/**
 	 * Exact directory size for the pagination envelope, computed from the
@@ -428,13 +414,42 @@ class PeopleWidgetService {
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	private function searchCandidates(string $query, ?array $groupFilter): array {
+		$byUid = $this->directoryMatches(query: $query);
+		if ($groupFilter === null) {
+			return array_values(array: $byUid);
+		}
+
+		return $this->withinGroups(byUid: $byUid, groupFilter: $groupFilter);
+	}//end searchCandidates()
+
+	/**
+	 * The users whose name or email matches, plus those whose profile
+	 * fields the viewer may see match, keyed by UID in that order.
+	 *
+	 * @param string $query The search text.
+	 *
+	 * @return array<string, IUser> The matches.
+	 */
+	private function directoryMatches(string $query): array {
 		$byUid = [];
 		foreach ($this->userManager->search(pattern: $query, limit: self::SEARCH_CANDIDATE_CAP) as $user) {
 			$byUid[$user->getUID()] = $user;
 		}
 
-		$fieldMatches = $this->profileFields->findMatchingUserIds(viewerId: $this->viewerId, query: $query);
-		foreach ($fieldMatches as $uid) {
+		return $this->withFieldMatches(byUid: $byUid, query: $query);
+	}//end directoryMatches()
+
+	/**
+	 * Add the users whose visible profile fields match and who are not
+	 * matched already; UIDs that no longer resolve are left out.
+	 *
+	 * @param array<string, IUser> $byUid The name / email matches.
+	 * @param string               $query The search text.
+	 *
+	 * @return array<string, IUser> The matches.
+	 */
+	private function withFieldMatches(array $byUid, string $query): array {
+		foreach ($this->profileFields->findMatchingUserIds(viewerId: $this->viewerId, query: $query) as $uid) {
 			if (isset($byUid[$uid]) === true) {
 				continue;
 			}
@@ -445,17 +460,25 @@ class PeopleWidgetService {
 			}
 		}
 
-		if ($groupFilter === null) {
-			return array_values(array: $byUid);
-		}
+		return $byUid;
+	}//end withFieldMatches()
 
+	/**
+	 * The matches that are members of the filtered groups.
+	 *
+	 * @param array<string, IUser> $byUid       The matches.
+	 * @param array                $groupFilter The group filter.
+	 *
+	 * @return IUser[] The matches inside the groups.
+	 */
+	private function withinGroups(array $byUid, array $groupFilter): array {
 		$members = [];
 		foreach ($this->collectGroupMembers(groupIds: (array)($groupFilter['values'] ?? [])) as $member) {
 			$members[$member->getUID()] = true;
 		}
 
 		return array_values(array: array_intersect_key($byUid, $members));
-	}//end searchCandidates()
+	}//end withinGroups()
 
 	/**
 	 * Add the custom fields the viewer may see to every profile on the page (REQ-PEX-004).
@@ -575,13 +598,24 @@ class PeopleWidgetService {
 			return $this->userManager->search(pattern: '');
 		}
 
+		return $this->groupFilterMembers(groupFilter: $groupFilter);
+	}//end resolveCandidates()
+
+	/**
+	 * The members of a group filter's groups; none when it lists no groups.
+	 *
+	 * @param array $groupFilter The group filter.
+	 *
+	 * @return IUser[] The members.
+	 */
+	private function groupFilterMembers(array $groupFilter): array {
 		$values = $groupFilter['values'] ?? [];
 		if (is_array(value: $values) === false || $values === []) {
 			return [];
 		}
 
 		return $this->collectGroupMembers(groupIds: $values);
-	}//end resolveCandidates()
+	}//end groupFilterMembers()
 
 	/**
 	 * Union of the members of every named group, deduplicated by UID.
@@ -599,31 +633,36 @@ class PeopleWidgetService {
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	private function collectGroupMembers(array $groupIds): array {
-		$seen = [];
-		$result = [];
+		$byUid = [];
 		foreach ($groupIds as $groupId) {
-			if (is_string(value: $groupId) === false || $groupId === '') {
-				continue;
+			foreach ($this->groupUsers(groupId: $groupId) as $user) {
+				// The first group a user is met in decides their place.
+				$byUid[$user->getUID()] ??= $user;
 			}
+		}
 
-			$group = $this->groupManager->get(gid: $groupId);
-			if ($group === null) {
-				continue;
-			}
-
-			foreach ($group->getUsers() as $user) {
-				$uid = $user->getUID();
-				if (isset($seen[$uid]) === true) {
-					continue;
-				}
-
-				$seen[$uid] = true;
-				$result[] = $user;
-			}
-		}//end foreach
-
-		return $result;
+		return array_values(array: $byUid);
 	}//end collectGroupMembers()
+
+	/**
+	 * The users of one group; none for a malformed id or a missing group.
+	 *
+	 * @param mixed $groupId The group ID.
+	 *
+	 * @return IUser[] The users.
+	 */
+	private function groupUsers(mixed $groupId): array {
+		if (is_string(value: $groupId) === false || $groupId === '') {
+			return [];
+		}
+
+		$group = $this->groupManager->get(gid: $groupId);
+		if ($group === null) {
+			return [];
+		}
+
+		return $group->getUsers();
+	}//end groupUsers()
 
 	/**
 	 * Stable ordering helper.
@@ -737,33 +776,71 @@ class PeopleWidgetService {
 		}
 
 		$fields = [];
-		foreach (self::STANDARD_PROPERTIES as $property) {
-			if ($property === IAccountManager::PROPERTY_BIRTHDATE
-				&& $showBirthdays === false
-			) {
-				continue;
-			}
-
+		foreach (self::shownProperties(showBirthdays: $showBirthdays) as $property) {
 			$value = $this->visibleValue(account: $account, property: $property, ownerId: $user->getUID());
-			if ($value === null || $value === '') {
-				continue;
-			}
-
-			if ($property === IAccountManager::PROPERTY_BIRTHDATE) {
-				$iso = self::normaliseToIsoDate(raw: $value);
-				if ($iso === null) {
-					continue;
-				}
-
-				$fields['birthdate'] = $iso;
-				continue;
-			}
-
-			$fields[$property] = $value;
-		}//end foreach
+			$fields += self::accountField(property: $property, value: $value);
+		}
 
 		return $fields;
 	}//end buildAccountFields()
+
+	/**
+	 * The standard properties to show, without the birthdate when
+	 * birthdays are switched off.
+	 *
+	 * @param bool $showBirthdays Whether birthdates show.
+	 *
+	 * @return string[] The properties, in display order.
+	 */
+	private static function shownProperties(bool $showBirthdays): array {
+		if ($showBirthdays === true) {
+			return self::STANDARD_PROPERTIES;
+		}
+
+		return array_values(
+			array: array_filter(
+				array: self::STANDARD_PROPERTIES,
+				callback: static fn (string $property): bool => $property !== IAccountManager::PROPERTY_BIRTHDATE
+			)
+		);
+	}//end shownProperties()
+
+	/**
+	 * One account field for the profile: none for an empty value or an
+	 * unparsable birthdate; the birthdate normalised to ISO.
+	 *
+	 * @param string      $property The account property.
+	 * @param string|null $value    Its visible value, if any.
+	 *
+	 * @return array<string, string> The field, or `[]`.
+	 */
+	private static function accountField(string $property, ?string $value): array {
+		if ($value === null || $value === '') {
+			return [];
+		}
+
+		if ($property === IAccountManager::PROPERTY_BIRTHDATE) {
+			return self::birthdateField(value: $value);
+		}
+
+		return [$property => $value];
+	}//end accountField()
+
+	/**
+	 * The birthdate field, normalised to ISO; none when it cannot be parsed.
+	 *
+	 * @param string $value The stored birthdate.
+	 *
+	 * @return array<string, string> The field, or `[]`.
+	 */
+	private static function birthdateField(string $value): array {
+		$iso = self::normaliseToIsoDate(raw: $value);
+		if ($iso === null) {
+			return [];
+		}
+
+		return ['birthdate' => $iso];
+	}//end birthdateField()
 
 	/**
 	 * A standard property's value when the viewer may see it (REQ-PEX-004:

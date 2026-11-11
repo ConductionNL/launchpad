@@ -2,10 +2,8 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:963fbc2b-c4bb-46c2-a8dd-9f4229326ee6",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-11T17:23:17Z",
     "tools": [
       {
         "name": "composer",
@@ -82,10 +80,10 @@
       }
     ],
     "component": {
-      "bom-ref": "conductionnl/launchpad-dev-development",
+      "bom-ref": "conductionnl/launchpad-1.0.0.0",
       "type": "application",
       "name": "launchpad",
-      "version": "dev-development",
+      "version": "1.0.0",
       "group": "conductionnl",
       "description": "Enhanced dashboard with grid layout and admin controls for Nextcloud",
       "author": "LaunchPad Contributors",
@@ -96,16 +94,8 @@
           }
         }
       ],
-      "purl": "pkg:composer/conductionnl/launchpad@dev-development",
+      "purl": "pkg:composer/conductionnl/launchpad@1.0.0",
       "properties": [
-        {
-          "name": "cdx:composer:package:distReference",
-          "value": "21dbb7afabeb7e1602abbc8d75f4c4c2eda71aef"
-        },
-        {
-          "name": "cdx:composer:package:sourceReference",
-          "value": "21dbb7afabeb7e1602abbc8d75f4c4c2eda71aef"
-        },
         {
           "name": "cdx:composer:package:type",
           "value": "project"
@@ -26866,7 +26856,7 @@
   ],
   "dependencies": [
     {
-      "ref": "conductionnl/launchpad-dev-development"
+      "ref": "conductionnl/launchpad-1.0.0.0"
     }
   ]
 }

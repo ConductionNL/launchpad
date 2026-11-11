@@ -21,6 +21,12 @@ LaunchPad supercharges the Nextcloud dashboard. Create multiple personalized wor
 
 📚 **[Step-by-step tutorials](https://launchpad.conduction.nl/docs/category/tutorials)** — user + admin walkthroughs with screenshots, kept in sync with the live UI via the [journeydoc](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-030-journeydoc-pattern.md) capture spec.
 
+## Test coverage
+
+<!-- coverage:start -->
+Measured test coverage: 81.0% of statements (PHP 81.0% of 21,952 statements), at commit `b3fd2179` on 2026-11-11. The JavaScript frontend is not in this figure, because it has no coverage measurement yet. The figures come from [`coverage-summary.json`](coverage-summary.json); refresh them with `composer coverage:publish`.
+<!-- coverage:end -->
+
 ## Screenshots
 
 <table>

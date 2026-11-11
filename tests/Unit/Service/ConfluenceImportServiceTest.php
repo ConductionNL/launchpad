@@ -55,6 +55,8 @@ use RuntimeException;
  * @uses   \OCA\LaunchPad\Service\SlugGenerator
  * @uses   \OCA\LaunchPad\Service\ConfluencePageReaders
  * @uses   \OCA\LaunchPad\Service\ConfluenceDashboardWriters
+ * @uses   \OCA\LaunchPad\Service\ConfluenceImportRun
+ * @uses   \OCA\LaunchPad\Service\ParentFirstPageOrder
  */
 class ConfluenceImportServiceTest extends TestCase {
 

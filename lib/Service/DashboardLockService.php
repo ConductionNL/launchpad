@@ -111,7 +111,32 @@ class DashboardLockService {
 		// C3 fix (REQ-LOCK-001 + REQ-PERM-001): a caller without at least
 		// view access MUST NOT be allowed to acquire an edit lock — the
 		// lock acts as a denial-of-service vector against any discovered UUID.
-		$dashboardId = (int)$dashboard->getId();
+		$this->assertCanView(userId: $userId, dashboardId: (int)$dashboard->getId());
+
+		// Inline cleanup so stale rows don't block the new acquire.
+		$this->locks->lockMapper->deleteExpiredForDashboard(
+			dashboardUuid: $dashboardUuid
+		);
+
+		$existing = $this->storedLock(dashboardUuid: $dashboardUuid);
+		if ($existing !== null) {
+			return $this->reenterLock(existing: $existing, userId: $userId);
+		}
+
+		return $this->insertLock(dashboardUuid: $dashboardUuid, userId: $userId);
+	}//end acquireLock()
+
+	/**
+	 * Refuse a caller without at least view access to the dashboard.
+	 *
+	 * @param string $userId      The caller.
+	 * @param int    $dashboardId The dashboard ID.
+	 *
+	 * @return void
+	 *
+	 * @throws LockForbiddenException When the caller cannot view the dashboard.
+	 */
+	private function assertCanView(string $userId, int $dashboardId): void {
 		if ($this->permissionService->canViewDashboard(
 			userId: $userId,
 			dashboardId: $dashboardId
@@ -121,34 +146,59 @@ class DashboardLockService {
 				message: 'You do not have access to this dashboard'
 			);
 		}
+	}//end assertCanView()
 
-		// Inline cleanup so stale rows don't block the new acquire.
-		$this->locks->lockMapper->deleteExpiredForDashboard(
-			dashboardUuid: $dashboardUuid
-		);
-
+	/**
+	 * The lock row of a dashboard, or null when there is none.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return DashboardLock|null The lock, or null.
+	 */
+	private function storedLock(string $dashboardUuid): DashboardLock|null {
 		try {
-			$existing = $this->locks->lockMapper->findByDashboardUuid(
+			return $this->locks->lockMapper->findByDashboardUuid(
 				dashboardUuid: $dashboardUuid
 			);
 		} catch (DoesNotExistException) {
-			$existing = null;
+			return null;
+		}
+	}//end storedLock()
+
+	/**
+	 * Acquire an existing lock again: the holder's own acquire bumps the
+	 * heartbeat, anyone else's is a conflict.
+	 *
+	 * @param DashboardLock $existing The existing lock.
+	 * @param string        $userId   The caller.
+	 *
+	 * @return DashboardLock The refreshed lock.
+	 *
+	 * @throws LockConflictException When another user holds the lock.
+	 */
+	private function reenterLock(DashboardLock $existing, string $userId): DashboardLock {
+		if ($existing->getUserId() === $userId) {
+			// Re-entrant refresh — bump heartbeat and return.
+			$existing->setUpdatedAt($this->now());
+			return $this->locks->lockMapper->update(entity: $existing);
 		}
 
-		if ($existing !== null) {
-			if ($existing->getUserId() === $userId) {
-				// Re-entrant refresh — bump heartbeat and return.
-				$existing->setUpdatedAt($this->now());
-				return $this->locks->lockMapper->update(entity: $existing);
-			}
+		// Held by someone else — surface the conflict.
+		throw new LockConflictException(
+			message: 'Lock held by another user',
+			existingLock: $existing,
+		);
+	}//end reenterLock()
 
-			// Held by someone else — surface the conflict.
-			throw new LockConflictException(
-				message: 'Lock held by another user',
-				existingLock: $existing,
-			);
-		}
-
+	/**
+	 * Insert a fresh lock for the caller.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $userId        The caller.
+	 *
+	 * @return DashboardLock The inserted lock.
+	 */
+	private function insertLock(string $dashboardUuid, string $userId): DashboardLock {
 		$now = $this->now();
 		$lock = new DashboardLock();
 		$lock->setDashboardUuid($dashboardUuid);
@@ -158,7 +208,7 @@ class DashboardLockService {
 		$lock->setUpdatedAt($now);
 
 		return $this->locks->lockMapper->insert(entity: $lock);
-	}//end acquireLock()
+	}//end insertLock()
 
 	/**
 	 * Refresh the lock by bumping `updatedAt` (the "heartbeat").
@@ -187,22 +237,7 @@ class DashboardLockService {
 		// C3 fix: verify the caller has at least view access before
 		// allowing a heartbeat — prevents indefinite lock extension by
 		// an attacker who discovered the UUID.
-		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
-			$dashboardId = (int)$dashboard->getId();
-		} catch (DoesNotExistException) {
-			throw new LockNotFoundException(message: 'Lock not found; call acquire first');
-		}
-
-		if ($this->permissionService->canViewDashboard(
-			userId: $userId,
-			dashboardId: $dashboardId
-		) === false
-		) {
-			throw new LockForbiddenException(
-				message: 'You do not have access to this dashboard'
-			);
-		}
+		$this->assertCanView(userId: $userId, dashboardId: $this->lockedDashboardId(dashboardUuid: $dashboardUuid));
 
 		$existing = $this->locks->lockMapper->findActive(
 			dashboardUuid: $dashboardUuid
@@ -223,6 +258,25 @@ class DashboardLockService {
 		$existing->setUpdatedAt($this->now());
 		return $this->locks->lockMapper->update(entity: $existing);
 	}//end heartbeat()
+
+	/**
+	 * The ID of the dashboard a heartbeat targets; a missing dashboard
+	 * has no lock to extend.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return int The dashboard ID.
+	 *
+	 * @throws LockNotFoundException When the dashboard does not exist.
+	 */
+	private function lockedDashboardId(string $dashboardUuid): int {
+		try {
+			$dashboard = $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
+			return (int)$dashboard->getId();
+		} catch (DoesNotExistException) {
+			throw new LockNotFoundException(message: 'Lock not found; call acquire first');
+		}
+	}//end lockedDashboardId()
 
 	/**
 	 * Release the editing lock on a dashboard.

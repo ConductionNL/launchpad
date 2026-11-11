@@ -415,6 +415,37 @@ class DashboardServicePublicationTest extends TestCase {
 	}//end testTakeDownBeforeGoLiveIsRefused()
 
 	/**
+	 * A take-down at the go-live moment is refused too, and schedule() is owner-gated.
+	 *
+	 * @return void
+	 */
+	public function testTakeDownAtGoLiveIsRefusedAndScheduleIsOwnerGated(): void {
+		$dashboard = $this->makeDraftDashboard(userId: 'alice');
+		$this->dashboardMapper->method('findByUuid')->willReturn($dashboard);
+		$this->dashboardMapper->expects($this->never())->method('update');
+		$at = (new \DateTime('+2 days'))->format('c');
+
+		try {
+			$this->service->schedule(uuid: 'd-uuid-1', publishAt: $at, userId: 'alice', unpublishAt: $at);
+			$this->fail('equal times accepted');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame(DashboardService::ERR_UNPUBLISH_BEFORE_PUBLISH, $e->getMessage());
+		}
+
+		try {
+			$this->service->schedule(uuid: 'd-uuid-1', publishAt: null, userId: 'alice', unpublishAt: '  ');
+			$this->fail('no times accepted');
+		} catch (InvalidArgumentException $e) {
+			$this->assertSame(DashboardService::ERR_SCHEDULE_PAST_DATE, $e->getMessage());
+		}
+
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage(DashboardService::ERR_FORBIDDEN_NOT_OWNER_OR_ADMIN);
+		$this->service->schedule(uuid: 'd-uuid-1', publishAt: $at, userId: 'mallory');
+	}//end testTakeDownAtGoLiveIsRefusedAndScheduleIsOwnerGated()
+
+	/**
 	 * A take-down time alone keeps a published dashboard published until then.
 	 *
 	 * @return void

@@ -268,7 +268,7 @@ class ImportService {
 				continue;
 			}
 
-			$uuidMap[$original] = $this->generateUuidV4();
+			$uuidMap[$original] = UuidV4::generate();
 		}
 
 		$result = [];
@@ -763,24 +763,4 @@ class ImportService {
 			$dashboard->setPublicationStatus((string)$payload['publicationStatus']);
 		}
 	}//end applyEntityPlacement()
-
-	/**
-	 * Generate a v4 UUID for re-mapped imports.
-	 *
-	 * @return string The UUID.
-	 */
-	private function generateUuidV4(): string {
-		$bytes = random_bytes(length: 16);
-		$bytes[6] = chr(codepoint: ord(character: $bytes[6]) & 0x0f | 0x40);
-		$bytes[8] = chr(codepoint: ord(character: $bytes[8]) & 0x3f | 0x80);
-		$hex = bin2hex(string: $bytes);
-		return sprintf(
-			'%s-%s-%s-%s-%s',
-			substr(string: $hex, offset: 0, length: 8),
-			substr(string: $hex, offset: 8, length: 4),
-			substr(string: $hex, offset: 12, length: 4),
-			substr(string: $hex, offset: 16, length: 4),
-			substr(string: $hex, offset: 20, length: 12),
-		);
-	}//end generateUuidV4()
 }//end class

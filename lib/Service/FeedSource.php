@@ -59,4 +59,29 @@ final class FeedSource {
 
 		return $this;
 	}//end titledBy()
+
+	/**
+	 * The canonical news item for fields read from one entry of this feed:
+	 * the entry's fields in schema order, with this source's URL and title
+	 * between `pubDate` and `thumbnailUrl`.
+	 *
+	 * @param array<string, string|null> $fields Final guid, title, summary, link, pubDate (strings) and
+	 *                                           thumbnailUrl (string or null).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/news-widget/spec.md
+	 */
+	public function item(array $fields): array {
+		return [
+			'guid' => $fields['guid'],
+			'title' => $fields['title'],
+			'summary' => $fields['summary'],
+			'link' => $fields['link'],
+			'pubDate' => $fields['pubDate'],
+			'sourceUrl' => $this->url,
+			'sourceTitle' => $this->title,
+			'thumbnailUrl' => $fields['thumbnailUrl'],
+		];
+	}//end item()
 }//end class

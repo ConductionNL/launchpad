@@ -102,6 +102,16 @@ class NewsWidgetService {
 	private const FETCH_TIMEOUT_SECONDS = 10;
 
 	/**
+	 * Default of each boolean config field (REQ-NEWS-002).
+	 *
+	 * @var array<string, bool>
+	 */
+	private const BOOL_FIELD_DEFAULTS = [
+		'showThumbnails' => true,
+		'showSummary' => true,
+	];
+
+	/**
 	 * Default, lower bound and upper bound of each integer config field
 	 * (REQ-NEWS-002).
 	 *
@@ -252,8 +262,8 @@ class NewsWidgetService {
 			'feedUrls' => $this->extractFeedUrls(decoded: $decoded),
 			'layout' => $this->extractLayout(decoded: $decoded),
 			'itemLimit' => $this->extractIntInRange(decoded: $decoded, key: 'itemLimit'),
-			'showThumbnails' => $this->extractBool(decoded: $decoded, key: 'showThumbnails', default: true),
-			'showSummary' => $this->extractBool(decoded: $decoded, key: 'showSummary', default: true),
+			'showThumbnails' => $this->extractBool(decoded: $decoded, key: 'showThumbnails'),
+			'showSummary' => $this->extractBool(decoded: $decoded, key: 'showSummary'),
 			'summaryMaxChars' => $this->extractIntInRange(decoded: $decoded, key: 'summaryMaxChars'),
 			'dateFormat' => $this->extractDateFormat(decoded: $decoded),
 			'metadataFilter' => $this->extractMetadataFilter(decoded: $decoded),
@@ -324,20 +334,33 @@ class NewsWidgetService {
 
 		$out = [];
 		foreach ($candidates as $candidate) {
-			if (is_string(value: $candidate) === false || $candidate === '') {
-				continue;
-			}
-
-			// C1: accept HTTPS only — plain HTTP leaks feed content in
-			// transit and bypasses the SSRF guard's scheme check.
-			$lower = strtolower(string: $candidate);
-			if (str_starts_with(haystack: $lower, needle: 'https://') === true) {
+			if (self::isHttpsUrl(candidate: $candidate) === true) {
 				$out[] = $candidate;
 			}
 		}
 
 		return $out;
 	}//end extractFeedUrls()
+
+	/**
+	 * Whether a configured feed URL is a non-empty string starting with
+	 * `https://` (any case).
+	 *
+	 * C1: accept HTTPS only — plain HTTP leaks feed content in transit and
+	 * bypasses the SSRF guard's scheme check.
+	 *
+	 * @param mixed $candidate Configured entry.
+	 *
+	 * @return boolean
+	 */
+	private static function isHttpsUrl(mixed $candidate): bool {
+		if (is_string(value: $candidate) === false || $candidate === '') {
+			return false;
+		}
+
+		$lower = strtolower(string: $candidate);
+		return str_starts_with(haystack: $lower, needle: 'https://');
+	}//end isHttpsUrl()
 
 	/**
 	 * Extract the layout enum (`list` | `grid` | `carousel`).
@@ -377,17 +400,17 @@ class NewsWidgetService {
 	}//end extractIntInRange()
 
 	/**
-	 * Extract a boolean field with default fallback.
+	 * Extract a boolean field; its default (used when the key is missing)
+	 * comes from BOOL_FIELD_DEFAULTS.
 	 *
 	 * @param array<string, mixed> $decoded Decoded config map.
-	 * @param string $key Field key.
-	 * @param boolean $default Default value when missing.
+	 * @param string $key Field key (a key of BOOL_FIELD_DEFAULTS).
 	 *
 	 * @return boolean
 	 */
-	private function extractBool(array $decoded, string $key, bool $default): bool {
+	private function extractBool(array $decoded, string $key): bool {
 		if (array_key_exists(key: $key, array: $decoded) === false) {
-			return $default;
+			return self::BOOL_FIELD_DEFAULTS[$key];
 		}
 
 		return $decoded[$key] === true;
@@ -716,29 +739,39 @@ class NewsWidgetService {
 		$seen = [];
 		$out = [];
 		foreach ($items as $item) {
-			$guid = '';
-			if (isset($item['guid']) === true) {
-				$guid = (string)$item['guid'];
-			}
-
-			if ($guid === '' || isset($seen[$guid]) === true) {
-				if ($guid === '') {
-					// Items missing a guid bypass the dedupe map but
-					// still flow through so we don't lose them; the
-					// synthetic guid in normaliseRssItem / normaliseAtomEntry
-					// ensures this path is rarely hit.
-					$out[] = $item;
-				}
-
+			// Items missing a guid bypass the dedupe map but still flow
+			// through so we don't lose them; the synthetic guid in
+			// normaliseRssItem / normaliseAtomEntry ensures this path is
+			// rarely hit.
+			$guid = self::itemGuid(item: $item);
+			if ($guid !== '' && isset($seen[$guid]) === true) {
 				continue;
 			}
 
-			$seen[$guid] = true;
+			if ($guid !== '') {
+				$seen[$guid] = true;
+			}
+
 			$out[] = $item;
-		}//end foreach
+		}
 
 		return $out;
 	}//end deduplicateItems()
+
+	/**
+	 * An item's guid as a string, or '' when it has none.
+	 *
+	 * @param array<string, mixed> $item Item.
+	 *
+	 * @return string
+	 */
+	private static function itemGuid(array $item): string {
+		if (isset($item['guid']) === true) {
+			return (string)$item['guid'];
+		}
+
+		return '';
+	}//end itemGuid()
 
 	/**
 	 * Sort items by ISO 8601 `pubDate`, descending (newest first).
@@ -1252,14 +1285,23 @@ class NewsWidgetService {
 
 		$url = $item->enclosure['url'] ?? null;
 		$type = $item->enclosure['type'] ?? null;
-		if ($url !== null
-			&& ($type === null || str_starts_with(haystack: (string)$type, needle: 'image/') === true)
-		) {
+		if ($url !== null && self::isImageEnclosureType(type: $type) === true) {
 			return (string)$url;
 		}
 
 		return null;
 	}//end rssThumbnail()
+
+	/**
+	 * Whether an enclosure type marks an image; a missing type counts as one.
+	 *
+	 * @param SimpleXMLElement|null $type The enclosure's `type` attribute.
+	 *
+	 * @return boolean
+	 */
+	private static function isImageEnclosureType(?SimpleXMLElement $type): bool {
+		return $type === null || str_starts_with(haystack: (string)$type, needle: 'image/') === true;
+	}//end isImageEnclosureType()
 
 	/**
 	 * Complete the fields read from one feed entry into the canonical item

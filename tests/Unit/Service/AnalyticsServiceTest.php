@@ -404,4 +404,41 @@ class AnalyticsServiceTest extends TestCase {
 			$this->setUp();
 		}
 	}
+
+	/**
+	 * Each dashboard name is looked up once, and a missing dashboard
+	 * exports with an empty name.
+	 *
+	 * @return void
+	 */
+	public function testGenerateCsvExportLooksEachNameUpOnce(): void {
+		$rows = [];
+		foreach (['uuid-1', 'gone', 'uuid-1', 'gone'] as $uuid) {
+			$row = new DashboardView();
+			$row->setDashboardUuid($uuid);
+			$row->setViewBucket('2026-05-01');
+			$row->setViewCount(2);
+			$row->setUniqueViewerCount(1);
+			$rows[] = $row;
+		}
+
+		$this->viewMapper->method('findAllInRange')->willReturn($rows);
+		$dashboard = new Dashboard();
+		$dashboard->setName('Home');
+		$this->dashboardMapper->expects($this->exactly(2))->method('findByUuid')->willReturnCallback(
+			static function (string $uuid) use ($dashboard): Dashboard {
+				if ($uuid === 'gone') {
+					throw new DoesNotExistException(msg: 'gone');
+				}
+
+				return $dashboard;
+			}
+		);
+
+		$lines = explode("\r\n", $this->service->generateCsvExport(period: '7d'));
+		$this->assertSame(['"uuid-1","Home"', '"gone",""', '"uuid-1","Home"', '"gone",""'], array_map(
+			static fn (string $line): string => implode(',', array_slice(explode(',', $line), 0, 2)),
+			array_slice($lines, 1, 4)
+		));
+	}
 }

@@ -87,44 +87,112 @@ class ImportCommand extends Command {
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$file = (string)($input->getOption(name: 'file') ?? '');
-		$preserveUuids = (bool)$input->getOption(name: 'preserve-uuids');
-		$user = (string)($input->getOption(name: 'user') ?? 'cli');
-
-		if ($file === '') {
-			$output->writeln(messages: '<error>--file parameter is required</error>');
-			return self::FAILURE;
-		}
-
-		if (file_exists(filename: $file) === false) {
-			$output->writeln(messages: '<error>File not found: ' . $file . '</error>');
-			return self::FAILURE;
-		}
-
-		try {
-			$result = $this->importService->import(
-				zipPath: $file,
-				preserveUuids: $preserveUuids,
-				currentUserId: $user
-			);
-		} catch (InvalidArgumentException $e) {
-			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
-			return self::FAILURE;
-		} catch (Throwable $e) {
-			$output->writeln(messages: '<error>Import failed: ' . $e->getMessage() . '</error>');
+		$result = $this->importFromOptions(input: $input, output: $output);
+		if ($result === null) {
 			return self::FAILURE;
 		}
 
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
-			$output->writeln(messages: '<error>UUID collisions detected (--preserve-uuids):</error>');
-			foreach ($result['errors'] as $err) {
-				$msg = (string)($err['message'] ?? 'collision');
-				$output->writeln(messages: ' - ' . $msg);
-			}
-
-			return self::FAILURE;
+			return $this->reportCollisions(errors: $result['errors'], output: $output);
 		}
 
+		return $this->reportSummary(result: $result, output: $output);
+	}//end execute()
+
+	/**
+	 * Run the import the options ask for; print the reason and answer
+	 * null when the file is missing or the import is refused or fails.
+	 *
+	 * @param InputInterface  $input  CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return array<string, mixed>|null The import result, or null on failure.
+	 */
+	private function importFromOptions(InputInterface $input, OutputInterface $output): array|null {
+		$file = (string)($input->getOption(name: 'file') ?? '');
+		$preserveUuids = (bool)$input->getOption(name: 'preserve-uuids');
+		$user = (string)($input->getOption(name: 'user') ?? 'cli');
+
+		if ($this->reportUnreadableFile(file: $file, output: $output) === true) {
+			return null;
+		}
+
+		try {
+			return $this->importService->import(
+				zipPath: $file,
+				preserveUuids: $preserveUuids,
+				currentUserId: $user
+			);
+		} catch (Throwable $e) {
+			$output->writeln(messages: self::failureLine(exception: $e));
+			return null;
+		}
+	}//end importFromOptions()
+
+	/**
+	 * Print why `--file` cannot be imported: missing, or not an existing file.
+	 *
+	 * @param string          $file   The `--file` value.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return bool True when an error was printed.
+	 */
+	private function reportUnreadableFile(string $file, OutputInterface $output): bool {
+		if ($file === '') {
+			$output->writeln(messages: '<error>--file parameter is required</error>');
+			return true;
+		}
+
+		if (file_exists(filename: $file) === false) {
+			$output->writeln(messages: '<error>File not found: ' . $file . '</error>');
+			return true;
+		}
+
+		return false;
+	}//end reportUnreadableFile()
+
+	/**
+	 * The error line for a refused (invalid archive) or failed import.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return string The error line.
+	 */
+	private static function failureLine(Throwable $exception): string {
+		if ($exception instanceof InvalidArgumentException) {
+			return '<error>' . $exception->getMessage() . '</error>';
+		}
+
+		return '<error>Import failed: ' . $exception->getMessage() . '</error>';
+	}//end failureLine()
+
+	/**
+	 * Print the UUID collisions of a `--preserve-uuids` import.
+	 *
+	 * @param array<int, array<string, mixed>> $errors The collision errors.
+	 * @param OutputInterface                  $output CLI output.
+	 *
+	 * @return int The failure exit code.
+	 */
+	private function reportCollisions(array $errors, OutputInterface $output): int {
+		$output->writeln(messages: '<error>UUID collisions detected (--preserve-uuids):</error>');
+		foreach ($errors as $err) {
+			$msg = (string)($err['message'] ?? 'collision');
+			$output->writeln(messages: ' - ' . $msg);
+		}
+
+		return self::FAILURE;
+	}//end reportCollisions()
+
+	/**
+	 * Print the imported and skipped counts and every non-empty error.
+	 *
+	 * @param array<string, mixed> $result The import result.
+	 * @param OutputInterface      $output CLI output.
+	 *
+	 * @return int The success exit code.
+	 */
+	private function reportSummary(array $result, OutputInterface $output): int {
 		$imported = $result['importedDashboardCount'];
 		$skipped = $result['skippedDashboardCount'];
 		$errors = $result['errors'];
@@ -141,5 +209,5 @@ class ImportCommand extends Command {
 		}
 
 		return self::SUCCESS;
-	}//end execute()
+	}//end reportSummary()
 }//end class

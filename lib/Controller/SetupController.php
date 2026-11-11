@@ -230,26 +230,9 @@ class SetupController extends Controller {
 	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
 	 */
 	private function loadDataset(string $actionId): JSONResponse {
-		$picked = $this->appConfig->getValueString(Application::APP_ID, self::DATASET_KEY, '');
-
-		// The card's Load button names its dataset in the body. An older wizard
-		// posts nothing and relies on the choice stored a step earlier. Nothing
-		// is stored before the load succeeds: a failed load must leave the step
-		// open for an operator who asked for data and got none.
-		$posted = $this->request->getParam('dataset');
-		if ($posted !== null) {
-			$refusal = $this->refuseDataset(value: $posted);
-			if ($refusal !== null) {
-				return $refusal;
-			}
-
-			$picked = (string)$posted;
-		}
-
-		// The legacy id carries no answer, so it means the shipped dataset. A
-		// caller that posts it has said which one by posting it.
-		if ($actionId === 'install-demo-data' && $picked === '') {
-			$picked = DemoDataService::DEMO_DATASET;
+		$picked = $this->pickedDataset(actionId: $actionId);
+		if ($picked instanceof JSONResponse) {
+			return $picked;
 		}
 
 		// 🔴 NO SILENT DEFAULT. Importing here because the operator clicked Run
@@ -269,6 +252,53 @@ class SetupController extends Controller {
 			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
 		}
 
+		return $this->installDataset(picked: $picked);
+	}//end loadDataset()
+
+	/**
+	 * The dataset the load is for: the one the card posts, else the one
+	 * stored a step earlier, else the shipped dataset for the legacy action.
+	 *
+	 * The card's Load button names its dataset in the body. An older wizard
+	 * posts nothing and relies on the choice stored a step earlier. Nothing
+	 * is stored before the load succeeds: a failed load must leave the step
+	 * open for an operator who asked for data and got none.
+	 *
+	 * @param string $actionId The action id.
+	 *
+	 * @return string|JSONResponse The dataset id (empty when none was chosen), or the refusal of a bad posted value.
+	 */
+	private function pickedDataset(string $actionId): string|JSONResponse {
+		$picked = $this->appConfig->getValueString(Application::APP_ID, self::DATASET_KEY, '');
+
+		$posted = $this->request->getParam('dataset');
+		if ($posted !== null) {
+			$refusal = $this->refuseDataset(value: $posted);
+			if ($refusal !== null) {
+				return $refusal;
+			}
+
+			$picked = (string)$posted;
+		}
+
+		// The legacy id carries no answer, so it means the shipped dataset. A
+		// caller that posts it has said which one by posting it.
+		if ($actionId === 'install-demo-data' && $picked === '') {
+			return DemoDataService::DEMO_DATASET;
+		}
+
+		return $picked;
+	}//end pickedDataset()
+
+	/**
+	 * Import the demo data and record the pick; a failed import is logged
+	 * and stores nothing.
+	 *
+	 * @param string $picked The dataset id.
+	 *
+	 * @return JSONResponse How much landed, or the failure.
+	 */
+	private function installDataset(string $picked): JSONResponse {
 		try {
 			$imported = $this->demoDataService->install();
 		} catch (\Throwable $e) {
@@ -293,8 +323,7 @@ class SetupController extends Controller {
 				'message' => 'Imported ' . $imported['objects'] . ' demo object(s).',
 			]
 		);
-
-	}//end loadDataset()
+	}//end installDataset()
 
 	/**
 	 * Refuse a dataset id no dataset answers to.

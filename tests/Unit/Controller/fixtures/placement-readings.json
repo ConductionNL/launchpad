@@ -1,0 +1,455 @@
+{
+    "health show / anonymous": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized"
+        },
+        []
+    ],
+    "health show / cannot view": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                2
+            ]
+        ]
+    ],
+    "health show / resolver throws": [
+        500,
+        {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "health",
+                [
+                    1
+                ]
+            ],
+            [
+                "log",
+                "Unexpected health-ping resolution failure",
+                {
+                    "app": "launchpad",
+                    "exception": "down"
+                }
+            ]
+        ]
+    ],
+    "health show / resolver error": [
+        404,
+        {
+            "status": "error",
+            "error": "not_configured"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "health",
+                [
+                    1
+                ]
+            ]
+        ]
+    ],
+    "health show / ok": [
+        200,
+        {
+            "value": 42,
+            "stale": false
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "health",
+                [
+                    1
+                ]
+            ]
+        ]
+    ],
+    "health validate / anonymous": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized"
+        },
+        []
+    ],
+    "health validate / cannot view": [
+        200,
+        {
+            "valid": true,
+            "errors": []
+        },
+        [
+            [
+                "validateConfig",
+                []
+            ]
+        ]
+    ],
+    "health validate / resolver throws": [
+        200,
+        {
+            "valid": false,
+            "errors": [
+                "bad host"
+            ]
+        },
+        [
+            [
+                "validateConfig",
+                {
+                    "a": 1
+                }
+            ]
+        ]
+    ],
+    "health validate / resolver error": [
+        200,
+        {
+            "valid": false,
+            "errors": [
+                "bad host"
+            ]
+        },
+        [
+            [
+                "validateConfig",
+                {
+                    "a": 1
+                }
+            ]
+        ]
+    ],
+    "health validate / ok": [
+        200,
+        {
+            "valid": false,
+            "errors": [
+                "bad host"
+            ]
+        },
+        [
+            [
+                "validateConfig",
+                {
+                    "a": 1
+                }
+            ]
+        ]
+    ],
+    "live show / anonymous": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized"
+        },
+        []
+    ],
+    "live show / cannot view": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                2
+            ]
+        ]
+    ],
+    "live show / resolver throws": [
+        500,
+        {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "live",
+                [
+                    1
+                ]
+            ],
+            [
+                "log",
+                "Unexpected live-tile resolution failure",
+                {
+                    "app": "launchpad",
+                    "exception": "down"
+                }
+            ]
+        ]
+    ],
+    "live show / resolver error": [
+        404,
+        {
+            "status": "error",
+            "error": "not_configured"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "live",
+                [
+                    1
+                ]
+            ]
+        ]
+    ],
+    "live show / ok": [
+        200,
+        {
+            "value": 42,
+            "stale": false
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "live",
+                [
+                    1
+                ]
+            ]
+        ]
+    ],
+    "live connector status / anonymous": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized"
+        },
+        []
+    ],
+    "live connector status / cannot view": [
+        200,
+        {
+            "available": true
+        },
+        []
+    ],
+    "live connector status / resolver throws": [
+        200,
+        {
+            "available": true
+        },
+        []
+    ],
+    "live connector status / resolver error": [
+        200,
+        {
+            "available": true
+        },
+        []
+    ],
+    "live connector status / ok": [
+        200,
+        {
+            "available": true
+        },
+        []
+    ],
+    "live validate source / anonymous": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized"
+        },
+        []
+    ],
+    "live validate source / cannot view": [
+        200,
+        {
+            "valid": true,
+            "errors": []
+        },
+        [
+            [
+                "validateSourceConfig",
+                []
+            ]
+        ]
+    ],
+    "live validate source / resolver throws": [
+        200,
+        {
+            "valid": false,
+            "errors": [
+                "bad host"
+            ]
+        },
+        [
+            [
+                "validateSourceConfig",
+                {
+                    "a": 1
+                }
+            ]
+        ]
+    ],
+    "live validate source / resolver error": [
+        200,
+        {
+            "valid": false,
+            "errors": [
+                "bad host"
+            ]
+        },
+        [
+            [
+                "validateSourceConfig",
+                {
+                    "a": 1
+                }
+            ]
+        ]
+    ],
+    "live validate source / ok": [
+        200,
+        {
+            "valid": false,
+            "errors": [
+                "bad host"
+            ]
+        },
+        [
+            [
+                "validateSourceConfig",
+                {
+                    "a": 1
+                }
+            ]
+        ]
+    ],
+    "weather show / anonymous": [
+        401,
+        {
+            "status": "error",
+            "error": "unauthorized"
+        },
+        []
+    ],
+    "weather show / cannot view": [
+        403,
+        {
+            "status": "error",
+            "error": "forbidden"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                2
+            ]
+        ]
+    ],
+    "weather show / resolver throws": [
+        500,
+        {
+            "status": "error",
+            "error": "unknown_error"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "weather",
+                [
+                    1,
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "Unexpected weather resolution failure",
+                {
+                    "app": "launchpad",
+                    "exception": "down"
+                }
+            ]
+        ]
+    ],
+    "weather show / resolver error": [
+        502,
+        {
+            "status": "error",
+            "error": "not_configured"
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "weather",
+                [
+                    1,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "weather show / ok": [
+        200,
+        {
+            "value": 42,
+            "stale": false
+        },
+        [
+            [
+                "canViewPlacement",
+                "alice",
+                1
+            ],
+            [
+                "weather",
+                [
+                    1,
+                    "alice"
+                ]
+            ]
+        ]
+    ]
+}

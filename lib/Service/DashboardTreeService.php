@@ -134,10 +134,10 @@ class DashboardTreeService {
 	 * @spec openspec/specs/dashboard-switcher/spec.md
 	 */
 	public function validateParent(
-		?string $movingUuid,
-		?string $newParentUuid,
+		string|null $movingUuid,
+		string|null $newParentUuid,
 	): void {
-		if ($newParentUuid === null || $newParentUuid === '') {
+		if (self::isBlank(uuid: $newParentUuid) === true) {
 			// Root-level placement is always legal.
 			return;
 		}
@@ -149,15 +149,7 @@ class DashboardTreeService {
 			);
 		}
 
-		try {
-			$parent = $this->dashboardMapper->findByUuid(
-				uuid: $newParentUuid
-			);
-		} catch (DoesNotExistException) {
-			throw new InvalidArgumentException(
-				message: self::ERR_PARENT_NOT_FOUND
-			);
-		}
+		$parent = $this->findParent(parentUuid: (string)$newParentUuid);
 
 		$this->assertNotDescendant(
 			movingUuid: $movingUuid,
@@ -169,6 +161,38 @@ class DashboardTreeService {
 			parent: $parent
 		);
 	}//end validateParent()
+
+	/**
+	 * The proposed parent dashboard.
+	 *
+	 * @param string $parentUuid The proposed parent UUID.
+	 *
+	 * @return Dashboard The parent.
+	 *
+	 * @throws InvalidArgumentException When no dashboard has that UUID.
+	 */
+	private function findParent(string $parentUuid): Dashboard {
+		try {
+			return $this->dashboardMapper->findByUuid(
+				uuid: $parentUuid
+			);
+		} catch (DoesNotExistException) {
+			throw new InvalidArgumentException(
+				message: self::ERR_PARENT_NOT_FOUND
+			);
+		}
+	}//end findParent()
+
+	/**
+	 * Whether a UUID is missing: null or empty.
+	 *
+	 * @param string|null $uuid The UUID.
+	 *
+	 * @return bool True when null or empty.
+	 */
+	private static function isBlank(string|null $uuid): bool {
+		return $uuid === null || $uuid === '';
+	}//end isBlank()
 
 	/**
 	 * Validate that a slug is unique within its parent scope.
@@ -343,7 +367,7 @@ class DashboardTreeService {
 	 * @spec openspec/specs/dashboard-switcher/spec.md
 	 */
 	public function buildTree(
-		?string $parentUuid,
+		string|null $parentUuid,
 		int $depth = 0,
 	): array {
 		if ($depth >= Dashboard::MAX_DEPTH) {
@@ -356,26 +380,53 @@ class DashboardTreeService {
 		);
 
 		foreach ($children as $child) {
-			$childUuid = $child->getUuid();
-			$childTree = [];
-			if ($childUuid !== null && $childUuid !== '') {
-				$childTree = $this->buildTree(
-					parentUuid: $childUuid,
-					depth: ($depth + 1)
-				);
-			}
-
-			$nodes[] = [
-				'uuid' => $childUuid,
-				'name' => $child->getName(),
-				'slug' => $child->getSlug(),
-				'sortOrder' => (int)$child->getSortOrder(),
-				'children' => $childTree,
-			];
+			$nodes[] = self::treeNode(
+				child: $child,
+				children: $this->childTree(child: $child, depth: $depth)
+			);
 		}
 
 		return $nodes;
 	}//end buildTree()
+
+	/**
+	 * The subtree below a child at the given depth; none for a child
+	 * without a UUID.
+	 *
+	 * @param Dashboard $child The child dashboard.
+	 * @param int       $depth The depth of the child's level.
+	 *
+	 * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
+	 */
+	private function childTree(Dashboard $child, int $depth): array {
+		$childUuid = $child->getUuid();
+		if (self::isBlank(uuid: $childUuid) === true) {
+			return [];
+		}
+
+		return $this->buildTree(
+			parentUuid: $childUuid,
+			depth: ($depth + 1)
+		);
+	}//end childTree()
+
+	/**
+	 * One tree node: the dashboard's identity and its children.
+	 *
+	 * @param Dashboard $child    The dashboard.
+	 * @param array     $children The nodes below it.
+	 *
+	 * @return array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}
+	 */
+	private static function treeNode(Dashboard $child, array $children): array {
+		return [
+			'uuid' => $child->getUuid(),
+			'name' => $child->getName(),
+			'slug' => $child->getSlug(),
+			'sortOrder' => (int)$child->getSortOrder(),
+			'children' => $children,
+		];
+	}//end treeNode()
 
 	/**
 	 * Build the full tree of root-level dashboards.
@@ -409,7 +460,7 @@ class DashboardTreeService {
 	 */
 	public function getFilteredTree(array $visibleUuids): array {
 		return $this->buildFilteredTree(
-			parentUuid: null,
+			level: new TreeLevel(parentUuid: null, depth: 0),
 			visibleUuids: $visibleUuids
 		);
 	}//end getFilteredTree()
@@ -417,51 +468,30 @@ class DashboardTreeService {
 	/**
 	 * Internal recursive helper for getFilteredTree().
 	 *
-	 * @param string|null $parentUuid The parent UUID (null for roots).
+	 * @param TreeLevel           $level        The parent and depth of this level.
 	 * @param array<string, bool> $visibleUuids Allowed UUID map.
-	 * @param int $depth Recursion depth guard.
 	 *
 	 * @return array<int, array{uuid: ?string, name: ?string, slug: ?string, sortOrder: int, children: array}>
 	 */
-	private function buildFilteredTree(
-		?string $parentUuid,
-		array $visibleUuids,
-		int $depth = 0,
-	): array {
-		if ($depth >= Dashboard::MAX_DEPTH) {
+	private function buildFilteredTree(TreeLevel $level, array $visibleUuids): array {
+		if ($level->isBeyondCap() === true) {
 			return [];
 		}
 
 		$nodes = [];
-		$children = $this->dashboardMapper->findByParent(
-			parentUuid: $parentUuid
-		);
-
-		foreach ($children as $child) {
-			$childUuid = $child->getUuid();
+		foreach ($this->dashboardMapper->findByParent(parentUuid: $level->parentUuid) as $child) {
+			$childUuid = (string)$child->getUuid();
 
 			// Skip nodes the caller cannot see.
-			if ($childUuid === null
-				|| $childUuid === ''
-				|| isset($visibleUuids[$childUuid]) === false
-			) {
+			if ($childUuid === '' || isset($visibleUuids[$childUuid]) === false) {
 				continue;
 			}
 
-			$childTree = $this->buildFilteredTree(
-				parentUuid: $childUuid,
-				visibleUuids: $visibleUuids,
-				depth: ($depth + 1)
+			$nodes[] = self::treeNode(
+				child: $child,
+				children: $this->buildFilteredTree(level: $level->below(childUuid: $childUuid), visibleUuids: $visibleUuids)
 			);
-
-			$nodes[] = [
-				'uuid' => $childUuid,
-				'name' => $child->getName(),
-				'slug' => $child->getSlug(),
-				'sortOrder' => (int)$child->getSortOrder(),
-				'children' => $childTree,
-			];
-		}//end foreach
+		}
 
 		return $nodes;
 	}//end buildFilteredTree()
@@ -482,37 +512,9 @@ class DashboardTreeService {
 	 * @spec openspec/specs/dashboard-switcher/spec.md
 	 */
 	public function deleteSubtree(Dashboard $dashboard): int {
-		$rootUuid = (string)$dashboard->getUuid();
-		$deleted = 0;
-
 		$this->db->beginTransaction();
 		try {
-			$descendants = [];
-			if ($rootUuid !== '') {
-				$descendants = $this->dashboardMapper->findDescendants(
-					ancestorUuid: $rootUuid
-				);
-			}
-
-			$deletedAt = new DateTimeImmutable();
-
-			// Delete leaves first (descendants reverse order) so that the
-			// adjacency-list invariants stay consistent during the walk.
-			foreach (array_reverse($descendants) as $child) {
-				$this->deleteDashboardWithPlacements(
-					target: $child,
-					fallback: $dashboard,
-					deletedAt: $deletedAt
-				);
-				$deleted++;
-			}//end foreach
-
-			$this->deleteDashboardWithPlacements(
-				target: $dashboard,
-				fallback: $dashboard,
-				deletedAt: $deletedAt
-			);
-			$deleted++;
+			$deleted = $this->deleteLeavesFirst(dashboard: $dashboard);
 
 			$this->db->commit();
 		} catch (\Throwable $t) {
@@ -524,27 +526,52 @@ class DashboardTreeService {
 	}//end deleteSubtree()
 
 	/**
+	 * Delete the descendants of a dashboard, leaves first, then the
+	 * dashboard itself.
+	 *
+	 * Leaves go first (descendants in reverse order) so that the
+	 * adjacency-list invariants stay consistent during the walk.
+	 *
+	 * @param Dashboard $dashboard The subtree root.
+	 *
+	 * @return int The number of dashboards deleted.
+	 */
+	private function deleteLeavesFirst(Dashboard $dashboard): int {
+		$rootUuid = (string)$dashboard->getUuid();
+		$descendants = [];
+		if ($rootUuid !== '') {
+			$descendants = $this->dashboardMapper->findDescendants(
+				ancestorUuid: $rootUuid
+			);
+		}
+
+		$deletion = new SubtreeDeletion(root: $dashboard, deletedAt: new DateTimeImmutable());
+		foreach (array_reverse($descendants) as $child) {
+			$this->deleteDashboardWithPlacements(target: $child, deletion: $deletion);
+		}
+
+		$this->deleteDashboardWithPlacements(target: $dashboard, deletion: $deletion);
+
+		return (count($descendants) + 1);
+	}//end deleteLeavesFirst()
+
+	/**
 	 * Delete one dashboard, its widget placements, and announce the removal.
 	 *
 	 * Shared by the descendant walk and the subtree root. Owner and type
-	 * are read off the target and fall back to `$fallback` (the subtree
-	 * root) when the row does not carry them — a root passes itself as its
-	 * own fallback, which collapses to reading its own values.
+	 * are read off the target and fall back to the subtree root when the
+	 * row does not carry them — for the root itself that collapses to
+	 * reading its own values.
 	 *
 	 * The event is only dispatched when a dispatcher is wired and the
 	 * dashboard carries a non-empty UUID (REQ-CSC-001).
 	 *
-	 * @param Dashboard $target The dashboard to remove.
-	 * @param Dashboard $fallback Source of owner/type when the target lacks them.
-	 * @param DateTimeImmutable $deletedAt The timestamp shared by the whole cascade.
+	 * @param Dashboard       $target   The dashboard to remove.
+	 * @param SubtreeDeletion $deletion The subtree root and the timestamp shared by the whole cascade.
 	 *
 	 * @return void
 	 */
-	private function deleteDashboardWithPlacements(
-		Dashboard $target,
-		Dashboard $fallback,
-		DateTimeImmutable $deletedAt,
-	): void {
+	private function deleteDashboardWithPlacements(Dashboard $target, SubtreeDeletion $deletion): void {
 		$targetId = $target->getId();
 		if ($targetId !== null) {
 			$this->placementMapper->deleteByDashboardId(
@@ -555,19 +582,36 @@ class DashboardTreeService {
 		$this->dashboardMapper->delete(entity: $target);
 
 		// SB1 fix: dispatch cascade event (REQ-CSC-001).
-		$targetUuid = (string)$target->getUuid();
-		if ($this->eventDispatcher !== null && $targetUuid !== '') {
-			$this->eventDispatcher->dispatchTyped(
-				new DashboardDeletedEvent(
-					dashboardUuid: $targetUuid,
-					ownerUserId:   (string)($target->getUserId() ?? $fallback->getUserId() ?? ''),
-					type:          (string)($target->getType() ?? $fallback->getType() ?? Dashboard::TYPE_USER),
-					deletedAt:     $deletedAt,
-					dashboardId:   $targetId
-				)
-			);
-		}
+		$this->dispatchDeleted(target: $target, deletion: $deletion);
 	}//end deleteDashboardWithPlacements()
+
+	/**
+	 * Dispatch the cascade event of a deleted dashboard; skipped without
+	 * a dispatcher or a UUID. The owner and type fall back to the subtree
+	 * root's.
+	 *
+	 * @param Dashboard       $target   The deleted dashboard.
+	 * @param SubtreeDeletion $deletion The subtree delete it is part of.
+	 *
+	 * @return void
+	 */
+	private function dispatchDeleted(Dashboard $target, SubtreeDeletion $deletion): void {
+		$targetUuid = (string)$target->getUuid();
+		if ($this->eventDispatcher === null || $targetUuid === '') {
+			return;
+		}
+
+		$fallback = $deletion->root;
+		$this->eventDispatcher->dispatchTyped(
+			new DashboardDeletedEvent(
+				dashboardUuid: $targetUuid,
+				ownerUserId:   (string)($target->getUserId() ?? $fallback->getUserId() ?? ''),
+				type:          (string)($target->getType() ?? $fallback->getType() ?? Dashboard::TYPE_USER),
+				deletedAt:     $deletion->deletedAt,
+				dashboardId:   $target->getId()
+			)
+		);
+	}//end dispatchDeleted()
 
 	/**
 	 * Reject a parent that is a descendant of the moving dashboard
@@ -586,46 +630,46 @@ class DashboardTreeService {
 	 * @throws InvalidArgumentException When the parent is a descendant.
 	 */
 	private function assertNotDescendant(
-		?string $movingUuid,
+		string|null $movingUuid,
 		Dashboard $parent,
 	): void {
-		if ($movingUuid === null || $movingUuid === '') {
-			return;
-		}
-
 		$parentUuid = $parent->getUuid();
-		if ($parentUuid === null || $parentUuid === '') {
+		if (self::isBlank(uuid: $movingUuid) === true || self::isBlank(uuid: $parentUuid) === true) {
 			return;
 		}
 
 		// Walk parent's ancestor chain — the moving uuid MUST NOT appear.
-		$ancestors = $this->dashboardMapper->findAncestors(
-			uuid: $parentUuid
-		);
-
-		foreach ($ancestors as $ancestor) {
-			if ($ancestor->getUuid() === $movingUuid) {
-				throw new InvalidArgumentException(
-					message: self::ERR_CYCLE_DETECTED
-				);
-			}
+		$ancestors = $this->dashboardMapper->findAncestors(uuid: (string)$parentUuid);
+		if (self::containsUuid(dashboards: $ancestors, uuid: (string)$movingUuid) === true) {
+			throw new InvalidArgumentException(message: self::ERR_CYCLE_DETECTED);
 		}
 
 		// Also walk the moving dashboard's descendants — if the proposed
 		// parent appears there, the assignment is a cycle on the other
 		// side of the chain.
-		$descendants = $this->dashboardMapper->findDescendants(
-			ancestorUuid: $movingUuid
-		);
-
-		foreach ($descendants as $descendant) {
-			if ($descendant->getUuid() === $parentUuid) {
-				throw new InvalidArgumentException(
-					message: self::ERR_CYCLE_DETECTED
-				);
-			}
+		$descendants = $this->dashboardMapper->findDescendants(ancestorUuid: (string)$movingUuid);
+		if (self::containsUuid(dashboards: $descendants, uuid: (string)$parentUuid) === true) {
+			throw new InvalidArgumentException(message: self::ERR_CYCLE_DETECTED);
 		}
 	}//end assertNotDescendant()
+
+	/**
+	 * Whether one of the dashboards has the UUID.
+	 *
+	 * @param Dashboard[] $dashboards The dashboards.
+	 * @param string      $uuid       The UUID to look for.
+	 *
+	 * @return bool True when found.
+	 */
+	private static function containsUuid(array $dashboards, string $uuid): bool {
+		foreach ($dashboards as $dashboard) {
+			if ($dashboard->getUuid() === $uuid) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end containsUuid()
 
 	/**
 	 * Reject a parent assignment that would push the resulting tree
@@ -645,32 +689,25 @@ class DashboardTreeService {
 	 * @throws InvalidArgumentException When the cap would be exceeded.
 	 */
 	private function assertDepthWithinCap(
-		?string $movingUuid,
+		string|null $movingUuid,
 		Dashboard $parent,
 	): void {
 		$parentUuid = $parent->getUuid();
-		if ($parentUuid === null || $parentUuid === '') {
+		if (self::isBlank(uuid: $parentUuid) === true) {
 			return;
 		}
 
 		$parentDepth = (count(
 			$this->dashboardMapper->findAncestors(
-				uuid: $parentUuid
+				uuid: (string)$parentUuid
 			)
 		) + 1);
-
-		$movingSubtreeDepth = 0;
-		if ($movingUuid !== null && $movingUuid !== '') {
-			$movingSubtreeDepth = $this->measureSubtreeDepth(
-				rootUuid: $movingUuid
-			);
-		}
 
 		// Layout once the move lands:
 		// parentDepth (ancestors of parent + parent itself)
 		// + 1 (the moving dashboard slotted as child)
 		// + movingSubtreeDepth (deepest descendant below the moving row).
-		$finalDepth = ($parentDepth + 1 + $movingSubtreeDepth);
+		$finalDepth = ($parentDepth + 1 + $this->movingSubtreeDepth(movingUuid: $movingUuid));
 
 		if ($finalDepth > Dashboard::MAX_DEPTH) {
 			throw new InvalidArgumentException(
@@ -678,6 +715,21 @@ class DashboardTreeService {
 			);
 		}
 	}//end assertDepthWithinCap()
+
+	/**
+	 * The depth of the subtree below the moving dashboard; 0 on create.
+	 *
+	 * @param string|null $movingUuid The dashboard being re-parented, or null.
+	 *
+	 * @return int The subtree depth.
+	 */
+	private function movingSubtreeDepth(string|null $movingUuid): int {
+		if (self::isBlank(uuid: $movingUuid) === true) {
+			return 0;
+		}
+
+		return $this->measureSubtreeDepth(rootUuid: (string)$movingUuid);
+	}//end movingSubtreeDepth()
 
 	/**
 	 * Measure the depth of the subtree rooted at `$rootUuid`.
@@ -696,35 +748,39 @@ class DashboardTreeService {
 		while ($frontier !== []) {
 			$next = [];
 			foreach ($frontier as $entry) {
-				$children = $this->dashboardMapper->findByParent(
-					parentUuid: $entry['uuid']
-				);
-
-				foreach ($children as $child) {
-					$childUuid = $child->getUuid();
-					if ($childUuid === null || $childUuid === '') {
-						continue;
-					}
-
-					$childDepth = ($entry['depth'] + 1);
-					if ($childDepth > $maxDepth) {
-						$maxDepth = $childDepth;
-					}
-
-					if ($childDepth < Dashboard::MAX_DEPTH) {
-						$next[] = [
-							'uuid' => $childUuid,
-							'depth' => $childDepth,
-						];
+				foreach ($this->childEntries(entry: $entry) as $childEntry) {
+					$maxDepth = max($maxDepth, $childEntry['depth']);
+					if ($childEntry['depth'] < Dashboard::MAX_DEPTH) {
+						$next[] = $childEntry;
 					}
 				}
-			}//end foreach
+			}
 
 			$frontier = $next;
-		}//end while
+		}
 
 		return $maxDepth;
 	}//end measureSubtreeDepth()
+
+	/**
+	 * The frontier entries of the children of one entry: their UUID and
+	 * depth. Children without a UUID are left out.
+	 *
+	 * @param array{uuid: string, depth: int} $entry The parent entry.
+	 *
+	 * @return list<array{uuid: string, depth: int}> The child entries.
+	 */
+	private function childEntries(array $entry): array {
+		$entries = [];
+		foreach ($this->dashboardMapper->findByParent(parentUuid: $entry['uuid']) as $child) {
+			$childUuid = $child->getUuid();
+			if (self::isBlank(uuid: $childUuid) === false) {
+				$entries[] = ['uuid' => (string)$childUuid, 'depth' => ($entry['depth'] + 1)];
+			}
+		}
+
+		return $entries;
+	}//end childEntries()
 
 	/**
 	 * Split a slug-chain path into its segments.

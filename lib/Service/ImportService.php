@@ -141,6 +141,28 @@ class ImportService {
 		bool $preserveUuids,
 		string $currentUserId,
 	): array {
+		$zip = $this->openArchive(zipPath: $zipPath);
+
+		try {
+			return $this->importArchive(
+				zip: $zip,
+				run: new DashboardImportRun(currentUserId: $currentUserId, preserveUuids: $preserveUuids)
+			);
+		} finally {
+			$zip->close();
+		}
+	}//end import()
+
+	/**
+	 * Open an uploaded archive read-only.
+	 *
+	 * @param string $zipPath Path to the uploaded ZIP file.
+	 *
+	 * @return ZipArchive The open archive.
+	 *
+	 * @throws InvalidArgumentException When it is missing or not a ZIP.
+	 */
+	private function openArchive(string $zipPath): ZipArchive {
 		if (file_exists(filename: $zipPath) === false) {
 			throw new InvalidArgumentException(
 				message: 'Uploaded file is not a valid ZIP archive'
@@ -154,39 +176,56 @@ class ImportService {
 			);
 		}
 
-		try {
-			$manifest = $this->validateZipStructure(zip: $zip);
-			$dashboards = $this->readDashboards(zip: $zip);
-			$collisions = $this->detectUuidCollisions(dashboards: $dashboards);
+		return $zip;
+	}//end openArchive()
 
-			if ($preserveUuids === true && $collisions !== []) {
-				return [
-					'status' => self::ERR_UUID_COLLISION,
-					'manifest' => $manifest,
-					'importedDashboardCount' => 0,
-					'skippedDashboardCount' => 0,
-					'errors' => $collisions,
-					'dashboards' => [],
-				];
-			}
+	/**
+	 * Validate an open archive and import its dashboards, unless kept UUIDs
+	 * collide with existing ones.
+	 *
+	 * @param ZipArchive         $zip The open archive.
+	 * @param DashboardImportRun $run The batch.
+	 *
+	 * @return array<string, mixed> The import result.
+	 */
+	private function importArchive(ZipArchive $zip, DashboardImportRun $run): array {
+		$manifest = $this->validateZipStructure(zip: $zip);
+		$dashboards = $this->readDashboards(zip: $zip);
+		$collisions = $this->detectUuidCollisions(dashboards: $dashboards);
 
-			$remapped = $this->remapUuids(
-				dashboards: $dashboards,
-				preserveUuids: $preserveUuids
-			);
+		if ($run->preserveUuids === true && $collisions !== []) {
+			return $this->collisionResult(manifest: $manifest, collisions: $collisions);
+		}
 
-			return [
-				'status' => 'ok',
-				'manifest' => $manifest,
-			] + $this->importDashboardBatch(
-				dashboards: $remapped,
-				currentUserId: $currentUserId,
-				preserveUuids: $preserveUuids
-			);
-		} finally {
-			$zip->close();
-		}//end try
-	}//end import()
+		$remapped = $this->remapUuids(
+			dashboards: $dashboards,
+			preserveUuids: $run->preserveUuids
+		);
+
+		return [
+			'status' => 'ok',
+			'manifest' => $manifest,
+		] + $this->importDashboardBatch(dashboards: $remapped, run: $run);
+	}//end importArchive()
+
+	/**
+	 * The result of an import refused because kept UUIDs collide.
+	 *
+	 * @param array<string, mixed>             $manifest   The validated manifest.
+	 * @param array<int, array<string, mixed>> $collisions The collision errors.
+	 *
+	 * @return array<string, mixed> The import result.
+	 */
+	private function collisionResult(array $manifest, array $collisions): array {
+		return [
+			'status' => self::ERR_UUID_COLLISION,
+			'manifest' => $manifest,
+			'importedDashboardCount' => 0,
+			'skippedDashboardCount' => 0,
+			'errors' => $collisions,
+			'dashboards' => [],
+		];
+	}//end collisionResult()
 
 	/**
 	 * Validate the manifest and return its decoded payload.
@@ -200,6 +239,23 @@ class ImportService {
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
 	public function validateZipStructure(ZipArchive $zip): array {
+		$decoded = $this->decodeManifest(zip: $zip);
+		$this->assertManifestFields(manifest: $decoded);
+		$this->assertSchemaVersion(version: $decoded['schemaVersion']);
+
+		return $decoded;
+	}//end validateZipStructure()
+
+	/**
+	 * Read and decode the archive's manifest.json.
+	 *
+	 * @param ZipArchive $zip The open archive.
+	 *
+	 * @return array<string, mixed> The decoded manifest.
+	 *
+	 * @throws InvalidArgumentException When it is missing or not a JSON object.
+	 */
+	private function decodeManifest(ZipArchive $zip): array {
 		$raw = $zip->getFromName(name: 'manifest.json');
 		if ($raw === false) {
 			throw new InvalidArgumentException(
@@ -214,10 +270,22 @@ class ImportService {
 			);
 		}
 
-		$required = ['schemaVersion', 'scope'];
+		return $decoded;
+	}//end decodeManifest()
+
+	/**
+	 * Refuse a manifest without schemaVersion or scope.
+	 *
+	 * @param array<string, mixed> $manifest The decoded manifest.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException Naming every missing field.
+	 */
+	private function assertManifestFields(array $manifest): void {
 		$missing = [];
-		foreach ($required as $field) {
-			if (array_key_exists(key: $field, array: $decoded) === false) {
+		foreach (['schemaVersion', 'scope'] as $field) {
+			if (array_key_exists(key: $field, array: $manifest) === false) {
 				$missing[] = $field;
 			}
 		}
@@ -227,24 +295,42 @@ class ImportService {
 				message: 'Manifest missing required field(s): ' . implode(separator: ', ', array: $missing)
 			);
 		}
+	}//end assertManifestFields()
 
-		$version = $decoded['schemaVersion'];
+	/**
+	 * Refuse a schema version other than {@see self::SCHEMA_VERSION}.
+	 *
+	 * @param mixed $version The manifest's schemaVersion.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException With upgrade advice for a newer version.
+	 */
+	private function assertSchemaVersion(mixed $version): void {
 		if (is_int($version) === false || $version !== self::SCHEMA_VERSION) {
-			$head = 'Unsupported manifest schema version: ' . (string)$version . '.';
-			$tail = ' Only version ' . (string)self::SCHEMA_VERSION . ' is supported.';
-			// An archive from a NEWER LaunchPad is the one case the admin can
-			// act on, and REQ-EXIM-009 asks for them to be told how. A version
-			// below 1 is not an older format, it is a broken manifest, so it
-			// gets no such advice.
-			if (is_int($version) === true && $version > self::SCHEMA_VERSION) {
-				$tail .= ' Upgrade LaunchPad to import archives of version ' . (string)$version . '.';
-			}
+			throw new InvalidArgumentException(message: $this->unsupportedVersionMessage(version: $version));
+		}
+	}//end assertSchemaVersion()
 
-			throw new InvalidArgumentException(message: ($head . $tail));
+	/**
+	 * The refusal message of an unsupported schema version. An archive from
+	 * a NEWER LaunchPad is the one case the admin can act on, and
+	 * REQ-EXIM-009 asks for them to be told how. A version below 1 is not an
+	 * older format, it is a broken manifest, so it gets no such advice.
+	 *
+	 * @param mixed $version The manifest's schemaVersion.
+	 *
+	 * @return string The message.
+	 */
+	private function unsupportedVersionMessage(mixed $version): string {
+		$head = 'Unsupported manifest schema version: ' . (string)$version . '.';
+		$tail = ' Only version ' . (string)self::SCHEMA_VERSION . ' is supported.';
+		if (is_int($version) === true && $version > self::SCHEMA_VERSION) {
+			$tail .= ' Upgrade LaunchPad to import archives of version ' . (string)$version . '.';
 		}
 
-		return $decoded;
-	}//end validateZipStructure()
+		return $head . $tail;
+	}//end unsupportedVersionMessage()
 
 	/**
 	 * Re-map UUIDs across dashboards when `preserveUuids=false`.
@@ -268,7 +354,7 @@ class ImportService {
 				continue;
 			}
 
-			$uuidMap[$original] = $this->generateUuidV4();
+			$uuidMap[$original] = UuidV4::generate();
 		}
 
 		$result = [];
@@ -301,89 +387,120 @@ class ImportService {
 	 * record cannot poison the batch (REQ-EXIM-011).
 	 *
 	 * @param array<int, array<string, mixed>> $dashboards Decoded dashboards.
-	 * @param string $currentUserId Importing UID.
-	 * @param bool $preserveUuids Preserve flag.
+	 * @param DashboardImportRun               $run        The batch: importing UID, preserve flag, tally.
 	 *
 	 * @return array{importedDashboardCount:int, skippedDashboardCount:int,
 	 *               errors:array<int, array<string,mixed>>,
 	 *               dashboards:array<int, array{sourceUuid:string, uuid:string, id:int}>}
 	 */
-	private function importDashboardBatch(
-		array $dashboards,
-		string $currentUserId,
-		bool $preserveUuids,
-	): array {
-		$imported = 0;
-		$skipped = 0;
-		$errors = [];
-		$created = [];
-
+	private function importDashboardBatch(array $dashboards, DashboardImportRun $run): array {
 		foreach ($dashboards as $payload) {
-			// The archive's UUID, not the one a remap may have minted: it is
-			// what the admin can find in their file.
-			$uuid = $this->reportableUuid(payload: $payload);
-			$missing = $this->validateDashboardPayload(payload: $payload);
-			if ($missing !== null) {
-				$skipped++;
-				$errors[] = $this->invalidDashboardError(payload: $payload, missing: $missing);
+			$this->importOneDashboard(run: $run, payload: $payload);
+		}
+
+		return $run->summary();
+	}//end importDashboardBatch()
+
+	/**
+	 * Import one dashboard of the batch, or record why it was skipped.
+	 *
+	 * @param DashboardImportRun   $run     The batch.
+	 * @param array<string, mixed> $payload The decoded dashboard.
+	 *
+	 * @return void
+	 */
+	private function importOneDashboard(DashboardImportRun $run, array $payload): void {
+		// The archive's UUID, not the one a remap may have minted: it is
+		// what the admin can find in their file.
+		$uuid = $this->reportableUuid(payload: $payload);
+		$missing = $this->validateDashboardPayload(payload: $payload);
+		if ($missing !== null) {
+			$run->recordSkipped(error: $this->invalidDashboardError(payload: $payload, missing: $missing));
+			return;
+		}
+
+		$this->db->beginTransaction();
+		try {
+			$persisted = $this->persistDashboard(run: $run, payload: $payload);
+			$this->db->commit();
+			$run->recordImported(sourceUuid: $uuid, persisted: $persisted);
+		} catch (Throwable $e) {
+			$this->db->rollBack();
+			$run->recordSkipped(error: $this->failedDashboardError(payload: $payload, exception: $e));
+		}
+	}//end importOneDashboard()
+
+	/**
+	 * Insert one dashboard and its widget placements.
+	 *
+	 * @param DashboardImportRun   $run     The batch.
+	 * @param array<string, mixed> $payload The decoded dashboard.
+	 *
+	 * @return Dashboard The inserted dashboard.
+	 */
+	private function persistDashboard(DashboardImportRun $run, array $payload): Dashboard {
+		$dashboard = $this->buildEntity(
+			payload: $payload,
+			currentUserId: $run->currentUserId,
+			preserveUuids: $run->preserveUuids
+		);
+
+		$persisted = $this->dashboardMapper->insert(entity: $dashboard);
+		$this->insertPlacements(persisted: $persisted, widgets: ($payload['widgets'] ?? []));
+
+		return $persisted;
+	}//end persistDashboard()
+
+	/**
+	 * Insert a placement for every widget entry that is an object; other
+	 * entries, and a widgets value that is not a list, are ignored.
+	 *
+	 * @param Dashboard $persisted The inserted dashboard.
+	 * @param mixed     $widgets   The dashboard's widgets value.
+	 *
+	 * @return void
+	 */
+	private function insertPlacements(Dashboard $persisted, mixed $widgets): void {
+		if (is_array($widgets) === false) {
+			return;
+		}
+
+		foreach ($widgets as $widgetPayload) {
+			if (is_array($widgetPayload) === false) {
 				continue;
 			}
 
-			$this->db->beginTransaction();
-			try {
-				$dashboard = $this->buildEntity(
-					payload: $payload,
-					currentUserId: $currentUserId,
-					preserveUuids: $preserveUuids
-				);
+			$placement = $this->placementHydrator->hydrate(
+				dashboardId: (int)$persisted->getId(),
+				payload: $widgetPayload,
+				asTemplate: $persisted->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
+			);
+			$this->placementMapper->insert(entity: $placement);
+		}
+	}//end insertPlacements()
 
-				$persisted = $this->dashboardMapper->insert(entity: $dashboard);
-
-				$widgets = $payload['widgets'] ?? [];
-				if (is_array($widgets) === true) {
-					foreach ($widgets as $widgetPayload) {
-						if (is_array($widgetPayload) === false) {
-							continue;
-						}
-
-						$placement = $this->placementHydrator->hydrate(
-							dashboardId: (int)$persisted->getId(),
-							payload: $widgetPayload,
-							asTemplate: $persisted->getType() === Dashboard::TYPE_ADMIN_TEMPLATE
-						);
-						$this->placementMapper->insert(entity: $placement);
-					}
-				}
-
-				$this->db->commit();
-				$imported++;
-				$created[] = [
-					'sourceUuid' => $uuid,
-					'uuid' => (string)$persisted->getUuid(),
-					'id' => (int)$persisted->getId(),
-				];
-			} catch (Throwable $e) {
-				$this->db->rollBack();
-				$skipped++;
-				$errors[] = [
-					'type' => self::ERR_INVALID_DASHBOARD,
-					'uuid' => $this->reportableUuid(payload: $payload),
-					'message' => 'Failed to import dashboard: ' . $e->getMessage(),
-				];
-				$this->logger->warning(
-					message: 'Skipped dashboard during import',
-					context: ['uuid' => $uuid, 'exception' => $e]
-				);
-			}//end try
-		}//end foreach
-
-		return [
-			'importedDashboardCount' => $imported,
-			'skippedDashboardCount' => $skipped,
-			'errors' => $errors,
-			'dashboards' => $created,
+	/**
+	 * The error entry of a dashboard whose insert failed; logs the skip.
+	 *
+	 * @param array<string, mixed> $payload   The decoded dashboard.
+	 * @param Throwable            $exception Why it failed.
+	 *
+	 * @return array<string, mixed> The error entry.
+	 */
+	private function failedDashboardError(array $payload, Throwable $exception): array {
+		$uuid = $this->reportableUuid(payload: $payload);
+		$error = [
+			'type' => self::ERR_INVALID_DASHBOARD,
+			'uuid' => $uuid,
+			'message' => 'Failed to import dashboard: ' . $exception->getMessage(),
 		];
-	}//end importDashboardBatch()
+		$this->logger->warning(
+			message: 'Skipped dashboard during import',
+			context: ['uuid' => $uuid, 'exception' => $exception]
+		);
+
+		return $error;
+	}//end failedDashboardError()
 
 	/**
 	 * Read decoded dashboards from the archive.
@@ -763,24 +880,4 @@ class ImportService {
 			$dashboard->setPublicationStatus((string)$payload['publicationStatus']);
 		}
 	}//end applyEntityPlacement()
-
-	/**
-	 * Generate a v4 UUID for re-mapped imports.
-	 *
-	 * @return string The UUID.
-	 */
-	private function generateUuidV4(): string {
-		$bytes = random_bytes(length: 16);
-		$bytes[6] = chr(codepoint: ord(character: $bytes[6]) & 0x0f | 0x40);
-		$bytes[8] = chr(codepoint: ord(character: $bytes[8]) & 0x3f | 0x80);
-		$hex = bin2hex(string: $bytes);
-		return sprintf(
-			'%s-%s-%s-%s-%s',
-			substr(string: $hex, offset: 0, length: 8),
-			substr(string: $hex, offset: 8, length: 4),
-			substr(string: $hex, offset: 12, length: 4),
-			substr(string: $hex, offset: 16, length: 4),
-			substr(string: $hex, offset: 20, length: 12),
-		);
-	}//end generateUuidV4()
 }//end class

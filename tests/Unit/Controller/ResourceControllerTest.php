@@ -443,4 +443,41 @@ class ResourceControllerTest extends TestCase {
 		$this->assertSame('storage_failure', $body['error']);
 		$this->assertStringNotContainsString('SECRET', $body['message']);
 	}
+	/**
+	 * Storage failures and unexpected failures are logged with the endpoint's own message.
+	 *
+	 * @return void
+	 */
+	public function testFailuresAreLoggedPerEndpoint(): void {
+		$this->userSession->method('getUser')->willReturn($this->adminUser());
+		$this->groupManager->method('isAdmin')->willReturn(true);
+		$this->parser->method('extractBase64')->willReturn('data:image/png;base64,xxx');
+		$logged = [];
+		$this->logger->method('error')->willReturnCallback(
+			function (string $message, array $context) use (&$logged): void {
+				$logged[] = [$message, $context];
+			}
+		);
+
+		$failure = null;
+		$this->service->method('upload')->willReturnCallback(function () use (&$failure) { throw $failure; });
+		$this->service->method('uploadRaw')->willReturnCallback(function () use (&$failure) { throw $failure; });
+
+		$statuses = [];
+		foreach ([new \OCA\LaunchPad\Exception\StorageFailureException(message: 'disk full'), new \OCA\LaunchPad\Exception\FileTooLargeException(), new \RuntimeException('boom')] as $failure) {
+			$statuses[] = $this->buildController('{"base64":"x"}')->upload()->getStatus();
+			$statuses[] = $this->buildMultipartController(['name' => 'a.png', 'bytes' => 'x'])->uploadMultipart()->getStatus();
+		}
+
+		$this->assertSame([500, 500, 400, 400, 500, 500], $statuses);
+		$this->assertSame(
+			[
+				['Resource upload storage failure', ['exception' => 'disk full']],
+				['Resource multipart upload storage failure', ['exception' => 'disk full']],
+				['Unexpected resource upload failure', ['exception' => 'boom']],
+				['Unexpected resource multipart upload failure', ['exception' => 'boom']],
+			],
+			$logged
+		);
+	}
 }//end class

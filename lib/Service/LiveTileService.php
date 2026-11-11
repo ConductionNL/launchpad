@@ -269,7 +269,7 @@ class LiveTileService {
 			$url = trim(string: (string)($config['url'] ?? ''));
 			if ($url === '') {
 				$errors[] = 'url_required';
-			} elseif ($this->hasValidScheme(url: $url) === false) {
+			} elseif (HostAllowList::hasHttpScheme(url: $url) === false) {
 				$errors[] = 'invalid_url';
 			} elseif ($this->isHostAllowed(url: $url) === false) {
 				// FAIL-CLOSED (REQ-LIVETILE-002 "rejected at save time").
@@ -424,7 +424,7 @@ class LiveTileService {
 			return null;
 		}
 
-		if ($this->hasValidScheme(url: $url) === false) {
+		if (HostAllowList::hasHttpScheme(url: $url) === false) {
 			return null;
 		}
 
@@ -439,17 +439,8 @@ class LiveTileService {
 
 		try {
 			$client = $this->sources->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'connect_timeout' => self::CONNECT_TIMEOUT,
-					'timeout' => self::REQUEST_TIMEOUT,
-					'http_errors' => false,
-					// No auto-redirect — a 3xx to an unexpected host would
-					// bypass the allow-list check above.
-					'allow_redirects' => false,
-				]
-			);
+			$response = (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
+				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
 			$this->settings->logger->info(
 				message: 'LiveTileService: direct-URL fetch failed',
@@ -669,18 +660,6 @@ class LiveTileService {
 	}//end badgeShape()
 
 	/**
-	 * Validate a URL's scheme is `http` or `https`.
-	 *
-	 * @param string $url The URL to check.
-	 *
-	 * @return boolean
-	 */
-	private function hasValidScheme(string $url): bool {
-		$scheme = strtolower(string: (string)parse_url(url: $url, component: PHP_URL_SCHEME));
-		return in_array(needle: $scheme, haystack: ['http', 'https'], strict: true);
-	}//end hasValidScheme()
-
-	/**
 	 * Check a URL's host against `livetile_allowed_hosts`. FAIL-CLOSED: an
 	 * empty, missing, or unparseable allow-list permits NO host — the
 	 * admin must explicitly opt hosts in.
@@ -690,31 +669,8 @@ class LiveTileService {
 	 * @return boolean True only when the host is explicitly allow-listed.
 	 */
 	private function isHostAllowed(string $url): bool {
-		$host = parse_url(url: $url, component: PHP_URL_HOST);
-		if (is_string(value: $host) === false || $host === '') {
-			return false;
-		}
-
-		$raw = $this->settings->appConfig->getValueString(
-			app: Application::APP_ID,
-			key: self::CONFIG_KEY_ALLOWED_HOSTS,
-			default: ''
-		);
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === false || $decoded === []) {
-			// FAIL-CLOSED — no configured list means no host is allowed.
-			return false;
-		}
-
-		$needle = strtolower(string: $host);
-		foreach ($decoded as $allowed) {
-			if (is_string(value: $allowed) === true && strtolower(string: $allowed) === $needle) {
-				return true;
-			}
-		}
-
-		return false;
+		$allowList = new HostAllowList(appConfig: $this->settings->appConfig, configKey: self::CONFIG_KEY_ALLOWED_HOSTS);
+		return $allowList->permits(url: $url);
 	}//end isHostAllowed()
 
 	/**

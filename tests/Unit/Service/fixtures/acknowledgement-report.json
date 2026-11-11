@@ -1,0 +1,38 @@
+{
+    "announcementKey": "ak-1",
+    "contentVersion": 1,
+    "deadline": null,
+    "overdue": false,
+    "acknowledgedCount": 2,
+    "pendingCount": 1,
+    "pending": [
+        "bob"
+    ],
+    "acknowledged": [
+        {
+            "userId": "alice",
+            "acknowledgedAt": "2026-07-07 09:00:00"
+        },
+        {
+            "userId": "carol",
+            "acknowledgedAt": "2026-07-07 09:00:00"
+        }
+    ],
+    "rows": [
+        {
+            "userId": "alice",
+            "status": "acknowledged",
+            "acknowledgedAt": "2026-07-07 09:00:00"
+        },
+        {
+            "userId": "bob",
+            "status": "pending",
+            "acknowledgedAt": null
+        },
+        {
+            "userId": "carol",
+            "status": "acknowledged",
+            "acknowledgedAt": "2026-07-07 09:00:00"
+        }
+    ]
+}

@@ -87,6 +87,47 @@ import { useTileStore } from '../stores/tiles.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { logger } from '../utils/logger.js'
 
+/** How many times a legacy widget mount is retried before giving up. */
+const LEGACY_MOUNT_ATTEMPTS = 20
+
+/**
+ * The first truthy value among an item's fields, or ''.
+ *
+ * @param {object} item The API item.
+ * @param {Array<string>} keys The field names, in order of preference.
+ * @return {string} the value.
+ */
+function firstOf(item, keys) {
+	for (const key of keys) {
+		if (item[key]) {
+			return item[key]
+		}
+	}
+	return ''
+}
+
+/**
+ * Map an API item onto the NcDashboardWidgetItem props, keeping every
+ * original field. The key is a compound of stable per-row data (sinceId +
+ * id + link/targetUrl/title); the index is only a last-resort fallback.
+ *
+ * @param {object} item The API item.
+ * @param {number} index Its position in the list.
+ * @return {object} the dashboard item.
+ */
+function toDashboardItem(item, index) {
+	return {
+		...item,
+		id: `${firstOf(item, ['sinceId'])}-${firstOf(item, ['id'])}-${firstOf(item, ['link', 'targetUrl', 'title']) || index}`,
+		targetUrl: firstOf(item, ['link', 'targetUrl']),
+		avatarUrl: firstOf(item, ['iconUrl', 'avatarUrl']),
+		avatarUsername: firstOf(item, ['avatarUsername']),
+		overlayIconUrl: firstOf(item, ['overlayIconUrl']),
+		mainText: firstOf(item, ['title', 'mainText']),
+		subText: firstOf(item, ['subtitle', 'subText']),
+	}
+}
+
 export default {
 	name: 'WidgetRenderer',
 
@@ -273,16 +314,7 @@ export default {
 			// reorder of the upstream items moves DOM nodes instead of tearing
 			// them down. `index` is only a last-resort fallback when a row
 			// carries no stable identifying field at all.
-			return items.map((item, index) => ({
-				...item,
-				id: `${item.sinceId || ''}-${item.id || ''}-${item.link || item.targetUrl || item.title || index}`,
-				targetUrl: item.link || item.targetUrl || '',
-				avatarUrl: item.iconUrl || item.avatarUrl || '',
-				avatarUsername: item.avatarUsername || '',
-				overlayIconUrl: item.overlayIconUrl || '',
-				mainText: item.title || item.mainText || '',
-				subText: item.subtitle || item.subText || '',
-			}))
+			return items.map(toDashboardItem)
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -395,23 +427,10 @@ export default {
 
 		/** @spec openspec/specs/widgets/spec.md */
 		async initWidget() {
-			logger.debug('[WidgetRenderer] initWidget called:', {
-				widgetId: this.widget?.id,
-				isTileWidget: this.isTileWidget,
-				isApiWidget: this.isApiWidget,
-				isApiWidgetV1: this.isApiWidgetV1,
-				isApiWidgetV2: this.isApiWidgetV2,
-				itemApiVersions: this.widget?.itemApiVersions,
-				fullWidget: this.widget,
-			})
+			this.logInitWidget()
 
-			if (!this.widget && !this.isTileWidget) {
-				this.loading = false
-				return
-			}
-
-			// Tiles don't need initialization.
-			if (this.isTileWidget) {
+			if (!this.widget || this.isTileWidget) {
+				// Nothing to load, and tiles don't need initialization.
 				this.loading = false
 				return
 			}
@@ -422,46 +441,65 @@ export default {
 				this.widget,
 			)
 
-			// Only show loading for API widgets
-			// Legacy widgets render themselves, so we don't need a loading state
-			const isLegacy = !this.isApiWidget
-			if (!isLegacy) {
-				this.loading = true
+			if (this.isApiWidget) {
+				await this.initApiWidget()
+			} else {
+				await this.initLegacyWidget()
 			}
+		},
 
+		/** Log the widget kind flags `initWidget` decides on. */
+		logInitWidget() {
+			logger.debug('[WidgetRenderer] initWidget called:', {
+				widgetId: this.widget?.id,
+				isTileWidget: this.isTileWidget,
+				isApiWidget: this.isApiWidget,
+				isApiWidgetV1: this.isApiWidgetV1,
+				isApiWidgetV2: this.isApiWidgetV2,
+				itemApiVersions: this.widget?.itemApiVersions,
+				fullWidget: this.widget,
+			})
+		},
+
+		/**
+		 * Load an API widget's items (v1 and v2) behind a loading state and
+		 * arm its auto-refresh when it has a reload interval.
+		 */
+		async initApiWidget() {
+			// Only API widgets show loading; legacy widgets render themselves.
+			this.loading = true
 			try {
-				if (this.isApiWidget) {
-					logger.debug('[WidgetRenderer] Detected as API widget')
-					// Load widget items from API (supports both v1 and v2).
-					await this.loadWidgetItems([this.widget.id])
-					// Explicitly sync local data from store after loading.
-					this.updateLocalWidgetItems()
+				logger.debug('[WidgetRenderer] Detected as API widget')
+				await this.loadWidgetItems([this.widget.id])
+				// Explicitly sync local data from store after loading.
+				this.updateLocalWidgetItems()
 
-					// Set up auto-refresh if widget supports it.
-					if (
-						this.widget.reloadInterval
-						&& this.widget.reloadInterval > 0
-					) {
-						this.setupAutoRefresh(this.widget.reloadInterval)
-					}
-				} else {
-					logger.debug(
-						'[WidgetRenderer] Legacy widget detected:',
-						this.widget.id,
-					)
-					// Legacy widget - mount via callback.
-					// Wait for DOM to be ready
-					await this.$nextTick()
-					// Give it a bit more time for the ref to be available
-					await new Promise((resolve) => setTimeout(resolve, 50))
-					this.mountLegacyWidget()
+				if (
+					this.widget.reloadInterval
+					&& this.widget.reloadInterval > 0
+				) {
+					this.setupAutoRefresh(this.widget.reloadInterval)
 				}
 			} catch (error) {
 				logger.error('Failed to initialize widget:', error)
 			} finally {
-				if (!isLegacy) {
-					this.loading = false
-				}
+				this.loading = false
+			}
+		},
+
+		/** Mount a legacy widget via its callback once the DOM is ready. */
+		async initLegacyWidget() {
+			try {
+				logger.debug(
+					'[WidgetRenderer] Legacy widget detected:',
+					this.widget.id,
+				)
+				// Wait for DOM to be ready, then a bit more for the ref.
+				await this.$nextTick()
+				await new Promise((resolve) => setTimeout(resolve, 50))
+				this.mountLegacyWidget()
+			} catch (error) {
+				logger.error('Failed to initialize widget:', error)
 			}
 		},
 
@@ -481,53 +519,75 @@ export default {
 
 			// Widget scripts are loaded with defer, so we need to wait for them
 			// to register their callbacks. Try multiple times with increasing delays.
-			const tryMount = (attempt = 0, maxAttempts = 20) => {
-				logger.debug(
-					`[WidgetRenderer] Mount attempt ${attempt + 1}/${maxAttempts} for:`,
-					this.widget.id,
-				)
-
-				// Check if callback is registered
-				if (widgetBridge.hasWidgetCallback(this.widget.id)) {
-					logger.debug(
-						'[WidgetRenderer] Callback found! Mounting:',
-						this.widget.id,
-					)
-					// Pass widget data to the bridge so callbacks can access it
-					widgetBridge.mountWidget(
-						this.widget.id,
-						this.$refs.legacyWidgetContainer,
-						this.widget,
-					)
-					logger.debug(
-						'[WidgetRenderer] After mountWidget, container innerHTML length:',
-						this.$refs.legacyWidgetContainer?.innerHTML.length,
-					)
-				} else if (attempt < maxAttempts) {
-					// Try again after a short delay
-					const delay = Math.min(100 * (attempt + 1), 1000) // Exponential backoff up to 1s
-					logger.debug(
-						`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`,
-					)
-					setTimeout(() => tryMount(attempt + 1, maxAttempts), delay)
-				} else {
-					logger.error(
-						'[WidgetRenderer] Failed to mount widget after',
-						maxAttempts,
-						'attempts:',
-						this.widget.id,
-					)
-					logger.debug(
-						'[WidgetRenderer] Available callbacks:',
-						widgetBridge.getRegisteredWidgetIds(),
-					)
-				}
-			}
-
-			// Start trying immediately
 			this.$nextTick(() => {
-				tryMount()
+				this.tryMountLegacyWidget()
 			})
+		},
+
+		/**
+		 * Mount the legacy widget when its callback is registered, else retry
+		 * with a growing delay until the attempts run out.
+		 *
+		 * @param {number} [attempt] Zero-based attempt number.
+		 */
+		tryMountLegacyWidget(attempt = 0) {
+			logger.debug(
+				`[WidgetRenderer] Mount attempt ${attempt + 1}/${LEGACY_MOUNT_ATTEMPTS} for:`,
+				this.widget.id,
+			)
+
+			if (widgetBridge.hasWidgetCallback(this.widget.id)) {
+				this.mountViaBridge()
+			} else if (attempt < LEGACY_MOUNT_ATTEMPTS) {
+				this.retryLegacyMount(attempt)
+			} else {
+				this.reportLegacyMountFailure()
+			}
+		},
+
+		/** Hand the container and widget data to the registered callback. */
+		mountViaBridge() {
+			logger.debug(
+				'[WidgetRenderer] Callback found! Mounting:',
+				this.widget.id,
+			)
+			// Pass widget data to the bridge so callbacks can access it
+			widgetBridge.mountWidget(
+				this.widget.id,
+				this.$refs.legacyWidgetContainer,
+				this.widget,
+			)
+			logger.debug(
+				'[WidgetRenderer] After mountWidget, container innerHTML length:',
+				this.$refs.legacyWidgetContainer?.innerHTML.length,
+			)
+		},
+
+		/**
+		 * Schedule the next mount attempt.
+		 *
+		 * @param {number} attempt Zero-based number of the attempt that failed.
+		 */
+		retryLegacyMount(attempt) {
+			const delay = Math.min(100 * (attempt + 1), 1000) // Exponential backoff up to 1s
+			logger.debug(
+				`[WidgetRenderer] Callback not found yet, retrying in ${delay}ms...`,
+			)
+			setTimeout(() => this.tryMountLegacyWidget(attempt + 1), delay)
+		},
+
+		/** Log that the legacy widget never registered its callback. */
+		reportLegacyMountFailure() {
+			logger.error(
+				'[WidgetRenderer] Failed to mount widget after',
+				LEGACY_MOUNT_ATTEMPTS,
+				'attempts:',
+				this.widget.id,
+			)
+			logger.debug(
+				'[WidgetRenderer] Available callbacks:',
+				widgetBridge.getRegisteredWidgetIds(),
+			)
 		},
 
 		/**

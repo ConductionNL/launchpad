@@ -219,12 +219,12 @@ final class FeedItemParser {
 	private function normaliseRssItem(SimpleXMLElement $item, FeedSource $source): array {
 		return self::itemRecord(
 			fields: [
-				'id' => trim(string: (string)($item->guid ?? '')),
+				'guid' => trim(string: (string)($item->guid ?? '')),
 				'title' => trim(string: (string)($item->title ?? '')),
 				'summary' => trim(string: (string)($item->description ?? '')),
 				'link' => trim(string: (string)($item->link ?? '')),
 				'pubDate' => trim(string: (string)($item->pubDate ?? '')),
-				'thumbnailUrl' => self::rssThumbnail(item: $item),
+				'thumbnailUrl' => self::imageEnclosureUrl(item: $item),
 			],
 			source: $source
 		);
@@ -237,7 +237,7 @@ final class FeedItemParser {
 	 *
 	 * @return string|null
 	 */
-	private static function rssThumbnail(SimpleXMLElement $item): ?string {
+	private static function imageEnclosureUrl(SimpleXMLElement $item): ?string {
 		if (isset($item->enclosure) === false) {
 			return null;
 		}
@@ -252,7 +252,7 @@ final class FeedItemParser {
 		}
 
 		return null;
-	}//end rssThumbnail()
+	}//end imageEnclosureUrl()
 
 	/**
 	 * Normalise a single Atom 1.0 entry to the news-widget schema.
@@ -265,7 +265,7 @@ final class FeedItemParser {
 	private function normaliseAtomEntry(SimpleXMLElement $entry, FeedSource $source): array {
 		return self::itemRecord(
 			fields: [
-				'id' => trim(string: (string)($entry->id ?? '')),
+				'guid' => trim(string: (string)($entry->id ?? '')),
 				'title' => trim(string: (string)($entry->title ?? '')),
 				'summary' => self::firstNonBlank(node: $entry, names: ['summary', 'content']),
 				'link' => self::atomAlternateLink(entry: $entry),
@@ -330,27 +330,17 @@ final class FeedItemParser {
 	 * the entry id, or `sha256(title . pubDate . feedUrl)` when it has
 	 * none, plus the feed source.
 	 *
-	 * @param array<string, string|null> $fields Fields read from the entry: id, title, summary, link, pubDate
+	 * @param array<string, string|null> $fields Fields read from the entry: guid (the entry id), title, summary, link, pubDate
 	 *                                           (strings) and thumbnailUrl (string or null).
 	 * @param FeedSource $source The feed URL and title.
 	 *
 	 * @return array<string, mixed>
 	 */
 	private static function itemRecord(array $fields, FeedSource $source): array {
-		$guid = $fields['id'];
-		if ($guid === '') {
-			$guid = hash(algo: 'sha256', data: ($fields['title'] . $fields['pubDate'] . $source->url));
+		if ($fields['guid'] === '') {
+			$fields['guid'] = hash(algo: 'sha256', data: ($fields['title'] . $fields['pubDate'] . $source->url));
 		}
 
-		return [
-			'guid' => $guid,
-			'title' => $fields['title'],
-			'summary' => $fields['summary'],
-			'link' => $fields['link'],
-			'pubDate' => $fields['pubDate'],
-			'sourceUrl' => $source->url,
-			'sourceTitle' => $source->title,
-			'thumbnailUrl' => $fields['thumbnailUrl'],
-		];
+		return $source->item(fields: $fields);
 	}//end itemRecord()
 }//end class

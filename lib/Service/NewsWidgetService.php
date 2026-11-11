@@ -1315,16 +1315,10 @@ class NewsWidgetService {
 	 * @return array<string, mixed> Canonical item.
 	 */
 	private function canonicalItem(array $fields, FeedSource $source): array {
-		return [
-			'guid' => self::guidOf(fields: $fields, source: $source),
-			'title' => $fields['title'],
-			'summary' => $this->sanitiseSummaryHtml(html: $fields['summary']),
-			'link' => $fields['link'],
-			'pubDate' => $fields['pubDate'],
-			'sourceUrl' => $source->url,
-			'sourceTitle' => $source->title,
-			'thumbnailUrl' => $fields['thumbnailUrl'],
-		];
+		$fields['guid'] = self::guidOf(fields: $fields, source: $source);
+		$fields['summary'] = $this->sanitiseSummaryHtml(html: $fields['summary']);
+
+		return $source->item(fields: $fields);
 	}//end canonicalItem()
 
 	/**

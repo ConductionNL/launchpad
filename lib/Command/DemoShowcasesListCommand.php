@@ -91,23 +91,32 @@ class DemoShowcasesListCommand extends Command {
 		$table->setHeaders(headers: ['ID', 'Name', 'Language', 'Status', 'Dashboard UUID']);
 
 		foreach ($showcases as $showcase) {
-			$status = 'Not installed';
-			if ($showcase['isInstalled'] === true) {
-				$status = 'Installed';
-			}
-
-			$table->addRow(
-				row: [
-					$showcase['id'],
-					$showcase['name'],
-					$showcase['language'],
-					$status,
-					(string)($showcase['installedDashboardUuid'] ?? '-'),
-				]
-			);
+			$table->addRow(row: self::tableRow(showcase: $showcase));
 		}
 
 		$table->render();
 		return self::SUCCESS;
 	}//end execute()
+
+	/**
+	 * One table row: id, name, language, install status and dashboard UUID.
+	 *
+	 * @param array<string, mixed> $showcase The showcase.
+	 *
+	 * @return list<string> The cells.
+	 */
+	private static function tableRow(array $showcase): array {
+		$status = 'Not installed';
+		if ($showcase['isInstalled'] === true) {
+			$status = 'Installed';
+		}
+
+		return [
+			$showcase['id'],
+			$showcase['name'],
+			$showcase['language'],
+			$status,
+			(string)($showcase['installedDashboardUuid'] ?? '-'),
+		];
+	}//end tableRow()
 }//end class

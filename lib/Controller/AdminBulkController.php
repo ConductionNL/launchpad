@@ -85,40 +85,23 @@ class AdminBulkController extends Controller {
 		?bool $dryRun = null,
 		?bool $cascade = null,
 	): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$uuids = $this->extractUuids(value: $dashboardUuids);
-		if ($uuids === null) {
-			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+		$uuids = $this->authorisedUuids(dashboardUuids: $dashboardUuids);
+		if ($uuids instanceof JSONResponse) {
+			return $uuids;
 		}
 
 		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 		$doCascade = $this->resolveBool(value: $cascade, queryKey: 'cascade');
 
-		try {
-			$result = $this->bulkService->bulkDelete(
+		return $this->runBulk(
+			operation: fn (): array => $this->bulkService->bulkDelete(
 				dashboardUuids: $uuids,
 				userId: $userId,
 				dryRun: $isDryRun,
 				cascade: $doCascade
-			);
-		} catch (PermissionDeniedException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'deniedUuids' => $e->getDeniedUuids(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (InvalidArgumentException $e) {
-			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
-		}//end try
-
-		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+			)
+		);
 	}//end bulkDelete()
 
 	/**
@@ -139,39 +122,22 @@ class AdminBulkController extends Controller {
 		?string $parentUuid = null,
 		?bool $dryRun = null,
 	): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$uuids = $this->extractUuids(value: $dashboardUuids);
-		if ($uuids === null) {
-			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+		$uuids = $this->authorisedUuids(dashboardUuids: $dashboardUuids);
+		if ($uuids instanceof JSONResponse) {
+			return $uuids;
 		}
 
 		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
-		try {
-			$result = $this->bulkService->bulkMove(
+		return $this->runBulk(
+			operation: fn (): array => $this->bulkService->bulkMove(
 				dashboardUuids: $uuids,
 				parentUuid: $parentUuid,
 				userId: $userId,
 				dryRun: $isDryRun
-			);
-		} catch (PermissionDeniedException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'deniedUuids' => $e->getDeniedUuids(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (InvalidArgumentException $e) {
-			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
-		}//end try
-
-		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+			)
+		);
 	}//end bulkMove()
 
 	/**
@@ -193,14 +159,9 @@ class AdminBulkController extends Controller {
 		?string $publishAt = null,
 		?bool $dryRun = null,
 	): JSONResponse {
-		$guard = $this->guard->refusal();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$uuids = $this->extractUuids(value: $dashboardUuids);
-		if ($uuids === null) {
-			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
+		$uuids = $this->authorisedUuids(dashboardUuids: $dashboardUuids);
+		if ($uuids instanceof JSONResponse) {
+			return $uuids;
 		}
 
 		if ($publicationStatus === null || trim($publicationStatus) === '') {
@@ -210,8 +171,8 @@ class AdminBulkController extends Controller {
 		$userId = (string)$this->guard->userSession->getUser()?->getUID();
 		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
 
-		try {
-			$result = $this->bulkService->bulkStatus(
+		return $this->runBulk(
+			operation: fn (): array => $this->bulkService->bulkStatus(
 				dashboardUuids: $uuids,
 				request: new BulkStatusRequest(
 					publicationStatus: $publicationStatus,
@@ -219,20 +180,8 @@ class AdminBulkController extends Controller {
 					dryRun: $isDryRun
 				),
 				userId: $userId
-			);
-		} catch (PermissionDeniedException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'deniedUuids' => $e->getDeniedUuids(),
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (InvalidArgumentException $e) {
-			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
-		}//end try
-
-		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
+			)
+		);
 	}//end bulkStatus()
 
 	/**
@@ -250,6 +199,31 @@ class AdminBulkController extends Controller {
 		mixed $dashboardUuids = null,
 		?bool $dryRun = null,
 	): JSONResponse {
+		$uuids = $this->authorisedUuids(dashboardUuids: $dashboardUuids);
+		if ($uuids instanceof JSONResponse) {
+			return $uuids;
+		}
+
+		$userId = (string)$this->guard->userSession->getUser()?->getUID();
+		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
+
+		return $this->runBulk(
+			operation: fn (): array => $this->bulkService->bulkReindex(
+				dashboardUuids: $uuids,
+				userId: $userId,
+				dryRun: $isDryRun
+			)
+		);
+	}//end bulkReindex()
+
+	/**
+	 * The validated UUID list of an administrator's request, else the 403 or 400 refusal.
+	 *
+	 * @param mixed $dashboardUuids The raw `dashboardUuids` body field.
+	 *
+	 * @return string[]|JSONResponse The UUIDs, or the refusal.
+	 */
+	private function authorisedUuids(mixed $dashboardUuids): array|JSONResponse {
 		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
@@ -260,15 +234,19 @@ class AdminBulkController extends Controller {
 			return $this->failure(message: 'dashboardUuids must be an array of strings', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->guard->userSession->getUser()?->getUID();
-		$isDryRun = $this->resolveBool(value: $dryRun, queryKey: 'dryRun');
+		return $uuids;
+	}//end authorisedUuids()
 
+	/**
+	 * Run a bulk operation: its envelope as HTTP 200, a denied dashboard as 403, a refused request as 400.
+	 *
+	 * @param \Closure $operation Runs the bulk service call and returns its envelope.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private function runBulk(\Closure $operation): JSONResponse {
 		try {
-			$result = $this->bulkService->bulkReindex(
-				dashboardUuids: $uuids,
-				userId: $userId,
-				dryRun: $isDryRun
-			);
+			$result = $operation();
 		} catch (PermissionDeniedException $e) {
 			return new JSONResponse(
 				data: [
@@ -279,10 +257,10 @@ class AdminBulkController extends Controller {
 			);
 		} catch (InvalidArgumentException $e) {
 			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
-		}
+		}//end try
 
 		return new JSONResponse(data: $result, statusCode: Http::STATUS_OK);
-	}//end bulkReindex()
+	}//end runBulk()
 
 	/**
 	 * Validate and unwrap a `dashboardUuids` body field into a string
@@ -300,12 +278,8 @@ class AdminBulkController extends Controller {
 
 		$uuids = [];
 		foreach ($value as $item) {
-			if (is_string($item) === false) {
-				return null;
-			}
-
-			$trimmed = trim($item);
-			if ($trimmed === '') {
+			$trimmed = $this->trimmedUuid(item: $item);
+			if ($trimmed === null) {
 				return null;
 			}
 
@@ -314,6 +288,26 @@ class AdminBulkController extends Controller {
 
 		return $uuids;
 	}//end extractUuids()
+
+	/**
+	 * One list item as a trimmed UUID; null when it is not a non-blank string.
+	 *
+	 * @param mixed $item The raw list item.
+	 *
+	 * @return string|null The trimmed UUID.
+	 */
+	private function trimmedUuid(mixed $item): string|null {
+		if (is_string($item) === false) {
+			return null;
+		}
+
+		$trimmed = trim($item);
+		if ($trimmed === '') {
+			return null;
+		}
+
+		return $trimmed;
+	}//end trimmedUuid()
 
 	/**
 	 * Resolve a boolean parameter that may arrive either in the body

@@ -204,6 +204,17 @@ class PublicShareMapper extends QBMapper {
 
 		$this->cache->set(key: $cacheKey, value: 1, ttl: 60);
 
+		$this->countView(id: $id);
+	}//end incrementViewCount()
+
+	/**
+	 * Add one to the view count of a share and stamp `last_viewed_at`.
+	 *
+	 * @param int $id The share id.
+	 *
+	 * @return void
+	 */
+	private function countView(int $id): void {
 		$now = $this->now();
 
 		$qb = $this->db->getQueryBuilder();
@@ -229,7 +240,7 @@ class PublicShareMapper extends QBMapper {
 			);
 
 		$qb->executeStatement();
-	}//end incrementViewCount()
+	}//end countView()
 
 	/**
 	 * Update lastViewedAt without incrementing the counter.

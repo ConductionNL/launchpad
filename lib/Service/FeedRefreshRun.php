@@ -64,32 +64,18 @@ final class FeedRefreshRun {
 	public readonly string $now;
 
 	/**
-	 * Note the start time, load or create the cache row, then take the
-	 * fetch timestamp — in that order.
+	 * Start a refresh: note the start time, load or create the cache row,
+	 * then take the fetch timestamp — in that order.
 	 *
 	 * @param FeedCacheMapper $mapper  The feed-cache mapper.
 	 * @param string          $feedUrl The feed URL.
 	 */
-	private function __construct(FeedCacheMapper $mapper, string $feedUrl) {
+	public function __construct(FeedCacheMapper $mapper, string $feedUrl) {
 		$this->feedUrl = $feedUrl;
 		$this->startedAt = self::nowMs();
 		$this->row = $mapper->upsertUrl(feedUrl: $feedUrl);
 		$this->now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 	}//end __construct()
-
-	/**
-	 * Start a refresh of one feed URL.
-	 *
-	 * @param FeedCacheMapper $mapper  The feed-cache mapper.
-	 * @param string          $feedUrl The feed URL.
-	 *
-	 * @return self
-	 *
-	 * @spec openspec/specs/background-job-feed-refresh/spec.md
-	 */
-	public static function start(FeedCacheMapper $mapper, string $feedUrl): self {
-		return new self(mapper: $mapper, feedUrl: $feedUrl);
-	}//end start()
 
 	/**
 	 * The result envelope of this refresh.

@@ -27,14 +27,11 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\FeedCache;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
-use SimpleXMLElement;
 use Throwable;
 
 /**
@@ -212,7 +209,7 @@ class FeedRefreshService {
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
 	public function refreshFeed(string $feedUrl): array {
-		$run = FeedRefreshRun::start(mapper: $this->sources->cacheMapper, feedUrl: $feedUrl);
+		$run = new FeedRefreshRun(mapper: $this->sources->cacheMapper, feedUrl: $feedUrl);
 
 		return $this->rejectBeforeFetch(run: $run) ?? $this->fetchAndStore(run: $run);
 	}//end refreshFeed()
@@ -226,7 +223,10 @@ class FeedRefreshService {
 	 */
 	private function fetchAndStore(FeedRefreshRun $run): array {
 		try {
-			$response = $this->doConditionalGet(row: $run->row, feedUrl: $run->feedUrl);
+			$response = (new ConditionalFeedRequest(sources: $this->sources, appConfig: $this->appConfig))->send(
+				row: $run->row,
+				feedUrl: $run->feedUrl
+			);
 		} catch (Throwable $exception) {
 			$run->stampFetched();
 			return $this->recordFailure(
@@ -245,13 +245,13 @@ class FeedRefreshService {
 	 * the parse failure.
 	 *
 	 * @param FeedRefreshRun $run The refresh in progress.
-	 * @param array $response Envelope from `doConditionalGet()`.
+	 * @param array $response Envelope from `ConditionalFeedRequest::send()`.
 	 *
 	 * @return array{status: string, itemCount: int, durationMs: int}
 	 */
 	private function storeItems(FeedRefreshRun $run, array $response): array {
 		try {
-			$items = $this->parseFeedBody(
+			$items = (new FeedItemParser())->parse(
 				body: $response['body'],
 				feedUrl: $run->feedUrl
 			);
@@ -273,7 +273,7 @@ class FeedRefreshService {
 	 * the response's validators; then persist it.
 	 *
 	 * @param FeedRefreshRun $run The refresh in progress.
-	 * @param array $response Envelope from `doConditionalGet()`.
+	 * @param array $response Envelope from `ConditionalFeedRequest::send()`.
 	 *
 	 * @return void
 	 */
@@ -405,7 +405,7 @@ class FeedRefreshService {
 	 * Assumes the caller has already stamped `lastFetchedAt` on the row.
 	 *
 	 * @param FeedRefreshRun $run The refresh in progress.
-	 * @param array $response Envelope from `doConditionalGet()` with
+	 * @param array $response Envelope from `ConditionalFeedRequest::send()` with
 	 *                        keys `status`, `reason` and `body`.
 	 *
 	 * @return array{status: string, itemCount: int, durationMs: int}|null
@@ -433,7 +433,7 @@ class FeedRefreshService {
 	 * Why a non-304 response cannot be parsed: a non-2xx status, or a body
 	 * over the size cap (REQ-FRJ-005 design D3); null when it can.
 	 *
-	 * @param array $response Envelope from `doConditionalGet()`.
+	 * @param array $response Envelope from `ConditionalFeedRequest::send()`.
 	 *
 	 * @return string|null
 	 */
@@ -658,440 +658,6 @@ class FeedRefreshService {
 	}//end persistCursor()
 
 	/**
-	 * Perform the conditional HTTP GET. Returns a normalised response
-	 * dict with keys: status, reason, body, etag, lastModified.
-	 *
-	 * @param FeedCache $row The cache row (for ETag/Last-Modified).
-	 * @param string $feedUrl The feed URL.
-	 *
-	 * @return array{status: int, reason: string, body: string, etag: ?string, lastModified: ?string}
-	 */
-	private function doConditionalGet(
-		FeedCache $row,
-		string $feedUrl,
-	): array {
-		$client = $this->sources->clientService->newClient();
-		$options = $this->requestOptions(headers: $this->conditionalHeaders(row: $row));
-
-		$response = $client->get(uri: $feedUrl, options: $options);
-
-		$headersOut = $response->getHeaders();
-
-		return [
-			'status' => (int)$response->getStatusCode(),
-			'reason' => $this->extractReason(response: $response),
-			'body' => (string)$response->getBody(),
-			'etag' => $this->firstHeader(headers: $headersOut, name: 'ETag'),
-			'lastModified' => $this->firstHeader(headers: $headersOut, name: 'Last-Modified'),
-		];
-	}//end doConditionalGet()
-
-	/**
-	 * Request headers: user agent, accepted feed types and the row's cached
-	 * validators (ETag, Last-Modified) when present.
-	 *
-	 * @param FeedCache $row The cache row.
-	 *
-	 * @return array<string, string>
-	 */
-	private function conditionalHeaders(FeedCache $row): array {
-		$headers = [
-			'User-Agent' => $this->buildUserAgent(),
-			'Accept' => 'application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.5',
-		];
-
-		if ($row->getEtag() !== null && $row->getEtag() !== '') {
-			$headers['If-None-Match'] = (string)$row->getEtag();
-		}
-
-		if ($row->getLastModified() !== null && $row->getLastModified() !== '') {
-			$headers['If-Modified-Since'] = (string)$row->getLastModified();
-		}
-
-		return $headers;
-	}//end conditionalHeaders()
-
-	/**
-	 * Client options of the conditional GET, with the system proxy applied.
-	 *
-	 * @param array<string, string> $headers Request headers.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function requestOptions(array $headers): array {
-		$options = [
-			'connect_timeout' => self::CONNECT_TIMEOUT,
-			'timeout' => self::REQUEST_TIMEOUT,
-			'headers' => $headers,
-			// 304 must NOT be treated as an HTTP exception by Guzzle.
-			'http_errors' => false,
-			// C5: disable automatic redirect following to prevent SSRF via
-			// open-redirect. Feed URLs are validated by urlValidator before
-			// the first request; a 302 to an internal host (e.g. cloud
-			// metadata endpoint) would bypass that guard. Mirror the explicit
-			// pattern in NewsWidgetService and CalendarWidgetService.
-			'allow_redirects' => false,
-		];
-
-		$proxy = (string)$this->sources->config->getSystemValue('proxy', '');
-		if ($proxy !== '') {
-			$options['proxy'] = $proxy;
-			$proxyAuth = (string)$this->sources->config->getSystemValue('proxyuserpwd', '');
-			if ($proxyAuth !== '') {
-				$options['headers']['Proxy-Authorization'] = 'Basic ' . base64_encode(string: $proxyAuth);
-			}
-		}
-
-		return $options;
-	}//end requestOptions()
-
-	/**
-	 * Parse an RSS 2.0 / Atom 1.0 feed body and return normalised items
-	 * sorted newest-first (REQ-FRJ-005).
-	 *
-	 * @param string $body The XML body.
-	 * @param string $feedUrl The feed URL (for sourceUrl/sourceTitle).
-	 *
-	 * @return array<int, array<string, mixed>> The normalised items.
-	 *
-	 * @throws RuntimeException When parsing fails.
-	 */
-	private function parseFeedBody(string $body, string $feedUrl): array {
-		$xml = $this->loadFeedXml(body: $body);
-		$source = new FeedSource(url: $feedUrl, title: $this->extractFeedTitle(xml: $xml, feedUrl: $feedUrl));
-		$items = $this->extractItems(xml: $xml, source: $source);
-
-		// Sort newest-first by pubDate.
-		usort(
-			array: $items,
-			callback: static fn (array $left, array $right): int => self::compareByPubDate(
-				left: $left,
-				right: $right
-			)
-		);
-
-		return $items;
-	}//end parseFeedBody()
-
-	/**
-	 * Parse the raw XML body, converting libxml's error channel into an
-	 * exception.
-	 *
-	 * C2: LIBXML_NOENT is deliberately NOT passed — it resolves (not
-	 * disables) entities, enabling XXE; LIBXML_NONET blocks external
-	 * DTD/entity fetches. L1: LIBXML_NOCDATA is deliberately NOT passed —
-	 * it folds CDATA into text nodes, masking downstream sanitisation.
-	 *
-	 * @param string $body The raw XML body.
-	 *
-	 * @return SimpleXMLElement The parsed document.
-	 *
-	 * @throws RuntimeException When the body is not well-formed XML; the
-	 *                          message carries the first libxml error.
-	 */
-	private function loadFeedXml(string $body): SimpleXMLElement {
-		$previous = libxml_use_internal_errors(use_errors: true);
-		try {
-			$xml = simplexml_load_string(
-				data: $body,
-				class_name: 'SimpleXMLElement',
-				options: LIBXML_NONET
-			);
-			if ($xml === false) {
-				$errors = libxml_get_errors();
-				libxml_clear_errors();
-				$message = 'malformed XML';
-				if (isset($errors[0]) === true) {
-					$message = trim(string: $errors[0]->message);
-				}
-
-				throw new RuntimeException(message: $message);
-			}
-		} finally {
-			libxml_clear_errors();
-			libxml_use_internal_errors(use_errors: $previous);
-		}//end try
-
-		return $xml;
-	}//end loadFeedXml()
-
-	/**
-	 * Collect the normalised entries from an RSS 2.0 or Atom 1.0 document.
-	 *
-	 * RSS is probed first; a document carrying neither shape yields an
-	 * empty list, so an empty feed is not a parse failure.
-	 *
-	 * @param SimpleXMLElement $xml The parsed feed document.
-	 * @param FeedSource $source The feed URL and resolved channel/feed title.
-	 *
-	 * @return array<int, array<string, mixed>> Normalised items, unsorted.
-	 */
-	private function extractItems(SimpleXMLElement $xml, FeedSource $source): array {
-		$items = [];
-
-		// RSS 2.0 — <channel><item>...
-		if (isset($xml->channel) === true && isset($xml->channel->item) === true) {
-			foreach ($xml->channel->item as $item) {
-				$items[] = $this->normaliseRssItem(item: $item, source: $source);
-			}
-		} elseif (isset($xml->entry) === true) {
-			// Atom 1.0 — <feed><entry>...
-			foreach ($xml->entry as $entry) {
-				$items[] = $this->normaliseAtomEntry(entry: $entry, source: $source);
-			}
-		}
-
-		return $items;
-	}//end extractItems()
-
-	/**
-	 * Newest-first comparator over the normalised `pubDate` field.
-	 *
-	 * A missing or unparseable date sorts as epoch 0, i.e. last.
-	 *
-	 * @param array $left Left-hand normalised item.
-	 * @param array $right Right-hand normalised item.
-	 *
-	 * @return int Negative, zero or positive per the usort contract.
-	 */
-	private static function compareByPubDate(array $left, array $right): int {
-		$leftRaw = strtotime(datetime: (string)($left['pubDate'] ?? ''));
-		$rightRaw = strtotime(datetime: (string)($right['pubDate'] ?? ''));
-		$leftTs = 0;
-		if ($leftRaw !== false) {
-			$leftTs = $leftRaw;
-		}
-
-		$rightTs = 0;
-		if ($rightRaw !== false) {
-			$rightTs = $rightRaw;
-		}
-
-		return ($rightTs <=> $leftTs);
-	}//end compareByPubDate()
-
-	/**
-	 * Extract the channel-level title (RSS) or feed-level title (Atom),
-	 * falling back to the URL hostname.
-	 *
-	 * @param SimpleXMLElement $xml The parsed feed.
-	 * @param string $feedUrl The feed URL.
-	 *
-	 * @return string The source title.
-	 */
-	private function extractFeedTitle(
-		SimpleXMLElement $xml,
-		string $feedUrl,
-	): string {
-		$title = self::declaredTitle(xml: $xml);
-		if ($title !== '') {
-			return $title;
-		}
-
-		$host = (string)parse_url(url: $feedUrl, component: PHP_URL_HOST);
-		if ($host !== '') {
-			return $host;
-		}
-
-		return $feedUrl;
-	}//end extractFeedTitle()
-
-	/**
-	 * The trimmed channel title (RSS), else the trimmed feed title (Atom),
-	 * or '' when neither is present and non-blank.
-	 *
-	 * @param SimpleXMLElement $xml The parsed feed.
-	 *
-	 * @return string
-	 */
-	private static function declaredTitle(SimpleXMLElement $xml): string {
-		if (isset($xml->channel) === true && isset($xml->channel->title) === true) {
-			$title = trim(string: (string)$xml->channel->title);
-			if ($title !== '') {
-				return $title;
-			}
-		}
-
-		if (isset($xml->title) === true) {
-			return trim(string: (string)$xml->title);
-		}
-
-		return '';
-	}//end declaredTitle()
-
-	/**
-	 * Normalise a single RSS 2.0 item to the news-widget schema.
-	 *
-	 * @param SimpleXMLElement $item The RSS item element.
-	 * @param FeedSource $source The feed URL and channel title.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function normaliseRssItem(SimpleXMLElement $item, FeedSource $source): array {
-		return self::itemRecord(
-			fields: [
-				'id' => trim(string: (string)($item->guid ?? '')),
-				'title' => trim(string: (string)($item->title ?? '')),
-				'summary' => trim(string: (string)($item->description ?? '')),
-				'link' => trim(string: (string)($item->link ?? '')),
-				'pubDate' => trim(string: (string)($item->pubDate ?? '')),
-				'thumbnailUrl' => self::rssThumbnail(item: $item),
-			],
-			source: $source
-		);
-	}//end normaliseRssItem()
-
-	/**
-	 * The URL of an RSS item's enclosure when its type is `image/*`, else null.
-	 *
-	 * @param SimpleXMLElement $item The RSS item element.
-	 *
-	 * @return string|null
-	 */
-	private static function rssThumbnail(SimpleXMLElement $item): ?string {
-		if (isset($item->enclosure) === false) {
-			return null;
-		}
-
-		$attrs = $item->enclosure->attributes();
-		if ($attrs === null || isset($attrs['type']) === false) {
-			return null;
-		}
-
-		if (str_starts_with(haystack: (string)$attrs['type'], needle: 'image/') === true) {
-			return (string)$attrs['url'];
-		}
-
-		return null;
-	}//end rssThumbnail()
-
-	/**
-	 * Normalise a single Atom 1.0 entry to the news-widget schema.
-	 *
-	 * @param SimpleXMLElement $entry The Atom entry element.
-	 * @param FeedSource $source The feed URL and feed title.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function normaliseAtomEntry(SimpleXMLElement $entry, FeedSource $source): array {
-		return self::itemRecord(
-			fields: [
-				'id' => trim(string: (string)($entry->id ?? '')),
-				'title' => trim(string: (string)($entry->title ?? '')),
-				'summary' => self::firstNonBlank(node: $entry, names: ['summary', 'content']),
-				'link' => self::atomAlternateLink(entry: $entry),
-				'pubDate' => self::firstNonBlank(node: $entry, names: ['published', 'updated']),
-				'thumbnailUrl' => null,
-			],
-			source: $source
-		);
-	}//end normaliseAtomEntry()
-
-	/**
-	 * The first child, out of `$names`, whose trimmed text is not empty;
-	 * '' when none is.
-	 *
-	 * @param SimpleXMLElement $node Parent element.
-	 * @param string[] $names Child names, tried in order.
-	 *
-	 * @return string
-	 */
-	private static function firstNonBlank(SimpleXMLElement $node, array $names): string {
-		foreach ($names as $name) {
-			$text = trim(string: (string)($node->$name ?? ''));
-			if ($text !== '') {
-				return $text;
-			}
-		}
-
-		return '';
-	}//end firstNonBlank()
-
-	/**
-	 * The href of an Atom entry's first non-empty `alternate` link (a link
-	 * without `rel` counts as alternate), or '' without one.
-	 *
-	 * @param SimpleXMLElement $entry The Atom entry element.
-	 *
-	 * @return string
-	 */
-	private static function atomAlternateLink(SimpleXMLElement $entry): string {
-		if (isset($entry->link) === false) {
-			return '';
-		}
-
-		foreach ($entry->link as $linkElement) {
-			$attrs = $linkElement->attributes();
-			if ($attrs === null) {
-				continue;
-			}
-
-			$rel = (string)($attrs['rel'] ?? 'alternate');
-			$href = (string)($attrs['href'] ?? '');
-			if ($rel === 'alternate' && $href !== '') {
-				return $href;
-			}
-		}
-
-		return '';
-	}//end atomAlternateLink()
-
-	/**
-	 * Complete the fields read from one entry into the news-widget item:
-	 * the entry id, or `sha256(title . pubDate . feedUrl)` when it has
-	 * none, plus the feed source.
-	 *
-	 * @param array<string, string|null> $fields Fields read from the entry: id, title, summary, link, pubDate
-	 *                                           (strings) and thumbnailUrl (string or null).
-	 * @param FeedSource $source The feed URL and title.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private static function itemRecord(array $fields, FeedSource $source): array {
-		$guid = $fields['id'];
-		if ($guid === '') {
-			$guid = hash(algo: 'sha256', data: ($fields['title'] . $fields['pubDate'] . $source->url));
-		}
-
-		return [
-			'guid' => $guid,
-			'title' => $fields['title'],
-			'summary' => $fields['summary'],
-			'link' => $fields['link'],
-			'pubDate' => $fields['pubDate'],
-			'sourceUrl' => $source->url,
-			'sourceTitle' => $source->title,
-			'thumbnailUrl' => $fields['thumbnailUrl'],
-		];
-	}//end itemRecord()
-
-	/**
-	 * Build the User-Agent header per REQ-FRJ-012.
-	 *
-	 * @return string The User-Agent string.
-	 */
-	private function buildUserAgent(): string {
-		$appVersion = $this->appConfig->getValueString(
-			Application::APP_ID,
-			'installed_version',
-			'1.0.0'
-		);
-		$instanceUrl = (string)$this->sources->config->getSystemValue(
-			'overwrite.cli.url',
-			''
-		);
-		if ($instanceUrl === '') {
-			$instanceUrl = 'https://localhost';
-		}
-
-		return sprintf(
-			'Mozilla/5.0 (compatible; LaunchPad/%s; +%s/apps/launchpad)',
-			$appVersion,
-			rtrim(string: $instanceUrl, characters: '/')
-		);
-	}//end buildUserAgent()
-
-	/**
 	 * Whether the URL's host matches the admin allow-list.
 	 *
 	 * Empty allow-list (default) accepts all hosts.
@@ -1148,44 +714,4 @@ class FeedRefreshService {
 		return 'transport error: ' . $message;
 	}//end classifyTransportError()
 
-	/**
-	 * Best-effort extraction of the HTTP reason phrase from a Guzzle
-	 * (or NC-wrapped) response object.
-	 *
-	 * @param object $response The response object.
-	 *
-	 * @return string The reason phrase, or empty string when unknown.
-	 */
-	private function extractReason(object $response): string {
-		if (method_exists(object_or_class: $response, method: 'getReasonPhrase') === true) {
-			return (string)$response->getReasonPhrase();
-		}
-
-		return '';
-	}//end extractReason()
-
-	/**
-	 * Pull the first value of a header from an associative
-	 * `name => string|string[]` headers map.
-	 *
-	 * @param array<string, string|array<int, string>> $headers The headers map.
-	 * @param string $name The header name.
-	 *
-	 * @return string|null The first header value, or null when absent.
-	 */
-	private function firstHeader(array $headers, string $name): ?string {
-		foreach ($headers as $key => $value) {
-			if (strcasecmp(string1: $key, string2: $name) !== 0) {
-				continue;
-			}
-
-			if (is_array(value: $value) === true) {
-				return ($value[0] ?? null);
-			}
-
-			return (string)$value;
-		}
-
-		return null;
-	}//end firstHeader()
 }//end class

@@ -474,34 +474,48 @@ class FeedRefreshService {
 				message: 'No news widget placements found; nothing to refresh',
 				context: ['app' => Application::APP_ID]
 			);
-			return [
-				'processedCount' => 0,
-				'successCount' => 0,
-				'failureCount' => 0,
-				'durationMs' => ((int)(microtime(as_float: true) * 1000) - $startedAt),
-			];
+			return self::tickSummary(tally: ['processed' => 0, 'success' => 0, 'failure' => 0], startedAt: $startedAt);
 		}
 
-		// Apply cursor — only relevant for the full-refresh path.
-		$startIndex = 0;
-		if ($onlyUrl === null) {
-			$startIndex = $this->resolveStartIndex(urls: $urls);
+		if ($onlyUrl !== null) {
+			return self::tickSummary(tally: $this->refreshBatch(urls: $urls, startIndex: 0), startedAt: $startedAt);
 		}
 
+		return self::tickSummary(tally: $this->refreshFromCursor(urls: $urls), startedAt: $startedAt);
+	}//end refreshAll()
+
+	/**
+	 * Run one tick of the full sweep: start after the persisted cursor,
+	 * then advance or clear it (REQ-FRJ-008).
+	 *
+	 * @param array $urls The sorted, deduplicated feed URL set.
+	 *
+	 * @return array{processed: int, success: int, failure: int} This tick's tally.
+	 */
+	private function refreshFromCursor(array $urls): array {
+		$startIndex = $this->resolveStartIndex(urls: $urls);
 		$tally = $this->refreshBatch(urls: $urls, startIndex: $startIndex);
+		$this->persistCursor(urls: $urls, startIndex: $startIndex, processed: $tally['processed']);
 
-		// Cursor bookkeeping — full refresh only.
-		if ($onlyUrl === null) {
-			$this->persistCursor(urls: $urls, startIndex: $startIndex, processed: $tally['processed']);
-		}
+		return $tally;
+	}//end refreshFromCursor()
 
+	/**
+	 * The refreshAll() summary of a tick's tally.
+	 *
+	 * @param array{processed: int, success: int, failure: int} $tally This tick's tally.
+	 * @param int $startedAt Tick start time in epoch milliseconds.
+	 *
+	 * @return array{processedCount: int, successCount: int, failureCount: int, durationMs: int}
+	 */
+	private static function tickSummary(array $tally, int $startedAt): array {
 		return [
 			'processedCount' => $tally['processed'],
 			'successCount' => $tally['success'],
 			'failureCount' => $tally['failure'],
 			'durationMs' => ((int)(microtime(as_float: true) * 1000) - $startedAt),
 		];
-	}//end refreshAll()
+	}//end tickSummary()
 
 	/**
 	 * Resolve the batch start offset from the persisted cursor.
@@ -549,56 +563,57 @@ class FeedRefreshService {
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
 	private function refreshBatch(array $urls, int $startIndex): array {
-		$processed = 0;
-		$success = 0;
-		$failure = 0;
+		$tally = ['processed' => 0, 'success' => 0, 'failure' => 0];
 
 		$deadline = (microtime(as_float: true) + self::WALL_CLOCK_BUDGET);
 		$batchLimit = ($startIndex + self::BATCH_SIZE);
 		$urlCount = count(value: $urls);
 
 		for ($index = $startIndex; $index < $urlCount; $index++) {
-			if ($index >= $batchLimit) {
+			if ($index >= $batchLimit || microtime(as_float: true) >= $deadline) {
 				break;
 			}
 
-			if (microtime(as_float: true) >= $deadline) {
-				break;
-			}
+			$outcome = $this->refreshCounted(feedUrl: $urls[$index]);
+			$tally['processed']++;
+			$tally[$outcome]++;
+		}
 
-			$feedUrl = $urls[$index];
-			try {
-				$result = $this->refreshFeed(feedUrl: $feedUrl);
-				$processed++;
-				if ($result['status'] === 'ok' || $result['status'] === 'not-modified') {
-					$success++;
-				}
-
-				if ($result['status'] !== 'ok' && $result['status'] !== 'not-modified') {
-					$failure++;
-				}
-			} catch (Throwable $exception) {
-				// RefreshFeed swallows all per-feed exceptions — this is
-				// a defence-in-depth catch in case of a bug there.
-				$processed++;
-				$failure++;
-				$this->logger->error(
-					message: 'FeedRefreshService unexpected refreshFeed exception',
-					context: [
-						'app' => Application::APP_ID,
-						'feedUrl' => $feedUrl,
-						'exception' => $exception->getMessage(),
-					]
-				);
-			}//end try
-		}//end for
-
-		return [
-			'processed' => $processed,
-			'success' => $success,
-			'failure' => $failure,
-		];
+		return $tally;
 	}//end refreshBatch()
+
+	/**
+	 * Refresh one feed and say how the tally counts it: `ok` and
+	 * `not-modified` are a `success`, anything else — including an
+	 * exception escaping refreshFeed() — a `failure`.
+	 *
+	 * @param string $feedUrl The feed URL.
+	 *
+	 * @return string `success` or `failure`.
+	 */
+	private function refreshCounted(string $feedUrl): string {
+		try {
+			$result = $this->refreshFeed(feedUrl: $feedUrl);
+		} catch (Throwable $exception) {
+			// RefreshFeed swallows all per-feed exceptions — this is
+			// a defence-in-depth catch in case of a bug there.
+			$this->logger->error(
+				message: 'FeedRefreshService unexpected refreshFeed exception',
+				context: [
+					'app' => Application::APP_ID,
+					'feedUrl' => $feedUrl,
+					'exception' => $exception->getMessage(),
+				]
+			);
+			return 'failure';
+		}
+
+		if ($result['status'] === 'ok' || $result['status'] === 'not-modified') {
+			return 'success';
+		}
+
+		return 'failure';
+	}//end refreshCounted()
 
 	/**
 	 * Advance or clear the sweep cursor after a tick.
@@ -656,7 +671,30 @@ class FeedRefreshService {
 		string $feedUrl,
 	): array {
 		$client = $this->sources->clientService->newClient();
+		$options = $this->requestOptions(headers: $this->conditionalHeaders(row: $row));
 
+		$response = $client->get(uri: $feedUrl, options: $options);
+
+		$headersOut = $response->getHeaders();
+
+		return [
+			'status' => (int)$response->getStatusCode(),
+			'reason' => $this->extractReason(response: $response),
+			'body' => (string)$response->getBody(),
+			'etag' => $this->firstHeader(headers: $headersOut, name: 'ETag'),
+			'lastModified' => $this->firstHeader(headers: $headersOut, name: 'Last-Modified'),
+		];
+	}//end doConditionalGet()
+
+	/**
+	 * Request headers: user agent, accepted feed types and the row's cached
+	 * validators (ETag, Last-Modified) when present.
+	 *
+	 * @param FeedCache $row The cache row.
+	 *
+	 * @return array<string, string>
+	 */
+	private function conditionalHeaders(FeedCache $row): array {
 		$headers = [
 			'User-Agent' => $this->buildUserAgent(),
 			'Accept' => 'application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.5',
@@ -670,6 +708,17 @@ class FeedRefreshService {
 			$headers['If-Modified-Since'] = (string)$row->getLastModified();
 		}
 
+		return $headers;
+	}//end conditionalHeaders()
+
+	/**
+	 * Client options of the conditional GET, with the system proxy applied.
+	 *
+	 * @param array<string, string> $headers Request headers.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function requestOptions(array $headers): array {
 		$options = [
 			'connect_timeout' => self::CONNECT_TIMEOUT,
 			'timeout' => self::REQUEST_TIMEOUT,
@@ -693,18 +742,8 @@ class FeedRefreshService {
 			}
 		}
 
-		$response = $client->get(uri: $feedUrl, options: $options);
-
-		$headersOut = $response->getHeaders();
-
-		return [
-			'status' => (int)$response->getStatusCode(),
-			'reason' => $this->extractReason(response: $response),
-			'body' => (string)$response->getBody(),
-			'etag' => $this->firstHeader(headers: $headersOut, name: 'ETag'),
-			'lastModified' => $this->firstHeader(headers: $headersOut, name: 'Last-Modified'),
-		];
-	}//end doConditionalGet()
+		return $options;
+	}//end requestOptions()
 
 	/**
 	 * Parse an RSS 2.0 / Atom 1.0 feed body and return normalised items

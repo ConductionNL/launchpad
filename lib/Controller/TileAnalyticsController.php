@@ -181,15 +181,9 @@ class TileAnalyticsController extends Controller {
 		string $period = '30d',
 		int $limit = 10,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'tile-analytics.top-tiles');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'tile-analytics.top-tiles');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -220,15 +214,9 @@ class TileAnalyticsController extends Controller {
 		string $uuid,
 		string $period = '30d',
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'tile-analytics.dashboard-breakdown');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'tile-analytics.dashboard-breakdown');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -258,15 +246,9 @@ class TileAnalyticsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function exportCsv(string $period = '30d'): Response {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'tile-analytics.export-csv');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'tile-analytics.export-csv');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -281,4 +263,16 @@ class TileAnalyticsController extends Controller {
 			contentType: 'text/csv'
 		);
 	}//end exportCsv()
+
+	/**
+	 * The caller guard: no session user → 401, a denied ADR-023 action → 403; NULL to proceed.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		$check = new SessionActionCheck(userSession: $this->userSession, actionAuth: $this->actionAuth);
+		return $check->refusal(action: $action);
+	}//end actionRefusal()
 }//end class

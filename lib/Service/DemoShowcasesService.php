@@ -291,6 +291,32 @@ class DemoShowcasesService {
 		string $lang = 'nl',
 		bool $force = false,
 	): array {
+		$this->assertInstallable(showcaseId: $showcaseId);
+
+		// M8: acquire an exclusive advisory lock keyed on the showcase ID
+		// before the existence check to serialise concurrent installs.
+		// Two simultaneous admin requests both pass the existence check
+		// before either inserts without this guard.
+		$lockKey = 'launchpad-showcase-install-' . $showcaseId;
+		$this->acquireInstallLock(lockKey: $lockKey, showcaseId: $showcaseId);
+
+		try {
+			return $this->installLocked(showcaseId: $showcaseId, options: new ShowcaseInstallOptions(lang: $lang, force: $force));
+		} finally {
+			$this->releaseInstallLock(lockKey: $lockKey);
+		}
+	}//end installShowcase()
+
+	/**
+	 * Refuse an unknown showcase or one whose archive is missing.
+	 *
+	 * @param string $showcaseId The showcase ID.
+	 *
+	 * @return void
+	 *
+	 * @throws ShowcaseNotFoundException When the showcase cannot be installed.
+	 */
+	private function assertInstallable(string $showcaseId): void {
 		$this->assertKnownShowcase(showcaseId: $showcaseId);
 
 		$zipPath = $this->getZipPath(showcaseId: $showcaseId);
@@ -299,12 +325,19 @@ class DemoShowcasesService {
 				message: 'Showcase ZIP missing for ' . $showcaseId
 			);
 		}
+	}//end assertInstallable()
 
-		// M8: acquire an exclusive advisory lock keyed on the showcase ID
-		// before the existence check to serialise concurrent installs.
-		// Two simultaneous admin requests both pass the existence check
-		// before either inserts without this guard.
-		$lockKey = 'launchpad-showcase-install-' . $showcaseId;
+	/**
+	 * Take the exclusive install lock of a showcase.
+	 *
+	 * @param string $lockKey    The lock path.
+	 * @param string $showcaseId The showcase ID (for the message).
+	 *
+	 * @return void
+	 *
+	 * @throws RuntimeException When another install holds the lock.
+	 */
+	private function acquireInstallLock(string $lockKey, string $showcaseId): void {
 		try {
 			$this->stores->lockingProvider->acquireLock(
 				path: $lockKey,
@@ -317,32 +350,47 @@ class DemoShowcasesService {
 				previous: $e
 			);
 		}
+	}//end acquireInstallLock()
 
-		try {
-			$existingUuid = $this->getInstalledUuid(showcaseId: $showcaseId);
-			if ($existingUuid !== '' && $force === false) {
-				return [
-					'installedDashboardUuid' => $existingUuid,
-					'skippedWidgets' => [],
-					'alreadyInstalled' => true,
-				];
-			}
+	/**
+	 * Release the exclusive install lock of a showcase.
+	 *
+	 * @param string $lockKey The lock path.
+	 *
+	 * @return void
+	 */
+	private function releaseInstallLock(string $lockKey): void {
+		$this->stores->lockingProvider->releaseLock(
+			path: $lockKey,
+			type: ILockingProvider::LOCK_EXCLUSIVE
+		);
+	}//end releaseInstallLock()
 
-			if ($existingUuid !== '' && $force === true) {
-				$this->uninstallShowcase(showcaseId: $showcaseId);
-			}
+	/**
+	 * Install while the lock is held: reuse an existing install, or
+	 * replace it when forced, else install fresh.
+	 *
+	 * @param string                 $showcaseId The showcase ID.
+	 * @param ShowcaseInstallOptions $options    The language and force flag.
+	 *
+	 * @return array{installedDashboardUuid:string, skippedWidgets:array<int, string>, alreadyInstalled:bool}
+	 */
+	private function installLocked(string $showcaseId, ShowcaseInstallOptions $options): array {
+		$existingUuid = $this->getInstalledUuid(showcaseId: $showcaseId);
+		if ($existingUuid !== '' && $options->force === false) {
+			return [
+				'installedDashboardUuid' => $existingUuid,
+				'skippedWidgets' => [],
+				'alreadyInstalled' => true,
+			];
+		}
 
-			return $this->doInstallShowcase(
-				showcaseId: $showcaseId,
-				lang: $lang
-			);
-		} finally {
-			$this->stores->lockingProvider->releaseLock(
-				path: $lockKey,
-				type: ILockingProvider::LOCK_EXCLUSIVE
-			);
-		}//end try
-	}//end installShowcase()
+		if ($existingUuid !== '') {
+			$this->uninstallShowcase(showcaseId: $showcaseId);
+		}
+
+		return $this->doInstallShowcase(showcaseId: $showcaseId, lang: $options->lang);
+	}//end installLocked()
 
 	/**
 	 * Internal install logic (called while lock is held).

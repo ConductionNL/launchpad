@@ -344,4 +344,33 @@ class NewsWidgetServiceFetchTest extends TestCase {
 	public function testSanitiserReturnsEmptyForEmptyInput(): void {
 		$this->assertSame('', $this->service->sanitiseSummaryHtml(html: ''));
 	}//end testSanitiserReturnsEmptyForEmptyInput()
+
+	public function testDeduplicateKeepsEveryItemWithoutGuid(): void {
+		$items = [
+			['guid' => '', 'title' => 'a'],
+			['title' => 'b'],
+			['guid' => 'x', 'title' => 'c'],
+			['guid' => '', 'title' => 'd'],
+			['guid' => 'x', 'title' => 'e'],
+			['guid' => 7, 'title' => 'f'],
+			['guid' => '7', 'title' => 'g'],
+		];
+
+		$this->assertSame(
+			['a', 'b', 'c', 'd', 'f'],
+			array_column($this->service->deduplicateItems(items: $items), 'title')
+		);
+	}//end testDeduplicateKeepsEveryItemWithoutGuid()
+
+	public function testEnclosureWithNonImageTypeHasNoThumbnail(): void {
+		$items = $this->service->parseRssFeed(
+			feedContent: '<rss><channel><item><title>T</title><enclosure url="https://a.example.com/x.mp3" type="audio/mpeg"/></item>'
+				. '<item><title>U</title><enclosure url="https://a.example.com/y"/></item>'
+				. '<item><title>V</title><enclosure type="image/png"/></item></channel></rss>',
+			sourceUrl: 'https://s.example.com/',
+			sourceTitle: 'f'
+		);
+
+		$this->assertSame([null, 'https://a.example.com/y', null], array_column($items, 'thumbnailUrl'));
+	}//end testEnclosureWithNonImageTypeHasNoThumbnail()
 }//end class

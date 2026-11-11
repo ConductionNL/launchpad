@@ -175,51 +175,84 @@ class PeopleWidgetService {
 	 */
 	public function listUsers(PeopleQuery $request, ?string $viewerId=null): array {
 		$this->viewerId = $viewerId;
-		$filters = $request->filters;
-		$sortBy = $request->sortBy;
-		$page = $request->page;
-		$limit = $page->limit;
-		$offset = $page->offset;
+		$this->assertListable(request: $request);
 
-		if ($limit < 1 || $limit > self::MAX_LIMIT) {
-			throw new InvalidArgumentException(
-				message: 'limit must be between 1 and ' . self::MAX_LIMIT
-			);
+		$groupFilter = $this->extractGroupFilter(filters: $request->filters);
+
+		if (trim(string: (string)$request->search) !== '') {
+			return $this->listSearchMatches(request: $request, groupFilter: $groupFilter);
 		}
 
-		if ($offset < 0) {
+		return $this->listBrowsePage(request: $request, groupFilter: $groupFilter);
+	}//end listUsers()
+
+	/**
+	 * Refuse a page window outside 1..MAX_LIMIT or below offset 0, and the
+	 * not-yet-implemented `recent-activity` sort, in that order.
+	 *
+	 * @param PeopleQuery $request The list request.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the request cannot be listed.
+	 */
+	private function assertListable(PeopleQuery $request): void {
+		$limit = $request->page->limit;
+		if ($limit < 1 || $limit > self::MAX_LIMIT) {
+			throw new InvalidArgumentException(message: 'limit must be between 1 and ' . self::MAX_LIMIT);
+		}
+
+		if ($request->page->offset < 0) {
 			throw new InvalidArgumentException(message: 'offset must be >= 0');
 		}
 
-		if ($sortBy === 'recent-activity') {
-			throw new InvalidArgumentException(
-				message: 'sortBy=recent-activity is not yet implemented'
-			);
+		if ($request->sortBy === 'recent-activity') {
+			throw new InvalidArgumentException(message: 'sortBy=recent-activity is not yet implemented');
 		}
+	}//end assertListable()
 
-		$groupFilter = $this->extractGroupFilter(filters: $filters);
-
+	/**
+	 * List the directory-wide search matches of a request with search
+	 * text, in display-name order.
+	 *
+	 * @param PeopleQuery $request     The list request.
+	 * @param array|null  $groupFilter The group filter, if any.
+	 *
+	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
+	 *
+	 * @throws InvalidArgumentException When the query is shorter than MIN_QUERY_LENGTH.
+	 */
+	private function listSearchMatches(PeopleQuery $request, ?array $groupFilter): array {
 		$query = trim(string: (string)$request->search);
-		if ($query !== '') {
-			if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
-				throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
-			}
-
-			return $this->paginateCandidates(
-				candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
-				window: $page,
-				sortBy: 'displayName'
-			);
+		if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
+			throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
 		}
 
+		return $this->paginateCandidates(
+			candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
+			window: $request->page,
+			sortBy: 'displayName'
+		);
+	}//end listSearchMatches()
+
+	/**
+	 * List one page of the directory or of the filtered groups, without
+	 * search text.
+	 *
+	 * @param PeopleQuery $request     The list request.
+	 * @param array|null  $groupFilter The group filter, if any.
+	 *
+	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
+	 */
+	private function listBrowsePage(PeopleQuery $request, ?array $groupFilter): array {
 		// No `group` filter AND the default `displayName` sort: page
 		// directly from the backend in display-name order so we never
 		// materialize more IUser objects than the requested window
 		// (plus any disabled users skipped inside it). This avoids the
 		// former full-directory `IUserManager::search('')` scan on every
 		// People-widget render. REQ-PPL-003.
-		if ($groupFilter === null && $sortBy !== 'group') {
-			return $this->listDirectoryPageByDisplayName(window: $page);
+		if ($groupFilter === null && $request->sortBy !== 'group') {
+			return $this->listDirectoryPageByDisplayName(window: $request->page);
 		}
 
 		// Bounded candidate pool: either the union of the filtered group
@@ -227,17 +260,12 @@ class PeopleWidgetService {
 		// with no group filter — the full directory, since ordering by
 		// each user's primary-group membership is inherently a
 		// full-directory read (see resolveCandidates()).
-		$candidates = $this->resolveCandidates(
-			filters: $filters,
-			groupFilter: $groupFilter
-		);
-
 		return $this->paginateCandidates(
-			candidates: $candidates,
-			window: $page,
-			sortBy: $sortBy
+			candidates: $this->resolveCandidates(filters: $request->filters, groupFilter: $groupFilter),
+			window: $request->page,
+			sortBy: $request->sortBy
 		);
-	}//end listUsers()
+	}//end listBrowsePage()
 
 	/**
 	 * Page the directory directly from the backend in display-name order,

@@ -32,6 +32,7 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use OCA\LaunchPad\Exception\StorageFailureException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -185,5 +186,61 @@ class FileControllerTest extends TestCase {
 		$this->assertStringNotContainsString('raw internal', $data['message']);
 		$this->assertStringNotContainsString('server crash', $data['message']);
 		$this->assertSame('error', $data['status']);
+	}
+	/**
+	 * Only storage failures and unexpected throwables are logged, each with
+	 * its own message; the envelopes keep their exact status and text.
+	 */
+	public function testFailureLogsAndEnvelopes(): void {
+		$logged = [];
+		$this->logger->method('error')->willReturnCallback(
+			static function (string $message, array $context) use (&$logged): void {
+				$logged[] = [$message, $context];
+			}
+		);
+		$failures = [
+			new StorageFailureException(message: 'disk full'),
+			new InvalidFilenameException(),
+			new RuntimeException('boom'),
+		];
+		$this->fileService->method('createFile')->willReturnCallback(
+			static function () use (&$failures): array {
+				throw array_shift($failures);
+			}
+		);
+
+		$answers = [];
+		for ($i = 0; $i < 3; $i++) {
+			$response = $this->controller->createFile(filename: 'a.txt');
+			$answers[] = [$response->getStatus(), $response->getData()];
+		}
+
+		$this->assertSame(
+			[
+				[500, ['status' => 'error', 'error' => 'storage_failure', 'message' => 'disk full']],
+				[400, ['status' => 'error', 'error' => 'invalid_filename', 'message' => 'Invalid filename']],
+				[500, ['status' => 'error', 'error' => 'storage_failure', 'message' => 'Failed to create file']],
+			],
+			$answers
+		);
+		$this->assertSame(
+			[
+				['File create storage failure', ['exception' => 'disk full']],
+				['Unexpected file create failure', ['exception' => 'boom']],
+			],
+			$logged
+		);
+
+		$session = $this->createMock(IUserSession::class);
+		$controller = new FileController(
+			request: $this->request,
+			fileService: $this->fileService,
+			userSession: $session,
+			logger: $this->logger,
+		);
+		$this->assertSame(
+			['status' => 'error', 'error' => 'forbidden', 'message' => 'Authentication required'],
+			$controller->createFile(filename: 'a.txt')->getData()
+		);
 	}
 }

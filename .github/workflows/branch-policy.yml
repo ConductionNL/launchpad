@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main, beta, development]
 
+permissions:
+  contents: read
+
 jobs:
   check-source-branch:
     name: Branch Policy Check

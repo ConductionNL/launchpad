@@ -275,9 +275,10 @@ class FilesWidgetService {
 			$outcome = $this->storeUpload(target: $target, entry: $entry);
 			if (is_string($outcome) === true) {
 				$errors[] = ['name' => (string)$entry['name'], 'error' => $outcome];
-			} else {
-				$uploaded[] = $outcome;
+				continue;
 			}
+
+			$uploaded[] = $outcome;
 		}
 
 		return ['uploaded' => $uploaded, 'errors' => $errors];
@@ -311,7 +312,7 @@ class FilesWidgetService {
 	 *                                    `storage_failed`.
 	 */
 	private function writeUpload(FilesWidgetUploadTarget $target, array $entry): array|string {
-		$safeName = $this->resolveAvailableName(folder: $target->folder, desired: (string)$entry['name']);
+		$safeName = (new UploadNamePicker())->availableName(folder: $target->folder, desired: (string)$entry['name']);
 		try {
 			$file = $this->streamToNewFile(
 				target: $target->folder,
@@ -1042,79 +1043,6 @@ class FilesWidgetService {
 	private function formatTimestamp(int $timestamp): string {
 		return gmdate(format: 'Y-m-d\\TH:i:s\\Z', timestamp: $timestamp);
 	}//end formatTimestamp()
-
-	/**
-	 * Find a free filename inside the target folder by appending
-	 * `(1)`, `(2)` etc. when the desired name is taken (REQ-FLS-007).
-	 *
-	 * @param Folder $folder Target folder.
-	 * @param string $desired Desired leaf name.
-	 *
-	 * @return string
-	 */
-	private function resolveAvailableName(Folder $folder, string $desired): string {
-		$sanitised = self::sanitiseUploadName(desired: $desired);
-		if ($folder->nodeExists(path: $sanitised) === false) {
-			return $sanitised;
-		}
-
-		return $this->firstFreeNumberedName(folder: $folder, name: $sanitised);
-	}//end resolveAvailableName()
-
-	/**
-	 * Replace path separators and NUL with `_`; an empty, `.` or `..`
-	 * result becomes `upload`.
-	 *
-	 * @param string $desired Desired leaf name.
-	 *
-	 * @return string The safe leaf name.
-	 */
-	private static function sanitiseUploadName(string $desired): string {
-		$sanitised = str_replace(search: ['/', '\\', "\0"], replace: '_', subject: $desired);
-		if ($sanitised === '' || $sanitised === '.' || $sanitised === '..') {
-			return 'upload';
-		}
-
-		return $sanitised;
-	}//end sanitiseUploadName()
-
-	/**
-	 * The first of `name (1)` … `name (999)` that is free in the folder,
-	 * else a `name (<unique id>)` variant.
-	 *
-	 * @param Folder $folder Target folder.
-	 * @param string $name   The taken, sanitised name.
-	 *
-	 * @return string The free name.
-	 */
-	private function firstFreeNumberedName(Folder $folder, string $name): string {
-		for ($i = 1; $i <= 999; $i++) {
-			$candidate = self::numberedName(name: $name, number: (string)$i);
-			if ($folder->nodeExists(path: $candidate) === false) {
-				return $candidate;
-			}
-		}
-
-		return self::numberedName(name: $name, number: uniqid());
-	}//end firstFreeNumberedName()
-
-	/**
-	 * Insert ` (<number>)` before a name's extension; a leading-dot name
-	 * or one without a dot gets it at the end.
-	 *
-	 * @param string $name   The sanitised name.
-	 * @param string $number The number to insert.
-	 *
-	 * @return string The numbered name.
-	 */
-	private static function numberedName(string $name, string $number): string {
-		$extPos = strrpos(haystack: $name, needle: '.');
-		if ($extPos !== false && $extPos !== 0) {
-			return substr(string: $name, offset: 0, length: $extPos) . ' (' . $number . ')' . substr(string: $name, offset: $extPos);
-		}
-
-		return $name . ' (' . $number . ')';
-	}//end numberedName()
 
 	/**
 	 * Walk parents of `$candidate` and return true when `$parent` is

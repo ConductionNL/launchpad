@@ -327,37 +327,19 @@ class WidgetApiController extends Controller {
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-34
 	 */
 	private function denyAddWidget(int $dashboardId, ?string $widgetId): ?JSONResponse {
-		$refusal = $this->denyWithoutSession(action: 'widget.add-widget');
-		if ($refusal !== null) {
-			return $refusal;
-		}
-
-		return $this->denyWidgetChoice(dashboardId: $dashboardId, widgetId: $widgetId);
-	}//end denyAddWidget()
-
-	/**
-	 * The caller guard of the placement mutations: no session user → 401,
-	 * the ADR-023 action required (a denial throws), no user ID → 401;
-	 * NULL to proceed.
-	 *
-	 * @param string $action The action identifier to require.
-	 *
-	 * @return JSONResponse|null The refusal, or NULL.
-	 */
-	private function denyWithoutSession(string $action): ?JSONResponse {
 		$user = $this->actor->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
 		}
 
-		$this->actor->actionAuth->requireAction($user, $action);
+		$this->actor->actionAuth->requireAction($user, 'widget.add-widget');
 
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		return null;
-	}//end denyWithoutSession()
+		return $this->denyWidgetChoice(dashboardId: $dashboardId, widgetId: $widgetId);
+	}//end denyAddWidget()
 
 	/**
 	 * Refuse a widget the request does not name, or one the user may not
@@ -551,9 +533,15 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function addTile(int $dashboardId): JSONResponse {
-		$refusal = $this->denyWithoutSession(action: 'widget.add-tile');
-		if ($refusal !== null) {
-			return $refusal;
+		$user = $this->actor->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		}
+
+		$this->actor->actionAuth->requireAction($user, 'widget.add-tile');
+
+		if ($this->userId === null) {
+			return ResponseHelper::unauthorized();
 		}
 
 		if ($this->mayAddTo(dashboardId: $dashboardId) === false) {
@@ -606,9 +594,15 @@ class WidgetApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function updatePlacement(int $placementId): JSONResponse {
-		$refusal = $this->denyWithoutSession(action: 'widget.update-placement');
-		if ($refusal !== null) {
-			return $refusal;
+		$user = $this->actor->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], \OCP\AppFramework\Http::STATUS_UNAUTHORIZED);
+		}
+
+		$this->actor->actionAuth->requireAction($user, 'widget.update-placement');
+
+		if ($this->userId === null) {
+			return ResponseHelper::unauthorized();
 		}
 
 		$denial = $this->denyPlacementUpdate(placementId: $placementId);

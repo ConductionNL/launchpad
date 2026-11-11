@@ -519,17 +519,8 @@ class WeatherService {
 
 		try {
 			$client = $this->sources->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'connect_timeout' => self::CONNECT_TIMEOUT,
-					'timeout' => self::REQUEST_TIMEOUT,
-					'http_errors' => false,
-					// C5 (mirrors FeedRefreshService): no auto-redirect — a 3xx to
-					// an unexpected host would bypass the scheme check above.
-					'allow_redirects' => false,
-				]
-			);
+			$response = (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
+				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
 			$this->store->logger->info(
 				message: 'WeatherService: provider fetch failed',

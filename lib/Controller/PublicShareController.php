@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use Exception;
+use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShareNotFoundException;
 use OCA\LaunchPad\Exception\SharePasswordRequiredException;
@@ -92,6 +93,7 @@ class PublicShareController extends Controller {
 	#[NoAdminRequired]
 	public function create(
 		string $uuid,
+		#[\SensitiveParameter]
 		?string $password = null,
 		?string $expiresAt = null,
 	): DataResponse {
@@ -184,8 +186,10 @@ class PublicShareController extends Controller {
 	 *
 	 * Rate-limited at 60 requests / 60 seconds per IP (REQ-PSHR-009 D1).
 	 *
+	 * The password is read from the X-Share-Password header only, never from the
+	 * query string, so it does not end up in access logs.
+	 *
 	 * @param string $token The share token from the URL.
-	 * @param string|null $password Optional password via query param or X-Share-Password header.
 	 *
 	 * @return DataResponse HTTP 200 dashboard payload, 401 if password required, 404 if invalid.
 	 *
@@ -195,11 +199,9 @@ class PublicShareController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 60, period: 60)]
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_ACCESS)]
-	public function show(string $token, ?string $password = null): DataResponse {
+	public function show(string $token): DataResponse {
 		$ipAddress = $this->request->getRemoteAddress();
-
-		// Accept password from X-Share-Password header if not in query.
-		$password = $this->passwordOrHeader(password: $password);
+		$password  = $this->headerPassword();
 
 		try {
 			$result = $this->shareService->renderShareContent(
@@ -246,7 +248,7 @@ class PublicShareController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 10, period: 60)]
 	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_PASSWORD)]
-	public function unlock(string $token, ?string $password = null): DataResponse {
+	public function unlock(string $token, #[\SensitiveParameter] ?string $password = null): DataResponse {
 		$ipAddress = $this->request->getRemoteAddress();
 
 		if ($password === null || $password === '') {
@@ -332,6 +334,11 @@ class PublicShareController extends Controller {
 				data: ['error' => 'Not authorized'],
 				statusCode: Http::STATUS_FORBIDDEN
 			);
+		} catch (InvalidArgumentException) {
+			return new DataResponse(
+				data: ['error' => 'Invalid request'],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
 		} catch (Exception $e) {
 			return $this->internalError(exception: $e);
 		}//end try
@@ -352,24 +359,18 @@ class PublicShareController extends Controller {
 	}//end logError()
 
 	/**
-	 * The query password, or the X-Share-Password header when the query has none.
-	 *
-	 * @param string|null $password The query password.
+	 * The X-Share-Password header, or null when it is empty.
 	 *
 	 * @return string|null
 	 */
-	private function passwordOrHeader(string|null $password): string|null {
-		if ($password !== null && $password !== '') {
-			return $password;
-		}
-
+	private function headerPassword(): string|null {
 		$headerPassword = $this->request->getHeader('X-Share-Password');
-		if ($headerPassword !== '') {
-			return $headerPassword;
+		if ($headerPassword === '') {
+			return null;
 		}
 
-		return $password;
-	}//end passwordOrHeader()
+		return $headerPassword;
+	}//end headerPassword()
 
 	/**
 	 * The read-only render payload; the share's creator is left out.

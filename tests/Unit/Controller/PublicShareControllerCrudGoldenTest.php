@@ -93,7 +93,7 @@ class PublicShareControllerCrudGoldenTest extends TestCase {
 	 */
 	public function testShowUsesTheHeaderPasswordAndHidesTheCreator(): void {
 		$cases = [];
-		foreach ([[null, 'hdr'], ['', 'hdr'], ['query', 'hdr'], [null, '']] as [$query, $header]) {
+		foreach (['hdr', ''] as $header) {
 			$share = new PublicShare();
 			$share->setToken('tok');
 			$share->setCreatedBy('alice');
@@ -119,22 +119,32 @@ class PublicShareControllerCrudGoldenTest extends TestCase {
 			$request = $this->createMock(IRequest::class);
 			$request->method('getRemoteAddress')->willReturn('10.0.0.1');
 			$request->method('getHeader')->willReturnCallback(static fn (string $name): string => ($name === 'X-Share-Password') ? $header : '');
+			$request->method('getParam')->willReturn('query');
 
 			$controller = new PublicShareController(request: $request, shareService: $service, shareContext: $context, logger: $this->createMock(LoggerInterface::class), userId: null);
-			$data       = $controller->show(token: 'tok', password: $query)->getData();
+			$data       = $controller->show(token: 'tok')->getData();
 			$cases[]    = [$seen, array_key_exists('createdBy', $data['share']), $data['dashboard']['name'], count($data['placements'])];
 		}
 
 		$this->assertSame(
 			[
 				[[['tok', '10.0.0.1', 'hdr'], ['bearer', 'tok']], false, 'Board', 1],
-				[[['tok', '10.0.0.1', 'hdr'], ['bearer', 'tok']], false, 'Board', 1],
-				[[['tok', '10.0.0.1', 'query'], ['bearer', 'tok']], false, 'Board', 1],
 				[[['tok', '10.0.0.1', null], ['bearer', 'tok']], false, 'Board', 1],
 			],
 			$cases
 		);
 	}//end testShowUsesTheHeaderPasswordAndHidesTheCreator()
+
+	/**
+	 * The share password is never taken from the query string.
+	 *
+	 * @return void
+	 */
+	public function testShowTakesNoPasswordFromTheQuery(): void {
+		$parameters = (new \ReflectionMethod(PublicShareController::class, 'show'))->getParameters();
+
+		$this->assertSame(['token'], array_map(static fn (\ReflectionParameter $p): string => $p->getName(), $parameters));
+	}//end testShowTakesNoPasswordFromTheQuery()
 
 	/**
 	 * The controller over a recording service mock.

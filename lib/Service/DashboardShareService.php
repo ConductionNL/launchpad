@@ -30,6 +30,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 
 /**
@@ -131,15 +132,20 @@ class DashboardShareService {
 	 *
 	 * @return void
 	 *
-	 * @throws ForbiddenException When the caller is not the owner.
+	 * @throws ForbiddenException When the caller is not the owner, or the share does not exist.
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
 	public function removeShare(int $shareId, string $callerId): void {
-		$share = $this->shareMapper->find(id: $shareId);
-		$dashboard = $this->dashboardMapper->find(
-			id: (int)$share->getDashboardId()
-		);
+		try {
+			$share     = $this->shareMapper->find(id: $shareId);
+			$dashboard = $this->dashboardMapper->find(
+				id: (int)$share->getDashboardId()
+			);
+		} catch (DoesNotExistException) {
+			// A missing share answers like someone else's, so share ids cannot be probed.
+			throw new ForbiddenException(message: 'Access denied');
+		}
 
 		if ($dashboard->getUserId() !== $callerId) {
 			throw new ForbiddenException(message: 'Access denied');

@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\FeedCache;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -142,9 +142,24 @@ class FeedRefreshService {
 	 */
 	public function discoverFeedUrls(): array {
 		$rawUrls = [];
+		foreach ($this->findNewsPlacements() as $placement) {
+			array_push($rawUrls, ...self::configuredFeedUrls(placement: $placement));
+		}
 
+		$unique = array_values(array: array_unique(array: $rawUrls));
+		sort(array: $unique);
+
+		return $unique;
+	}//end discoverFeedUrls()
+
+	/**
+	 * The news-widget placements, or none when they cannot be read.
+	 *
+	 * @return WidgetPlacement[]
+	 */
+	private function findNewsPlacements(): array {
 		try {
-			$placements = $this->placementMapper->findByWidgetId(
+			return $this->placementMapper->findByWidgetId(
 				widgetId: self::NEWS_WIDGET_ID
 			);
 		} catch (Throwable $exception) {
@@ -158,26 +173,31 @@ class FeedRefreshService {
 			);
 			return [];
 		}
+	}//end findNewsPlacements()
 
-		foreach ($placements as $placement) {
-			$config = $placement->getStyleConfigArray();
-			$urls = ($config['feedUrls'] ?? []);
-			if (is_array(value: $urls) === false) {
-				continue;
-			}
+	/**
+	 * The non-empty string entries of a placement's `feedUrls` list.
+	 *
+	 * @param WidgetPlacement $placement A news-widget placement.
+	 *
+	 * @return string[]
+	 */
+	private static function configuredFeedUrls(WidgetPlacement $placement): array {
+		$config = $placement->getStyleConfigArray();
+		$urls = ($config['feedUrls'] ?? []);
+		if (is_array(value: $urls) === false) {
+			return [];
+		}
 
-			foreach ($urls as $url) {
-				if (is_string(value: $url) === true && $url !== '') {
-					$rawUrls[] = $url;
-				}
+		$out = [];
+		foreach ($urls as $url) {
+			if (is_string(value: $url) === true && $url !== '') {
+				$out[] = $url;
 			}
 		}
 
-		$unique = array_values(array: array_unique(array: $rawUrls));
-		sort(array: $unique);
-
-		return $unique;
-	}//end discoverFeedUrls()
+		return $out;
+	}//end configuredFeedUrls()
 
 	/**
 	 * Refresh a single feed URL — performs HTTP conditional GET, parses
@@ -192,59 +212,78 @@ class FeedRefreshService {
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
 	public function refreshFeed(string $feedUrl): array {
-		$startedAt = (int)(microtime(as_float: true) * 1000);
-		$row = $this->sources->cacheMapper->upsertUrl(feedUrl: $feedUrl);
-		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$run = FeedRefreshRun::start(mapper: $this->sources->cacheMapper, feedUrl: $feedUrl);
 
-		$rejected = $this->rejectBeforeFetch(row: $row, feedUrl: $feedUrl, now: $now, startedAt: $startedAt);
-		if ($rejected !== null) {
-			return $rejected;
-		}
+		return $this->rejectBeforeFetch(run: $run) ?? $this->fetchAndStore(run: $run);
+	}//end refreshFeed()
 
+	/**
+	 * Conditional GET, post-fetch guards, parse and persist.
+	 *
+	 * @param FeedRefreshRun $run The refresh in progress.
+	 *
+	 * @return array{status: string, itemCount: int, durationMs: int}
+	 */
+	private function fetchAndStore(FeedRefreshRun $run): array {
 		try {
-			$response = $this->doConditionalGet(row: $row, feedUrl: $feedUrl);
+			$response = $this->doConditionalGet(row: $run->row, feedUrl: $run->feedUrl);
 		} catch (Throwable $exception) {
-			$row->setLastFetchedAt($now);
+			$run->stampFetched();
 			return $this->recordFailure(
-				row: $row,
-				reason: $this->classifyTransportError(exception: $exception),
-				startedAt: $startedAt
+				run: $run,
+				reason: $this->classifyTransportError(exception: $exception)
 			);
 		}
 
-		$row->setLastFetchedAt($now);
+		$run->stampFetched();
 
-		$early = $this->rejectResponse(row: $row, response: $response, startedAt: $startedAt);
-		if ($early !== null) {
-			return $early;
-		}
+		return $this->rejectResponse(run: $run, response: $response) ?? $this->storeItems(run: $run, response: $response);
+	}//end fetchAndStore()
 
+	/**
+	 * Parse a fetched body and persist its items and validators, or record
+	 * the parse failure.
+	 *
+	 * @param FeedRefreshRun $run The refresh in progress.
+	 * @param array $response Envelope from `doConditionalGet()`.
+	 *
+	 * @return array{status: string, itemCount: int, durationMs: int}
+	 */
+	private function storeItems(FeedRefreshRun $run, array $response): array {
 		try {
 			$items = $this->parseFeedBody(
 				body: $response['body'],
-				feedUrl: $feedUrl
+				feedUrl: $run->feedUrl
 			);
 		} catch (Throwable $exception) {
 			return $this->recordFailure(
-				row: $row,
-				reason: 'parse error: ' . $exception->getMessage(),
-				startedAt: $startedAt
+				run: $run,
+				reason: 'parse error: ' . $exception->getMessage()
 			);
 		}
 
-		$row->encodeItems(items: $items);
-		$row->setLastSuccessAt($now);
-		$row->setLastFailureReason(null);
-		$row->setEtag($response['etag']);
-		$row->setLastModified($response['lastModified']);
-		$this->sources->cacheMapper->update(entity: $row);
+		$run->row->encodeItems(items: $items);
+		$this->markSucceeded(run: $run, response: $response);
 
-		return [
-			'status' => 'ok',
-			'itemCount' => count(value: $items),
-			'durationMs' => ((int)(microtime(as_float: true) * 1000) - $startedAt),
-		];
-	}//end refreshFeed()
+		return $run->result(status: 'ok', itemCount: count(value: $items));
+	}//end storeItems()
+
+	/**
+	 * Mark the row successfully fetched: success time, no failure reason,
+	 * the response's validators; then persist it.
+	 *
+	 * @param FeedRefreshRun $run The refresh in progress.
+	 * @param array $response Envelope from `doConditionalGet()`.
+	 *
+	 * @return void
+	 */
+	private function markSucceeded(FeedRefreshRun $run, array $response): void {
+		$run->row->setLastSuccessAt($run->now);
+		$run->row->setLastFailureReason(null);
+		$run->row->setEtag($response['etag']);
+		$run->row->setLastModified($response['lastModified']);
+		$this->sources->cacheMapper->update(entity: $run->row);
+	}//end markSucceeded()
 
 	/**
 	 * Persist a per-feed failure and build the `failed` result envelope.
@@ -252,157 +291,164 @@ class FeedRefreshService {
 	 * The reported item count is the one still cached from the previous
 	 * successful fetch — a failure never discards items (REQ-FRJ-006).
 	 *
-	 * @param FeedCache $row The cache row being refreshed.
+	 * @param FeedRefreshRun $run The refresh in progress.
 	 * @param string $reason Human-readable failure reason.
-	 * @param int $startedAt Refresh start time in epoch milliseconds.
 	 *
 	 * @return array{status: string, itemCount: int, durationMs: int}
 	 *
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
-	private function recordFailure(
-		FeedCache $row,
-		string $reason,
-		int $startedAt,
-	): array {
-		$row->setLastFailureReason($reason);
-		$this->sources->cacheMapper->update(entity: $row);
+	private function recordFailure(FeedRefreshRun $run, string $reason): array {
+		$run->row->setLastFailureReason($reason);
+		$this->sources->cacheMapper->update(entity: $run->row);
 
-		return [
-			'status' => 'failed',
-			'itemCount' => count(value: $row->decodeItems()),
-			'durationMs' => ((int)(microtime(as_float: true) * 1000) - $startedAt),
-		];
+		return $run->result(status: 'failed', itemCount: $run->cachedItemCount());
 	}//end recordFailure()
 
 	/**
-	 * Pre-fetch guards: allow-list, SSRF safety and URL scheme.
+	 * Pre-fetch guards, in order: allow-list, SSRF safety and URL scheme.
 	 *
 	 * Each rejection stamps `lastFetchedAt` and persists the row. An
 	 * allow-list miss reports `skipped`; SSRF and scheme report `failed`.
 	 *
-	 * @param FeedCache $row The cache row being refreshed.
-	 * @param string $feedUrl The feed URL under test.
-	 * @param string $now Current timestamp, `Y-m-d H:i:s`.
-	 * @param int $startedAt Refresh start time in epoch milliseconds.
+	 * @param FeedRefreshRun $run The refresh in progress.
 	 *
 	 * @return array{status: string, itemCount: int, durationMs: int}|null
 	 *                                                                     The early result envelope, or null when the URL may be fetched.
 	 *
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
-	private function rejectBeforeFetch(
-		FeedCache $row,
-		string $feedUrl,
-		string $now,
-		int $startedAt,
-	): ?array {
-		// Allow-list pre-check (REQ-FRJ-011).
-		if ($this->isHostAllowed(feedUrl: $feedUrl) === false) {
-			$row->setLastFailureReason('host not in allow-list');
-			$row->setLastFetchedAt($now);
-			$this->sources->cacheMapper->update(entity: $row);
-			$this->logger->warning(
-				message: 'Feed host not in allow-list — skipping fetch',
-				context: [
-					'app' => Application::APP_ID,
-					'feedUrl' => $feedUrl,
-				]
-			);
-			return [
-				'status' => 'skipped',
-				'itemCount' => count(value: $row->decodeItems()),
-				'durationMs' => ((int)(microtime(as_float: true) * 1000) - $startedAt),
-			];
-		}
-
-		// H3: SSRF guard — reject URLs that resolve to private/reserved IP
-		// ranges and enforce HTTPS-only. Delegates to UrlSafetyValidator.
-		if ($this->sources->urlValidator->isSafe(url: $feedUrl) === false) {
-			$row->setLastFetchedAt($now);
-			$result = $this->recordFailure(
-				row: $row,
-				reason: 'SSRF guard: private/reserved IP or non-HTTPS URL rejected',
-				startedAt: $startedAt
-			);
-			$this->logger->warning(
-				message: 'Feed URL rejected by SSRF guard — private IP or non-HTTPS',
-				context: [
-					'app' => Application::APP_ID,
-					'feedUrl' => $feedUrl,
-				]
-			);
-			return $result;
-		}
-
-		// Scheme guard — only HTTP/HTTPS (REQ-FRJ-010 scenario "Invalid
-		// feedUrl scheme rejected" applies at the controller layer; here
-		// we double-check at service layer for defence in depth).
-		$scheme = strtolower(string: (string)parse_url(url: $feedUrl, component: PHP_URL_SCHEME));
-		if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-			$row->setLastFetchedAt($now);
-			return $this->recordFailure(
-				row: $row,
-				reason: 'invalid scheme: ' . $scheme,
-				startedAt: $startedAt
-			);
-		}
-
-		return null;
+	private function rejectBeforeFetch(FeedRefreshRun $run): ?array {
+		return $this->rejectDisallowedHost(run: $run)
+			?? $this->rejectUnsafeUrl(run: $run)
+			?? $this->rejectInvalidScheme(run: $run);
 	}//end rejectBeforeFetch()
+
+	/**
+	 * Allow-list pre-check (REQ-FRJ-011): a host outside the admin
+	 * allow-list is skipped, not failed.
+	 *
+	 * @param FeedRefreshRun $run The refresh in progress.
+	 *
+	 * @return array{status: string, itemCount: int, durationMs: int}|null
+	 */
+	private function rejectDisallowedHost(FeedRefreshRun $run): ?array {
+		if ($this->isHostAllowed(feedUrl: $run->feedUrl) === true) {
+			return null;
+		}
+
+		$run->row->setLastFailureReason('host not in allow-list');
+		$run->stampFetched();
+		$this->sources->cacheMapper->update(entity: $run->row);
+		$this->logger->warning(
+			message: 'Feed host not in allow-list — skipping fetch',
+			context: [
+				'app' => Application::APP_ID,
+				'feedUrl' => $run->feedUrl,
+			]
+		);
+
+		return $run->result(status: 'skipped', itemCount: $run->cachedItemCount());
+	}//end rejectDisallowedHost()
+
+	/**
+	 * H3: SSRF guard — reject URLs that resolve to private/reserved IP
+	 * ranges and enforce HTTPS-only. Delegates to UrlSafetyValidator.
+	 *
+	 * @param FeedRefreshRun $run The refresh in progress.
+	 *
+	 * @return array{status: string, itemCount: int, durationMs: int}|null
+	 */
+	private function rejectUnsafeUrl(FeedRefreshRun $run): ?array {
+		if ($this->sources->urlValidator->isSafe(url: $run->feedUrl) === true) {
+			return null;
+		}
+
+		$run->stampFetched();
+		$result = $this->recordFailure(
+			run: $run,
+			reason: 'SSRF guard: private/reserved IP or non-HTTPS URL rejected'
+		);
+		$this->logger->warning(
+			message: 'Feed URL rejected by SSRF guard — private IP or non-HTTPS',
+			context: [
+				'app' => Application::APP_ID,
+				'feedUrl' => $run->feedUrl,
+			]
+		);
+
+		return $result;
+	}//end rejectUnsafeUrl()
+
+	/**
+	 * Scheme guard — only HTTP/HTTPS (REQ-FRJ-010 scenario "Invalid feedUrl
+	 * scheme rejected" applies at the controller layer; here we
+	 * double-check at service layer for defence in depth).
+	 *
+	 * @param FeedRefreshRun $run The refresh in progress.
+	 *
+	 * @return array{status: string, itemCount: int, durationMs: int}|null
+	 */
+	private function rejectInvalidScheme(FeedRefreshRun $run): ?array {
+		$scheme = strtolower(string: (string)parse_url(url: $run->feedUrl, component: PHP_URL_SCHEME));
+		if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === true) {
+			return null;
+		}
+
+		$run->stampFetched();
+		return $this->recordFailure(run: $run, reason: 'invalid scheme: ' . $scheme);
+	}//end rejectInvalidScheme()
 
 	/**
 	 * Post-fetch guards: not-modified, non-2xx status and the size cap.
 	 *
 	 * Assumes the caller has already stamped `lastFetchedAt` on the row.
 	 *
-	 * @param FeedCache $row The cache row being refreshed.
+	 * @param FeedRefreshRun $run The refresh in progress.
 	 * @param array $response Envelope from `doConditionalGet()` with
 	 *                        keys `status`, `reason` and `body`.
-	 * @param int $startedAt Refresh start time in epoch milliseconds.
 	 *
 	 * @return array{status: string, itemCount: int, durationMs: int}|null
 	 *                                                                     The early result envelope, or null when the body should be parsed.
 	 *
 	 * @spec openspec/specs/background-job-feed-refresh/spec.md
 	 */
-	private function rejectResponse(
-		FeedCache $row,
-		array $response,
-		int $startedAt,
-	): ?array {
-		$statusCode = (int)$response['status'];
-
-		if ($statusCode === 304) {
+	private function rejectResponse(FeedRefreshRun $run, array $response): ?array {
+		if ((int)$response['status'] === 304) {
 			// Items untouched — only lastFetchedAt is updated
 			// (REQ-FRJ-004 "items untouched, only lastFetchedAt updated").
-			$this->sources->cacheMapper->update(entity: $row);
-			return [
-				'status' => 'not-modified',
-				'itemCount' => count(value: $row->decodeItems()),
-				'durationMs' => ((int)(microtime(as_float: true) * 1000) - $startedAt),
-			];
+			$this->sources->cacheMapper->update(entity: $run->row);
+			return $run->result(status: 'not-modified', itemCount: $run->cachedItemCount());
 		}
 
+		$reason = self::responseFailureReason(response: $response);
+		if ($reason === null) {
+			return null;
+		}
+
+		return $this->recordFailure(run: $run, reason: $reason);
+	}//end rejectResponse()
+
+	/**
+	 * Why a non-304 response cannot be parsed: a non-2xx status, or a body
+	 * over the size cap (REQ-FRJ-005 design D3); null when it can.
+	 *
+	 * @param array $response Envelope from `doConditionalGet()`.
+	 *
+	 * @return string|null
+	 */
+	private static function responseFailureReason(array $response): ?string {
+		$statusCode = (int)$response['status'];
 		if ($statusCode < 200 || $statusCode >= 300) {
-			return $this->recordFailure(
-				row: $row,
-				reason: $statusCode . ' ' . $response['reason'],
-				startedAt: $startedAt
-			);
+			return $statusCode . ' ' . $response['reason'];
 		}
 
-		// Size cap (REQ-FRJ-005 design D3).
 		if (strlen(string: $response['body']) > self::MAX_RESPONSE_SIZE) {
-			return $this->recordFailure(
-				row: $row,
-				reason: 'response too large',
-				startedAt: $startedAt
-			);
+			return 'response too large';
 		}
 
 		return null;
-	}//end rejectResponse()
+	}//end responseFailureReason()
 
 	/**
 	 * Refresh all discovered feed URLs (or a single one when

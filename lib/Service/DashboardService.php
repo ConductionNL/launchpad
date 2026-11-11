@@ -153,6 +153,77 @@ class DashboardService {
 	public const ERR_UNPUBLISH_BEFORE_PUBLISH = 'unpublishAt must be after publishAt';
 
 	/**
+	 * The default widget set of a brand-new dashboard.
+	 *
+	 * A tile with `iconType` `url` names a bundled image under
+	 * `launchpad/img/`; {@see self::defaultWidgetSeeds()} resolves it.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private const DEFAULT_WIDGET_SEEDS = [
+		[
+			'widgetId' => 'tile',
+			'gridX' => 0,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 0,
+			'tile' => [
+				'title' => 'Conduction',
+				'icon' => 'conduction-logo.png',
+				'iconType' => 'url',
+				'backgroundColor' => '#ffffff',
+				'textColor' => '#000000',
+				'linkType' => 'url',
+				'linkValue' => 'https://conduction.nl',
+			],
+		],
+		[
+			'widgetId' => 'tile',
+			'gridX' => 4,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 1,
+			'tile' => [
+				'title' => 'Sendent',
+				'icon' => 'sendent-logo.png',
+				'iconType' => 'url',
+				'backgroundColor' => '#ffffff',
+				'textColor' => '#000000',
+				'linkType' => 'url',
+				'linkValue' => 'https://sendent.com',
+			],
+		],
+		[
+			'widgetId' => 'tile',
+			'gridX' => 8,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 2,
+			'tile' => [
+				'title' => 'Nextcloud',
+				'icon' => 'icon-nextcloud',
+				'iconType' => 'class',
+				'backgroundColor' => '#0082c9',
+				'textColor' => '#ffffff',
+				'linkType' => 'url',
+				'linkValue' => 'https://nextcloud.com',
+			],
+		],
+		[
+			'widgetId' => 'files',
+			'gridX' => 0,
+			'gridY' => 3,
+			'gridWidth' => 12,
+			'gridHeight' => 5,
+			'sortOrder' => 3,
+			'tile' => null,
+		],
+	];
+
+	/**
 	 * Constructor
 	 *
 	 * @param DashboardStores    $stores The dashboard, placement, admin-setting and lock mappers.
@@ -236,22 +307,15 @@ class DashboardService {
 		// entity — calling `getId()` on the wrapper triggers the
 		// "member function on array" fatal that broke the switch flow
 		// when this method first shipped.
-		$visible = $this->getVisibleToUser(userId: $userId);
-		$dashboard = null;
-		$source = '';
-		foreach ($visible as $entry) {
-			$candidate = $entry['dashboard'];
-			if ($candidate->getId() === $dashboardId) {
-				$dashboard = $candidate;
-				$source = (string)$entry['source'];
-				break;
-			}
-		}
-
-		if ($dashboard === null) {
+		$entry = $this->findVisibleEntryById(
+			visible: $this->getVisibleToUser(userId: $userId),
+			dashboardId: $dashboardId
+		);
+		if ($entry === null) {
 			return null;
 		}
 
+		$dashboard = $entry['dashboard'];
 		$placements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $dashboard->getId()
 		);
@@ -262,35 +326,71 @@ class DashboardService {
 		// rights to a view-only recipient. Server-side enforcement already
 		// goes through PermissionService::resolveAccessLevel(); this keeps
 		// the envelope the frontend renders from agreeing with it.
-		if ($source === Dashboard::SOURCE_SHARED) {
-			$levels = $this->builders->dashResolver->findSharedLevels(
-				userId: $userId,
-				userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
-					userId: $userId
-				)
-			);
-			if (isset($levels[$dashboard->getId()]) === true) {
-				return [
-					'dashboard' => $dashboard,
-					'placements' => $this->withPersonalLayer(
-						placements: $placements,
-						dashboard: $dashboard,
-						userId: $userId
-					),
-					'permissionLevel' => $levels[$dashboard->getId()],
-				];
-			}
+		$sharedLevel = null;
+		if ((string)$entry['source'] === Dashboard::SOURCE_SHARED) {
+			$sharedLevel = $this->sharedPermissionLevel(dashboard: $dashboard, userId: $userId);
+		}
+
+		$layered = $this->withPersonalLayer(
+			placements: $placements,
+			dashboard: $dashboard,
+			userId: $userId
+		);
+
+		if ($sharedLevel !== null) {
+			return [
+				'dashboard' => $dashboard,
+				'placements' => $layered,
+				'permissionLevel' => $sharedLevel,
+			];
 		}
 
 		return $this->builders->dashResolver->buildResult(
 			dashboard: $dashboard,
-			placements: $this->withPersonalLayer(
-				placements: $placements,
-				dashboard: $dashboard,
+			placements: $layered
+		);
+	}//end getDashboardForUser()
+
+	/**
+	 * The first visible entry for the dashboard ID.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible     The user's visible set.
+	 * @param int                                                     $dashboardId The dashboard ID.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|null
+	 */
+	private function findVisibleEntryById(array $visible, int $dashboardId): ?array {
+		foreach ($visible as $entry) {
+			if ($entry['dashboard']->getId() === $dashboardId) {
+				return $entry;
+			}
+		}
+
+		return null;
+	}//end findVisibleEntryById()
+
+	/**
+	 * The permission level a share grants the user on the dashboard, or NULL when none does.
+	 *
+	 * @param Dashboard $dashboard The shared dashboard.
+	 * @param string    $userId    The recipient.
+	 *
+	 * @return string|null
+	 */
+	private function sharedPermissionLevel(Dashboard $dashboard, string $userId): ?string {
+		$levels = $this->builders->dashResolver->findSharedLevels(
+			userId: $userId,
+			userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
 				userId: $userId
 			)
 		);
-	}//end getDashboardForUser()
+
+		if (isset($levels[$dashboard->getId()]) === true) {
+			return $levels[$dashboard->getId()];
+		}
+
+		return null;
+	}//end sharedPermissionLevel()
 
 	/**
 	 * Lay the caller's own arrangement over a dashboard somebody else owns.
@@ -3166,68 +3266,15 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function defaultWidgetSeeds(): array {
-		return [
-			[
-				'widgetId' => 'tile',
-				'gridX' => 0,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 0,
-				'tile' => [
-					'title' => 'Conduction',
-					'icon' => $this->appImagePath(image: 'conduction-logo.png'),
-					'iconType' => 'url',
-					'backgroundColor' => '#ffffff',
-					'textColor' => '#000000',
-					'linkType' => 'url',
-					'linkValue' => 'https://conduction.nl',
-				],
-			],
-			[
-				'widgetId' => 'tile',
-				'gridX' => 4,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 1,
-				'tile' => [
-					'title' => 'Sendent',
-					'icon' => $this->appImagePath(image: 'sendent-logo.png'),
-					'iconType' => 'url',
-					'backgroundColor' => '#ffffff',
-					'textColor' => '#000000',
-					'linkType' => 'url',
-					'linkValue' => 'https://sendent.com',
-				],
-			],
-			[
-				'widgetId' => 'tile',
-				'gridX' => 8,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 2,
-				'tile' => [
-					'title' => 'Nextcloud',
-					'icon' => 'icon-nextcloud',
-					'iconType' => 'class',
-					'backgroundColor' => '#0082c9',
-					'textColor' => '#ffffff',
-					'linkType' => 'url',
-					'linkValue' => 'https://nextcloud.com',
-				],
-			],
-			[
-				'widgetId' => 'files',
-				'gridX' => 0,
-				'gridY' => 3,
-				'gridWidth' => 12,
-				'gridHeight' => 5,
-				'sortOrder' => 3,
-				'tile' => null,
-			],
-		];
+		$seeds = self::DEFAULT_WIDGET_SEEDS;
+		foreach ($seeds as $index => $seed) {
+			// A `url` icon names a bundled image; resolve it to the app's real web root.
+			if (($seed['tile']['iconType'] ?? null) === 'url') {
+				$seeds[$index]['tile']['icon'] = $this->appImagePath(image: $seed['tile']['icon']);
+			}
+		}
+
+		return $seeds;
 	}//end defaultWidgetSeeds()
 
 	/**

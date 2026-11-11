@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Listener;
 
+use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCP\EventDispatcher\Event;
@@ -79,37 +80,14 @@ class TreeListener implements IEventListener {
 		}
 
 		$uuid = $event->getDashboardUuid();
-		$deletedAt = $event->getDeletedAt();
 
 		try {
-			$children = $this->dashboardMapper->findByParent(
-				parentUuid: $uuid
-			);
-
-			foreach ($children as $child) {
-				$childUuid = (string)$child->getUuid();
-				if ($childUuid === '') {
-					continue;
-				}
-
-				$childOwnerId = (string)($child->getUserId() ?? $event->getOwnerUserId());
-				$childType = (string)($child->getType() ?? $event->getType());
-
-				$this->dispatcher->dispatchTyped(
-					new DashboardDeletedEvent(
-						dashboardUuid: $childUuid,
-						ownerUserId:   $childOwnerId,
-						type:          $childType,
-						deletedAt:     $deletedAt,
-						dashboardId:   $child->getId()
-					)
-				);
-			}//end foreach
+			$childCount = $this->cascadeToChildren(parent: $event);
 
 			$this->logger->debug(
 				message: sprintf(
 					'launchpad TreeListener: dispatched delete for %d children of dashboard %s',
-					count($children),
+					$childCount,
 					$uuid
 				),
 				context: ['app' => 'launchpad']
@@ -125,4 +103,47 @@ class TreeListener implements IEventListener {
 			);
 		}//end try
 	}//end handle()
+
+	/**
+	 * Dispatch a delete event for every child of the deleted dashboard
+	 * that has a UUID.
+	 *
+	 * @param DashboardDeletedEvent $parent The parent's delete event.
+	 *
+	 * @return int The number of children found.
+	 */
+	private function cascadeToChildren(DashboardDeletedEvent $parent): int {
+		$children = $this->dashboardMapper->findByParent(
+			parentUuid: $parent->getDashboardUuid()
+		);
+
+		foreach ($children as $child) {
+			if ((string)$child->getUuid() !== '') {
+				$this->dispatchChildDeleted(child: $child, parent: $parent);
+			}
+		}
+
+		return count($children);
+	}//end cascadeToChildren()
+
+	/**
+	 * Dispatch the delete event of one child; owner and type fall back to
+	 * the parent's.
+	 *
+	 * @param Dashboard             $child  The child dashboard.
+	 * @param DashboardDeletedEvent $parent The parent's delete event.
+	 *
+	 * @return void
+	 */
+	private function dispatchChildDeleted(Dashboard $child, DashboardDeletedEvent $parent): void {
+		$this->dispatcher->dispatchTyped(
+			new DashboardDeletedEvent(
+				dashboardUuid: (string)$child->getUuid(),
+				ownerUserId:   (string)($child->getUserId() ?? $parent->getOwnerUserId()),
+				type:          (string)($child->getType() ?? $parent->getType()),
+				deletedAt:     $parent->getDeletedAt(),
+				dashboardId:   $child->getId()
+			)
+		);
+	}//end dispatchChildDeleted()
 }//end class

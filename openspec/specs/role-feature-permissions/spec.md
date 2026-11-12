@@ -53,7 +53,7 @@ One object per (groupId, widgetId) pair (slug `rld-{groupId}-{widgetId}`).
 
 ## Requirements
 
-### REQ-RFP-001: Feature presence visibility by role
+### Requirement: REQ-RFP-001: Feature presence visibility by role
 
 The system MUST render or hide dashboard features based on the authenticated user's effective
 role-feature-permissions. A widget not in the user's effective `allowedWidgets` set MUST NOT
@@ -92,7 +92,7 @@ appear anywhere in the UI and MUST NOT be returned by `GET /api/widgets`.
 
 ---
 
-### REQ-RFP-002: Role-based default dashboard layout
+### Requirement: REQ-RFP-002: Role-based default dashboard layout
 
 The system MUST seed a role-appropriate default layout. When a new user opens LaunchPad for
 the first time and no admin template matches their group, the system MUST seed their dashboard
@@ -132,7 +132,7 @@ priority). Existing personal customisations MUST never be overwritten.
 
 ---
 
-### REQ-RFP-003: Role-based card library
+### Requirement: REQ-RFP-003: Role-based card library
 
 The card library (widget picker) MUST only surface widgets permitted for the authenticated
 user's effective role. Widgets outside the allowed set MUST be absent from the picker UI and
@@ -168,7 +168,7 @@ from `GET /api/widgets`.
 
 ---
 
-### REQ-RFP-004: Role-and-priority layout ordering
+### Requirement: REQ-RFP-004: Role-and-priority layout ordering
 
 Widgets on a user's dashboard MUST be ordered according to the `priorityWeights` defined in
 the user's effective RoleFeaturePermission. Widgets with higher priority weight MUST appear
@@ -204,7 +204,7 @@ earlier in the default sort order.
 
 ---
 
-### REQ-RFP-005: Role precedence for multi-group users
+### Requirement: REQ-RFP-005: Role precedence for multi-group users
 
 The system MUST resolve a deterministic effective widget set for multi-group users. When a user
 belongs to multiple groups that each have a RoleFeaturePermission, the system MUST resolve a
@@ -244,7 +244,7 @@ the set; `deniedWidgets` from any matched group always win.
 
 ---
 
-### REQ-RFP-006: Role, interest, and journey distinction
+### Requirement: REQ-RFP-006: Role, interest, and journey distinction
 
 The system MUST distinguish between role-based access (Nextcloud group membership), expressed
 personal interest (user adds a widget they are permitted to add), and journey stage (the user's
@@ -283,7 +283,7 @@ effect within one session refresh.
 
 ---
 
-### REQ-RFP-007: Admin CRUD for role-feature-permissions
+### Requirement: REQ-RFP-007: Admin CRUD for role-feature-permissions
 
 IT admins MUST be able to create, read, update, and delete RoleFeaturePermission objects via
 admin-only API endpoints. Non-admin users MUST receive HTTP 403 on all mutation attempts.
@@ -322,7 +322,7 @@ admin-only API endpoints. Non-admin users MUST receive HTTP 403 on all mutation 
 
 ---
 
-### REQ-RFP-008: Admin CRUD for role-layout-defaults
+### Requirement: REQ-RFP-008: Admin CRUD for role-layout-defaults
 
 IT admins MUST be able to create, read, update, and delete RoleLayoutDefault objects. Non-admin
 users MUST receive HTTP 403 on all mutation attempts.
@@ -353,7 +353,7 @@ users MUST receive HTTP 403 on all mutation attempts.
 
 ---
 
-### REQ-RFP-009: Unconfigured installations retain full backwards-compatibility
+### Requirement: REQ-RFP-009: Unconfigured installations retain full backwards-compatibility
 
 When no RoleFeaturePermission objects exist in OpenRegister, `GET /api/widgets` MUST return
 the full widget list unchanged. No change in behaviour for existing LaunchPad installations that
@@ -378,7 +378,7 @@ have not configured role-feature-permissions.
 
 ---
 
-### REQ-RFP-010: Initial-state widget allowlist
+### Requirement: REQ-RFP-010: Initial-state widget allowlist
 
 The backend MUST include the resolved `allowedWidgets` list (or `null` for unconfigured) in
 the initial-state payload delivered to the frontend, so that the card library can filter

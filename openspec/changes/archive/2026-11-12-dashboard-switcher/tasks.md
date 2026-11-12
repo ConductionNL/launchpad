@@ -81,3 +81,5 @@ Changelog entry per Task 48. Inline component docstring (JSDoc) documenting prop
 ## i18n (company-wide ADR-005)
 
 English and Dutch per Tasks 31–33. Extraction via existing i18n build pipeline.
+
+> Archived unbuilt-as-written, 12 Nov 2026: superseded. Built and archived as `2026-05-02-dashboard-switcher-sidebar` and `2026-05-03-dashboard-switcher-extensions`; `openspec/specs/dashboard-switcher` holds REQ-SWITCH-001..009 and parity row dash-many is built. This copy came back from a stale branch on 16 Jun.

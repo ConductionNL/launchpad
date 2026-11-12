@@ -99,3 +99,5 @@
 - [ ] 7.1 Update `docs/sharing.md` (create if missing) with the share lifecycle diagram, including the new ownership-transfer path
 - [ ] 7.2 Confirm `launchpad_dashboards_orphaned_at_owner_deletion_total` and `launchpad_dashboard_ownership_transferred_total` Prometheus counters are exported via `GET /api/metrics` (ADR-006)
 - [ ] 7.3 Update `openspec/specs/dashboard-sharing/spec.md` with the new REQ-SHARE-008..013 once the change is archived (post-merge step done by `/opsx-archive`)
+
+> Archived unbuilt-as-written, 12 Nov 2026: superseded. A stale copy of `changes/archive/2026-04-30-dashboard-sharing-followups`, restored from a branch on 16 Jun. REQ-SHARE-008..013 are in `openspec/specs/dashboard-sharing` and the code exists (rows s-notify and s-leaver are built).

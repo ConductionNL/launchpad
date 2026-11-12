@@ -7,8 +7,11 @@ declare(strict_types=1);
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-return [
+// Every unversioned API route is also served under /api/v1/; see ApiPathAliases.
+return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 	'routes' => [
+		// The OpenAPI document of launchpad's own API, public, served under /api/v1/ too.
+		['name' => 'openApi#show', 'url' => '/api/openapi.json', 'verb' => 'GET'],
 		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
 		// literal '/api/manifest' segment is matched before any wildcard.
 		// First-time setup wizard (ADR-042) — the standard CnSetupWizard contract.
@@ -653,4 +656,4 @@ return [
 		['name' => 'page#deepLink', 'url' => '/{deepLink}', 'verb' => 'GET',
 		 'requirements' => ['deepLink' => '(?!api(?:/|$)).+']],
 	],
-];
+]);

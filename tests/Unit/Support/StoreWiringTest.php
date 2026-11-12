@@ -67,7 +67,8 @@ class StoreWiringTest extends TestCase {
 	public function testTheStorePageCanReachItsEndpoints(): void {
 		$urls = [];
 		foreach ($this->routes() as $route) {
-			$urls[$route['name']] = $route['url'];
+			// Keyed as Nextcloud registers it: the /api/v1/ twin carries its own postfix.
+			$urls[$route['name'].($route['postfix'] ?? '')] = $route['url'];
 		}
 
 		$this->assertSame('/api/store/items', ($urls['store#search'] ?? null));

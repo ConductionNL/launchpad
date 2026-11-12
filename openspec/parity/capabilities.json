@@ -3295,9 +3295,9 @@
 				"state": "built",
 				"evidence": "lib/Settings/connections.json:14; src/manifest.d/connection-registry.json:23; live pass 1 Nov 2026: tests/e2e/integrations-page.spec.ts 4 passed against an instance with launchpad and integriq",
 				"owner": "ConductionNL/integriq",
-				"change": "openspec/changes/adopt-connection-registry",
+				"change": "openspec/changes/archive/2026-11-12-adopt-connection-registry",
 				"readOn": "2026-11-01",
-				"requirement": "openspec/changes/adopt-connection-registry/specs/app-connections :: REQ-LP-CONN-004 An admin reads the connections on an Integrations page"
+				"requirement": "openspec/specs/app-connections :: REQ-LP-CONN-004 An admin reads the connections on an Integrations page"
 			},
 			"reachedOn": "Integrations page (/apps/launchpad/settings/integrations), shown only when the integriq app is installed",
 			"provider": "integriq",
@@ -5585,7 +5585,7 @@
 				"evidence": "lib/Settings/connections.json:43; lib/Service/IframeService.php:9",
 				"owner": "ConductionNL/launchpad",
 				"change": [
-					"openspec/changes/adopt-connection-registry",
+					"openspec/changes/archive/2026-11-12-adopt-connection-registry",
 					"openspec/changes/archive/2026-07-23-iframe-embed-widget"
 				],
 				"spec": [

@@ -5,3 +5,4 @@
 - [ ] 3. Build the sharing limits: add `sharing_allowed_groups` and `sharing_recipient_scope` to `lib/Db/AdminSettingKey.php`, enforce them in `lib/Service/DashboardShareService.php` and in the sharee search, and add both fields to `src/components/admin/DashboardSharingPolicy.vue`. Verify: PHPUnit on the service, Vitest on the component.
 - [ ] 4. Build the admin tour: declare a `launchpad:admin-getting-started` walkthrough in `src/manifest.json` for the admin settings page. Verify: Vitest on the manifest block.
 - [ ] 5. Fold the requirements into the main specs on archive, and set s-policy and d-tour to `built` with evidence lines.
+- [x] 6. Write the requirements for int-mail, int-tasks (REQ-WDG-030) and d-proxy (REQ-PLB-008) from the code on `development` (`src/components/WidgetRenderer.vue` item mapping; every outbound fetch through `IClientService`), and record them on the rows.

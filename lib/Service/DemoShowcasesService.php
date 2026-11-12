@@ -219,29 +219,67 @@ class DemoShowcasesService {
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
 	public function describeShowcase(string $showcaseId): ?array {
+		$manifest = $this->readShowcaseManifest(showcaseId: $showcaseId);
+		if ($manifest === null) {
+			return null;
+		}
+
+		return $this->descriptorFor(showcaseId: $showcaseId, manifest: $manifest);
+	}//end describeShowcase()
+
+	/**
+	 * The manifest of a showcase's archive, null when the archive is
+	 * absent or its manifest unreadable.
+	 *
+	 * @param string $showcaseId The showcase ID.
+	 *
+	 * @return array<string, mixed>|null The decoded manifest.
+	 */
+	private function readShowcaseManifest(string $showcaseId): ?array {
 		$zipPath = $this->getZipPath(showcaseId: $showcaseId);
 		if (file_exists(filename: $zipPath) === false) {
 			return null;
 		}
 
-		$manifest = $this->readManifest(zipPath: $zipPath);
-		if ($manifest === null) {
-			return null;
-		}
+		return $this->readManifest(zipPath: $zipPath);
+	}//end readShowcaseManifest()
 
+	/**
+	 * Build the gallery descriptor of a readable showcase.
+	 *
+	 * @param string               $showcaseId The showcase ID.
+	 * @param array<string, mixed> $manifest   The decoded manifest.
+	 *
+	 * @return array<string, mixed> The descriptor.
+	 */
+	private function descriptorFor(string $showcaseId, array $manifest): array {
 		$installedUuid = $this->getInstalledUuid(showcaseId: $showcaseId);
-		$installedDashboardId = null;
-		if ($installedUuid !== '') {
-			$installedDashboardId = $installedUuid;
-		}
 
+		return [
+			'id' => $showcaseId,
+			'name' => (string)($manifest['showcaseName'] ?? $showcaseId),
+			'description' => (string)($manifest['showcaseDescription'] ?? ''),
+			'language' => (string)($manifest['showcaseLanguage'] ?? 'nl'),
+			'thumbnailUrl' => $this->thumbnailUrl(showcaseId: $showcaseId),
+			'isInstalled' => $installedUuid !== '',
+			'installedDashboardUuid' => $this->installedDashboardUuid(installedUuid: $installedUuid),
+		];
+	}//end descriptorFor()
+
+	/**
+	 * The showcase's preview image URL, null (logged) when it is absent.
+	 *
+	 * @param string $showcaseId The showcase ID.
+	 *
+	 * @return string|null The URL, or null.
+	 */
+	private function thumbnailUrl(string $showcaseId): ?string {
 		// The imagePath() call THROWS when the image is absent, and this runs once per
 		// showcase inside the listing, so one showcase without a preview used
 		// to 500 the whole gallery. A missing thumbnail is a cosmetic gap in
 		// one card, not a reason to hide the other five.
-		$thumbnailUrl = null;
 		try {
-			$thumbnailUrl = $this->platform->urlGenerator->imagePath(
+			return $this->platform->urlGenerator->imagePath(
 				Application::APP_ID,
 				'showcases/' . $showcaseId . '.png'
 			);
@@ -250,18 +288,24 @@ class DemoShowcasesService {
 				message: 'Showcase ' . $showcaseId . ' has no preview image',
 				context: ['exception' => $e]
 			);
+			return null;
+		}
+	}//end thumbnailUrl()
+
+	/**
+	 * The installed dashboard UUID, null when the showcase is not installed.
+	 *
+	 * @param string $installedUuid The recorded UUID, or `''`.
+	 *
+	 * @return string|null The UUID, or null.
+	 */
+	private function installedDashboardUuid(string $installedUuid): ?string {
+		if ($installedUuid === '') {
+			return null;
 		}
 
-		return [
-			'id' => $showcaseId,
-			'name' => (string)($manifest['showcaseName'] ?? $showcaseId),
-			'description' => (string)($manifest['showcaseDescription'] ?? ''),
-			'language' => (string)($manifest['showcaseLanguage'] ?? 'nl'),
-			'thumbnailUrl' => $thumbnailUrl,
-			'isInstalled' => $installedUuid !== '',
-			'installedDashboardUuid' => $installedDashboardId,
-		];
-	}//end describeShowcase()
+		return $installedUuid;
+	}//end installedDashboardUuid()
 
 	/**
 	 * Install a showcase as a `group_shared` dashboard.
@@ -483,21 +527,11 @@ class DemoShowcasesService {
 	 * skip (REQ-DEMO-005).
 	 *
 	 * A widget is kept when LaunchPad can render it. That is true in three
-	 * cases, checked in this order:
-	 *
-	 * 1. it is a tile (`tileType` set), rendered by LaunchPad's tile renderer;
-	 * 2. its `widgetId` is one of LaunchPad's OWN widget types
-	 *    (`lib/widget-types.json`: `object-list`, `nc-widget`, `calendar`,
-	 *    `text` and the rest), rendered by the workspace's widget registry;
-	 * 3. its `widgetId` is a Nextcloud dashboard widget registered on this
-	 *    instance (`IManager::getWidgets()`), rendered through the bridge.
-	 *
-	 * Anything else is skipped, which is what the skip exists for: a bare
-	 * Nextcloud widget id whose app is not installed here.
-	 *
-	 * Case 2 is new. Before it, a LaunchPad type counted as "unknown"
-	 * because it is not in Nextcloud's registry, so the `case-handler`
-	 * showcase, built entirely from LaunchPad types, installed as an empty
+	 * cases: it is a tile (`tileType` set), it is one of LaunchPad's own
+	 * widget types (`lib/widget-types.json`), or it is a Nextcloud dashboard
+	 * widget registered on this instance. Before the second case existed
+	 * every LaunchPad widget was skipped, so a showcase built entirely from
+	 * LaunchPad types, installed as an empty
 	 * dashboard and still reported success.
 	 *
 	 * An `nc-widget` is kept whatever widget it proxies. The check is on the
@@ -514,44 +548,55 @@ class DemoShowcasesService {
 	 * @spec openspec/specs/demo-data-showcases/spec.md
 	 */
 	public function partitionWidgets(array $widgets): array {
+		$registered = $this->registeredWidgetIds();
+		$known = $this->getLaunchpadWidgetTypes() + $registered;
+
+		$valid = [];
+		$skipped = [];
+		foreach (array_filter(array: $widgets, callback: 'is_array') as $widget) {
+			if ($this->isPlaceable(widget: $widget, known: $known) === true) {
+				$valid[] = $widget;
+			} elseif ((string)($widget['widgetId'] ?? '') !== '') {
+				$skipped[] = (string)$widget['widgetId'];
+			}
+		}
+
+		return [$valid, $skipped];
+	}//end partitionWidgets()
+
+	/**
+	 * The ids of the Nextcloud dashboard widgets registered on this
+	 * instance, keyed for `isset()` lookups.
+	 *
+	 * @return array<string, true> The registered ids.
+	 */
+	private function registeredWidgetIds(): array {
 		$registered = [];
 		foreach ($this->platform->dashboardManager->getWidgets() as $widget) {
 			$registered[$widget->getId()] = true;
 		}
 
-		$ownTypes = $this->getLaunchpadWidgetTypes();
+		return $registered;
+	}//end registeredWidgetIds()
 
-		$valid = [];
-		$skipped = [];
-		foreach ($widgets as $widget) {
-			if (is_array($widget) === false) {
-				continue;
-			}
+	/**
+	 * Whether LaunchPad can render a showcase widget: a tile, or a widget
+	 * whose id is a known LaunchPad or registered Nextcloud type.
+	 *
+	 * @param array<string, mixed> $widget The widget payload.
+	 * @param array<string, true>  $known  The renderable widget ids.
+	 *
+	 * @return bool True when the widget is placed.
+	 */
+	private function isPlaceable(array $widget, array $known): bool {
+		// Tile placements bypass the widget registry — they render
+		// through the LaunchPad tile renderer (REQ-DEMO-005).
+		if ((string)($widget['tileType'] ?? '') !== '') {
+			return true;
+		}
 
-			$widgetId = (string)($widget['widgetId'] ?? '');
-			$tileType = (string)($widget['tileType'] ?? '');
-
-			// Tile placements bypass the widget registry — they render
-			// through the LaunchPad tile renderer (REQ-DEMO-005).
-			if ($tileType !== '') {
-				$valid[] = $widget;
-				continue;
-			}
-
-			if (isset($ownTypes[$widgetId]) === true
-				|| isset($registered[$widgetId]) === true
-			) {
-				$valid[] = $widget;
-				continue;
-			}
-
-			if ($widgetId !== '') {
-				$skipped[] = $widgetId;
-			}
-		}//end foreach
-
-		return [$valid, $skipped];
-	}//end partitionWidgets()
+		return isset($known[(string)($widget['widgetId'] ?? '')]) === true;
+	}//end isPlaceable()
 
 	/**
 	 * Load LaunchPad's own widget types from `lib/widget-types.json`.
@@ -573,30 +618,52 @@ class DemoShowcasesService {
 			return $this->launchpadWidgetTypes;
 		}
 
-		$decoded = null;
-		if (is_readable(filename: self::WIDGET_TYPES_PATH) === true) {
-			$raw = file_get_contents(filename: self::WIDGET_TYPES_PATH);
-			if (is_string($raw) === true) {
-				$decoded = json_decode(json: $raw, associative: true);
-			}
-		}
-
+		$decoded = $this->readWidgetTypesFile();
 		if (is_array($decoded) === false || is_array($decoded['types'] ?? null) === false) {
 			throw new RuntimeException(
 				message: 'LaunchPad widget type list missing or malformed: ' . self::WIDGET_TYPES_PATH
 			);
 		}
 
-		$types = [];
-		foreach ($decoded['types'] as $type) {
+		$this->launchpadWidgetTypes = $this->typeSet(types: $decoded['types']);
+		return $this->launchpadWidgetTypes;
+	}//end getLaunchpadWidgetTypes()
+
+	/**
+	 * Decode `lib/widget-types.json`, null when it cannot be read.
+	 *
+	 * @return mixed The decoded JSON, or null.
+	 */
+	private function readWidgetTypesFile(): mixed {
+		if (is_readable(filename: self::WIDGET_TYPES_PATH) === false) {
+			return null;
+		}
+
+		$raw = file_get_contents(filename: self::WIDGET_TYPES_PATH);
+		if (is_string($raw) === false) {
+			return null;
+		}
+
+		return json_decode(json: $raw, associative: true);
+	}//end readWidgetTypesFile()
+
+	/**
+	 * The non-empty string entries of the type list, keyed for `isset()`.
+	 *
+	 * @param array<int|string, mixed> $types The `types` list.
+	 *
+	 * @return array<string, true> The types.
+	 */
+	private function typeSet(array $types): array {
+		$set = [];
+		foreach ($types as $type) {
 			if (is_string($type) === true && $type !== '') {
-				$types[$type] = true;
+				$set[$type] = true;
 			}
 		}
 
-		$this->launchpadWidgetTypes = $types;
-		return $types;
-	}//end getLaunchpadWidgetTypes()
+		return $set;
+	}//end typeSet()
 
 	/**
 	 * Resolve the on-disk ZIP path for a showcase ID.
@@ -669,34 +736,78 @@ class DemoShowcasesService {
 		}
 
 		try {
-			for ($i = 0; $i < $zip->numFiles; $i++) {
-				$name = (string)$zip->getNameIndex(index: $i);
-				if (str_starts_with(haystack: $name, needle: 'dashboards/') === false) {
-					continue;
-				}
-
-				if (str_ends_with(haystack: $name, needle: '.json') === false) {
-					continue;
-				}
-
-				$raw = $zip->getFromIndex(index: $i);
-				if ($raw === false) {
-					continue;
-				}
-
-				$decoded = json_decode(json: $raw, associative: true);
-				if (is_array($decoded) === true) {
-					return $decoded;
-				}
-			}
+			$payload = $this->firstDashboardEntry(zip: $zip);
 		} finally {
 			$zip->close();
-		}//end try
+		}
+
+		if ($payload !== null) {
+			return $payload;
+		}
 
 		throw new RuntimeException(
 			message: 'Showcase archive contained no dashboard JSON entry.'
 		);
 	}//end loadDashboardPayload()
+
+	/**
+	 * The first `dashboards/*.json` entry of an open archive that decodes
+	 * to a JSON object or list.
+	 *
+	 * @param ZipArchive $zip The open archive.
+	 *
+	 * @return array<string, mixed>|null The payload, or null when none decodes.
+	 */
+	private function firstDashboardEntry(ZipArchive $zip): ?array {
+		for ($i = 0; $i < $zip->numFiles; $i++) {
+			if ($this->isDashboardEntryName(name: (string)$zip->getNameIndex(index: $i)) === false) {
+				continue;
+			}
+
+			$decoded = $this->decodeZipEntry(zip: $zip, index: $i);
+			if ($decoded !== null) {
+				return $decoded;
+			}
+		}
+
+		return null;
+	}//end firstDashboardEntry()
+
+	/**
+	 * Whether an archive entry name is a dashboard payload
+	 * (`dashboards/*.json`).
+	 *
+	 * @param string $name The entry name.
+	 *
+	 * @return bool True for a dashboard payload entry.
+	 */
+	private function isDashboardEntryName(string $name): bool {
+		return str_starts_with(haystack: $name, needle: 'dashboards/') === true
+			&& str_ends_with(haystack: $name, needle: '.json') === true;
+	}//end isDashboardEntryName()
+
+	/**
+	 * Decode one archive entry, null when it is unreadable or not a JSON
+	 * object or list.
+	 *
+	 * @param ZipArchive $zip   The open archive.
+	 * @param integer    $index The entry index.
+	 *
+	 * @return array<string, mixed>|null The decoded entry, or null.
+	 */
+	private function decodeZipEntry(ZipArchive $zip, int $index): ?array {
+		$raw = $zip->getFromIndex(index: $index);
+		if ($raw === false) {
+			return null;
+		}
+
+		$decoded = json_decode(json: $raw, associative: true);
+		if (is_array($decoded) === false) {
+			return null;
+		}
+
+		return $decoded;
+	}//end decodeZipEntry()
 
 	/**
 	 * Hydrate a Dashboard entity for a freshly-installed showcase.

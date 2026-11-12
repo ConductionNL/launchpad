@@ -4184,7 +4184,8 @@
 				"state": "specified",
 				"evidence": "lib/Controller/StoreController.php:134; src/manifest.json:164",
 				"owner": "ConductionNL/openregister",
-				"change": "openregister/store-over-federated-config"
+				"change": "openregister/store-over-federated-config",
+				"requirement": "openregister:openspec/changes/store-over-federated-config/specs/apphost-store-plane :: A store MUST be able to offer configuration, not only objects"
 			},
 			"reachedOn": "Store page (/apps/launchpad/store), once an administrator sets a registry URL on the Sharing tab",
 			"provider": "openregister",

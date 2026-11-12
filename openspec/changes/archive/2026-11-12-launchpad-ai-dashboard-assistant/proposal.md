@@ -1,3 +1,5 @@
+> Superseded by the main spec launchpad-ai-dashboard-assistant, REQ-ADA-004 (inference only through hermiq, no LLM client in LaunchPad); case summaries are dossiq's, placed as a widget (row d-work-queue). Decision 399.
+
 # Embedded AI assistant and smart summaries
 
 As a case worker or dashboard user, I want to view intelligent summaries of my workload on the dashboard—cases and consultation responses—so that I can quickly assess my current status without navigating away. This change adds two widgets powered by AI-driven summarization to help users make faster decisions on their open cases and gather feedback insights.

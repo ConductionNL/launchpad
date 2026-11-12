@@ -1,3 +1,5 @@
+> Superseded: meeting notes belong to decidiq or Calendar; LaunchPad shows the calendar (row w-calendar). Decision 399.
+
 # Meeting and calendar actions from dashboard
 
 ## Why

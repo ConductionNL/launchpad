@@ -2,6 +2,8 @@
 status: proposed
 ---
 
+> Superseded by the Nextcloud platform: sign-in from outside, session timeout and phone access are built there (rows p-sso, d-pwa, d-dark-mode). Decision 399.
+
 # Proposal: Mobile and Remote Dashboard Access
 
 ## Executive Summary

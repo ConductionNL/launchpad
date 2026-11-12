@@ -1,3 +1,5 @@
+> Superseded by the built public link (rows s-public, s-public-protect) and by the open change embedded-analytics for embedding on outside sites. Decision 399.
+
 # Public Dashboard Publication
 
 LaunchPad dashboards are today identity-bound — every viewer is an authenticated user and every view is recorded against that user. This is correct for internal BI and for the existing `dashboard-sharing` capability which lets one user share with another identified user. It is wrong for open-overheid use cases where any citizen should be able to view a live dashboard without a login.

@@ -3921,7 +3921,7 @@
 		{
 			"id": "r-wizard",
 			"area": "rollout",
-			"name": "Get the product ready through a guided setup of storage, groups, demo content and roles.",
+			"name": "Get the product ready through a guided setup of groups, demo content and roles.",
 			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "partial",
@@ -3932,7 +3932,14 @@
 				"state": "built",
 				"evidence": "src/components/admin/AdminSettings.vue:22; lib/Service/SetupWizardService.php:78",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-setup-wizard"
+				"change": "openspec/changes/archive/2026-05-03-setup-wizard",
+				"requirement": [
+					"openspec/specs/setup-wizard :: REQ-WIZ-002 Multi-Step Wizard Flow with 6 Steps",
+					"openspec/specs/setup-wizard :: REQ-WIZ-004 Step 2 — Group Priority Order (Embedded Component Reuse)",
+					"openspec/specs/setup-wizard :: REQ-WIZ-005 Step 3 — Demo Data Installation (Embedded Component Reuse)",
+					"openspec/specs/setup-wizard :: REQ-WIZ-006 Step 4 — Admin Roles (Optional, Depends on admin-roles Capability)"
+				],
+				"note": "decision 392 (12 Nov): reworded without the storage step, retired 9 Oct (decision 131). Before: Get the product ready through a guided setup of storage, groups, demo content and roles."
 			},
 			"reachedOn": "Admin settings, Run setup wizard banner",
 			"provider": "launchpad",

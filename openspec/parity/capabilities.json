@@ -1434,7 +1434,10 @@
 				"state": "built",
 				"evidence": "src/views/Views.vue:150; src/components/WidgetWrapper.vue; src/stores/personalLayer.js",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboards-personal-hide-ui",
+				"change": [
+					"openspec/changes/archive/2026-09-29-dashboards-personal-hide-ui",
+					"openspec/changes/dashboards-and-who-may-see-them"
+				],
 				"requirement": "openspec/specs/dashboards :: A person can hide a widget for themselves (REQ-PERSUI-001)"
 			},
 			"reachedOn": "nothing: /api/dashboards/{dashboardId}/personal-layer has no caller in src/",
@@ -1930,6 +1933,44 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpEersteKeer"
+			}
+		},
+		{
+			"id": "d-start-full-width",
+			"area": "dashboards",
+			"name": "An administrator can give the start page the full width, without the navigation panel.",
+			"launchpad": "yes",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "built",
+				"owner": "ConductionNL/launchpad",
+				"evidence": "src/App.vue:165 (startPageWithoutNavigation); src/components/Workspace/StartPageMenu.vue; live check open in the change",
+				"change": "openspec/changes/start-page-without-navigation-panel",
+				"requirement": "openspec/specs/runtime-shell :: REQ-SHELL-009 Start page without navigation panel"
+			},
+			"reachedOn": "Admin settings, layout options: Start page without navigation panel; the start page then shows its destinations in a Menu button",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "runtime-shell",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"LpVandaag",
+					"LpBeheerAlgemeen"
+				]
 			}
 		},
 		{
@@ -3045,6 +3086,78 @@
 			}
 		},
 		{
+			"id": "w-scheduled-export",
+			"area": "widgets",
+			"name": "Have a dashboard sent as a PDF or file on a schedule, such as every Monday at nine.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/scheduled-exports",
+				"requirement": [
+					"openspec/changes/scheduled-exports/specs/scheduled-exports :: REQ-SCH-002 Background runner fires schedules without an active browser session",
+					"openspec/changes/scheduled-exports/specs/scheduled-exports :: REQ-SCH-003 Multi-format render from a single fire"
+				]
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "scheduled-exports",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system"
+			}
+		},
+		{
+			"id": "w-cross-filter",
+			"area": "widgets",
+			"name": "Click a bar or a row in one widget to filter the other widgets on the dashboard.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/drill-down-cross-widget-filter",
+				"requirement": [
+					"openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-001 Widget click publishes to the filter bus",
+					"openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter :: REQ-CWF-002 All consuming widgets re-render on filter change"
+				]
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "cross-widget-filter",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system"
+			}
+		},
+		{
 			"id": "int-builder",
 			"area": "integrations",
 			"name": "Connect a business system and show its data as a tile without writing code.",
@@ -3868,7 +3981,10 @@
 				"state": "built",
 				"evidence": "lib/Service/TemplateResyncService.php:247; src/components/admin/tabs/TemplatesPage.vue:70",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-07-23-admin-template-resync",
+				"change": [
+					"openspec/changes/archive/2026-07-23-admin-template-resync",
+					"openspec/changes/shipped-template-update"
+				],
 				"requirement": [
 					"openspec/specs/admin-templates :: REQ-RESYNC-001 Re-sync action pushes template updates to existing copies",
 					"openspec/specs/admin-templates :: REQ-RESYNC-003 Merge strategy preserves user-added widgets"
@@ -3982,7 +4098,11 @@
 				"state": "built",
 				"evidence": "lib/Service/DemoShowcasesService.php:314; src/components/admin/tabs/DemoDataTab.vue:8",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-05-03-demo-data-showcases",
+				"change": [
+					"openspec/changes/archive/2026-05-03-demo-data-showcases",
+					"openspec/changes/mijn-werkdag-template",
+					"openspec/changes/mijn-werkdag-v3"
+				],
 				"requirement": "openspec/specs/demo-data-showcases :: REQ-DEMO-003 Install showcase endpoint"
 			},
 			"reachedOn": "Admin settings, Demo data tab; also occ launchpad demo-showcases install",
@@ -4001,6 +4121,39 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpInstellen"
+			}
+		},
+		{
+			"id": "r-report-gallery",
+			"area": "rollout",
+			"name": "Pick a ready-made report from a gallery and keep the result as your own dashboard.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/dashboards-and-who-may-see-them",
+				"requirement": "openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them :: REQ-DWMS-003 Reports the product ships"
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "dashboards-and-who-may-see-them",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system"
 			}
 		},
 		{
@@ -4626,6 +4779,42 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpBeheerOnderhoud"
+			}
+		},
+		{
+			"id": "s-discussion",
+			"area": "sharing",
+			"name": "Discuss a shared dashboard with colleagues in a Talk conversation beside it.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/openregister-leaf-integrations",
+				"requirement": [
+					"openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf :: REQ-LEAF-002 Discussion surface renders only on shared dashboards",
+					"openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf :: REQ-LEAF-003 Discussion access follows the existing view guard"
+				]
+			},
+			"reachedOn": "nothing yet",
+			"evidence": {
+				"workspace-365": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"microsoft-viva": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"nextcloud-dashboard": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"homarr": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)",
+				"dashy": "not checked: row added from the open-change triage on 12 Nov 2026 (decision 395)"
+			},
+			"provider": "launchpad",
+			"providerHow": "specified",
+			"feature": "dashboard-talk-leaf",
+			"featureConfidence": "medium",
+			"origin": "roadmap",
+			"screen": {
+				"canvas": "design-system"
 			}
 		},
 		{
@@ -5862,7 +6051,8 @@
 				"evidence": "l10n/nl.json:2",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/platform-baseline",
-				"requirement": "openspec/specs/platform-baseline :: Every string is translatable and follows the user's language (REQ-PLB-004)"
+				"requirement": "openspec/specs/platform-baseline :: Every string is translatable and follows the user's language (REQ-PLB-004)",
+				"change": "openspec/changes/fix-l10n-domain-mismatch-mydash-calls"
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
@@ -6923,7 +7113,8 @@
 				"evidence": "lib/Controller/AttentionController.php:39; src/constants/widgetRegistry.js:176",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/attention-feed",
-				"requirement": "openspec/specs/attention-feed :: REQ-ATT-004 Merging and ranking"
+				"requirement": "openspec/specs/attention-feed :: REQ-ATT-004 Merging and ranking",
+				"change": "openspec/changes/cross-app-attention-feed"
 			},
 			"reachedOn": "Workspace page, Add widget, First today",
 			"source": "spec-round-2026-10-07",

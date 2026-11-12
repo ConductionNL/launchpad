@@ -6,7 +6,7 @@ status: draft
 
 # Activity Feed Integration — Debounce Backend Reliability
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-ACT-007 Reaction debounce holds regardless of deployment topology
 

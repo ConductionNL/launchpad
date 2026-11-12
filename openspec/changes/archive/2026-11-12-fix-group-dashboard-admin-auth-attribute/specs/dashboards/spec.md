@@ -6,7 +6,7 @@ status: draft
 
 # Dashboards — Group-Shared CRUD Authorization Attribute
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-DASH-014 Group-shared dashboard CRUD is admin-only and declared as such
 

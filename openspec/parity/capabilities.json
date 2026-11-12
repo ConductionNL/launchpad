@@ -1948,7 +1948,7 @@
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/tiles",
 				"requirement": [
-					"openspec/specs/tiles :: REQ-TILE-PLACEMENT Inline-content placement model",
+					"openspec/specs/tiles :: REQ-TILE-PLACEMENT Inline-content placement model — promoted to canonical",
 					"openspec/specs/tiles :: Tile Link Navigation (REQ-TILE-008)",
 					"openspec/specs/tiles :: Tile Styling (REQ-TILE-009)"
 				]
@@ -2381,7 +2381,10 @@
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-05-03-navigation-editor-org",
 				"spec": "openspec/specs/navigation-editor-org",
-				"requirement": "REQ-ONAV-005 Vue panel rendering; REQ-ONAV-004 Global position setting"
+				"requirement": [
+					"openspec/specs/navigation-editor-org :: REQ-ONAV-005 Vue panel rendering",
+					"openspec/specs/navigation-editor-org :: REQ-ONAV-004 Global position setting"
+				]
 			},
 			"reachedOn": "Workspace page, navigation panel; edited on Admin settings, Organisation navigation tab",
 			"provider": "launchpad",
@@ -2747,7 +2750,10 @@
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-05-03-people-widget",
 				"spec": "openspec/specs/people-widget",
-				"requirement": "Widget registration via dashboard API (REQ-PPL-001); Three layout modes (REQ-PPL-008)"
+				"requirement": [
+					"openspec/specs/people-widget :: Widget registration via dashboard API (REQ-PPL-001)",
+					"openspec/specs/people-widget :: Three layout modes (REQ-PPL-008)"
+				]
 			},
 			"reachedOn": "Workspace page, Add widget, People",
 			"evidence": {
@@ -2944,7 +2950,7 @@
 					"openregister/aggregation-api"
 				],
 				"readOn": "2026-10-07",
-				"requirement": "Widget Rendering Architecture (REQ-WDG-009), scenario: Chart, stat and table widgets pass through to the nextcloud-vue renderers"
+				"requirement": "openspec/specs/widgets :: Widget Rendering Architecture (REQ-WDG-009)"
 			},
 			"reachedOn": "Workspace page, Add widget, Chart, Stat or Table, only with OpenRegister installed",
 			"provider": "openregister",
@@ -2981,7 +2987,7 @@
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-07-23-iframe-embed-widget",
 				"spec": "openspec/specs/iframe-embed-widget",
-				"requirement": "REQ-IFRAME-001 Register iframe-embed widget, scenario: A Power BI report as a live tile"
+				"requirement": "openspec/specs/iframe-embed-widget :: REQ-IFRAME-001 Register iframe-embed widget"
 			},
 			"reachedOn": "Workspace page, Embedded page widget, when the report host is on the allow-list",
 			"evidence": {
@@ -3017,7 +3023,7 @@
 				"evidence": "src/services/spendAnalytics.js:10; lib/widget-types.json:33",
 				"owner": "ConductionNL/openregister",
 				"change": "openspec/changes/archive/2026-06-14-add-launchpad-discovered-and-spend-analytics",
-				"requirement": "openspec/specs/launchpad-spend-analytics-widget :: REQ-SAW-004"
+				"requirement": "openspec/specs/launchpad-spend-analytics-widget :: REQ-SAW-004: The widget SHALL fetch spend data via runtime GraphQL against financeq + procest"
 			},
 			"reachedOn": "Workspace page, Add widget, Spend analytics, only with those apps installed",
 			"provider": "openregister",
@@ -3220,7 +3226,7 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/integrations-office-tiles",
-				"requirement": "The add flow offers an office tile pack built from what the server has (REQ-OFT-001)"
+				"requirement": "openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md :: The add flow offers an office tile pack built from what the server has (REQ-OFT-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -3503,7 +3509,7 @@
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-06-14-refactor-launchpad-ia-alignment",
 				"spec": "openspec/specs/conditional-visibility",
-				"requirement": "Admin overview of widgets with visibility rules (REQ-VIS-012)"
+				"requirement": "openspec/specs/conditional-visibility :: Admin overview of widgets with visibility rules (REQ-VIS-012)"
 			},
 			"reachedOn": "Admin settings, Versioning and audit tab",
 			"provider": "launchpad",
@@ -3710,7 +3716,10 @@
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/archive/2026-06-14-group-priority-order",
 				"spec": "openspec/specs/admin-settings",
-				"requirement": "Group order setting (REQ-ASET-012)"
+				"requirement": [
+					"openspec/specs/admin-settings :: Group order setting (REQ-ASET-012)",
+					"openspec/specs/admin-templates :: Primary-group resolution for workspace routing (REQ-TMPL-012)"
+				]
 			},
 			"reachedOn": "Admin settings, Sharing tab, group order",
 			"provider": "launchpad",
@@ -4599,7 +4608,7 @@
 				"evidence": "lib/Listener/UserDeletedListener.php:8; lib/Service/DashboardShareService.php:342",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/dashboard-sharing",
-				"requirement": "Cascade and admin retention on user deletion (REQ-SHARE-012)"
+				"requirement": "openspec/specs/dashboard-sharing :: Cascade and admin retention on user deletion (REQ-SHARE-012)"
 			},
 			"reachedOn": "automatic when a Nextcloud user is deleted",
 			"provider": "launchpad",
@@ -4871,7 +4880,7 @@
 				"state": "specified",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/engagement-communities",
-				"requirement": "The Communities widget lists open Talk conversations the viewer may join (REQ-COMM-001)"
+				"requirement": "openspec/changes/engagement-communities/specs/communities-widget/spec.md :: The Communities widget lists open Talk conversations the viewer may join (REQ-COMM-001)"
 			},
 			"reachedOn": "nothing",
 			"evidence": {
@@ -5113,7 +5122,7 @@
 				"evidence": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md:226",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/mcp-tool-surface",
-				"requirement": "REQ-MCP-008 Chat command flows resolve to tool sequences"
+				"requirement": "openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md :: REQ-MCP-008 Chat command flows resolve to tool sequences"
 			},
 			"reachedOn": "nothing: the overlay lists it as soon",
 			"provider": "launchpad",
@@ -5579,8 +5588,17 @@
 					"openspec/changes/adopt-connection-registry",
 					"openspec/changes/archive/2026-07-23-iframe-embed-widget"
 				],
-				"spec": "openspec/specs/iframe-embed-widget",
-				"requirement": "REQ-IFRAME-002 Admin allow-list of embeddable hosts, fail-closed"
+				"spec": [
+					"openspec/specs/iframe-embed-widget",
+					"openspec/specs/live-data-tile-widget",
+					"openspec/specs/service-health-ping"
+				],
+				"requirement": [
+					"openspec/specs/iframe-embed-widget :: REQ-IFRAME-002 Admin allow-list of embeddable hosts, fail-closed",
+					"openspec/specs/live-data-tile-widget :: REQ-LIVETILE-002 Configure the tile source",
+					"openspec/specs/live-data-tile-widget :: REQ-LIVETILE-003 Resolve and cache the value server-side",
+					"openspec/specs/service-health-ping :: REQ-HPING-002 Ping the service server-side and classify the result"
+				]
 			},
 			"reachedOn": "occ config:app:set only; no admin screen edits the host lists",
 			"provider": "launchpad",
@@ -5649,8 +5667,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/DashboardApiController.php:158",
 				"owner": "nextcloud/server",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "LaunchPad has no login of its own (REQ-PLB-001)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: LaunchPad has no login of its own (REQ-PLB-001)"
 			},
 			"reachedOn": "Nextcloud login; every LaunchPad route runs behind the Nextcloud session",
 			"evidence": {
@@ -5713,8 +5731,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml:56",
 				"owner": "nextcloud/server",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "LaunchPad runs on the organisation's own servers (REQ-PLB-002)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: LaunchPad runs on the organisation's own servers (REQ-PLB-002)"
 			},
 			"reachedOn": "installed as a Nextcloud app on your own instance",
 			"evidence": {
@@ -5747,8 +5765,8 @@
 				"state": "built",
 				"evidence": "src/views/WorkspaceApp.vue:552",
 				"owner": "nextcloud/server",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "Every page takes on the organisation's theme (REQ-PLB-003)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Every page takes on the organisation's theme (REQ-PLB-003)"
 			},
 			"reachedOn": "every page; colours come from Nextcloud theming or the NL Design System app",
 			"evidence": {
@@ -5843,8 +5861,8 @@
 				"state": "built",
 				"evidence": "l10n/nl.json:2",
 				"owner": "ConductionNL/launchpad",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "Every string is translatable and follows the user's language (REQ-PLB-004)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Every string is translatable and follows the user's language (REQ-PLB-004)"
 			},
 			"reachedOn": "every page, following the Nextcloud language setting",
 			"evidence": {
@@ -6121,8 +6139,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "lib/Service/RuleEvaluatorService.php:125",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "Group dashboards follow the groups set at sign-in (REQ-PLB-005)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Group dashboards follow the groups set at sign-in (REQ-PLB-005)"
 			},
 			"reachedOn": "every targeting rule and group dashboard; group membership itself comes from the Nextcloud login app",
 			"evidence": {
@@ -6199,8 +6217,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "src/views/WorkspaceApp.vue:480",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "Pages install on a phone through Nextcloud's web app manifest (REQ-PLB-006)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Pages install on a phone through Nextcloud's web app manifest (REQ-PLB-006)"
 			},
 			"reachedOn": "any LaunchPad page, through the browser's install option",
 			"evidence": {
@@ -6375,10 +6393,14 @@
 			"built": {
 				"state": "built",
 				"owner": "ConductionNL/nextcloud-vue",
-				"evidence": "nextcloud-vue src/components/CnNotepadWidget/CnNotepadWidget.vue and CnNotepadWidgetForm (main 0d69eaf48), type `notepad` registered userAddable in CnNotepadWidget/index.js and shipped in @conduction/nextcloud-vue 2.90.0, the version launchpad's package-lock.json pins; launchpad offers it through src/constants/widgetRegistry.js offerableTypes() (cnListWidgetTypes('app-dashboard'))",
+				"evidence": "nextcloud-vue src/components/CnNotepadWidget/CnNotepadWidget.vue and CnNotepadWidgetForm (main 0d69eaf48), type `notepad` registered userAddable in CnNotepadWidget/index.js and shipped since @conduction/nextcloud-vue 2.90.0; launchpad's package.json asks ^2.180.0 and package-lock.json pins 2.180.0; launchpad offers it through src/constants/widgetRegistry.js offerableTypes() (cnListWidgetTypes('app-dashboard'))",
 				"change": "nextcloud-vue/dashboard-notepad-widget",
 				"spec": "nextcloud-vue/grid-widget-system",
-				"requirement": "A notepad widget is typed into in place; A note belongs to the person who wrote it; A user may add a notepad to their own dashboard (nextcloud-vue change dashboard-notepad-widget, all tasks ticked)",
+				"requirement": [
+					"nextcloud-vue:openspec/changes/dashboard-notepad-widget/specs/grid-widget-system/spec.md :: A notepad widget is typed into in place",
+					"nextcloud-vue:openspec/changes/dashboard-notepad-widget/specs/grid-widget-system/spec.md :: A note belongs to the person who wrote it",
+					"nextcloud-vue:openspec/changes/dashboard-notepad-widget/specs/grid-widget-system/spec.md :: A user may add a notepad to their own dashboard"
+				],
 				"readOn": "2026-10-30"
 			},
 			"reachedOn": "Workspace page, Add widget, Notepad, on a personal dashboard",
@@ -6565,8 +6587,8 @@
 				"state": "built",
 				"owner": "nextcloud/server",
 				"evidence": "src/views/WorkspaceApp.vue:480",
-				"spec": "openspec/changes/platform-baseline",
-				"requirement": "Pages follow light or dark mode (REQ-PLB-007)"
+				"spec": "openspec/specs/platform-baseline",
+				"requirement": "openspec/specs/platform-baseline :: Pages follow light or dark mode (REQ-PLB-007)"
 			},
 			"reachedOn": "every page",
 			"evidence": {
@@ -6863,7 +6885,7 @@
 				"evidence": "dossiq lib/Dashboard/MyOpenWorkWidget.php (widget id dossiq_my_open_work_widget, development 304c18ee7), placed in LaunchPad as an nc-widget placement (src/services/widgetBridge.js:29, specs/widgets REQ-WDG-018)",
 				"change": "dossiq/widgets-my-open-cases-on-the-start-page",
 				"spec": "dossiq/dashboard",
-				"requirement": "My open work is a start page widget that any dashboard can render (REQ-DASH-023)",
+				"requirement": "dossiq:openspec/specs/dashboard :: My open work is a start page widget that any dashboard can render (REQ-DASH-023)",
 				"readOn": "2026-10-30"
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, dossiq's \"My open work\" widget, with dossiq installed",

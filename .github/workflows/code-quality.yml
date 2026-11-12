@@ -142,13 +142,15 @@ concurrency:
 # update-baseline / features-extract (contents write), and the Quality
 # Report PR comment (issues / pull-requests write).
 permissions:
-  contents: write
-  actions: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
   quality:
+    permissions:
+      contents: write
+      actions: write
+      issues: write
+      pull-requests: write
     if: (github.event_name != 'pull_request' || github.head_ref != 'development')
     uses: ConductionNL/.github/.github/workflows/quality.yml@main
     with:
@@ -397,8 +399,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - name: Every required locale carries every source key

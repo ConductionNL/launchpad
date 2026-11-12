@@ -175,51 +175,84 @@ class PeopleWidgetService {
 	 */
 	public function listUsers(PeopleQuery $request, ?string $viewerId=null): array {
 		$this->viewerId = $viewerId;
-		$filters = $request->filters;
-		$sortBy = $request->sortBy;
-		$page = $request->page;
-		$limit = $page->limit;
-		$offset = $page->offset;
+		$this->assertListable(request: $request);
 
-		if ($limit < 1 || $limit > self::MAX_LIMIT) {
-			throw new InvalidArgumentException(
-				message: 'limit must be between 1 and ' . self::MAX_LIMIT
-			);
+		$groupFilter = $this->extractGroupFilter(filters: $request->filters);
+
+		if (trim(string: (string)$request->search) !== '') {
+			return $this->listSearchMatches(request: $request, groupFilter: $groupFilter);
 		}
 
-		if ($offset < 0) {
+		return $this->listBrowsePage(request: $request, groupFilter: $groupFilter);
+	}//end listUsers()
+
+	/**
+	 * Refuse a page window outside 1..MAX_LIMIT or below offset 0, and the
+	 * not-yet-implemented `recent-activity` sort, in that order.
+	 *
+	 * @param PeopleQuery $request The list request.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the request cannot be listed.
+	 */
+	private function assertListable(PeopleQuery $request): void {
+		$limit = $request->page->limit;
+		if ($limit < 1 || $limit > self::MAX_LIMIT) {
+			throw new InvalidArgumentException(message: 'limit must be between 1 and ' . self::MAX_LIMIT);
+		}
+
+		if ($request->page->offset < 0) {
 			throw new InvalidArgumentException(message: 'offset must be >= 0');
 		}
 
-		if ($sortBy === 'recent-activity') {
-			throw new InvalidArgumentException(
-				message: 'sortBy=recent-activity is not yet implemented'
-			);
+		if ($request->sortBy === 'recent-activity') {
+			throw new InvalidArgumentException(message: 'sortBy=recent-activity is not yet implemented');
 		}
+	}//end assertListable()
 
-		$groupFilter = $this->extractGroupFilter(filters: $filters);
-
+	/**
+	 * List the directory-wide search matches of a request with search
+	 * text, in display-name order.
+	 *
+	 * @param PeopleQuery $request     The list request.
+	 * @param array|null  $groupFilter The group filter, if any.
+	 *
+	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
+	 *
+	 * @throws InvalidArgumentException When the query is shorter than MIN_QUERY_LENGTH.
+	 */
+	private function listSearchMatches(PeopleQuery $request, ?array $groupFilter): array {
 		$query = trim(string: (string)$request->search);
-		if ($query !== '') {
-			if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
-				throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
-			}
-
-			return $this->paginateCandidates(
-				candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
-				window: $page,
-				sortBy: 'displayName'
-			);
+		if (mb_strlen(string: $query) < self::MIN_QUERY_LENGTH) {
+			throw new InvalidArgumentException(message: 'q must be at least ' . self::MIN_QUERY_LENGTH . ' characters');
 		}
 
+		return $this->paginateCandidates(
+			candidates: $this->searchCandidates(query: $query, groupFilter: $groupFilter),
+			window: $request->page,
+			sortBy: 'displayName'
+		);
+	}//end listSearchMatches()
+
+	/**
+	 * List one page of the directory or of the filtered groups, without
+	 * search text.
+	 *
+	 * @param PeopleQuery $request     The list request.
+	 * @param array|null  $groupFilter The group filter, if any.
+	 *
+	 * @return array Pagination envelope with keys `users`, `total`, `hasMore`.
+	 */
+	private function listBrowsePage(PeopleQuery $request, ?array $groupFilter): array {
 		// No `group` filter AND the default `displayName` sort: page
 		// directly from the backend in display-name order so we never
 		// materialize more IUser objects than the requested window
 		// (plus any disabled users skipped inside it). This avoids the
 		// former full-directory `IUserManager::search('')` scan on every
 		// People-widget render. REQ-PPL-003.
-		if ($groupFilter === null && $sortBy !== 'group') {
-			return $this->listDirectoryPageByDisplayName(window: $page);
+		if ($groupFilter === null && $request->sortBy !== 'group') {
+			return $this->listDirectoryPageByDisplayName(window: $request->page);
 		}
 
 		// Bounded candidate pool: either the union of the filtered group
@@ -227,17 +260,12 @@ class PeopleWidgetService {
 		// with no group filter — the full directory, since ordering by
 		// each user's primary-group membership is inherently a
 		// full-directory read (see resolveCandidates()).
-		$candidates = $this->resolveCandidates(
-			filters: $filters,
-			groupFilter: $groupFilter
-		);
-
 		return $this->paginateCandidates(
-			candidates: $candidates,
-			window: $page,
-			sortBy: $sortBy
+			candidates: $this->resolveCandidates(filters: $request->filters, groupFilter: $groupFilter),
+			window: $request->page,
+			sortBy: $request->sortBy
 		);
-	}//end listUsers()
+	}//end listBrowsePage()
 
 	/**
 	 * Page the directory directly from the backend in display-name order,
@@ -494,20 +522,45 @@ class PeopleWidgetService {
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public static function computeDaysToBirthday(?string $birthdate): ?int {
+		$birth = self::parseBirthdate(birthdate: $birthdate);
+		if ($birth === null) {
+			return null;
+		}
+
+		return self::daysUntilNext(monthDay: $birth->format(format: 'm-d'));
+	}//end computeDaysToBirthday()
+
+	/**
+	 * Parse a stored birthdate, null when it is missing or not a date.
+	 *
+	 * @param string|null $birthdate The stored birthdate.
+	 *
+	 * @return DateTimeImmutable|null The date, or null.
+	 */
+	private static function parseBirthdate(?string $birthdate): ?DateTimeImmutable {
 		$iso = self::normaliseToIsoDate(raw: $birthdate);
 		if ($iso === null) {
 			return null;
 		}
 
 		try {
-			$birth = new DateTimeImmutable(datetime: $iso);
+			return new DateTimeImmutable(datetime: $iso);
 		} catch (Exception $e) {
 			return null;
 		}
+	}//end parseBirthdate()
 
+	/**
+	 * Days from today to the next occurrence of a month-day, today itself
+	 * counting as zero.
+	 *
+	 * @param string $monthDay `MM-DD` slug.
+	 *
+	 * @return int Days until the next occurrence.
+	 */
+	private static function daysUntilNext(string $monthDay): int {
 		$today = new DateTimeImmutable(datetime: 'today');
 
-		$monthDay = $birth->format(format: 'm-d');
 		// Feb-29 guard: in non-leap target years, fall back to Feb-28.
 		$candidate = self::buildBirthdayInYear(
 			year: (int)$today->format(format: 'Y'),
@@ -521,9 +574,8 @@ class PeopleWidgetService {
 			);
 		}
 
-		$diff = $today->diff(targetObject: $candidate);
-		return (int)$diff->days;
-	}//end computeDaysToBirthday()
+		return (int)$today->diff(targetObject: $candidate)->days;
+	}//end daysUntilNext()
 
 	/**
 	 * Extract the first `group` filter from the filter list, if present.
@@ -820,11 +872,7 @@ class PeopleWidgetService {
 	 *                     be parsed.
 	 */
 	private static function normaliseToIsoDate(?string $raw): ?string {
-		if ($raw === null) {
-			return null;
-		}
-
-		$trimmed = trim(string: $raw);
+		$trimmed = trim(string: (string)$raw);
 		if ($trimmed === '') {
 			return null;
 		}
@@ -834,9 +882,20 @@ class PeopleWidgetService {
 			return $trimmed;
 		}
 
-		$separators = ['-', '/', '.'];
-		foreach ($separators as $sep) {
-			$parts = explode(separator: $sep, string: $trimmed);
+		return self::isoFromSeparatedDate(date: $trimmed);
+	}//end normaliseToIsoDate()
+
+	/**
+	 * Try each of the `-`, `/` and `.` separators on a date string and
+	 * answer the first split into three segments that forms a real date.
+	 *
+	 * @param string $date The trimmed stored date.
+	 *
+	 * @return string|null `YYYY-MM-DD`, or null when no separator fits.
+	 */
+	private static function isoFromSeparatedDate(string $date): ?string {
+		foreach (['-', '/', '.'] as $sep) {
+			$parts = explode(separator: $sep, string: $date);
 			if (count(value: $parts) !== 3) {
 				continue;
 			}
@@ -845,10 +904,10 @@ class PeopleWidgetService {
 			if ($iso !== null) {
 				return $iso;
 			}
-		}//end foreach
+		}
 
 		return null;
-	}//end normaliseToIsoDate()
+	}//end isoFromSeparatedDate()
 
 	/**
 	 * Assemble an ISO-8601 date from three already-split date segments.
@@ -865,39 +924,56 @@ class PeopleWidgetService {
 	 *                     valid date.
 	 */
 	private static function isoFromDateParts(array $parts): ?string {
-		if (strlen(string: $parts[2]) !== 4 && strlen(string: $parts[0]) !== 4) {
+		$yearMonthDay = self::yearMonthDayOrder(parts: $parts);
+		if ($yearMonthDay === null || self::allDigits(segments: $yearMonthDay) === false) {
 			return null;
 		}
 
-		$day = '';
-		$month = '';
-		$year = '';
-		if (strlen(string: $parts[2]) === 4) {
-			$day = $parts[0];
-			$month = $parts[1];
-			$year = $parts[2];
-		}
-
-		if (strlen(string: $parts[0]) === 4) {
-			$year = $parts[0];
-			$month = $parts[1];
-			$day = $parts[2];
-		}
-
-		if (ctype_digit(text: $year) === false
-			|| ctype_digit(text: $month) === false
-			|| ctype_digit(text: $day) === false
-		) {
-			return null;
-		}
-
-		$iso = sprintf('%04d-%02d-%02d', (int)$year, (int)$month, (int)$day);
+		[$year, $month, $day] = $yearMonthDay;
 		if (checkdate(month: (int)$month, day: (int)$day, year: (int)$year) === false) {
 			return null;
 		}
 
-		return $iso;
+		return sprintf('%04d-%02d-%02d', (int)$year, (int)$month, (int)$day);
 	}//end isoFromDateParts()
+
+	/**
+	 * The segments in year, month, day order: YMD when the first segment
+	 * has four characters, else DMY when the last one has; null when
+	 * neither does.
+	 *
+	 * @param array $parts Exactly three date segments.
+	 *
+	 * @return array<int,string>|null The year, month and day segments, or null.
+	 */
+	private static function yearMonthDayOrder(array $parts): ?array {
+		if (strlen(string: $parts[0]) === 4) {
+			return [$parts[0], $parts[1], $parts[2]];
+		}
+
+		if (strlen(string: $parts[2]) === 4) {
+			return [$parts[2], $parts[1], $parts[0]];
+		}
+
+		return null;
+	}//end yearMonthDayOrder()
+
+	/**
+	 * Whether every segment consists of digits only.
+	 *
+	 * @param array<int,string> $segments The date segments.
+	 *
+	 * @return bool True when all are digit strings.
+	 */
+	private static function allDigits(array $segments): bool {
+		foreach ($segments as $segment) {
+			if (ctype_digit(text: $segment) === false) {
+				return false;
+			}
+		}
+
+		return true;
+	}//end allDigits()
 
 	/**
 	 * Construct a `DateTimeImmutable` for the given month-day in the

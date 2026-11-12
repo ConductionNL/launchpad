@@ -7249,6 +7249,130 @@
 				"canvas": "design-system",
 				"board": "LpIntranet"
 			}
+		},
+		{
+			"id": "s-embed-site",
+			"area": "sharing",
+			"name": "Embed a live dashboard or widget on the organisation's own website with a token that can be revoked.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/embedded-analytics",
+				"plan": [
+					"openspec/changes/embedded-analytics"
+				],
+				"requirement": [
+					"openspec/changes/embedded-analytics/specs/embedded-analytics :: REQ-EMB-001 — Token issuance returns JWT exactly once",
+					"openspec/changes/embedded-analytics/specs/embedded-analytics :: REQ-EMB-002 — Public render route validates JWT and enforces scope",
+					"openspec/changes/embedded-analytics/specs/embedded-analytics :: REQ-EMB-009 — Token revocation takes effect within 60 seconds"
+				],
+				"note": "Not built: no embed token, render route or SDK in the code yet. Plan: embedded-analytics."
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"microsoft-viva": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"nextcloud-dashboard": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"homarr": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"dashy": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "embedded-analytics",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpPubliek"
+			}
+		},
+		{
+			"id": "w-calculated-fields",
+			"area": "widgets",
+			"name": "Add a calculated value to a widget with a formula over its fields, other widgets and constants.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/widget-calculated-fields",
+				"plan": [
+					"openspec/changes/widget-calculated-fields"
+				],
+				"requirement": [
+					"openspec/changes/widget-calculated-fields/specs/calculated-fields :: REQ-CALC-001 Formula parser produces deterministic AST",
+					"openspec/changes/widget-calculated-fields/specs/calculated-fields :: REQ-CALC-003 Client-side evaluator reactive to filter changes"
+				],
+				"note": "Not built. Plan: widget-calculated-fields; the server-side half may belong in OpenRegister aggregation (REQ-CALC-004)."
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"microsoft-viva": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"nextcloud-dashboard": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"homarr": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"dashy": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "calculated-fields",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetInstellen"
+			}
+		},
+		{
+			"id": "w-map",
+			"area": "widgets",
+			"name": "Show register objects that carry a location on a map widget, and open an object from the map.",
+			"launchpad": "no",
+			"workspace-365": "unknown",
+			"microsoft-viva": "unknown",
+			"nextcloud-dashboard": "unknown",
+			"homarr": "unknown",
+			"dashy": "unknown",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/launchpad",
+				"change": "openspec/changes/map-support",
+				"plan": [
+					"openspec/changes/map-support"
+				],
+				"requirement": [
+					"openspec/changes/map-support/specs/map-widget :: REQ-MAP-001 A map widget shows register objects that carry a location",
+					"openspec/changes/map-support/specs/map-widget :: REQ-MAP-003 Clicking a feature opens its object"
+				],
+				"note": "Not built. Plan: map-support, on OpenRegister's spatial-query API (geo-metadata-kaart)."
+			},
+			"reachedOn": "nothing",
+			"evidence": {
+				"workspace-365": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"microsoft-viva": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"nextcloud-dashboard": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"homarr": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"dashy": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			},
+			"provider": "launchpad",
+			"providerHow": "read-from-code",
+			"feature": "map-widget",
+			"featureConfidence": "medium",
+			"origin": "own-code",
+			"screen": {
+				"canvas": "design-system",
+				"board": "LpWidgetInstellen"
+			}
 		}
 	],
 	"specScreens": {

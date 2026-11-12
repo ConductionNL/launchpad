@@ -1,3 +1,5 @@
+> Superseded by admin-roles, role-feature-permissions and action-authorization (rows r-delegate, t-widget-kinds, t-action-matrix); "view as" overlaps row t-preview. Decision 399.
+
 # Enterprise security and access controls
 
 LaunchPad dashboards today support admin-only visibility and read-only guest access, but lack fine-grained role-based permissions and impersonation capabilities needed in enterprise deployments. This change introduces guest user role management, per-role dashboard and widget visibility enforcement, and a "view as" impersonation feature for admins to troubleshoot access issues.

@@ -1,3 +1,5 @@
+> Superseded: dossier files belong to dossiq and reach LaunchPad as a Nextcloud widget; LaunchPad's own Files widget is built (row w-files). Decision 399.
+
 # Open dossier document from dashboard
 
 Dashboard users need quick access to dossier documents without navigating away from the dashboard view. Currently, document links are buried in detail pages, forcing users to context-switch to find critical files. This change adds a file-access widget to the LaunchPad dashboard: a card displaying associated documents with direct open-in-viewer links, filterable by dossier and file type, with built-in access control to prevent unauthorized downloads.

@@ -1,3 +1,5 @@
+> Superseded by decision 182 (a procedure is configuration): BBV programme dashboards are a template pack for the template store (rows r-templates, r-demo), not LaunchPad code. Decision 399.
+
 # BBV Programma Templates
 
 ## Why

@@ -1325,31 +1325,80 @@ class DashboardService {
 		string $groupId,
 		string $uuid,
 	): void {
-		if ($this->isAdmin(userId: $actorUserId) === false) {
-			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
-		}
+		$this->assertAdmin(userId: $actorUserId);
 
 		$dashboard = $this->findGroupDashboard(
 			groupId: $groupId,
 			uuid: $uuid
 		);
 
-		if ($groupId !== Dashboard::DEFAULT_GROUP_ID) {
-			$count = $this->stores->dashboardMapper->countByGroup(
-				groupId: $groupId
-			);
-			if ($count <= 1) {
-				throw new Exception(message: self::ERR_LAST_IN_GROUP);
-			}
+		$this->assertNotLastInGroup(groupId: $groupId);
+		$this->deleteWithPlacements(dashboard: $dashboard);
+		$this->dispatchGroupSharedDeleted(dashboard: $dashboard, actorUserId: $actorUserId);
+	}//end deleteGroupShared()
+
+	/**
+	 * Refuse an admin-only mutation for a non-admin actor.
+	 *
+	 * @param string $userId The acting user ID.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When the actor is not an admin.
+	 */
+	private function assertAdmin(string $userId): void {
+		if ($this->isAdmin(userId: $userId) === false) {
+			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
+		}
+	}//end assertAdmin()
+
+	/**
+	 * Refuse removing the only group-shared dashboard of a group; the
+	 * `default` group is exempt (REQ-DASH-014).
+	 *
+	 * @param string $groupId The group ID.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When the group has one dashboard or fewer.
+	 */
+	private function assertNotLastInGroup(string $groupId): void {
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+			return;
 		}
 
+		$count = $this->stores->dashboardMapper->countByGroup(
+			groupId: $groupId
+		);
+		if ($count <= 1) {
+			throw new Exception(message: self::ERR_LAST_IN_GROUP);
+		}
+	}//end assertNotLastInGroup()
+
+	/**
+	 * Delete a dashboard's placements, then the dashboard itself.
+	 *
+	 * @param Dashboard $dashboard The dashboard to delete.
+	 *
+	 * @return void
+	 */
+	private function deleteWithPlacements(Dashboard $dashboard): void {
 		$this->stores->placementMapper->deleteByDashboardId(
 			dashboardId: $dashboard->getId()
 		);
 		$this->stores->dashboardMapper->delete(entity: $dashboard);
+	}//end deleteWithPlacements()
 
-		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
-		// (REQ-CSC-001). Actor is the admin who performed the delete.
+	/**
+	 * SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+	 * (REQ-CSC-001). Actor is the admin who performed the delete.
+	 *
+	 * @param Dashboard $dashboard   The deleted group-shared dashboard.
+	 * @param string    $actorUserId The admin who deleted it.
+	 *
+	 * @return void
+	 */
+	private function dispatchGroupSharedDeleted(Dashboard $dashboard, string $actorUserId): void {
 		$deletedUuid = (string)$dashboard->getUuid();
 		if ($this->outlets->eventDispatcher !== null && $deletedUuid !== '') {
 			$this->outlets->eventDispatcher->dispatchTyped(
@@ -1362,7 +1411,7 @@ class DashboardService {
 				)
 			);
 		}
-	}//end deleteGroupShared()
+	}//end dispatchGroupSharedDeleted()
 
 	/**
 	 * Promote a single group-shared dashboard to the group's default.
@@ -1536,19 +1585,33 @@ class DashboardService {
 			return;
 		}
 
+		if ($this->isDue(dashboard: $dashboard, now: new DateTime()) === true) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		}
+	}//end materialiseDueSchedule()
+
+	/**
+	 * Whether a dashboard's `publishAt` has passed. A missing or
+	 * malformed timestamp is never due (the row stays scheduled).
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param DateTime  $now       The moment to compare against.
+	 *
+	 * @return bool True when the scheduled publication is due.
+	 */
+	private function isDue(Dashboard $dashboard, DateTime $now): bool {
 		$publishAt = $dashboard->getPublishAt();
 		if ($publishAt === null || $publishAt === '') {
-			return;
+			return false;
 		}
 
 		try {
-			if (new DateTime($publishAt) <= new DateTime()) {
-				$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
-			}
+			return new DateTime($publishAt) <= $now;
 		} catch (Exception) {
 			// Malformed timestamp — leave the row as scheduled.
+			return false;
 		}
-	}//end materialiseDueSchedule()
+	}//end isDue()
 
 	/**
 	 * Defensive admin check for the visibility filter.
@@ -1597,27 +1660,31 @@ class DashboardService {
 	): array {
 		$now = new DateTime();
 		$filtered = [];
-
 		foreach ($entries as $entry) {
-			$dashboard = $entry['dashboard'];
-			$status = $this->effectivePublicationStatus(dashboard: $dashboard, now: $now);
-
-			if ($status === Dashboard::STATUS_PUBLISHED) {
-				$filtered[] = $entry;
-				continue;
-			}
-
-			// Status is now draft or (still) scheduled — hide from
+			$published = $this->effectivePublicationStatus(dashboard: $entry['dashboard'], now: $now) === Dashboard::STATUS_PUBLISHED;
+			// A draft or (still) scheduled dashboard is hidden from
 			// non-owner non-admin viewers.
-			$ownerId = $dashboard->getUserId();
-			$isOwner = ($ownerId !== null && $ownerId === $actorUserId);
-			if ($isOwner === true || $actorIsAdmin === true) {
+			if ($published === true || $this->isOwnedBy(dashboard: $entry['dashboard'], userId: $actorUserId) === true || $actorIsAdmin === true) {
 				$filtered[] = $entry;
 			}
-		}//end foreach
+		}
 
 		return $filtered;
 	}//end filterByPublicationState()
+
+	/**
+	 * Whether a dashboard has an owner and it is the given user.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param string    $userId    The viewing user.
+	 *
+	 * @return bool True for the owner.
+	 */
+	private function isOwnedBy(Dashboard $dashboard, string $userId): bool {
+		$ownerId = $dashboard->getUserId();
+
+		return $ownerId !== null && $ownerId === $userId;
+	}//end isOwnedBy()
 
 	/**
 	 * The publication state a dashboard has at read time, applied to the
@@ -1634,44 +1701,48 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function effectivePublicationStatus(Dashboard $dashboard, DateTime $now): string {
-		$status = $dashboard->getPublicationStatus();
-		// Pre-migration / legacy rows that never set the column
-		// semantically remain visible (REQ-DASH-035): treat an
-		// empty string as `'published'` so backwards compatibility
-		// holds even if an entity is hydrated without the column.
-		if ($status === '') {
-			$status = Dashboard::STATUS_PUBLISHED;
-		}
-
-		// REQ-DASH-034: lazy materialisation of due scheduled rows.
-		if ($status === Dashboard::STATUS_SCHEDULED) {
-			$publishAt = $dashboard->getPublishAt();
-			if ($publishAt !== null && $publishAt !== '') {
-				try {
-					$when = new DateTime($publishAt);
-					if ($when <= $now) {
-						$dashboard->setPublicationStatus(
-							Dashboard::STATUS_PUBLISHED
-						);
-						$status = Dashboard::STATUS_PUBLISHED;
-					}
-				} catch (Exception) {
-					// Malformed timestamp — leave as scheduled and
-					// fall through to the visibility check below.
-				}
-			}
-		}
+		$status = $this->materialisedStatus(dashboard: $dashboard, now: $now);
 
 		// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
 		// dashboard whose take-down time has passed reads as a draft, so
 		// only its owner and administrators keep seeing it.
 		if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
 			$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
-			$status = Dashboard::STATUS_DRAFT;
+			return Dashboard::STATUS_DRAFT;
 		}
 
 		return $status;
 	}//end effectivePublicationStatus()
+
+	/**
+	 * The stored publication status, with legacy empty rows read as
+	 * published and due scheduled rows published in place.
+	 *
+	 * @param Dashboard $dashboard The dashboard (mutated when due).
+	 * @param DateTime  $now       The moment to compare against.
+	 *
+	 * @return string The status before the take-down check.
+	 */
+	private function materialisedStatus(Dashboard $dashboard, DateTime $now): string {
+		$status = $dashboard->getPublicationStatus();
+		// Pre-migration / legacy rows that never set the column
+		// semantically remain visible (REQ-DASH-035): treat an
+		// empty string as `'published'` so backwards compatibility
+		// holds even if an entity is hydrated without the column.
+		if ($status === '') {
+			return Dashboard::STATUS_PUBLISHED;
+		}
+
+		// REQ-DASH-034: lazy materialisation of due scheduled rows.
+		if ($status === Dashboard::STATUS_SCHEDULED && $this->isDue(dashboard: $dashboard, now: $now) === true) {
+			$dashboard->setPublicationStatus(
+				Dashboard::STATUS_PUBLISHED
+			);
+			return Dashboard::STATUS_PUBLISHED;
+		}
+
+		return $status;
+	}//end materialisedStatus()
 
 	/**
 	 * Resolve the active dashboard for a user using the 7-step precedence
@@ -2042,26 +2113,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function resolveGroupSharedDashboard(array $visible, string $groupId): ?array {
-		$hasPrimaryGroup = ($groupId !== Dashboard::DEFAULT_GROUP_ID);
-
-		$rungs = [];
-		if ($hasPrimaryGroup === true) {
-			// Step 2: primary group default.
-			$rungs[] = [$groupId, Dashboard::SOURCE_GROUP, true];
-		}
-
-		// Step 3: default-group default.
-		$rungs[] = [Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true];
-
-		if ($hasPrimaryGroup === true) {
-			// Step 4: primary group first.
-			$rungs[] = [$groupId, Dashboard::SOURCE_GROUP, false];
-		}
-
-		// Step 5: default-group first.
-		$rungs[] = [Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false];
-
-		foreach ($rungs as $rung) {
+		foreach (self::groupSharedRungs(groupId: $groupId) as $rung) {
 			$result = $this->findFirstGroupSharedWhere(
 				visible: $visible,
 				groupId: $rung[0],
@@ -2075,6 +2127,32 @@ class DashboardService {
 
 		return null;
 	}//end resolveGroupSharedDashboard()
+
+	/**
+	 * The group-shared fallback rungs in order, each `[groupId, source,
+	 * requireDefault]`. Steps 2 and 4 (the primary group's default, then
+	 * its first dashboard) only exist for a viewer whose primary group is
+	 * not the default group; steps 3 and 5 are the default group's.
+	 *
+	 * @param string $groupId The viewer's primary group.
+	 *
+	 * @return list<array{0:string,1:string,2:bool}> The rungs.
+	 */
+	private static function groupSharedRungs(string $groupId): array {
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+			return [
+				[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true],
+				[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false],
+			];
+		}
+
+		return [
+			[$groupId, Dashboard::SOURCE_GROUP, true],
+			[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true],
+			[$groupId, Dashboard::SOURCE_GROUP, false],
+			[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false],
+		];
+	}//end groupSharedRungs()
 
 	/**
 	 * Return the first visible entry carrying the given source, in
@@ -2961,31 +3039,56 @@ class DashboardService {
 		string $source,
 		bool $requireDefault,
 	): ?array {
-		foreach ($visible as $entry) {
-			if ($entry['source'] !== $source) {
-				continue;
-			}
-
-			$dashboard = $entry['dashboard'];
-			if ($dashboard->getType() !== Dashboard::TYPE_GROUP_SHARED) {
-				continue;
-			}
-
-			if ($dashboard->getGroupId() !== $groupId) {
-				continue;
-			}
-
-			if ($requireDefault === true
-				&& (int)$dashboard->getIsDefault() !== 1
+		foreach (self::entriesFromSource(visible: $visible, source: $source) as $entry) {
+			if (self::isGroupSharedIn(dashboard: $entry['dashboard'], groupId: $groupId) === true
+				&& self::meetsDefaultRequirement(dashboard: $entry['dashboard'], requireDefault: $requireDefault) === true
 			) {
-				continue;
+				return $entry;
 			}
-
-			return $entry;
-		}//end foreach
+		}
 
 		return null;
 	}//end findFirstGroupSharedWhere()
+
+	/**
+	 * The visible entries resolved through the given source, in order.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible entries.
+	 * @param string                                                  $source  The source.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> The matching entries.
+	 */
+	private static function entriesFromSource(array $visible, string $source): array {
+		return array_filter(
+			array: $visible,
+			callback: static fn (array $entry): bool => $entry['source'] === $source
+		);
+	}//end entriesFromSource()
+
+	/**
+	 * Whether a dashboard is a group-shared dashboard of the given group.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param string    $groupId   The group ID.
+	 *
+	 * @return bool True when it is.
+	 */
+	private static function isGroupSharedIn(Dashboard $dashboard, string $groupId): bool {
+		return $dashboard->getType() === Dashboard::TYPE_GROUP_SHARED
+			&& $dashboard->getGroupId() === $groupId;
+	}//end isGroupSharedIn()
+
+	/**
+	 * Whether a dashboard satisfies the rung's default requirement.
+	 *
+	 * @param Dashboard $dashboard      The dashboard.
+	 * @param bool      $requireDefault Whether only a default dashboard qualifies.
+	 *
+	 * @return bool True when it qualifies.
+	 */
+	private static function meetsDefaultRequirement(Dashboard $dashboard, bool $requireDefault): bool {
+		return $requireDefault === false || (int)$dashboard->getIsDefault() === 1;
+	}//end meetsDefaultRequirement()
 
 	/**
 	 * A root slug for this user's auto-provisioned dashboard that no sibling holds.
@@ -3338,6 +3441,43 @@ class DashboardService {
 		Dashboard $dashboard,
 		array $data,
 	): void {
+		$this->applyFieldUpdates(dashboard: $dashboard, data: $data);
+		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
+		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
+
+		$dashboard->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+
+		$this->applyPlacementUpdates(data: $data);
+	}//end applyDashboardUpdates()
+
+	/**
+	 * Apply a patched placement position list, when the payload has one.
+	 *
+	 * @param array<string, mixed> $data The update payload.
+	 *
+	 * @return void
+	 */
+	private function applyPlacementUpdates(array $data): void {
+		if (isset($data['placements']) === true
+			&& is_array($data['placements']) === true
+		) {
+			$this->stores->placementMapper->updatePositions(
+				updates: $data['placements']
+			);
+		}
+	}//end applyPlacementUpdates()
+
+	/**
+	 * Apply the patched name, description, icon and grid columns.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 */
+	private function applyFieldUpdates(Dashboard $dashboard, array $data): void {
 		if (isset($data['name']) === true) {
 			$dashboard->setName($data['name']);
 		}
@@ -3346,39 +3486,39 @@ class DashboardService {
 			$dashboard->setDescription($data['description']);
 		}
 
-		// Icon may be NULL/empty (use default), a registry key, or a URL.
-		// The discriminator + lookup live frontend-side in the
-		// `dashboard-icons` capability — we just store the opaque string.
-		if (array_key_exists(key: 'icon', array: $data) === true) {
-			$iconValue = $data['icon'];
-			$iconToStore = null;
-			if (is_string($iconValue) === true) {
-				$iconToStore = $iconValue;
-			}
-
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setIcon($iconToStore);
-		}
+		$this->applyIconUpdate(dashboard: $dashboard, data: $data);
 
 		if (isset($data['gridColumns']) === true) {
 			$dashboard->setGridColumns($data['gridColumns']);
 		}
+	}//end applyFieldUpdates()
 
-		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
-		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
-
-		$dashboard->setUpdatedAt(
-			(new DateTime())->format(format: 'Y-m-d H:i:s')
-		);
-
-		if (isset($data['placements']) === true
-			&& is_array($data['placements']) === true
-		) {
-			$this->stores->placementMapper->updatePositions(
-				updates: $data['placements']
-			);
+	/**
+	 * Apply a patched icon: a string is stored as given, anything else
+	 * clears it.
+	 *
+	 * Icon may be NULL/empty (use default), a registry key, or a URL.
+	 * The discriminator + lookup live frontend-side in the
+	 * `dashboard-icons` capability — we just store the opaque string.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 */
+	private function applyIconUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists(key: 'icon', array: $data) === false) {
+			return;
 		}
-	}//end applyDashboardUpdates()
+
+		$iconToStore = null;
+		if (is_string($data['icon']) === true) {
+			$iconToStore = $data['icon'];
+		}
+
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setIcon($iconToStore);
+	}//end applyIconUpdate()
 
 	/**
 	 * Apply per-dashboard footer override updates (REQ-FTR-006).
@@ -3463,20 +3603,34 @@ class DashboardService {
 			$newMode = $data['dashboardFooterMode'];
 		}
 
-		if ($newMode === null || $newMode === '') {
-			$newMode = Dashboard::FOOTER_MODE_INHERIT;
+		return self::validFooterMode(mode: $newMode);
+	}//end resolveFooterMode()
+
+	/**
+	 * A footer mode with null / empty read as `inherit`, refused unless it
+	 * is one of the known modes.
+	 *
+	 * @param mixed $mode The candidate mode.
+	 *
+	 * @return string The mode.
+	 *
+	 * @throws InvalidArgumentException When the mode is unknown.
+	 */
+	private static function validFooterMode(mixed $mode): string {
+		if ($mode === null || $mode === '') {
+			$mode = Dashboard::FOOTER_MODE_INHERIT;
 		}
 
-		if (is_string($newMode) === false
-			|| in_array(needle: $newMode, haystack: Dashboard::FOOTER_MODES, strict: true) === false
+		if (is_string($mode) === false
+			|| in_array(needle: $mode, haystack: Dashboard::FOOTER_MODES, strict: true) === false
 		) {
 			throw new InvalidArgumentException(
 				message: 'dashboardFooterMode must be one of: ' . implode(separator: ', ', array: Dashboard::FOOTER_MODES)
 			);
 		}
 
-		return $newMode;
-	}//end resolveFooterMode()
+		return $mode;
+	}//end validFooterMode()
 
 	/**
 	 * Resolve the raw custom-footer HTML an update is asking to store.

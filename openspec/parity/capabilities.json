@@ -1141,7 +1141,10 @@
 				"evidence": "lib/Service/AdminSettingsService.php:124; src/components/admin/AdminSettings.vue:96",
 				"owner": "ConductionNL/launchpad",
 				"spec": "openspec/specs/admin-settings",
-				"requirement": "openspec/specs/admin-settings :: Default Grid Columns Setting (REQ-ASET-006)"
+				"requirement": [
+					"openspec/specs/admin-settings :: Default Grid Columns Setting (REQ-ASET-006)",
+					"openspec/specs/dashboards :: Update Dashboard (REQ-DASH-004)"
+				]
 			},
 			"reachedOn": "Admin settings (/settings/admin/launchpad), Default settings, Default grid columns",
 			"provider": "launchpad",
@@ -1149,7 +1152,7 @@
 			"feature": "grid-layout",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users.",
+			"note": "An administrator sets the default for the instance; the reading did not find a per-dashboard column control for end users. The dashboards spec does let a dashboard's owner change its column count (REQ-DASH-004, scenario on grid columns); the row now records both.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:587-596 the grid is a centered flex-wrap row with max-width 1800px, so the column count follows the window width; searched apps/dashboard for column, grid settings: no user or admin setting",
 				"homarr": "source read at v1.77.2: packages/db/schema/sqlite.ts:325 layout table with columnCount per board layout; apps/nextjs/src/app/[locale]/boards/[name]/settings/_layout.tsx:30 add layout with columnCount; en.json:4573 'Column count'. Driven on the lab at v1.77.2 on 2026-09-26: board settings Layout shows 'Responsive layouts' with Name, Column count and Breakpoint per layout.",
@@ -1586,7 +1589,8 @@
 				"change": "openspec/changes/archive/2026-06-14-default-dashboard-flag",
 				"requirement": [
 					"openspec/specs/dashboards :: REQ-DASH-018 Active-dashboard resolution chain (multi-scope)",
-					"openspec/specs/dashboards :: REQ-DASH-015 Single default group-shared dashboard per group"
+					"openspec/specs/dashboards :: REQ-DASH-015 Single default group-shared dashboard per group",
+					"openspec/specs/effective-default-marker :: REQ-EDM-002 Effective default uses resolver precedence"
 				]
 			},
 			"reachedOn": "Workspace page, dashboard menu, Set as default",
@@ -2516,7 +2520,10 @@
 			},
 			"screen": {
 				"canvas": "design-system",
-				"board": "LpIntranet"
+				"board": [
+					"LpIntranet",
+					"LpWidgetInstellen"
+				]
 			}
 		},
 		{
@@ -2731,7 +2738,8 @@
 				"canvas": "design-system",
 				"board": [
 					"LpVandaag",
-					"LpWerkplek"
+					"LpWerkplek",
+					"LpWidgetInstellen"
 				]
 			}
 		},
@@ -3116,7 +3124,8 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"screen": {
-				"canvas": "design-system"
+				"canvas": "design-system",
+				"board": "LpDashboardInstellingen"
 			}
 		},
 		{
@@ -3152,7 +3161,8 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"screen": {
-				"canvas": "design-system"
+				"canvas": "design-system",
+				"board": "LpManagement"
 			}
 		},
 		{
@@ -3264,7 +3274,8 @@
 				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy",
 				"requirement": [
 					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
-					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)"
+					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)",
+					"openspec/changes/record-parity-requirements/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
 				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, the Mail app's widget, with Nextcloud Mail installed",
@@ -3302,7 +3313,8 @@
 				"change": "openspec/changes/archive/2026-06-14-nc-dashboard-widget-proxy",
 				"requirement": [
 					"openspec/specs/widgets :: nc-widget placement type (REQ-WDG-018)",
-					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)"
+					"openspec/specs/legacy-widget-bridge :: Mount a captured legacy widget into a DOM container (REQ-LWB-002)",
+					"openspec/changes/record-parity-requirements/specs/widgets :: Another app's widget shows that app's items for the viewer (REQ-WDG-030)"
 				]
 			},
 			"reachedOn": "Workspace page, Add widget, Nextcloud widget, Deck's task widget, with Deck installed",
@@ -4151,7 +4163,8 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"screen": {
-				"canvas": "design-system"
+				"canvas": "design-system",
+				"board": "LpBeheerSjablonen"
 			}
 		},
 		{
@@ -4345,7 +4358,11 @@
 				"evidence": "lib/Controller/StoreController.php:134; src/manifest.json:164",
 				"owner": "ConductionNL/openregister",
 				"change": "openregister/store-over-federated-config",
-				"requirement": "openregister:openspec/changes/store-over-federated-config/specs/apphost-store-plane :: A store MUST be able to offer configuration, not only objects"
+				"requirement": [
+					"openregister:openspec/changes/store-over-federated-config/specs/apphost-store-plane :: A store MUST be able to offer configuration, not only objects",
+					"openspec/specs/dashboard-store :: REQ-STORE-005 An install MUST reuse ImportService, not reimplement it",
+					"openspec/specs/dashboard-store :: REQ-STORE-006 A store install MUST create dashboards, never replace them"
+				]
 			},
 			"reachedOn": "Store page (/apps/launchpad/store), once an administrator sets a registry URL on the Sharing tab",
 			"provider": "openregister",
@@ -4353,7 +4370,7 @@
 			"feature": "dashboard-export-import",
 			"featureConfidence": "high",
 			"origin": "own-code",
-			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading. Specified in ConductionNL/openregister openspec/changes/store-over-federated-config (openregister lane, OpenSpec pass 2026-09-27).",
+			"note": "Discovery runs in OpenRegister's GenericStoreService; install is LaunchPad's ImportService. Not run against a live registry in this reading. Specified in ConductionNL/openregister openspec/changes/store-over-federated-config (openregister lane, OpenSpec pass 2026-09-27). LaunchPad's side, connecting a registry and installing a published dashboard as a new one, is the dashboard-store spec (REQ-STORE-005, REQ-STORE-006); the row records both.",
 			"evidence": {
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 the App Store link installs apps that bring widgets, not dashboards; searched apps/dashboard for registry, publish: none",
 				"homarr": "source read at v1.77.2: boards cannot be exported or installed from a shared source (only the pre-1.0 importer, packages/modals-collection/src/boards/import-board-modal.tsx:154); custom widget definitions can be exported and imported as JSON (apps/nextjs/src/app/[locale]/manage/custom-widgets/_custom-widget-actions.tsx:164) but there is no registry",
@@ -4701,7 +4718,7 @@
 				"workspace-365": "not checked: W365 spaces for scheduled go-live",
 				"microsoft-viva": "not checked: dashboard publish is manual; no schedule found"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes; no tender, feature request or roadmap row. Outside the core area (sharing). Reversible: reopen the row if demand appears. The code stays in the tree and has a screen since: the Publish, Unpublish and Schedule items in the dashboard menu (src/dialogs/ScheduleDashboardDialog.vue).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpDelen"
@@ -4811,7 +4828,8 @@
 			"featureConfidence": "medium",
 			"origin": "roadmap",
 			"screen": {
-				"canvas": "design-system"
+				"canvas": "design-system",
+				"board": "LpDelen"
 			}
 		},
 		{
@@ -4872,7 +4890,7 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/175643-best-practices 'Must-read' items use 'the pop-up function'; https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched launched 'Read / unread hub items'; an explicit confirm button not described (read 2026-09-26)",
 				"microsoft-viva": "not checked: announcements page offers 'Allow users to dismiss', no read confirmation found"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365 partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code stays in the tree and has a screen since: the \"Ask readers to confirm\" option in the widget menu (src/dialogs/ReadConfirmationDialog.vue).",
 			"screen": {
 				"canvas": "design-system",
 				"board": [
@@ -4949,7 +4967,7 @@
 				"workspace-365": "https://support.workspace365.net/en/articles/284826-create-announcements emoji reactions 'like, love, sad, celebrate, laugh, thanks' on announcements, not on a space (read 2026-09-26)",
 				"microsoft-viva": "https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-news-notifications 'Likes' on news posts; not on the dashboard (read 2026-09-26)"
 			},
-			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code already built stays in the tree; it has no screen (see the pull request).",
+			"note": "Decided no 2026-09-28 (build-all decision pass): No competitor rated yes (Workspace 365, Microsoft Viva Connections partial); no tender, feature request or roadmap row. Outside the core area (engagement). Reversible: reopen the row if demand appears. The code stays in the tree and has a screen since: the reactions bar under the dashboard title (src/components/Workspace/DashboardReactions.vue).",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
@@ -6481,7 +6499,10 @@
 				"owner": "ConductionNL/launchpad",
 				"evidence": "lib/Service/LiveTileService.php:455",
 				"spec": "openspec/specs/background-job-feed-refresh",
-				"requirement": "openspec/specs/background-job-feed-refresh :: REQ-FRJ-012 User-Agent and Proxy Configuration"
+				"requirement": [
+					"openspec/specs/background-job-feed-refresh :: REQ-FRJ-012 User-Agent and Proxy Configuration",
+					"openspec/changes/record-parity-requirements/specs/platform-baseline :: Outbound requests use the server's proxy setting (REQ-PLB-008)"
+				]
 			},
 			"reachedOn": "every widget that fetches from outside: news, calendar feeds, live tiles, weather, health pings, iframe checks",
 			"evidence": {
@@ -6497,7 +6518,7 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://github.com/homarr-labs/homarr/releases/tag/v1.48.0",
-			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none.",
+			"note": "Every outbound fetch goes through Nextcloud's IClientService (LiveTileService.php:455, NewsWidgetService.php:135, CalendarWidgetService.php:119, WeatherService, HealthPingService, IframeService.php:94, FeedRefreshService), which applies the server's proxy setting from config.php. Searched lib for curl_, file_get_contents and new Client: none. Specified 12 Nov 2026 as REQ-PLB-008 (record-parity-requirements): REQ-FRJ-012 covers the feed refresh job only.",
 			"screen": {
 				"board": null,
 				"reason": "Uitgaande verzoeken gebruiken de proxy-instelling van de server, zonder scherm."
@@ -6926,7 +6947,7 @@
 			"featureConfidence": "high",
 			"origin": "changelog",
 			"originUrl": "https://support.workspace365.net/en/articles/766599-release-notes-workspace-365-v4-46",
-			"note": "The people widget shows the standard Nextcloud profile fields (PeopleWidgetService.php:91-103: phone, address, organisation, role, headline, biography, pronouns, birthdate), which a login app can fill from the identity provider. No custom fields such as office location or cost centre. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass).",
+			"note": "Built 30 Sep 2026 (archived change widgets-people-expertise-and-fields): administrators define up to 10 custom profile fields, filled by the person or read from LDAP (lib/Service/ProfileFieldService.php, src/components/admin/tabs/ProfileFieldsTab.vue), and the people widget shows them (PeopleWidgetService.php visibleFieldsFor). Before that the widget showed only the standard Nextcloud profile fields.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"
@@ -7244,7 +7265,7 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/418890",
-			"note": "The people widget filters only by group (PeopleWidgetService.php:462-470 extractGroupFilter) and shows biography and headline but cannot be searched by them; searched for skills, expertise and tags: none. Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them. Specified 2026-09-27 in openspec/changes/widgets-people-expertise-and-fields (openspec pass).",
+			"note": "Built 30 Sep 2026 (archived change widgets-people-expertise-and-fields): a query of 2 or more characters searches the whole directory, including expertise tags and searchable custom fields (PeopleWidgetService.php searchCandidates, ProfileFieldService findMatchingUserIds). Tender text: Gemeente Noordwijk 2026: 'Onze persoonlijke trefwoorden (profiel tags) op ons intranet-profiel zijn volledig en actueel' so KCC colleagues can find them.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpIntranet"

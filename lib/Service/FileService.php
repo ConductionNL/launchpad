@@ -39,6 +39,7 @@ use OCA\LaunchPad\Exception\StorageFailureException;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
+use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\IURLGenerator;
 use Throwable;
@@ -221,24 +222,7 @@ class FileService {
 			return self::DEFAULT_ALLOWED_EXTENSIONS;
 		}
 
-		$normalised = [];
-		foreach ($stored as $value) {
-			if (is_string($value) === false) {
-				continue;
-			}
-
-			$token = strtolower(string: ltrim(string: trim(string: $value), characters: '.'));
-			if ($token === '') {
-				continue;
-			}
-
-			if (preg_match(pattern: '/^[a-z0-9]+$/', subject: $token) !== 1) {
-				continue;
-			}
-
-			$normalised[$token] = $token;
-		}
-
+		$normalised = self::normaliseExtensions(values: $stored);
 		if (count($normalised) === 0) {
 			return self::DEFAULT_ALLOWED_EXTENSIONS;
 		}
@@ -263,23 +247,7 @@ class FileService {
 	 * @spec openspec/specs/resource-uploads/spec.md
 	 */
 	public function setAllowedExtensions(array $extensions): array {
-		$normalised = [];
-		foreach ($extensions as $value) {
-			if (is_string($value) === false) {
-				continue;
-			}
-
-			$token = strtolower(string: ltrim(string: trim(string: $value), characters: '.'));
-			if ($token === '') {
-				continue;
-			}
-
-			if (preg_match(pattern: '/^[a-z0-9]+$/', subject: $token) !== 1) {
-				continue;
-			}
-
-			$normalised[$token] = $token;
-		}
+		$normalised = self::normaliseExtensions(values: $extensions);
 
 		$stored = self::DEFAULT_ALLOWED_EXTENSIONS;
 		if (count($normalised) > 0) {
@@ -295,6 +263,47 @@ class FileService {
 	}//end setAllowedExtensions()
 
 	/**
+	 * Normalise a list of extensions: lowercase, trimmed, leading dots
+	 * stripped, alphanumeric only, de-duplicated, in first-seen order.
+	 *
+	 * @param array $values The candidate extensions.
+	 *
+	 * @return array<string, string> The kept extensions, keyed by themselves.
+	 */
+	private static function normaliseExtensions(array $values): array {
+		$normalised = [];
+		foreach ($values as $value) {
+			$token = self::normaliseExtension(value: $value);
+			if ($token !== null) {
+				$normalised[$token] = $token;
+			}
+		}
+
+		return $normalised;
+	}//end normaliseExtensions()
+
+	/**
+	 * Normalise one extension, null when it is not a string or not a
+	 * non-empty alphanumeric token after normalisation.
+	 *
+	 * @param mixed $value The candidate extension.
+	 *
+	 * @return string|null The token, or null when dropped.
+	 */
+	private static function normaliseExtension(mixed $value): ?string {
+		if (is_string($value) === false) {
+			return null;
+		}
+
+		$token = strtolower(string: ltrim(string: trim(string: $value), characters: '.'));
+		if ($token === '' || preg_match(pattern: '/^[a-z0-9]+$/', subject: $token) !== 1) {
+			return null;
+		}
+
+		return $token;
+	}//end normaliseExtension()
+
+	/**
 	 * Reject filenames that fail any of the REQ-LBN-004 task 1.2 checks.
 	 *
 	 * @param string $filename The candidate filename.
@@ -308,19 +317,7 @@ class FileService {
 			throw new InvalidFilenameException();
 		}
 
-		if (str_contains(haystack: $filename, needle: "\0") === true) {
-			throw new InvalidFilenameException();
-		}
-
-		if (str_contains(haystack: $filename, needle: '..') === true) {
-			throw new InvalidFilenameException();
-		}
-
-		if (str_contains(haystack: $filename, needle: '/') === true) {
-			throw new InvalidFilenameException();
-		}
-
-		if (str_contains(haystack: $filename, needle: '\\') === true) {
+		if (self::containsAny(haystack: $filename, needles: ["\0", '..', '/', '\\']) === true) {
 			throw new InvalidFilenameException();
 		}
 
@@ -328,6 +325,24 @@ class FileService {
 			throw new InvalidFilenameException();
 		}
 	}//end assertValidFilename()
+
+	/**
+	 * Whether a string contains any of the given substrings.
+	 *
+	 * @param string        $haystack The string to search.
+	 * @param array<string> $needles  The substrings to look for.
+	 *
+	 * @return bool True when at least one occurs.
+	 */
+	private static function containsAny(string $haystack, array $needles): bool {
+		foreach ($needles as $needle) {
+			if (str_contains(haystack: $haystack, needle: $needle) === true) {
+				return true;
+			}
+		}
+
+		return false;
+	}//end containsAny()
 
 	/**
 	 * Reject directories that fail any of the REQ-LBN-004 task 1.3 checks.
@@ -392,25 +407,26 @@ class FileService {
 			return $userFolder;
 		}
 
-		try {
-			$node = $userFolder->get(path: $normalised);
-			if ($node instanceof Folder) {
-				return $node;
-			}
+		return $this->folderAt(userFolder: $userFolder, path: $normalised);
+	}//end resolveTargetFolder()
 
-			// A file (not a folder) already occupies the path.
-			throw new StorageFailureException(
-				message: 'Failed to resolve target folder'
-			);
+	/**
+	 * The folder at a subdirectory path, created when it is missing.
+	 *
+	 * @param Folder $userFolder Owner's Files-area root.
+	 * @param string $path       The normalised subdirectory path (not `/`).
+	 *
+	 * @return Folder The resolved (or freshly created) folder.
+	 *
+	 * @throws StorageFailureException When the folder cannot be
+	 *                                 resolved or created.
+	 */
+	private function folderAt(Folder $userFolder, string $path): Folder {
+		try {
+			return $this->existingFolder(userFolder: $userFolder, path: $path);
 		} catch (NotFoundException $e) {
 			// Auto-create missing subdirectory chain.
-			try {
-				return $userFolder->newFolder(path: $normalised);
-			} catch (Throwable $createError) {
-				throw new StorageFailureException(
-					message: 'Failed to create target folder'
-				);
-			}
+			return $this->createFolder(userFolder: $userFolder, path: $path);
 		} catch (StorageFailureException $e) {
 			throw $e;
 		} catch (Throwable $e) {
@@ -418,7 +434,50 @@ class FileService {
 				message: 'Failed to resolve target folder'
 			);
 		}//end try
-	}//end resolveTargetFolder()
+	}//end folderAt()
+
+	/**
+	 * The folder at a path inside the user's Files area.
+	 *
+	 * @param Folder $userFolder Owner's Files-area root.
+	 * @param string $path       The normalised subdirectory path.
+	 *
+	 * @return Folder The folder.
+	 *
+	 * @throws NotFoundException When nothing exists at the path.
+	 * @throws StorageFailureException When a file occupies the path.
+	 */
+	private function existingFolder(Folder $userFolder, string $path): Folder {
+		$node = $userFolder->get(path: $path);
+		if ($node instanceof Folder) {
+			return $node;
+		}
+
+		// A file (not a folder) already occupies the path.
+		throw new StorageFailureException(
+			message: 'Failed to resolve target folder'
+		);
+	}//end existingFolder()
+
+	/**
+	 * Create a missing subdirectory chain inside the user's Files area.
+	 *
+	 * @param Folder $userFolder Owner's Files-area root.
+	 * @param string $path       The normalised subdirectory path.
+	 *
+	 * @return Folder The created folder.
+	 *
+	 * @throws StorageFailureException When the folder cannot be created.
+	 */
+	private function createFolder(Folder $userFolder, string $path): Folder {
+		try {
+			return $userFolder->newFolder(path: $path);
+		} catch (Throwable $createError) {
+			throw new StorageFailureException(
+				message: 'Failed to create target folder'
+			);
+		}
+	}//end createFolder()
 
 	/**
 	 * Write the file with overwrite-on-exists semantics
@@ -437,20 +496,8 @@ class FileService {
 	private function writeFile(Folder $folder, string $filename, string $content, string $onExisting): File {
 		try {
 			if ($folder->nodeExists(path: $filename) === true) {
-				if ($onExisting === self::ON_EXISTING_REFUSE) {
-					throw new FileAlreadyExistsException();
-				}
-
-				$existing = $folder->get(path: $filename);
-				if ($existing instanceof File) {
-					$existing->putContent(data: $content);
-					return $existing;
-				}
-
-				// A folder with the same name already exists.
-				throw new StorageFailureException(
-					message: 'Failed to write file'
-				);
+				self::assertMayReplace(onExisting: $onExisting);
+				return self::overwrite(existing: $folder->get(path: $filename), content: $content);
 			}
 
 			// Folder::newFile() returns a File node — the contract is
@@ -466,4 +513,41 @@ class FileService {
 			);
 		}//end try
 	}//end writeFile()
+
+	/**
+	 * Refuse to replace an existing file when the caller asked for that.
+	 *
+	 * @param string $onExisting ON_EXISTING_REPLACE or ON_EXISTING_REFUSE.
+	 *
+	 * @return void
+	 *
+	 * @throws FileAlreadyExistsException When $onExisting is ON_EXISTING_REFUSE.
+	 */
+	private static function assertMayReplace(string $onExisting): void {
+		if ($onExisting === self::ON_EXISTING_REFUSE) {
+			throw new FileAlreadyExistsException();
+		}
+	}//end assertMayReplace()
+
+	/**
+	 * Replace the contents of the existing file node at the target name.
+	 *
+	 * @param Node   $existing The node at the target name.
+	 * @param string $content  Bytes to write.
+	 *
+	 * @return File The overwritten file.
+	 *
+	 * @throws StorageFailureException When a folder occupies the name.
+	 */
+	private static function overwrite(Node $existing, string $content): File {
+		if ($existing instanceof File) {
+			$existing->putContent(data: $content);
+			return $existing;
+		}
+
+		// A folder with the same name already exists.
+		throw new StorageFailureException(
+			message: 'Failed to write file'
+		);
+	}//end overwrite()
 }//end class

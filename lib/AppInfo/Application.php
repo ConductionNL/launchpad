@@ -36,6 +36,7 @@ use OCA\LaunchPad\Listener\UserDeletedListener;
 use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Middleware\ApiVersionMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
@@ -104,6 +105,9 @@ class Application extends App implements IBootstrap {
 		// resolved through self::optional(), so an instance without OpenRegister
 		// gets a store that reports `not_configured` rather than a fatal.
 		$this->registerStore(context: $context);
+
+		// Every /api/ response names the answering API version (NL API Design Rules, /core/version-header).
+		$context->registerMiddleware(ApiVersionMiddleware::class);
 	}//end register()
 
 	/**

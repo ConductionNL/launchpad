@@ -1,0 +1,198 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "launchpad",
+        "version": "1.1.7-unstable.20261005190000",
+        "description": "The LaunchPad API for the endpoints this document covers: the health check and this document. LaunchPad serves more endpoints than are described here (dashboards, widgets, tiles, shares, templates and the admin settings); they are not part of this document yet. The document is served at `/api/openapi.json`, where `info.version` is the installed app version. Every response of an `/api/` endpoint carries that version in the `API-Version` header. Every path also answers without the `/v1` of the server URL.",
+        "contact": {
+            "name": "Conduction B.V.",
+            "email": "info@conduction.nl",
+            "url": "https://conduction.nl"
+        },
+        "license": {
+            "name": "EUPL-1.2",
+            "url": "https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://{host}/index.php/apps/launchpad/api/v1",
+            "description": "The LaunchPad API, major version 1, on a Nextcloud instance.",
+            "variables": {
+                "host": {
+                    "default": "localhost",
+                    "description": "The host name of the Nextcloud instance."
+                }
+            }
+        }
+    ],
+    "tags": [
+        {
+            "name": "health",
+            "description": "Whether LaunchPad and the apps it depends on are available."
+        },
+        {
+            "name": "open-api",
+            "description": "This document."
+        }
+    ],
+    "security": [
+        {
+            "basic_auth": []
+        }
+    ],
+    "paths": {
+        "/openapi.json": {
+            "get": {
+                "operationId": "open-api-show",
+                "summary": "The OpenAPI document of this API",
+                "description": "Returns this document. It needs no authentication and can be read from any origin.",
+                "tags": [
+                    "open-api"
+                ],
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "The OpenAPI document.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The document is not installed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "operationId": "health-show",
+                "summary": "Health check",
+                "description": "The health checks LaunchPad declares in its manifest, run by the OpenRegister observability engine. It needs no authentication.",
+                "tags": [
+                    "health"
+                ],
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "The checks ran and no critical check failed (`status` `ok` or `degraded`).",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "A critical check failed (`status` `error`), or the observability engine (OpenRegister) is unavailable (`status` `unavailable`, with `error` saying why).",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "basic_auth": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "A Nextcloud user name and password or app password."
+            }
+        },
+        "headers": {
+            "API-Version": {
+                "description": "The version of the API that answered: the installed LaunchPad version.",
+                "schema": {
+                    "type": "string",
+                    "example": "1.4.0"
+                }
+            }
+        },
+        "schemas": {
+            "Error": {
+                "type": "object",
+                "required": [
+                    "error"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "What went wrong."
+                    }
+                }
+            },
+            "Health": {
+                "type": "object",
+                "required": [
+                    "status",
+                    "app",
+                    "checks"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "The overall result: `ok`, `degraded`, `error`, or `unavailable` when the engine cannot run."
+                    },
+                    "app": {
+                        "type": "string",
+                        "example": "launchpad"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "The installed app version; absent when the engine is unavailable."
+                    },
+                    "error": {
+                        "type": "string",
+                        "description": "Why the health check could not run; only when `status` is `unavailable`."
+                    },
+                    "checks": {
+                        "type": "array",
+                        "description": "The result of each declared check.",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

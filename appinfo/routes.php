@@ -7,7 +7,7 @@ declare(strict_types=1);
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-return [
+$routes = [
 	'routes' => [
 		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
 		// literal '/api/manifest' segment is matched before any wildcard.
@@ -20,6 +20,8 @@ return [
 		// Metrics and health
 		['name' => 'metrics#index', 'url' => '/api/metrics', 'verb' => 'GET'],
 		['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
+		// The OpenAPI document, public (NL API Design Rules, /core/publish-openapi).
+		['name' => 'openApi#show', 'url' => '/api/openapi.json', 'verb' => 'GET'],
 
 		// Store plane (ADR-080). LaunchPad declares a `type: "store"` page, which
 		// renders CnStorePage, which calls the item routes on mount and on an install
@@ -654,3 +656,20 @@ return [
 		 'requirements' => ['deepLink' => '(?!api(?:/|$)).+']],
 	],
 ];
+
+// The versioned API base (NL API Design Rules, /core/uri-version): every /api/ route
+// also answers under /api/v1/, the server URL the OpenAPI document names. The unversioned
+// route stays, so existing clients and the URLs the app generates keep working. Each
+// copy gets its own route name through 'postfix'. The deep-link catch-all excludes
+// /api/, so the copies can follow it.
+foreach ($routes['routes'] as $route) {
+	if (str_starts_with($route['url'], '/api/') === false) {
+		continue;
+	}
+
+	$route['url']        = '/api/v1/'.substr($route['url'], strlen('/api/'));
+	$route['postfix']    = ($route['postfix'] ?? '').'V1';
+	$routes['routes'][] = $route;
+}
+
+return $routes;

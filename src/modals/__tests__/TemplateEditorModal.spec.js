@@ -28,6 +28,7 @@ const ButtonStub = {
 
 const stubs = {
 	NcModal: {
+		name: 'NcModal',
 		props: ['name'],
 		emits: ['close'],
 		template: '<div class="nc-modal-stub" :data-name="name"><slot /></div>',
@@ -172,6 +173,39 @@ describe('TemplateEditorModal', () => {
 
 		expect(logger.error).toHaveBeenCalledWith('Failed to save template:', failure)
 		expect(wrapper.emitted('saved')).toBeUndefined()
+	})
+
+	it('saves what the user enters in the form controls, and closes from the modal', async () => {
+		const field = (name) => ({ name, props: ['modelValue', 'label'], emits: ['update:modelValue'], template: '<div />' })
+		const wrapper = mount(TemplateEditorModal, {
+			propsData: { open: true, template: null },
+			stubs: {
+				...stubs,
+				NcTextField: field('NcTextField'),
+				NcSelect: field('NcSelect'),
+				NcSelectTags: field('NcSelectTags'),
+				NcCheckboxRadioSwitch: field('NcCheckboxRadioSwitch'),
+			},
+		})
+
+		const [name, description] = wrapper.findAllComponents({ name: 'NcTextField' })
+		name.vm.$emit('update:modelValue', 'Onboarding')
+		description.vm.$emit('update:modelValue', 'For new staff')
+		wrapper.findComponent({ name: 'NcSelectTags' }).vm.$emit('update:modelValue', ['hr', 'it'])
+		wrapper.findComponent({ name: 'NcSelect' }).vm.$emit('update:modelValue', { id: 'view_only', label: 'View only' })
+		wrapper.findComponent({ name: 'NcCheckboxRadioSwitch' }).vm.$emit('update:modelValue', true)
+		await click(wrapper, 'Save')
+
+		expect(api.createAdminTemplate).toHaveBeenCalledWith({
+			name: 'Onboarding',
+			description: 'For new staff',
+			targetGroups: ['hr', 'it'],
+			permissionLevel: 'view_only',
+			isDefault: true,
+		})
+
+		wrapper.findComponent({ name: 'NcModal' }).vm.$emit('close')
+		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
 	it('emits close from Cancel', async () => {

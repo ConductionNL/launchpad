@@ -196,7 +196,7 @@ describe('Route no loss: every panel destination stays reachable', () => {
 			.map((e) => e.label)
 		expect(footer).toEqual([
 			'Documentation',
-			'Store',
+			'Marketplace',
 			'Features & roadmap',
 		])
 		expect(entries.find((e) => e.id === 'ReportsMenu').section).toBe('settings')

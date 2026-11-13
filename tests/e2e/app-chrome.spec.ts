@@ -114,7 +114,7 @@ test.describe('app chrome (ADR-114)', () => {
 		expect(
 			footer.map((e: any) => e.label),
 			'the footer declares three destinations, in this order; Reports sits in the Advanced foldout',
-		).toEqual(['Documentation', 'Store', 'Features & roadmap'])
+		).toEqual(['Documentation', 'Marketplace', 'Features & roadmap'])
 
 		// A GLYPH ON EVERY ONE. An icon name that is not registered renders no
 		// glyph — not a fallback, not a console error; this app shipped one.

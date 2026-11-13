@@ -2,148 +2,135 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * The role layout default editor: every field emits the whole row with only
- * its own key changed (numbers as numbers), the title says add or edit, and
- * cancel and save are disabled while saving.
+ * The role layout-default editor dialog mounted: its title for an existing
+ * and a new row, what it emits for each edited field, and its Save and
+ * Cancel buttons. The other small dialogs are in smallDialogs.spec.js.
  */
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import RoleLayoutDefaultEditorDialog from '../RoleLayoutDefaultEditorDialog.vue'
 
-vi.mock('@nextcloud/l10n', () => ({
-	t: (_app, text) => text,
-	translate: (_app, text) => text,
-}))
+/**
+ * Translate as the identity, filling {placeholders}.
+ *
+ * @param {string} app The app id.
+ * @param {string} text The text.
+ * @param {object} vars The placeholders.
+ * @return {string} The text.
+ */
+const tr = (app, text, vars = {}) => text.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m))
 
-vi.mock('@conduction/nextcloud-vue', () => ({
-	NcDialog: {
+const stubs = vi.hoisted(() => {
+	const dialog = {
 		name: 'NcDialog',
-		props: ['open', 'name'],
-		emits: ['update:open'],
-		template: '<div class="dialog" :data-name="name"><slot /><slot name="actions" /></div>',
-	},
-	NcButton: {
+		props: { open: { type: Boolean, default: true }, name: String },
+		template: '<div v-if="open" class="dialog" :data-name="name"><slot /><slot name="actions" /></div>',
+	}
+	const button = {
 		name: 'NcButton',
-		props: ['variant', 'disabled'],
+		props: ['disabled', 'variant'],
 		emits: ['click'],
-		template: '<button :class="variant" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
-	},
-	NcTextField: {
+		template: '<button :disabled="disabled" :data-variant="variant" @click="$emit(\'click\')"><slot /></button>',
+	}
+	const textField = {
 		name: 'NcTextField',
-		props: ['modelValue', 'label', 'type', 'placeholder'],
-		emits: ['update:modelValue'],
-		template: '<input :aria-label="label" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-	},
-	NcCheckboxRadioSwitch: {
+		props: ['modelValue', 'label'],
+		emits: ['update:modelValue', 'keyup'],
+		template: '<input class="field" :aria-label="label" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" @keyup.enter="$emit(\'keyup\', $event)">',
+	}
+	const checkbox = {
 		name: 'NcCheckboxRadioSwitch',
 		props: ['modelValue'],
 		emits: ['update:modelValue'],
-		template: '<label><input type="checkbox" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)" /><slot /></label>',
-	},
+		template: '<input type="checkbox" class="check" :checked="modelValue" @change="$emit(\'update:modelValue\', $event.target.checked)">',
+	}
+	return { dialog, button, textField, checkbox }
+})
+
+vi.mock('@nextcloud/l10n', () => ({
+	t: (app, text, vars = {}) => text.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)),
+	translate: (app, text) => text,
+}))
+vi.mock('@conduction/nextcloud-vue', () => ({
+	NcDialog: stubs.dialog,
+	NcButton: stubs.button,
+	NcTextField: stubs.textField,
+	NcCheckboxRadioSwitch: stubs.checkbox,
 }))
 
-const { default: RoleLayoutDefaultEditorDialog } = await import('../RoleLayoutDefaultEditorDialog.vue')
-
-const row = {
-	id: 7,
-	name: 'Managers',
-	groupId: 'managers',
-	widgetId: 'analytics_dashboard',
-	gridX: 0,
-	gridY: 2,
-	gridWidth: 6,
-	gridHeight: 4,
-	sortOrder: 1,
-	isCompulsory: false,
-	description: null,
-}
+/**
+ * Mount a dialog with a global t().
+ *
+ * @param {object} component The dialog.
+ * @param {object} props Its props.
+ * @return {object} The wrapper.
+ */
+const mounted = (component, props) => mount(component, { props, global: { mocks: { t: tr } } })
 
 /**
- * Mount the editor.
+ * The button with this text.
  *
- * @param {object} props Props over the defaults.
- * @return {import('@vue/test-utils').VueWrapper}
+ * @param {object} wrapper The wrapper.
+ * @param {string} text The button text.
+ * @return {object} The DOM wrapper.
  */
-function mountEditor(props = {}) {
-	return mount(RoleLayoutDefaultEditorDialog, { props: { open: true, row, ...props } })
-}
-
-/**
- * The text field with the given label.
- *
- * @param {import('@vue/test-utils').VueWrapper} wrapper The editor.
- * @param {string} label Its label.
- * @return {import('@vue/test-utils').DOMWrapper}
- */
-function input(wrapper, label) {
-	return wrapper.find(`input[aria-label="${label}"]`)
-}
+const button = (wrapper, text) => wrapper.findAll('button').find((b) => b.text() === text)
 
 describe('RoleLayoutDefaultEditorDialog', () => {
-	it('says edit for a stored row and add for a new one', () => {
-		expect(mountEditor().find('.dialog').attributes('data-name')).toBe('Edit layout default')
-		expect(mountEditor({ row: { ...row, id: null } }).find('.dialog').attributes('data-name')).toBe('Add layout default')
+	const row = { id: 7, name: 'Managers', groupId: 'managers', widgetId: 'analytics', gridX: 0, gridY: 1, gridWidth: 4, gridHeight: 3, sortOrder: 2, isCompulsory: false, description: '' }
+
+	/**
+	 * The field with this aria-label.
+	 *
+	 * @param {object} wrapper The wrapper.
+	 * @param {string} label The label.
+	 * @return {object} The input.
+	 */
+	const field = (wrapper, label) => wrapper.get(`input[aria-label="${label}"]`)
+
+	it('titles an existing row Edit and a new one Add', () => {
+		expect(mounted(RoleLayoutDefaultEditorDialog, { open: true, row }).get('.dialog').attributes('data-name')).toBe('Edit layout default')
+		expect(mounted(RoleLayoutDefaultEditorDialog, { open: true, row: { ...row, id: null } }).get('.dialog').attributes('data-name')).toBe('Add layout default')
 	})
 
-	it('shows the row, numbers as text and a missing description as empty', () => {
-		const wrapper = mountEditor()
+	it('emits the whole row with each edited field, numbers as numbers', async () => {
+		const wrapper = mounted(RoleLayoutDefaultEditorDialog, { open: true, row })
 
-		expect(input(wrapper, 'Name').element.value).toBe('Managers')
-		expect(input(wrapper, 'Grid Y').element.value).toBe('2')
-		expect(input(wrapper, 'Height (rows)').element.value).toBe('4')
-		expect(input(wrapper, 'Description (optional)').element.value).toBe('')
+		await field(wrapper, 'Name').setValue('Leads')
+		await field(wrapper, 'Group ID').setValue('leads')
+		await field(wrapper, 'Widget ID').setValue('calendar')
+		await field(wrapper, 'Grid X').setValue('2')
+		await field(wrapper, 'Grid Y').setValue('5')
+		await field(wrapper, 'Width (columns)').setValue('6')
+		await field(wrapper, 'Height (rows)').setValue('2')
+		await field(wrapper, 'Sort order').setValue('9')
+		await field(wrapper, 'Description (optional)').setValue('For leads')
+		await wrapper.get('input.check').setValue(true)
+
+		expect(wrapper.emitted('update:row')).toEqual([
+			[{ ...row, name: 'Leads' }],
+			[{ ...row, groupId: 'leads' }],
+			[{ ...row, widgetId: 'calendar' }],
+			[{ ...row, gridX: 2 }],
+			[{ ...row, gridY: 5 }],
+			[{ ...row, gridWidth: 6 }],
+			[{ ...row, gridHeight: 2 }],
+			[{ ...row, sortOrder: 9 }],
+			[{ ...row, description: 'For leads' }],
+			[{ ...row, isCompulsory: true }],
+		])
 	})
 
-	it.each([
-		['Name', 'Directors', { name: 'Directors' }],
-		['Group ID', 'directors', { groupId: 'directors' }],
-		['Widget ID', 'kpi', { widgetId: 'kpi' }],
-		['Description (optional)', 'For the board', { description: 'For the board' }],
-	])('the %s field emits the row with only that text changed', async (label, value, change) => {
-		const wrapper = mountEditor()
+	it('saves or cancels, and disables both while saving', async () => {
+		const idle = mounted(RoleLayoutDefaultEditorDialog, { open: true, row })
+		await button(idle, 'Save').trigger('click')
+		await button(idle, 'Cancel').trigger('click')
+		expect(idle.emitted('save')).toHaveLength(1)
+		expect(idle.emitted('update:open')).toEqual([[false]])
 
-		await input(wrapper, label).setValue(value)
-
-		expect(wrapper.emitted('update:row')).toEqual([[{ ...row, ...change }]])
-	})
-
-	it.each([
-		['Grid X', 'gridX'],
-		['Grid Y', 'gridY'],
-		['Width (columns)', 'gridWidth'],
-		['Height (rows)', 'gridHeight'],
-		['Sort order', 'sortOrder'],
-	])('the %s field emits its value as a number', async (label, key) => {
-		const wrapper = mountEditor()
-
-		await input(wrapper, label).setValue('12')
-
-		expect(wrapper.emitted('update:row')).toEqual([[{ ...row, [key]: 12 }]])
-	})
-
-	it('the compulsory switch emits the row with the flag set', async () => {
-		const wrapper = mountEditor()
-
-		await wrapper.find('input[type="checkbox"]').setValue(true)
-
-		expect(wrapper.emitted('update:row')).toEqual([[{ ...row, isCompulsory: true }]])
-	})
-
-	it('cancel closes and save saves', async () => {
-		const wrapper = mountEditor()
-		const buttons = wrapper.findAll('button')
-
-		await buttons.find((b) => b.text() === 'Cancel').trigger('click')
-		await buttons.find((b) => b.text() === 'Save').trigger('click')
-
-		expect(wrapper.emitted('update:open')).toEqual([[false]])
-		expect(wrapper.emitted('save')).toHaveLength(1)
-	})
-
-	it('while saving both buttons are disabled and save says so', () => {
-		const buttons = mountEditor({ saving: true }).findAll('button')
-
-		expect(buttons.map((b) => b.text())).toEqual(['Cancel', 'Saving…'])
-		expect(buttons.every((b) => b.attributes('disabled') !== undefined)).toBe(true)
+		const busy = mounted(RoleLayoutDefaultEditorDialog, { open: true, row, saving: true })
+		expect(button(busy, 'Saving…').attributes('disabled')).toBeDefined()
+		expect(button(busy, 'Cancel').attributes('disabled')).toBeDefined()
 	})
 })

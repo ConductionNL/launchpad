@@ -373,7 +373,7 @@ class PublicShareServiceTest extends TestCase {
 		$this->throttler
 			->expects($this->once())
 			->method('registerAttempt')
-			->with(PublicShareService::ACTION_SHARE_PASSWORD, '127.0.0.1');
+			->with(PublicShareService::BRUTE_FORCE_ACTION_SHARE_UNLOCK, '127.0.0.1');
 
 		$result = $this->service->unlockShare(
 			token: 'tok',

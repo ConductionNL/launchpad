@@ -247,7 +247,7 @@ class PublicShareController extends Controller {
 	#[PublicPage]
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 10, period: 60)]
-	#[BruteForceProtection(action: PublicShareService::ACTION_SHARE_PASSWORD)]
+	#[BruteForceProtection(action: PublicShareService::BRUTE_FORCE_ACTION_SHARE_UNLOCK)]
 	public function unlock(string $token, #[\SensitiveParameter] ?string $password = null): DataResponse {
 		$ipAddress = $this->request->getRemoteAddress();
 

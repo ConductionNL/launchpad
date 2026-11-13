@@ -105,7 +105,14 @@ class StoreService {
 	/**
 	 * Config key holding the registry Bearer token.
 	 */
-	public const CONFIG_TOKEN = 'registry_token';
+	public const CONFIG_REGISTRY_AUTH = 'registry_token';
+
+	/**
+	 * Former name of CONFIG_REGISTRY_AUTH.
+	 *
+	 * @deprecated Use CONFIG_REGISTRY_AUTH.
+	 */
+	public const CONFIG_TOKEN = self::CONFIG_REGISTRY_AUTH;
 
 	/**
 	 * Config key holding the remote register segment.
@@ -299,7 +306,7 @@ class StoreService {
 		return [
 			'registryUrl' => $this->config(key: self::CONFIG_URL),
 			'registryRegister' => $this->config(key: self::CONFIG_REGISTER),
-			'tokenConfigured' => ($this->config(key: self::CONFIG_TOKEN) !== ''),
+			'tokenConfigured' => ($this->config(key: self::CONFIG_REGISTRY_AUTH) !== ''),
 		];
 	}//end getRegistryConfig()
 
@@ -337,8 +344,8 @@ class StoreService {
 		}
 
 		if ($registryToken !== null) {
-			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_TOKEN, trim($registryToken));
-			$written[] = self::CONFIG_TOKEN;
+			$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_REGISTRY_AUTH, trim($registryToken));
+			$written[] = self::CONFIG_REGISTRY_AUTH;
 		}
 
 		if ($registryRegister !== null) {

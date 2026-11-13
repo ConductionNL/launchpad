@@ -168,7 +168,7 @@ class ConnectionReporter {
 	 * @var array<string, array<int, string>>
 	 */
 	public const REFRESH_KEYS = [
-		self::KEY_REGISTRY => [StoreService::CONFIG_URL, StoreService::CONFIG_REGISTER, StoreService::CONFIG_TOKEN],
+		self::KEY_REGISTRY => [StoreService::CONFIG_URL, StoreService::CONFIG_REGISTER, StoreService::CONFIG_REGISTRY_AUTH],
 	];
 
 	/**

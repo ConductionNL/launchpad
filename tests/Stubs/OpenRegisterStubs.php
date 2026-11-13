@@ -79,3 +79,45 @@ namespace OCA\OpenRegister\AppHost\Service {
 		}//end class
 	}
 }
+
+namespace OCA\OpenRegister\Service\Object {
+	if (class_exists(__NAMESPACE__ . '\\ObjectFindTarget', false) === false) {
+		/**
+		 * Stub mirroring the register and schema an object is saved under.
+		 */
+		final class ObjectFindTarget {
+			/**
+			 * Constructor.
+			 *
+			 * @param mixed $register The register (entity, slug or id).
+			 * @param mixed $schema   The schema (entity, slug or id).
+			 */
+			public function __construct(
+				public readonly mixed $register = null,
+				public readonly mixed $schema = null,
+			) {
+			}//end __construct()
+		}//end class
+	}
+
+	if (class_exists(__NAMESPACE__ . '\\ObjectSaveOptions', false) === false) {
+		/**
+		 * Stub mirroring the save options LaunchPad passes to ObjectService::saveObject().
+		 */
+		final class ObjectSaveOptions {
+			/**
+			 * Constructor.
+			 *
+			 * @param ObjectFindTarget $target The register and schema.
+			 * @param string|null      $uuid   The object uuid.
+			 * @param array|null       $extend Properties to extend.
+			 */
+			public function __construct(
+				public readonly ObjectFindTarget $target = new ObjectFindTarget(),
+				public readonly ?string $uuid = null,
+				public readonly ?array $extend = [],
+			) {
+			}//end __construct()
+		}//end class
+	}
+}

@@ -46,6 +46,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Migration;
 
 use Closure;
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
@@ -180,7 +182,12 @@ class Version002000Date20260519000000 extends SimpleMigrationStep {
 						'isDefault' => ((int)($row['is_default'] ?? 0)) === 1,
 					];
 
-					$objectService->saveObject(object: $data, register: self::REGISTER, schema: self::SCHEMA);
+					$objectService->saveObject(
+						object: $data,
+						options: new ObjectSaveOptions(
+							target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA)
+						)
+					);
 					$migrated++;
 				} catch (\Throwable $innerEx) {
 					$failed++;

@@ -1395,14 +1395,15 @@
 			"homarr": "no",
 			"dashy": "no",
 			"built": {
-				"state": "built",
-				"evidence": "src/views/Views.vue:277 (EditLockBanner); src/composables/useDashboardLock.js; src/components/Workspace/EditLockBanner.vue",
+				"state": "specified",
+				"evidence": "Not built: concurrent editing as LpBewerken draws it (decision 406). Built today is the edit lock, where the second editor stays read-only behind a banner naming the holder: src/views/Views.vue:277 (EditLockBanner), src/composables/useDashboardLock.js, src/components/Workspace/EditLockBanner.vue, openspec/specs/dashboard-locking REQ-LOCK-001 and REQ-LOCKUI-001.",
 				"owner": "ConductionNL/launchpad",
-				"change": "openspec/changes/archive/2026-09-29-dashboard-edit-lock-ui",
+				"change": "openspec/changes/building-edit-a-dashboard-together",
 				"requirement": [
-					"openspec/specs/dashboard-locking :: The workspace page holds the lock while a person edits (REQ-LOCKUI-001)",
-					"openspec/specs/dashboard-locking :: REQ-LOCK-001 Acquire Dashboard Lock"
-				]
+					"openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing :: Several people SHALL be able to edit a shared dashboard at once",
+					"openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing :: Two changes to the same widget SHALL NOT silently replace each other"
+				],
+				"plan": "openspec/changes/building-edit-a-dashboard-together"
 			},
 			"reachedOn": "Workspace page, Edit: the page takes the dashboard lock while you edit and a banner names the colleague who holds it",
 			"provider": "launchpad",
@@ -1420,7 +1421,8 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpBewerken"
-			}
+			},
+			"note": "Board canon (decision 406): the row is concurrent editing as drawn on LpBewerken. The edit lock stays the built behaviour until the plan lands."
 		},
 		{
 			"id": "build-personal-hide",

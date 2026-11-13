@@ -5342,8 +5342,8 @@
       "type": "library",
       "name": "entities",
       "group": "@nodable",
-      "version": "3.0.0",
-      "bom-ref": "launchpad@1.0.0|@nodable/entities@3.0.0",
+      "version": "3.1.0",
+      "bom-ref": "launchpad@1.0.0|@nodable/entities@3.1.0",
       "licenses": [
         {
           "license": {
@@ -5351,15 +5351,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/%40nodable/entities@3.0.0",
+      "purl": "pkg:npm/%40nodable/entities@3.1.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/@nodable/entities/-/entities-3.0.0.tgz",
+          "url": "https://registry.npmjs.org/@nodable/entities/-/entities-3.1.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "f0bf7115e4d82a19b8f717c8ca9a1ed96e705759bfdd9e7c913fbb911f40f0ec85c5c3ddb88e159b1694310c8a62b4635282cb497bfa10a2880f94ef8fd71457"
+              "content": "2ec4bf0e31ebfae0cceb8ec6aeefdc03cf89ddadc77e1b6dc0228bcaea3237bc974c50b1281b5280c401beb5bdc8d3dadbfcc345436e18f687e50505a1ae1aad"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -12247,43 +12247,6 @@
     },
     {
       "type": "library",
-      "name": "cssesc",
-      "version": "3.0.0",
-      "bom-ref": "launchpad@1.0.0|cssesc@3.0.0",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ],
-      "purl": "pkg:npm/cssesc@3.0.0",
-      "externalReferences": [
-        {
-          "url": "https://registry.npmjs.org/cssesc/-/cssesc-3.0.0.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "fd36ff25c8cad75d67352706a1be4c36db27b4d3356823540e2a41fd39306458720ebac4e3b48ec7fd7cc05d9b6e381cdd9cc248a5b54f99ede446c5a00cff56"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/cssesc"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "csstype",
       "version": "3.2.3",
       "bom-ref": "launchpad@1.0.0|csstype@3.2.3",
@@ -14751,8 +14714,8 @@
     {
       "type": "library",
       "name": "fast-xml-parser",
-      "version": "5.11.1",
-      "bom-ref": "launchpad@1.0.0|fast-xml-parser@5.11.1",
+      "version": "5.12.0",
+      "bom-ref": "launchpad@1.0.0|fast-xml-parser@5.12.0",
       "licenses": [
         {
           "license": {
@@ -14760,15 +14723,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/fast-xml-parser@5.11.1",
+      "purl": "pkg:npm/fast-xml-parser@5.12.0",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-5.11.1.tgz",
+          "url": "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-5.12.0.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "4c1c3a2bf7f1a101868c29990f0f70fd9c0fdee0dc9d3338607fe0f8f1515abf2c6dee62757b7134deaf213878fb5aee0996a1a3ab8116eac496c03b174cf383"
+              "content": "fe95f1441b70c58f70f33ed86e0b2f20f3dc3ef143b136c8916c134098733493e8923f936cde9fb6672fe23fe91100ef3823672860f3ba4e41a36a288083a216"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -17269,8 +17232,8 @@
     {
       "type": "library",
       "name": "is-unsafe",
-      "version": "2.0.2",
-      "bom-ref": "launchpad@1.0.0|is-unsafe@2.0.2",
+      "version": "2.0.3",
+      "bom-ref": "launchpad@1.0.0|is-unsafe@2.0.3",
       "licenses": [
         {
           "license": {
@@ -17278,15 +17241,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/is-unsafe@2.0.2",
+      "purl": "pkg:npm/is-unsafe@2.0.3",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/is-unsafe/-/is-unsafe-2.0.2.tgz",
+          "url": "https://registry.npmjs.org/is-unsafe/-/is-unsafe-2.0.3.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "1e06c81cf047d0a1c709c8cb7c6b02be1b4f4d5c636806655e3c1dcfbfc6402e344a349ee2c7d0b1aafc279545a3c24e49b6ab92957438b1bde5b6da35df5a01"
+              "content": "6419657330823b6ebbbe07456fa4eade9bfe2e11da0a218c76bf99b2e2fe3a8a6bb8083b4bedd90ecd6f0f444f0b4b92ae48f36eb6b16868ed5f5601c633de15"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -21742,8 +21705,8 @@
     {
       "type": "library",
       "name": "postcss-selector-parser",
-      "version": "7.1.5",
-      "bom-ref": "launchpad@1.0.0|postcss-selector-parser@7.1.5",
+      "version": "7.2.1",
+      "bom-ref": "launchpad@1.0.0|postcss-selector-parser@7.2.1",
       "licenses": [
         {
           "license": {
@@ -21751,15 +21714,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/postcss-selector-parser@7.1.5",
+      "purl": "pkg:npm/postcss-selector-parser@7.2.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/postcss-selector-parser/-/postcss-selector-parser-7.1.5.tgz",
+          "url": "https://registry.npmjs.org/postcss-selector-parser/-/postcss-selector-parser-7.2.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "2afbed0fb4ab9413fb765824060844137afce020019b94a657668d706e28080faa0e727fb6f2a89c556fc16032c96504c31b8d6b075f10064a3fdcccde867653"
+              "content": "1b0c653204d35f02289be79b0bb6a7de4e916890f09254504277e25ec2cf1a272ef05615fe4ffed7ff58636394dbeafddfc1f6b785f44c3c6889ff873f6ae3cd"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -23671,8 +23634,8 @@
     {
       "type": "library",
       "name": "strnum",
-      "version": "2.4.2",
-      "bom-ref": "launchpad@1.0.0|strnum@2.4.2",
+      "version": "2.5.1",
+      "bom-ref": "launchpad@1.0.0|strnum@2.5.1",
       "licenses": [
         {
           "license": {
@@ -23680,15 +23643,15 @@
           }
         }
       ],
-      "purl": "pkg:npm/strnum@2.4.2",
+      "purl": "pkg:npm/strnum@2.5.1",
       "externalReferences": [
         {
-          "url": "https://registry.npmjs.org/strnum/-/strnum-2.4.2.tgz",
+          "url": "https://registry.npmjs.org/strnum/-/strnum-2.5.1.tgz",
           "type": "distribution",
           "hashes": [
             {
               "alg": "SHA-512",
-              "content": "ac31b7021e13574935856bcb4b3919b4c98b37df9e4be877927ab830fe80e36637621e6a18d9ce52cd63264a12afc146e5db0bdbc73b2a0908073484ca4aadbb"
+              "content": "50ce274cb5b34220c1b1e571506c4dd30273224d1453cf508bba4a5f3f6a212a3e961be2262913ba2901b0afe8151969bd81ef49dcf44d5a0bc90fac129630c4"
             }
           ],
           "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""

@@ -1640,7 +1640,26 @@ OC.L10N.register(
     "Statistics" : "Statistieken",
     "Count my visits" : "Mijn bezoeken meetellen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Als dit uit staat, tellen je bezoeken aan dashboards en je klikken op tegels niet mee in de bezoekcijfers.",
-    "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen."
+    "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen.",
+    "Communities" : "Community's",
+    "Loading communities…" : "Community's laden…",
+    "Communities need Nextcloud Talk. Ask your administrator to enable it." : "Community's hebben Nextcloud Talk nodig. Vraag je beheerder om Talk aan te zetten.",
+    "The communities could not be loaded. Reload the page to try again." : "De community's konden niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
+    "Your organisation has not pinned a community you can see yet." : "Je organisatie heeft nog geen community vastgezet die jij kunt zien.",
+    "There are no open communities to join yet." : "Er zijn nog geen open community's om lid van te worden.",
+    "Pinned by your organisation" : "Vastgezet door je organisatie",
+    "Join {name}" : "Lid worden van {name}",
+    "Join" : "Lid worden",
+    "You could not join {name}. Try again later." : "Je kon geen lid worden van {name}. Probeer het later opnieuw.",
+    "Lists the open Talk conversations each person may join. Talk decides who sees which conversation." : "Toont de open Talk-gesprekken waar iedereen lid van mag worden. Talk bepaalt wie welk gesprek ziet.",
+    "Show only pinned" : "Alleen vastgezette tonen",
+    "Pinned communities" : "Vastgezette community's",
+    "The Communities widget lists the open Talk conversations each person may join. The conversations pinned here show first, marked as pinned by your organisation. Enter one Talk conversation token per line, at most 20. The token is the last part of the conversation link, after /call/." : "De widget Community's toont de open Talk-gesprekken waar iedereen lid van mag worden. De gesprekken die je hier vastzet staan bovenaan, gemarkeerd als vastgezet door je organisatie. Vul per regel één Talk-gesprekstoken in, hoogstens 20. Het token is het laatste deel van de gesprekslink, na /call/.",
+    "Conversation tokens" : "Gesprekstokens",
+    "Pinned communities saved." : "Vastgezette community's opgeslagen.",
+    "At most {max} conversations can be pinned." : "Er kunnen hoogstens {max} gesprekken worden vastgezet.",
+    "The pinned communities could not be saved." : "De vastgezette community's konden niet worden opgeslagen.",
+    "_%n member_::_%n members_" : ["%n lid", "%n leden"]
 },
 "nplurals=2; plural=(n != 1);"
 );

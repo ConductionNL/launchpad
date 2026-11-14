@@ -121,6 +121,50 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertTrue($sink['startPageWithoutNavigation']);
 	}
 
+	/**
+	 * Engagement-communities: whether Talk is enabled and the pinned tokens are
+	 * optional workspace keys, pushed only when set (REQ-COMM-003, REQ-COMM-004).
+	 *
+	 * @return void
+	 */
+	public function testTalkAndPinnedCommunitiesArePushedOnlyWhenSet(): void {
+		$sink = [];
+		$this->workspaceBuilder($sink)
+			->setTalkEnabled(true)
+			->setPinnedCommunities([2 => 'vraagict', 5 => 'duurzaam42'])
+			->apply();
+
+		$this->assertTrue($sink['talkEnabled']);
+		$this->assertSame(['vraagict', 'duurzaam42'], $sink['pinnedCommunities']);
+
+		$bare = [];
+		$this->workspaceBuilder($bare)->apply();
+		$this->assertArrayNotHasKey('talkEnabled', $bare);
+		$this->assertArrayNotHasKey('pinnedCommunities', $bare);
+	}
+
+	/**
+	 * A workspace builder with every required key set, writing into the sink.
+	 *
+	 * @param array $sink The recorded state.
+	 *
+	 * @return InitialStateBuilder
+	 */
+	private function workspaceBuilder(array &$sink): InitialStateBuilder {
+		return (new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::WORKSPACE))
+			->setWidgets([])
+			->setLayout([])
+			->setPrimaryGroup('default')
+			->setPrimaryGroupName('')
+			->setIsAdmin(false)
+			->setActiveDashboardId('')
+			->setDashboardSource('group')
+			->setGroupDashboards([])
+			->setUserDashboards([])
+			->setAllowUserDashboards(false)
+			->setAllowedWidgets(null);
+	}
+
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {
 		$sink = [];
 		$state = $this->makeRecordingState($sink);

@@ -31,6 +31,7 @@ use OCA\LaunchPad\Service\DashboardService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use OCA\LaunchPad\Service\WidgetService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
@@ -93,6 +94,71 @@ class PageControllerHelpersTest extends TestCase {
 		$dashboard->setUuid($uuid);
 		$dashboard->setName($name);
 		return $dashboard;
+	}
+
+	/**
+	 * A controller whose settings carry the given app manager.
+	 *
+	 * @param IAppManager|null $appManager The app manager, or null for none.
+	 *
+	 * @return PageController
+	 */
+	private function controllerWithApps(?IAppManager $appManager): PageController {
+		return new PageController(
+			request: $this->createMock(IRequest::class),
+			sources: new PageSources(
+				initialState: $this->createMock(IInitialState::class),
+				widgetService: $this->widgets,
+				dashboardService: $this->dashboards,
+				adminTemplateService: $this->templates
+			),
+			userSession: $this->session,
+			settings: new PageSettingsSources(
+				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
+				treeService: $this->tree,
+				logger: $this->logger,
+				adminSettingsService: $this->createMock(AdminSettingsService::class),
+				appManager: $appManager
+			)
+		);
+	}
+
+	/**
+	 * Engagement-communities REQ-COMM-004: Talk counts as enabled only when
+	 * the app manager says so for the signed-in user.
+	 *
+	 * @return void
+	 */
+	public function testTalkIsEnabledOnlyWhenTheAppManagerSaysSoForTheViewer(): void {
+		$user = $this->createMock(IUser::class);
+		$this->session->method('getUser')->willReturn($user);
+		$apps = $this->createMock(IAppManager::class);
+		$apps->expects($this->exactly(2))
+			->method('isEnabledForUser')
+			->with('spreed', $user)
+			->willReturnOnConsecutiveCalls(true, false);
+		$controller = $this->controllerWithApps(appManager: $apps);
+		$check = new ReflectionMethod(PageController::class, 'isTalkEnabled');
+
+		$this->assertTrue($check->invoke($controller));
+		$this->assertFalse($check->invoke($controller));
+	}
+
+	/**
+	 * Without a session, an app manager, or with a failing check, Talk is off.
+	 *
+	 * @return void
+	 */
+	public function testTalkIsOffWithoutASessionAnAppManagerOrWhenTheCheckFails(): void {
+		$check = new ReflectionMethod(PageController::class, 'isTalkEnabled');
+		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null)));
+
+		$this->session->method('getUser')->willReturn($this->createMock(IUser::class));
+		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: null)));
+
+		$failing = $this->createMock(IAppManager::class);
+		$failing->method('isEnabledForUser')->willThrowException(new RuntimeException('app store down'));
+		$this->assertFalse($check->invoke($this->controllerWithApps(appManager: $failing)));
 	}
 
 	public function testUserIdIsEmptyWithoutASession(): void {

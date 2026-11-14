@@ -64,4 +64,5 @@ enum AdminSettingKey: string {
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
+	case PINNED_COMMUNITIES = 'pinned_communities';
 }//end enum

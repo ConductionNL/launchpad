@@ -82,6 +82,7 @@ class AdminSettingsServiceTest extends TestCase {
 				// launcher-tile-launch-types: both empty until an administrator fills them.
 				'tileAllowedSchemes' => [],
 				'ssoLaunchTemplates' => [],
+				'pinnedCommunities' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -168,7 +169,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// launcher-tile-launch-types: the program schemes and SSO launch templates.
 		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
 		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
-		$this->assertCount(14, $settings);
+		// engagement-communities REQ-COMM-003.
+		$this->assertArrayHasKey('pinnedCommunities', $settings);
+		$this->assertCount(15, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

@@ -437,6 +437,8 @@ class AdminController extends Controller {
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
+	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
+	 *                                      communities, at most 20 (REQ-COMM-003).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -462,6 +464,7 @@ class AdminController extends Controller {
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
 		array|null $tileAllowedSchemes = null,
 		array|null $ssoLaunchTemplates = null,
+		array|null $pinnedCommunities = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -487,6 +490,7 @@ class AdminController extends Controller {
 					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
 					'tileAllowedSchemes'          => $tileAllowedSchemes,
 					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
+					'pinnedCommunities'           => $pinnedCommunities,
 				]
 			);
 

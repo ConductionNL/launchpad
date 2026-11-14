@@ -167,6 +167,68 @@ class NotifierTest extends TestCase {
 	}//end testEverySubjectRendersItsTextAndLink()
 
 	/**
+	 * The app catalogue subjects render the request, the approval and the
+	 * decline with its note (launcher-app-catalogue, REQ-ACAT-003/004).
+	 *
+	 * @return void
+	 */
+	public function testAppCatalogueSubjectsRenderTheirText(): void {
+		$cases = [
+			['app_requested', ['Pieter', 'Kaartviewer'], [
+				'setRichSubject ["[Pieter asked for the app **Kaartviewer**]",[]]',
+				'setParsedSubject ["[Pieter asked for the app Kaartviewer]"]',
+				'setRichMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]",[]]',
+				'setParsedMessage ["[Approve or decline it under App catalogue in the LaunchPad admin settings]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
+			['app_request_decided', ['Kaartviewer', 'approved', ''], [
+				'setRichSubject ["[**Kaartviewer** is now in the app catalogue]",[]]',
+				'setParsedSubject ["[Kaartviewer is now in the app catalogue]"]',
+				'setRichMessage ["[Add it as a tile from Add on your dashboard]",[]]',
+				'setParsedMessage ["[Add it as a tile from Add on your dashboard]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
+			['app_request_decided', ['Kaartviewer', 'declined', 'Gebruik de kaartlaag in het zaaksysteem'], [
+				'setRichSubject ["[Your request for **Kaartviewer** was declined: Gebruik de kaartlaag in het zaaksysteem]",[]]',
+				'setParsedSubject ["[Your request for Kaartviewer was declined: Gebruik de kaartlaag in het zaaksysteem]"]',
+				'setRichMessage ["[An administrator decided on your request in the app catalogue]",[]]',
+				'setParsedMessage ["[An administrator decided on your request in the app catalogue]"]',
+				'setLink ["https:\/\/host\/apps\/launchpad\/"]',
+			]],
+		];
+		foreach ($cases as [$subject, $params, $expected]) {
+			$this->notifier()->prepare(
+				notification: $this->notification(subject: $subject, objectId: 'req-1', params: $params),
+				languageCode: 'en'
+			);
+			$this->assertSame($expected, $this->calls, $subject);
+		}
+	}//end testAppCatalogueSubjectsRenderTheirText()
+
+	/**
+	 * A request links to the LaunchPad admin section, a decision to LaunchPad.
+	 *
+	 * @return void
+	 */
+	public function testAppCatalogueSubjectsLinkToWhereTheyAreHandled(): void {
+		$l = $this->createMock(IL10N::class);
+		$l->method('t')->willReturnArgument(0);
+		$factory = $this->createMock(IFactory::class);
+		$factory->method('get')->willReturn($l);
+		$urls = $this->createMock(IURLGenerator::class);
+		$urls->method('linkToRouteAbsolute')->willReturnCallback(
+			static fn (string $route, array $args = []): string => $route.'?'.http_build_query($args)
+		);
+		$notifier = new Notifier(l10nFactory: $factory, urlGenerator: $urls, dashboardMapper: $this->createMock(DashboardMapper::class));
+
+		$notifier->prepare(notification: $this->notification(subject: 'app_requested', objectId: 'r', params: ['a', 'b']), languageCode: 'en');
+		$this->assertSame('setLink ["settings.AdminSettings.index?section=launchpad"]', $this->calls[4]);
+
+		$notifier->prepare(notification: $this->notification(subject: 'app_request_decided', objectId: 'r', params: ['b', 'approved']), languageCode: 'en');
+		$this->assertSame('setLink ["launchpad.page.index?"]', $this->calls[4]);
+	}//end testAppCatalogueSubjectsLinkToWhereTheyAreHandled()
+
+	/**
 	 * Unknown apps and subjects are refused with their own message.
 	 *
 	 * @return void

@@ -473,6 +473,17 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 
 		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
 		// every signed-in person, definitions for administrators.
+		// launcher-app-catalogue: the approved apps a user may see and a request
+		// for a missing one (REQ-ACAT-002/003), and the admin side (REQ-ACAT-001/004).
+		['name' => 'catalogue#index', 'url' => '/api/catalogue', 'verb' => 'GET'],
+		['name' => 'catalogue#request', 'url' => '/api/catalogue/requests', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#index', 'url' => '/api/admin/catalogue', 'verb' => 'GET'],
+		['name' => 'adminCatalogue#create', 'url' => '/api/admin/catalogue', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#setManagerGroup', 'url' => '/api/admin/catalogue/settings', 'verb' => 'PUT'],
+		['name' => 'adminCatalogue#approve', 'url' => '/api/admin/catalogue/requests/{uuid}/approve', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#decline', 'url' => '/api/admin/catalogue/requests/{uuid}/decline', 'verb' => 'POST'],
+		['name' => 'adminCatalogue#update', 'url' => '/api/admin/catalogue/{uuid}', 'verb' => 'PUT'],
+		['name' => 'adminCatalogue#destroy', 'url' => '/api/admin/catalogue/{uuid}', 'verb' => 'DELETE'],
 		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],
 		['name' => 'profileFields#saveOwn', 'url' => '/api/profile-fields/me', 'verb' => 'PUT'],
 		['name' => 'profileFields#getDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'GET'],

@@ -327,6 +327,156 @@
             "outcome": "returned null"
         }
     },
+    "AppRequestMapper": {
+        "findOpen all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findOpen rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"status\\\", \\\":p1\\\", null)\")",
+                "qb1.orderBy(\"created_at\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\AppRequest {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"requestedBy\\\":\\\"\\\",\\\"appName\\\":\\\"\\\",\\\"purpose\\\":\\\"\\\",\\\"status\\\":\\\"open\\\",\\\"decidedBy\\\":null,\\\"decisionNote\\\":null,\\\"catalogueAppId\\\":null,\\\"createdAt\\\":null,\\\"decidedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\AppRequest {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"requestedBy\\\":\\\"\\\",\\\"appName\\\":\\\"\\\",\\\"purpose\\\":\\\"\\\",\\\"status\\\":\\\"open\\\",\\\"decidedBy\\\":null,\\\"decisionNote\\\":null,\\\"catalogueAppId\\\":null,\\\"createdAt\\\":null,\\\"decidedAt\\\":null}\"]"
+        },
+        "countOpenBy all": {
+            "calls": [
+                "qb1 new",
+                "qb1.func()",
+                "qb1.func.count(\"*\", \"open_count\")",
+                "qb1.select(count(\"*\", \"open_count\"))",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"requested_by\", \":p1\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"requested_by\\\", \\\":p1\\\", null)\", \"eq(\\\"status\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned 0"
+        },
+        "countOpenBy rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.func()",
+                "qb1.func.count(\"*\", \"open_count\")",
+                "qb1.select(count(\"*\", \"open_count\"))",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-userId\", 2, null)",
+                "qb1.expr.eq(\"requested_by\", \":p1\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"open\", 2, null)",
+                "qb1.expr.eq(\"status\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"requested_by\\\", \\\":p1\\\", null)\", \"eq(\\\"status\\\", \\\":p2\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned 5"
+        },
+        "findByUuid all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\DoesNotExistException: Did expect one result but found none when executing: query \"sql\"; "
+        },
+        "findByUuid rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_app_requests\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
+        }
+    },
+    "CatalogueAppMapper": {
+        "findAllOrdered all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.orderBy(\"sort_order\", null)",
+                "qb1.addOrderBy(\"name\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findAllOrdered rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.orderBy(\"sort_order\", null)",
+                "qb1.addOrderBy(\"name\", null)",
+                "qb1.addOrderBy(\"id\", null)",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":5,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"url\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\",\"OCA\\\\LaunchPad\\\\Db\\\\CatalogueApp {\\\"id\\\":6,\\\"uuid\\\":\\\"\\\",\\\"name\\\":\\\"\\\",\\\"description\\\":\\\"\\\",\\\"icon\\\":\\\"\\\",\\\"iconType\\\":\\\"class\\\",\\\"linkType\\\":\\\"url\\\",\\\"linkValue\\\":\\\"\\\",\\\"targetGroups\\\":[],\\\"sortOrder\\\":0}\"]"
+        },
+        "findByUuid all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\DoesNotExistException: Did expect one result but found none when executing: query \"sql\"; "
+        },
+        "findByUuid rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_catalogue_apps\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"s-uuid\", 2, null)",
+                "qb1.expr.eq(\"uuid\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"uuid\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)",
+                "qb1.getSQL()"
+            ],
+            "outcome": "threw OCP\\AppFramework\\Db\\MultipleObjectsReturnedException: Did not expect more than one result when executing: query \"sql\"; "
+        }
+    },
     "ConditionalRuleMapper": {
         "find all": {
             "calls": [

@@ -140,6 +140,19 @@ class Notifier implements INotifier {
 			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
 		}
 
+		// The app catalogue (launcher-app-catalogue): a request opens the admin
+		// section where it is decided; a decision opens LaunchPad, where Add lists the catalogue.
+		if ($notification->getSubject() === 'app_requested') {
+			return $this->urlGenerator->linkToRouteAbsolute(
+				routeName: 'settings.AdminSettings.index',
+				arguments: ['section' => 'launchpad']
+			);
+		}
+
+		if ($notification->getSubject() === 'app_request_decided') {
+			return $this->buildDashboardUrl(objectId: '');
+		}
+
 		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
 	}//end linkFor()
 
@@ -161,6 +174,8 @@ class Notifier implements INotifier {
 			'dashboard_shared' => $this->sharedCopy(params: $params, l: $l),
 			'dashboard_ownership_transferred' => $this->transferredCopy(params: $params, l: $l),
 			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
+			'app_requested' => $this->appRequestedCopy(params: $params, l: $l),
+			'app_request_decided' => $this->appDecidedCopy(params: $params, l: $l),
 			default => throw new UnknownNotificationException(
 				message: 'Unknown subject: ' . $notification->getSubject()
 			),
@@ -256,6 +271,59 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end resyncedCopy()
+
+	/**
+	 * Copy for `app_requested`: a user asked for an app the catalogue lacks
+	 * (launcher-app-catalogue, REQ-ACAT-003).
+	 *
+	 * @param array<int, string> $params [requester display name, app name].
+	 * @param IL10N              $l      The L10N instance.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 */
+	private function appRequestedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('%1$s asked for the app **%2$s**', $names);
+		$copy->parsedSubject = $l->t('%1$s asked for the app %2$s', $names);
+		$copy->message       = $l->t('Approve or decline it under App catalogue in the LaunchPad admin settings');
+
+		return $copy;
+	}//end appRequestedCopy()
+
+	/**
+	 * Copy for `app_request_decided`: the requester hears how their request
+	 * was decided (launcher-app-catalogue, REQ-ACAT-004).
+	 *
+	 * @param array<int, string> $params [app name, `approved` or `declined`, the decline note].
+	 * @param IL10N              $l      The L10N instance.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-administrators-decide-on-requests-and-the-requester-hears-back-req-acat-004
+	 */
+	private function appDecidedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = (string)($params[0] ?? '');
+		$copy = new NotificationCopy();
+
+		if (($params[1] ?? '') === 'approved') {
+			$copy->richSubject   = $l->t('**%1$s** is now in the app catalogue', [$name]);
+			$copy->parsedSubject = $l->t('%1$s is now in the app catalogue', [$name]);
+			$copy->message       = $l->t('Add it as a tile from Add on your dashboard');
+
+			return $copy;
+		}
+
+		$args = [$name, (string)($params[2] ?? '')];
+		$copy->richSubject   = $l->t('Your request for **%1$s** was declined: %2$s', $args);
+		$copy->parsedSubject = $l->t('Your request for %1$s was declined: %2$s', $args);
+		$copy->message       = $l->t('An administrator decided on your request in the app catalogue');
+
+		return $copy;
+	}//end appDecidedCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

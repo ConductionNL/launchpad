@@ -30,6 +30,42 @@
 			</div>
 
 			<div class="widget-picker__list">
+				<section
+					v-if="filteredCatalogueApps.length > 0"
+					class="widget-picker__section widget-picker__section--first"
+					data-testid="widget-picker-catalogue">
+					<h3 class="widget-picker__section-title">
+						{{ t('launchpad', 'From the app catalogue') }}
+					</h3>
+					<p class="widget-picker__section-description">
+						{{ t('launchpad', 'Apps your organisation approved. One click places one as a tile.') }}
+					</p>
+					<button
+						v-for="app in filteredCatalogueApps"
+						:key="app.uuid"
+						type="button"
+						class="widget-picker__widget"
+						@click="$emit('addCatalogueApp', app)">
+						<img
+							v-if="app.icon && app.iconType === 'url'"
+							:src="app.icon"
+							alt=""
+							class="widget-picker__widget-icon widget-picker__app-icon">
+						<span
+							v-else-if="app.icon"
+							:class="app.icon"
+							class="widget-picker__widget-icon"
+							aria-hidden="true" />
+						<div class="widget-picker__widget-info">
+							<span class="widget-picker__widget-title">{{ app.name }}</span>
+							<span v-if="app.description" class="widget-picker__widget-badge">
+								{{ app.description }}
+							</span>
+						</div>
+						<Plus :size="20" class="widget-picker__widget-action" />
+					</button>
+				</section>
+
 				<button
 					v-for="widget in filteredWidgets"
 					:key="widget.id"
@@ -99,12 +135,58 @@
 				</section>
 
 				<NcEmptyContent
-					v-if="filteredWidgets.length === 0 && filteredApps.length === 0"
+					v-if="filteredWidgets.length === 0 && filteredApps.length === 0 && filteredCatalogueApps.length === 0"
 					:description="t('launchpad', 'No widgets found')">
 					<template #icon>
 						<Magnify :size="48" />
 					</template>
 				</NcEmptyContent>
+
+				<section
+					v-if="requestAppFn"
+					class="widget-picker__section"
+					data-testid="widget-picker-request">
+					<NcButton
+						v-if="!requestFormOpen"
+						variant="tertiary"
+						@click="openRequestForm">
+						{{ t('launchpad', 'Can\'t find your app?') }}
+					</NcButton>
+					<form
+						v-else
+						class="widget-picker__request"
+						:aria-label="t('launchpad', 'Ask IT for an app')"
+						@submit.prevent="submitRequest">
+						<h3 class="widget-picker__section-title">
+							{{ t('launchpad', 'Ask IT for an app') }}
+						</h3>
+						<NcTextField
+							v-model="requestAppName"
+							:label="t('launchpad', 'App name')"
+							:required="true" />
+						<NcTextField
+							v-model="requestPurpose"
+							:label="t('launchpad', 'What do you need it for?')" />
+						<p
+							v-if="requestMessage"
+							class="widget-picker__request-message"
+							:class="{ 'widget-picker__request-message--error': requestFailed }"
+							role="status">
+							{{ requestMessage }}
+						</p>
+						<div class="widget-picker__request-actions">
+							<NcButton
+								variant="primary"
+								type="submit"
+								:disabled="requestBusy || requestAppName.trim() === ''">
+								{{ t('launchpad', 'Send request') }}
+							</NcButton>
+							<NcButton variant="tertiary" @click="closeRequestForm">
+								{{ t('launchpad', 'Cancel') }}
+							</NcButton>
+						</div>
+					</form>
+				</section>
 			</div>
 		</div>
 	</NcModal>
@@ -112,7 +194,7 @@
 
 <script>
 import { t } from '@nextcloud/l10n'
-import { NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcModal, NcTextField } from '@nextcloud/vue'
 import Check from 'vue-material-design-icons/Check.vue'
 import Magnify from 'vue-material-design-icons/Magnify.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
@@ -122,6 +204,7 @@ export default {
 	name: 'WidgetPickerModal',
 
 	components: {
+		NcButton,
 		NcModal,
 		NcTextField,
 		NcEmptyContent,
@@ -148,13 +231,34 @@ export default {
 
 		/** The discovered app ids already on the dashboard. */
 		placedAppIds: LIST_PROP,
+
+		/**
+		 * The app catalogue entries the user's groups may see
+		 * (`GET /api/catalogue`): `[{ uuid, name, description, icon, iconType, linkType, linkValue }]`.
+		 */
+		catalogueApps: LIST_PROP,
+
+		/**
+		 * Sends a request for a missing app: `({ appName, purpose }) => Promise`.
+		 * Without it the "Can't find your app?" form is not offered.
+		 */
+		requestAppFn: {
+			type: Function,
+			default: null,
+		},
 	},
 
-	emits: ['close', 'add', 'addApp'],
+	emits: ['close', 'add', 'addApp', 'addCatalogueApp'],
 
 	data() {
 		return {
 			searchQuery: '',
+			requestFormOpen: false,
+			requestAppName: '',
+			requestPurpose: '',
+			requestBusy: false,
+			requestMessage: '',
+			requestFailed: false,
 		}
 	},
 
@@ -174,6 +278,19 @@ export default {
 		filteredApps() {
 			const query = this.searchQuery.toLowerCase()
 			return this.discoveredApps.filter((app) => !query || String(app.name).toLowerCase().includes(query))
+		},
+
+		/**
+		 * The catalogue entries matching the search box, by name or description.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+		 */
+		filteredCatalogueApps() {
+			const query = this.searchQuery.toLowerCase()
+			return this.catalogueApps.filter((app) => !query
+				|| String(app.name).toLowerCase().includes(query)
+				|| String(app.description || '').toLowerCase().includes(query))
 		},
 
 		/** @spec openspec/specs/widgets/spec.md */
@@ -200,6 +317,7 @@ export default {
 		open(isOpen) {
 			if (!isOpen) {
 				this.searchQuery = ''
+				this.closeRequestForm()
 			}
 		},
 	},
@@ -219,6 +337,58 @@ export default {
 		 */
 		addWidget(widget) {
 			this.$emit('add', widget.id)
+		},
+
+		/**
+		 * Open the request form, starting from what the user searched for.
+		 *
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		openRequestForm() {
+			this.requestFormOpen = true
+			this.requestAppName = this.searchQuery.trim()
+			this.requestPurpose = ''
+			this.requestMessage = ''
+			this.requestFailed = false
+		},
+
+		/** Close the request form and forget what was typed. */
+		closeRequestForm() {
+			this.requestFormOpen = false
+			this.requestAppName = ''
+			this.requestPurpose = ''
+			this.requestMessage = ''
+			this.requestFailed = false
+		},
+
+		/**
+		 * Send the request and say how it went: sent, refused because the
+		 * user has too many open requests, or not sent.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+		 */
+		async submitRequest() {
+			const appName = this.requestAppName.trim()
+			if (appName === '' || this.requestBusy) {
+				return
+			}
+			this.requestBusy = true
+			this.requestMessage = ''
+			try {
+				await this.requestAppFn({ appName, purpose: this.requestPurpose.trim() })
+				this.requestFailed = false
+				this.requestMessage = t('launchpad', 'Your request was sent to IT')
+				this.requestAppName = ''
+				this.requestPurpose = ''
+			} catch (error) {
+				this.requestFailed = true
+				this.requestMessage = error?.response?.data?.code === 'request_limit'
+					? t('launchpad', 'You have 10 open requests. Wait for an answer first.')
+					: t('launchpad', 'Your request could not be sent. Try again later.')
+			} finally {
+				this.requestBusy = false
+			}
 		},
 	},
 }
@@ -315,6 +485,32 @@ export default {
 .widget-picker__section-description {
 	margin: 0 0 4px;
 	color: var(--color-text-maxcontrast);
+}
+
+.widget-picker__section--first {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+.widget-picker__request {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.widget-picker__request-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.widget-picker__request-message {
+	margin: 0;
+	color: var(--color-success-text);
+}
+
+.widget-picker__request-message--error {
+	color: var(--color-error-text);
 }
 
 .widget-picker__widget-action {

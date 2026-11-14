@@ -67,3 +67,22 @@ export function discoveredAppIdsOnDashboard(placements, apps) {
 		.filter((app) => appTiles.has(app.appId) || urlTiles.has(app.href))
 		.map((app) => app.appId)
 }
+
+/**
+ * The tile a catalogue entry places: an ordinary tile with the entry's name,
+ * icon and address. Later edits of the entry do not change it
+ * (launcher-app-catalogue D1).
+ *
+ * @param {{name: string, icon?: string, iconType?: string, linkType: string, linkValue: string}} app The catalogue entry.
+ * @return {{title: string, icon: string, iconType: string, linkType: string, linkValue: string}} The tile payload.
+ * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+ */
+export function tileFromCatalogueApp(app) {
+	return {
+		title: app.name,
+		icon: app.icon || '',
+		iconType: app.iconType === 'url' ? 'url' : 'class',
+		linkType: app.linkType === 'app' ? 'app' : 'url',
+		linkValue: app.linkValue,
+	}
+}

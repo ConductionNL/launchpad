@@ -933,6 +933,11 @@ class DashboardService {
 			throw new Exception(message: 'Access denied');
 		}
 
+		// REQ-THM-003: only administrators set custom CSS.
+		if (array_key_exists('customCss', $data) === true && $this->isAdmin(userId: $userId) === false) {
+			throw new Exception(message: 'Access denied');
+		}
+
 		$this->applyDashboardUpdates(
 			dashboard: $dashboard,
 			data: $data
@@ -3637,7 +3642,41 @@ class DashboardService {
 
 		$dashboard->setThemeAccent($accent);
 		$dashboard->setThemeBackgroundColor($background);
+		$this->applyCustomCssUpdate(dashboard: $dashboard, data: $data);
 	}//end applyLookUpdates()
+
+	/**
+	 * Apply patched administrator CSS, cleaned and scoped to this dashboard (REQ-THM-003).
+	 *
+	 * The caller has checked that the user is an administrator. An empty
+	 * value clears the CSS.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the CSS is larger than 20 KB.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function applyCustomCssUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists('customCss', $data) === false) {
+			return;
+		}
+
+		$result = (new CustomCssSanitiser())->sanitise(
+			css: (string)$data['customCss'],
+			scope: CustomCssSanitiser::dashboardScope(uuid: (string)$dashboard->getUuid())
+		);
+
+		$stored = null;
+		if ($result['css'] !== '') {
+			$stored = $result['css'];
+		}
+
+		$dashboard->setCustomCss($stored);
+	}//end applyCustomCssUpdate()
 
 	/**
 	 * Apply a patched placement position list, when the payload has one.

@@ -912,6 +912,27 @@ export const api = {
 		return axios.put(`${baseUrl}/api/admin/settings`, data)
 	},
 
+	/**
+	 * Read the administrator CSS for all of LaunchPad. Admin-only on the server.
+	 *
+	 * @return {Promise} Axios response resolving to `{ customCss }`.
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	getCustomCss() {
+		return axios.get(`${baseUrl}/api/admin/custom-css`)
+	},
+
+	/**
+	 * Save the administrator CSS for all of LaunchPad; the server cleans and scopes it.
+	 *
+	 * @param {string} customCss The CSS; '' clears it.
+	 * @return {Promise} Axios response resolving to `{ customCss, removed }`.
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	updateCustomCss(customCss) {
+		return axios.put(`${baseUrl}/api/admin/custom-css`, { customCss })
+	},
+
 	// Admin group-priority order (REQ-ASET-012/013/014).
 	// Both endpoints are admin-only on the server side; the UI gates
 	// rendering of the section behind the same admin check.

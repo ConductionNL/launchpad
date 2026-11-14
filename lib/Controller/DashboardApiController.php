@@ -581,6 +581,7 @@ class DashboardApiController extends Controller {
 	 * @param string|null $themeAccent Accent colour `#rrggbb`, empty to follow the theme (REQ-THM-001).
 	 * @param string|null $themeBackgroundColor Background colour `#rrggbb`, empty to follow the theme.
 	 * @param string|null $themeBackgroundResource Background image resource file name, empty for none.
+	 * @param string|null $customCss Administrator CSS for this dashboard, empty to clear (REQ-THM-003).
 	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
@@ -599,13 +600,24 @@ class DashboardApiController extends Controller {
 		?string $themeAccent = null,
 		?string $themeBackgroundColor = null,
 		?string $themeBackgroundResource = null,
+		?string $customCss = null,
 	): JSONResponse {
 		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
-		$look = ['themeAccent' => $themeAccent, 'themeBackgroundColor' => $themeBackgroundColor, 'themeBackgroundResource' => $themeBackgroundResource];
+		$look = [
+			'themeAccent'             => $themeAccent,
+			'themeBackgroundColor'    => $themeBackgroundColor,
+			'themeBackgroundResource' => $themeBackgroundResource,
+			'customCss'               => $customCss,
+		];
 		$metadataOnly = $placements === null && array_filter($look, fn ($value): bool => $value !== null) === [];
 		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly);
 		if ($denial !== null) {
 			return $denial;
+		}
+
+		// REQ-THM-003: custom CSS is an administrator tool, even on a dashboard the user may edit.
+		if ($customCss !== null && $this->services->dashboardService->isAdmin(userId: (string)$this->userId) === false) {
+			return ResponseHelper::forbidden();
 		}
 
 		return $this->applyUpdate(

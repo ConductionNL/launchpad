@@ -240,6 +240,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_START_PAGE_WITHOUT_NAVIGATION = AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION->value;
 
 	/**
+	 * BC alias for AdminSettingKey::CUSTOM_CSS (REQ-THM-003).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::CUSTOM_CSS
+	 */
+	public const KEY_CUSTOM_CSS = AdminSettingKey::CUSTOM_CSS->value;
+
+	/**
 	 * The setting key.
 	 *
 	 * @var string

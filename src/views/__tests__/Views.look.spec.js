@@ -41,4 +41,16 @@ describe('Views dashboard look', () => {
 
 		expect(Views.methods.treeSaveMessage.call({}, error)).toBe('Buttons in this colour are hard to see (contrast 1.1 to 1, needs 3 to 1)')
 	})
+
+	it('puts the active dashboard\'s administrator CSS on the page as text, and takes it off again (REQ-THM-003)', () => {
+		const watcher = Views.watch['activeDashboard.customCss']
+		const css = '.launchpad-dashboard[data-dashboard-uuid="u1"] body {\n  display: none;\n}'
+
+		expect(watcher.immediate).toBe(true)
+		watcher.handler(css)
+		expect(document.getElementById('launchpad-dashboard-custom-css').textContent).toBe(css)
+
+		watcher.handler(null)
+		expect(document.getElementById('launchpad-dashboard-custom-css')).toBeNull()
+	})
 })

@@ -82,10 +82,11 @@ class DashboardApiControllerLookTest extends TestCase {
 	 * @param string|null $userId     The injected session user id.
 	 * @param string      $allowed    The only user the permission doubles allow.
 	 * @param bool        $denyAction Whether the action check refuses.
+	 * @param list<string> $admins    The administrators.
 	 *
 	 * @return DashboardApiController
 	 */
-	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false): DashboardApiController {
+	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false, array $admins=[]): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
 			$user = $this->createMock(IUser::class);
@@ -116,6 +117,7 @@ class DashboardApiControllerLookTest extends TestCase {
 		}
 
 		$service = $this->createMock(DashboardService::class);
+		$service->method('isAdmin')->willReturnCallback(static fn (string $userId): bool => in_array($userId, $admins, true));
 		$service->method('updateDashboard')->willReturnCallback(
 			function (int $dashboardId, string $userId, array $data): Dashboard {
 				$this->saved[] = [$dashboardId, $userId, $data];
@@ -181,5 +183,23 @@ class DashboardApiControllerLookTest extends TestCase {
 
 		$this->assertSame(['themeBackgroundResource' => ''], $this->saved[0][2]);
 		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked);
+	}
+
+	/**
+	 * The spec's scenario "Non-administrator refused" (REQ-THM-003).
+	 */
+	public function testANonAdministratorWithFullPermissionCannotSetCustomCss(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice')->update(id: 7, customCss: '.tile { color: red }');
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertSame([], $this->saved, 'no CSS is stored');
+		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked, 'custom CSS is not a metadata edit');
+	}
+
+	public function testAnAdministratorsCustomCssIsPassedOnToBeCleaned(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', admins: ['alice'])->update(id: 7, customCss: '.tile { color: red }');
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(['customCss' => '.tile { color: red }'], $this->saved[0][2]);
 	}
 }

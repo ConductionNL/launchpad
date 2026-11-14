@@ -551,6 +551,7 @@ import { usePersonalLayerStore } from '../stores/personalLayer.js'
 import { useTileStore } from '../stores/tiles.js'
 import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
+import { applyCustomCss, DASHBOARD_STYLE_ID } from '../utils/customCss.js'
 import { lookStyle } from '../utils/dashboardLook.js'
 import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
@@ -1151,6 +1152,19 @@ export default {
 
 	watch: {
 		/**
+		 * The administrator CSS of the dashboard on screen, already scoped to
+		 * its region by the server, inserted as text (REQ-THM-003, D4).
+		 *
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 */
+		'activeDashboard.customCss': {
+			immediate: true,
+			handler(css) {
+				applyCustomCss(DASHBOARD_STYLE_ID, css)
+			},
+		},
+
+		/**
 		 * Editing makes the greeting row a draggable grid item: the controls
 		 * float while editing and dock again after.
 		 *
@@ -1336,6 +1350,7 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		applyCustomCss(DASHBOARD_STYLE_ID, '')
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null

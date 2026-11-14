@@ -60,7 +60,11 @@ class DashboardServiceLookTest extends TestCase {
 
 	private DashboardService $service;
 
+	/** @var IGroupManager&MockObject */
+	private $groupManager;
+
 	protected function setUp(): void {
+		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->dashboardMapper = $this->createMock(DashboardMapper::class);
 		$this->footerService = $this->createMock(FooterService::class);
 
@@ -82,7 +86,7 @@ class DashboardServiceLookTest extends TestCase {
 				footerService: $this->footerService
 			),
 			platform: new DashboardPlatform(
-				groupManager: $this->createMock(IGroupManager::class),
+				groupManager: $this->groupManager,
 				db: $this->createMock(IDBConnection::class),
 				config: $this->createMock(IConfig::class),
 				l10nFactory: $this->createMock(IFactory::class)
@@ -189,5 +193,45 @@ class DashboardServiceLookTest extends TestCase {
 		$result = $this->update(dashboard: $this->makeDashboard(), data: ['themeAccent' => '#123']);
 
 		$this->assertSame('#112233', $result->getThemeAccent());
+	}
+
+	/**
+	 * REQ-THM-003: the service refuses custom CSS from a non-administrator too.
+	 */
+	public function testANonAdministratorCannotStoreCustomCss(): void {
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$dashboard = $this->makeDashboard();
+		$this->dashboardMapper->expects($this->never())->method('update');
+
+		try {
+			$this->update(dashboard: $dashboard, data: ['customCss' => 'body { display: none }']);
+			$this->fail('A non-administrator stored custom CSS.');
+		} catch (\Exception $refusal) {
+			$this->assertSame('Access denied', $refusal->getMessage());
+		}
+
+		$this->assertNull($dashboard->getCustomCss());
+	}
+
+	/**
+	 * REQ-THM-003: an administrator's CSS is stored cleaned and scoped to the dashboard.
+	 */
+	public function testAnAdministratorsCustomCssIsStoredCleanedAndScopedToTheDashboard(): void {
+		$this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
+
+		$result = $this->update(
+			dashboard: $this->makeDashboard(),
+			data: ['customCss' => '@import url(https://evil.example/x.css); body { display: none; }']
+		);
+
+		$this->assertSame(".launchpad-dashboard[data-dashboard-uuid=\"uuid-1\"] body {\n  display: none;\n}", $result->getCustomCss());
+	}
+
+	public function testEmptyCustomCssClearsIt(): void {
+		$this->groupManager->method('isAdmin')->willReturn(true);
+		$dashboard = $this->makeDashboard();
+		$dashboard->setCustomCss('.x { color: red; }');
+
+		$this->assertNull($this->update(dashboard: $dashboard, data: ['customCss' => ''])->getCustomCss());
 	}
 }

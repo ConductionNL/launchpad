@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\AdminSettingsService;
+use OCA\LaunchPad\Service\CustomCssService;
 use OCA\LaunchPad\Service\DashboardTreeService;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
 use Psr\Log\LoggerInterface;
@@ -44,12 +45,14 @@ class PageSettingsSources {
 	 * @param AdminSettingsService         $adminSettingsService Source of the quick-search no-match
 	 *                                                           fallback-target admin setting (tile-quick-search
 	 *                                                           REQ-QSEARCH-004).
+	 * @param CustomCssService|null        $customCss The administrator CSS for all of LaunchPad (REQ-THM-003).
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
 		public readonly DashboardTreeService $treeService,
 		public readonly LoggerInterface $logger,
 		public readonly AdminSettingsService $adminSettingsService,
+		public readonly ?CustomCssService $customCss=null,
 	) {
 	}//end __construct()
 }//end class

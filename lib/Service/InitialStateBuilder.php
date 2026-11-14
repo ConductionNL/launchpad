@@ -360,6 +360,24 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set the administrator CSS for all of LaunchPad (workspace).
+	 *
+	 * Optional key, like {@see self::setStartPageWithoutNavigation()}. The
+	 * value is the cleaned and scoped CSS the server stored; the page inserts
+	 * it as the text of a style element, never as markup (REQ-THM-003).
+	 *
+	 * @param string $customCss The stored CSS, or '' for none.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	public function setCustomCss(string $customCss): self {
+		$this->values['customCss'] = $customCss;
+		return $this;
+	}//end setCustomCss()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

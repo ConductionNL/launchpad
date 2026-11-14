@@ -6864,7 +6864,8 @@
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "put": {
                 "operationId": "analytics-opt-out-update",
@@ -6927,7 +6928,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/profile-fields/definitions": {

@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrer ces résultats",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Couleur d'accent",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Donnez à ce tableau de bord ses propres couleurs. Laissez un champ vide pour suivre le thème.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Les boutons de cette couleur sont difficiles à voir (contraste {ratio} pour 1, il faut 3 pour 1)",
-    "Enter colors like #1f5c3a." : "Saisissez des couleurs comme #1f5c3a."
+    "Enter colors like #1f5c3a." : "Saisissez des couleurs comme #1f5c3a.",
+    "Statistics" : "Statistiques",
+    "Count my visits" : "Compter mes visites",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Lorsque cette option est désactivée, vos visites des tableaux de bord et vos clics sur les tuiles ne sont pas comptés dans les statistiques de consultation.",
+    "Your choice could not be saved." : "Votre choix n'a pas pu être enregistré."
 },
 "nplurals=2; plural=(n > 1);"
 );

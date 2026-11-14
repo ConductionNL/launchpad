@@ -1286,6 +1286,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Филтрирај ги овие резултати",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1364,7 +1365,11 @@ OC.L10N.register(
     "Accent color" : "Боја на акцент",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Дајте ѝ на оваа контролна табла сопствени бои. Оставете поле празно за да ја следите темата.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Копчињата во оваа боја тешко се гледаат (контраст {ratio} према 1, потребно е 3 према 1)",
-    "Enter colors like #1f5c3a." : "Внесете бои како #1f5c3a."
+    "Enter colors like #1f5c3a." : "Внесете бои како #1f5c3a.",
+    "Statistics" : "Статистика",
+    "Count my visits" : "Број ги моите посети",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Кога ова е исклучено, вашите посети на контролните табли и кликовите на плочките не се бројат во прегледите.",
+    "Your choice could not be saved." : "Вашиот избор не може да се зачува."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Version002013Date20261114090000 test
+ * Version002014Date20261114120000 test
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Migration
@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace Unit\Migration;
 
-use OCA\LaunchPad\Migration\Version002013Date20261114090000;
+use OCA\LaunchPad\Migration\Version002014Date20261114120000;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
 use OCP\Migration\IOutput;
@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 class DashboardLookColumnsMigrationTest extends TestCase {
 
 	public function testTheFourLookColumnsAreNullable(): void {
-		$columns = Version002013Date20261114090000::COLUMNS;
+		$columns = Version002014Date20261114120000::COLUMNS;
 
 		$this->assertSame(['theme_accent', 'theme_background_color', 'theme_background_resource', 'custom_css'], array_keys($columns));
 		$this->assertSame([Types::STRING, Types::STRING, Types::STRING, Types::TEXT], array_column($columns, 0));
@@ -45,6 +45,6 @@ class DashboardLookColumnsMigrationTest extends TestCase {
 		$schema->method('hasTable')->with('launchpad_dashboards')->willReturn(false);
 		$schema->expects($this->never())->method('getTable');
 
-		$this->assertNull((new Version002013Date20261114090000())->changeSchema($this->createMock(IOutput::class), fn () => $schema, []));
+		$this->assertNull((new Version002014Date20261114120000())->changeSchema($this->createMock(IOutput::class), fn () => $schema, []));
 	}
 }

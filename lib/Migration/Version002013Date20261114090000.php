@@ -3,10 +3,10 @@
 /**
  * Version002013Date20261114090000
  *
- * Adds the look of a dashboard to `launchpad_dashboards`: an accent colour,
- * a background colour, a background image from LaunchPad's resource uploads
- * and the administrator's custom CSS (platform-dashboard-theme-and-css D1).
- * Every column is nullable: an empty column means "follow the theme".
+ * Adds `version` to `launchpad_widget_placements`: a per-widget counter that
+ * every save raises by one. A save made on an older version of a widget is
+ * refused, so two editors' changes to the same widget never silently replace
+ * each other (building-edit-a-dashboard-together, task 1.2).
  *
  * @category Migration
  * @package  OCA\LaunchPad\Migration
@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -31,32 +31,22 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Add the four look columns to the dashboards table.
+ * Adds the per-widget version column.
  *
- * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
  */
 class Version002013Date20261114090000 extends SimpleMigrationStep {
 
 	/**
-	 * The columns this step adds, with their type and options.
-	 */
-	public const COLUMNS = [
-		'theme_accent' => [Types::STRING, ['notnull' => false, 'length' => 7, 'comment' => 'Accent colour #rrggbb, NULL follows the theme.']],
-		'theme_background_color' => [Types::STRING, ['notnull' => false, 'length' => 7, 'comment' => 'Background colour #rrggbb, NULL follows the theme.']],
-		'theme_background_resource' => [Types::STRING, ['notnull' => false, 'length' => 255, 'comment' => 'Background image, a resource file name.']],
-		'custom_css' => [Types::TEXT, ['notnull' => false, 'comment' => 'Administrator CSS for this dashboard, stored cleaned and scoped.']],
-	];
-
-	/**
-	 * Add each column that is not there yet.
+	 * Add the column when the placements table lacks it.
 	 *
 	 * @param IOutput $output        Migration output.
-	 * @param Closure $schemaClosure Schema closure (provides ISchemaWrapper).
-	 * @param array   $options       Migration options (unused).
+	 * @param Closure $schemaClosure Returns the current schema.
+	 * @param array   $options       Migration options.
 	 *
-	 * @return ISchemaWrapper|null The modified schema, or null when unchanged.
+	 * @return ISchemaWrapper|null
 	 *
-	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
 	 */
 	public function changeSchema(
 		IOutput $output,
@@ -65,24 +55,26 @@ class Version002013Date20261114090000 extends SimpleMigrationStep {
 	): ?ISchemaWrapper {
 		// @var ISchemaWrapper $schema.
 		$schema = $schemaClosure();
-		if ($schema->hasTable('launchpad_dashboards') === false) {
+
+		if ($schema->hasTable('launchpad_widget_placements') === false) {
 			return null;
 		}
 
-		$table   = $schema->getTable('launchpad_dashboards');
-		$changed = false;
-		foreach (self::COLUMNS as $name => [$type, $columnOptions]) {
-			if ($table->hasColumn($name) === true) {
-				continue;
-			}
-
-			$table->addColumn($name, $type, $columnOptions);
-			$changed = true;
-		}
-
-		if ($changed === false) {
+		$table = $schema->getTable('launchpad_widget_placements');
+		if ($table->hasColumn('version') === true) {
 			return null;
 		}
+
+		$table->addColumn(
+			'version',
+			Types::INTEGER,
+			[
+				'notnull' => true,
+				'default' => 0,
+				'unsigned' => true,
+				'comment' => 'Raised by one on every save of the placement; a save on an older version is refused.',
+			]
+		);
 
 		return $schema;
 	}//end changeSchema()

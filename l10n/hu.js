@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Találatok szűrése",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Kiemelőszín",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Adjon ennek az irányítópultnak saját színeket. Hagyjon üresen egy mezőt a téma követéséhez.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Az ilyen színű gombok nehezen láthatók (kontraszt {ratio}:1, legalább 3:1 kell)",
-    "Enter colors like #1f5c3a." : "Adjon meg színeket #1f5c3a formában."
+    "Enter colors like #1f5c3a." : "Adjon meg színeket #1f5c3a formában.",
+    "Statistics" : "Statisztika",
+    "Count my visits" : "Látogatásaim számolása",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
+    "Your choice could not be saved." : "A választásodat nem sikerült menteni."
 },
 "nplurals=2; plural=(n != 1);"
 );

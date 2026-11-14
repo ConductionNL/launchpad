@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Suodata nämä tulokset",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Korostusväri",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Anna tälle kojelaudalle omat värit. Jätä kenttä tyhjäksi, niin teema on käytössä.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Tämän värisiä painikkeita on vaikea nähdä (kontrasti {ratio}:1, tarvitaan 3:1)",
-    "Enter colors like #1f5c3a." : "Anna värit muodossa #1f5c3a."
+    "Enter colors like #1f5c3a." : "Anna värit muodossa #1f5c3a.",
+    "Statistics" : "Tilastot",
+    "Count my visits" : "Laske käyntini",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
+    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa."
 },
 "nplurals=2; plural=(n != 1);"
 );

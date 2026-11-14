@@ -2,7 +2,7 @@
 
 ## Backend
 
-- [ ] 1. Add `tile_allowed_schemes` and `sso_launch_templates` to `lib/Db/AdminSettingKey.php` and `AdminSettingsService`, with validation (schemes lower-case, never the forbidden list; templates https with `{appId}`). Verify: PHPUnit.
+- [x] 1. Add `tile_allowed_schemes` and `sso_launch_templates` to `lib/Db/AdminSettingKey.php` and `AdminSettingsService`, with validation (schemes lower-case, never the forbidden list; templates https with `{appId}`). Verify: PHPUnit. (verified: `lib/Service/TileLaunchSettings.php`, read and written through `AdminSettingsService` and `PUT /api/admin/settings`; tests/Unit/Service/TileLaunchSettingsTest.php; the admin-settings delta in this change records the two keys, REQ-ASET-020)
 - [ ] 2. Validate the `program`, `remote-desktop` and `sso` link types in `lib/Service/TileUpdater.php` as in D1. Verify: PHPUnit per type and per forbidden value.
 - [ ] 3. Add `TileLaunchController::rdp()` with `GET /api/tiles/{placementId}/rdp`, the view check and the generated file. Verify: PHPUnit on content and on 403, and route-reachability.
 

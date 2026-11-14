@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtra aquests resultats",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Color d'accent",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Doneu a aquest tauler els seus propis colors. Deixeu un camp buit per seguir el tema.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Els botons d'aquest color es veuen malament (contrast {ratio} a 1, cal 3 a 1)",
-    "Enter colors like #1f5c3a." : "Introduïu colors com #1f5c3a."
+    "Enter colors like #1f5c3a." : "Introduïu colors com #1f5c3a.",
+    "Statistics" : "Estadístiques",
+    "Count my visits" : "Compta les meves visites",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quan això està desactivat, les teves visites als taulers i els clics a les rajoles no es tenen en compte en el recompte de visualitzacions.",
+    "Your choice could not be saved." : "No s'ha pogut desar la teva tria."
 },
 "nplurals=2; plural=(n != 1);"
 );

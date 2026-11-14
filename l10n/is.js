@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Sía þessar niðurstöður",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Áherslulitur",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Gefðu þessu mælaborði eigin liti. Skildu reit eftir tóman til að fylgja þemanu.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Hnappar í þessum lit sjást illa (birtuskil {ratio} á móti 1, þarf 3 á móti 1)",
-    "Enter colors like #1f5c3a." : "Sláðu inn liti eins og #1f5c3a."
+    "Enter colors like #1f5c3a." : "Sláðu inn liti eins og #1f5c3a.",
+    "Statistics" : "Tölfræði",
+    "Count my visits" : "Telja heimsóknir mínar",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
+    "Your choice could not be saved." : "Ekki tókst að vista valið þitt."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

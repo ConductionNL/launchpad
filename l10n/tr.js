@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Bu sonuçları filtrele",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Vurgu rengi",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Bu panoya kendi renklerini verin. Temayı izlemek için bir alanı boş bırakın.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Bu renkteki düğmeler zor görülüyor (karşıtlık {ratio}'e 1, en az 3'e 1 gerekli)",
-    "Enter colors like #1f5c3a." : "Renkleri #1f5c3a biçiminde girin."
+    "Enter colors like #1f5c3a." : "Renkleri #1f5c3a biçiminde girin.",
+    "Statistics" : "İstatistikler",
+    "Count my visits" : "Ziyaretlerimi say",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Bu kapalıyken pano ziyaretleriniz ve kutucuklara tıklamalarınız görüntülenme sayılarına dahil edilmez.",
+    "Your choice could not be saved." : "Seçiminiz kaydedilemedi."
 },
 "nplurals=2; plural=(n != 1);"
 );

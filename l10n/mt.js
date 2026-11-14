@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Iffiltra dawn ir-riżultati",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Kulur tal-enfasi",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Agħti lil dan id-dashboard il-kuluri tiegħu. Ħalli qasam vojt biex issegwi t-tema.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Il-buttuni f'dan il-kulur huma diffiċli biex jidhru (kuntrast {ratio} għal 1, hemm bżonn 3 għal 1)",
-    "Enter colors like #1f5c3a." : "Daħħal kuluri bħal #1f5c3a."
+    "Enter colors like #1f5c3a." : "Daħħal kuluri bħal #1f5c3a.",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Għodd iż-żjarat tiegħi",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Meta dan ikun mitfi, iż-żjarat tiegħek fid-dashboards u l-klikks fuq il-madum ma jingħaddux fin-numru ta' dehriet.",
+    "Your choice could not be saved." : "L-għażla tiegħek ma setgħetx tiġi ssejvjata."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

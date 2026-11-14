@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Φιλτράρισμα αυτών των αποτελεσμάτων",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Χρώμα έμφασης",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Δώστε σε αυτόν τον πίνακα δικά του χρώματα. Αφήστε ένα πεδίο κενό για να ακολουθεί το θέμα.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Τα κουμπιά σε αυτό το χρώμα φαίνονται δύσκολα (αντίθεση {ratio} προς 1, απαιτείται 3 προς 1)",
-    "Enter colors like #1f5c3a." : "Εισαγάγετε χρώματα όπως #1f5c3a."
+    "Enter colors like #1f5c3a." : "Εισαγάγετε χρώματα όπως #1f5c3a.",
+    "Statistics" : "Στατιστικά",
+    "Count my visits" : "Καταμέτρηση των επισκέψεών μου",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
+    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -42,6 +42,11 @@ class ImportLaunchpadRegisterTest extends TestCase {
 
 	protected function tearDown(): void {
 		@unlink($this->root . '/lib/Settings/launchpad_register.json');
+		foreach (glob($this->root . '/lib/Settings/register.d/*.json') ?: [] as $fragment) {
+			@unlink($fragment);
+		}
+
+		@rmdir($this->root . '/lib/Settings/register.d');
 	}
 
 	/**
@@ -84,11 +89,15 @@ class ImportLaunchpadRegisterTest extends TestCase {
 			/** @var list<string> */
 			public array $calls = [];
 
+			/** @var list<array> */
+			public array $imported = [];
+
 			public function __construct(private bool $failing) {
 			}
 
 			public function importFromApp(string $appId, array $data, string $version, bool $force): void {
 				$this->calls[] = $appId . ' ' . json_encode($data) . ' ' . $version . ' ' . var_export($force, true);
+				$this->imported[] = $data;
 				if ($this->failing === true) {
 					throw new \RuntimeException('bad schema');
 				}
@@ -118,11 +127,59 @@ class ImportLaunchpadRegisterTest extends TestCase {
 			['get OCA\OpenRegister\Service\ConfigurationService', 'info LaunchPad register imported (launchpad register + dashboard schema)'],
 			$this->runStep($importer)
 		);
-		$this->assertSame(['launchpad {"a":1} 1.0.1 false'], $importer->calls);
+		$this->assertSame(['launchpad {"a":1} 1.0.2 false'], $importer->calls);
 
 		$this->assertSame(
 			['get OCA\OpenRegister\Service\ConfigurationService', 'log [ImportLaunchpadRegister] import failed: bad schema', 'warning LaunchPad register import skipped: bad schema'],
 			$this->runStep($this->importer(true))
 		);
+	}
+
+	/**
+	 * register.d fragments merge onto the descriptor in name order: objects key
+	 * by key, lists joined; a broken fragment is skipped with a warning.
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf/spec.md#requirement-req-leaf-001-talk-leaf-declared-on-the-dashboard-schema-via-registerd-overlay
+	 */
+	public function testFragmentsMergeOntoTheDescriptor(): void {
+		@mkdir($this->root . '/lib/Settings/register.d', 0777, true);
+		file_put_contents(
+			$this->root . '/lib/Settings/launchpad_register.json',
+			'{"components":{"schemas":{"Dashboard":{"slug":"dashboard","required":["name"]}}}}'
+		);
+		file_put_contents($this->root . '/lib/Settings/register.d/b-leaf.json', '{"components":{"schemas":{"Dashboard":{"configuration":{"linkedTypes":["talk"]}}}}}');
+		file_put_contents($this->root . '/lib/Settings/register.d/a-required.json', '{"components":{"schemas":{"Dashboard":{"required":["owner"]}}}}');
+		file_put_contents($this->root . '/lib/Settings/register.d/c-broken.json', '{ nope');
+		$importer = $this->importer(false);
+
+		$log = $this->runStep($importer);
+
+		$this->assertContains('warning LaunchPad register fragment is not valid JSON, skipped: c-broken.json', $log);
+		$this->assertSame(
+			['launchpad {"components":{"schemas":{"Dashboard":{"slug":"dashboard","required":["name","owner"],"configuration":{"linkedTypes":["talk"]}}}}} 1.0.2 false'],
+			$importer->calls
+		);
+	}
+
+	/**
+	 * The shipped descriptor with the shipped fragments gives the Dashboard
+	 * schema the talk leaf, and leaves the rest of the schema as the base file has it.
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf/spec.md#requirement-req-leaf-001-talk-leaf-declared-on-the-dashboard-schema-via-registerd-overlay
+	 */
+	public function testTheShippedDashboardSchemaDeclaresTheTalkLeaf(): void {
+		$this->root = dirname(__DIR__, 3);
+		$importer   = $this->importer(false);
+		$this->runStep($importer);
+		$this->root = sys_get_temp_dir() . '/lp-register-' . getmypid();
+
+		$this->assertCount(1, $importer->imported);
+		$data = $importer->imported[0];
+		$base = json_decode((string)file_get_contents(dirname(__DIR__, 3) . '/lib/Settings/launchpad_register.json'), true);
+
+		$this->assertSame(['talk'], $data['components']['schemas']['Dashboard']['configuration']['linkedTypes']);
+		$this->assertArrayNotHasKey('configuration', $base['components']['schemas']['Dashboard'], 'the base file stays a domain statement');
+		unset($data['components']['schemas']['Dashboard']['configuration']);
+		$this->assertSame($base['components']['schemas']['Dashboard'], $data['components']['schemas']['Dashboard']);
 	}
 }

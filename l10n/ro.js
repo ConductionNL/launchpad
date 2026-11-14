@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrează aceste rezultate",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Culoare de accent",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Dați acestui panou propriile culori. Lăsați un câmp gol pentru a urma tema.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Butoanele în această culoare se văd greu (contrast {ratio} la 1, este nevoie de 3 la 1)",
-    "Enter colors like #1f5c3a." : "Introduceți culori precum #1f5c3a."
+    "Enter colors like #1f5c3a." : "Introduceți culori precum #1f5c3a.",
+    "Statistics" : "Statistici",
+    "Count my visits" : "Numără vizitele mele",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Când aceasta este dezactivată, vizitele tale pe panouri și clicurile pe dale nu sunt incluse în numărul de vizualizări.",
+    "Your choice could not be saved." : "Alegerea ta nu a putut fi salvată."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

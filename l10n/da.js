@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrér disse resultater",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Accentfarve",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Giv dette dashboard sine egne farver. Lad et felt være tomt for at følge temaet.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Knapper i denne farve er svære at se (kontrast {ratio} til 1, kræver 3 til 1)",
-    "Enter colors like #1f5c3a." : "Angiv farver som #1f5c3a."
+    "Enter colors like #1f5c3a." : "Angiv farver som #1f5c3a.",
+    "Statistics" : "Statistik",
+    "Count my visits" : "Tæl mine besøg",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Når dette er slået fra, tælles dine besøg på dashboards og klik på fliser ikke med i visningstallene.",
+    "Your choice could not be saved." : "Dit valg kunne ikke gemmes."
 },
 "nplurals=2; plural=(n != 1);"
 );

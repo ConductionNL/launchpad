@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Diese Ergebnisse filtern",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1373,7 +1374,11 @@ OC.L10N.register(
     "Accent color" : "Akzentfarbe",
     "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Geben Sie diesem Dashboard eigene Farben. Lassen Sie ein Feld leer, um dem Design zu folgen.",
     "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Schaltflächen in dieser Farbe sind schwer zu erkennen (Kontrast {ratio} zu 1, nötig sind 3 zu 1)",
-    "Enter colors like #1f5c3a." : "Geben Sie Farben wie #1f5c3a ein."
+    "Enter colors like #1f5c3a." : "Geben Sie Farben wie #1f5c3a ein.",
+    "Statistics" : "Statistik",
+    "Count my visits" : "Meine Besuche zählen",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Wenn das aus ist, werden deine Dashboard-Besuche und Klicks auf Kacheln nicht in den Aufrufzahlen mitgezählt.",
+    "Your choice could not be saved." : "Deine Auswahl konnte nicht gespeichert werden."
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -435,6 +435,8 @@ class AdminController extends Controller {
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
+	 * @param array|null $sharingAllowedGroups The groups whose members may share; empty means everyone (REQ-SHARE-014).
+	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -458,6 +460,8 @@ class AdminController extends Controller {
 		bool|null $allowMultipleDashboards = null,
 		int|null $defaultGridColumns = null,
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
+		array|null $sharingAllowedGroups = null,
+		string|null $sharingRecipientScope = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -481,6 +485,8 @@ class AdminController extends Controller {
 					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
 					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
 					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
+					'sharingAllowedGroups'        => $sharingAllowedGroups,
+					'sharingRecipientScope'       => $sharingRecipientScope,
 				]
 			);
 

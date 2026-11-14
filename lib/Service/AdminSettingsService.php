@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 
@@ -128,6 +129,9 @@ class AdminSettingsService {
 			// dashboard default; forced-share groups default to none.
 			'defaultSharePermissionLevel' => $settings[$sharePermKey] ?? $permDef,
 			'forcedShareGroups' => array_values($forcedShareGroups),
+			// REQ-SHARE-014: who may share (empty = everyone) and with whom.
+			'sharingAllowedGroups' => $this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null),
+			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
 			// registry, and IManager::getWidgets() injects the scripts of EVERY
@@ -329,6 +333,11 @@ class AdminSettingsService {
 
 		$this->persistQuotaAndQuicksearchSettings(settings: $settings);
 
+		$this->persistSharingLimits(
+			allowedGroups: $settings['sharingAllowedGroups'] ?? null,
+			recipientScope: $settings['sharingRecipientScope'] ?? null
+		);
+
 		$this->persistSharingAndBridgeSettings(
 			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
 			forcedShareGroups: $settings['forcedShareGroups'] ?? null,
@@ -408,6 +417,67 @@ class AdminSettingsService {
 			value: $quicksearchFallbackTarget
 		);
 	}//end persistQuotaAndQuicksearchSettings()
+
+	/**
+	 * A stored group list as ids, empty for anything else.
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return list<string> The group ids.
+	 */
+	private function storedGroupList(mixed $value): array {
+		if (is_array($value) === false) {
+			return [];
+		}
+
+		return array_values(array_filter(array_map('strval', $value), static fn (string $id): bool => $id !== ''));
+	}//end storedGroupList()
+
+	/**
+	 * A stored recipient scope, `everyone` for anything unknown (today's behaviour).
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return string One of SharingLimits::SCOPES.
+	 */
+	private function storedRecipientScope(mixed $value): string {
+		if (in_array($value, SharingLimits::SCOPES, true) === false) {
+			return SharingLimits::SCOPE_EVERYONE;
+		}
+
+		return $value;
+	}//end storedRecipientScope()
+
+	/**
+	 * Persist who may share and with whom (REQ-SHARE-014). A null value is left as it is.
+	 *
+	 * @param array|null  $allowedGroups  The groups whose members may share; empty means everyone.
+	 * @param string|null $recipientScope `everyone` or `shared-groups`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the recipient scope is unknown.
+	 *
+	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
+	 */
+	private function persistSharingLimits(?array $allowedGroups, ?string $recipientScope): void {
+		if ($allowedGroups !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSettingKey::SHARING_ALLOWED_GROUPS->value,
+				value: $this->normaliseGroupList(input: $allowedGroups)
+			);
+		}
+
+		if ($recipientScope !== null) {
+			if (in_array(needle: $recipientScope, haystack: SharingLimits::SCOPES, strict: true) === false) {
+				throw new InvalidArgumentException(
+					message: "Invalid value for sharingRecipientScope. Must be 'everyone' or 'shared-groups'."
+				);
+			}
+
+			$this->settingMapper->setSetting(key: AdminSettingKey::SHARING_RECIPIENT_SCOPE->value, value: $recipientScope);
+		}
+	}//end persistSharingLimits()
 
 	/**
 	 * Persist the dashboard-sharing + legacy-widget-bridge admin settings.

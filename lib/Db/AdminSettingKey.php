@@ -64,4 +64,6 @@ enum AdminSettingKey: string {
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
+	// engagement-announcements D6: groups whose members may write announcements, besides administrators.
+	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 }//end enum

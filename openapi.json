@@ -80,6 +80,10 @@
             "description": "Admin-only controller for dashboard view-analytics endpoints."
         },
         {
+            "name": "announcement",
+            "description": "News items and notices for dashboard readers."
+        },
+        {
             "name": "attention",
             "description": "The attention sources endpoint."
         },
@@ -3089,6 +3093,490 @@
                         "$ref": "#/components/responses/Problem403"
                     }
                 }
+            }
+        },
+        "/announcements": {
+            "get": {
+                "operationId": "announcement-index",
+                "summary": "GET /api/announcements: the announcements the user sees now, their drafts when they author, and the categories they follow.",
+                "description": "GET /api/announcements: the announcements the user sees now, their drafts when they author, and the categories they follow. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "post": {
+                "operationId": "announcement-create",
+                "summary": "POST /api/announcements: write a draft. Administrators and announcement editors only.",
+                "description": "POST /api/announcements: write a draft. Administrators and announcement editors only. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "kind": {
+                                        "description": "news or notice."
+                                    },
+                                    "title": {
+                                        "description": "The title."
+                                    },
+                                    "body": {
+                                        "description": "The text, in Markdown."
+                                    },
+                                    "category": {
+                                        "description": "The category, or null."
+                                    },
+                                    "level": {
+                                        "description": "info or warning, for a notice."
+                                    },
+                                    "dismissible": {
+                                        "description": "Whether a reader may dismiss the notice."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids; empty means everyone."
+                                    },
+                                    "publishAt": {
+                                        "description": "When it becomes visible (ISO 8601)."
+                                    },
+                                    "expiresAt": {
+                                        "description": "When it stops being visible (ISO 8601); required for a notice."
+                                    },
+                                    "allowComments": {
+                                        "description": "Whether readers may comment."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/announcements/follows": {
+            "post": {
+                "operationId": "announcement-follow",
+                "summary": "POST /api/announcements/follows: follow a category.",
+                "description": "POST /api/announcements/follows: follow a category. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "category": {
+                                        "description": "The category."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/announcements/follows/{category}": {
+            "delete": {
+                "operationId": "announcement-unfollow",
+                "summary": "DELETE /api/announcements/follows/{category}: stop following a category.",
+                "description": "DELETE /api/announcements/follows/{category}: stop following a category. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "description": "The category.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/announcements/reach": {
+            "get": {
+                "operationId": "announcement-reach",
+                "summary": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only.",
+                "description": "GET /api/announcements/reach: about how many people the target groups reach, for the preview. Announcement editors only. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "groups",
+                        "in": "query",
+                        "required": false,
+                        "description": "Target group ids.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/announcements/{uuid}": {
+            "get": {
+                "operationId": "announcement-show",
+                "summary": "GET /api/announcements/{uuid}: one announcement; 404 when the user may not see it.",
+                "description": "GET /api/announcements/{uuid}: one announcement; 404 when the user may not see it. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "put": {
+                "operationId": "announcement-update",
+                "summary": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator.",
+                "description": "PUT /api/announcements/{uuid}: change an announcement. Its author or an administrator. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "kind": {
+                                        "description": "news or notice."
+                                    },
+                                    "title": {
+                                        "description": "The title."
+                                    },
+                                    "body": {
+                                        "description": "The text, in Markdown."
+                                    },
+                                    "category": {
+                                        "description": "The category, or null."
+                                    },
+                                    "level": {
+                                        "description": "info or warning, for a notice."
+                                    },
+                                    "dismissible": {
+                                        "description": "Whether a reader may dismiss the notice."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids; empty means everyone."
+                                    },
+                                    "publishAt": {
+                                        "description": "When it becomes visible (ISO 8601)."
+                                    },
+                                    "expiresAt": {
+                                        "description": "When it stops being visible (ISO 8601); required for a notice."
+                                    },
+                                    "allowComments": {
+                                        "description": "Whether readers may comment."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "delete": {
+                "operationId": "announcement-destroy",
+                "summary": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator.",
+                "description": "DELETE /api/announcements/{uuid}: delete an announcement. Its author or an administrator. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/announcements/{uuid}/publish": {
+            "post": {
+                "operationId": "announcement-publish",
+                "summary": "POST /api/announcements/{uuid}/publish: publish after the preview; a notice without an end time is refused.",
+                "description": "POST /api/announcements/{uuid}/publish: publish after the preview; a notice without an end time is refused. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/attention/sources": {
@@ -6861,7 +7349,8 @@
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "put": {
                 "operationId": "analytics-opt-out-update",
@@ -6924,7 +7413,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/profile-fields/definitions": {

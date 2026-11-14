@@ -111,16 +111,91 @@ export function resolveHierarchy(clause, hierarchies, row = {}) {
 		return { descendants: [], ancestors: [] }
 	}
 	const descendants = position.levels.slice(position.index + 1).map((level) => level.dimension)
-	const ancestors = []
-	for (const level of position.levels.slice(0, position.index)) {
-		const value = row && typeof row === 'object' ? row[level.dimension] : undefined
-		if (value === undefined || value === null || value === '') {
-			logger.warn(`[launchpad] no ${level.dimension} on the clicked row; the breadcrumb skips that level`)
-			continue
-		}
-		ancestors.push({ dimension: level.dimension, operator: 'eq', value, source: 'parentScope', sourceWidgetId: null, pinned: false })
-	}
+	const ancestors = position.levels.slice(0, position.index)
+		.map((level) => ancestorOf(level, row))
+		.filter((ancestor) => ancestor !== null)
 	return { descendants, ancestors }
+}
+
+/**
+ * A field of the clicked row, or undefined when there is no row.
+ *
+ * @param {object} row The clicked row's fields.
+ * @param {string} dimension The field.
+ * @return {string|number|boolean|undefined}
+ */
+function rowValue(row, dimension) {
+	return row && typeof row === 'object' ? row[dimension] : undefined
+}
+
+/**
+ * Whether a value is missing: undefined, null or empty text.
+ *
+ * @param {string|number|boolean|null|undefined} value The value.
+ * @return {boolean}
+ */
+function isBlank(value) {
+	return value === undefined || value === null || value === ''
+}
+
+/**
+ * The inferred clause of one ancestor level, read from the clicked row, or
+ * null (with a warning) when the row does not carry it.
+ *
+ * @param {object} level The hierarchy level.
+ * @param {object} row The clicked row's fields.
+ * @return {object|null}
+ */
+function ancestorOf(level, row) {
+	const value = rowValue(row, level.dimension)
+	if (isBlank(value)) {
+		logger.warn(`[launchpad] no ${level.dimension} on the clicked row; the breadcrumb skips that level`)
+		return null
+	}
+	return { dimension: level.dimension, operator: 'eq', value, source: 'parentScope', sourceWidgetId: null, pinned: false }
+}
+
+/**
+ * Whether a published clause names a dimension.
+ *
+ * @param {object} clause The clause.
+ * @return {boolean}
+ */
+function hasDimension(clause) {
+	return Boolean(clause) && typeof clause.dimension === 'string' && clause.dimension !== ''
+}
+
+/**
+ * Whether a click repeats the same widget's same filter, which toggles it off.
+ *
+ * @param {object} incoming The new clause.
+ * @param {object} existing The clause on the same dimension.
+ * @return {boolean}
+ */
+function isSameClick(incoming, existing) {
+	return incoming.source === 'widgetClick'
+		&& existing.source === 'widgetClick'
+		&& existing.sourceWidgetId === incoming.sourceWidgetId
+		&& existing.operator === incoming.operator
+		&& sameValue(existing.value, incoming.value)
+}
+
+/**
+ * The audit line of a replaced clause.
+ *
+ * @param {object} incoming The new clause.
+ * @param {object} existing The clause it replaces.
+ * @return {object}
+ */
+function replaceAudit(incoming, existing) {
+	return {
+		dimension: incoming.dimension,
+		from: existing.value,
+		to: incoming.value,
+		fromSource: existing.source,
+		toSource: incoming.source,
+		silent: TRANSIENT_SOURCES.includes(existing.source) || sameValue(existing.value, incoming.value),
+	}
 }
 
 /**
@@ -182,26 +257,10 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 		if (existing.pinned) {
 			return { action: 'drop', audit: null }
 		}
-		if (
-			incoming.source === 'widgetClick'
-			&& existing.source === 'widgetClick'
-			&& existing.sourceWidgetId === incoming.sourceWidgetId
-			&& existing.operator === incoming.operator
-			&& sameValue(existing.value, incoming.value)
-		) {
+		if (isSameClick(incoming, existing)) {
 			return { action: 'toggle', audit: null }
 		}
-		return {
-			action: 'replace',
-			audit: {
-				dimension: incoming.dimension,
-				from: existing.value,
-				to: incoming.value,
-				fromSource: existing.source,
-				toSource: incoming.source,
-				silent: TRANSIENT_SOURCES.includes(existing.source) || sameValue(existing.value, incoming.value),
-			},
-		}
+		return { action: 'replace', audit: replaceAudit(incoming, existing) }
 	}
 
 	/**
@@ -213,14 +272,26 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 	 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
 	 */
 	function publish(clause, context = {}) {
-		if (!clause || typeof clause.dimension !== 'string' || clause.dimension === '') {
+		if (!hasDimension(clause)) {
 			return { accepted: false, reason: 'invalid' }
 		}
 		const incoming = normalise(clause)
 		if (canAccess(incoming) !== true) {
 			return { accepted: false, reason: 'forbidden' }
 		}
+		return settle(incoming, context)
+	}
 
+	/**
+	 * Settle a permitted clause against the one already on its dimension:
+	 * a pinned one drops it, the same click toggles it off, anything else
+	 * replaces it with its hierarchy.
+	 *
+	 * @param {object} incoming The normalised new clause.
+	 * @param {object} context The publish context (the clicked row).
+	 * @return {object} The publish answer.
+	 */
+	function settle(incoming, context) {
 		const existing = clauses.value.find((entry) => entry.dimension === incoming.dimension)
 		const decision = applyConflictResolution(incoming, existing)
 		if (decision.action === 'drop') {
@@ -232,6 +303,20 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 			return { accepted: true, toggled: true, audit: null }
 		}
 
+		return drill(incoming, decision, context)
+	}
+
+	/**
+	 * Apply a new clause with its hierarchy: the ancestors it implies are
+	 * inferred, its descendants cleared, and a pinned ancestor with another
+	 * value refuses it.
+	 *
+	 * @param {object} incoming The new clause.
+	 * @param {object} decision The conflict decision for its dimension.
+	 * @param {object} context The publish context (the clicked row).
+	 * @return {object} The publish answer.
+	 */
+	function drill(incoming, decision, context) {
 		const { descendants, ancestors } = resolveHierarchy(incoming, hierarchies, context.row)
 		const pinnedAncestor = ancestors.find((ancestor) => clauses.value.some(
 			(entry) => entry.dimension === ancestor.dimension && entry.pinned && !sameValue(entry.value, ancestor.value),
@@ -286,6 +371,28 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 	}
 
 	/**
+	 * Whether a restored clause may join: it names a dimension no clause holds yet.
+	 *
+	 * @param {object} clause The restored clause.
+	 * @param {Array<object>} next The clauses so far.
+	 * @return {boolean}
+	 */
+	function isRestorable(clause, next) {
+		return Boolean(clause) && typeof clause.dimension === 'string' && !next.some((entry) => entry.dimension === clause.dimension)
+	}
+
+	/**
+	 * A restored clause as the bus holds it: a pinned one keeps its source.
+	 *
+	 * @param {object} clause The restored clause.
+	 * @param {string} source Where the restore came from.
+	 * @return {object}
+	 */
+	function restoredClause(clause, source) {
+		return normalise({ ...clause, source: clause.pinned ? clause.source : source })
+	}
+
+	/**
 	 * Replace the state with clauses restored from elsewhere (the URL, a saved
 	 * view), marked with that origin. Pinned clauses already on the bus stay.
 	 *
@@ -298,10 +405,9 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 		const pinned = clauses.value.filter((entry) => entry.pinned)
 		const next = [...pinned]
 		for (const clause of Array.isArray(restored) ? restored : []) {
-			if (!clause || typeof clause.dimension !== 'string' || next.some((entry) => entry.dimension === clause.dimension)) {
-				continue
+			if (isRestorable(clause, next)) {
+				next.push(restoredClause(clause, source))
 			}
-			next.push(normalise({ ...clause, source: clause.pinned ? clause.source : source }))
 		}
 		commit(next)
 	}

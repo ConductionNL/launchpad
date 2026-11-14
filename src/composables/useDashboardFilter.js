@@ -101,29 +101,70 @@ function compact(clause) {
 }
 
 /**
+ * Whether a value is a plain object (not null, not a list).
+ *
+ * @param {object} short The compact clause.
+ * @return {boolean}
+ */
+function isPlainObject(short) {
+	return Boolean(short) && typeof short === 'object' && !Array.isArray(short)
+}
+
+/**
+ * Whether a compact clause names a dimension and a known operator.
+ *
+ * @param {object} short The compact clause.
+ * @return {boolean}
+ */
+function hasDimensionAndOperator(short) {
+	return typeof short.d === 'string' && short.d !== '' && OPERATORS.includes(short.o)
+}
+
+/**
+ * Whether a compact clause carries the value its operator needs and a known source.
+ *
+ * @param {object} short The compact clause.
+ * @return {boolean}
+ */
+function hasValueAndSource(short) {
+	return (short.o === 'notNull' || 'v' in short) && (short.s === undefined || SOURCES.includes(short.s))
+}
+
+/**
+ * Whether a compact clause from the URL is well formed.
+ *
+ * @param {object} short The compact clause.
+ * @return {boolean}
+ */
+function isWellFormed(short) {
+	return isPlainObject(short) && hasDimensionAndOperator(short) && hasValueAndSource(short)
+}
+
+/**
+ * The widget a compact clause came from, or null.
+ *
+ * @param {object} short The compact clause.
+ * @return {string|null}
+ */
+function sourceWidgetOf(short) {
+	return typeof short.w === 'string' && short.w !== '' ? short.w : null
+}
+
+/**
  * A clause read back from its short URL form, or null when it is not one.
  *
  * @param {unknown} short The short form.
  * @return {object|null}
  */
 function expand(short) {
-	if (!short || typeof short !== 'object' || Array.isArray(short)) {
-		return null
-	}
-	if (typeof short.d !== 'string' || short.d === '' || !OPERATORS.includes(short.o)) {
-		return null
-	}
-	if (short.o !== 'notNull' && !('v' in short)) {
-		return null
-	}
-	if (short.s !== undefined && !SOURCES.includes(short.s)) {
+	if (!isWellFormed(short)) {
 		return null
 	}
 	const clause = {
 		dimension: short.d,
 		operator: short.o,
 		source: short.s || 'urlBootstrap',
-		sourceWidgetId: typeof short.w === 'string' && short.w !== '' ? short.w : null,
+		sourceWidgetId: sourceWidgetOf(short),
 		pinned: short.p === true,
 	}
 	if (short.o !== 'notNull') {
@@ -148,6 +189,25 @@ export function serializeFilterState(clauses) {
 }
 
 /**
+ * The clauses an encoded filter parameter holds.
+ *
+ * @param {string} param The URL parameter.
+ * @return {Array<object>} The clauses.
+ * @throws {Error} When it is not a list of well-formed clauses.
+ */
+function parseClauses(param) {
+	const parsed = JSON.parse(fromBase64Url(String(param)))
+	if (!Array.isArray(parsed)) {
+		throw new Error('not a list of clauses')
+	}
+	const clauses = parsed.map(expand)
+	if (clauses.includes(null)) {
+		throw new Error('a clause is malformed')
+	}
+	return clauses
+}
+
+/**
  * The clauses a URL parameter value carries. Anything malformed (not base64url,
  * not JSON, not a list, or a clause without a dimension or with an unknown
  * operator) gives no clauses, an `error`, and one console warning.
@@ -161,15 +221,7 @@ export function deserializeFilterState(param) {
 		return { clauses: [], error: null }
 	}
 	try {
-		const parsed = JSON.parse(fromBase64Url(String(param)))
-		if (!Array.isArray(parsed)) {
-			throw new Error('not a list of clauses')
-		}
-		const clauses = parsed.map(expand)
-		if (clauses.includes(null)) {
-			throw new Error('a clause is malformed')
-		}
-		return { clauses, error: null }
+		return { clauses: parseClauses(param), error: null }
 	} catch (error) {
 		logger.warn('[launchpad] the filter in the URL could not be read; the dashboard opens unfiltered:', error.message)
 		return { clauses: [], error: 'malformed' }

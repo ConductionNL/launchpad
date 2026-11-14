@@ -57,6 +57,8 @@ enum AdminSettingKey: string {
 	case SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
 	case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
 	case FORCED_SHARE_GROUPS = 'forced_share_groups';
+	// Engagement-announcements D6: groups whose members may write announcements, besides administrators.
+	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
@@ -64,6 +66,4 @@ enum AdminSettingKey: string {
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
-	// engagement-announcements D6: groups whose members may write announcements, besides administrators.
-	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 }//end enum

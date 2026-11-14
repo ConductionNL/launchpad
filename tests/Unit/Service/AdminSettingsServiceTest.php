@@ -79,6 +79,7 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
 				'startPageWithoutNavigation' => false,
+				'pinnedCommunities' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -162,7 +163,9 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(12, $settings);
+		// engagement-communities REQ-COMM-003.
+		$this->assertArrayHasKey('pinnedCommunities', $settings);
+		$this->assertCount(13, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

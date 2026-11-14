@@ -69,6 +69,11 @@ import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidget
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
 import ClockWidget from '../components/Widgets/Renderers/ClockWidget.vue'
 import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue'
+// `communities` — the open Talk conversations the viewer may join
+// (openspec/changes/engagement-communities). Same LaunchPad-only registration
+// pattern as `clock`/`weather`.
+import CommunitiesWidget from '../components/Widgets/Renderers/CommunitiesWidget.vue'
+import CommunitiesWidgetForm from '../components/Widgets/Renderers/CommunitiesWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
@@ -198,6 +203,17 @@ registerDashboardWidget('clock', {
 
 // `weather` — server-fetched, ICache-cached ambient tile (REQ-WEATHER-
 // 001..003). Same LaunchPad-only registration pattern as `clock`.
+registerDashboardWidget('communities', {
+	renderer: CommunitiesWidget,
+	form: CommunitiesWidgetForm,
+	defaultContent: {
+		title: '',
+		onlyPinned: false,
+	},
+	displayName: 'Communities',
+	icon: 'AccountGroupOutline',
+})
+
 registerDashboardWidget('weather', {
 	renderer: WeatherWidget,
 	form: WeatherWidgetForm,

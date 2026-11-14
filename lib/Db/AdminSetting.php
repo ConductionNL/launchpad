@@ -222,6 +222,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_START_PAGE_WITHOUT_NAVIGATION = AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION->value;
 
 	/**
+	 * BC alias for AdminSettingKey::PINNED_COMMUNITIES (engagement-communities).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::PINNED_COMMUNITIES
+	 */
+	public const KEY_PINNED_COMMUNITIES = AdminSettingKey::PINNED_COMMUNITIES->value;
+
+	/**
 	 * The setting key.
 	 *
 	 * @var string

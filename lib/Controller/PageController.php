@@ -190,6 +190,8 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setTalkEnabled($this->isTalkEnabled())
+			->setPinnedCommunities($settings['pinnedCommunities'] ?? [])
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass
@@ -282,6 +284,29 @@ class PageController extends Controller {
 			'name' => $primaryGroupName,
 		];
 	}//end resolveRoutingGroup()
+
+	/**
+	 * Whether Nextcloud Talk is enabled for the signed-in user. Talk is optional:
+	 * when it is absent, disabled for this user, or the check fails, the
+	 * Communities widget explains itself instead of calling Talk
+	 * (engagement-communities REQ-COMM-004).
+	 *
+	 * @return bool True when Talk is enabled for the viewer.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 */
+	private function isTalkEnabled(): bool {
+		$user = $this->userSession->getUser();
+		if ($user === null || $this->settings->appManager === null) {
+			return false;
+		}
+
+		try {
+			return $this->settings->appManager->isEnabledForUser(appId: 'spreed', user: $user);
+		} catch (Throwable) {
+			return false;
+		}
+	}//end isTalkEnabled()
 
 	/**
 	 * Resolve the active session's user id.

@@ -360,6 +360,41 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set whether Nextcloud Talk is enabled for the viewer (workspace).
+	 *
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: the JS
+	 * reader's `false` default makes the Communities widget explain that Talk
+	 * is needed instead of calling it (engagement-communities REQ-COMM-004).
+	 *
+	 * @param bool $talkEnabled True when Talk is enabled for the viewer.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-without-talk-the-widget-explains-itself-req-comm-004
+	 */
+	public function setTalkEnabled(bool $talkEnabled): self {
+		$this->values['talkEnabled'] = $talkEnabled;
+		return $this;
+	}//end setTalkEnabled()
+
+	/**
+	 * Set the Talk conversation tokens the organisation pinned (workspace).
+	 *
+	 * Optional key; the JS reader defaults to an empty list
+	 * (engagement-communities REQ-COMM-003).
+	 *
+	 * @param array<int, string> $tokens The pinned tokens, in the order pinned.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/engagement-communities/specs/communities-widget/spec.md#requirement-administrators-pin-official-communities-req-comm-003
+	 */
+	public function setPinnedCommunities(array $tokens): self {
+		$this->values['pinnedCommunities'] = array_values($tokens);
+		return $this;
+	}//end setPinnedCommunities()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

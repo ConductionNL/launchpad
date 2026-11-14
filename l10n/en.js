@@ -1348,7 +1348,27 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Discovered on this server",
     "Apps this server runs for you. One click places one as a tile." : "Apps this server runs for you. One click places one as a tile.",
-    "On this dashboard" : "On this dashboard"
+    "On this dashboard" : "On this dashboard",
+    "Communities" : "Communities",
+    "Loading communities…" : "Loading communities…",
+    "Communities need Nextcloud Talk. Ask your administrator to enable it." : "Communities need Nextcloud Talk. Ask your administrator to enable it.",
+    "The communities could not be loaded. Reload the page to try again." : "The communities could not be loaded. Reload the page to try again.",
+    "Your organisation has not pinned a community you can see yet." : "Your organisation has not pinned a community you can see yet.",
+    "There are no open communities to join yet." : "There are no open communities to join yet.",
+    "Pinned by your organisation" : "Pinned by your organisation",
+    "Join {name}" : "Join {name}",
+    "Join" : "Join",
+    "You could not join {name}. Try again later." : "You could not join {name}. Try again later.",
+    "Lists the open Talk conversations each person may join. Talk decides who sees which conversation." : "Lists the open Talk conversations each person may join. Talk decides who sees which conversation.",
+    "Show only pinned" : "Show only pinned",
+    "Pinned communities" : "Pinned communities",
+    "The Communities widget lists the open Talk conversations each person may join. The conversations pinned here show first, marked as pinned by your organisation. Enter one Talk conversation token per line, at most 20. The token is the last part of the conversation link, after /call/." : "The Communities widget lists the open Talk conversations each person may join. The conversations pinned here show first, marked as pinned by your organisation. Enter one Talk conversation token per line, at most 20. The token is the last part of the conversation link, after /call/.",
+    "Conversation tokens" : "Conversation tokens",
+    "Pinned communities saved." : "Pinned communities saved.",
+    "At most {max} conversations can be pinned." : "At most {max} conversations can be pinned.",
+    "The pinned communities could not be saved." : "The pinned communities could not be saved.",
+    "Open" : "Open",
+    "_%n member_::_%n members_" : ["%n member", "%n members"]
 },
 "nplurals=2; plural=(n != 1);"
 );

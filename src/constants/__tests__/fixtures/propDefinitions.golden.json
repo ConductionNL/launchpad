@@ -298,6 +298,36 @@
 		},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidget.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/CommunitiesWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"title": "",
+			"onlyPinned": false
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/ContainerChild.vue | placement": {
 		"type": "Object",
 		"required": true,

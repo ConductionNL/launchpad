@@ -67,6 +67,13 @@ const PAGE_KEYS = {
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// engagement-communities REQ-COMM-004: whether Talk is enabled for the
+		// viewer. Optional key; `false` makes the Communities widget explain
+		// that Talk is needed instead of calling it.
+		talkEnabled: false,
+		// engagement-communities REQ-COMM-003: the Talk conversation tokens the
+		// organisation pinned, in the order pinned. Optional key.
+		pinnedCommunities: [],
 	},
 	admin: {
 		allGroups: [],

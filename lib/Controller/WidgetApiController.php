@@ -23,6 +23,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\NewsWidgetService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\WidgetPlacementService;
@@ -569,6 +570,17 @@ class WidgetApiController extends Controller {
 
 		try {
 			return $this->updatedPlacement(placementId: $placementId);
+		} catch (StalePlacementException $e) {
+			// A colleague saved this widget first: refuse, and hand back their
+			// version so the editor can make the change again on top of it.
+			return new JSONResponse(
+				[
+					'error'     => 'stale',
+					'message'   => $e->getMessage(),
+					'placement' => $e->getCurrent()->jsonSerialize(),
+				],
+				\OCP\AppFramework\Http::STATUS_CONFLICT
+			);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}

@@ -5559,7 +5559,7 @@
                 "qb1.addOrderBy(\"grid_x\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findByWidgetId all": {
             "calls": [
@@ -5585,7 +5585,7 @@
                 "qb1.where(\"eq(\\\"widget_id\\\", \\\":p1\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findAll all": {
             "calls": [
@@ -5605,7 +5605,7 @@
                 "qb1.orderBy(\"id\", \"ASC\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "findByAnnouncementKey all": {
             "calls": [
@@ -5631,7 +5631,7 @@
                 "qb1.where(\"eq(\\\"announcement_key\\\", \\\":p1\\\", null)\")",
                 "qb1.executeQuery(null)"
             ],
-            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\WidgetPlacement {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"widgetId\\\":\\\"\\\",\\\"gridX\\\":0,\\\"gridY\\\":0,\\\"gridWidth\\\":4,\\\"gridHeight\\\":4,\\\"isCompulsory\\\":0,\\\"isVisible\\\":1,\\\"styleConfig\\\":{},\\\"customTitle\\\":null,\\\"customIcon\\\":null,\\\"content\\\":{},\\\"showTitle\\\":1,\\\"sortOrder\\\":0,\\\"requiresAcknowledgement\\\":0,\\\"acknowledgementPrompt\\\":null,\\\"acknowledgementDeadline\\\":null,\\\"reacknowledgeOnChange\\\":0,\\\"acknowledgementContentVersion\\\":1,\\\"announcementKey\\\":null,\\\"templatePlacementId\\\":null,\\\"version\\\":0,\\\"createdAt\\\":null,\\\"updatedAt\\\":null}\"]"
         },
         "deleteByDashboardId all": {
             "calls": [
@@ -5695,6 +5695,9 @@
                 "qb1.set(\"grid_width\", \":p3\")",
                 "qb1.createNamedParameter(4, 1, null)",
                 "qb1.set(\"grid_height\", \":p4\")",
+                "qb1.getColumnName(\"version\", \"\")",
+                "qb1.createFunction(\"version + 1\")",
+                "qb1.set(\"version\", version + 1)",
                 "qb1.createNamedParameter(DateTime, \"datetime\", null)",
                 "qb1.set(\"updated_at\", \":p5\")",
                 "qb1.expr()"
@@ -5713,11 +5716,50 @@
                 "qb1.set(\"grid_width\", \":p3\")",
                 "qb1.createNamedParameter(4, 1, null)",
                 "qb1.set(\"grid_height\", \":p4\")",
+                "qb1.getColumnName(\"version\", \"\")",
+                "qb1.createFunction(\"version + 1\")",
+                "qb1.set(\"version\", version + 1)",
                 "qb1.createNamedParameter(DateTime, \"datetime\", null)",
                 "qb1.set(\"updated_at\", \":p5\")",
                 "qb1.expr()"
             ],
             "outcome": "threw TypeError: Cannot access offset of type string on string"
+        },
+        "claimVersion all": {
+            "calls": [
+                "qb1 new",
+                "qb1.update(\"launchpad_widget_placements\", null)",
+                "qb1.createNamedParameter(8, 1, null)",
+                "qb1.set(\"version\", \":p1\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"id\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"id\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"version\", \":p3\", null)",
+                "qb1.andWhere(\"eq(\\\"version\\\", \\\":p3\\\", null)\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned true"
+        },
+        "claimVersion rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.update(\"launchpad_widget_placements\", null)",
+                "qb1.createNamedParameter(8, 1, null)",
+                "qb1.set(\"version\", \":p1\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"id\", \":p2\", null)",
+                "qb1.where(\"eq(\\\"id\\\", \\\":p2\\\", null)\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"version\", \":p3\", null)",
+                "qb1.andWhere(\"eq(\\\"version\\\", \\\":p3\\\", null)\")",
+                "qb1.executeStatement(null)"
+            ],
+            "outcome": "returned true"
         },
         "cloneToDashboard all": {
             "calls": [

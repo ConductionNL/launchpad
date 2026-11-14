@@ -33,85 +33,88 @@
 			}}
 		</div>
 
-		<ul v-else class="news-widget__list">
-			<li v-for="item in items" :key="item.guid" class="news-widget__item">
-				<a
-					v-if="item.link"
-					:href="item.link"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="news-widget__item-link"
-					@click="onItemClick($event, item)">
-					<img
-						v-if="showThumbnails && item.thumbnailUrl"
-						class="news-widget__thumb"
-						:src="item.thumbnailUrl"
-						alt="" />
-					<div class="news-widget__body">
-						<h4 class="news-widget__title">{{ item.title }}</h4>
-						<!-- Feed summaries carry inline markup REQ-NEWS-005
-						     deliberately preserves. This is third-party RSS,
-						     so it is sanitised twice: server-side on fetch
-						     by NewsWidgetService::sanitiseSummaryHtml(), and
-						     again through DOMPurify in formattedSummary()
-						     after truncation. -->
-						<!-- eslint-disable vue/no-v-html -->
-						<p
-							v-if="showSummary && item.summary"
-							class="news-widget__summary"
-							v-html="formattedSummary(item)" />
-						<!-- eslint-enable vue/no-v-html -->
-						<div class="news-widget__meta">
-							<span class="news-widget__source">{{
-								item.sourceTitle
-							}}</span>
-							<span class="news-widget__date">{{
-								formatDate(item.pubDate)
-							}}</span>
+		<template v-else>
+			<WidgetRowFilter v-model="rowFilter" />
+			<ul class="news-widget__list">
+				<li v-for="item in shownItems" :key="item.guid" class="news-widget__item">
+					<a
+						v-if="item.link"
+						:href="item.link"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="news-widget__item-link"
+						@click="onItemClick($event, item)">
+						<img
+							v-if="showThumbnails && item.thumbnailUrl"
+							class="news-widget__thumb"
+							:src="item.thumbnailUrl"
+							alt="" />
+						<div class="news-widget__body">
+							<h4 class="news-widget__title">{{ item.title }}</h4>
+							<!-- Feed summaries carry inline markup REQ-NEWS-005
+							     deliberately preserves. This is third-party RSS,
+							     so it is sanitised twice: server-side on fetch
+							     by NewsWidgetService::sanitiseSummaryHtml(), and
+							     again through DOMPurify in formattedSummary()
+							     after truncation. -->
+							<!-- eslint-disable vue/no-v-html -->
+							<p
+								v-if="showSummary && item.summary"
+								class="news-widget__summary"
+								v-html="formattedSummary(item)" />
+							<!-- eslint-enable vue/no-v-html -->
+							<div class="news-widget__meta">
+								<span class="news-widget__source">{{
+									item.sourceTitle
+								}}</span>
+								<span class="news-widget__date">{{
+									formatDate(item.pubDate)
+								}}</span>
+							</div>
+						</div>
+					</a>
+					<div
+						v-else
+						class="news-widget__item-link news-widget__item-link--inert">
+						<!-- Decorative: the headline beside it carries the meaning,
+						     and this card is inert, so there is no link for the
+						     image to name. aria-hidden states that explicitly
+						     rather than leaving alt="" to imply it. -->
+						<img
+							v-if="showThumbnails && item.thumbnailUrl"
+							class="news-widget__thumb"
+							:src="item.thumbnailUrl"
+							alt=""
+							aria-hidden="true" />
+						<div class="news-widget__body">
+							<h4 class="news-widget__title">
+								{{ item.title }}
+							</h4>
+							<!-- Feed summaries carry inline markup REQ-NEWS-005
+							     deliberately preserves. This is third-party RSS,
+							     so it is sanitised twice: server-side on fetch
+							     by NewsWidgetService::sanitiseSummaryHtml(), and
+							     again through DOMPurify in formattedSummary()
+							     after truncation. -->
+							<!-- eslint-disable vue/no-v-html -->
+							<p
+								v-if="showSummary && item.summary"
+								class="news-widget__summary"
+								v-html="formattedSummary(item)" />
+							<!-- eslint-enable vue/no-v-html -->
+							<div class="news-widget__meta">
+								<span class="news-widget__source">{{
+									item.sourceTitle
+								}}</span>
+								<span class="news-widget__date">{{
+									formatDate(item.pubDate)
+								}}</span>
+							</div>
 						</div>
 					</div>
-				</a>
-				<div
-					v-else
-					class="news-widget__item-link news-widget__item-link--inert">
-					<!-- Decorative: the headline beside it carries the meaning,
-					     and this card is inert, so there is no link for the
-					     image to name. aria-hidden states that explicitly
-					     rather than leaving alt="" to imply it. -->
-					<img
-						v-if="showThumbnails && item.thumbnailUrl"
-						class="news-widget__thumb"
-						:src="item.thumbnailUrl"
-						alt=""
-						aria-hidden="true" />
-					<div class="news-widget__body">
-						<h4 class="news-widget__title">
-							{{ item.title }}
-						</h4>
-						<!-- Feed summaries carry inline markup REQ-NEWS-005
-						     deliberately preserves. This is third-party RSS,
-						     so it is sanitised twice: server-side on fetch
-						     by NewsWidgetService::sanitiseSummaryHtml(), and
-						     again through DOMPurify in formattedSummary()
-						     after truncation. -->
-						<!-- eslint-disable vue/no-v-html -->
-						<p
-							v-if="showSummary && item.summary"
-							class="news-widget__summary"
-							v-html="formattedSummary(item)" />
-						<!-- eslint-enable vue/no-v-html -->
-						<div class="news-widget__meta">
-							<span class="news-widget__source">{{
-								item.sourceTitle
-							}}</span>
-							<span class="news-widget__date">{{
-								formatDate(item.pubDate)
-							}}</span>
-						</div>
-					</div>
-				</div>
-			</li>
-		</ul>
+				</li>
+			</ul>
+		</template>
 	</div>
 </template>
 
@@ -119,10 +122,12 @@
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import DOMPurify from 'dompurify'
+import WidgetRowFilter from '../WidgetRowFilter.vue'
 import {
 	NULLABLE_OBJECT_PROP,
 	OBJECT_PROP,
 } from '../../../constants/propDefinitions.js'
+import { filterRows } from '../../../utils/rowFilter.js'
 
 const ALLOWED_LAYOUTS = ['list', 'grid', 'carousel']
 const DEFAULT_LAYOUT = 'list'
@@ -227,6 +232,10 @@ function truncateSummaryHtml(html, maxChars) {
 export default {
 	name: 'NewsWidget',
 
+	components: {
+		WidgetRowFilter,
+	},
+
 	props: {
 		/** Persisted widget content blob (placement.styleConfig.content). */
 		content: OBJECT_PROP,
@@ -242,10 +251,24 @@ export default {
 			failedUrls: [],
 			loading: false,
 			hasError: false,
+			// REQ-DWMS-008: the row filter is view state only. Never saved,
+			// never shared, gone after a reload.
+			rowFilter: '',
 		}
 	},
 
 	computed: {
+		/**
+		 * The items the person's row filter keeps; the fetched items themselves
+		 * and the widget's settings are never touched.
+		 *
+		 * @return {Array<object>}
+		 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-008-search-inside-a-widgets-results
+		 */
+		shownItems() {
+			return filterRows(this.items, this.rowFilter, ['title', 'summary', 'sourceTitle'])
+		},
+
 		/** @spec openspec/specs/news-widget/spec.md */
 		feedUrls() {
 			const value = this.content && this.content.feedUrls

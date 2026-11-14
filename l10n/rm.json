@@ -1335,6 +1335,10 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Chattà sin quest server",
         "Apps this server runs for you. One click places one as a tile.": "Apps che quest server exequescha per Vus. In clic fa ina plattina.",
-        "On this dashboard": "Sin quest dashboard"
+        "On this dashboard": "Sin quest dashboard",
+        "Statistics": "Statisticas",
+        "Count my visits": "Dumbrar mias visitas",
+        "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
+        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada."
     }
 }

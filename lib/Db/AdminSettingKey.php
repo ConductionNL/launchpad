@@ -62,6 +62,8 @@ enum AdminSettingKey: string {
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
+	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
+	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
 	// engagement-announcements D6: groups whose members may write announcements, besides administrators.
 	case ANNOUNCEMENT_EDITOR_GROUPS = 'announcement_editor_groups';
 }//end enum

@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtro këto rezultate",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1368,7 +1369,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Gjetur në këtë server",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacione që ky server i ekzekuton për ju. Një klikim i bën pllakë.",
-    "On this dashboard" : "Në këtë panel"
+    "On this dashboard" : "Në këtë panel",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Numëro vizitat e mia",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kur kjo është e çaktivizuar, vizitat tuaja në panele dhe klikimet mbi pllakat nuk përfshihen në numrin e shikimeve.",
+    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej."
 },
 "nplurals=2; plural=(n != 1);"
 );

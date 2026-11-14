@@ -671,6 +671,27 @@ export const api = {
 	},
 
 	/**
+	 * The app catalogue entries the current user's groups may see.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ uuid, name, description, icon, iconType, linkType, linkValue }] }`.
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-add-catalogue-apps-as-tiles-from-the-add-flow-req-acat-002
+	 */
+	catalogueApps() {
+		return axios.get(`${baseUrl}/api/catalogue`)
+	},
+
+	/**
+	 * Ask IT for an app the catalogue lacks.
+	 *
+	 * @param {{appName: string, purpose: string}} request The app and what it is needed for.
+	 * @return {Promise} Axios response resolving to `{ request }`; a 429 carries `code: 'request_limit'`.
+	 * @spec openspec/changes/launcher-app-catalogue/specs/app-catalogue/spec.md#requirement-users-can-ask-for-a-missing-app-req-acat-003
+	 */
+	requestCatalogueApp(request) {
+		return axios.post(`${baseUrl}/api/catalogue/requests`, request)
+	},
+
+	/**
 	 * Update an existing widget placement.
 	 *
 	 * @param {number|string} placementId Id of the placement to update.

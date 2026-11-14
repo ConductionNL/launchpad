@@ -29,6 +29,7 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
+use OCA\LaunchPad\Service\CatalogueService;
 use OCA\LaunchPad\Service\DemoShowcasesService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\Dashboard\IManager;
@@ -228,6 +229,62 @@ class DemoShowcasesServiceTest extends TestCase {
 		$this->assertFalse(condition: $result['alreadyInstalled']);
 		$this->assertSame(expected: [], actual: $result['skippedWidgets']);
 	}
+
+	/**
+	 * launcher-app-catalogue task 9: an install seeds the demo app catalogue,
+	 * and a seed that fails is logged without undoing the showcase.
+	 *
+	 * @return void
+	 */
+	public function testInstallSeedsTheDemoAppCatalogue(): void {
+		foreach ([false, true] as $seedFails) {
+			$this->writeFixtureZip(
+				showcaseId: 'de-bron',
+				manifest: ['schemaVersion' => 1, 'showcaseName' => 'De Bron', 'showcaseLanguage' => 'nl'],
+				dashboardPayload: $this->validDashboardPayload(uuid: 'src-uuid', widgets: []),
+			);
+			$dashboardMapper = $this->createMock(DashboardMapper::class);
+			$persisted = new Dashboard();
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$persisted->setId(5);
+			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+			$persisted->setUuid('seeded-uuid');
+			$dashboardMapper->method('insert')->willReturn($persisted);
+			$appConfig = $this->createMock(IAppConfig::class);
+			$appConfig->method('getValueString')->willReturn('');
+			$dashboardManager = $this->createMock(IManager::class);
+			$dashboardManager->method('getWidgets')->willReturn([]);
+
+			$catalogue = $this->createMock(CatalogueService::class);
+			$seed = $catalogue->expects($this->once())->method('seedDemoEntries');
+			if ($seedFails === true) {
+				$seed->willThrowException(new \RuntimeException('no table'));
+			} else {
+				$seed->willReturn(4);
+			}
+
+			$service = new DemoShowcasesService(
+				stores: new ShowcaseStores(
+					dashboardMapper: $dashboardMapper,
+					placementMapper: $this->placementMapper,
+					db: $this->db,
+					lockingProvider: $this->lockingProvider
+				),
+				platform: new ShowcasePlatform(
+					appConfig: $appConfig,
+					dashboardManager: $dashboardManager,
+					urlGenerator: $this->urlGenerator
+				),
+				logger: new NullLogger(),
+				catalogue: $catalogue
+			);
+			$service->setDataDirForTesting(path: $this->fixtureDir);
+
+			$result = $service->installShowcase(showcaseId: 'de-bron', lang: 'nl');
+
+			$this->assertSame(expected: 'seeded-uuid', actual: $result['installedDashboardUuid']);
+		}
+	}//end testInstallSeedsTheDemoAppCatalogue()
 
 	/**
 	 * REQ-DEMO-005: unknown widget IDs are dropped and surfaced in the

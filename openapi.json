@@ -8794,6 +8794,522 @@
                     }
                 }
             }
+        },
+        "/catalogue": {
+            "get": {
+                "operationId": "catalogue-index",
+                "summary": "The catalogue entries the caller's groups may see",
+                "description": "The catalogue entries the caller's groups may see. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "catalogue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/catalogue/requests": {
+            "post": {
+                "operationId": "catalogue-request",
+                "summary": "Ask for an application the catalogue lacks",
+                "description": "Ask for an application the catalogue lacks. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "appName": {
+                                        "description": "The application."
+                                    },
+                                    "purpose": {
+                                        "description": "What the caller needs it for."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "429": {
+                        "description": "Too many open requests."
+                    }
+                }
+            }
+        },
+        "/admin/catalogue": {
+            "get": {
+                "operationId": "admin-catalogue-index",
+                "summary": "Every catalogue entry, the open requests and the catalogue manager group",
+                "description": "Every catalogue entry, the open requests and the catalogue manager group. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "admin-catalogue-create",
+                "summary": "Add a catalogue entry",
+                "description": "Add a catalogue entry. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The app's name."
+                                    },
+                                    "description": {
+                                        "description": "A short description."
+                                    },
+                                    "icon": {
+                                        "description": "An icon class or image address."
+                                    },
+                                    "iconType": {
+                                        "description": "class or url."
+                                    },
+                                    "linkType": {
+                                        "description": "app (a Nextcloud app id) or url."
+                                    },
+                                    "linkValue": {
+                                        "description": "The app id or the web address."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids that see the entry; empty means everyone."
+                                    },
+                                    "sortOrder": {
+                                        "description": "Position in the catalogue."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/catalogue/settings": {
+            "put": {
+                "operationId": "admin-catalogue-set-manager-group",
+                "summary": "Name the group whose members also hear about requests",
+                "description": "Name the group whose members also hear about requests. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "managerGroup": {
+                                        "description": "The group id; empty for none."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/catalogue/requests/{uuid}/approve": {
+            "post": {
+                "operationId": "admin-catalogue-approve",
+                "summary": "Approve a request with the catalogue entry the administrator completed",
+                "description": "Approve a request with the catalogue entry the administrator completed. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The app's name."
+                                    },
+                                    "description": {
+                                        "description": "A short description."
+                                    },
+                                    "icon": {
+                                        "description": "An icon class or image address."
+                                    },
+                                    "iconType": {
+                                        "description": "class or url."
+                                    },
+                                    "linkType": {
+                                        "description": "app (a Nextcloud app id) or url."
+                                    },
+                                    "linkValue": {
+                                        "description": "The app id or the web address."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids that see the entry; empty means everyone."
+                                    },
+                                    "sortOrder": {
+                                        "description": "Position in the catalogue."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/admin/catalogue/requests/{uuid}/decline": {
+            "post": {
+                "operationId": "admin-catalogue-decline",
+                "summary": "Decline a request with a note",
+                "description": "Decline a request with a note. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "note": {
+                                        "description": "Why; required."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/admin/catalogue/{uuid}": {
+            "put": {
+                "operationId": "admin-catalogue-update",
+                "summary": "Change a catalogue entry",
+                "description": "Change a catalogue entry. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "description": "The app's name."
+                                    },
+                                    "description": {
+                                        "description": "A short description."
+                                    },
+                                    "icon": {
+                                        "description": "An icon class or image address."
+                                    },
+                                    "iconType": {
+                                        "description": "class or url."
+                                    },
+                                    "linkType": {
+                                        "description": "app (a Nextcloud app id) or url."
+                                    },
+                                    "linkValue": {
+                                        "description": "The app id or the web address."
+                                    },
+                                    "targetGroups": {
+                                        "description": "Group ids that see the entry; empty means everyone."
+                                    },
+                                    "sortOrder": {
+                                        "description": "Position in the catalogue."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "admin-catalogue-destroy",
+                "summary": "Remove a catalogue entry",
+                "description": "Remove a catalogue entry. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "catalogue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
         }
     },
     "components": {

@@ -2135,7 +2135,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "put": {
                 "operationId": "public-start-update",
@@ -2167,7 +2168,8 @@
                     "400": {
                         "$ref": "#/components/responses/Problem400"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/admin/roles": {

@@ -170,6 +170,8 @@ class LaunchPadAdminTest extends TestCase {
 			->with('')
 			->willReturn([$this->group('admin', 'Admins'), $this->group('staff', 'Staff')]);
 		$this->settingsService->method('getGroupOrder')->willReturn(['staff', 'admin']);
+		$this->settingsService->expects($this->once())->method('getSearchShortcuts')
+			->willReturn([['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://t.example/?q={query}']]);
 		$this->settingMapper->expects($this->never())->method('getValue');
 
 		$response = $admin->getForm();
@@ -189,6 +191,7 @@ class LaunchPadAdminTest extends TestCase {
 				'widgets' => [['id' => 'weather']],
 				'allowUserDashboards' => false,
 				'linkCreateFileExtensions' => ['docx', 'md'],
+				'searchShortcuts' => [['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://t.example/?q={query}']],
 			],
 			$schema
 		);

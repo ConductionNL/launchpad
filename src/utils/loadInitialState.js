@@ -77,6 +77,9 @@ const PAGE_KEYS = {
 		widgets: [],
 		allowUserDashboards: false,
 		linkCreateFileExtensions: ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
+		// search-ai-prefix-shortcuts REQ-SPX-001: the list the admin edits.
+		// Optional key: none by default.
+		searchShortcuts: [],
 	},
 }
 

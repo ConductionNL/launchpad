@@ -222,6 +222,10 @@
 				</div>
 				</CnSettingsSection>
 
+				<!-- search-ai-prefix-shortcuts REQ-SPX-001: the prefix
+				     shortcuts every search box offers. -->
+				<SearchShortcutsSettings />
+
 				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
 				     `set-group-default` / `group-default-badge` data-test hooks. -->
 				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
@@ -319,6 +323,7 @@ import {
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
+import SearchShortcutsSettings from './SearchShortcutsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
 import KioskTab from './tabs/KioskTab.vue'
@@ -355,6 +360,7 @@ export default {
 		OrgNavigationTab,
 		DemoDataTab,
 		GroupDashboardsTab,
+		SearchShortcutsSettings,
 	},
 
 	// REQ-INIT-004: read the initial-state snapshot the PHP admin form

@@ -115,6 +115,8 @@ class LaunchPadAdmin implements IDelegatedSettings {
 			->setLinkCreateFileExtensions(
 				$this->sources->fileService->getAllowedExtensions()
 			)
+			// Search-ai-prefix-shortcuts REQ-SPX-001: the list the admin section edits.
+			->setSearchShortcuts($this->settingsService->getSearchShortcuts())
 			->apply();
 
 		return new TemplateResponse(

@@ -112,7 +112,7 @@ describe('LiveTileWidgetForm rendered controls', () => {
 	it('writes the connector source id from its field in connector mode', async () => {
 		const wrapper = await mountForm({ sourceMode: 'connector', valueExpr: '$.n' })
 		expect(textField(wrapper, 'URL')).toBeUndefined()
-		const sourceField = textField(wrapper, 'OpenConnector source id')
+		const sourceField = textField(wrapper, 'Integriq source id')
 		expect(sourceField.props('disabled')).toBe(false)
 		sourceField.vm.$emit('update:modelValue', 'src-42')
 		await wrapper.vm.$nextTick()

@@ -1682,6 +1682,9 @@
         "Sorted alphabetically": "Alfabetisch gesorteerd",
         "Sorted by most used": "Gesorteerd op meest gebruikt",
         "Sorted by last used": "Gesorteerd op laatst gebruikt",
-        "Sorted at random": "Willekeurig gesorteerd"
+        "Sorted at random": "Willekeurig gesorteerd",
+        "New announcement in %1$s: **%2$s**": "Nieuwe aankondiging in %1$s: **%2$s**",
+        "New announcement in %1$s: %2$s": "Nieuwe aankondiging in %1$s: %2$s",
+        "Open LaunchPad to read the announcement": "Open LaunchPad om de aankondiging te lezen"
     }
 }

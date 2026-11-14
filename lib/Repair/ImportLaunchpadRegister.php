@@ -73,9 +73,21 @@ class ImportLaunchpadRegister implements IRepairStep {
 	private const REGISTER_PATH = '/lib/Settings/launchpad_register.json';
 
 	/**
+	 * App-relative directory of the per-change register fragments (ADR-037),
+	 * merged onto the descriptor in name order before the import.
+	 *
+	 * @var string
+	 */
+	private const FRAGMENT_DIR = '/lib/Settings/register.d';
+
+	/**
 	 * Descriptor version handed to the importer's version_compare gate.
 	 *
-	 * Kept in step with `info.version` in the descriptor. The import is also
+	 * Covers the descriptor AND its `register.d/` fragments, so it moves when a
+	 * fragment changes something the importer does not compare by content:
+	 * 1.0.2 brought the Dashboard schema's `configuration.linkedTypes` from
+	 * `register.d/dashboard-talk-leaf.json` (openregister-leaf-integrations),
+	 * which existing installs only take on a version change. The import is also
 	 * content-authoritative for schemas — OpenRegister's
 	 * `ImportHandler::schemaContentDiffers()` compares properties, required and
 	 * authorization — so a schema edit still applies even when this version has
@@ -83,7 +95,7 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_VERSION = '1.0.1';
+	private const REGISTER_VERSION = '1.0.2';
 
 	/**
 	 * Constructor.
@@ -177,6 +189,66 @@ class ImportLaunchpadRegister implements IRepairStep {
 			return null;
 		}
 
-		return $data;
+		return $this->withFragments(data: $data, output: $output);
 	}//end readDescriptor()
+
+	/**
+	 * The descriptor with every `register.d/*.json` fragment merged onto it,
+	 * in name order, the way OpenRegister's own app host merges them
+	 * (`RegisterDocumentLoader::deepMergeConfig()`). A fragment that is not
+	 * valid JSON is skipped with a warning; the rest still apply.
+	 *
+	 * @param array   $data   The decoded descriptor.
+	 * @param IOutput $output The repair output.
+	 *
+	 * @return array The merged descriptor.
+	 *
+	 * @spec openspec/changes/openregister-leaf-integrations/specs/dashboard-talk-leaf/spec.md#requirement-req-leaf-001-talk-leaf-declared-on-the-dashboard-schema-via-registerd-overlay
+	 */
+	private function withFragments(array $data, IOutput $output): array {
+		$files = glob($this->appManager->getAppPath('launchpad') . self::FRAGMENT_DIR . '/*.json');
+		if ($files === false) {
+			return $data;
+		}
+
+		sort($files);
+		foreach ($files as $file) {
+			$fragment = json_decode((string)file_get_contents($file), true);
+			if (is_array($fragment) === false) {
+				$output->warning('LaunchPad register fragment is not valid JSON, skipped: ' . basename($file));
+				continue;
+			}
+
+			$data = self::merge(base: $data, overlay: $fragment);
+		}
+
+		return $data;
+	}//end withFragments()
+
+	/**
+	 * Merge a fragment onto the descriptor: objects merge key by key, two
+	 * lists are joined, anything else is replaced by the fragment's value.
+	 *
+	 * @param array $base    The descriptor so far.
+	 * @param array $overlay The fragment.
+	 *
+	 * @return array
+	 */
+	private static function merge(array $base, array $overlay): array {
+		foreach ($overlay as $key => $value) {
+			if (is_array($value) === false || isset($base[$key]) === false || is_array($base[$key]) === false) {
+				$base[$key] = $value;
+				continue;
+			}
+
+			if (array_is_list($base[$key]) === true && array_is_list($value) === true) {
+				$base[$key] = array_merge($base[$key], $value);
+				continue;
+			}
+
+			$base[$key] = self::merge(base: $base[$key], overlay: $value);
+		}
+
+		return $base;
+	}//end merge()
 }//end class

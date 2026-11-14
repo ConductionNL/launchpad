@@ -1353,7 +1353,9 @@ OC.L10N.register(
     "Statistics" : "Statistics",
     "Count my visits" : "Count my visits",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "When this is off, your dashboard visits and tile clicks are left out of the view counts.",
-    "Your choice could not be saved." : "Your choice could not be saved."
+    "Your choice could not be saved." : "Your choice could not be saved.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.",
+    "Who else is editing?" : "Who else is editing?"
 },
 "nplurals=2; plural=(n != 1);"
 );

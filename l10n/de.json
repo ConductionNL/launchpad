@@ -1339,6 +1339,8 @@
         "Statistics": "Statistik",
         "Count my visits": "Meine Besuche zählen",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Wenn das aus ist, werden deine Dashboard-Besuche und Klicks auf Kacheln nicht in den Aufrufzahlen mitgezählt.",
-        "Your choice could not be saved.": "Deine Auswahl konnte nicht gespeichert werden."
+        "Your choice could not be saved.": "Deine Auswahl konnte nicht gespeichert werden.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} bearbeitet dieses Dashboard ebenfalls, seit {time}. Ihre Änderungen werden nicht überschrieben.",
+        "Who else is editing?": "Wer bearbeitet es noch?"
     }
 }

@@ -1340,6 +1340,8 @@
         "Statistics": "Statistika",
         "Count my visits": "Broji moje posjete",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kada je ovo isključeno, vaše posjete kontrolnim pločama i klikovi na pločice ne ulaze u broj pregleda.",
-        "Your choice could not be saved.": "Vaš izbor nije moguće sačuvati."
+        "Your choice could not be saved.": "Vaš izbor nije moguće sačuvati.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} također uređuje ovu kontrolnu ploču od {time}. Vaše izmjene neće biti prepisane.",
+        "Who else is editing?": "Ko još uređuje?"
     }
 }

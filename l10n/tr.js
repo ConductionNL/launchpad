@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "İstatistikler",
     "Count my visits" : "Ziyaretlerimi say",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Bu kapalıyken pano ziyaretleriniz ve kutucuklara tıklamalarınız görüntülenme sayılarına dahil edilmez.",
-    "Your choice could not be saved." : "Seçiminiz kaydedilemedi."
+    "Your choice could not be saved." : "Seçiminiz kaydedilemedi.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} de {time} saatinden beri bu panoyu düzenliyor. Değişiklikleriniz üzerine yazılmaz.",
+    "Who else is editing?" : "Başka kim düzenliyor?"
 },
 "nplurals=2; plural=(n != 1);"
 );

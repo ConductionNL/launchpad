@@ -1339,6 +1339,8 @@
         "Statistics": "Statisticas",
         "Count my visits": "Dumbrar mias visitas",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
-        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada."
+        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} elavura era quest dashboard dapi {time}. Voss midaments na vegnan betg surscrits.",
+        "Who else is editing?": "Tgi elavura anc?"
     }
 }

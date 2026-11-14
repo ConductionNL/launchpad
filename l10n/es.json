@@ -1339,6 +1339,8 @@
         "Statistics": "Estadísticas",
         "Count my visits": "Contar mis visitas",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Si esto está desactivado, tus visitas a los paneles y tus clics en los mosaicos no se incluyen en el recuento de visualizaciones.",
-        "Your choice could not be saved.": "No se ha podido guardar tu elección."
+        "Your choice could not be saved.": "No se ha podido guardar tu elección.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} también está editando este panel desde las {time}. Tus cambios no se sobrescribirán.",
+        "Who else is editing?": "¿Quién más lo está editando?"
     }
 }

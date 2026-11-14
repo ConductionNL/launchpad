@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistiques",
     "Count my visits" : "Compter mes visites",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Lorsque cette option est désactivée, vos visites des tableaux de bord et vos clics sur les tuiles ne sont pas comptés dans les statistiques de consultation.",
-    "Your choice could not be saved." : "Votre choix n'a pas pu être enregistré."
+    "Your choice could not be saved." : "Votre choix n'a pas pu être enregistré.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} modifie aussi ce tableau de bord depuis {time}. Vos modifications ne seront pas écrasées.",
+    "Who else is editing?" : "Qui d'autre le modifie ?"
 },
 "nplurals=2; plural=(n > 1);"
 );

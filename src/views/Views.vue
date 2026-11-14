@@ -208,24 +208,6 @@
 			@update:open="onDeleteDialog"
 			@confirm="confirmDeleteDashboard" />
 
-		<!-- Admin take-over of a colleague's editing lock (REQ-LOCKUI-003). -->
-		<CnConfirmDialog
-			v-if="forceReleaseDialogOpen"
-			:dialogTitle="t('launchpad', 'Take over editing?')"
-			:message="
-				t(
-					'launchpad',
-					'{name} can no longer save changes to this dashboard. Take over only when you know they have stopped.',
-					{
-						name:
-							editLock.state.holderName
-							|| t('launchpad', 'A colleague'),
-					},
-				)
-			"
-			:confirmLabel="t('launchpad', 'Take over')"
-			@confirm="onTakeOverConfirmed"
-			@close="forceReleaseDialogOpen = false" />
 
 		<!-- sharing-dashboard-schedule-screen: go-live and take-down times. -->
 		<ScheduleDashboardDialog
@@ -274,12 +256,12 @@
 				data-testid="publication-note">
 				{{ publicationNote }}
 			</p>
-			<EditLockBanner
-				:status="editLock.state.status"
-				:holderName="editLock.state.holderName"
-				:expiresIn="editLock.state.expiresIn"
-				:isAdmin="isAdmin === true"
-				@takeOver="forceReleaseDialogOpen = true" />
+			<!-- building-edit-a-dashboard-together: no lock in edit mode; a
+				refusal says so, and colleagues editing are shown. -->
+			<EditLockBanner :status="presence.state.status" />
+			<CoEditorsBanner
+				v-if="isEditMode"
+				:editors="presence.state.editors" />
 			<CnDashboardGrid
 				v-if="activeDashboard"
 				:layout="shownPlacements"
@@ -488,7 +470,6 @@
 <script>
 import {
 	CnAddWidgetModal,
-	CnConfirmDialog,
 	CnDashboardGrid,
 	CnWidgetStyleEditorModal,
 	getDashboardColumnOpts,
@@ -509,6 +490,7 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import CoEditorsBanner from '../components/Workspace/CoEditorsBanner.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
@@ -529,7 +511,7 @@ import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
-import { useDashboardLock } from '../composables/useDashboardLock.js'
+import { useDashboardPresence } from '../composables/useDashboardPresence.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
 import { api } from '../services/api.js'
@@ -584,8 +566,8 @@ export default {
 		DashboardBreadcrumb,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
+		CoEditorsBanner,
 		EditLockBanner,
-		CnConfirmDialog,
 		VersionHistoryModal,
 		HiddenWidgetsControl,
 	},
@@ -784,13 +766,12 @@ export default {
 			deleteChildCount: 0,
 			// Why the dashboard configuration could not be saved.
 			configSaveError: '',
-			// dashboard-edit-lock-ui: the editing lock of the active
-			// dashboard (REQ-LOCKUI-001..003) and the take-over dialog.
-			editLock: useDashboardLock({
-				onLost: () => this.onEditLockLost(),
+			// building-edit-a-dashboard-together: who else edits the active
+			// dashboard; edit mode no longer takes a lock.
+			presence: useDashboardPresence({
+				onRefused: () => this.onPresenceRefused(),
 			}),
 
-			forceReleaseDialogOpen: false,
 			// sharing-dashboard-schedule-screen: the schedule dialog.
 			scheduleDialogOpen: false,
 			scheduleError: '',
@@ -1325,8 +1306,8 @@ export default {
 		window.removeEventListener('popstate', this.handleHistoryPopState)
 		this.headerActionsObserver?.disconnect()
 		this.headerActionsObserver = null
-		// Leaving the page while editing gives the lock back.
-		this.editLock.release()
+		// Leaving the page while editing withdraws the presence.
+		this.presence.stop()
 	},
 
 	methods: {
@@ -1791,11 +1772,12 @@ export default {
 		},
 
 		/**
-		 * Enter or leave edit mode. Entering asks for the dashboard's
-		 * editing lock first; leaving gives it back (REQ-LOCKUI-001).
+		 * Enter or leave edit mode. Entering announces this person as an
+		 * editor of the dashboard; leaving withdraws it
+		 * (building-edit-a-dashboard-together, task 1.4).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async toggleEditMode() {
 			if (!this.isEditMode) {
@@ -1803,16 +1785,17 @@ export default {
 				return
 			}
 			this.leaveEditMode()
-			await this.editLock.release()
+			await this.presence.stop()
 		},
 
 		/**
-		 * Enter edit mode only when the lock is granted. A colleague's lock
-		 * (409), a refusal (403) or a failed request all leave the page
-		 * read-only and the banner says why.
+		 * Enter edit mode, also while colleagues edit the same dashboard:
+		 * every change is saved per widget, so nobody's change is lost. Only a
+		 * refusal (no edit rights, or an unknown dashboard) keeps the page
+		 * read-only, and the banner says why.
 		 *
 		 * @return {Promise<boolean>} Whether the page is in edit mode now.
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async enterEditMode() {
 			if (this.isEditMode) {
@@ -1822,16 +1805,16 @@ export default {
 			if (!uuid) {
 				return false
 			}
-			const granted = await this.editLock.acquire(String(uuid))
-			if (granted) {
+			const allowed = await this.presence.start(String(uuid))
+			if (allowed) {
 				this.isEditMode = true
 			}
-			return granted
+			return allowed
 		},
 
 		/**
-		 * Drop edit mode and every edit-only surface. The lock itself is
-		 * released by the caller.
+		 * Drop edit mode and every edit-only surface. The presence itself is
+		 * withdrawn by the caller.
 		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
@@ -1845,42 +1828,29 @@ export default {
 		},
 
 		/**
-		 * Before another dashboard becomes active: leave edit mode, give the
-		 * lock back and clear a banner that was about the previous one.
+		 * A renewal was refused (edit rights gone, or the dashboard deleted):
+		 * back to view mode; the banner says why.
+		 *
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
+		 */
+		onPresenceRefused() {
+			if (this.isEditMode) {
+				this.leaveEditMode()
+			}
+		},
+
+		/**
+		 * Before another dashboard becomes active: leave edit mode, withdraw
+		 * the presence and clear a banner that was about the previous one.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
+		 * @spec openspec/changes/building-edit-a-dashboard-together/tasks.md#task-1.4
 		 */
 		async dropEditLock() {
 			if (this.isEditMode) {
 				this.leaveEditMode()
 			}
-			await this.editLock.release()
-		},
-
-		/**
-		 * A refresh answered 404: someone else holds the lock now. Back to
-		 * view mode; the banner says what happened (REQ-LOCKUI-002).
-		 *
-		 * @spec openspec/specs/dashboard-locking/spec.md
-		 */
-		onEditLockLost() {
-			if (this.isEditMode) {
-				this.leaveEditMode()
-			}
-		},
-
-		/**
-		 * Administrator confirmed the take-over: force-release, then edit.
-		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/specs/dashboard-locking/spec.md
-		 */
-		async onTakeOverConfirmed() {
-			this.forceReleaseDialogOpen = false
-			if (await this.editLock.takeOver()) {
-				this.isEditMode = true
-			}
+			await this.presence.stop()
 		},
 
 		/**

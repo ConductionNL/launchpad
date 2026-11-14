@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistik",
     "Count my visits" : "Räkna mina besök",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "När detta är avstängt räknas dina besök på instrumentpaneler och klick på rutor inte med i visningsantalet.",
-    "Your choice could not be saved." : "Ditt val kunde inte sparas."
+    "Your choice could not be saved." : "Ditt val kunde inte sparas.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} redigerar också den här instrumentpanelen sedan {time}. Dina ändringar skrivs inte över.",
+    "Who else is editing?" : "Vem mer redigerar?"
 },
 "nplurals=2; plural=(n != 1);"
 );

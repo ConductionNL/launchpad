@@ -37,8 +37,8 @@ function makeHost() {
 		deleteChildCount: 0,
 		configSaveError: '',
 		isConfigModalOpen: true,
-		// Switching gives back the editing lock (REQ-LOCKUI-001).
-		editLock: { release: vi.fn() },
+		// Switching withdraws the presence (building-edit-a-dashboard-together).
+		presence: { stop: vi.fn() },
 	}
 	for (const [name, fn] of Object.entries(Views.methods)) {
 		host[name] = fn.bind(host)

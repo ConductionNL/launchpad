@@ -1339,6 +1339,8 @@
         "Statistics": "Tilastot",
         "Count my visits": "Laske käyntini",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
-        "Your choice could not be saved.": "Valintaasi ei voitu tallentaa."
+        "Your choice could not be saved.": "Valintaasi ei voitu tallentaa.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} muokkaa myös tätä koontinäyttöä klo {time} alkaen. Muutoksiasi ei korvata.",
+        "Who else is editing?": "Kuka muu muokkaa?"
     }
 }

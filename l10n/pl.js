@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statystyki",
     "Count my visits" : "Licz moje odwiedziny",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Gdy to jest wyłączone, Twoje odwiedziny pulpitów i kliknięcia kafelków nie są wliczane do liczby wyświetleń.",
-    "Your choice could not be saved." : "Nie udało się zapisać Twojego wyboru."
+    "Your choice could not be saved." : "Nie udało się zapisać Twojego wyboru.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} również edytuje ten pulpit od {time}. Twoje zmiany nie zostaną nadpisane.",
+    "Who else is editing?" : "Kto jeszcze edytuje?"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

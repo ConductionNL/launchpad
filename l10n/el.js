@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Στατιστικά",
     "Count my visits" : "Καταμέτρηση των επισκέψεών μου",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
-    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
+    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "Ο/Η {name} επεξεργάζεται επίσης αυτόν τον πίνακα από τις {time}. Οι αλλαγές σας δεν θα αντικατασταθούν.",
+    "Who else is editing?" : "Ποιος άλλος τον επεξεργάζεται;"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Broji moje posjete",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kad je ovo isključeno, vaši posjeti nadzornim pločama i klikovi na pločice ne ulaze u broj pregleda.",
-    "Your choice could not be saved." : "Vaš odabir nije moguće spremiti."
+    "Your choice could not be saved." : "Vaš odabir nije moguće spremiti.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} također uređuje ovu nadzornu ploču od {time}. Vaše promjene neće biti prebrisane.",
+    "Who else is editing?" : "Tko još uređuje?"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

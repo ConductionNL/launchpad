@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistiky",
     "Count my visits" : "Počítat moje návštěvy",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Když je to vypnuté, vaše návštěvy nástěnek a kliknutí na dlaždice se nezapočítávají do počtu zobrazení.",
-    "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit."
+    "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} tento panel také upravuje od {time}. Vaše změny nebudou přepsány.",
+    "Who else is editing?" : "Kdo další ho upravuje?"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

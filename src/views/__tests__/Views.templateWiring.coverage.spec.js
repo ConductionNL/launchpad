@@ -109,7 +109,8 @@ const stubs = {
 	DashboardReactions: passthrough('DashboardReactions'),
 	DashboardLanguageHeading: passthrough('DashboardLanguageHeading'),
 	DashboardBreadcrumb: passthrough('DashboardBreadcrumb'),
-	EditLockBanner: passthrough('EditLockBanner'),
+	EditLockBanner: passthrough('EditLockBanner', { props: { status: String } }),
+	CoEditorsBanner: passthrough('CoEditorsBanner', { props: { editors: Array } }),
 	CnDashboardGrid: {
 		name: 'CnDashboardGrid',
 		props: { layout: { type: Array, default: () => [] } },
@@ -297,13 +298,13 @@ describe('Views — top-bar cog and sidebar wiring', () => {
 		expect(config.props('initialTab')).toBe('sharing')
 	}, 90000)
 
-	it('the cog\'s "Edit" asks for the lock and enters edit mode; "Configure" opens the config modal', async () => {
+	it('the cog\'s "Edit" announces the editor and enters edit mode; "Configure" opens the config modal', async () => {
 		const { wrapper } = await mountViews()
 		const cog = wrapper.findComponent({ name: 'DashboardRowActions' })
 
 		cog.vm.$emit('toggleEdit')
 		await flushPromises()
-		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
 		expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 
 		// Entering edit mode re-renders the top bar: address the cog afresh.
@@ -382,7 +383,7 @@ describe('Views — top-bar cog and sidebar wiring', () => {
 	}, 90000)
 })
 
-describe('Views — read receipts and the edit-lock take-over', () => {
+describe('Views — read receipts and the colleagues editing', () => {
 	it('"Read receipts" opens the report for the first announcement; its close shuts it', async () => {
 		const { wrapper } = await mountViews({
 			widgetPlacements: [
@@ -403,15 +404,16 @@ describe('Views — read receipts and the edit-lock take-over', () => {
 		expect(report().props('open')).toBe(false)
 	}, 90000)
 
-	it('the banner\'s "Take over" opens the confirmation, and its close dismisses it', async () => {
-		const { wrapper } = await mountViews({ isAdmin: true })
-		expect(wrapper.find('.stub-confirm').exists()).toBe(false)
+	it('in edit mode the colleagues editing are shown, in view mode not', async () => {
+		const marieke = { displayName: 'Marieke Jansen', since: '2026-11-14T10:42:00+01:00' }
+		const { wrapper } = await mountViews()
+		expect(wrapper.findComponent({ name: 'CoEditorsBanner' }).exists()).toBe(false)
 
-		await wrapper.findComponent({ name: 'EditLockBanner' }).vm.$emit('takeOver')
-		expect(wrapper.find('.stub-confirm').exists()).toBe(true)
+		axios.post.mockImplementation(() => Promise.resolve({ data: { editors: [marieke] } }))
 
-		await wrapper.findComponent({ name: 'CnConfirmDialog' }).vm.$emit('close')
-		expect(wrapper.find('.stub-confirm').exists()).toBe(false)
+		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
+		await flushPromises()
+		expect(wrapper.findComponent({ name: 'CoEditorsBanner' }).props('editors')).toEqual([marieke])
 	}, 90000)
 })
 
@@ -599,7 +601,7 @@ describe('Views — lifecycle', () => {
 		window.history.replaceState(null, '', '/apps/launchpad?edit=1')
 		await mountViews()
 
-		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.post).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`)
 		expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 	}, 90000)
 
@@ -668,7 +670,7 @@ describe('Views — lifecycle', () => {
 		expect(controls().classList.contains('launchpad-floating-controls--docked')).toBe(true)
 	}, 90000)
 
-	it('unmounting gives the held lock back and stops following the back button', async () => {
+	it('unmounting withdraws the presence and stops following the back button', async () => {
 		await mountViews()
 		wrapper.findComponent({ name: 'DashboardRowActions' }).vm.$emit('toggleEdit')
 		await flushPromises()
@@ -679,12 +681,12 @@ describe('Views — lifecycle', () => {
 		wrapper = null
 		await flushPromises()
 
-		expect(axios.delete).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+		expect(axios.delete).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/presence`, undefined)
 		expect(removed).toHaveBeenCalledWith('popstate', popHandler)
 		removed.mockRestore()
 	}, 90000)
 
-	it('a lost lock (heartbeat answers 404) drops the page back to view mode', async () => {
+	it('a refused renewal (403) drops the page back to view mode', async () => {
 		vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
 		try {
 			await mountViews()
@@ -692,11 +694,11 @@ describe('Views — lifecycle', () => {
 			await flushPromises()
 			expect(wrapper.find('.launchpad-container').classes()).toContain('launchpad-edit-mode')
 
-			axios.put.mockImplementation(() => Promise.reject({ response: { status: 404 } }))
-			vi.advanceTimersByTime(5 * 60 * 1000)
+			axios.post.mockImplementation(() => Promise.reject({ response: { status: 403 } }))
+			vi.advanceTimersByTime(30 * 1000)
 			await flushPromises()
 
-			expect(axios.put).toHaveBeenCalledWith(`${BASE}/api/dashboards/u-7/lock`)
+			expect(wrapper.findComponent({ name: 'EditLockBanner' }).props('status')).toBe('forbidden')
 			expect(wrapper.find('.launchpad-container').classes()).not.toContain('launchpad-edit-mode')
 		} finally {
 			vi.useRealTimers()

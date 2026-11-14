@@ -1339,6 +1339,8 @@
         "Statistics": "Статистика",
         "Count my visits": "Број ги моите посети",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Кога ова е исклучено, вашите посети на контролните табли и кликовите на плочките не се бројат во прегледите.",
-        "Your choice could not be saved.": "Вашиот избор не може да се зачува."
+        "Your choice could not be saved.": "Вашиот избор не може да се зачува.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} исто така ја уредува оваа контролна табла од {time}. Вашите промени нема да бидат пребришани.",
+        "Who else is editing?": "Кој друг уредува?"
     }
 }

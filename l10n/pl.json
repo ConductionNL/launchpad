@@ -1340,6 +1340,8 @@
         "Statistics": "Statystyki",
         "Count my visits": "Licz moje odwiedziny",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Gdy to jest wyłączone, Twoje odwiedziny pulpitów i kliknięcia kafelków nie są wliczane do liczby wyświetleń.",
-        "Your choice could not be saved.": "Nie udało się zapisać Twojego wyboru."
+        "Your choice could not be saved.": "Nie udało się zapisać Twojego wyboru.",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} również edytuje ten pulpit od {time}. Twoje zmiany nie zostaną nadpisane.",
+        "Who else is editing?": "Kto jeszcze edytuje?"
     }
 }

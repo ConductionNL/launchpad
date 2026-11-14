@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistici",
     "Count my visits" : "Numără vizitele mele",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Când aceasta este dezactivată, vizitele tale pe panouri și clicurile pe dale nu sunt incluse în numărul de vizualizări.",
-    "Your choice could not be saved." : "Alegerea ta nu a putut fi salvată."
+    "Your choice could not be saved." : "Alegerea ta nu a putut fi salvată.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} editează și acest tablou de bord din {time}. Modificările dvs. nu vor fi suprascrise.",
+    "Who else is editing?" : "Cine mai editează?"
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

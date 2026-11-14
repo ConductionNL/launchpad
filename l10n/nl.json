@@ -1682,6 +1682,8 @@
         "Sorted alphabetically": "Alfabetisch gesorteerd",
         "Sorted by most used": "Gesorteerd op meest gebruikt",
         "Sorted by last used": "Gesorteerd op laatst gebruikt",
-        "Sorted at random": "Willekeurig gesorteerd"
+        "Sorted at random": "Willekeurig gesorteerd",
+        "{name} is also editing this dashboard, since {time}. Your changes are not overwritten.": "{name} bewerkt dit dashboard ook, sinds {time}. Je wijzigingen worden niet overschreven.",
+        "Who else is editing?": "Wie werkt er mee?"
     }
 }

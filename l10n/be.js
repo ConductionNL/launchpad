@@ -1364,6 +1364,8 @@ OC.L10N.register(
     "Statistics" : "Статыстыка",
     "Count my visits" : "Улічваць мае наведванні",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
-    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар."
+    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} таксама рэдагуе гэтую панэль з {time}. Вашы змены не будуць перазапісаны.",
+    "Who else is editing?" : "Хто яшчэ рэдагуе?"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

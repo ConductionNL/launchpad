@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Skaitīt manus apmeklējumus",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kad tas ir izslēgts, jūsu informācijas paneļu apmeklējumi un klikšķi uz flīzēm netiek ieskaitīti skatījumu skaitā.",
-    "Your choice could not be saved." : "Jūsu izvēli neizdevās saglabāt."
+    "Your choice could not be saved." : "Jūsu izvēli neizdevās saglabāt.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} arī rediģē šo informācijas paneli kopš {time}. Jūsu izmaiņas netiks pārrakstītas.",
+    "Who else is editing?" : "Kas vēl rediģē?"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

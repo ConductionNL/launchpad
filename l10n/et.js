@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Loe minu külastusi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
-    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada."
+    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} muudab seda töölauda samuti alates {time}. Sinu muudatusi ei kirjutata üle.",
+    "Who else is editing?" : "Kes veel muudab?"
 },
 "nplurals=2; plural=(n != 1);"
 );

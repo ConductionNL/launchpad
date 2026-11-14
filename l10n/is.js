@@ -1373,7 +1373,9 @@ OC.L10N.register(
     "Statistics" : "Tölfræði",
     "Count my visits" : "Telja heimsóknir mínar",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
-    "Your choice could not be saved." : "Ekki tókst að vista valið þitt."
+    "Your choice could not be saved." : "Ekki tókst að vista valið þitt.",
+    "{name} is also editing this dashboard, since {time}. Your changes are not overwritten." : "{name} er líka að breyta þessu stjórnborði frá {time}. Breytingarnar þínar verða ekki yfirskrifaðar.",
+    "Who else is editing?" : "Hver annar er að breyta?"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

@@ -102,12 +102,14 @@ class TemplateResyncService {
 	 *                                                  storage policy), so the `x-openregister-
 	 *                                                  notifications` branch is not wired in.
 	 * @param LoggerInterface      $logger PSR-3 logger.
+	 * @param PersonalLayerService $personalLayers Drops personal-layer entries for removed placements (REQ-DWMS-001).
 	 */
 	public function __construct(
 		private readonly ResyncStores $stores,
 		private readonly ActivityPublisher $activityPublisher,
 		private readonly INotificationManager $notificationManager,
 		private readonly LoggerInterface $logger,
+		private readonly PersonalLayerService $personalLayers,
 	) {
 	}//end __construct()
 
@@ -387,8 +389,40 @@ class TemplateResyncService {
 		$tally->reports[] = $this->summarizeCopy(copy: $copy, diff: $diff, applied: ($error === null), error: $error);
 		if ($changed === true && $error === null) {
 			$tally->affected[] = $copy;
+			$this->pruneLayers(copy: $copy, diff: $diff);
 		}
 	}//end resyncCopy()
+
+	/**
+	 * After a re-sync removed placements, drop the personal-layer entries that named them.
+	 *
+	 * @param Dashboard $copy The copy that was re-synced.
+	 * @param array     $diff The applied diff.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-001-a-personal-layer-over-a-shared-dashboard
+	 */
+	private function pruneLayers(Dashboard $copy, array $diff): void {
+		if ($diff['toRemove'] === []) {
+			return;
+		}
+
+		$liveIds = array_map(
+			static fn (WidgetPlacement $placement): int => (int)$placement->getId(),
+			$this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId())
+		);
+
+		try {
+			$this->personalLayers->pruneDashboard(dashboardId: (int)$copy->getId(), liveIds: $liveIds);
+		} catch (Throwable $t) {
+			// The re-sync itself landed; a stale layer entry is ignored at render time.
+			$this->logger->warning(
+				message: 'launchpad.template_resync.layer_prune_failed',
+				context: ['dashboardId' => $copy->getId(), 'exception' => $t]
+			);
+		}
+	}//end pruneLayers()
 
 	/**
 	 * Notify the owner of every affected copy.

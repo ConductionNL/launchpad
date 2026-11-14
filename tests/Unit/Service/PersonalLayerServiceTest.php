@@ -186,6 +186,23 @@ class PersonalLayerServiceTest extends TestCase {
 		$this->assertSame([], $this->stored);
 	}//end testALayerLeftEmptyByTheSweepIsRemovedEntirely()
 
+	public function testTheDashboardSweepPrunesEveryPersonsLayerAndNoOtherDashboard(): void {
+		$service = $this->service();
+		$service->save(userId: 'handler-anna', dashboardId: 7, overrides: [1 => ['sortOrder' => 2], 5 => ['gridWidth' => 3]], hide: [], placements: $this->dashboardOfSix());
+		$service->save(userId: 'handler-ben', dashboardId: 7, overrides: [], hide: [3, 4], placements: $this->dashboardOfSix());
+		$service->save(userId: 'handler-anna', dashboardId: 8, overrides: [5 => ['gridWidth' => 3]], hide: [], placements: $this->dashboardOfSix());
+
+		$dropped = $service->pruneDashboard(dashboardId: 7, liveIds: [1, 2]);
+
+		// Anna loses placement 5, Ben loses both hidden ones and his layer with them.
+		$this->assertSame(3, $dropped);
+		$this->assertSame([1 => ['sortOrder' => 2]], $this->stored['handler-anna|7']->overridesArray());
+		$this->assertArrayNotHasKey('handler-ben|7', $this->stored);
+		// Dashboard 8 is another dashboard: its entry for placement 5 stays.
+		$this->assertSame([5 => ['gridWidth' => 3]], $this->stored['handler-anna|8']->overridesArray());
+		$this->assertSame(0, $service->pruneDashboard(dashboardId: 0, liveIds: []));
+	}//end testTheDashboardSweepPrunesEveryPersonsLayerAndNoOtherDashboard()
+
 	/**
 	 * Six placements in the administrator's order.
 	 *
@@ -220,12 +237,22 @@ class PersonalLayerServiceTest extends TestCase {
 	private function service(): PersonalLayerService {
 		$mapper = $this->getMockBuilder(PersonalLayerMapper::class)
 			->disableOriginalConstructor()
-			->onlyMethods(['findForUser', 'deleteForUser', 'insert', 'update'])
+			->onlyMethods(['findForUser', 'findByDashboard', 'deleteForUser', 'insert', 'update'])
 			->getMock();
 
 		$mapper->method('findForUser')->willReturnCallback(
 			function (string $userId, int $dashboardId): ?PersonalLayer {
 				return ($this->stored[$userId . '|' . $dashboardId] ?? null);
+			}
+		);
+		$mapper->method('findByDashboard')->willReturnCallback(
+			function (int $dashboardId): array {
+				return array_values(
+					array_filter(
+						$this->stored,
+						static fn (PersonalLayer $layer): bool => (int)$layer->getDashboardId() === $dashboardId
+					)
+				);
 			}
 		);
 		$mapper->method('deleteForUser')->willReturnCallback(

@@ -4001,6 +4001,32 @@
                 "qb1.executeStatement(null)"
             ],
             "outcome": "returned 1"
+        },
+        "findByDashboard all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_personal_layers\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findByDashboard rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_personal_layers\", null)",
+                "qb1.expr()",
+                "qb1.createNamedParameter(7, 1, null)",
+                "qb1.expr.eq(\"dashboard_id\", \":p1\", null)",
+                "qb1.where(\"eq(\\\"dashboard_id\\\", \\\":p1\\\", null)\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\PersonalLayer {\\\"id\\\":5,\\\"dashboardId\\\":0,\\\"overrides\\\":{},\\\"hidden\\\":[],\\\"updatedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\PersonalLayer {\\\"id\\\":6,\\\"dashboardId\\\":0,\\\"overrides\\\":{},\\\"hidden\\\":[],\\\"updatedAt\\\":null}\"]"
         }
     },
     "ProfileValueMapper": {

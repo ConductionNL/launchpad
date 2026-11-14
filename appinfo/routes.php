@@ -268,6 +268,13 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
 
+		// The shipped reports (dashboards-and-who-may-see-them REQ-DWMS-003).
+		['name' => 'reportApi#index', 'url' => '/api/reports', 'verb' => 'GET'],
+		['name' => 'reportApi#run', 'url' => '/api/reports/{reportId}', 'verb' => 'GET',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+		['name' => 'reportApi#save', 'url' => '/api/reports/{reportId}/dashboard', 'verb' => 'POST',
+		 'requirements' => ['reportId' => '[a-z0-9-]+']],
+
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
 		// plain report route so the `/csv` suffix is matched first, and both

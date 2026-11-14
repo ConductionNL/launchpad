@@ -6,17 +6,17 @@
 - [x] 1.2 Apply the layer over a shared dashboard at render time, and only for its owner.
 - [x] 1.3 Refuse hiding a placement marked compulsory by `admin-templates`.
 - [x] 1.4 Add the reset action, deleting the whole layer behind a confirmation.
-- [ ] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. `pruneOrphans()` is written and tested, and nothing calls it. The reason is below.
+- [x] 1.5 Drop orphaned layer entries when a placement disappears after an admin template re-sync. `TemplateResyncService` calls `PersonalLayerService::pruneDashboard()` after a re-sync that removed placements; it sweeps every layer on that dashboard through `PersonalLayerMapper::findByDashboard()`.
 - [x] 1.6 PHPUnit on apply, on the compulsory refusal and on reset.
 - [x] 1.7 PHPUnit from the READER: a saved layer changes what `DashboardService` hands back, on the landing read and on the by-id read, and reaches nobody else.
 
 ## 2. The report library
 
-- [ ] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas.
-- [ ] 2.2 Ship a first set of definitions with the app and list them in a gallery.
-- [ ] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
-- [ ] 2.4 Save a result as an ordinary dashboard owned by the saver.
-- [ ] 2.5 PHPUnit on the availability check and on save-as-dashboard.
+- [x] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas. `Reporting\ReportDefinitions::check()`.
+- [ ] 2.2 Ship a first set of definitions with the app and list them in a gallery. Shipped: `lib/Settings/reports.json` (three reports) and the gallery data at `GET /api/reports`. Left: the gallery screen over that endpoint.
+- [x] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
+- [x] 2.4 Save a result as an ordinary dashboard owned by the saver. `POST /api/reports/{reportId}/dashboard`: a dashboard of the caller holding one chart of the result.
+- [x] 2.5 PHPUnit on the availability check and on save-as-dashboard.
 
 ## 3. The status report
 
@@ -49,9 +49,9 @@
 
 ## 7. Geographic reporting
 
-- [ ] 7.1 Add the aggregation: counts and rates per declared area property over a period.
-- [ ] 7.2 Count objects with no location in an explicit bucket.
-- [ ] 7.3 PHPUnit on the bucket, including the empty case.
+- [x] 7.1 Add the aggregation: counts and rates per declared area property over a period. `Reporting\AreaAggregation`, run by the shipped report kind `area` (section 2).
+- [x] 7.2 Count objects with no location in an explicit bucket.
+- [x] 7.3 PHPUnit on the bucket, including the empty case.
 
 ## 8. Storage reporting
 

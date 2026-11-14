@@ -8794,6 +8794,124 @@
                     }
                 }
             }
+        },
+        "/reports": {
+            "get": {
+                "operationId": "report-api-index",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the report gallery",
+                "description": "GET the shipped reports, each with whether it can run on this instance and the registers or schemas it misses. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "report-api"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/reports/{reportId}": {
+            "get": {
+                "operationId": "report-api-run",
+                "x-launchpad-stability": "internal",
+                "summary": "GET one report run",
+                "description": "GET one report run with the declared parameters as query values. An unavailable report answers with the missing names. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "report-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The report.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/reports/{reportId}/dashboard": {
+            "post": {
+                "operationId": "report-api-save",
+                "x-launchpad-stability": "internal",
+                "summary": "POST a report result as a dashboard",
+                "description": "POST a report result as a new dashboard owned by the caller. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "report-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The report.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
         }
     },
     "components": {

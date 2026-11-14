@@ -34,6 +34,7 @@ use OCA\LaunchPad\Controller\WidgetApiPolicy;
 use OCA\LaunchPad\Controller\WidgetApiSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\NewsWidgetService;
@@ -240,6 +241,31 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		if ($params === ['reacknowledgeOnChange' => false]) {
 			$this->assertSame(['error' => 'Only an admin or the template owner may set an acknowledgement requirement'], $response->getData());
 		}
+	}
+
+	/**
+	 * A save made on an older version of the widget answers 409 with the colleague's version
+	 * (building-edit-a-dashboard-together, task 1.2).
+	 */
+	public function testAStalePlacementUpdateAnswersConflictWithTheColleaguesVersion(): void {
+		$this->params = ['version' => 3, 'customTitle' => 'Kalender'];
+		$this->permissionService->method('canStyleWidget')->willReturn(true);
+		$current = $this->placement();
+		$current->setCustomTitle('Agenda');
+		$current->setVersion(4);
+		$this->widgetService->method('updatePlacement')->willReturnCallback(
+			function (int $placementId, array $data) use ($current): WidgetPlacement {
+				$this->assertSame(3, $data['version']);
+				throw new StalePlacementException(current: $current);
+			}
+		);
+
+		[$status, $data] = $this->outcome($this->controller()->updatePlacement(placementId: 9));
+
+		$this->assertSame(409, $status);
+		$this->assertSame('stale', $data['error']);
+		$this->assertSame('A colleague changed this widget first.', $data['message']);
+		$this->assertSame(['Agenda', 4], [$data['placement']['customTitle'], $data['placement']['version']]);
 	}
 
 	/**

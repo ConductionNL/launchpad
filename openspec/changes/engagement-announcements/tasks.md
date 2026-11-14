@@ -18,7 +18,7 @@
 
 ## Close
 
-- [ ] 11. Add the three demo announcements. Verify: PHPUnit on the showcase.
+- [x] 11. Add the three demo announcements. Verify: PHPUnit on the showcase.
 - [ ] 12. Playwright for the notice flow and a liked, commented news item.
 - [ ] 13. Add `nl` and `en` strings, copy the spec to `openspec/specs/announcements/spec.md` on archive, and set e-announcements, d-news-preview and e-maintenance to `built` in the parity matrix with evidence lines.
 

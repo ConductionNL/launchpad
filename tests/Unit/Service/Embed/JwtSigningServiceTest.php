@@ -26,6 +26,7 @@ use OCA\LaunchPad\Exception\InvalidTokenException;
 use OCA\LaunchPad\Exception\TokenExpiredException;
 use OCA\LaunchPad\Service\Embed\JoseEncoding;
 use OCA\LaunchPad\Service\Embed\JwtSigningService;
+use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -44,8 +45,29 @@ class JwtSigningServiceTest extends TestCase {
 
 	private JwtSigningService $service;
 
+	/**
+	 * The moment the stub clock answers.
+	 *
+	 * @var int
+	 */
+	private int $now = self::NOW;
+
 	protected function setUp(): void {
-		$this->service = new JwtSigningService();
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturnCallback(fn (): int => $this->now);
+		$this->service = new JwtSigningService(time: $time);
+	}
+
+	/**
+	 * The service with its clock set to a moment.
+	 *
+	 * @param int $now The moment (unix seconds).
+	 *
+	 * @return JwtSigningService
+	 */
+	private function at(int $now): JwtSigningService {
+		$this->now = $now;
+		return $this->service;
 	}
 
 	/**
@@ -71,56 +93,56 @@ class JwtSigningServiceTest extends TestCase {
 	}
 
 	public function testAnRs256TokenVerifiesAndCarriesTheKid(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		$jwt = $this->service->sign(claims: self::claims(), keys: [$key]);
 
 		$this->assertSame(['alg' => 'RS256', 'typ' => 'JWT', 'kid' => 'rsa-1'], self::header($jwt));
-		$this->assertSame(self::claims(), $this->service->verify(jwt: $jwt, keys: [$key], now: self::NOW));
+		$this->assertSame(self::claims(), $this->at(self::NOW)->verify(jwt: $jwt, keys: [$key]));
 		$this->assertSame('RSA', $key['publicKeyJwk']['kty']);
 		$this->assertSame(JwtSigningService::MIN_RSA_BITS, openssl_pkey_get_details(openssl_pkey_get_public($key['publicKeyPem']))['bits']);
 	}
 
 	public function testAnEs256TokenVerifiesWithAJoseSignature(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'ES256', kid: 'ec-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'ES256', kid: 'ec-1');
 		$jwt = $this->service->sign(claims: self::claims(), keys: [$key]);
 		$signature = base64_decode(strtr(explode('.', $jwt)[2], '-_', '+/'));
 
 		$this->assertSame(64, strlen($signature), 'R||S, not DER');
-		$this->assertSame(self::claims(), $this->service->verify(jwt: $jwt, keys: [$key], now: self::NOW));
+		$this->assertSame(self::claims(), $this->at(self::NOW)->verify(jwt: $jwt, keys: [$key]));
 		$this->assertSame(['kty' => 'EC', 'crv' => 'P-256'], array_intersect_key($key['publicKeyJwk'], ['kty' => 1, 'crv' => 1]));
 	}
 
 	public function testAnUnsupportedAlgorithmIsRefused(): void {
 		$this->expectException(InvalidArgumentException::class);
-		$this->service->generateKeyPair(algorithm: 'HS256', kid: null, now: self::NOW);
+		$this->at(self::NOW)->generateKeyPair(algorithm: 'HS256');
 	}
 
 	public function testAWrongKeyWithTheSameKidFailsToVerify(): void {
-		$signer = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
-		$impostor = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$signer = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
+		$impostor = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		$jwt = $this->service->sign(claims: self::claims(), keys: [$signer]);
 
 		$this->expectException(InvalidTokenException::class);
-		$this->service->verify(jwt: $jwt, keys: [$impostor], now: self::NOW);
+		$this->at(self::NOW)->verify(jwt: $jwt, keys: [$impostor]);
 	}
 
 	public function testATamperedPayloadFailsToVerify(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'ES256', kid: 'ec-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'ES256', kid: 'ec-1');
 		[$head, , $signature] = explode('.', $this->service->sign(claims: self::claims(), keys: [$key]));
 		$widened = rtrim(strtr(base64_encode(json_encode(self::claims(['sub' => 'dashboard:all']))), '+/', '-_'), '=');
 
 		$this->expectException(InvalidTokenException::class);
-		$this->service->verify(jwt: "{$head}.{$widened}.{$signature}", keys: [$key], now: self::NOW);
+		$this->at(self::NOW)->verify(jwt: "{$head}.{$widened}.{$signature}", keys: [$key]);
 	}
 
 	public function testAnAlgorithmTheKeyIsNotOfIsRefused(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		[, $payload, $signature] = explode('.', $this->service->sign(claims: self::claims(), keys: [$key]));
 
 		foreach (['none', 'HS256', 'ES256'] as $alg) {
 			$head = rtrim(strtr(base64_encode(json_encode(['alg' => $alg, 'typ' => 'JWT', 'kid' => 'rsa-1'])), '+/', '-_'), '=');
 			try {
-				$this->service->verify(jwt: "{$head}.{$payload}.{$signature}", keys: [$key], now: self::NOW);
+				$this->at(self::NOW)->verify(jwt: "{$head}.{$payload}.{$signature}", keys: [$key]);
 				$this->fail("alg {$alg} was accepted");
 			} catch (InvalidTokenException) {
 				$this->addToAssertionCount(1);
@@ -129,11 +151,11 @@ class JwtSigningServiceTest extends TestCase {
 	}
 
 	public function testAMalformedTokenIsRefused(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 
 		foreach (['', 'abc', 'a.b', 'a.b.c', '!!.??.**'] as $jwt) {
 			try {
-				$this->service->verify(jwt: $jwt, keys: [$key], now: self::NOW);
+				$this->at(self::NOW)->verify(jwt: $jwt, keys: [$key]);
 				$this->fail("'{$jwt}' was accepted");
 			} catch (InvalidTokenException) {
 				$this->addToAssertionCount(1);
@@ -142,28 +164,28 @@ class JwtSigningServiceTest extends TestCase {
 	}
 
 	public function testAnExpiredTokenIsRefusedAndOneWithoutExpiryIsNot(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		$open = $this->service->sign(claims: self::claims(), keys: [$key]);
 		$expired = $this->service->sign(claims: self::claims(['exp' => self::NOW]), keys: [$key]);
 
-		$this->assertSame('tok-1', $this->service->verify(jwt: $open, keys: [$key], now: self::NOW + 10 ** 8)['jti']);
+		$this->assertSame('tok-1', $this->at(self::NOW + 10 ** 8)->verify(jwt: $open, keys: [$key])['jti']);
 		$this->expectException(TokenExpiredException::class);
-		$this->service->verify(jwt: $expired, keys: [$key], now: self::NOW);
+		$this->at(self::NOW)->verify(jwt: $expired, keys: [$key]);
 	}
 
 	public function testATokenBeforeItsNotBeforeIsRefused(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		$jwt = $this->service->sign(claims: self::claims(['nbf' => self::NOW + 60]), keys: [$key]);
 
 		$this->expectException(TokenExpiredException::class);
-		$this->service->verify(jwt: $jwt, keys: [$key], now: self::NOW);
+		$this->at(self::NOW)->verify(jwt: $jwt, keys: [$key]);
 	}
 
 	public function testRotationKeepsOldTokensValidAndSignsNewOnesWithTheNewKey(): void {
-		$old = $this->service->generateKeyPair(algorithm: 'ES256', kid: 'ec-old', now: self::NOW);
+		$old = $this->at(self::NOW)->generateKeyPair(algorithm: 'ES256', kid: 'ec-old');
 		$oldToken = $this->service->sign(claims: self::claims(), keys: [$old]);
 
-		$keys = $this->service->rotate(keys: [$old], algorithm: 'RS256', now: self::NOW + 60);
+		$keys = $this->at(self::NOW + 60)->rotate(keys: [$old], algorithm: 'RS256');
 		$newToken = $this->service->sign(claims: self::claims(['jti' => 'tok-2']), keys: $keys);
 
 		$this->assertSame(['retiring', 'active'], array_column($keys, 'status'));
@@ -171,21 +193,21 @@ class JwtSigningServiceTest extends TestCase {
 		$this->assertSame('ec-old', self::header($oldToken)['kid']);
 		$this->assertSame($keys[1]['kid'], self::header($newToken)['kid']);
 		$this->assertSame('RS256', self::header($newToken)['alg']);
-		$this->assertSame('tok-1', $this->service->verify(jwt: $oldToken, keys: $keys, now: self::NOW + 120)['jti']);
-		$this->assertSame('tok-2', $this->service->verify(jwt: $newToken, keys: $keys, now: self::NOW + 120)['jti']);
+		$this->assertSame('tok-1', $this->at(self::NOW + 120)->verify(jwt: $oldToken, keys: $keys)['jti']);
+		$this->assertSame('tok-2', $this->at(self::NOW + 120)->verify(jwt: $newToken, keys: $keys)['jti']);
 	}
 
 	public function testARevokedKeyNoLongerVerifies(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		$jwt = $this->service->sign(claims: self::claims(), keys: [$key]);
 		$key['status'] = JwtSigningService::STATUS_REVOKED;
 
 		$this->expectException(InvalidTokenException::class);
-		$this->service->verify(jwt: $jwt, keys: [$key], now: self::NOW);
+		$this->at(self::NOW)->verify(jwt: $jwt, keys: [$key]);
 	}
 
 	public function testSigningNeedsAnActiveKey(): void {
-		$key = $this->service->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1', now: self::NOW);
+		$key = $this->at(self::NOW)->generateKeyPair(algorithm: 'RS256', kid: 'rsa-1');
 		$key['status'] = JwtSigningService::STATUS_RETIRING;
 
 		$this->expectException(RuntimeException::class);

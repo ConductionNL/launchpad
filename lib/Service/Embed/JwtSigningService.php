@@ -34,6 +34,7 @@ use InvalidArgumentException;
 use JsonException;
 use OCA\LaunchPad\Exception\InvalidTokenException;
 use OCA\LaunchPad\Exception\TokenExpiredException;
+use OCP\AppFramework\Utility\ITimeFactory;
 use RuntimeException;
 
 /**
@@ -46,10 +47,12 @@ final class JwtSigningService {
 	/**
 	 * Constructor.
 	 *
-	 * @param JoseEncoding $jose The JWS byte encodings.
+	 * @param JoseEncoding      $jose The JWS byte encodings.
+	 * @param ITimeFactory|null $time The clock; the system clock when none is given.
 	 */
 	public function __construct(
 		private readonly JoseEncoding $jose = new JoseEncoding(),
+		private readonly ?ITimeFactory $time = null,
 	) {
 	}//end __construct()
 
@@ -100,7 +103,6 @@ final class JwtSigningService {
 	 *
 	 * @param string      $algorithm RS256 or ES256.
 	 * @param string|null $kid       The key id; a random one when null.
-	 * @param int         $now       The moment of creation (unix seconds).
 	 *
 	 * @return array<string, mixed> The key record: kid, algorithm, status, publicKeyPem,
 	 *                              privateKeyPem, publicKeyJwk, createdAt, retiredAt.
@@ -110,7 +112,7 @@ final class JwtSigningService {
 	 *
 	 * @spec openspec/changes/embedded-analytics/tasks.md#task-3
 	 */
-	public function generateKeyPair(string $algorithm, ?string $kid, int $now): array {
+	public function generateKeyPair(string $algorithm, ?string $kid = null): array {
 		$options = match ($algorithm) {
 			self::RS256 => ['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => self::MIN_RSA_BITS],
 			self::ES256 => ['private_key_type' => OPENSSL_KEYTYPE_EC, 'curve_name' => 'prime256v1'],
@@ -131,8 +133,8 @@ final class JwtSigningService {
 			'status' => self::STATUS_ACTIVE,
 			'publicKeyPem' => (string)$details['key'],
 			'privateKeyPem' => (string)$privatePem,
-			'publicKeyJwk' => $this->jwk(details: $details, algorithm: $algorithm, kid: $kid),
-			'createdAt' => gmdate('Y-m-d\TH:i:s\Z', $now),
+			'publicKeyJwk' => $this->jwk(details: $details, id: ['alg' => $algorithm, 'kid' => $kid]),
+			'createdAt' => gmdate('Y-m-d\TH:i:s\Z', $this->now()),
 			'retiredAt' => null,
 		];
 	}//end generateKeyPair()
@@ -203,7 +205,6 @@ final class JwtSigningService {
 	 *
 	 * @param string                           $jwt  The compact JWS.
 	 * @param array<int, array<string, mixed>> $keys The known keys.
-	 * @param int                              $now  The current moment (unix seconds).
 	 *
 	 * @return array<string, mixed> The claims.
 	 *
@@ -212,7 +213,7 @@ final class JwtSigningService {
 	 *
 	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-002--public-render-route-validates-jwt-and-enforces-scope
 	 */
-	public function verify(string $jwt, array $keys, int $now): array {
+	public function verify(string $jwt, array $keys): array {
 		$parts = explode('.', $jwt);
 		if (count($parts) !== 3) {
 			throw new InvalidTokenException(message: 'The token is not a signed JWT.');
@@ -232,7 +233,7 @@ final class JwtSigningService {
 			throw new InvalidTokenException(message: 'The token signature does not verify.');
 		}
 
-		$this->assertValidAt(claims: $claims, now: $now);
+		$this->assertValidAt(claims: $claims, now: $this->now());
 
 		return $claims;
 	}//end verify()
@@ -245,13 +246,13 @@ final class JwtSigningService {
 	 *
 	 * @param array<int, array<string, mixed>> $keys      The known keys.
 	 * @param string                           $algorithm The new key's algorithm.
-	 * @param int                              $now       The moment of rotation (unix seconds).
 	 *
 	 * @return array<int, array<string, mixed>> The keys after rotation, the new one last.
 	 *
 	 * @spec openspec/changes/embedded-analytics/tasks.md#task-3
 	 */
-	public function rotate(array $keys, string $algorithm, int $now): array {
+	public function rotate(array $keys, string $algorithm): array {
+		$now = $this->now();
 		$rotated = [];
 		foreach ($keys as $key) {
 			if (($key['status'] ?? null) === self::STATUS_ACTIVE) {
@@ -262,7 +263,7 @@ final class JwtSigningService {
 			$rotated[] = $key;
 		}
 
-		$rotated[] = $this->generateKeyPair(algorithm: $algorithm, kid: null, now: $now);
+		$rotated[] = $this->generateKeyPair(algorithm: $algorithm);
 
 		return $rotated;
 	}//end rotate()
@@ -319,19 +320,18 @@ final class JwtSigningService {
 	/**
 	 * The public JWK (RFC 7517) of a key.
 	 *
-	 * @param array<string, mixed> $details   openssl_pkey_get_details() of the key.
-	 * @param string               $algorithm Its algorithm.
-	 * @param string               $kid       Its key id.
+	 * @param array<string, mixed> $details openssl_pkey_get_details() of the key.
+	 * @param array<string, mixed> $id      Its `alg` (RS256 or ES256) and `kid`.
 	 *
 	 * @return array<string, string>
 	 */
-	private function jwk(array $details, string $algorithm, string $kid): array {
-		if ($algorithm === self::RS256) {
+	private function jwk(array $details, array $id): array {
+		if ($id['alg'] === self::RS256) {
 			return [
 				'kty' => 'RSA',
 				'use' => 'sig',
-				'alg' => $algorithm,
-				'kid' => $kid,
+				'alg' => $id['alg'],
+				'kid' => $id['kid'],
 				'n' => $this->jose->base64Url(bytes: (string)$details['rsa']['n']),
 				'e' => $this->jose->base64Url(bytes: (string)$details['rsa']['e']),
 			];
@@ -340,13 +340,26 @@ final class JwtSigningService {
 		return [
 			'kty' => 'EC',
 			'use' => 'sig',
-			'alg' => $algorithm,
-			'kid' => $kid,
+			'alg' => $id['alg'],
+			'kid' => $id['kid'],
 			'crv' => 'P-256',
 			'x' => $this->jose->base64Url(bytes: str_pad((string)$details['ec']['x'], JoseEncoding::ES256_PART, "\0", STR_PAD_LEFT)),
 			'y' => $this->jose->base64Url(bytes: str_pad((string)$details['ec']['y'], JoseEncoding::ES256_PART, "\0", STR_PAD_LEFT)),
 		];
 	}//end jwk()
+
+	/**
+	 * The current moment in unix seconds, from the clock when one is injected.
+	 *
+	 * @return int
+	 */
+	private function now(): int {
+		if ($this->time === null) {
+			return time();
+		}
+
+		return $this->time->getTime();
+	}//end now()
 
 	/**
 	 * A JSON segment, base64url-encoded.

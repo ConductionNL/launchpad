@@ -24,21 +24,34 @@ export const DASHBOARD_STYLE_ID = 'launchpad-dashboard-custom-css'
  * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
  */
 export function applyCustomCss(id, css, doc = document) {
-	const existing = doc.getElementById(id)
 	const text = typeof css === 'string' ? css : ''
 	if (text.trim() === '') {
-		existing?.remove()
+		doc.getElementById(id)?.remove()
 		return null
 	}
 
-	let style = existing
-	if (style === null || style.tagName !== 'STYLE') {
-		existing?.remove()
-		style = doc.createElement('style')
-		style.id = id
-		doc.head.appendChild(style)
-	}
-
+	const style = styleElement(id, doc)
 	style.textContent = text
+	return style
+}
+
+/**
+ * The `<style>` element with this id, created in the head when there is none
+ * or when the id belongs to another element, which is removed.
+ *
+ * @param {string} id The element's id.
+ * @param {Document} doc The document.
+ * @return {HTMLStyleElement}
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ */
+function styleElement(id, doc) {
+	const existing = doc.getElementById(id)
+	if (existing?.tagName === 'STYLE') {
+		return existing
+	}
+	existing?.remove()
+	const style = doc.createElement('style')
+	style.id = id
+	doc.head.appendChild(style)
 	return style
 }

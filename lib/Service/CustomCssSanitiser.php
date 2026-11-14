@@ -61,6 +61,13 @@ final class CustomCssSanitiser {
 	 *
 	 * @var array<string, string> Fragment => what the administrator is told.
 	 */
+	/**
+	 * What the running {@see self::sanitise()} call dropped, as labels.
+	 *
+	 * @var list<string>
+	 */
+	private array $removed = [];
+
 	private const UNSAFE_VALUES = [
 		'expression('  => 'expression()',
 		'javascript:'  => 'javascript:',
@@ -108,16 +115,16 @@ final class CustomCssSanitiser {
 			throw new InvalidArgumentException('Custom CSS may be at most 20 KB.');
 		}
 
-		$removed = [];
+		$this->removed = [];
 		$source  = (string)preg_replace('~/\*.*?(?:\*/|$)~s', '', $css);
-		$rules   = $this->readRules(css: $source, scope: $scope, inGroup: false, removed: $removed);
+		$rules   = $this->readRules(css: $source, scope: $scope, inGroup: false);
 		$output  = implode("\n\n", $rules);
 
 		if (strlen($output) > self::MAX_BYTES) {
 			throw new InvalidArgumentException('Custom CSS may be at most 20 KB, also after scoping it to LaunchPad.');
 		}
 
-		return ['css' => $output, 'removed' => array_values(array_unique($removed))];
+		return ['css' => $output, 'removed' => array_values(array_unique($this->removed))];
 	}//end sanitise()
 
 	/**
@@ -126,11 +133,10 @@ final class CustomCssSanitiser {
 	 * @param string       $css     The CSS, without comments.
 	 * @param string       $scope   The selector every rule is scoped to.
 	 * @param bool         $inGroup Whether this list sits inside an `@media` group.
-	 * @param list<string> $removed What was dropped so far; appended to.
 	 *
 	 * @return list<string> The rebuilt rules.
 	 */
-	private function readRules(string $css, string $scope, bool $inGroup, array &$removed): array {
+	private function readRules(string $css, string $scope, bool $inGroup): array {
 		$rules  = [];
 		$length = strlen($css);
 		$pos    = 0;
@@ -146,14 +152,14 @@ final class CustomCssSanitiser {
 			$end = $this->findTopLevel(css: $css, from: $pos, stops: '{;}');
 			if ($end >= $length || $css[$end] !== '{') {
 				// A statement without a block (`@import ...;`) or text that is no rule.
-				$removed[] = $this->label(prelude: substr($css, $pos, ($end - $pos)));
+				$this->removed[] = $this->label(prelude: substr($css, $pos, ($end - $pos)));
 				$pos       = ($end + 1);
 				continue;
 			}
 
 			$close = $this->matchingBrace(css: $css, open: $end);
 			if ($close >= $length) {
-				$removed[] = 'unreadable CSS';
+				$this->removed[] = 'unreadable CSS';
 				break;
 			}
 
@@ -161,7 +167,7 @@ final class CustomCssSanitiser {
 			$body    = substr($css, ($end + 1), ($close - $end - 1));
 			$pos     = ($close + 1);
 
-			$rule = $this->readRule(prelude: $prelude, body: $body, scope: $scope, inGroup: $inGroup, removed: $removed);
+			$rule = $this->readRule(prelude: $prelude, body: $body, scope: $scope, inGroup: $inGroup);
 			if ($rule !== null) {
 				$rules[] = $rule;
 			}
@@ -177,19 +183,18 @@ final class CustomCssSanitiser {
 	 * @param string       $body    What is between the braces.
 	 * @param string       $scope   The selector every rule is scoped to.
 	 * @param bool         $inGroup Whether the rule sits inside an `@media` group.
-	 * @param list<string> $removed What was dropped so far; appended to.
 	 *
 	 * @return string|null The rebuilt rule.
 	 */
-	private function readRule(string $prelude, string $body, string $scope, bool $inGroup, array &$removed): ?string {
+	private function readRule(string $prelude, string $body, string $scope, bool $inGroup): ?string {
 		if (str_starts_with($prelude, '@') === true) {
 			$isMedia = preg_match('/^@media\s+([a-zA-Z0-9\s(),:.\-]+)$/i', $prelude, $match) === 1;
 			if ($isMedia === false || $inGroup === true) {
-				$removed[] = $this->label(prelude: $prelude);
+				$this->removed[] = $this->label(prelude: $prelude);
 				return null;
 			}
 
-			$inner = $this->readRules(css: $body, scope: $scope, inGroup: true, removed: $removed);
+			$inner = $this->readRules(css: $body, scope: $scope, inGroup: true);
 			if ($inner === []) {
 				return null;
 			}
@@ -199,17 +204,17 @@ final class CustomCssSanitiser {
 		}
 
 		if ($this->findTopLevel(css: $body, from: 0, stops: '{') < strlen($body)) {
-			$removed[] = 'nested rules';
+			$this->removed[] = 'nested rules';
 			return null;
 		}
 
 		$selectors = $this->scopeSelectors(prelude: $prelude, scope: $scope);
 		if ($selectors === null) {
-			$removed[] = 'unsafe selector';
+			$this->removed[] = 'unsafe selector';
 			return null;
 		}
 
-		$declarations = $this->readDeclarations(body: $body, removed: $removed);
+		$declarations = $this->readDeclarations(body: $body);
 		if ($declarations === []) {
 			return null;
 		}
@@ -266,11 +271,10 @@ final class CustomCssSanitiser {
 	 * Read the declarations of a rule and keep the safe ones.
 	 *
 	 * @param string       $body    What is between the braces.
-	 * @param list<string> $removed What was dropped so far; appended to.
 	 *
 	 * @return list<string> The kept declarations, as `property: value`.
 	 */
-	private function readDeclarations(string $body, array &$removed): array {
+	private function readDeclarations(string $body): array {
 		$kept = [];
 		foreach ($this->splitTopLevel(text: $body, separator: ';') as $declaration) {
 			$declaration = trim($declaration);
@@ -280,7 +284,7 @@ final class CustomCssSanitiser {
 
 			$colon = strpos($declaration, ':');
 			if ($colon === false) {
-				$removed[] = 'unreadable CSS';
+				$this->removed[] = 'unreadable CSS';
 				continue;
 			}
 
@@ -288,7 +292,7 @@ final class CustomCssSanitiser {
 			$value    = (string)preg_replace('/\s+/', ' ', trim(substr($declaration, ($colon + 1))));
 			$problem  = $this->declarationProblem(property: $property, value: $value);
 			if ($problem !== null) {
-				$removed[] = $problem;
+				$this->removed[] = $problem;
 				continue;
 			}
 
@@ -404,41 +408,80 @@ final class CustomCssSanitiser {
 	 * @return int The position.
 	 */
 	private function findTopLevel(string $css, int $from, string $stops): int {
-		$length = strlen($css);
-		$depth  = 0;
-		$quote  = null;
+		$length  = strlen($css);
+		$nesting = ['depth' => 0, 'quote' => null];
 		for ($pos = $from; $pos < $length; $pos++) {
 			$char = $css[$pos];
-			if ($quote !== null) {
-				if ($char === $quote) {
-					$quote = null;
-				}
-
+			if (self::nestingStep(char: $char, nesting: $nesting) === true) {
 				continue;
 			}
 
-			if ($char === '"' || $char === "'") {
-				$quote = $char;
-				continue;
-			}
-
-			if ($char === '(' || $char === '[') {
-				$depth++;
-				continue;
-			}
-
-			if (($char === ')' || $char === ']') && $depth > 0) {
-				$depth--;
-				continue;
-			}
-
-			if ($depth === 0 && str_contains($stops, $char) === true) {
+			if ($nesting['depth'] === 0 && str_contains($stops, $char) === true) {
 				return $pos;
 			}
-		}//end for
+		}
 
 		return $length;
 	}//end findTopLevel()
+
+	/**
+	 * Track one character's effect on string and bracket nesting.
+	 *
+	 * @param string                                $char    The character.
+	 * @param array{depth: int, quote: string|null} $nesting The parenthesis and bracket depth and the
+	 *                                                       quote of the open string; updated.
+	 *
+	 * @return bool True when the character belongs to the nesting (inside a
+	 *              string, a quote, or a bracket that opens or closes one), so
+	 *              it is no stop character.
+	 */
+	private static function nestingStep(string $char, array &$nesting): bool {
+		return self::quoteStep(char: $char, nesting: $nesting) === true
+			|| self::bracketStep(char: $char, nesting: $nesting) === true;
+	}//end nestingStep()
+
+	/**
+	 * Track a character inside a string, or a quote that opens one.
+	 *
+	 * @param string                                $char    The character.
+	 * @param array{depth: int, quote: string|null} $nesting The nesting; its quote is updated.
+	 *
+	 * @return bool True when the character is inside a string or a quote.
+	 */
+	private static function quoteStep(string $char, array &$nesting): bool {
+		if ($nesting['quote'] !== null) {
+			if ($char === $nesting['quote']) {
+				$nesting['quote'] = null;
+			}
+
+			return true;
+		}
+
+		if ($char === '"' || $char === "'") {
+			$nesting['quote'] = $char;
+			return true;
+		}
+
+		return false;
+	}//end quoteStep()
+
+	/**
+	 * Track a bracket that opens, or closes an open one.
+	 *
+	 * @param string                                $char    The character.
+	 * @param array{depth: int, quote: string|null} $nesting The nesting; its depth is updated.
+	 *
+	 * @return bool True when the character opens a parenthesis or bracket, or closes an open one.
+	 */
+	private static function bracketStep(string $char, array &$nesting): bool {
+		$delta = (['(' => 1, '[' => 1, ')' => -1, ']' => -1][$char] ?? 0);
+		if ($delta === 0 || ($nesting['depth'] + $delta) < 0) {
+			return false;
+		}
+
+		$nesting['depth'] += $delta;
+		return true;
+	}//end bracketStep()
 
 	/**
 	 * The position of the brace that closes the one at `$open`, or the length when it is never closed.

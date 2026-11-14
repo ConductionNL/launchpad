@@ -99,24 +99,56 @@ export function accentCheck(accent, background) {
  * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
  */
 export function lookStyle(dashboard) {
-	const style = {}
-	const accent = normaliseHex(dashboard?.themeAccent)
-	const background = normaliseHex(dashboard?.themeBackgroundColor)
-	const resource = String(dashboard?.themeBackgroundResource ?? '')
-	if (accent) {
-		style['--color-primary-element'] = accent
-		style['--color-primary-element-text'] = textColorFor(accent)
+	return {
+		...accentStyle(normaliseHex(dashboard?.themeAccent)),
+		...backgroundColorStyle(normaliseHex(dashboard?.themeBackgroundColor)),
+		...backgroundImageStyle(String(dashboard?.themeBackgroundResource ?? '')),
 	}
-	if (background) {
-		const text = textColorFor(background)
-		style['background-color'] = background
-		style.color = text
-		style['--color-main-text'] = text
+}
+
+/**
+ * The accent as Nextcloud's primary colour variables, or nothing without one.
+ *
+ * @param {string|null} accent The accent.
+ * @return {object}
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ */
+function accentStyle(accent) {
+	if (!accent) {
+		return {}
 	}
-	if (/^[A-Za-z0-9][A-Za-z0-9._-]*\.(png|jpe?g|gif|webp|svg)$/i.test(resource) && !resource.includes('..')) {
-		style['background-image'] = `url("${generateUrl('/apps/launchpad/resource/' + encodeURIComponent(resource))}")`
-		style['background-size'] = 'cover'
-		style['background-position'] = 'center'
+	return { '--color-primary-element': accent, '--color-primary-element-text': textColorFor(accent) }
+}
+
+/**
+ * The background colour with black or white text, or nothing without one.
+ *
+ * @param {string|null} background The background colour.
+ * @return {object}
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ */
+function backgroundColorStyle(background) {
+	if (!background) {
+		return {}
 	}
-	return style
+	const text = textColorFor(background)
+	return { 'background-color': background, color: text, '--color-main-text': text }
+}
+
+/**
+ * The background image of a LaunchPad resource, or nothing for no or another name.
+ *
+ * @param {string} resource The resource file name.
+ * @return {object}
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+ */
+function backgroundImageStyle(resource) {
+	if (!/^[A-Za-z0-9][A-Za-z0-9._-]*\.(png|jpe?g|gif|webp|svg)$/i.test(resource) || resource.includes('..')) {
+		return {}
+	}
+	return {
+		'background-image': `url("${generateUrl('/apps/launchpad/resource/' + encodeURIComponent(resource))}")`,
+		'background-size': 'cover',
+		'background-position': 'center',
+	}
 }

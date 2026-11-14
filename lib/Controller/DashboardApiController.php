@@ -578,10 +578,12 @@ class DashboardApiController extends Controller {
 	 *                                parent (re-roots the dashboard).
 	 * @param string|null $slug Optional new slug (REQ-DASH-024).
 	 * @param int|null $sortOrder Optional new sort order (REQ-DASH-029).
-	 * @param string|null $themeAccent Accent colour `#rrggbb`, empty to follow the theme (REQ-THM-001).
-	 * @param string|null $themeBackgroundColor Background colour `#rrggbb`, empty to follow the theme.
-	 * @param string|null $themeBackgroundResource Background image resource file name, empty for none.
-	 * @param string|null $customCss Administrator CSS for this dashboard, empty to clear (REQ-THM-003).
+	 *
+	 * The look travels in the same body and is read by {@see self::lookParams()}:
+	 * `themeAccent` and `themeBackgroundColor` (`#rrggbb`, empty to follow the
+	 * theme, REQ-THM-001), `themeBackgroundResource` (a resource file name,
+	 * empty for none) and `customCss` (administrator CSS, empty to clear,
+	 * REQ-THM-003).
 	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
@@ -597,27 +599,14 @@ class DashboardApiController extends Controller {
 		?string $parentUuid = null,
 		?string $slug = null,
 		?int $sortOrder = null,
-		?string $themeAccent = null,
-		?string $themeBackgroundColor = null,
-		?string $themeBackgroundResource = null,
-		?string $customCss = null,
 	): JSONResponse {
 		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
-		$look = [
-			'themeAccent'             => $themeAccent,
-			'themeBackgroundColor'    => $themeBackgroundColor,
-			'themeBackgroundResource' => $themeBackgroundResource,
-			'customCss'               => $customCss,
-		];
-		$metadataOnly = $placements === null && array_filter($look, fn ($value): bool => $value !== null) === [];
-		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly);
+		$look = $this->lookParams();
+		$metadataOnly = $placements === null && array_filter($look, static fn ($value): bool => $value !== null) === [];
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly)
+			?? $this->denyCustomCss(customCss: $look['customCss']);
 		if ($denial !== null) {
 			return $denial;
-		}
-
-		// REQ-THM-003: custom CSS is an administrator tool, even on a dashboard the user may edit.
-		if ($customCss !== null && $this->services->dashboardService->isAdmin(userId: (string)$this->userId) === false) {
-			return ResponseHelper::forbidden();
 		}
 
 		return $this->applyUpdate(
@@ -633,6 +622,49 @@ class DashboardApiController extends Controller {
 			] + $look
 		);
 	}//end update()
+
+	/**
+	 * The look fields of an update body, by name, in patch order.
+	 *
+	 * A field that is absent, or that is not a string, is null and leaves the
+	 * dashboard's value alone; an empty string clears it (REQ-THM-001, REQ-THM-003).
+	 *
+	 * @return array{themeAccent: ?string, themeBackgroundColor: ?string, themeBackgroundResource: ?string, customCss: ?string}
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function lookParams(): array {
+		$look = [];
+		foreach (['themeAccent', 'themeBackgroundColor', 'themeBackgroundResource', 'customCss'] as $field) {
+			$value = $this->request->getParam(key: $field);
+			$look[$field] = null;
+			if (is_string($value) === true) {
+				$look[$field] = $value;
+			}
+		}
+
+		return $look;
+	}//end lookParams()
+
+	/**
+	 * The refusal of custom CSS from a user who is no administrator.
+	 *
+	 * REQ-THM-003: custom CSS is an administrator tool, even on a dashboard
+	 * the user may edit.
+	 *
+	 * @param string|null $customCss The CSS of the update, or null when it sends none.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+	 */
+	private function denyCustomCss(?string $customCss): ?JSONResponse {
+		if ($customCss === null || $this->services->dashboardService->isAdmin(userId: (string)$this->userId) === true) {
+			return null;
+		}
+
+		return ResponseHelper::forbidden();
+	}//end denyCustomCss()
 
 	/**
 	 * Resolve the guard chain for {@see self::update()}.

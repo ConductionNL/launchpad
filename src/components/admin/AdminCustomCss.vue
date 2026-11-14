@@ -121,20 +121,42 @@ export default {
 			this.removed = []
 			try {
 				const { data } = await api.updateCustomCss(this.css)
-				this.css = typeof data?.customCss === 'string' ? data.customCss : ''
-				this.removed = Array.isArray(data?.removed) ? data.removed : []
-				this.saved = true
+				this.showSaved(data)
 			} catch (error) {
 				logger.error('Failed to save the custom CSS:', error)
-				const message = error?.response?.data?.error
-				this.error = typeof message === 'string' && message !== ''
-					? message
-					: t('launchpad', 'The custom CSS could not be saved.')
+				this.error = saveErrorMessage(error)
 			} finally {
 				this.saving = false
 			}
 		},
+
+		/**
+		 * Show the CSS the server stored and what its cleaning removed.
+		 *
+		 * @param {object|undefined} data The save response.
+		 * @return {void}
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+		 */
+		showSaved(data) {
+			this.css = typeof data?.customCss === 'string' ? data.customCss : ''
+			this.removed = Array.isArray(data?.removed) ? data.removed : []
+			this.saved = true
+		},
 	},
+}
+
+/**
+ * The server's refusal message, or a general one when it sent none.
+ *
+ * @param {Error} error The failed request.
+ * @return {string}
+ * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-administrators-add-custom-css-cleaned-and-scoped-req-thm-003
+ */
+function saveErrorMessage(error) {
+	const message = error?.response?.data?.error
+	return typeof message === 'string' && message !== ''
+		? message
+		: t('launchpad', 'The custom CSS could not be saved.')
 }
 </script>
 

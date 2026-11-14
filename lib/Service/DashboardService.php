@@ -3600,40 +3600,13 @@ class DashboardService {
 	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
 	 */
 	private function applyLookUpdates(Dashboard $dashboard, array $data): void {
-		$accent     = $dashboard->getThemeAccent();
-		$background = $dashboard->getThemeBackgroundColor();
-		$colours    = ['themeAccent' => 'The accent', 'themeBackgroundColor' => 'The background colour'];
-		foreach ($colours as $key => $label) {
-			if (array_key_exists($key, $data) === false) {
-				continue;
-			}
-
-			$value = null;
-			if (trim((string)$data[$key]) !== '') {
-				$value = DashboardLook::normaliseHex(colour: (string)$data[$key], field: $label);
-			}
-
-			if ($key === 'themeAccent') {
-				$accent = $value;
-				continue;
-			}
-
-			$background = $value;
-		}
-
-		if (array_key_exists('themeBackgroundResource', $data) === true) {
-			$resource = trim((string)$data['themeBackgroundResource']);
-			if ($resource !== '' && DashboardLook::isResourceName(name: $resource) === false) {
-				throw new InvalidArgumentException('The background image must be an image uploaded to LaunchPad.');
-			}
-
-			$stored = null;
-			if ($resource !== '') {
-				$stored = $resource;
-			}
-
-			$dashboard->setThemeBackgroundResource($stored);
-		}
+		$colours    = $this->patchedColours(
+			data: $data,
+			current: ['themeAccent' => $dashboard->getThemeAccent(), 'themeBackgroundColor' => $dashboard->getThemeBackgroundColor()]
+		);
+		$accent     = $colours['themeAccent'];
+		$background = $colours['themeBackgroundColor'];
+		$this->applyBackgroundResourceUpdate(dashboard: $dashboard, data: $data);
 
 		$colourChanged = array_key_exists('themeAccent', $data) === true || array_key_exists('themeBackgroundColor', $data) === true;
 		if ($colourChanged === true && $accent !== null) {
@@ -3644,6 +3617,68 @@ class DashboardService {
 		$dashboard->setThemeBackgroundColor($background);
 		$this->applyCustomCssUpdate(dashboard: $dashboard, data: $data);
 	}//end applyLookUpdates()
+
+	/**
+	 * The colours a patch leaves in the look: per field the current one when
+	 * the patch does not name it, null when it sends an empty value, else the
+	 * value as lower-case `#rrggbb` (REQ-THM-001). Fields are read in the order
+	 * of `$current`, so the accent is judged before the background.
+	 *
+	 * @param array<string, mixed>       $data    The update payload.
+	 * @param array<string, string|null> $current The dashboard's colours now, by field.
+	 *
+	 * @return array<string, string|null> The colours to store, by field.
+	 *
+	 * @throws InvalidArgumentException When a colour is malformed.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 */
+	private function patchedColours(array $data, array $current): array {
+		$labels = ['themeAccent' => 'The accent', 'themeBackgroundColor' => 'The background colour'];
+		foreach (array_keys($current) as $key) {
+			if (array_key_exists($key, $data) === false) {
+				continue;
+			}
+
+			$current[$key] = null;
+			if (trim((string)$data[$key]) !== '') {
+				$current[$key] = DashboardLook::normaliseHex(colour: (string)$data[$key], field: $labels[$key]);
+			}
+		}
+
+		return $current;
+	}//end patchedColours()
+
+	/**
+	 * Apply a patched background image: a LaunchPad resource file name, or
+	 * none for an empty value (REQ-THM-001).
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the name is no LaunchPad resource.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 */
+	private function applyBackgroundResourceUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists('themeBackgroundResource', $data) === false) {
+			return;
+		}
+
+		$resource = trim((string)$data['themeBackgroundResource']);
+		if ($resource !== '' && DashboardLook::isResourceName(name: $resource) === false) {
+			throw new InvalidArgumentException('The background image must be an image uploaded to LaunchPad.');
+		}
+
+		$stored = null;
+		if ($resource !== '') {
+			$stored = $resource;
+		}
+
+		$dashboard->setThemeBackgroundResource($stored);
+	}//end applyBackgroundResourceUpdate()
 
 	/**
 	 * Apply patched administrator CSS, cleaned and scoped to this dashboard (REQ-THM-003).

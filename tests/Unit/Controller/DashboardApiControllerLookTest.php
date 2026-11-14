@@ -83,10 +83,11 @@ class DashboardApiControllerLookTest extends TestCase {
 	 * @param string      $allowed    The only user the permission doubles allow.
 	 * @param bool        $denyAction Whether the action check refuses.
 	 * @param list<string> $admins    The administrators.
+	 * @param array<string, mixed> $params The request body fields getParam answers.
 	 *
 	 * @return DashboardApiController
 	 */
-	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false, array $admins=[]): DashboardApiController {
+	private function controller(?string $sessionUid, ?string $userId, string $allowed='alice', bool $denyAction=false, array $admins=[], array $params=[]): DashboardApiController {
 		$user = null;
 		if ($sessionUid !== null) {
 			$user = $this->createMock(IUser::class);
@@ -130,7 +131,9 @@ class DashboardApiControllerLookTest extends TestCase {
 		);
 
 		$request = $this->createMock(IRequest::class);
-		$request->method('getParam')->willReturnCallback(static fn (string $key) => $key === 'userId' ? 'alice' : null);
+		$request->method('getParam')->willReturnCallback(
+			static fn (string $key) => $key === 'userId' ? 'alice' : ($params[$key] ?? null)
+		);
 
 		return new DashboardApiController(
 			request: $request,
@@ -148,7 +151,7 @@ class DashboardApiControllerLookTest extends TestCase {
 	}//end controller()
 
 	public function testALookNeedsTheLayoutPermissionNotJustMetadata(): void {
-		$response = $this->controller(sessionUid: 'alice', userId: 'alice')->update(id: 7, themeAccent: '#1f5c3a');
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', params: ['themeAccent' => '#1f5c3a'])->update(id: 7);
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked);
@@ -162,14 +165,14 @@ class DashboardApiControllerLookTest extends TestCase {
 	}
 
 	public function testSomeoneWithoutTheLayoutPermissionCannotChangeTheLook(): void {
-		$response = $this->controller(sessionUid: 'bob', userId: 'bob')->update(id: 7, themeBackgroundColor: '#12301f');
+		$response = $this->controller(sessionUid: 'bob', userId: 'bob', params: ['themeBackgroundColor' => '#12301f'])->update(id: 7);
 
 		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 		$this->assertSame([], $this->saved);
 	}
 
 	public function testAPaleAccentAnswers400WithTheRatio(): void {
-		$response = $this->controller(sessionUid: 'alice', userId: 'alice')->update(id: 7, themeAccent: '#f5f5dc');
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', params: ['themeAccent' => '#f5f5dc'])->update(id: 7);
 
 		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
 		$this->assertSame(
@@ -179,7 +182,7 @@ class DashboardApiControllerLookTest extends TestCase {
 	}
 
 	public function testAnEmptyValueIsSentOnToClearTheLook(): void {
-		$this->controller(sessionUid: 'alice', userId: 'alice')->update(id: 7, themeBackgroundResource: '');
+		$this->controller(sessionUid: 'alice', userId: 'alice', params: ['themeBackgroundResource' => ''])->update(id: 7);
 
 		$this->assertSame(['themeBackgroundResource' => ''], $this->saved[0][2]);
 		$this->assertSame([['canEditDashboard', 'alice', 7]], $this->asked);
@@ -189,7 +192,7 @@ class DashboardApiControllerLookTest extends TestCase {
 	 * The spec's scenario "Non-administrator refused" (REQ-THM-003).
 	 */
 	public function testANonAdministratorWithFullPermissionCannotSetCustomCss(): void {
-		$response = $this->controller(sessionUid: 'alice', userId: 'alice')->update(id: 7, customCss: '.tile { color: red }');
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', params: ['customCss' => '.tile { color: red }'])->update(id: 7);
 
 		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 		$this->assertSame([], $this->saved, 'no CSS is stored');
@@ -197,9 +200,17 @@ class DashboardApiControllerLookTest extends TestCase {
 	}
 
 	public function testAnAdministratorsCustomCssIsPassedOnToBeCleaned(): void {
-		$response = $this->controller(sessionUid: 'alice', userId: 'alice', admins: ['alice'])->update(id: 7, customCss: '.tile { color: red }');
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', admins: ['alice'], params: ['customCss' => '.tile { color: red }'])->update(id: 7);
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertSame(['customCss' => '.tile { color: red }'], $this->saved[0][2]);
+	}
+
+	public function testALookValueThatIsNoStringLeavesTheLookAloneAndStaysAMetadataEdit(): void {
+		$response = $this->controller(sessionUid: 'alice', userId: 'alice', params: ['themeAccent' => ['#1f5c3a'], 'customCss' => 7])->update(id: 7, name: 'Team Groen');
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame([['canEditDashboardMetadata', 'alice', 7]], $this->asked);
+		$this->assertSame(['name' => 'Team Groen'], $this->saved[0][2]);
 	}
 }

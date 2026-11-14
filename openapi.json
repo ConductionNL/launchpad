@@ -3123,7 +3123,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "post": {
                 "operationId": "announcement-create",
@@ -3198,7 +3199,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/announcements/follows": {
@@ -3248,7 +3250,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/announcements/follows/{category}": {
@@ -3293,7 +3296,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/announcements/reach": {
@@ -3338,7 +3342,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/announcements/{uuid}": {
@@ -3384,7 +3389,8 @@
                     "404": {
                         "$ref": "#/components/responses/Problem404"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "put": {
                 "operationId": "announcement-update",
@@ -3474,7 +3480,8 @@
                     "404": {
                         "$ref": "#/components/responses/Problem404"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "delete": {
                 "operationId": "announcement-destroy",
@@ -3518,7 +3525,8 @@
                     "404": {
                         "$ref": "#/components/responses/Problem404"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/announcements/{uuid}/publish": {
@@ -3567,7 +3575,8 @@
                     "404": {
                         "$ref": "#/components/responses/Problem404"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/attention/sources": {
@@ -7340,7 +7349,8 @@
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "put": {
                 "operationId": "analytics-opt-out-update",
@@ -7403,7 +7413,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/profile-fields/definitions": {

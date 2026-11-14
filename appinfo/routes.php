@@ -287,6 +287,19 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'announcement#publish',
 		 'url' => '/api/announcements/{uuid}/publish', 'verb' => 'POST',
 		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		// REQ-ANN-002: likes and comments, stored by Nextcloud's comments service.
+		['name' => 'announcement#comments',
+		 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#comment',
+		 'url' => '/api/announcements/{uuid}/comments', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#like',
+		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#unlike',
+		 'url' => '/api/announcements/{uuid}/like', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
 
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the

@@ -3579,6 +3579,222 @@
                 "x-launchpad-stability": "internal"
             }
         },
+        "/announcements/{uuid}/comments": {
+            "get": {
+                "operationId": "announcement-comments",
+                "summary": "GET /api/announcements/{uuid}/comments: the comments on an announcement that reaches the user, oldest first.",
+                "description": "GET /api/announcements/{uuid}/comments: the comments on an announcement that reaches the user, oldest first. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "post": {
+                "operationId": "announcement-comment",
+                "summary": "POST /api/announcements/{uuid}/comments: comment on an announcement that reaches the user and allows comments.",
+                "description": "POST /api/announcements/{uuid}/comments: comment on an announcement that reaches the user and allows comments. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "maxLength": 1000,
+                                        "description": "The comment text."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/announcements/{uuid}/like": {
+            "post": {
+                "operationId": "announcement-like",
+                "summary": "POST /api/announcements/{uuid}/like: like an announcement that reaches the user; liking twice changes nothing.",
+                "description": "POST /api/announcements/{uuid}/like: like an announcement that reaches the user; liking twice changes nothing. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "delete": {
+                "operationId": "announcement-unlike",
+                "summary": "DELETE /api/announcements/{uuid}/like: take back a like.",
+                "description": "DELETE /api/announcements/{uuid}/like: take back a like. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "announcement"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The announcement.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
         "/attention/sources": {
             "get": {
                 "operationId": "attention-sources",

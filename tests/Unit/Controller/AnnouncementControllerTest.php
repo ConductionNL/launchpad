@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Controller\AnnouncementController;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Service\AnnouncementCommentService;
 use OCA\LaunchPad\Service\AnnouncementFollowService;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCA\LaunchPad\Service\RequestGuard;
@@ -70,7 +71,7 @@ class AnnouncementControllerTest extends TestCase {
 	 *
 	 * @return AnnouncementController
 	 */
-	private function controller(array $params = [], array $refused = []): AnnouncementController {
+	private function controller(array $params = [], array $refused = [], ?AnnouncementCommentService $reactions = null): AnnouncementController {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParams')->willReturn($params);
 		$request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default = null): mixed => ($params[$key] ?? $default));
@@ -85,7 +86,7 @@ class AnnouncementControllerTest extends TestCase {
 		});
 		$guard->method('sessionUser')->willReturn($user);
 
-		return new AnnouncementController($request, $this->service, $guard, $this->follows);
+		return new AnnouncementController($request, $this->service, $guard, $this->follows, $reactions);
 	}//end controller()
 
 	/**
@@ -260,4 +261,52 @@ class AnnouncementControllerTest extends TestCase {
 
 		$this->assertSame(['deleted' => 'abc'], $this->controller()->destroy('abc')->getData());
 	}//end testDestroy()
+	/**
+	 * REQ-ANN-002: the list carries the like and comment counts, and the
+	 * reaction endpoints check their action and map refusals.
+	 *
+	 * @return void
+	 */
+	public function testLikesAndCommentsGoThroughTheCommentsService(): void {
+		$uuid = '11111111-2222-4333-8444-555555555555';
+		$reactions = $this->createMock(AnnouncementCommentService::class);
+		$this->service->method('visibleTo')->willReturn([$this->announcement()]);
+		$this->service->method('draftsFor')->willReturn([]);
+		$reactions->method('countsFor')->willReturn([$uuid => ['likes' => 1, 'comments' => 1, 'liked' => true]]);
+		$reactions->method('like')->with('pieter', $uuid)->willReturn(['likes' => 1, 'liked' => true]);
+		$reactions->method('unlike')->with('pieter', $uuid)->willReturn(['likes' => 0, 'liked' => false]);
+		$reactions->method('commentsOn')->willReturn([['id' => '9', 'message' => 'Mooi!']]);
+		$reactions->method('comment')->willReturnCallback(
+			static fn (string $userId, string $id, string $message): array => ($message === '') ? throw new ForbiddenException(message: 'Comments are closed on this announcement') : ['id' => '10', 'message' => $message]
+		);
+
+		$this->assertEquals((object) [$uuid => ['likes' => 1, 'comments' => 1, 'liked' => true]], $this->controller(reactions: $reactions)->index()->getData()['reactions']);
+		$this->assertSame(['likes' => 1, 'liked' => true], $this->controller(reactions: $reactions)->like(uuid: $uuid)->getData());
+		$this->assertSame(['likes' => 0, 'liked' => false], $this->controller(reactions: $reactions)->unlike(uuid: $uuid)->getData());
+		$this->assertSame(['comments' => [['id' => '9', 'message' => 'Mooi!']]], $this->controller(reactions: $reactions)->comments(uuid: $uuid)->getData());
+
+		$created = $this->controller(params: ['message' => 'Komen er ook sta-bureaus?'], reactions: $reactions)->comment(uuid: $uuid);
+		$this->assertSame(201, $created->getStatus());
+		$this->assertSame('Komen er ook sta-bureaus?', $created->getData()['message']);
+		$this->assertSame(403, $this->controller(reactions: $reactions)->comment(uuid: $uuid)->getStatus());
+		$this->assertSame(
+			['announcement.read', 'announcement.comment', 'announcement.comment', 'announcement.read', 'announcement.comment', 'announcement.comment'],
+			$this->checked
+		);
+	}//end testLikesAndCommentsGoThroughTheCommentsService()
+
+	/**
+	 * A refused comment action stops before the comments service, and without the service the endpoints answer 503.
+	 *
+	 * @return void
+	 */
+	public function testARefusedOrUnwiredCommentEndpoint(): void {
+		$uuid = '11111111-2222-4333-8444-555555555555';
+		$reactions = $this->createMock(AnnouncementCommentService::class);
+		$reactions->expects($this->never())->method('comment');
+
+		$this->assertSame(403, $this->controller(params: ['message' => 'x'], refused: ['announcement.comment'], reactions: $reactions)->comment(uuid: $uuid)->getStatus());
+		$this->assertSame(503, $this->controller()->like(uuid: $uuid)->getStatus());
+		$this->assertSame(503, $this->controller()->comments(uuid: $uuid)->getStatus());
+	}//end testARefusedOrUnwiredCommentEndpoint()
 }//end class

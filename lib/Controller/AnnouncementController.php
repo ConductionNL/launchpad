@@ -31,6 +31,7 @@ use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Exception\ForbiddenException;
+use OCA\LaunchPad\Service\AnnouncementCommentService;
 use OCA\LaunchPad\Service\AnnouncementFollowService;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCA\LaunchPad\Service\RequestGuard;
@@ -60,12 +61,14 @@ class AnnouncementController extends Controller {
 	 * @param AnnouncementService $announcements The announcements.
 	 * @param RequestGuard        $guard         The session user and the action check.
 	 * @param AnnouncementFollowService $follows The followed categories.
+	 * @param AnnouncementCommentService|null $reactions Likes and comments through Nextcloud's comments service.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly AnnouncementService $announcements,
 		private readonly RequestGuard $guard,
 		private readonly AnnouncementFollowService $follows,
+		private readonly ?AnnouncementCommentService $reactions = null,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -79,14 +82,18 @@ class AnnouncementController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function index(): JSONResponse {
-		return $this->guard->actionRefusal(action: 'announcement.read') ?? $this->asUser(run: fn (string $userId): JSONResponse => new JSONResponse(
-			[
-				'announcements' => array_map(static fn (Announcement $item): array => $item->jsonSerialize(), $this->announcements->visibleTo(userId: $userId)),
-				'drafts' => array_map(static fn (Announcement $item): array => $item->jsonSerialize(), $this->announcements->draftsFor(userId: $userId)),
-				'followedCategories' => $this->follows->followedCategories(userId: $userId),
-				'canAuthor' => $this->announcements->isAuthor(userId: $userId),
-			]
-		));
+		return $this->guard->actionRefusal(action: 'announcement.read') ?? $this->asUser(run: function (string $userId): JSONResponse {
+			$visible = $this->announcements->visibleTo(userId: $userId);
+			return new JSONResponse(
+				[
+					'announcements' => array_map(static fn (Announcement $item): array => $item->jsonSerialize(), $visible),
+					'drafts' => array_map(static fn (Announcement $item): array => $item->jsonSerialize(), $this->announcements->draftsFor(userId: $userId)),
+					'followedCategories' => $this->follows->followedCategories(userId: $userId),
+					'canAuthor' => $this->announcements->isAuthor(userId: $userId),
+					'reactions' => (object) ($this->reactions?->countsFor(userId: $userId, announcements: $visible) ?? []),
+				]
+			);
+		});
 	}//end index()
 
 	/**
@@ -165,6 +172,7 @@ class AnnouncementController extends Controller {
 	public function destroy(string $uuid): JSONResponse {
 		return $this->guard->actionRefusal(action: 'announcement.manage') ?? $this->asUser(run: function (string $userId) use ($uuid): JSONResponse {
 			$this->announcements->delete(userId: $userId, uuid: $uuid);
+			$this->reactions?->purge(uuid: $uuid);
 			return new JSONResponse(['deleted' => $uuid]);
 		});
 	}//end destroy()
@@ -221,6 +229,97 @@ class AnnouncementController extends Controller {
 			['followedCategories' => $this->follows->unfollow(userId: $userId, category: $category)]
 		));
 	}//end unfollow()
+
+	/**
+	 * `GET /api/announcements/{uuid}/comments`: the comments on an announcement, oldest first.
+	 *
+	 * @param string $uuid The announcement.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
+	 */
+	#[NoAdminRequired]
+	public function comments(string $uuid): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.read') ?? $this->withReactions(
+			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+				['comments' => $reactions->commentsOn(userId: $userId, uuid: $uuid)]
+			)
+		);
+	}//end comments()
+
+	/**
+	 * `POST /api/announcements/{uuid}/comments`: comment on an announcement that allows comments.
+	 *
+	 * @param string $uuid The announcement.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
+	 */
+	#[NoAdminRequired]
+	public function comment(string $uuid): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.comment') ?? $this->withReactions(
+			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+				$reactions->comment(userId: $userId, uuid: $uuid, message: (string) $this->request->getParam(key: 'message', default: '')),
+				Http::STATUS_CREATED
+			)
+		);
+	}//end comment()
+
+	/**
+	 * `POST /api/announcements/{uuid}/like`: like an announcement.
+	 *
+	 * @param string $uuid The announcement.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
+	 */
+	#[NoAdminRequired]
+	public function like(string $uuid): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.comment') ?? $this->withReactions(
+			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+				$reactions->like(userId: $userId, uuid: $uuid)
+			)
+		);
+	}//end like()
+
+	/**
+	 * `DELETE /api/announcements/{uuid}/like`: take back a like.
+	 *
+	 * @param string $uuid The announcement.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
+	 */
+	#[NoAdminRequired]
+	public function unlike(string $uuid): JSONResponse {
+		return $this->guard->actionRefusal(action: 'announcement.comment') ?? $this->withReactions(
+			run: fn (string $userId, AnnouncementCommentService $reactions): JSONResponse => new JSONResponse(
+				$reactions->unlike(userId: $userId, uuid: $uuid)
+			)
+		);
+	}//end unlike()
+
+	/**
+	 * Run a likes-and-comments call as the session user, or 503 when the comments service is not wired.
+	 *
+	 * @param Closure $run Receives the user id and the comments service.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-readers-like-and-comment-through-nextcloud-comments-req-ann-002
+	 */
+	private function withReactions(Closure $run): JSONResponse {
+		$reactions = $this->reactions;
+		if ($reactions === null) {
+			return new JSONResponse(['error' => 'Likes and comments are not available'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
+		return $this->asUser(run: fn (string $userId): JSONResponse => $run($userId, $reactions));
+	}//end withReactions()
 
 	/**
 	 * Run an endpoint as the session user, mapping refusals to their status. The

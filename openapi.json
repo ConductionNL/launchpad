@@ -6616,7 +6616,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/office-tiles/create": {
@@ -6679,7 +6680,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/openapi.json": {

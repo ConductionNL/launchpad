@@ -51,6 +51,345 @@ export const STATUS_DRAFT = 'draft'
 export const STATUS_PUBLISHED = 'published'
 export const STATUS_SCHEDULED = 'scheduled'
 
+/**
+ * The checks resolveActive tries in order (REQ-DASH-018), each a predicate
+ * over the visible rows, or `false` when it does not apply:
+ *
+ *   1. activeDashboard if still in the visible list
+ *   2. group-shared isDefault=1 in primaryGroup (state.primaryGroup)
+ *   3. default-group isDefault=1
+ *   4. first group-shared in primaryGroup
+ *   5. first default-group dashboard
+ *   6. first personal dashboard
+ *
+ * @param {object} state The Pinia store state.
+ * @return {Array<((d: object) => boolean)|false>} The checks.
+ */
+function resolutionRules(state) {
+	const activeId = state.activeDashboard?.id
+	const primary = state.primaryGroup || ''
+	const inPrimary = (d) => d.source === SOURCE_GROUP && d.groupId === primary
+	const inDefault = (d) => d.source === SOURCE_DEFAULT
+	const isDefault = (d) => Number(d.isDefault) === 1
+	const hasActive = activeId !== undefined && activeId !== null
+	return [
+		hasActive && ((d) => d.id === activeId || d.uuid === activeId),
+		primary !== '' && ((d) => inPrimary(d) && isDefault(d)),
+		(d) => inDefault(d) && isDefault(d),
+		primary !== '' && inPrimary,
+		inDefault,
+		(d) => d.source === SOURCE_USER,
+	]
+}
+
+/**
+ * Fetch the visible dashboards (REQ-DASH-013), falling back to
+ * `/api/dashboards` when the `/visible` endpoint fails, so older clients
+ * keep working.
+ *
+ * @return {Promise<object>} The axios response.
+ */
+async function fetchVisibleDashboards() {
+	try {
+		return await api.getVisibleDashboards()
+	} catch (visibleError) {
+		logger.warn(
+			'Falling back to /api/dashboards (visible endpoint failed):',
+			visibleError,
+		)
+		return await api.getDashboards()
+	}
+}
+
+/**
+ * The quota envelope of a dashboard list response, or null when the
+ * response carries none (a bare array or an older backend).
+ *
+ * @param {unknown} payload The list response body.
+ * @return {object|null} The quota.
+ */
+function quotaOf(payload) {
+	if (!payload || Array.isArray(payload) || !payload.quota) {
+		return null
+	}
+	return {
+		maxDashboards: payload.quota.maxDashboards ?? 0,
+		dashboardsUsed: payload.quota.dashboardsUsed ?? 0,
+		maxWidgetsPerDashboard: payload.quota.maxWidgetsPerDashboard ?? 0,
+	}
+}
+
+/**
+ * The dashboard rows of a list response, each tagged with its source;
+ * older backends may not tag rows, so an untagged row is personal.
+ *
+ * @param {unknown} payload The list response body: `{items}` or a bare array.
+ * @return {Array<object>} The rows.
+ */
+function dashboardRowsOf(payload) {
+	const rows = Array.isArray(payload) ? payload : (payload?.items ?? [])
+	return (rows || []).map((d) => ({
+		...d,
+		source: d.source ?? SOURCE_USER,
+	}))
+}
+
+/**
+ * The active dashboard of a getActive response with its ownership tags.
+ * getActive can resolve a group or showcase dashboard the user does not own
+ * (via the last-used preference), so the tags it returns are kept; an older
+ * backend that omits them means the user owns it. `hasVariants` says the
+ * dashboard has more than one language version.
+ *
+ * @param {object} data The getActive response body.
+ * @return {object} The active dashboard.
+ */
+function activeDashboardOf(data) {
+	return {
+		...data.dashboard,
+		isOwner: data.isOwner ?? true,
+		sharedBy: data.sharedBy ?? null,
+		hasVariants: data.hasVariants === true,
+	}
+}
+
+/**
+ * The request body for a new personal dashboard: a plain name string, or an
+ * object with name/description/icon (legacy callers may pass a string).
+ *
+ * @param {string|object} payload The createDashboard argument.
+ * @return {object} The request body.
+ */
+function newDashboardData(payload) {
+	if (typeof payload === 'string') {
+		return { name: payload }
+	}
+	return {
+		name: payload.name || 'My Dashboard',
+		description: payload.description,
+		// Optional registry key from the `dashboard-icons`
+		// capability — null/undefined skips the field server-side.
+		icon: payload.icon ?? null,
+	}
+}
+
+/**
+ * Tell the user why a dashboard could not be created, when the backend says.
+ * REQ-ASET-003 (extended): the stable `personal_dashboards_disabled` 403
+ * gets a localised toast, as the UI may have offered a stale affordance or
+ * the call may bypass the UI altogether. REQ-QUOTA-006 (race case): the
+ * structured 409 `quota_exceeded` gets a clear message, and the quota
+ * envelope is refreshed so the button disables.
+ *
+ * @param {object} store The dashboard store.
+ * @param {object} error The axios error.
+ * @return {void}
+ */
+function reportCreateFailure(store, error) {
+	const status = error?.response?.status
+	const code = error?.response?.data?.error
+	if (status === 403 && code === ERR_PERSONAL_DASHBOARDS_DISABLED) {
+		showError(
+			t(
+				'launchpad',
+				'Personal dashboards are not enabled by your administrator',
+			),
+		)
+	}
+	if (status === 409 && code === 'quota_exceeded') {
+		const limit = error.response.data.limit
+		showError(
+			t('launchpad', 'You have reached the limit of {limit} dashboards', {
+				limit,
+			}),
+		)
+		store.loadDashboards().catch(() => {})
+	}
+}
+
+/**
+ * Where a new widget or tile goes (REQ-GRID-006 / REQ-GRID-014). A position
+ * with both `x` and `y` is honoured as given, its missing size taken from
+ * `size`; otherwise `placeNewWidget` appends it below the existing widgets.
+ *
+ * @param {object|null} position Explicit `{x, y, w, h}`, or a partial size.
+ * @param {{size: {w: number, h: number}, store: object}} context The default size and the dashboard store.
+ * @return {{x: number, y: number, w: number, h: number, pushed: Array}} The placement.
+ */
+function newPlacement(position, context) {
+	const { size, store } = context
+	if (position && Number.isFinite(position.x) && Number.isFinite(position.y)) {
+		return {
+			x: position.x,
+			y: position.y,
+			w: position.w ?? size.w,
+			h: position.h ?? size.h,
+			pushed: [],
+		}
+	}
+	return placeNewWidget(
+		{ w: position?.w ?? size.w, h: position?.h ?? size.h },
+		store.widgetPlacements,
+		{ gridColumns: store.activeDashboard?.gridColumns },
+	)
+}
+
+/**
+ * The addWidget request body. AddWidgetModal emits a `{type, content}`
+ * payload for the registry-driven custom widgets (label, text, image, …);
+ * the legacy callers pass a Nextcloud Dashboard API widget id as a string.
+ * Both funnel through here into the API contract (`widgetId` string plus
+ * `content` object for custom widgets).
+ *
+ * @param {string|object} widgetId A widget id, or a `{type, content}` payload.
+ * @param {{x: number, y: number, w: number, h: number}} placement Where it goes.
+ * @return {object} The request body.
+ */
+function widgetRequestBody(widgetId, placement) {
+	const isCustomPayload =
+		widgetId !== null
+		&& typeof widgetId === 'object'
+		&& typeof widgetId.type === 'string'
+	const requestBody = {
+		widgetId: isCustomPayload ? widgetId.type : widgetId,
+		gridX: placement.x,
+		gridY: placement.y,
+		gridWidth: placement.w,
+		gridHeight: placement.h,
+	}
+	if (isCustomPayload) {
+		requestBody.content = widgetId.content ?? {}
+	}
+	return requestBody
+}
+
+/**
+ * The toast text for a dashboard that could not be forked (REQ-ASET-003,
+ * extended): the stable `personal_dashboards_disabled` 403 and a 404 get
+ * their own message, anything else the generic one.
+ *
+ * @param {object} error The axios error.
+ * @return {string} The localised message.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function forkFailureText(error) {
+	const status = error?.response?.status
+	if (
+		status === 403
+		&& error?.response?.data?.error === ERR_PERSONAL_DASHBOARDS_DISABLED
+	) {
+		return t(
+			'launchpad',
+			'Personal dashboards are not enabled by your administrator',
+		)
+	}
+	if (status === 404) {
+		return t('launchpad', 'Dashboard not found')
+	}
+	return t('launchpad', 'Failed to fork dashboard')
+}
+
+/**
+ * The publication-state fields of an updated dashboard entity, as they are
+ * patched onto the copies already in the store (REQ-DASH-031..037).
+ *
+ * @param {object} dashboard The updated entity.
+ * @return {object} The publication fields.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function publicationFields(dashboard) {
+	return {
+		publicationStatus: dashboard.publicationStatus,
+		publishAt: dashboard.publishAt,
+		publishedAt: dashboard.publishedAt,
+		unpublishAt: dashboard.unpublishAt ?? null,
+	}
+}
+
+/**
+ * The effective status of a scheduled dashboard (REQ-DASH-034): published
+ * once its valid publish moment has passed, scheduled otherwise.
+ *
+ * @param {string|null|undefined} publishAt The scheduled publish moment.
+ * @return {string} `'published' | 'scheduled'`.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function scheduledStatus(publishAt) {
+	if (!publishAt) {
+		return STATUS_SCHEDULED
+	}
+	const when = new Date(publishAt)
+	if (Number.isNaN(when.getTime())) {
+		return STATUS_SCHEDULED
+	}
+	return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
+}
+
+/**
+ * The cache key of a dashboard slug-chain path (REQ-DASH-027): the path
+ * without leading and trailing slashes, or `''` when there is none.
+ *
+ * @param {unknown} path The slash-joined slug chain.
+ * @return {string} The key.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function dashboardPathKey(path) {
+	return String(path || '')
+		.replace(/\/+$/, '')
+		.replace(/^\/+/, '')
+}
+
+/**
+ * The metadata map of a metadata response (REQ-MDFL-004/005): its body when
+ * that is a plain object, otherwise an empty map.
+ *
+ * @param {object|undefined} response The axios response.
+ * @return {object} The metadata map.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function metadataMapOf(response) {
+	const payload = response?.data
+	return payload && typeof payload === 'object' && !Array.isArray(payload)
+		? payload
+		: {}
+}
+
+/**
+ * The dashboard a slug-chain path resolves to (REQ-DASH-027), or null when
+ * none does; a failure other than a 404 miss is logged.
+ *
+ * @param {string} key The path cache key.
+ * @return {Promise<object|null>} The dashboard payload or null.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+async function resolveDashboardPath(key) {
+	try {
+		const response = await api.getDashboardByPath(key)
+		return response?.data?.dashboard ?? null
+	} catch (error) {
+		if (error?.response?.status !== 404) {
+			logger.error('Failed to resolve dashboard path:', error)
+		}
+		return null
+	}
+}
+
+/**
+ * Cache a dashboard's metadata map on the store and return it.
+ *
+ * @param {object} store The dashboard store.
+ * @param {{uuid: string, map: object}} entry The dashboard UUID and its map.
+ * @return {object} The map.
+ * @spec openspec/specs/dashboards/spec.md
+ */
+function cacheMetadata(store, { uuid, map }) {
+	store.metadataByDashboard = {
+		...store.metadataByDashboard,
+		[uuid]: map,
+	}
+	return map
+}
+
 export const useDashboardStore = defineStore('dashboard', {
 	state: () => ({
 		// `dashboards` carries every dashboard visible to the user
@@ -257,62 +596,12 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		resolveActive: (state) => {
 			const list = state.dashboards || []
-			if (list.length === 0) {
-				return null
-			}
-
-			// Step 1: honour the currently-active dashboard if still visible.
-			const activeId = state.activeDashboard?.id
-			if (activeId !== undefined && activeId !== null) {
-				const stillVisible = list.find(
-					(d) => d.id === activeId || d.uuid === activeId,
-				)
-				if (stillVisible !== undefined) {
-					return stillVisible
+			for (const rule of resolutionRules(state).filter(Boolean)) {
+				const match = list.find(rule)
+				if (match !== undefined) {
+					return match
 				}
 			}
-
-			const primary = state.primaryGroup || ''
-			const inPrimary = (d) =>
-				d.source === SOURCE_GROUP && d.groupId === primary
-			const inDefault = (d) => d.source === SOURCE_DEFAULT
-			const isDefault = (d) => Number(d.isDefault) === 1
-
-			// Step 2: primary-group default.
-			if (primary !== '') {
-				const groupDefault = list.find((d) => inPrimary(d) && isDefault(d))
-				if (groupDefault !== undefined) {
-					return groupDefault
-				}
-			}
-
-			// Step 3: default-group default.
-			const defaultDefault = list.find((d) => inDefault(d) && isDefault(d))
-			if (defaultDefault !== undefined) {
-				return defaultDefault
-			}
-
-			// Step 4: first group-shared in primary group.
-			if (primary !== '') {
-				const firstInGroup = list.find((d) => inPrimary(d))
-				if (firstInGroup !== undefined) {
-					return firstInGroup
-				}
-			}
-
-			// Step 5: first default-group dashboard.
-			const firstInDefault = list.find((d) => inDefault(d))
-			if (firstInDefault !== undefined) {
-				return firstInDefault
-			}
-
-			// Step 6: first personal dashboard.
-			const firstPersonal = list.find((d) => d.source === SOURCE_USER)
-			if (firstPersonal !== undefined) {
-				return firstPersonal
-			}
-
-			// Step 7: nothing.
 			return null
 		},
 
@@ -378,58 +667,21 @@ export const useDashboardStore = defineStore('dashboard', {
 		async loadDashboards() {
 			this.loading = true
 			try {
-				// REQ-DASH-013: prefer the `/visible` endpoint so the store
-				// receives the source-tagged union of personal + group +
-				// default-group dashboards. Older clients that only know
-				// `/api/dashboards` keep working server-side, but the
-				// listing UI uses the unioned source of truth.
-				let response
-				try {
-					response = await api.getVisibleDashboards()
-				} catch (visibleError) {
-					logger.warn(
-						'Falling back to /api/dashboards (visible endpoint failed):',
-						visibleError,
-					)
-					response = await api.getDashboards()
-				}
 				// dashboard-quota-limits REQ-QUOTA-006: the list response is
 				// now `{items: [...], quota: {...}}`. Stay tolerant of older
 				// backends that returned a bare array so a version skew never
 				// blanks the dashboard list.
-				const payload = response.data
-				const rows = Array.isArray(payload)
-					? payload
-					: (payload?.items ?? [])
-				if (payload && !Array.isArray(payload) && payload.quota) {
-					this.quota = {
-						maxDashboards: payload.quota.maxDashboards ?? 0,
-						dashboardsUsed: payload.quota.dashboardsUsed ?? 0,
-						maxWidgetsPerDashboard:
-							payload.quota.maxWidgetsPerDashboard ?? 0,
-					}
+				const payload = (await fetchVisibleDashboards()).data
+				const quota = quotaOf(payload)
+				if (quota !== null) {
+					this.quota = quota
 				}
-				// Defensive default — older backends may not tag rows.
-				this.dashboards = (rows || []).map((d) => ({
-					...d,
-					source: d.source ?? SOURCE_USER,
-				}))
+				this.dashboards = dashboardRowsOf(payload)
 
 				// Load the active dashboard
 				const activeResponse = await api.getActiveDashboard()
 				if (activeResponse.data) {
-					this.activeDashboard = {
-						...activeResponse.data.dashboard,
-						// getActive can now resolve a group/showcase dashboard
-						// the user doesn't own (via the last-used preference),
-						// so honour the ownership tags it returns; default to
-						// owner when an older backend omits them.
-						isOwner: activeResponse.data.isOwner ?? true,
-						sharedBy: activeResponse.data.sharedBy ?? null,
-						// dashboard-language-and-details-tabs: more than one
-						// language version, so the page reads the resolved one.
-						hasVariants: activeResponse.data.hasVariants === true,
-					}
+					this.activeDashboard = activeDashboardOf(activeResponse.data)
 					this.widgetPlacements = activeResponse.data.placements || []
 					this.permissionLevel =
 						activeResponse.data.permissionLevel || 'full'
@@ -592,24 +844,13 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (!dashboard || !dashboard.uuid) {
 				return
 			}
+			const fields = publicationFields(dashboard)
 			const idx = this.dashboards.findIndex((d) => d.uuid === dashboard.uuid)
 			if (idx >= 0) {
-				this.dashboards[idx] = {
-					...this.dashboards[idx],
-					publicationStatus: dashboard.publicationStatus,
-					publishAt: dashboard.publishAt,
-					publishedAt: dashboard.publishedAt,
-					unpublishAt: dashboard.unpublishAt ?? null,
-				}
+				this.dashboards[idx] = { ...this.dashboards[idx], ...fields }
 			}
 			if (this.activeDashboard?.uuid === dashboard.uuid) {
-				this.activeDashboard = {
-					...this.activeDashboard,
-					publicationStatus: dashboard.publicationStatus,
-					publishAt: dashboard.publishAt,
-					publishedAt: dashboard.publishedAt,
-					unpublishAt: dashboard.unpublishAt ?? null,
-				}
+				this.activeDashboard = { ...this.activeDashboard, ...fields }
 			}
 		},
 
@@ -631,15 +872,7 @@ export const useDashboardStore = defineStore('dashboard', {
 			if (status !== STATUS_SCHEDULED) {
 				return status
 			}
-			const publishAt = dashboard.publishAt
-			if (!publishAt) {
-				return STATUS_SCHEDULED
-			}
-			const when = new Date(publishAt)
-			if (Number.isNaN(when.getTime())) {
-				return STATUS_SCHEDULED
-			}
-			return when.getTime() <= Date.now() ? STATUS_PUBLISHED : STATUS_SCHEDULED
+			return scheduledStatus(dashboard.publishAt)
 		},
 
 		/**
@@ -651,18 +884,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async createDashboard(payload = 'My Dashboard') {
-			// Accept either a plain name string or an object with
-			// name/description/icon (legacy callers may pass a string).
-			const data =
-				typeof payload === 'string'
-					? { name: payload }
-					: {
-							name: payload.name || 'My Dashboard',
-							description: payload.description,
-							// Optional registry key from the `dashboard-icons`
-							// capability — null/undefined skips the field server-side.
-							icon: payload.icon ?? null,
-						}
+			const data = newDashboardData(payload)
 			this.loading = true
 			try {
 				const response = await api.createDashboard(data)
@@ -680,40 +902,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				// dashboard renders cleanly until the user adds widgets.
 				this.widgetPlacements = response.data.placements ?? []
 			} catch (error) {
-				// REQ-ASET-003 (extended): when the backend returns the
-				// stable `personal_dashboards_disabled` envelope, surface
-				// a localised toast — the UI may have offered a stale
-				// affordance or the call may bypass the UI altogether.
-				if (
-					error?.response?.status === 403
-					&& error?.response?.data?.error
-						=== ERR_PERSONAL_DASHBOARDS_DISABLED
-				) {
-					showError(
-						t(
-							'launchpad',
-							'Personal dashboards are not enabled by your administrator',
-						),
-					)
-				}
-				// dashboard-quota-limits REQ-QUOTA-006 (race case): the UI
-				// affordance may have been stale (limit reached in another
-				// tab). Surface the structured 409 as a clear message and
-				// refresh the quota envelope so the button disables.
-				if (
-					error?.response?.status === 409
-					&& error?.response?.data?.error === 'quota_exceeded'
-				) {
-					const limit = error.response.data.limit
-					showError(
-						t(
-							'launchpad',
-							'You have reached the limit of {limit} dashboards',
-							{ limit },
-						),
-					)
-					this.loadDashboards().catch(() => {})
-				}
+				reportCreateFailure(this, error)
 				logger.error('Failed to create dashboard:', error)
 				throw error
 			} finally {
@@ -760,26 +949,7 @@ export const useDashboardStore = defineStore('dashboard', {
 				}
 				return fork
 			} catch (error) {
-				// REQ-ASET-003 (extended): surface the localised toast
-				// for the gating envelope. Other errors (404 source
-				// not visible, 500 rollback) are surfaced via the
-				// caller; we just log here.
-				if (
-					error?.response?.status === 403
-					&& error?.response?.data?.error
-						=== ERR_PERSONAL_DASHBOARDS_DISABLED
-				) {
-					showError(
-						t(
-							'launchpad',
-							'Personal dashboards are not enabled by your administrator',
-						),
-					)
-				} else if (error?.response?.status === 404) {
-					showError(t('launchpad', 'Dashboard not found'))
-				} else {
-					showError(t('launchpad', 'Failed to fork dashboard'))
-				}
+				showError(forkFailureText(error))
 				logger.error('Failed to fork dashboard:', error)
 				throw error
 			} finally {
@@ -867,54 +1037,13 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addWidgetToDashboard(widgetId, position = null) {
 			try {
-				// AddWidgetModal emits a `{type, content}` payload for the
-				// registry-driven custom widgets (label, text, image, …).
-				// The legacy callers — sidebar "Add widget" buttons that
-				// pick a Nextcloud Dashboard API widget by id — pass a
-				// plain string. Both must funnel through the same store
-				// method, so unpack the object form into the API contract
-				// (`widgetId` string + `content` object) here rather than
-				// pushing the type-discrimination into every caller.
-				const isCustomPayload =
-					widgetId !== null
-					&& typeof widgetId === 'object'
-					&& typeof widgetId.type === 'string'
-				const resolvedWidgetId = isCustomPayload ? widgetId.type : widgetId
-				const resolvedContent = isCustomPayload
-					? (widgetId.content ?? {})
-					: null
-
-				const placement =
-					position
-					&& Number.isFinite(position.x)
-					&& Number.isFinite(position.y)
-						? {
-								x: position.x,
-								y: position.y,
-								w: position.w ?? DEFAULT_W,
-								h: position.h ?? DEFAULT_H,
-								pushed: [],
-							}
-						: placeNewWidget(
-								{ w: position?.w, h: position?.h },
-								this.widgetPlacements,
-								{ gridColumns: this.activeDashboard?.gridColumns },
-							)
-
-				const requestBody = {
-					widgetId: resolvedWidgetId,
-					gridX: placement.x,
-					gridY: placement.y,
-					gridWidth: placement.w,
-					gridHeight: placement.h,
-				}
-				if (resolvedContent !== null) {
-					requestBody.content = resolvedContent
-				}
-
+				const placement = newPlacement(position, {
+					size: { w: DEFAULT_W, h: DEFAULT_H },
+					store: this,
+				})
 				const response = await api.addWidget(
 					this.activeDashboard.id,
-					requestBody,
+					widgetRequestBody(widgetId, placement),
 				)
 				this.widgetPlacements.push(response.data)
 
@@ -946,22 +1075,10 @@ export const useDashboardStore = defineStore('dashboard', {
 		 */
 		async addTileToDashboard(tileData, position = null) {
 			try {
-				const placement =
-					position
-					&& Number.isFinite(position.x)
-					&& Number.isFinite(position.y)
-						? {
-								x: position.x,
-								y: position.y,
-								w: position.w ?? 2,
-								h: position.h ?? 2,
-								pushed: [],
-							}
-						: placeNewWidget(
-								{ w: position?.w ?? 2, h: position?.h ?? 2 },
-								this.widgetPlacements,
-								{ gridColumns: this.activeDashboard?.gridColumns },
-							)
+				const placement = newPlacement(position, {
+					size: { w: 2, h: 2 },
+					store: this,
+				})
 
 				const response = await api.addTile(this.activeDashboard.id, {
 					...tileData,
@@ -1141,9 +1258,7 @@ export const useDashboardStore = defineStore('dashboard', {
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
 		async dashboardByPath(path) {
-			const key = String(path || '')
-				.replace(/\/+$/, '')
-				.replace(/^\/+/, '')
+			const key = dashboardPathKey(path)
 			if (key === '') {
 				return null
 			}
@@ -1152,18 +1267,9 @@ export const useDashboardStore = defineStore('dashboard', {
 				return this.pathCache[key]
 			}
 
-			try {
-				const response = await api.getDashboardByPath(key)
-				const payload = response?.data?.dashboard ?? null
-				this.pathCache[key] = payload
-				return payload
-			} catch (error) {
-				if (error?.response?.status !== 404) {
-					logger.error('Failed to resolve dashboard path:', error)
-				}
-				this.pathCache[key] = null
-				return null
-			}
+			const payload = await resolveDashboardPath(key)
+			this.pathCache[key] = payload
+			return payload
 		},
 
 		/**
@@ -1357,27 +1463,12 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			try {
 				const response = await api.getDashboardMetadata(uuid)
-				const payload = response?.data
-				const map =
-					payload && typeof payload === 'object' && !Array.isArray(payload)
-						? payload
-						: {}
-				this.metadataByDashboard = {
-					...this.metadataByDashboard,
-					[uuid]: map,
-				}
-				return map
+				return cacheMetadata(this, { uuid, map: metadataMapOf(response) })
 			} catch (error) {
-				if (
-					error?.response?.status !== 403
-					&& error?.response?.status !== 404
-				) {
+				if (![403, 404].includes(error?.response?.status)) {
 					logger.error('Failed to load dashboard metadata:', error)
 				}
-				this.metadataByDashboard = {
-					...this.metadataByDashboard,
-					[uuid]: {},
-				}
+				cacheMetadata(this, { uuid, map: {} })
 				return {}
 			}
 		},
@@ -1402,16 +1493,7 @@ export const useDashboardStore = defineStore('dashboard', {
 
 			try {
 				const response = await api.updateDashboardMetadata(uuid, metadata)
-				const payload = response?.data
-				const map =
-					payload && typeof payload === 'object' && !Array.isArray(payload)
-						? payload
-						: {}
-				this.metadataByDashboard = {
-					...this.metadataByDashboard,
-					[uuid]: map,
-				}
-				return map
+				return cacheMetadata(this, { uuid, map: metadataMapOf(response) })
 			} catch (error) {
 				const message =
 					error?.response?.data?.message

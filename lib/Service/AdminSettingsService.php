@@ -36,12 +36,22 @@ class AdminSettingsService {
 	/**
 	 * Constructor
 	 *
-	 * @param AdminSettingMapper $settingMapper The admin setting mapper.
+	 * @param AdminSettingMapper      $settingMapper The admin setting mapper.
+	 * @param TileLaunchSettings|null $tileLaunch    Checks the program schemes and SSO launch templates; built when not injected.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
+		?TileLaunchSettings $tileLaunch = null,
 	) {
+		$this->tileLaunch = ($tileLaunch ?? new TileLaunchSettings());
 	}//end __construct()
+
+	/**
+	 * Checks the program schemes and SSO launch templates (launcher-tile-launch-types).
+	 *
+	 * @var TileLaunchSettings
+	 */
+	private readonly TileLaunchSettings $tileLaunch;
 
 	/**
 	 * Default link-button-widget createFile extension allow-list
@@ -83,8 +93,6 @@ class AdminSettingsService {
 			$storedExt = self::DEFAULT_LINK_CREATE_FILE_EXTENSIONS;
 		}
 
-		$storageKey = AdminSetting::KEY_CONTENT_STORAGE;
-
 		$sharePermKey = AdminSetting::KEY_DEFAULT_SHARE_PERMISSION_LEVEL;
 		$forcedShareKey = AdminSetting::KEY_FORCED_SHARE_GROUPS;
 		$bridgeKey = AdminSetting::KEY_LEGACY_WIDGET_BRIDGE_ENABLED;
@@ -107,6 +115,7 @@ class AdminSettingsService {
 		// a value the frontend can't safely act on.
 		$fallbackKey = AdminSetting::KEY_QUICKSEARCH_FALLBACK_TARGET;
 		$storedFallbackTarget = $settings[$fallbackKey] ?? null;
+		$noRailKey = AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION;
 
 		$quicksearchFallbackTarget = self::DEFAULT_QUICKSEARCH_FALLBACK_TARGET;
 		if (is_string($storedFallbackTarget) === true
@@ -124,7 +133,6 @@ class AdminSettingsService {
 			'defaultGridColumns' => $settings[$gridKey] ?? 12,
 			'linkCreateFileExtensions' => $storedExt,
 			// REQ-GFSB-006: surface active storage backend in admin settings.
-			'launchpad.content_storage' => $settings[$storageKey] ?? 'database',
 			// Dashboard-sharing spec: org-wide share defaults surfaced in
 			// Beheer ▸ Sharing. Default permission level mirrors the
 			// dashboard default; forced-share groups default to none.
@@ -146,6 +154,14 @@ class AdminSettingsService {
 			// Tile-quick-search REQ-QSEARCH-004: 'none' | 'unified-search'
 			// | an https URL template containing '{query}'.
 			'quicksearchFallbackTarget' => $quicksearchFallbackTarget,
+			// Runtime-shell REQ-SHELL-009: the dashboard view without the left
+			// navigation panel. Off by default so an existing instance keeps its
+			// rail; a stored value that is not a boolean reads as off.
+			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
+			// them; a stored value that no longer validates reads as empty.
+			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
+			'ssoLaunchTemplates' => $this->tileLaunch->stored(setting: 'templates', stored: $settings[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] ?? null),
 		];
 	}//end getSettings()
 
@@ -196,13 +212,6 @@ class AdminSettingsService {
 
 		return $int;
 	}//end clampQuota()
-
-	/**
-	 * Valid values for the `launchpad.content_storage` setting (REQ-GFSB-006).
-	 *
-	 * @var list<string>
-	 */
-	public const VALID_CONTENT_STORAGE_VALUES = ['database', 'groupfolder'];
 
 	/**
 	 * Tile-quick-search REQ-QSEARCH-004: no-match fallback disabled — Enter
@@ -280,137 +289,112 @@ class AdminSettingsService {
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
-	 * Update admin settings.
+	 * The settings updateSettings() writes as given, by input name.
 	 *
-	 * @param string|null $defaultPermLevel Default permission level.
-	 * @param bool|null $allowUserDash Allow user dashboards.
-	 * @param bool|null $allowMultiDash Allow multiple dashboards.
-	 * @param int|null $defaultGridCols Default grid columns.
-	 * @param array|null $linkCreateFileExts link-button-widget
-	 *                                       createFile
-	 *                                       extension
-	 *                                       allow-list
-	 *                                       (REQ-LBN-004).
-	 * @param string|null $contentStorage Content storage backend
-	 *                                    (`database` or
-	 *                                    `groupfolder`).
-	 *                                    REQ-GFSB-006.
-	 * @param string|null $defaultSharePermissionLevel Org-wide default share
-	 *                                                 permission level
-	 *                                                 (dashboard-sharing spec).
-	 * @param array|null $forcedShareGroups Groups every new dashboard is
-	 *                                      force-shared with
-	 *                                      (dashboard-sharing spec).
-	 * @param bool|null $legacyWidgetBridgeEnabled Enable / disable the
-	 *                                             legacy widget bridge
-	 *                                             (legacy-widget-bridge
-	 *                                             spec).
-	 * @param int|null $maxDashboardsPerUser Maximum personal
-	 *                                       dashboards per user
-	 *                                       (`0` = unlimited;
-	 *                                       clamped to
-	 *                                       `[0, 10000]`).
-	 *                                       dashboard-quota-limits
-	 *                                       REQ-QUOTA-001.
-	 * @param int|null $maxWidgetsPerDashboard Maximum placements per
-	 *                                         dashboard (`0` =
-	 *                                         unlimited; clamped to
-	 *                                         `[0, 10000]`).
-	 *                                         dashboard-quota-limits
-	 *                                         REQ-QUOTA-001.
-	 * @param string|null $quicksearchFallbackTarget No-match fallback for
-	 *                                               the on-dashboard quick
-	 *                                               search: `'none'`,
-	 *                                               `'unified-search'`, or
-	 *                                               an `https` URL
-	 *                                               template containing
-	 *                                               `{query}`.
-	 *                                               tile-quick-search
-	 *                                               REQ-QSEARCH-004.
+	 * @var array<string, string>
+	 */
+	private const PLAIN_SETTINGS = [
+		'defaultPermLevel' => AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
+		'allowUserDash'    => AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
+		'allowMultiDash'   => AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS,
+		'defaultGridCols'  => AdminSetting::KEY_DEFAULT_GRID_COLUMNS,
+	];
+
+	/**
+	 * Update admin settings. A setting that is absent or null is left as it is.
+	 *
+	 * @param array<string, mixed> $settings The settings to write, by name:
+	 *                                       `defaultPermLevel` (default permission level),
+	 *                                       `allowUserDash` and `allowMultiDash` (allow user and
+	 *                                       multiple dashboards), `defaultGridCols` (default grid
+	 *                                       columns), `linkCreateFileExts` (link-button-widget
+	 *                                       createFile extension allow-list, REQ-LBN-004),
+	 *                                       `defaultSharePermissionLevel` and `forcedShareGroups`
+	 *                                       (org-wide default share permission level and the groups
+	 *                                       every new dashboard is force-shared with,
+	 *                                       dashboard-sharing spec), `legacyWidgetBridgeEnabled`
+	 *                                       (legacy-widget-bridge spec), `maxDashboardsPerUser` and
+	 *                                       `maxWidgetsPerDashboard` (quotas, `0` = unlimited,
+	 *                                       clamped to `[0, 10000]`, REQ-QUOTA-001),
+	 *                                       `quicksearchFallbackTarget` (`'none'`,
+	 *                                       `'unified-search'` or an `https` URL template containing
+	 *                                       `{query}`, REQ-QSEARCH-004) and
+	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009).
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When `$contentStorage`,
-	 *                                   `$defaultSharePermissionLevel`, or
-	 *                                   `$quicksearchFallbackTarget` is not
-	 *                                   a valid value.
+	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel` or
+	 *                                   `quicksearchFallbackTarget` is not a valid value.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 */
-	public function updateSettings(
-		?string $defaultPermLevel = null,
-		?bool $allowUserDash = null,
-		?bool $allowMultiDash = null,
-		?int $defaultGridCols = null,
-		?array $linkCreateFileExts = null,
-		?string $contentStorage = null,
-		?string $defaultSharePermissionLevel = null,
-		?array $forcedShareGroups = null,
-		?bool $legacyWidgetBridgeEnabled = null,
-		?int $maxDashboardsPerUser = null,
-		?int $maxWidgetsPerDashboard = null,
-		?string $quicksearchFallbackTarget = null,
-	): void {
-		if ($defaultPermLevel !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_DEFAULT_PERMISSION_LEVEL,
-				value: $defaultPermLevel
-			);
+	public function updateSettings(array $settings): void {
+		foreach (self::PLAIN_SETTINGS as $name => $key) {
+			$this->persistIfGiven(key: $key, value: $settings[$name] ?? null);
 		}
 
-		if ($allowUserDash !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_ALLOW_USER_DASHBOARDS,
-				value: $allowUserDash
-			);
-		}
-
-		if ($allowMultiDash !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_ALLOW_MULTIPLE_DASHBOARDS,
-				value: $allowMultiDash
-			);
-		}
-
-		if ($defaultGridCols !== null) {
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_DEFAULT_GRID_COLUMNS,
-				value: $defaultGridCols
-			);
-		}
-
-		if ($linkCreateFileExts !== null) {
+		$extensions = $settings['linkCreateFileExts'] ?? null;
+		if ($extensions !== null) {
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_LINK_CREATE_FILE_EXTENSIONS,
-				value: $this->normaliseExtensions(input: $linkCreateFileExts)
+				value: $this->normaliseExtensions(input: $extensions)
 			);
 		}
 
-		if ($contentStorage !== null) {
-			if (in_array(needle: $contentStorage, haystack: self::VALID_CONTENT_STORAGE_VALUES, strict: true) === false) {
-				throw new InvalidArgumentException(
-					message: "Invalid value for launchpad.content_storage. Must be 'db' or 'groupfolder'."
-				);
-			}
-
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_CONTENT_STORAGE,
-				value: $contentStorage
-			);
-		}
-
-		$this->persistQuotaAndQuicksearchSettings(
-			maxDashboardsPerUser: $maxDashboardsPerUser,
-			maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
-			quicksearchFallbackTarget: $quicksearchFallbackTarget
-		);
+		$this->persistQuotaAndQuicksearchSettings(settings: $settings);
 
 		$this->persistSharingAndBridgeSettings(
-			defaultSharePermissionLevel: $defaultSharePermissionLevel,
-			forcedShareGroups: $forcedShareGroups,
-			legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled
+			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
+			forcedShareGroups: $settings['forcedShareGroups'] ?? null,
+			legacyWidgetBridgeEnabled: $settings['legacyWidgetBridgeEnabled'] ?? null
 		);
+
+		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+		$this->persistTileLaunchSettings(settings: $settings);
 	}//end updateSettings()
+
+	/**
+	 * Persist the program schemes and the SSO launch templates, each checked whole first.
+	 *
+	 * Both are checked before either is written, so a refused value leaves
+	 * both as they were.
+	 *
+	 * @param array<string, mixed> $settings The settings: `tileAllowedSchemes` and `ssoLaunchTemplates`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException Naming the scheme or template refused.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 */
+	private function persistTileLaunchSettings(array $settings): void {
+		$writes = [];
+		if (($settings['tileAllowedSchemes'] ?? null) !== null) {
+			$writes[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] = $this->tileLaunch->schemes(input: $settings['tileAllowedSchemes']);
+		}
+
+		if (($settings['ssoLaunchTemplates'] ?? null) !== null) {
+			$writes[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] = $this->tileLaunch->templates(input: $settings['ssoLaunchTemplates']);
+		}
+
+		foreach ($writes as $key => $value) {
+			$this->settingMapper->setSetting(key: $key, value: $value);
+		}
+	}//end persistTileLaunchSettings()
+
+	/**
+	 * Write one setting when a value is given.
+	 *
+	 * @param string $key   The setting key.
+	 * @param mixed  $value The value, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 */
+	private function persistIfGiven(string $key, mixed $value): void {
+		if ($value !== null) {
+			$this->settingMapper->setSetting(key: $key, value: $value);
+		}
+	}//end persistIfGiven()
 
 	/**
 	 * Persist the per-user quota limits and the quick-search fallback target.
@@ -419,19 +403,19 @@ class AdminSettingsService {
 	 * stays under the method-length threshold. Each value is only written
 	 * when non-null (partial-patch contract).
 	 *
-	 * @param int|null $maxDashboardsPerUser Per-user dashboard quota.
-	 * @param int|null $maxWidgetsPerDashboard Per-dashboard widget quota.
-	 * @param string|null $quicksearchFallbackTarget No-match fallback target.
+	 * @param array<string, mixed> $settings The settings: `maxDashboardsPerUser` (per-user
+	 *                                       dashboard quota), `maxWidgetsPerDashboard`
+	 *                                       (per-dashboard widget quota) and
+	 *                                       `quicksearchFallbackTarget` (no-match fallback target).
 	 *
 	 * @return void
 	 *
 	 * @throws \InvalidArgumentException When the fallback target is invalid.
 	 */
-	private function persistQuotaAndQuicksearchSettings(
-		?int $maxDashboardsPerUser,
-		?int $maxWidgetsPerDashboard,
-		?string $quicksearchFallbackTarget,
-	): void {
+	private function persistQuotaAndQuicksearchSettings(array $settings): void {
+		$maxDashboardsPerUser      = $settings['maxDashboardsPerUser'] ?? null;
+		$maxWidgetsPerDashboard    = $settings['maxWidgetsPerDashboard'] ?? null;
+		$quicksearchFallbackTarget = $settings['quicksearchFallbackTarget'] ?? null;
 		// Dashboard-quota-limits REQ-QUOTA-001 / REQ-ASET-014: persist the
 		// numeric quotas clamped into `[0, 10000]` so a negative or
 		// out-of-range value is never stored.

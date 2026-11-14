@@ -1,0 +1,62 @@
+{
+    "plain": [
+        [
+            "[launchpad] cli dashboard:list --json exitCode=0 durationMs=12 byUser=admin",
+            {
+                "app": "launchpad",
+                "command": "dashboard:list",
+                "exitCode": 0,
+                "durationMs": 12,
+                "byUser": "admin"
+            }
+        ]
+    ],
+    "cli user": [
+        [
+            "[launchpad] cli dashboard:list  exitCode=0 durationMs=0 byUser=cli",
+            {
+                "app": "launchpad",
+                "command": "dashboard:list",
+                "exitCode": 0,
+                "durationMs": 0,
+                "byUser": "cli"
+            }
+        ]
+    ],
+    "empty user": [
+        [
+            "[launchpad] cli x padded exitCode=2 durationMs=5 byUser=cli",
+            {
+                "app": "launchpad",
+                "command": "x",
+                "exitCode": 2,
+                "durationMs": 5,
+                "byUser": ""
+            }
+        ]
+    ],
+    "long args": [
+        [
+            "[launchpad] cli template:install aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa... exitCode=1 durationMs=99 byUser=root",
+            {
+                "app": "launchpad",
+                "command": "template:install",
+                "exitCode": 1,
+                "durationMs": 99,
+                "byUser": "root"
+            }
+        ]
+    ],
+    "multibyte": [
+        [
+            "[launchpad] cli x ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé... exitCode=0 durationMs=1 byUser=ü",
+            {
+                "app": "launchpad",
+                "command": "x",
+                "exitCode": 0,
+                "durationMs": 1,
+                "byUser": "ü"
+            }
+        ]
+    ]
+}

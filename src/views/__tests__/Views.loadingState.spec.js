@@ -138,19 +138,19 @@ async function mountViews({ activeDashboard = null, loading = false } = {}) {
 describe('Views — initial-load shim', () => {
 	// Mounting the full Views tree pulls in the heavy CnWidgetWrapper widget
 	// chrome; give these a generous timeout so they stay green under parallel
-	// full-suite load (they run ~4.5s in isolation).
+	// full-suite load (the first one pays the dynamic import of the library barrel, ~12s in isolation on 2.81 and over 20s on a loaded machine).
 	it('renders the loading shim, NOT the empty-state CTA, while loading=true and activeDashboard is null', async () => {
 		const wrapper = await mountViews({ activeDashboard: null, loading: true })
 
 		expect(wrapper.find('.launchpad-loading').exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).exists()).toBe(true)
 		expect(wrapper.find('.launchpad-empty').exists()).toBe(false)
-	}, 20000)
+	}, 90000)
 
 	it('renders the empty-state CTA once loading=false and activeDashboard is still null', async () => {
 		const wrapper = await mountViews({ activeDashboard: null, loading: false })
 
 		expect(wrapper.find('.launchpad-loading').exists()).toBe(false)
 		expect(wrapper.find('.launchpad-empty').exists()).toBe(true)
-	}, 20000)
+	}, 90000)
 })

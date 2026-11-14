@@ -23,18 +23,18 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
-use Exception;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareGrant;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserManager;
+use Throwable;
 
 /**
  * Controller for dashboard sharing API endpoints.
@@ -50,21 +50,16 @@ class DashboardShareApiController extends Controller {
 	 *
 	 * @param IRequest $request The request.
 	 * @param DashboardShareService $shareService The share service.
-	 * @param IUserManager $userManager Nextcloud user manager (sharee lookup).
-	 * @param IGroupManager $groupManager Nextcloud group manager (sharee lookup).
+	 * @param ShareApiTools $tools The sharee directories and the logger.
 	 * @param string|null $userId The calling user ID.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly DashboardShareService $shareService,
-		private readonly IUserManager $userManager,
-		private readonly IGroupManager $groupManager,
+		private readonly ShareApiTools $tools,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -79,33 +74,20 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function index(int $id): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$shares = $this->shareService->listShares(
-				dashboardId: $id,
-				userId: $this->userId
-			);
-			$serialized = array_map(
-				callback: static fn ($share) => $share->jsonSerialize(),
-				array: $shares
-			);
-			return new DataResponse(data: $serialized);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}//end try
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->serializeShares(
+					shares: $this->shareService->listShares(
+						dashboardId: $id,
+						userId: $this->userId
+					)
+				)
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end index()
 
 	/**
@@ -128,40 +110,24 @@ class DashboardShareApiController extends Controller {
 		?string $permissionLevel = null,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$share = $this->shareService->addShare(
-				dashboardId: $id,
-				shareType: (string)$shareType,
-				shareWith: (string)$shareWith,
-				permissionLevel: (string)$permissionLevel,
-				callerId: $this->userId
-			);
-			return new DataResponse(
-				data: $share->jsonSerialize(),
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->shareService->addShare(
+					dashboardId: $id,
+					grant: new ShareGrant(
+						shareType: (string)$shareType,
+						shareWith: (string)$shareWith,
+						permissionLevel: (string)$permissionLevel
+					),
+					callerId: $this->userId
+				)->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
-			);
-		} catch (InvalidArgumentException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}//end try
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end create()
 
 	/**
@@ -176,29 +142,19 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function destroy(int $shareId): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$this->shareService->removeShare(
-				shareId: $shareId,
-				callerId: $this->userId
-			);
-			return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Share not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}//end try
+		return $this->respond(
+			operation: function () use ($shareId): DataResponse {
+				$this->shareService->removeShare(
+					shareId: $shareId,
+					callerId: $this->userId
+				);
+				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
+			},
+			notFound: 'Share not found'
+		);
 	}//end destroy()
 
 	/**
@@ -214,43 +170,25 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function replace(int $id, ?array $shares = null): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		if ($shares === null) {
 			$shares = [];
 		}
 
-		try {
-			$newShares = $this->shareService->replaceShares(
-				dashboardId: $id,
-				shares: $shares,
-				userId: $this->userId
-			);
-			$serialized = array_map(
-				callback: static fn ($share) => $share->jsonSerialize(),
-				array: $newShares
-			);
-			return new DataResponse(data: $serialized);
-		} catch (InvalidArgumentException $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		} catch (DoesNotExistException) {
-			return new DataResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (Exception $e) {
-			return new DataResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}//end try
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->serializeShares(
+					shares: $this->shareService->replaceShares(
+						dashboardId: $id,
+						shares: $shares,
+						userId: $this->userId
+					)
+				)
+			),
+			notFound: 'Dashboard not found'
+		);
 	}//end replace()
 
 	/**
@@ -270,10 +208,7 @@ class DashboardShareApiController extends Controller {
 		string $shareWith,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		try {
@@ -288,6 +223,8 @@ class DashboardShareApiController extends Controller {
 				data: ['error' => $e->getMessage()],
 				statusCode: Http::STATUS_BAD_REQUEST
 			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
 		}
 	}//end revokeForRecipient()
 
@@ -311,10 +248,7 @@ class DashboardShareApiController extends Controller {
 	#[NoAdminRequired]
 	public function searchSharees(string $query = ''): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		$trimmed = trim(string: $query);
@@ -326,8 +260,24 @@ class DashboardShareApiController extends Controller {
 			return new DataResponse(data: ['users' => [], 'groups' => []]);
 		}
 
+		$users = $this->matchingUsers(pattern: $trimmed);
+		$groups = $this->matchingGroups(pattern: $trimmed);
+
+		return new DataResponse(
+			data: ['users' => $users, 'groups' => $groups]
+		);
+	}//end searchSharees()
+
+	/**
+	 * Up to 10 users matching the pattern, the caller left out.
+	 *
+	 * @param string $pattern The trimmed search query.
+	 *
+	 * @return array<int, array{id: string, displayName: string}>
+	 */
+	private function matchingUsers(string $pattern): array {
 		$users = [];
-		foreach ($this->userManager->search(pattern: $trimmed, limit: 10) as $user) {
+		foreach ($this->tools->userManager->search(pattern: $pattern, limit: 10) as $user) {
 			if ($user->getUID() === $this->userId) {
 				continue;
 			}
@@ -338,16 +288,104 @@ class DashboardShareApiController extends Controller {
 			];
 		}
 
+		return $users;
+	}//end matchingUsers()
+
+	/**
+	 * Up to 10 groups matching the pattern.
+	 *
+	 * @param string $pattern The trimmed search query.
+	 *
+	 * @return array<int, array{id: string, displayName: string}>
+	 */
+	private function matchingGroups(string $pattern): array {
 		$groups = [];
-		foreach ($this->groupManager->search(search: $trimmed, limit: 10) as $group) {
+		foreach ($this->tools->groupManager->search(search: $pattern, limit: 10) as $group) {
 			$groups[] = [
 				'id' => $group->getGID(),
 				'displayName' => $group->getDisplayName(),
 			];
 		}
 
-		return new DataResponse(
-			data: ['users' => $users, 'groups' => $groups]
+		return $groups;
+	}//end matchingGroups()
+
+	/**
+	 * Answer a share request that failed for a reason other than the
+	 * caller's input or access: a neutral 500, with the exception logged.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return DataResponse The 500 response.
+	 */
+	private function internalError(Throwable $exception): DataResponse {
+		$this->tools->logger->error(
+			message: 'Dashboard share request failed: ' . $exception::class,
+			context: ['app' => Application::APP_ID, 'exceptionClass' => $exception::class, 'exception' => $exception]
 		);
-	}//end searchSharees()
+
+		return new DataResponse(
+			data: ['error' => 'Internal error'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end internalError()
+
+	/**
+	 * The 401 answer for a caller without a session.
+	 *
+	 * @return DataResponse The 401 response.
+	 */
+	private function notLoggedIn(): DataResponse {
+		return new DataResponse(
+			data: ['error' => 'Not logged in'],
+			statusCode: Http::STATUS_UNAUTHORIZED
+		);
+	}//end notLoggedIn()
+
+	/**
+	 * Run a share operation and map its failures: invalid input → 400,
+	 * unknown dashboard or share → 404, not the owner → 403, anything
+	 * else → a logged 500.
+	 *
+	 * @param \Closure $operation Runs the service call and builds the success response.
+	 * @param string   $notFound  The 404 message.
+	 *
+	 * @return DataResponse The response.
+	 */
+	private function respond(\Closure $operation, string $notFound): DataResponse {
+		try {
+			return $operation();
+		} catch (InvalidArgumentException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
+			);
+		} catch (DoesNotExistException) {
+			return new DataResponse(
+				data: ['error' => $notFound],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (ForbiddenException $e) {
+			return new DataResponse(
+				data: ['error' => $e->getMessage()],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (Throwable $e) {
+			return $this->internalError(exception: $e);
+		}//end try
+	}//end respond()
+
+	/**
+	 * The shares as plain arrays.
+	 *
+	 * @param array<int, \OCA\LaunchPad\Db\DashboardShare> $shares The share entities.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function serializeShares(array $shares): array {
+		return array_map(
+			callback: static fn ($share) => $share->jsonSerialize(),
+			array: $shares
+		);
+	}//end serializeShares()
 }//end class

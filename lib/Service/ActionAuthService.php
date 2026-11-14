@@ -197,25 +197,47 @@ class ActionAuthService {
 			return [];
 		}
 
-		// Normalize: discard any non-array values + any non-string group entries.
-		$matrix = [];
-		foreach ($decoded as $action => $groups) {
+		return self::normalizeMatrix(matrix: $decoded);
+	}//end getMatrix()
+
+	/**
+	 * Normalize a matrix: discard any non-array values + any non-string
+	 * group entries, and duplicate groups.
+	 *
+	 * @param array $matrix Raw action => groups map.
+	 *
+	 * @return array<string, list<string>> The normalized matrix.
+	 */
+	private static function normalizeMatrix(array $matrix): array {
+		$normalized = [];
+		foreach ($matrix as $action => $groups) {
 			if (is_string($action) === false || is_array($groups) === false) {
 				continue;
 			}
 
-			$clean = [];
-			foreach ($groups as $g) {
-				if (is_string($g) === true && $g !== '') {
-					$clean[] = $g;
-				}
-			}
-
-			$matrix[$action] = array_values(array_unique($clean));
+			$normalized[$action] = self::cleanGroups(groups: $groups);
 		}
 
-		return $matrix;
-	}//end getMatrix()
+		return $normalized;
+	}//end normalizeMatrix()
+
+	/**
+	 * The non-empty string group IDs of a matrix entry, once each.
+	 *
+	 * @param array $groups The raw group entries.
+	 *
+	 * @return list<string> The group IDs.
+	 */
+	private static function cleanGroups(array $groups): array {
+		$clean = [];
+		foreach ($groups as $g) {
+			if (is_string($g) === true && $g !== '') {
+				$clean[] = $g;
+			}
+		}
+
+		return array_values(array_unique($clean));
+	}//end cleanGroups()
 
 	/**
 	 * Set the full action-to-groups matrix.
@@ -233,23 +255,7 @@ class ActionAuthService {
 	 */
 	public function setMatrix(array $matrix): void {
 		// Normalize on write — same shape as getMatrix returns.
-		$normalized = [];
-		foreach ($matrix as $action => $groups) {
-			if (is_string($action) === false || is_array($groups) === false) {
-				continue;
-			}
-
-			$clean = [];
-			foreach ($groups as $g) {
-				if (is_string($g) === true && $g !== '') {
-					$clean[] = $g;
-				}
-			}
-
-			$normalized[$action] = array_values(array_unique($clean));
-		}
-
-		$json = json_encode($normalized, flags: JSON_THROW_ON_ERROR);
+		$json = json_encode(self::normalizeMatrix(matrix: $matrix), flags: JSON_THROW_ON_ERROR);
 		$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $json);
 
 	}//end setMatrix()

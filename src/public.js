@@ -12,7 +12,10 @@
 // Widget types self-register via import-time side effects that `sideEffects`
 // tree-shaking (ADR-061) would otherwise drop; calling this no-op forces the
 // aggregator — and every widget registration — into the bundle. See main.js.
-import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
+import {
+	registerBuiltinDashboardWidgets,
+	registerTranslations,
+} from '@conduction/nextcloud-vue'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { createPinia } from 'pinia'
 import { createApp, h } from 'vue'
@@ -20,7 +23,13 @@ import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
 
 import './publicPath.js'
 import 'gridstack/dist/gridstack.min.css'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
 registerBuiltinDashboardWidgets()
+// The library's own strings (the greeting header among them) in the
+// viewer's language. See main.js.
+registerTranslations()
 
 // Vue 3 has no global Vue constructor — pinia and t/n are installed on the
 // app instance created below (`Vue.prototype.x` becomes an app-level mixin).

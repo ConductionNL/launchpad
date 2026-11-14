@@ -1,0 +1,279 @@
+{
+    "create / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "create / ok": [
+        201,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "url": null,
+            "passwordRequired": false,
+            "expiresAt": null,
+            "createdBy": null,
+            "createdAt": null,
+            "revokedAt": null,
+            "viewCount": 0,
+            "lastViewedAt": null
+        },
+        [
+            [
+                "createPublicShare",
+                [
+                    "d-1",
+                    "alice",
+                    "pw",
+                    "2030-01-01"
+                ]
+            ]
+        ]
+    ],
+    "create / unknown dashboard": [
+        404,
+        {
+            "error": "Dashboard not found"
+        },
+        [
+            [
+                "createPublicShare",
+                [
+                    "d-1",
+                    "alice",
+                    "pw",
+                    "2030-01-01"
+                ]
+            ]
+        ]
+    ],
+    "create / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "createPublicShare",
+                [
+                    "d-1",
+                    "alice",
+                    "pw",
+                    "2030-01-01"
+                ]
+            ]
+        ]
+    ],
+    "create / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "createPublicShare",
+                [
+                    "d-1",
+                    "alice",
+                    "pw",
+                    "2030-01-01"
+                ]
+            ],
+            [
+                "log",
+                "Public share request failed: RuntimeException",
+                "RuntimeException"
+            ]
+        ]
+    ],
+    "index / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "index / ok": [
+        200,
+        [
+            {
+                "id": null,
+                "dashboardUuid": "d-1",
+                "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "url": null,
+                "passwordRequired": false,
+                "expiresAt": null,
+                "createdBy": null,
+                "createdAt": null,
+                "revokedAt": null,
+                "viewCount": 0,
+                "lastViewedAt": null
+            },
+            {
+                "id": null,
+                "dashboardUuid": "d-1",
+                "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "url": null,
+                "passwordRequired": false,
+                "expiresAt": null,
+                "createdBy": null,
+                "createdAt": null,
+                "revokedAt": null,
+                "viewCount": 0,
+                "lastViewedAt": null
+            }
+        ],
+        [
+            [
+                "listActiveShares",
+                [
+                    "d-1",
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "index / unknown dashboard": [
+        404,
+        {
+            "error": "Dashboard not found"
+        },
+        [
+            [
+                "listActiveShares",
+                [
+                    "d-1",
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "index / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "listActiveShares",
+                [
+                    "d-1",
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "index / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "listActiveShares",
+                [
+                    "d-1",
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "Public share request failed: RuntimeException",
+                "RuntimeException"
+            ]
+        ]
+    ],
+    "destroy / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "destroy / ok": [
+        204,
+        [],
+        [
+            [
+                "revokeShare",
+                [
+                    "d-1",
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "destroy / unknown dashboard": [
+        404,
+        {
+            "error": "Not found"
+        },
+        [
+            [
+                "revokeShare",
+                [
+                    "d-1",
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "destroy / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "revokeShare",
+                [
+                    "d-1",
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "destroy / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "revokeShare",
+                [
+                    "d-1",
+                    7,
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "Public share request failed: RuntimeException",
+                "RuntimeException"
+            ]
+        ]
+    ],
+    "destroy / unknown share": [
+        404,
+        {
+            "error": "Not found"
+        },
+        [
+            [
+                "revokeShare",
+                [
+                    "d-1",
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ]
+}

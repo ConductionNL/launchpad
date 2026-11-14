@@ -34,16 +34,10 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
-use OCP\App\IAppManager;
-use OCP\Http\Client\IClientService;
+use OCP\Http\Client\IResponse;
 use OCP\IAppConfig;
 use OCP\ICache;
-use OCP\ICacheFactory;
-use OCP\IConfig;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -60,6 +54,8 @@ use Throwable;
  * @spec                                             openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherService {
+	use ReadsJsonCache;
+	use ReadsPlacementContent;
 
 	/**
 	 * Default reading cache TTL in seconds (REQ-WEATHER-002). Overridden
@@ -190,30 +186,18 @@ class WeatherService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether `weather_status` is enabled.
-	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      `weather_status`'s forecast service
-	 *                                      (REQ-WEATHER-002 provider reuse).
-	 * @param IClientService $clientService HTTP client factory for the fallback provider fetch.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed reading cache.
-	 * @param IAppConfig $appConfig Admin config: cache TTL, provider URL, API key.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param IConfig $config Reads the requesting user's locale/language and
-	 *                        the system default.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or nothing when absent.
+	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
+	 * @param WeatherSettings         $settings The app and system config.
+	 * @param WeatherStore            $store The placement mapper and logger.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a provider reading met, or
+	 *                                                    nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IAppManager $appManager,
-		private readonly ContainerInterface $container,
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
-		private readonly IAppConfig $appConfig,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly IConfig $config,
-		private readonly LoggerInterface $logger,
+		private readonly ReadingSources $sources,
+		private readonly WeatherSettings $settings,
+		private readonly WeatherStore $store,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
@@ -233,44 +217,79 @@ class WeatherService {
 	 */
 	public function resolveForPlacement(int $placementId, string $userId): array {
 		try {
-			$placement = $this->placementMapper->find(id: $placementId);
+			$placement = $this->store->placementMapper->find(id: $placementId);
 		} catch (Throwable $exception) {
 			return ['error' => 'placement_not_found'];
 		}
 
 		$config = $this->readPlacementConfig(placement: $placement);
+
+		return $this->readingFor(query: $this->queryFor(config: $config, userId: $userId));
+	}//end resolveForPlacement()
+
+	/**
+	 * Build the query for one placement config and viewer: the trimmed
+	 * author location, the units and the forecast language.
+	 *
+	 * @param array<string,mixed> $config The placement config.
+	 * @param string              $userId The viewing user's UID.
+	 *
+	 * @return WeatherQuery The query.
+	 */
+	private function queryFor(array $config, string $userId): WeatherQuery {
 		$location = trim(string: (string)($config['location'] ?? ''));
 		$override = (string)($config['unitsOverride'] ?? '');
 
-		$units = $this->resolveUnits(userId: $userId, override: $override);
-		$language = $this->resolveLanguage(userId: $userId);
+		return new WeatherQuery(
+			location: $location,
+			units: $this->resolveUnits(userId: $userId, override: $override),
+			language: $this->resolveLanguage(userId: $userId)
+		);
+	}//end queryFor()
 
-		$cacheKey = $this->buildCacheKey(location: $location, units: $units, language: $language);
+	/**
+	 * Serve the cached reading while it is fresh, otherwise fetch and
+	 * cache a fresh one, falling back to the stale reading or the error
+	 * shape when the upstream fails.
+	 *
+	 * @param WeatherQuery $query The query.
+	 *
+	 * @return array<string,mixed> The public reading or `{error: string}`.
+	 */
+	private function readingFor(WeatherQuery $query): array {
+		$cacheKey = $this->buildCacheKey(query: $query);
 		$cache = $this->getCache();
 		$cached = $this->readCache(cache: $cache, cacheKey: $cacheKey);
-
 		if ($this->isCacheFresh(cached: $cached) === true) {
 			return $this->publicShape(reading: $cached, stale: false);
 		}
 
-		$fresh = $this->fetchFresh(location: $location, units: $units, language: $language);
-		if ($fresh !== null) {
-			$fresh['fetchedAtTs'] = time();
-			if ($cache !== null) {
-				$cache->set(key: $cacheKey, value: json_encode($fresh), ttl: $this->cacheTtl());
-			}
-
-			return $this->publicShape(reading: $fresh, stale: false);
+		$fresh = $this->fetchFresh(query: $query);
+		if ($fresh === null) {
+			return $this->staleOrUnavailable(cached: $cached);
 		}
 
-		if ($cached !== null) {
-			// Upstream failed but a previous reading exists — degrade
-			// gracefully rather than error (REQ-WEATHER-002).
-			return $this->publicShape(reading: $cached, stale: true);
+		$fresh['fetchedAtTs'] = time();
+		$cache?->set(key: $cacheKey, value: json_encode($fresh), ttl: $this->cacheTtl());
+
+		return $this->publicShape(reading: $fresh, stale: false);
+	}//end readingFor()
+
+	/**
+	 * Answer when the upstream failed: a previous reading, flagged stale,
+	 * degrades gracefully rather than error (REQ-WEATHER-002).
+	 *
+	 * @param array<string,mixed>|null $cached The cached reading, if any.
+	 *
+	 * @return array<string,mixed> The stale reading or `{error: 'weather_unavailable'}`.
+	 */
+	private function staleOrUnavailable(?array $cached): array {
+		if ($cached === null) {
+			return ['error' => 'weather_unavailable'];
 		}
 
-		return ['error' => 'weather_unavailable'];
-	}//end resolveForPlacement()
+		return $this->publicShape(reading: $cached, stale: true);
+	}//end staleOrUnavailable()
 
 	/**
 	 * Whether a cached reading exists and is still inside its TTL.
@@ -299,50 +318,17 @@ class WeatherService {
 	 * personal location is preferred; otherwise the configured provider URL
 	 * is used.
 	 *
-	 * @param string $location The author-configured location, or `''`.
-	 * @param string $units `'metric'` or `'imperial'`.
-	 * @param string $language The resolved forecast language.
+	 * @param WeatherQuery $query The location (or `''`), units and language.
 	 *
 	 * @return array<string,mixed>|null The reading, or null when unavailable.
 	 */
-	private function fetchFresh(string $location, string $units, string $language): ?array {
-		if ($location === '') {
-			return $this->fetchFromWeatherStatus(units: $units);
+	private function fetchFresh(WeatherQuery $query): ?array {
+		if ($query->location === '') {
+			return $this->fetchFromWeatherStatus(units: $query->units);
 		}
 
-		return $this->fetchFromProviderUrl(location: $location, units: $units, language: $language);
+		return $this->fetchFromProviderUrl(query: $query);
 	}//end fetchFresh()
-
-	/**
-	 * Read the placement's `{location, unitsOverride}` config, falling
-	 * back to the legacy `style_config.content` slot for pre-column rows
-	 * (mirrors {@see \OCA\LaunchPad\Controller\FilesWidgetController::loadConfig()}).
-	 *
-	 * @param object $placement The {@see \OCA\LaunchPad\Db\WidgetPlacement} entity.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function readPlacementConfig(object $placement): array {
-		if (method_exists(object_or_class: $placement, method: 'getContentArray') === true) {
-			$content = $placement->getContentArray();
-			if (is_array(value: $content) === true && $content !== []) {
-				return $content;
-			}
-		}
-
-		if (method_exists(object_or_class: $placement, method: 'getStyleConfigArray') === true) {
-			$legacy = $placement->getStyleConfigArray();
-			if (isset($legacy['content']) === true && is_array(value: $legacy['content']) === true) {
-				return $legacy['content'];
-			}
-
-			if (is_array(value: $legacy) === true) {
-				return $legacy;
-			}
-		}
-
-		return [];
-	}//end readPlacementConfig()
 
 	/**
 	 * Derive the units to use: the author's explicit override when set,
@@ -359,17 +345,7 @@ class WeatherService {
 			return $override;
 		}
 
-		$locale = (string)$this->config->getUserValue(userId: $userId, appName: 'core', key: 'locale', default: '');
-		if ($locale === '') {
-			$locale = (string)$this->config->getSystemValue(key: 'default_locale', default: 'en');
-		}
-
-		$parts = preg_split(pattern: '/[_-]/', subject: $locale);
-		if ($parts === false) {
-			$parts = [];
-		}
-
-		$territory = strtoupper(string: (string)($parts[1] ?? ''));
+		$territory = $this->localeTerritory(userId: $userId);
 
 		if (in_array(needle: $territory, haystack: self::IMPERIAL_TERRITORIES, strict: true) === true) {
 			return 'imperial';
@@ -377,6 +353,28 @@ class WeatherService {
 
 		return 'metric';
 	}//end resolveUnits()
+
+	/**
+	 * The upper-cased territory part of the viewing user's locale (the
+	 * system default locale when the user has none), or `''`.
+	 *
+	 * @param string $userId The viewing user's UID.
+	 *
+	 * @return string The territory code, e.g. `US`.
+	 */
+	private function localeTerritory(string $userId): string {
+		$locale = (string)$this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'locale', default: '');
+		if ($locale === '') {
+			$locale = (string)$this->settings->config->getSystemValue(key: 'default_locale', default: 'en');
+		}
+
+		$parts = preg_split(pattern: '/[_-]/', subject: $locale);
+		if ($parts === false) {
+			$parts = [];
+		}
+
+		return strtoupper(string: (string)($parts[1] ?? ''));
+	}//end localeTerritory()
 
 	/**
 	 * Derive the forecast language from the viewing user's Nextcloud
@@ -388,9 +386,9 @@ class WeatherService {
 	 * @return string A two-letter (or `xx_YY`) language code.
 	 */
 	private function resolveLanguage(string $userId): string {
-		$lang = (string)$this->config->getUserValue(userId: $userId, appName: 'core', key: 'lang', default: '');
+		$lang = (string)$this->settings->config->getUserValue(userId: $userId, appName: 'core', key: 'lang', default: '');
 		if ($lang === '') {
-			$lang = (string)$this->config->getSystemValue(key: 'default_language', default: 'en');
+			$lang = (string)$this->settings->config->getSystemValue(key: 'default_language', default: 'en');
 		}
 
 		if ($lang !== '') {
@@ -415,37 +413,105 @@ class WeatherService {
 	 */
 	private function fetchFromWeatherStatus(string $units): ?array {
 		try {
-			if ($this->appManager->isEnabledForUser(appId: 'weather_status') === false) {
-				return null;
-			}
-
-			if ($this->container->has(id: self::WEATHER_STATUS_SERVICE_CLASS) === false) {
-				return null;
-			}
-
-			$service = $this->container->get(id: self::WEATHER_STATUS_SERVICE_CLASS);
-			if (method_exists(object_or_class: $service, method: 'getForecast') === false
-				|| method_exists(object_or_class: $service, method: 'getLocation') === false
-			) {
-				return null;
-			}
-
-			$forecast = $service->getForecast();
-			if (is_array(value: $forecast) === false || $forecast === [] || isset($forecast['error']) === true) {
+			$service = $this->weatherStatusService();
+			$forecast = $this->usableForecastOf(service: $service);
+			if ($service === null || $forecast === null) {
 				return null;
 			}
 
 			$locationInfo = $service->getLocation();
 		} catch (Throwable $exception) {
-			$this->logger->info(
-				message: 'WeatherService: weather_status provider unavailable, falling back',
-				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
-			);
+			$this->logWeatherStatusFailure(exception: $exception);
 			return null;
-		}//end try
+		}
 
 		return $this->normaliseMetNoForecast(forecast: $forecast, locationInfo: $locationInfo, units: $units);
 	}//end fetchFromWeatherStatus()
+
+	/**
+	 * The weather_status forecast service, when the app is enabled, its
+	 * service resolves and it offers both `getForecast()` and
+	 * `getLocation()`.
+	 *
+	 * @return object|null The service, or null when it cannot be used.
+	 */
+	private function weatherStatusService(): ?object {
+		if ($this->sources->appManager->isEnabledForUser(appId: 'weather_status') === false) {
+			return null;
+		}
+
+		if ($this->sources->container->has(id: self::WEATHER_STATUS_SERVICE_CLASS) === false) {
+			return null;
+		}
+
+		$service = $this->sources->container->get(id: self::WEATHER_STATUS_SERVICE_CLASS);
+		if ($this->offersForecast(service: $service) === false) {
+			return null;
+		}
+
+		return $service;
+	}//end weatherStatusService()
+
+	/**
+	 * Whether a resolved weather_status service offers both
+	 * `getForecast()` and `getLocation()`.
+	 *
+	 * @param mixed $service The resolved service.
+	 *
+	 * @return bool True when both methods exist.
+	 */
+	private function offersForecast(mixed $service): bool {
+		return method_exists(object_or_class: $service, method: 'getForecast') === true
+			&& method_exists(object_or_class: $service, method: 'getLocation') === true;
+	}//end offersForecast()
+
+	/**
+	 * The service's forecast when it is a non-empty list without an
+	 * `error` key; null when there is no service or the answer is unusable.
+	 *
+	 * @param object|null $service The weather_status service, if usable.
+	 *
+	 * @return array<int|string,mixed>|null The forecast, or null.
+	 */
+	private function usableForecastOf(?object $service): ?array {
+		if ($service === null) {
+			return null;
+		}
+
+		$forecast = $service->getForecast();
+		if ($this->isUsableForecast(forecast: $forecast) === false) {
+			return null;
+		}
+
+		return $forecast;
+	}//end usableForecastOf()
+
+	/**
+	 * Whether a weather_status forecast answer is a non-empty list without
+	 * an `error` key.
+	 *
+	 * @param mixed $forecast The `getForecast()` answer.
+	 *
+	 * @return bool True when the forecast can be normalised.
+	 */
+	private function isUsableForecast(mixed $forecast): bool {
+		return is_array(value: $forecast) === true && $forecast !== [] && isset($forecast['error']) === false;
+	}//end isUsableForecast()
+
+	/**
+	 * Log that weather_status could not be used, so the provider path is
+	 * tried next.
+	 *
+	 * @param Throwable $exception What went wrong.
+	 *
+	 * @return void
+	 */
+	private function logWeatherStatusFailure(Throwable $exception): void {
+		$this->store->logger->info(
+			message: 'WeatherService: weather_status provider unavailable, falling back',
+			context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
+		);
+	}//end logWeatherStatusFailure()
 
 	/**
 	 * Normalise met.no's compact-format timeseries (weather_status's
@@ -459,35 +525,16 @@ class WeatherService {
 	 * @return array<string,mixed>|null
 	 */
 	private function normaliseMetNoForecast(array $forecast, array $locationInfo, string $units): ?array {
-		$current = $forecast[0] ?? null;
-		if (is_array(value: $current) === false) {
+		$details = $this->metNoInstantDetails(current: ($forecast[0] ?? null));
+		if ($details === null) {
 			return null;
 		}
 
-		$details = ($current['data']['instant']['details'] ?? null);
-		if (is_array(value: $details) === false || isset($details['air_temperature']) === false) {
-			return null;
-		}
-
-		$tempC = (float)$details['air_temperature'];
-		$temp = $tempC;
-		if ($units === 'imperial') {
-			$temp = (($tempC * 9 / 5) + 32);
-		}
-
-		$symbolCode = (string)(
-			$current['data']['next_1_hours']['summary']['symbol_code'] ?? $current['data']['next_6_hours']['summary']['symbol_code'] ?? ''
-		);
-		$condition = $this->mapMetNoSymbol(symbolCode: $symbolCode);
-
-		$label = (string)($locationInfo['address'] ?? '');
-		if ($label === '') {
-			$label = 'Current location';
-		}
+		$condition = $this->mapMetNoSymbol(symbolCode: $this->metNoSymbolCode(current: $forecast[0]));
 
 		return [
-			'location' => $label,
-			'tempValue' => $temp,
+			'location' => $this->labelOr(label: (string)($locationInfo['address'] ?? ''), fallback: 'Current location'),
+			'tempValue' => $this->celsiusIn(celsius: (float)$details['air_temperature'], units: $units),
 			'units' => $units,
 			'condition' => $condition,
 			'conditionText' => $this->humaniseCondition(code: $condition),
@@ -499,6 +546,73 @@ class WeatherService {
 			'language' => 'en',
 		];
 	}//end normaliseMetNoForecast()
+
+	/**
+	 * The instant details of a met.no timeseries entry, when the entry is
+	 * an array whose details carry an air temperature.
+	 *
+	 * @param mixed $current The timeseries entry.
+	 *
+	 * @return array<string,mixed>|null The details, or null when unusable.
+	 */
+	private function metNoInstantDetails(mixed $current): ?array {
+		if (is_array(value: $current) === false) {
+			return null;
+		}
+
+		$details = ($current['data']['instant']['details'] ?? null);
+		if (is_array(value: $details) === false || isset($details['air_temperature']) === false) {
+			return null;
+		}
+
+		return $details;
+	}//end metNoInstantDetails()
+
+	/**
+	 * The next-hour symbol code of a met.no timeseries entry, falling back
+	 * to the next-six-hours one, then `''`.
+	 *
+	 * @param array<string,mixed> $current The timeseries entry.
+	 *
+	 * @return string The raw symbol code.
+	 */
+	private function metNoSymbolCode(array $current): string {
+		return (string)(
+			$current['data']['next_1_hours']['summary']['symbol_code'] ?? $current['data']['next_6_hours']['summary']['symbol_code'] ?? ''
+		);
+	}//end metNoSymbolCode()
+
+	/**
+	 * A Celsius temperature in the requested units.
+	 *
+	 * @param float  $celsius The temperature in Celsius.
+	 * @param string $units   `metric` or `imperial`.
+	 *
+	 * @return float Celsius, or Fahrenheit when `imperial`.
+	 */
+	private function celsiusIn(float $celsius, string $units): float {
+		if ($units === 'imperial') {
+			return (($celsius * 9 / 5) + 32);
+		}
+
+		return $celsius;
+	}//end celsiusIn()
+
+	/**
+	 * A location label, or the fallback when it is empty.
+	 *
+	 * @param string $label    The label the upstream gave.
+	 * @param string $fallback The label to use when it gave none.
+	 *
+	 * @return string The label to show.
+	 */
+	private function labelOr(string $label, string $fallback): string {
+		if ($label === '') {
+			return $fallback;
+		}
+
+		return $label;
+	}//end labelOr()
 
 	/**
 	 * Map a met.no `symbol_code` (e.g. `partlycloudy_day`) to our
@@ -524,90 +638,174 @@ class WeatherService {
 	 * most once an hour while it stays the same (adopt-connection-registry).
 	 * The report never changes the reading.
 	 *
-	 * @param string $location The author-configured location string.
-	 * @param string $units `metric` or `imperial`.
-	 * @param string $language The resolved forecast language.
+	 * @param WeatherQuery $query The author-configured location, units and language.
 	 *
 	 * @return array<string,mixed>|null
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
-	private function fetchFromProviderUrl(string $location, string $units, string $language): ?array {
-		$template = $this->appConfig->getValueString(
-			app: Application::APP_ID,
-			key: self::CONFIG_KEY_PROVIDER_URL,
-			default: ''
-		);
+	private function fetchFromProviderUrl(WeatherQuery $query): ?array {
+		$url = $this->providerUrl(query: $query);
+		if ($url === null) {
+			return null;
+		}
+
+		$response = $this->sendProviderRequest(url: $url);
+		if ($response === null) {
+			return null;
+		}
+
+		return $this->readProviderResponse(response: $response, call: new WeatherProviderCall(url: $url, query: $query));
+	}//end fetchFromProviderUrl()
+
+	/**
+	 * The provider URL for a query: the configured template with the
+	 * location, API key, units and language filled in. Null, reported,
+	 * when no template is configured or the URL is not http(s).
+	 *
+	 * @param WeatherQuery $query The query.
+	 *
+	 * @return string|null The URL, or null when there is none to call.
+	 */
+	private function providerUrl(WeatherQuery $query): ?string {
+		$template = $this->providerSetting(key: self::CONFIG_KEY_PROVIDER_URL);
 		if ($template === '') {
 			$this->connectionReporter?->reportWeatherNotConfigured();
 			return null;
 		}
 
-		$apiKey = $this->appConfig->getValueString(
-			app: Application::APP_ID,
-			key: self::CONFIG_KEY_PROVIDER_API_KEY,
-			default: ''
-		);
-
-		$url = str_replace(
-			search: ['{location}', '{apiKey}', '{units}', '{lang}'],
-			replace: [rawurlencode(string: $location), rawurlencode(string: $apiKey), $units, $language],
-			subject: $template
-		);
-
-		$scheme = strtolower(string: (string)parse_url(url: $url, component: PHP_URL_SCHEME));
-		if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-			$this->logger->warning(
-				message: 'WeatherService: provider URL has an invalid scheme, rejecting',
-				context: ['app' => Application::APP_ID]
-			);
-			$this->connectionReporter?->reportWeatherInvalidUrl();
+		$url = $this->expandProviderTemplate(template: $template, query: $query);
+		if ($this->rejectsScheme(url: $url) === true) {
 			return null;
 		}
 
+		return $url;
+	}//end providerUrl()
+
+	/**
+	 * Read one provider setting from the app config, `''` when unset.
+	 *
+	 * @param string $key The config key.
+	 *
+	 * @return string The value.
+	 */
+	private function providerSetting(string $key): string {
+		return $this->settings->appConfig->getValueString(
+			app: Application::APP_ID,
+			key: $key,
+			default: ''
+		);
+	}//end providerSetting()
+
+	/**
+	 * Fill the provider template's `{location}`, `{apiKey}`, `{units}` and
+	 * `{lang}` placeholders.
+	 *
+	 * @param string       $template The configured template.
+	 * @param WeatherQuery $query    The query.
+	 *
+	 * @return string The URL.
+	 */
+	private function expandProviderTemplate(string $template, WeatherQuery $query): string {
+		$apiKey = $this->providerSetting(key: self::CONFIG_KEY_PROVIDER_API_KEY);
+
+		return str_replace(
+			search: ['{location}', '{apiKey}', '{units}', '{lang}'],
+			replace: [rawurlencode(string: $query->location), rawurlencode(string: $apiKey), $query->units, $query->language],
+			subject: $template
+		);
+	}//end expandProviderTemplate()
+
+	/**
+	 * Whether a provider URL is refused for not being http(s); a refusal
+	 * is logged and reported.
+	 *
+	 * @param string $url The expanded provider URL.
+	 *
+	 * @return bool True when the URL must not be called.
+	 */
+	private function rejectsScheme(string $url): bool {
+		$scheme = strtolower(string: (string)parse_url(url: $url, component: PHP_URL_SCHEME));
+		if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === true) {
+			return false;
+		}
+
+		$this->store->logger->warning(
+			message: 'WeatherService: provider URL has an invalid scheme, rejecting',
+			context: ['app' => Application::APP_ID]
+		);
+		$this->connectionReporter?->reportWeatherInvalidUrl();
+
+		return true;
+	}//end rejectsScheme()
+
+	/**
+	 * Send the provider GET; a transport failure is logged, reported
+	 * without a status and answered with null.
+	 *
+	 * @param string $url The provider URL.
+	 *
+	 * @return IResponse|null The response, or null when the call failed.
+	 */
+	private function sendProviderRequest(string $url): ?IResponse {
 		try {
-			$client = $this->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'connect_timeout' => self::CONNECT_TIMEOUT,
-					'timeout' => self::REQUEST_TIMEOUT,
-					'http_errors' => false,
-					// C5 (mirrors FeedRefreshService): no auto-redirect — a 3xx to
-					// an unexpected host would bypass the scheme check above.
-					'allow_redirects' => false,
-				]
-			);
+			$client = $this->sources->clientService->newClient();
+			return (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
+				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->store->logger->info(
 				message: 'WeatherService: provider fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
 			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $url, httpStatus: null);
 			return null;
 		}
+	}//end sendProviderRequest()
 
+	/**
+	 * Turn a provider response into a reading, reporting what the call
+	 * met: a non-2xx status, an unreadable body, or the successful call.
+	 *
+	 * @param IResponse           $response The provider response.
+	 * @param WeatherProviderCall $call     The URL and query of the call.
+	 *
+	 * @return array<string,mixed>|null The reading, or null.
+	 */
+	private function readProviderResponse(IResponse $response, WeatherProviderCall $call): ?array {
 		$status = (int)$response->getStatusCode();
 		if ($status < 200 || $status >= 300) {
-			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $url, httpStatus: $status);
+			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $call->url, httpStatus: $status);
 			return null;
 		}
 
-		$decoded = json_decode(json: (string)$response->getBody(), associative: true);
-		$reading = null;
-		if (is_array(value: $decoded) === true) {
-			$reading = $this->normaliseProviderPayload(payload: $decoded, location: $location, units: $units, language: $language);
-		}
-
+		$reading = $this->readProviderBody(body: (string)$response->getBody(), query: $call->query);
 		if ($reading === null) {
-			$this->connectionReporter?->reportWeatherUnreadable(url: $url);
+			$this->connectionReporter?->reportWeatherUnreadable(url: $call->url);
 			return null;
 		}
 
-		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $url, httpStatus: $status);
+		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_WEATHER, url: $call->url, httpStatus: $status);
 
 		return $reading;
-	}//end fetchFromProviderUrl()
+	}//end readProviderResponse()
+
+	/**
+	 * Decode a provider body and normalise it, null when it is not a JSON
+	 * object or carries no usable temperature.
+	 *
+	 * @param string       $body  The response body.
+	 * @param WeatherQuery $query The query.
+	 *
+	 * @return array<string,mixed>|null The reading, or null.
+	 */
+	private function readProviderBody(string $body, WeatherQuery $query): ?array {
+		$decoded = json_decode(json: $body, associative: true);
+		if (is_array(value: $decoded) === false) {
+			return null;
+		}
+
+		return $this->normaliseProviderPayload(payload: $decoded, query: $query);
+	}//end readProviderBody()
 
 	/**
 	 * Normalise an OpenWeatherMap-family JSON payload (the common default
@@ -616,46 +814,83 @@ class WeatherService {
 	 * temperature field.
 	 *
 	 * @param array<string,mixed> $payload The decoded JSON body.
-	 * @param string $location The configured location (label fallback).
-	 * @param string $units `metric` or `imperial`.
-	 * @param string $language The resolved forecast language.
+	 * @param WeatherQuery        $query   The configured location (label fallback), units and language.
 	 *
 	 * @return array<string,mixed>|null
 	 */
-	private function normaliseProviderPayload(array $payload, string $location, string $units, string $language): ?array {
-		$temp = ($payload['main']['temp'] ?? ($payload['temp'] ?? null));
-		if (is_numeric(value: $temp) === false) {
+	private function normaliseProviderPayload(array $payload, WeatherQuery $query): ?array {
+		if (is_numeric(value: $this->providerTemperature(payload: $payload)) === false) {
 			return null;
 		}
 
-		$description = '';
-		$condition = 'unknown';
-		$weather0 = ($payload['weather'][0] ?? null);
-		if (is_array(value: $weather0) === true) {
-			$description = (string)($weather0['description'] ?? '');
-			$main = strtolower(string: (string)($weather0['main'] ?? ''));
-			$condition = self::OWM_CONDITION_MAP[$main] ?? 'unknown';
-		}
+		return $this->providerReading(payload: $payload, query: $query);
+	}//end normaliseProviderPayload()
 
-		$label = (string)($payload['name'] ?? '');
-		if ($label === '') {
-			$label = $location;
-		}
+	/**
+	 * The temperature field of a provider payload: `main.temp`, else `temp`.
+	 *
+	 * @param array<string,mixed> $payload The decoded JSON body.
+	 *
+	 * @return mixed The raw temperature, or null.
+	 */
+	private function providerTemperature(array $payload): mixed {
+		return ($payload['main']['temp'] ?? ($payload['temp'] ?? null));
+	}//end providerTemperature()
 
-		$conditionText = $this->humaniseCondition(code: $condition);
-		if ($description !== '') {
-			$conditionText = ucfirst(string: $description);
-		}
+	/**
+	 * Build the reading of a provider payload that carries a temperature.
+	 *
+	 * @param array<string,mixed> $payload The decoded JSON body.
+	 * @param WeatherQuery        $query   The query.
+	 *
+	 * @return array<string,mixed> The reading.
+	 */
+	private function providerReading(array $payload, WeatherQuery $query): array {
+		$weather0 = $this->firstWeatherEntry(payload: $payload);
+		$condition = self::OWM_CONDITION_MAP[strtolower(string: (string)($weather0['main'] ?? ''))] ?? 'unknown';
 
 		return [
-			'location' => $label,
-			'tempValue' => (float)$temp,
-			'units' => $units,
+			'location' => $this->labelOr(label: (string)($payload['name'] ?? ''), fallback: $query->location),
+			'tempValue' => (float)$this->providerTemperature(payload: $payload),
+			'units' => $query->units,
 			'condition' => $condition,
-			'conditionText' => $conditionText,
-			'language' => $language,
+			'conditionText' => $this->providerConditionText(description: (string)($weather0['description'] ?? ''), condition: $condition),
+			'language' => $query->language,
 		];
-	}//end normaliseProviderPayload()
+	}//end providerReading()
+
+	/**
+	 * The first `weather` entry of a provider payload, `[]` when it has none.
+	 *
+	 * @param array<string,mixed> $payload The decoded JSON body.
+	 *
+	 * @return array<string,mixed> The entry.
+	 */
+	private function firstWeatherEntry(array $payload): array {
+		$weather0 = ($payload['weather'][0] ?? null);
+		if (is_array(value: $weather0) === false) {
+			return [];
+		}
+
+		return $weather0;
+	}//end firstWeatherEntry()
+
+	/**
+	 * The provider's own description, sentence-cased, or the English
+	 * fallback for the condition when it gave none.
+	 *
+	 * @param string $description The provider description, or `''`.
+	 * @param string $condition   The normalised condition code.
+	 *
+	 * @return string The condition text.
+	 */
+	private function providerConditionText(string $description, string $condition): string {
+		if ($description !== '') {
+			return ucfirst(string: $description);
+		}
+
+		return $this->humaniseCondition(code: $condition);
+	}//end providerConditionText()
 
 	/**
 	 * Title-cased English fallback description for a condition code, used
@@ -679,43 +914,13 @@ class WeatherService {
 	 * REQ-WEATHER-002 ("cached ... for the same location + units +
 	 * language").
 	 *
-	 * @param string $location The configured (or resolved) location.
-	 * @param string $units `metric` or `imperial`.
-	 * @param string $language The resolved forecast language.
+	 * @param WeatherQuery $query The configured (or resolved) location, units and language.
 	 *
 	 * @return string The cache key.
 	 */
-	private function buildCacheKey(string $location, string $units, string $language): string {
-		return 'reading_' . hash(algo: 'sha256', data: strtolower(string: $location) . '|' . $units . '|' . $language);
+	private function buildCacheKey(WeatherQuery $query): string {
+		return 'reading_' . hash(algo: 'sha256', data: strtolower(string: $query->location) . '|' . $query->units . '|' . $query->language);
 	}//end buildCacheKey()
-
-	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
 
 	/**
 	 * Shape an internal reading array (which also carries the internal
@@ -756,9 +961,9 @@ class WeatherService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_weather_');
+			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_weather_');
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->store->logger->info(
 				message: 'WeatherService: cache subsystem unavailable, falling back to direct fetch',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -775,7 +980,7 @@ class WeatherService {
 	 * @return integer The TTL in seconds.
 	 */
 	private function cacheTtl(): int {
-		$ttl = $this->appConfig->getValueInt(
+		$ttl = $this->settings->appConfig->getValueInt(
 			app: Application::APP_ID,
 			key: self::CONFIG_KEY_CACHE_TTL,
 			default: self::DEFAULT_CACHE_TTL

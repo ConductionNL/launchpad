@@ -9,6 +9,7 @@
 	],
 	"types": [
 		"ai-assistant",
+		"attention",
 		"calendar",
 		"chart",
 		"clock",

@@ -111,235 +111,151 @@ class Notifier implements INotifier {
 			app: Application::APP_ID,
 			lang: $languageCode
 		);
-		$subject = $notification->getSubject();
 
-		// The mention subject ships the dashboard UUID directly as the
-		// notification's objectId; the share / transfer subjects ship the
-		// dashboard DB id (legacy contract). REQ-CMNT-006.
-		if ($subject === 'mentioned_in_comment') {
-			$url = $this->buildDashboardUrlFromUuid(
-				uuid: $notification->getObjectId()
-			);
+		$url  = $this->linkFor(notification: $notification);
+		$copy = $this->copyFor(notification: $notification, l: $l);
 
-			return $this->prepareMentionedInComment(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
+		$notification->setRichSubject(subject: $copy->richSubject, parameters: []);
+		$notification->setParsedSubject(subject: $copy->parsedSubject);
+		$notification->setRichMessage(message: $copy->message, parameters: []);
+		$notification->setParsedMessage(message: $copy->message);
+		$notification->setLink(link: $url);
 
-		$url = $this->buildDashboardUrl(
-			objectId: $notification->getObjectId()
-		);
-
-		if ($subject === 'dashboard_shared') {
-			return $this->prepareDashboardShared(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
-
-		if ($subject === 'dashboard_ownership_transferred') {
-			return $this->prepareOwnershipTransferred(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
-
-		if ($subject === 'dashboard_template_resynced') {
-			return $this->prepareTemplateResynced(
-				notification: $notification,
-				l: $l,
-				url: $url
-			);
-		}
-
-		throw new UnknownNotificationException(
-			message: 'Unknown subject: ' . $subject
-		);
+		return $notification;
 	}//end prepare()
 
 	/**
-	 * Prepare a `mentioned_in_comment` notification (REQ-CMNT-006).
+	 * Build the deep link of a notification.
+	 *
+	 * The mention subject ships the dashboard UUID directly as the
+	 * notification's objectId; the share / transfer / resync subjects ship
+	 * the dashboard DB id (legacy contract). REQ-CMNT-006.
+	 *
+	 * @param INotification $notification The notification.
+	 *
+	 * @return string The URL.
+	 */
+	private function linkFor(INotification $notification): string {
+		if ($notification->getSubject() === 'mentioned_in_comment') {
+			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
+		}
+
+		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
+	}//end linkFor()
+
+	/**
+	 * Render the subject and message text of a notification.
+	 *
+	 * @param INotification $notification The notification.
+	 * @param IL10N         $l            The L10N instance.
+	 *
+	 * @return NotificationCopy The rendered text.
+	 *
+	 * @throws UnknownNotificationException When the subject is not handled.
+	 */
+	private function copyFor(INotification $notification, IL10N $l): NotificationCopy {
+		$params = $notification->getSubjectParameters();
+
+		return match ($notification->getSubject()) {
+			'mentioned_in_comment' => $this->mentionCopy(params: $params, l: $l),
+			'dashboard_shared' => $this->sharedCopy(params: $params, l: $l),
+			'dashboard_ownership_transferred' => $this->transferredCopy(params: $params, l: $l),
+			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
+			default => throw new UnknownNotificationException(
+				message: 'Unknown subject: ' . $notification->getSubject()
+			),
+		};
+	}//end copyFor()
+
+	/**
+	 * Render a `mentioned_in_comment` notification (REQ-CMNT-006).
 	 *
 	 * Subject parameters: [authorUserId, dashboardUuid].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareMentionedInComment(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$author = (string)($params[0] ?? '');
-
-		$richSubject = $l->t(
+	private function mentionCopy(array $params, IL10N $l): NotificationCopy {
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t(
 			'%1$s mentioned you in a dashboard comment',
-			[$author]
+			[(string)($params[0] ?? '')]
 		);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(subject: $richSubject);
+		$copy->parsedSubject = $copy->richSubject;
+		$copy->message       = $l->t('Open the dashboard to read the comment');
 
-		$message = $l->t('Open the dashboard to read the comment');
-		$notification->setRichMessage(
-			message: $message,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $message);
-
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareMentionedInComment()
+		return $copy;
+	}//end mentionCopy()
 
 	/**
-	 * Prepare a `dashboard_shared` notification.
+	 * Render a `dashboard_shared` notification.
 	 *
 	 * Subject parameters: [sharerUserId, dashboardName, permissionLevel].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareDashboardShared(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$sharer = $params[0] ?? '';
-		$name = $params[1] ?? '';
-		$level = $params[2] ?? '';
+	private function sharedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [($params[0] ?? ''), ($params[1] ?? '')];
 
-		$richSubject = $l->t(
-			'%1$s shared **%2$s** with you',
-			[$sharer, $name]
-		);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(
-			subject: $l->t(
-				'%1$s shared %2$s with you',
-				[$sharer, $name]
-			)
-		);
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('%1$s shared **%2$s** with you', $names);
+		$copy->parsedSubject = $l->t('%1$s shared %2$s with you', $names);
+		$copy->message       = $this->permissionLabel(l: $l, level: ($params[2] ?? ''));
 
-		$levelLabel = $this->permissionLabel(l: $l, level: $level);
-		$notification->setRichMessage(
-			message: $levelLabel,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $levelLabel);
-
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareDashboardShared()
+		return $copy;
+	}//end sharedCopy()
 
 	/**
-	 * Prepare a `dashboard_ownership_transferred` notification.
+	 * Render a `dashboard_ownership_transferred` notification.
 	 *
 	 * Subject parameters: [dashboardName].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareOwnershipTransferred(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$name = $params[0] ?? '';
+	private function transferredCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
 
-		$richSubject = $l->t('**%1$s** is now yours', [$name]);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(
-			subject: $l->t('%1$s is now yours', [$name])
-		);
-
-		$message = $l->t(
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('**%1$s** is now yours', $name);
+		$copy->parsedSubject = $l->t('%1$s is now yours', $name);
+		$copy->message       = $l->t(
 			'Ownership transferred after the previous owner was removed'
 		);
-		$notification->setRichMessage(
-			message: $message,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $message);
 
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareOwnershipTransferred()
+		return $copy;
+	}//end transferredCopy()
 
 	/**
-	 * Prepare a `dashboard_template_resynced` notification (REQ-RESYNC-005
+	 * Render a `dashboard_template_resynced` notification (REQ-RESYNC-005
 	 * "Affected users are notified").
 	 *
 	 * Subject parameters: [dashboardName].
 	 *
-	 * @param INotification $notification The notification.
-	 * @param IL10N $l The L10N instance.
-	 * @param string $url The deep-link URL.
+	 * @param array $params The subject parameters.
+	 * @param IL10N $l      The L10N instance.
 	 *
-	 * @return INotification The prepared notification.
+	 * @return NotificationCopy The rendered text.
 	 */
-	private function prepareTemplateResynced(
-		INotification $notification,
-		IL10N $l,
-		string $url,
-	): INotification {
-		$params = $notification->getSubjectParameters();
-		$name = $params[0] ?? '';
+	private function resyncedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
 
-		$richSubject = $l->t(
-			'An administrator updated your **%1$s** dashboard',
-			[$name]
-		);
-		$notification->setRichSubject(
-			subject: $richSubject,
-			parameters: []
-		);
-		$notification->setParsedSubject(
-			subject: $l->t(
-				'An administrator updated your %1$s dashboard',
-				[$name]
-			)
-		);
-
-		$message = $l->t(
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('An administrator updated your **%1$s** dashboard', $name);
+		$copy->parsedSubject = $l->t('An administrator updated your %1$s dashboard', $name);
+		$copy->message       = $l->t(
 			'The dashboard template you received was updated by an administrator'
 		);
-		$notification->setRichMessage(
-			message: $message,
-			parameters: []
-		);
-		$notification->setParsedMessage(message: $message);
 
-		$notification->setLink(link: $url);
-
-		return $notification;
-	}//end prepareTemplateResynced()
+		return $copy;
+	}//end resyncedCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

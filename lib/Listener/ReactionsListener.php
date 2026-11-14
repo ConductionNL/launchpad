@@ -27,17 +27,15 @@ namespace OCA\LaunchPad\Listener;
 
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Service\ReactionService;
-use OCP\EventDispatcher\Event;
-use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Deletes reactions for the deleted dashboard. REQ-RXN-009.
  *
- * @implements IEventListener<DashboardDeletedEvent>
  */
-class ReactionsListener implements IEventListener {
+class ReactionsListener extends DashboardCleanupListener {
+	protected const CLEANED = 'deleted %d reactions';
+
 	/**
 	 * Constructor.
 	 *
@@ -50,48 +48,23 @@ class ReactionsListener implements IEventListener {
 	 */
 	public function __construct(
 		private readonly ReactionService $reactionService,
-		private readonly LoggerInterface $logger,
+		LoggerInterface $logger,
 	) {
+		parent::__construct(logger: $logger);
 	}//end __construct()
 
 	/**
-	 * Handle the DashboardDeletedEvent.
+	 * Remove the deleted dashboard's rows.
 	 *
-	 * @param Event $event The event.
+	 * @param DashboardDeletedEvent $event The event.
 	 *
-	 * @return void
+	 * @return int The number of rows removed.
 	 *
 	 * @spec openspec/specs/dashboard-cascade-events/spec.md
 	 */
-	public function handle(Event $event): void {
-		if (($event instanceof DashboardDeletedEvent) === false) {
-			return;
-		}
-
-		$uuid = $event->getDashboardUuid();
-
-		try {
-			$deleted = $this->reactionService->deleteReactionsByDashboard(
-				dashboardUuid: $uuid
-			);
-
-			$this->logger->debug(
-				message: sprintf(
-					'launchpad ReactionsListener: deleted %d reactions for dashboard %s',
-					$deleted,
-					$uuid
-				),
-				context: ['app' => 'launchpad']
-			);
-		} catch (Throwable $t) {
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad ReactionsListener: failed for dashboard %s: %s',
-					$uuid,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
-		}//end try
-	}//end handle()
+	protected function cleanUp(DashboardDeletedEvent $event): int {
+		return $this->reactionService->deleteReactionsByDashboard(
+			dashboardUuid: $event->getDashboardUuid()
+		);
+	}//end cleanUp()
 }//end class

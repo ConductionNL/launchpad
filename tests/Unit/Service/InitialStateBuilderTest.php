@@ -104,6 +104,7 @@ class InitialStateBuilderTest extends TestCase {
 			->setUserDashboards($userDashboards)
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
+			->setStartPageWithoutNavigation(true)
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -116,6 +117,8 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertSame($groupDashboards, $sink['groupDashboards']);
 		$this->assertSame($userDashboards, $sink['userDashboards']);
 		$this->assertTrue($sink['allowUserDashboards']);
+		// runtime-shell REQ-SHELL-009, an optional key: pushed when set.
+		$this->assertTrue($sink['startPageWithoutNavigation']);
 	}
 
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {

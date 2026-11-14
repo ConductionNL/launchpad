@@ -49,6 +49,7 @@
 import type { APIRequestContext, request } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN = {
@@ -179,7 +180,7 @@ test.describe('dashboard export and import — widget configuration survives', (
 			.context()
 			.setHTTPCredentials({ username: ADMIN.user, password: ADMIN.pass })
 		await page.goto(SETTINGS_PAGE, { waitUntil: 'domcontentloaded' })
-		await page.locator('[data-test="tab-operations"]').click({ timeout: 30_000 })
+		await adminTab(page, 'operations').click({ timeout: 30_000 })
 
 		await page.locator('[data-test="import-file-input"]').setInputFiles({
 			name: `launchpad-roundtrip-${STAMP}.zip`,

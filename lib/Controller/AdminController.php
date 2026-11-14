@@ -27,17 +27,8 @@ use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Exception\DuplicateRoleAssignmentException;
 use OCA\LaunchPad\Exception\InvalidRoleAssignmentException;
 use OCA\LaunchPad\Exception\ResourceException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\AdminSettingsService;
-use OCA\LaunchPad\Service\AdminTemplateService;
-use OCA\LaunchPad\Service\ExportService;
-use OCA\LaunchPad\Service\FeedRefreshService;
-use OCA\LaunchPad\Service\FooterService;
 use OCA\LaunchPad\Service\ImportService;
 use OCA\LaunchPad\Service\ResourceService;
-use OCA\LaunchPad\Service\RoleService;
-use OCA\LaunchPad\Service\SetupWizardService;
-use OCA\LaunchPad\Service\TemplateResyncService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -47,9 +38,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for admin dashboard template management plus role-assignment
@@ -98,57 +87,23 @@ use OCP\IUserSession;
  * @spec                                             openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-4
  */
 class AdminController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param AdminTemplateService $templateService The admin template service.
-	 * @param AdminSettingsService $settingsService The admin settings service.
-	 * @param IGroupManager $groupManager The Nextcloud group manager.
-	 * @param IUserSession $userSession The current user session.
-	 * @param ExportService $exportService ZIP export service
-	 *                                     (REQ-EXIM-001..003).
-	 * @param ImportService $importService ZIP import service
-	 *                                     (REQ-EXIM-004..008).
-	 * @param RoleService $roleService The LaunchPad role service
-	 *                                 (REQ-ROLE-001..011).
-	 * @param FeedRefreshService $feedRefresh The background feed
-	 *                                        refresh service
-	 *                                        used by the
-	 *                                        on-demand admin
-	 *                                        `refreshFeeds`
-	 *                                        action
-	 *                                        (REQ-BGJOB-FEED-005).
-	 * @param FooterService $footerService Global footer settings + sanitiser
-	 *                                     (REQ-FTR-001..010).
-	 * @param SetupWizardService $setupWizardService Setup-wizard
-	 *                                               orchestrator
-	 *                                               (REQ-WIZ-001..011).
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param TemplateResyncService $resyncService Admin template
-	 *                                             re-sync
-	 *                                             orchestrator
-	 *                                             (REQ-RESYNC-001..005).
+	 * @param IRequest            $request The request.
+	 * @param AdminTemplateTools  $templates The template, resync, export and import services.
+	 * @param AdminSettingsTools  $settings The settings, footer and setup wizard services and the group manager.
+	 * @param AdminCallerAndRoles $caller The user session, the action check and the role and feed refresh services.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AdminTemplateService $templateService,
-		private readonly AdminSettingsService $settingsService,
-		private readonly IGroupManager $groupManager,
-		private readonly IUserSession $userSession,
-		private readonly ExportService $exportService,
-		private readonly ImportService $importService,
-		private readonly RoleService $roleService,
-		private readonly FeedRefreshService $feedRefresh,
-		private readonly FooterService $footerService,
-		private readonly SetupWizardService $setupWizardService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly TemplateResyncService $resyncService,
+		private readonly AdminTemplateTools $templates,
+		private readonly AdminSettingsTools $settings,
+		private readonly AdminCallerAndRoles $caller,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -160,7 +115,7 @@ class AdminController extends Controller {
 	 * @return JSONResponse|null Non-null means the request must be rejected.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(
 				data: ['error' => 'Not authenticated'],
@@ -168,7 +123,7 @@ class AdminController extends Controller {
 			);
 		}
 
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
+		if ($this->settings->groupManager->isAdmin(userId: $user->getUID()) === false) {
 			return new JSONResponse(
 				data: ['error' => 'Admin required'],
 				statusCode: Http::STATUS_FORBIDDEN
@@ -187,7 +142,7 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listTemplates(): JSONResponse {
-		$templates = $this->templateService->listTemplates();
+		$templates = $this->templates->templateService->listTemplates();
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $templates)
@@ -206,7 +161,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getTemplate(int $id): JSONResponse {
 		try {
-			$result = $this->templateService->getTemplateWithPlacements(
+			$result = $this->templates->templateService->getTemplateWithPlacements(
 				id: $id
 			);
 			$placements = ResponseHelper::serializeList(
@@ -243,18 +198,20 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createTemplate(
 		string $name,
-		?string $description = null,
-		?array $targetGroups = null,
+		string|null $description = null,
+		array|null $targetGroups = null,
 		string $permissionLevel = Dashboard::PERMISSION_ADD_ONLY,
 		bool $isDefault = false,
 	): JSONResponse {
 		try {
-			$template = $this->templateService->createTemplate(
+			$template = $this->templates->templateService->createTemplate(
 				name: $name,
-				description: $description,
-				targetGroups: $targetGroups,
-				permissionLevel: $permissionLevel,
-				isDefault: $isDefault
+				settings: [
+					'description'     => $description,
+					'targetGroups'    => $targetGroups,
+					'permissionLevel' => $permissionLevel,
+					'isDefault'       => $isDefault,
+				]
 			);
 
 			return ResponseHelper::success(
@@ -284,26 +241,39 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateTemplate(
 		int $id,
-		?string $name = null,
-		?string $description = null,
-		?array $targetGroups = null,
-		?string $permissionLevel = null,
-		?bool $isDefault = null,
-		?int $gridColumns = null,
+		string|null $name = null,
+		string|null $description = null,
+		array|null $targetGroups = null,
+		string|null $permissionLevel = null,
+		bool|null $isDefault = null,
+		int|null $gridColumns = null,
 	): JSONResponse {
-		try {
-			$data = $this->buildUpdateData(
-				name: $name,
-				description: $description,
-				targetGroups: $targetGroups,
-				permissionLevel: $permissionLevel,
-				isDefault: $isDefault,
-				gridColumns: $gridColumns
-			);
+		return $this->saveTemplate(
+			templateId: $id,
+			fields: [
+				'name'            => $name,
+				'description'     => $description,
+				'targetGroups'    => $targetGroups,
+				'permissionLevel' => $permissionLevel,
+				'isDefault'       => $isDefault,
+				'gridColumns'     => $gridColumns,
+			]
+		);
+	}//end updateTemplate()
 
-			$template = $this->templateService->updateTemplate(
-				id: $id,
-				data: $data
+	/**
+	 * Save the non-null template fields and answer with the template.
+	 *
+	 * @param int                  $templateId The template ID.
+	 * @param array<string, mixed> $fields     The nullable template fields by name.
+	 *
+	 * @return JSONResponse The updated template, or the error.
+	 */
+	private function saveTemplate(int $templateId, array $fields): JSONResponse {
+		try {
+			$template = $this->templates->templateService->updateTemplate(
+				id: $templateId,
+				data: $this->buildUpdateData(fields: $fields)
 			);
 
 			return ResponseHelper::success(
@@ -312,7 +282,7 @@ class AdminController extends Controller {
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
-	}//end updateTemplate()
+	}//end saveTemplate()
 
 	/**
 	 * Delete an admin template.
@@ -326,7 +296,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function deleteTemplate(int $id): JSONResponse {
 		try {
-			$this->templateService->deleteTemplate(id: $id);
+			$this->templates->templateService->deleteTemplate(id: $id);
 
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (\Exception $e) {
@@ -373,14 +343,14 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		$actingAdminId = '';
 		if ($user !== null) {
 			$actingAdminId = $user->getUID();
 		}
 
 		try {
-			$result = $this->resyncService->resync(
+			$result = $this->templates->resyncService->resync(
 				templateId: $id,
 				strategy: $strategy,
 				dryRun: $dryRun,
@@ -409,7 +379,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function getSettings(): JSONResponse {
 		return ResponseHelper::success(
-			data: $this->settingsService->getSettings()
+			data: $this->settings->settingsService->getSettings()
 		);
 	}//end getSettings()
 
@@ -430,10 +400,6 @@ class AdminController extends Controller {
 	 * @param array|null $linkCreateFileExts link-button-widget createFile
 	 *                                       extension allow-list
 	 *                                       (REQ-LBN-004).
-	 * @param string|null $launchpadContentStorage Content storage backend
-	 *                                             (`database` or
-	 *                                             `groupfolder`).
-	 *                                             REQ-GFSB-006.
 	 * @param string|null $defaultSharePermissionLevel Org-wide default share
 	 *                                                 permission level
 	 *                                                 (dashboard-sharing spec).
@@ -468,6 +434,9 @@ class AdminController extends Controller {
 	 * @param bool|null $allowMultipleDashboards Alias of `$allowMultiDash`.
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
+	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
+	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
+	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -475,23 +444,24 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateSettings(
-		?string $defaultPermLevel = null,
-		?bool $allowUserDash = null,
-		?bool $allowMultiDash = null,
-		?int $defaultGridCols = null,
-		?array $linkCreateFileExts = null,
-		?string $launchpadContentStorage = null,
-		?string $defaultSharePermissionLevel = null,
-		?array $forcedShareGroups = null,
-		?bool $legacyWidgetBridgeEnabled = null,
-		?int $maxDashboardsPerUser = null,
-		?int $maxWidgetsPerDashboard = null,
-		?string $quicksearchFallbackTarget = null,
-		?string $defaultPermissionLevel = null,
-		?bool $allowUserDashboards = null,
-		?bool $allowMultipleDashboards = null,
-		?int $defaultGridColumns = null,
-		?array $linkCreateFileExtensions = null,
+		string|null $defaultPermLevel = null,
+		bool|null $allowUserDash = null,
+		bool|null $allowMultiDash = null,
+		int|null $defaultGridCols = null,
+		array|null $linkCreateFileExts = null,
+		string|null $defaultSharePermissionLevel = null,
+		array|null $forcedShareGroups = null,
+		bool|null $legacyWidgetBridgeEnabled = null,
+		int|null $maxDashboardsPerUser = null,
+		int|null $maxWidgetsPerDashboard = null,
+		string|null $quicksearchFallbackTarget = null,
+		string|null $defaultPermissionLevel = null,
+		bool|null $allowUserDashboards = null,
+		bool|null $allowMultipleDashboards = null,
+		int|null $defaultGridColumns = null,
+		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
+		array|null $tileAllowedSchemes = null,
+		array|null $ssoLaunchTemplates = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -501,27 +471,28 @@ class AdminController extends Controller {
 		$linkCreateFileExts ??= $linkCreateFileExtensions;
 
 		try {
-			$this->settingsService->updateSettings(
-				defaultPermLevel: $defaultPermLevel,
-				allowUserDash: $allowUserDash,
-				allowMultiDash: $allowMultiDash,
-				defaultGridCols: $defaultGridCols,
-				linkCreateFileExts: $linkCreateFileExts,
-				contentStorage: $launchpadContentStorage,
-				defaultSharePermissionLevel: $defaultSharePermissionLevel,
-				forcedShareGroups: $forcedShareGroups,
-				legacyWidgetBridgeEnabled: $legacyWidgetBridgeEnabled,
-				maxDashboardsPerUser: $maxDashboardsPerUser,
-				maxWidgetsPerDashboard: $maxWidgetsPerDashboard,
-				quicksearchFallbackTarget: $quicksearchFallbackTarget
+			$this->settings->settingsService->updateSettings(
+				settings: [
+					'defaultPermLevel'            => $defaultPermLevel,
+					'allowUserDash'               => $allowUserDash,
+					'allowMultiDash'              => $allowMultiDash,
+					'defaultGridCols'             => $defaultGridCols,
+					'linkCreateFileExts'          => $linkCreateFileExts,
+					'defaultSharePermissionLevel' => $defaultSharePermissionLevel,
+					'forcedShareGroups'           => $forcedShareGroups,
+					'legacyWidgetBridgeEnabled'   => $legacyWidgetBridgeEnabled,
+					'maxDashboardsPerUser'        => $maxDashboardsPerUser,
+					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
+					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
+					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
+					'tileAllowedSchemes'          => $tileAllowedSchemes,
+					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
+				]
 			);
 
 			return ResponseHelper::success(data: ['status' => 'ok']);
 		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
@@ -547,7 +518,7 @@ class AdminController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->footerService->getGlobalSettings()
+			data: $this->settings->footerService->getGlobalSettings()
 		);
 	}//end getFooterSettings()
 
@@ -579,20 +550,37 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function updateFooterSettings(
-		?bool $footerEnabled = null,
+		bool|null $footerEnabled = null,
 		mixed $footerHtml = null,
-		?array $footerConfig = null,
-		?string $footerBackgroundColor = null,
-		?string $footerTextColor = null,
+		array|null $footerConfig = null,
+		string|null $footerBackgroundColor = null,
+		string|null $footerTextColor = null,
 	): JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
 			return $guard;
 		}
 
-		// Build the patch from only those args that the caller actually
-		// supplied — `array_key_exists` semantics on the body let admins
-		// explicitly clear a colour by sending `null`.
+		$patch = $this->footerPatch();
+
+		try {
+			$this->settings->footerService->updateGlobalSettings(patch: $patch);
+		} catch (InvalidArgumentException $e) {
+			return $this->footerFailure(exception: $e);
+		}
+
+		return ResponseHelper::success(data: ['status' => 'ok']);
+	}//end updateFooterSettings()
+
+	/**
+	 * The footer patch: only those keys the caller actually supplied.
+	 *
+	 * `array_key_exists` semantics on the body let admins explicitly
+	 * clear a colour by sending `null`.
+	 *
+	 * @return array<string, mixed> The supplied footer keys and their values.
+	 */
+	private function footerPatch(): array {
 		$body = $this->request->getParams();
 		$patch = [];
 		foreach (['footerEnabled', 'footerHtml', 'footerConfig', 'footerBackgroundColor', 'footerTextColor'] as $key) {
@@ -601,26 +589,32 @@ class AdminController extends Controller {
 			}
 		}
 
-		try {
-			$this->footerService->updateGlobalSettings(patch: $patch);
-		} catch (InvalidArgumentException $e) {
-			$isOversize = str_contains(
-				haystack: $e->getMessage(),
-				needle: '8 KB limit'
-			);
-			$status = Http::STATUS_BAD_REQUEST;
-			if ($isOversize === true) {
-				$status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
-			}
+		return $patch;
+	}//end footerPatch()
 
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: $status
-			);
+	/**
+	 * Answer a refused footer patch: 413 when the HTML exceeds the 8 KB
+	 * cap, 400 for every other validation failure.
+	 *
+	 * @param InvalidArgumentException $exception The validation failure.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function footerFailure(InvalidArgumentException $exception): JSONResponse {
+		$isOversize = str_contains(
+			haystack: $exception->getMessage(),
+			needle: '8 KB limit'
+		);
+		$status = Http::STATUS_BAD_REQUEST;
+		if ($isOversize === true) {
+			$status = Http::STATUS_REQUEST_ENTITY_TOO_LARGE;
 		}
 
-		return ResponseHelper::success(data: ['status' => 'ok']);
-	}//end updateFooterSettings()
+		return new JSONResponse(
+			data: ['error' => $exception->getMessage()],
+			statusCode: $status
+		);
+	}//end footerFailure()
 
 	/**
 	 * Export a single dashboard or the entire site as a ZIP archive.
@@ -642,7 +636,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function export(
 		string $scope = 'site',
-		?string $dashboardUuid = null,
+		string|null $dashboardUuid = null,
 	): StreamResponse|JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
@@ -650,44 +644,45 @@ class AdminController extends Controller {
 		}
 
 		if (in_array(needle: $scope, haystack: ['site', 'dashboard'], strict: true) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported scope: ' . $scope],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Unsupported scope: ' . $scope, statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->caller->userSession->getUser()?->getUID();
 
 		if ($scope === 'site') {
-			return $this->exportService->exportSite(currentUserId: $userId);
+			return $this->templates->exportService->exportSite(currentUserId: $userId);
 		}
 
+		return $this->exportOneDashboard(dashboardUuid: $dashboardUuid, userId: $userId);
+	}//end export()
+
+	/**
+	 * Export one dashboard after checking its UUID: 400 when it is missing
+	 * or malformed, 404 when no dashboard answers to it.
+	 *
+	 * @param string|null $dashboardUuid The dashboard UUID from the request.
+	 * @param string      $userId        The exporting admin.
+	 *
+	 * @return StreamResponse|JSONResponse The streamed ZIP, or a JSON error.
+	 */
+	private function exportOneDashboard(string|null $dashboardUuid, string $userId): StreamResponse|JSONResponse {
 		if ($dashboardUuid === null || $dashboardUuid === '') {
-			return new JSONResponse(
-				data: ['error' => 'dashboardUuid parameter is required when scope=dashboard'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'dashboardUuid parameter is required when scope=dashboard', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		if (preg_match(pattern: '/^[A-Za-z0-9\-]{8,}$/', subject: $dashboardUuid) !== 1) {
-			return new JSONResponse(
-				data: ['error' => 'Invalid dashboard UUID format'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Invalid dashboard UUID format', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
-			return $this->exportService->exportDashboard(
+			return $this->templates->exportService->exportDashboard(
 				dashboardUuid: $dashboardUuid,
 				currentUserId: $userId
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
-	}//end export()
+	}//end exportOneDashboard()
 
 	/**
 	 * Import a previously-exported ZIP archive.
@@ -710,36 +705,56 @@ class AdminController extends Controller {
 			return $guard;
 		}
 
-		// Multipart uploads bind to $_FILES; PHP only populates this for
-		// POST requests, which is what the route declares (REQ-EXIM-004).
-		$upload = $_FILES['file'] ?? null;
-		if (is_array($upload) === false
-			|| isset($upload['tmp_name']) === false
-			|| (string)$upload['tmp_name'] === ''
-		) {
-			return new JSONResponse(
-				data: ['error' => 'No file uploaded under field "file".'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+		$tmpName = $this->uploadedArchivePath();
+		if ($tmpName === null) {
+			return $this->failure(message: 'No file uploaded under field "file".', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		$tmpName = (string)$upload['tmp_name'];
-
-		$userId = (string)$this->userSession->getUser()?->getUID();
+		$userId = (string)$this->caller->userSession->getUser()?->getUID();
 
 		try {
-			$result = $this->importService->import(
+			$result = $this->templates->importService->import(
 				zipPath: $tmpName,
 				preserveUuids: $preserveUuids,
 				currentUserId: $userId
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
+		return $this->importSummary(result: $result);
+	}//end import()
+
+	/**
+	 * The temporary path of the uploaded ZIP archive, or null when no
+	 * file was uploaded under the `file` field.
+	 *
+	 * Multipart uploads bind to $_FILES; PHP only populates this for
+	 * POST requests, which is what the route declares (REQ-EXIM-004).
+	 *
+	 * @return string|null The temporary path, or null.
+	 */
+	private function uploadedArchivePath(): string|null {
+		$upload = $_FILES['file'] ?? null;
+		if (is_array($upload) === false
+			|| isset($upload['tmp_name']) === false
+			|| (string)$upload['tmp_name'] === ''
+		) {
+			return null;
+		}
+
+		return (string)$upload['tmp_name'];
+	}//end uploadedArchivePath()
+
+	/**
+	 * Answer an import result: 409 with zero counts on a UUID collision,
+	 * otherwise the imported and skipped counts.
+	 *
+	 * @param array<string, mixed> $result The import service result.
+	 *
+	 * @return JSONResponse The import summary.
+	 */
+	private function importSummary(array $result): JSONResponse {
 		if ($result['status'] === ImportService::ERR_UUID_COLLISION) {
 			return new JSONResponse(
 				data: [
@@ -758,7 +773,7 @@ class AdminController extends Controller {
 				'errors' => $result['errors'],
 			]
 		);
-	}//end import()
+	}//end importSummary()
 
 	/**
 	 * List every role assignment in the system (REQ-ROLE-006). NC-admin only.
@@ -774,7 +789,7 @@ class AdminController extends Controller {
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function listRoles(): JSONResponse {
 
-		$assignments = $this->roleService->listAssignments();
+		$assignments = $this->caller->roleService->listAssignments();
 
 		return ResponseHelper::success(
 			data: ResponseHelper::serializeList(entities: $assignments)
@@ -799,36 +814,24 @@ class AdminController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function createRole(
-		?string $userId = null,
-		?string $groupId = null,
-		?string $role = null,
+		string|null $userId = null,
+		string|null $groupId = null,
+		string|null $role = null,
 	): JSONResponse {
 
-		$assignedBy = (string)$this->userSession->getUser()->getUID();
+		$assignedBy = (string)$this->caller->userSession->getUser()->getUID();
 
 		try {
-			$assignment = $this->roleService->assignRole(
+			$assignment = $this->caller->roleService->assignRole(
 				userId: $userId,
 				groupId: $groupId,
 				role: (string)$role,
 				assignedBy: $assignedBy
 			);
 		} catch (DuplicateRoleAssignmentException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getDisplayMessage(),
-					'errorCode' => $e->getErrorCode(),
-				],
-				statusCode: Http::STATUS_CONFLICT
-			);
+			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_CONFLICT);
 		} catch (InvalidRoleAssignmentException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getDisplayMessage(),
-					'errorCode' => $e->getErrorCode(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->roleFailure(exception: $e, statusCode: Http::STATUS_BAD_REQUEST);
 		}//end try
 
 		return ResponseHelper::success(
@@ -836,6 +839,24 @@ class AdminController extends Controller {
 			statusCode: Http::STATUS_CREATED
 		);
 	}//end createRole()
+
+	/**
+	 * The error envelope of a refused role assignment.
+	 *
+	 * @param ResourceException $exception  The refusal.
+	 * @param int               $statusCode The HTTP status to answer with.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function roleFailure(ResourceException $exception, int $statusCode): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => $exception->getDisplayMessage(),
+				'errorCode' => $exception->getErrorCode(),
+			],
+			statusCode: $statusCode
+		);
+	}//end roleFailure()
 
 	/**
 	 * Delete a role assignment by ID (REQ-ROLE-004). NC-admin only.
@@ -852,7 +873,7 @@ class AdminController extends Controller {
 	public function deleteRole(int $id): JSONResponse {
 
 		try {
-			$this->roleService->removeRole(id: $id);
+			$this->caller->roleService->removeRole(id: $id);
 		} catch (DoesNotExistException) {
 			return ResponseHelper::forbidden(
 				message: 'Role assignment not found'
@@ -877,13 +898,13 @@ class AdminController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getMyRole(): JSONResponse {
-		$user = $this->userSession->getUser();
+		$user = $this->caller->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'admin.get-my-role');
+			$this->caller->actionAuth->requireAction($user, 'admin.get-my-role');
 		} catch (OCSForbiddenException) {
 			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
@@ -892,8 +913,8 @@ class AdminController extends Controller {
 
 		return ResponseHelper::success(
 			data: [
-				'role' => $this->roleService->getEffectiveRole(userId: $userId),
-				'source' => $this->roleService->getRoleSource(userId: $userId),
+				'role' => $this->caller->roleService->getEffectiveRole(userId: $userId),
+				'source' => $this->caller->roleService->getRoleSource(userId: $userId),
 			]
 		);
 	}//end getMyRole()
@@ -926,16 +947,11 @@ class AdminController extends Controller {
 				)
 			);
 			if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === false) {
-				return new JSONResponse(
-					data: [
-						'error' => 'feedUrl must use http:// or https:// scheme.',
-					],
-					statusCode: Http::STATUS_BAD_REQUEST
-				);
+				return $this->failure(message: 'feedUrl must use http:// or https:// scheme.', statusCode: Http::STATUS_BAD_REQUEST);
 			}
 		}
 
-		$summary = $this->feedRefresh->refreshAll(onlyUrl: $feedUrl);
+		$summary = $this->caller->feedRefresh->refreshAll(onlyUrl: $feedUrl);
 
 		return new JSONResponse(data: $summary, statusCode: Http::STATUS_OK);
 	}//end refreshFeedsNow()
@@ -965,18 +981,11 @@ class AdminController extends Controller {
 	): JSONResponse {
 
 		if ($base64 === '') {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_payload',
-					'message' => 'Field "base64" is required',
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_payload', message: 'Field "base64" is required');
 		}
 
 		try {
-			$url = $this->templateService->uploadPreviewImage(
+			$url = $this->templates->templateService->uploadPreviewImage(
 				templateUuid: $uuid,
 				base64DataUrl: $base64
 			);
@@ -994,14 +1003,7 @@ class AdminController extends Controller {
 			// disallowed image format, oversized payload, SVG sanitiser
 			// rejection, storage failure) returned by ResourceService::upload
 			// — all collapse to a single 400 envelope per REQ-TMPL-017.
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_image',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_image', message: $e->getMessage());
 		}//end try
 
 		return new JSONResponse(
@@ -1031,7 +1033,7 @@ class AdminController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->setupWizardService->getWizardState()
+			data: $this->settings->setupWizardService->getWizardState()
 		);
 	}//end getWizardState()
 
@@ -1053,90 +1055,18 @@ class AdminController extends Controller {
 		}
 
 		return ResponseHelper::success(
-			data: $this->setupWizardService->markWizardComplete()
+			data: $this->settings->setupWizardService->markWizardComplete()
 		);
 	}//end completeWizard()
 
 	/**
-	 * Persist the storage backend choice from Step 2 (REQ-WIZ-003).
+	 * Keep the non-null update fields.
 	 *
-	 * Validates the selection and writes `launchpad.content_storage`. The
-	 * GroupFolder option is server-side gated by the `groupfolders` app
-	 * dependency — selecting it without the app installed returns 400.
-	 * Admin-only.
+	 * @param array<string, mixed> $fields The nullable update fields by name.
 	 *
-	 * @param string|null $storage The chosen backend.
-	 *
-	 * @return JSONResponse The post-write wizard state, or 400/401/403.
-	 *
-	 * @spec openspec/specs/admin-templates/spec.md
+	 * @return array<string, mixed> The non-null update data.
 	 */
-	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function setWizardStorage(?string $storage = null): JSONResponse {
-		$guard = $this->assertAdmin();
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		if ($storage === null || $storage === '') {
-			return new JSONResponse(
-				data: ['error' => 'Field "storage" is required.'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		}
-
-		if ($storage === SetupWizardService::STORAGE_GROUPFOLDER
-			&& $this->setupWizardService->hasGroupfolderApp() === false
-		) {
-			return new JSONResponse(
-				data: ['error' => 'GroupFolder app is not installed.'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		}
-
-		try {
-			$this->setupWizardService->setContentStorage(value: $storage);
-		} catch (InvalidArgumentException) {
-			return new JSONResponse(
-				data: ['error' => 'Unsupported storage backend.'],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
-		}
-
-		return ResponseHelper::success(
-			data: $this->setupWizardService->getWizardState()
-		);
-	}//end setWizardStorage()
-
-	/**
-	 * Build the update data array from nullable parameters.
-	 *
-	 * @param string|null $name The name.
-	 * @param string|null $description The description.
-	 * @param array|null $targetGroups The target groups.
-	 * @param string|null $permissionLevel The permission level.
-	 * @param bool|null $isDefault Whether default.
-	 * @param int|null $gridColumns The grid columns.
-	 *
-	 * @return array The non-null update data.
-	 */
-	private function buildUpdateData(
-		?string $name,
-		?string $description,
-		?array $targetGroups,
-		?string $permissionLevel,
-		?bool $isDefault,
-		?int $gridColumns,
-	): array {
-		$fields = [
-			'name' => $name,
-			'description' => $description,
-			'targetGroups' => $targetGroups,
-			'permissionLevel' => $permissionLevel,
-			'isDefault' => $isDefault,
-			'gridColumns' => $gridColumns,
-		];
-
+	private function buildUpdateData(array $fields): array {
 		return array_filter(
 			array: $fields,
 			callback: function ($value) {

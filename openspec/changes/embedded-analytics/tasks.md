@@ -31,7 +31,7 @@
   - `unrevokeToken(id)`: Clear revokedAt (soft revocation)
   - Unit tests: token creation, validation, revocation, expiry
 
-- [ ] Task 5: Create `lib/Service/RateLimitService.php` (token-bucket algorithm):
+- [x] Task 5: Create `lib/Service/RateLimitService.php` (token-bucket algorithm):
   - `checkRateLimit(tokenId, timestamp)`: Query token's `rateLimitPolicy`, check bucket state, return remaining quota or 429 error
   - `refillBucket(tokenId)`: Update bucket based on elapsed time (token-bucket refill)
   - Store bucket state in Redis or in-memory cache with TTL
@@ -51,7 +51,7 @@
   - `applyFilterContext(request, filterContext)`: Pin filters from token's `subject.filterContext`
   - Integrate into API middleware so ALL non-GET/HEAD requests are checked
 
-- [ ] Task 8: Create `lib/Service/CspService.php` for CSP header generation (REQ-EMB-003):
+- [x] Task 8: Create `lib/Service/CspService.php` for CSP header generation (REQ-EMB-003):
   - `generateCspHeader(hostOrigins)`: Return `Content-Security-Policy: frame-ancestors <origins>`
   - `validateOrigins(origins)`: Reject wildcard, require scheme + domain
   - `validateOriginFormat(origin)`: Validate RFC 3986 format

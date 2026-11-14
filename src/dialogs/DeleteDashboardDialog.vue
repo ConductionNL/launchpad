@@ -41,6 +41,7 @@
 <script>
 import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 
 /**
  * DeleteDashboardDialog: the confirmation before a dashboard is deleted.
@@ -59,15 +60,9 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
-		name: {
-			type: String,
-			default: '',
-		},
+		name: TEXT_PROP,
 
 		/** Dashboards under this one, once the server has told us. */
 		childCount: {

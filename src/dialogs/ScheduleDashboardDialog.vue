@@ -32,23 +32,20 @@
 			</p>
 		</div>
 		<template #actions>
-			<NcButton variant="tertiary" @click="$emit('update:open', false)">
-				{{ t('launchpad', 'Cancel') }}
-			</NcButton>
-			<NcButton
-				variant="primary"
-				:disabled="!goLive && !takeDown"
-				data-testid="schedule-save"
-				@click="save">
-				{{ t('launchpad', 'Schedule') }}
-			</NcButton>
+			<CnDialogActions
+				:canSubmit="Boolean(goLive || takeDown)"
+				:confirmLabel="t('launchpad', 'Schedule')"
+				:cancelLabel="t('launchpad', 'Cancel')"
+				@cancel="$emit('update:open', false)"
+				@submit="save" />
 		</template>
 	</NcDialog>
 </template>
 
 <script>
-import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
+import { CnDialogActions, NcDialog } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 
 /**
  * ScheduleDashboardDialog: set when a dashboard goes live, when it comes
@@ -62,21 +59,15 @@ export default {
 	name: 'ScheduleDashboardDialog',
 
 	components: {
-		NcButton,
+		CnDialogActions,
 		NcDialog,
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
 		/** Why the last attempt was refused. */
-		error: {
-			type: String,
-			default: '',
-		},
+		error: TEXT_PROP,
 	},
 
 	emits: ['update:open', 'save'],

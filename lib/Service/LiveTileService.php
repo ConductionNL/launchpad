@@ -53,13 +53,9 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\Connection\ConnectionReporter;
 use OCA\LaunchPad\Support\FleetAppId;
-use OCP\App\IAppManager;
-use OCP\Http\Client\IClientService;
+use OCP\Http\Client\IResponse;
 use OCP\IAppConfig;
 use OCP\ICache;
-use OCP\ICacheFactory;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -77,6 +73,8 @@ use Throwable;
  * @spec                                             openspec/specs/live-data-tile-widget/spec.md
  */
 class LiveTileService {
+	use ReadsJsonCache;
+	use ReadsPlacementContent;
 
 	/**
 	 * Default value-cache TTL in seconds when a placement has no (or an
@@ -172,28 +170,18 @@ class LiveTileService {
 	/**
 	 * Constructor.
 	 *
-	 * @param IAppManager $appManager Detects whether the connector leaf is enabled,
-	 *                                under whichever id it registered.
-	 * @param ContainerInterface $container App container used to optionally resolve
-	 *                                      Integriq's data-source service
-	 *                                      (REQ-LIVETILE-005 capability probe).
-	 * @param IClientService $clientService HTTP client factory for the direct-URL fetch.
-	 * @param ICacheFactory $cacheFactory Backing factory for the distributed value cache.
-	 * @param IAppConfig $appConfig Admin config: allow-listed hosts.
-	 * @param WidgetPlacementMapper $placementMapper Resolves placements by id.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or nothing when absent.
+	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
+	 * @param LiveTileSettings        $settings The app config and logger.
+	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
+	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or
+	 *                                                    nothing when absent.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
 	public function __construct(
-		private readonly IAppManager $appManager,
-		private readonly ContainerInterface $container,
-		private readonly IClientService $clientService,
-		private readonly ICacheFactory $cacheFactory,
-		private readonly IAppConfig $appConfig,
+		private readonly ReadingSources $sources,
+		private readonly LiveTileSettings $settings,
 		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly LoggerInterface $logger,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
 	}//end __construct()
@@ -217,31 +205,78 @@ class LiveTileService {
 			return ['error' => 'placement_not_found'];
 		}
 
-		$config = $this->readPlacementConfig(placement: $placement);
-		$refresh = $this->clampRefresh(seconds: (int)($config['refresh'] ?? 0));
+		return $this->valueFor(placementId: $placementId, config: $this->readPlacementConfig(placement: $placement));
+	}//end resolveForPlacement()
 
+	/**
+	 * Serve the cached value while it is inside the tile's refresh
+	 * interval, otherwise fetch and cache a fresh one, falling back to
+	 * the stale value or the null/stale shape when the fetch fails.
+	 *
+	 * @param integer             $placementId The widget placement id.
+	 * @param array<string,mixed> $config      The placement's resolved config.
+	 *
+	 * @return array<string,mixed> `{value, formatted, badge, fetchedAt, stale}`.
+	 */
+	private function valueFor(int $placementId, array $config): array {
 		$cacheKey = $this->buildCacheKey(placementId: $placementId, config: $config);
 		$cache = $this->getCache();
 		$cached = $this->readCache(cache: $cache, cacheKey: $cacheKey);
-
-		if ($cached !== null) {
-			$age = (time() - (int)($cached['fetchedAtTs'] ?? 0));
-			if ($age >= 0 && $age < $refresh) {
-				return $this->publicShape(reading: $cached, config: $config, stale: false);
-			}
+		if ($this->isFresh(cached: $cached, config: $config) === true) {
+			return $this->publicShape(reading: $cached, config: $config, stale: false);
 		}
 
 		$fresh = $this->fetchFresh(config: $config);
-
-		if ($fresh !== null) {
-			$fresh['fetchedAtTs'] = time();
-			if ($cache !== null) {
-				$cache->set(key: $cacheKey, value: json_encode($fresh), ttl: $refresh);
-			}
-
-			return $this->publicShape(reading: $fresh, config: $config, stale: false);
+		if ($fresh === null) {
+			return $this->staleOrEmpty(cached: $cached, config: $config);
 		}
 
+		$fresh['fetchedAtTs'] = time();
+		$cache?->set(key: $cacheKey, value: json_encode($fresh), ttl: $this->refreshOf(config: $config));
+
+		return $this->publicShape(reading: $fresh, config: $config, stale: false);
+	}//end valueFor()
+
+	/**
+	 * The tile's effective refresh interval in seconds.
+	 *
+	 * @param array<string,mixed> $config The placement's resolved config.
+	 *
+	 * @return integer The clamped interval.
+	 */
+	private function refreshOf(array $config): int {
+		return $this->clampRefresh(seconds: (int)($config['refresh'] ?? 0));
+	}//end refreshOf()
+
+	/**
+	 * Whether a cached reading exists and is younger than the tile's
+	 * refresh interval; a future stamp counts as stale.
+	 *
+	 * @param array<string,mixed>|null $cached The cached reading, if any.
+	 * @param array<string,mixed>      $config The placement's resolved config.
+	 *
+	 * @return bool True when the cached reading may be served as fresh.
+	 */
+	private function isFresh(?array $cached, array $config): bool {
+		if ($cached === null) {
+			return false;
+		}
+
+		$age = (time() - (int)($cached['fetchedAtTs'] ?? 0));
+
+		return $age >= 0 && $age < $this->refreshOf(config: $config);
+	}//end isFresh()
+
+	/**
+	 * Answer when the fetch failed: the previous value flagged stale, or
+	 * the null/stale shape when there is none.
+	 *
+	 * @param array<string,mixed>|null $cached The cached reading, if any.
+	 * @param array<string,mixed>      $config The placement's resolved config.
+	 *
+	 * @return array<string,mixed> `{value, formatted, badge, fetchedAt, stale}`.
+	 */
+	private function staleOrEmpty(?array $cached, array $config): array {
 		if ($cached !== null) {
 			// Upstream failed (or the allow-list/capability probe refused
 			// the fetch) but a previous value exists — degrade gracefully
@@ -256,7 +291,7 @@ class LiveTileService {
 			'fetchedAt' => null,
 			'stale' => true,
 		];
-	}//end resolveForPlacement()
+	}//end staleOrEmpty()
 
 	/**
 	 * Validate a candidate live-tile source config at save time
@@ -270,38 +305,64 @@ class LiveTileService {
 	 * @spec openspec/specs/live-data-tile-widget/spec.md
 	 */
 	public function validateSourceConfig(array $config): array {
-		$errors = [];
 		$sourceMode = (string)($config['sourceMode'] ?? '');
 
 		if (in_array(needle: $sourceMode, haystack: ['connector', 'url'], strict: true) === false) {
-			$errors[] = 'invalid_source_mode';
-			return $errors;
+			return ['invalid_source_mode'];
 		}
 
 		if ($sourceMode === 'url') {
-			$url = trim(string: (string)($config['url'] ?? ''));
-			if ($url === '') {
-				$errors[] = 'url_required';
-			} elseif ($this->hasValidScheme(url: $url) === false) {
-				$errors[] = 'invalid_url';
-			} elseif ($this->isHostAllowed(url: $url) === false) {
-				// FAIL-CLOSED (REQ-LIVETILE-002 "rejected at save time").
-				$errors[] = 'host_not_allowed';
-			}
+			return $this->urlConfigErrors(url: trim(string: (string)($config['url'] ?? '')));
 		}
 
-		if ($sourceMode === 'connector') {
-			if (trim(string: (string)($config['sourceId'] ?? '')) === '') {
-				$errors[] = 'source_id_required';
-			}
+		return $this->connectorConfigErrors(config: $config);
+	}//end validateSourceConfig()
 
-			if ($this->isConnectorAvailable() === false) {
-				$errors[] = 'connector_unavailable';
-			}
+	/**
+	 * The save-time error for a `url`-mode source: missing, not http(s),
+	 * or a host off the allow-list.
+	 *
+	 * @param string $url The trimmed configured URL.
+	 *
+	 * @return string[] At most one error code.
+	 */
+	private function urlConfigErrors(string $url): array {
+		if ($url === '') {
+			return ['url_required'];
+		}
+
+		if (HostAllowList::hasHttpScheme(url: $url) === false) {
+			return ['invalid_url'];
+		}
+
+		if ($this->isHostAllowed(url: $url) === false) {
+			// FAIL-CLOSED (REQ-LIVETILE-002 "rejected at save time").
+			return ['host_not_allowed'];
+		}
+
+		return [];
+	}//end urlConfigErrors()
+
+	/**
+	 * The save-time errors for a `connector`-mode source: a missing
+	 * source id and an unavailable connector capability.
+	 *
+	 * @param array<string,mixed> $config The candidate config.
+	 *
+	 * @return string[] The error codes.
+	 */
+	private function connectorConfigErrors(array $config): array {
+		$errors = [];
+		if (trim(string: (string)($config['sourceId'] ?? '')) === '') {
+			$errors[] = 'source_id_required';
+		}
+
+		if ($this->isConnectorAvailable() === false) {
+			$errors[] = 'connector_unavailable';
 		}
 
 		return $errors;
-	}//end validateSourceConfig()
+	}//end connectorConfigErrors()
 
 	/**
 	 * Whether Integriq's `dashboard-http-datasource` capability is
@@ -317,7 +378,7 @@ class LiveTileService {
 	public function isConnectorAvailable(): bool {
 		try {
 			$enabled = FleetAppId::isEnabledForUser(
-				appManager: $this->appManager,
+				appManager: $this->sources->appManager,
 				canonical: self::CONNECTOR_APP
 			);
 			if ($enabled === false) {
@@ -325,12 +386,12 @@ class LiveTileService {
 			}
 
 			return FleetAppId::hasService(
-				container: $this->container,
+				container: $this->sources->container,
 				canonical: self::CONNECTOR_APP,
 				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
 			);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: connector capability probe failed, treating as absent',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
@@ -374,8 +435,6 @@ class LiveTileService {
 	 * @param array<string,mixed> $config The placement's resolved config (`sourceId`, `valueExpr`).
 	 *
 	 * @return array<string,mixed>|null `{rawValue: mixed}` or `null`.
-	 *
-	 * @SuppressWarnings(PHPMD.StaticAccess) FleetAppId is a stateless resolver.
 	 */
 	private function fetchFromConnector(array $config): ?array {
 		if ($this->isConnectorAvailable() === false) {
@@ -388,35 +447,65 @@ class LiveTileService {
 			return null;
 		}
 
-		try {
-			$service = FleetAppId::getService(
-				container: $this->container,
-				canonical: self::CONNECTOR_APP,
-				relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
-			);
-			if ($service === null) {
-				return null;
-			}
+		return $this->connectorReading(result: $this->callConnector(sourceId: $sourceId, valueExpr: $valueExpr));
+	}//end fetchFromConnector()
 
-			if (method_exists(object_or_class: $service, method: self::CONNECTOR_DATASOURCE_METHOD) === false) {
-				return null;
-			}
-
-			$result = $service->{self::CONNECTOR_DATASOURCE_METHOD}($sourceId, $valueExpr);
-		} catch (Throwable $exception) {
-			$this->logger->info(
-				message: 'LiveTileService: connector resolve call failed',
-				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
-			);
-			return null;
-		}
-
+	/**
+	 * The reading of a connector answer that carries a `value` key.
+	 *
+	 * @param mixed $result The connector's answer.
+	 *
+	 * @return array<string,mixed>|null `{rawValue: mixed}` or `null`.
+	 */
+	private function connectorReading(mixed $result): ?array {
 		if (is_array(value: $result) === false || array_key_exists(key: 'value', array: $result) === false) {
 			return null;
 		}
 
 		return ['rawValue' => $result['value']];
-	}//end fetchFromConnector()
+	}//end connectorReading()
+
+	/**
+	 * Call the connector's resolve method; null when the service or its
+	 * method is absent, or the call fails (logged).
+	 *
+	 * @param string $sourceId  The connector source id.
+	 * @param string $valueExpr The value expression.
+	 *
+	 * @return mixed The connector's answer, or null.
+	 */
+	private function callConnector(string $sourceId, string $valueExpr): mixed {
+		try {
+			$service = $this->connectorService();
+			if ($service === null || method_exists(object_or_class: $service, method: self::CONNECTOR_DATASOURCE_METHOD) === false) {
+				return null;
+			}
+
+			return $service->{self::CONNECTOR_DATASOURCE_METHOD}($sourceId, $valueExpr);
+		} catch (Throwable $exception) {
+			$this->settings->logger->info(
+				message: 'LiveTileService: connector resolve call failed',
+				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
+			);
+			return null;
+		}
+	}//end callConnector()
+
+	/**
+	 * The connector's datasource service, under whichever id the
+	 * connector app is installed.
+	 *
+	 * @return object|null The service, or null when none resolves.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) FleetAppId is a stateless resolver.
+	 */
+	private function connectorService(): ?object {
+		return FleetAppId::getService(
+			container: $this->sources->container,
+			canonical: self::CONNECTOR_APP,
+			relative: self::CONNECTOR_DATASOURCE_SERVICE_CLASS
+		);
+	}//end connectorService()
 
 	/**
 	 * Resolve via a server-side, allow-listed HTTP GET (REQ-LIVETILE-003).
@@ -433,52 +522,103 @@ class LiveTileService {
 	 */
 	private function fetchFromUrl(array $config): ?array {
 		$url = trim(string: (string)($config['url'] ?? ''));
-		if ($url === '') {
+		if ($this->isFetchableUrl(url: $url) === false) {
 			return null;
 		}
 
-		if ($this->hasValidScheme(url: $url) === false) {
+		$response = $this->sendTileRequest(url: $url);
+		if ($response === null) {
 			return null;
+		}
+
+		if ($this->acceptsStatus(status: (int)$response->getStatusCode(), url: $url) === false) {
+			return null;
+		}
+
+		return $this->valueFromBody(body: (string)$response->getBody(), config: $config);
+	}//end fetchFromUrl()
+
+	/**
+	 * Whether a configured URL may be fetched: non-empty, http(s), and on
+	 * the allow-list. A host off the allow-list is logged and reported.
+	 *
+	 * @param string $url The trimmed configured URL.
+	 *
+	 * @return bool True when the GET may be sent.
+	 */
+	private function isFetchableUrl(string $url): bool {
+		if ($url === '' || HostAllowList::hasHttpScheme(url: $url) === false) {
+			return false;
 		}
 
 		if ($this->isHostAllowed(url: $url) === false) {
-			$this->logger->warning(
-				message: 'LiveTileService: host not on livetile_allowed_hosts, refusing fetch (fail-closed)',
-				context: ['app' => Application::APP_ID]
-			);
-			$this->connectionReporter?->reportAllowListRefusal(key: ConnectionReporter::KEY_LIVE_TILES);
-			return null;
+			$this->reportRefusedHost();
+			return false;
 		}
 
+		return true;
+	}//end isFetchableUrl()
+
+	/**
+	 * Log and report a fetch refused for a host off the allow-list.
+	 *
+	 * @return void
+	 */
+	private function reportRefusedHost(): void {
+		$this->settings->logger->warning(
+			message: 'LiveTileService: host not on livetile_allowed_hosts, refusing fetch (fail-closed)',
+			context: ['app' => Application::APP_ID]
+		);
+		$this->connectionReporter?->reportAllowListRefusal(key: ConnectionReporter::KEY_LIVE_TILES);
+	}//end reportRefusedHost()
+
+	/**
+	 * Send the tile's GET; a transport failure is logged, reported without
+	 * a status and answered with null.
+	 *
+	 * @param string $url The allow-listed URL.
+	 *
+	 * @return IResponse|null The response, or null when the call failed.
+	 */
+	private function sendTileRequest(string $url): ?IResponse {
 		try {
-			$client = $this->clientService->newClient();
-			$response = $client->get(
-				uri: $url,
-				options: [
-					'connect_timeout' => self::CONNECT_TIMEOUT,
-					'timeout' => self::REQUEST_TIMEOUT,
-					'http_errors' => false,
-					// No auto-redirect — a 3xx to an unexpected host would
-					// bypass the allow-list check above.
-					'allow_redirects' => false,
-				]
-			);
+			$client = $this->sources->clientService->newClient();
+			return (new NoRedirectGet(connectTimeout: self::CONNECT_TIMEOUT, timeout: self::REQUEST_TIMEOUT))
+				->send(client: $client, url: $url);
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: direct-URL fetch failed',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);
 			$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_LIVE_TILES, url: $url, httpStatus: null);
 			return null;
 		}
+	}//end sendTileRequest()
 
-		$status = (int)$response->getStatusCode();
+	/**
+	 * Report the call with its status, then tell whether the status is 2xx.
+	 *
+	 * @param integer $status The HTTP status.
+	 * @param string  $url    The URL called.
+	 *
+	 * @return bool True for a 2xx status.
+	 */
+	private function acceptsStatus(int $status, string $url): bool {
 		$this->connectionReporter?->reportCall(key: ConnectionReporter::KEY_LIVE_TILES, url: $url, httpStatus: $status);
-		if ($status < 200 || $status >= 300) {
-			return null;
-		}
 
-		$decoded = json_decode(json: (string)$response->getBody(), associative: true);
+		return $status >= 200 && $status < 300;
+	}//end acceptsStatus()
+
+	/**
+	 * Decode a response body and extract the tile's value from it.
+	 *
+	 * @param string              $body   The response body.
+	 * @param array<string,mixed> $config The placement's resolved config (`valueExpr`).
+	 *
+	 * @return array<string,mixed>|null `{rawValue: mixed}` or `null`.
+	 */
+	private function valueFromBody(string $body, array $config): ?array {
+		$decoded = json_decode(json: $body, associative: true);
 		if (is_array(value: $decoded) === false) {
 			return null;
 		}
@@ -489,7 +629,7 @@ class LiveTileService {
 		}
 
 		return ['rawValue' => $value];
-	}//end fetchFromUrl()
+	}//end valueFromBody()
 
 	/**
 	 * Extract a value from a decoded JSON structure via a JSONPath-lite
@@ -519,19 +659,22 @@ class LiveTileService {
 			return null;
 		}
 
+		return $this->walkPath(data: $data, tokens: $tokens);
+	}//end extractValue()
+
+	/**
+	 * Follow path tokens down a decoded JSON tree; null as soon as a step
+	 * meets a non-array or a missing key.
+	 *
+	 * @param mixed                          $data   The decoded JSON value.
+	 * @param array<int, array<int, string>> $tokens The tokenised path.
+	 *
+	 * @return mixed The value at the end of the path, or null.
+	 */
+	private function walkPath(mixed $data, array $tokens): mixed {
 		$current = $data;
 		foreach ($tokens as $token) {
-			// Alternation: a `[123]` match leaves group 1 as the empty
-			// string and fills group 2; a `.prop` match matches group 1
-			// and omits group 2 entirely. Discriminate on group 2 — its
-			// presence is what actually distinguishes the two forms.
-			$indexToken = ($token[2] ?? '');
-
-			$key = $token[1];
-			if ($indexToken !== '') {
-				$key = (int)$indexToken;
-			}
-
+			$key = $this->tokenKey(token: $token);
 			if (is_array(value: $current) === false || array_key_exists(key: $key, array: $current) === false) {
 				return null;
 			}
@@ -540,7 +683,28 @@ class LiveTileService {
 		}
 
 		return $current;
-	}//end extractValue()
+	}//end walkPath()
+
+	/**
+	 * The array key one path token addresses: the integer of a `[123]`
+	 * token, or the property name of a `.prop` token.
+	 *
+	 * @param array<int, string> $token One PREG_SET_ORDER match set.
+	 *
+	 * @return int|string The key.
+	 */
+	private function tokenKey(array $token): int|string {
+		// Alternation: a `[123]` match leaves group 1 as the empty
+		// string and fills group 2; a `.prop` match matches group 1
+		// and omits group 2 entirely. Discriminate on group 2 — its
+		// presence is what actually distinguishes the two forms.
+		$indexToken = ($token[2] ?? '');
+		if ($indexToken !== '') {
+			return (int)$indexToken;
+		}
+
+		return $token[1];
+	}//end tokenKey()
 
 	/**
 	 * Split a JSONPath-lite path body into its `.prop` / `[index]` tokens.
@@ -635,33 +799,65 @@ class LiveTileService {
 			return null;
 		}
 
-		$number = (float)$value;
+		return $this->badgeFor(number: (float)$value, sorted: $this->sortedThresholds(thresholds: $thresholds));
+	}//end resolveBadge()
+
+	/**
+	 * The thresholds in ascending `max` order.
+	 *
+	 * @param array<int|string,mixed> $thresholds The configured thresholds.
+	 *
+	 * @return array<int,mixed> The sorted thresholds.
+	 */
+	private function sortedThresholds(array $thresholds): array {
 		$sorted = $thresholds;
 		usort(
 			array: $sorted,
 			callback: static fn (array $a, array $b): int => ((float)($a['max'] ?? 0)) <=> ((float)($b['max'] ?? 0))
 		);
 
+		return $sorted;
+	}//end sortedThresholds()
+
+	/**
+	 * The badge of the first sorted threshold whose `max` the number does
+	 * not exceed, else of the highest tier.
+	 *
+	 * @param float            $number The numeric value.
+	 * @param array<int,mixed> $sorted The thresholds in ascending `max` order.
+	 *
+	 * @return array<string,string>|null `{state, label}` or `null`.
+	 */
+	private function badgeFor(float $number, array $sorted): ?array {
 		foreach ($sorted as $threshold) {
 			if (is_array(value: $threshold) === false) {
 				continue;
 			}
 
-			$max = (float)($threshold['max'] ?? 0);
-			if ($number <= $max) {
+			if ($number <= (float)($threshold['max'] ?? 0)) {
 				return $this->badgeShape(threshold: $threshold);
 			}
 		}
 
-		// Value exceeds every threshold — use the highest-max (last)
-		// threshold, which is conventionally the "alert" tier.
+		return $this->highestTierBadge(sorted: $sorted);
+	}//end badgeFor()
+
+	/**
+	 * The badge of the highest-max (last) threshold, used when the value
+	 * exceeds every threshold; that tier is conventionally the "alert" one.
+	 *
+	 * @param array<int,mixed> $sorted The thresholds in ascending `max` order.
+	 *
+	 * @return array<string,string>|null `{state, label}` or `null`.
+	 */
+	private function highestTierBadge(array $sorted): ?array {
 		$last = end($sorted);
 		if (is_array(value: $last) === true) {
 			return $this->badgeShape(threshold: $last);
 		}
 
 		return null;
-	}//end resolveBadge()
+	}//end highestTierBadge()
 
 	/**
 	 * Shape one threshold entry into the public badge contract.
@@ -682,18 +878,6 @@ class LiveTileService {
 	}//end badgeShape()
 
 	/**
-	 * Validate a URL's scheme is `http` or `https`.
-	 *
-	 * @param string $url The URL to check.
-	 *
-	 * @return boolean
-	 */
-	private function hasValidScheme(string $url): bool {
-		$scheme = strtolower(string: (string)parse_url(url: $url, component: PHP_URL_SCHEME));
-		return in_array(needle: $scheme, haystack: ['http', 'https'], strict: true);
-	}//end hasValidScheme()
-
-	/**
 	 * Check a URL's host against `livetile_allowed_hosts`. FAIL-CLOSED: an
 	 * empty, missing, or unparseable allow-list permits NO host — the
 	 * admin must explicitly opt hosts in.
@@ -703,63 +887,9 @@ class LiveTileService {
 	 * @return boolean True only when the host is explicitly allow-listed.
 	 */
 	private function isHostAllowed(string $url): bool {
-		$host = parse_url(url: $url, component: PHP_URL_HOST);
-		if (is_string(value: $host) === false || $host === '') {
-			return false;
-		}
-
-		$raw = $this->appConfig->getValueString(
-			app: Application::APP_ID,
-			key: self::CONFIG_KEY_ALLOWED_HOSTS,
-			default: ''
-		);
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === false || $decoded === []) {
-			// FAIL-CLOSED — no configured list means no host is allowed.
-			return false;
-		}
-
-		$needle = strtolower(string: $host);
-		foreach ($decoded as $allowed) {
-			if (is_string(value: $allowed) === true && strtolower(string: $allowed) === $needle) {
-				return true;
-			}
-		}
-
-		return false;
+		$allowList = new HostAllowList(appConfig: $this->settings->appConfig, configKey: self::CONFIG_KEY_ALLOWED_HOSTS);
+		return $allowList->permits(url: $url);
 	}//end isHostAllowed()
-
-	/**
-	 * Read the placement's live-tile config, falling back to the legacy
-	 * `style_config.content` slot for pre-column rows (mirrors
-	 * {@see WeatherService::readPlacementConfig()}).
-	 *
-	 * @param object $placement The {@see \OCA\LaunchPad\Db\WidgetPlacement} entity.
-	 *
-	 * @return array<string,mixed>
-	 */
-	private function readPlacementConfig(object $placement): array {
-		if (method_exists(object_or_class: $placement, method: 'getContentArray') === true) {
-			$content = $placement->getContentArray();
-			if (is_array(value: $content) === true && $content !== []) {
-				return $content;
-			}
-		}
-
-		if (method_exists(object_or_class: $placement, method: 'getStyleConfigArray') === true) {
-			$legacy = $placement->getStyleConfigArray();
-			if (isset($legacy['content']) === true && is_array(value: $legacy['content']) === true) {
-				return $legacy['content'];
-			}
-
-			if (is_array(value: $legacy) === true) {
-				return $legacy;
-			}
-		}
-
-		return [];
-	}//end readPlacementConfig()
 
 	/**
 	 * Shape an internal reading array (which also carries the internal
@@ -807,34 +937,6 @@ class LiveTileService {
 	}//end buildCacheKey()
 
 	/**
-	 * Read + JSON-decode a cache entry. Returns `null` on a miss or a
-	 * corrupt entry.
-	 *
-	 * @param ICache|null $cache The cache instance, or `null` when the cache
-	 *                           subsystem is unavailable.
-	 * @param string $cacheKey The cache key.
-	 *
-	 * @return array<string,mixed>|null
-	 */
-	private function readCache(?ICache $cache, string $cacheKey): ?array {
-		if ($cache === null) {
-			return null;
-		}
-
-		$raw = $cache->get(key: $cacheKey);
-		if (is_string(value: $raw) === false) {
-			return null;
-		}
-
-		$decoded = json_decode(json: $raw, associative: true);
-		if (is_array(value: $decoded) === true) {
-			return $decoded;
-		}
-
-		return null;
-	}//end readCache()
-
-	/**
 	 * Lazily resolve the distributed cache. Returns `null` when the cache
 	 * subsystem is unavailable (e.g. unit tests with a stub factory).
 	 *
@@ -846,9 +948,9 @@ class LiveTileService {
 		}
 
 		try {
-			$this->cache = $this->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
+			$this->cache = $this->sources->cacheFactory->createDistributed(prefix: 'launchpad_livetile_');
 		} catch (Throwable $exception) {
-			$this->logger->info(
+			$this->settings->logger->info(
 				message: 'LiveTileService: cache subsystem unavailable, falling back to direct fetch',
 				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
 			);

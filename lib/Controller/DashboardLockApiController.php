@@ -35,50 +35,38 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Exception\LockConflictException;
 use OCA\LaunchPad\Exception\LockForbiddenException;
 use OCA\LaunchPad\Exception\LockNotFoundException;
-use OCA\LaunchPad\Service\ActionAuthService;
-use OCA\LaunchPad\Service\DashboardLockService;
 use OCA\LaunchPad\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Controller for dashboard editing-lock endpoints (REQ-LOCK-001..008).
  */
 class DashboardLockApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param DashboardLockService $lockService The lock service.
+	 * @param IRequest          $request The HTTP request.
+	 * @param LockApiCaller     $caller The lock sources, session and action check.
 	 * @param PermissionService $permissionService Dashboard permission resolver.
-	 * @param DashboardMapper $dashboardMapper UUID → id lookup.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param string|null $userId The calling user ID.
+	 * @param string|null       $userId The calling user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardLockService $lockService,
+		private readonly LockApiCaller $caller,
 		private readonly PermissionService $permissionService,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -97,23 +85,13 @@ class DashboardLockApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function acquire(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-lock.acquire');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-lock.acquire');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$lock = $this->lockService->acquireLock(
+			$lock = $this->caller->sources->lockService->acquireLock(
 				dashboardUuid: $uuid,
 				userId: $this->userId
 			);
@@ -122,19 +100,10 @@ class DashboardLockApiController extends Controller {
 				statusCode: Http::STATUS_OK
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (LockForbiddenException $e) {
 			// C3 fix: caller lacks view access to this dashboard.
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'code' => LockForbiddenException::ERROR_CODE,
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->lockForbidden(exception: $e);
 		} catch (LockConflictException $e) {
 			// M2: strip userId from conflict response — callers need the
 			// displayName to show "X is editing" but should not receive
@@ -162,23 +131,13 @@ class DashboardLockApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function heartbeat(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-lock.heartbeat');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-lock.heartbeat');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$lock = $this->lockService->heartbeat(
+			$lock = $this->caller->sources->lockService->heartbeat(
 				dashboardUuid: $uuid,
 				userId: $this->userId
 			);
@@ -195,13 +154,7 @@ class DashboardLockApiController extends Controller {
 				statusCode: Http::STATUS_NOT_FOUND
 			);
 		} catch (LockForbiddenException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'code' => LockForbiddenException::ERROR_CODE,
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->lockForbidden(exception: $e);
 		}//end try
 	}//end heartbeat()
 
@@ -219,23 +172,13 @@ class DashboardLockApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function release(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-lock.release');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-lock.release');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$this->lockService->releaseLock(
+			$this->caller->sources->lockService->releaseLock(
 				dashboardUuid: $uuid,
 				userId: $this->userId,
 				allowAdminOverride: true
@@ -245,13 +188,7 @@ class DashboardLockApiController extends Controller {
 				statusCode: Http::STATUS_NO_CONTENT
 			);
 		} catch (LockForbiddenException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'code' => LockForbiddenException::ERROR_CODE,
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->lockForbidden(exception: $e);
 		}
 	}//end release()
 
@@ -270,31 +207,18 @@ class DashboardLockApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function get(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'dashboard-lock.get');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'dashboard-lock.get');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		// H1: guard against identity leak — any authed user could enumerate
 		// lock holders for arbitrary UUIDs; return 404 on no-view-access
 		// (same shape as "no lock") to avoid leaking dashboard existence.
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->caller->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Lock not found', 'code' => LockNotFoundException::ERROR_CODE],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->noLockFound();
 		}
 
 		if ($this->permissionService->canViewDashboard(
@@ -303,21 +227,12 @@ class DashboardLockApiController extends Controller {
 		) === false
 		) {
 			// Return 404 not 403 to avoid leaking dashboard existence.
-			return new JSONResponse(
-				data: ['error' => 'Lock not found', 'code' => LockNotFoundException::ERROR_CODE],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->noLockFound();
 		}
 
-		$lock = $this->lockService->getLockState(dashboardUuid: $uuid);
+		$lock = $this->caller->sources->lockService->getLockState(dashboardUuid: $uuid);
 		if ($lock === null) {
-			return new JSONResponse(
-				data: [
-					'error' => 'Lock not found',
-					'code' => LockNotFoundException::ERROR_CODE,
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->noLockFound();
 		}
 
 		return new JSONResponse(
@@ -339,23 +254,13 @@ class DashboardLockApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function forceRelease(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-lock.force-release');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-lock.force-release');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$this->lockService->forceRelease(
+			$this->caller->sources->lockService->forceRelease(
 				dashboardUuid: $uuid,
 				adminUserId: $this->userId
 			);
@@ -364,13 +269,55 @@ class DashboardLockApiController extends Controller {
 				statusCode: Http::STATUS_OK
 			);
 		} catch (LockForbiddenException $e) {
-			return new JSONResponse(
-				data: [
-					'error' => $e->getMessage(),
-					'code' => LockForbiddenException::ERROR_CODE,
-				],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+			return $this->lockForbidden(exception: $e);
 		}
 	}//end forceRelease()
+
+	/**
+	 * The caller guard: no user ID → 401, then the ADR-023 action check; NULL to proceed.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		if ($this->userId === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		return $this->caller->guard->actionRefusal(action: $action);
+	}//end actionRefusal()
+
+	/**
+	 * The 403 answer for a lock the caller may not touch.
+	 *
+	 * @param LockForbiddenException $exception The refusal.
+	 *
+	 * @return JSONResponse
+	 */
+	private function lockForbidden(LockForbiddenException $exception): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => $exception->getMessage(),
+				'code' => LockForbiddenException::ERROR_CODE,
+			],
+			statusCode: Http::STATUS_FORBIDDEN
+		);
+	}//end lockForbidden()
+
+	/**
+	 * The 404 answer of the lock query; the same for no lock, an unknown
+	 * dashboard and one the caller may not view, so nothing leaks.
+	 *
+	 * @return JSONResponse
+	 */
+	private function noLockFound(): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'error' => 'Lock not found',
+				'code' => LockNotFoundException::ERROR_CODE,
+			],
+			statusCode: Http::STATUS_NOT_FOUND
+		);
+	}//end noLockFound()
 }//end class

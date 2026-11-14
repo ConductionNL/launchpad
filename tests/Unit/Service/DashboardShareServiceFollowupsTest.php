@@ -27,12 +27,14 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardShare;
 use OCA\LaunchPad\Db\DashboardShareMapper;
 use OCA\LaunchPad\Service\DashboardShareService;
+use OCA\LaunchPad\Service\ShareNotifier;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tests for DashboardShareService follow-up methods.
@@ -76,9 +78,12 @@ class DashboardShareServiceFollowupsTest extends TestCase {
 		$this->service = new DashboardShareService(
 			shareMapper: $this->shareMapper,
 			dashboardMapper: $this->dashboardMapper,
-			groupManager: $this->groupManager,
-			notificationManager: $this->notificationManager,
 			db: $this->db,
+			notifier: new ShareNotifier(
+				notificationManager: $this->notificationManager,
+				groupManager: $this->groupManager,
+				logger: $this->createMock(LoggerInterface::class)
+			),
 		);
 	}//end setUp()
 

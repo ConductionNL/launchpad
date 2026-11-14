@@ -39,8 +39,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -49,26 +47,23 @@ use Throwable;
  * @spec openspec/specs/clock-weather-widgets/spec.md
  */
 class WeatherController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request HTTP request.
-	 * @param WeatherService $weatherService Resolves + caches the weather reading.
+	 * @param IRequest          $request HTTP request.
+	 * @param WeatherService    $weatherService Resolves + caches the weather reading.
 	 * @param PermissionService $permissionService Dashboard/placement permission gate.
-	 * @param IUserSession $userSession Session accessor.
-	 * @param LoggerInterface $logger PSR logger.
+	 * @param SessionLog        $session The session and logger.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly WeatherService $weatherService,
 		private readonly PermissionService $permissionService,
-		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
+		private readonly SessionLog $session,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -90,21 +85,11 @@ class WeatherController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function show(int $placementId): JSONResponse {
-		$userId = $this->resolveUserId();
-		if ($userId === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unauthorized'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
 		// REQ-WEATHER-001 "Caller authorization" — the auth guard runs
 		// BEFORE any resolution/fetch is attempted.
-		if ($this->permissionService->canViewPlacement(userId: $userId, placementId: $placementId) === false) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'forbidden'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+		$userId = $this->session->placementViewer(permissions: $this->permissionService, placementId: $placementId);
+		if ($userId instanceof JSONResponse) {
+			return $userId;
 		}
 
 		try {
@@ -113,40 +98,9 @@ class WeatherController extends Controller {
 				userId: $userId
 			);
 		} catch (Throwable $exception) {
-			$this->logger->error(
-				message: 'Unexpected weather resolution failure',
-				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
-			);
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unknown_error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->session->resolutionFailure(message: 'Unexpected weather resolution failure', exception: $exception);
 		}
 
-		if (isset($reading['error']) === true) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => $reading['error']],
-				statusCode: Http::STATUS_BAD_GATEWAY
-			);
-		}
-
-		return new JSONResponse(
-			data: $reading,
-			statusCode: Http::STATUS_OK
-		);
+		return $this->session->readingResponse(reading: $reading, errorStatus: Http::STATUS_BAD_GATEWAY);
 	}//end show()
-
-	/**
-	 * Resolve the active user's UID, or `null` for anonymous.
-	 *
-	 * @return string|null
-	 */
-	private function resolveUserId(): ?string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		return $user->getUID();
-	}//end resolveUserId()
 }//end class

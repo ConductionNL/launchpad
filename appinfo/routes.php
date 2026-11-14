@@ -7,8 +7,11 @@ declare(strict_types=1);
  * SPDX-License-Identifier: EUPL-1.2
  */
 
-return [
+// Every unversioned API route is also served under /api/v1/; see ApiPathAliases.
+return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 	'routes' => [
+		// The OpenAPI document of launchpad's own API, public, served under /api/v1/ too.
+		['name' => 'openApi#show', 'url' => '/api/openapi.json', 'verb' => 'GET'],
 		// v2 runtime manifest (ADR-036 Decision 8). Registered FIRST so the
 		// literal '/api/manifest' segment is matched before any wildcard.
 		// First-time setup wizard (ADR-042) — the standard CnSetupWizard contract.
@@ -42,6 +45,9 @@ return [
 		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
 		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
 		['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
+		// The signed-in person's own analytics opt-out (REQ-ANLT-UI-001).
+		['name' => 'analyticsOptOut#show', 'url' => '/api/analytics/me', 'verb' => 'GET'],
+		['name' => 'analyticsOptOut#update', 'url' => '/api/analytics/me', 'verb' => 'PUT'],
 
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
@@ -320,6 +326,8 @@ return [
 
 		// Tile endpoints
 		['name' => 'tileApi#index', 'url' => '/api/tiles', 'verb' => 'GET'],
+		// REQ-DISC-001: the apps in the caller's own app menu, to place as tiles.
+		['name' => 'tileApi#discover', 'url' => '/api/tiles/discover', 'verb' => 'GET'],
 		['name' => 'tileApi#create', 'url' => '/api/tiles', 'verb' => 'POST'],
 		['name' => 'tileApi#update', 'url' => '/api/tiles/{id}', 'verb' => 'PUT'],
 		['name' => 'tileApi#destroy', 'url' => '/api/tiles/{id}', 'verb' => 'DELETE'],
@@ -402,6 +410,17 @@ return [
 		['name' => 'template#gallery', 'url' => '/api/templates/gallery', 'verb' => 'GET'],
 
 		// Admin endpoints
+		// Templates LaunchPad ships with (REQ-TMPL-018). Registered BEFORE
+		// the `/api/admin/templates/{id}` wildcard routes so the literal
+		// `shipped` segment wins.
+		['name' => 'adminShippedTemplate#index', 'url' => '/api/admin/templates/shipped', 'verb' => 'GET'],
+		['name' => 'adminShippedTemplate#install',
+		 'url' => '/api/admin/templates/shipped/{id}/install', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
+		// Update an installed shipped template in place (REQ-TMPL-020).
+		['name' => 'adminShippedTemplate#update',
+		 'url' => '/api/admin/templates/shipped/{id}/update', 'verb' => 'POST',
+		 'requirements' => ['id' => '[a-z0-9\\-]+']],
 		['name' => 'admin#listTemplates', 'url' => '/api/admin/templates', 'verb' => 'GET'],
 		['name' => 'admin#createTemplate', 'url' => '/api/admin/templates', 'verb' => 'POST'],
 		// Preview-image upload — REQ-TMPL-017. Registered BEFORE the
@@ -455,6 +474,13 @@ return [
 		// returns `{users, total, hasMore}` with offset-based pagination.
 		['name' => 'peopleWidget#getUsers', 'url' => '/api/people', 'verb' => 'GET'],
 
+		// Custom profile fields (REQ-PEX-001, REQ-PEX-002): own values for
+		// every signed-in person, definitions for administrators.
+		['name' => 'profileFields#getOwn', 'url' => '/api/profile-fields/me', 'verb' => 'GET'],
+		['name' => 'profileFields#saveOwn', 'url' => '/api/profile-fields/me', 'verb' => 'PUT'],
+		['name' => 'profileFields#getDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'GET'],
+		['name' => 'profileFields#saveDefinitions', 'url' => '/api/profile-fields/definitions', 'verb' => 'PUT'],
+
 		// Setup wizard endpoints (REQ-WIZ-008, REQ-WIZ-009, REQ-WIZ-003).
 		// Admin-only via runtime `IGroupManager::isAdmin` check inside the
 		// controller. The state endpoint also drives the "Run setup wizard"
@@ -462,7 +488,6 @@ return [
 		// Step 2 choice immediately on `Next`.
 		['name' => 'admin#getWizardState', 'url' => '/api/admin/setup-wizard/state', 'verb' => 'GET'],
 		['name' => 'admin#completeWizard', 'url' => '/api/admin/setup-wizard/complete', 'verb' => 'POST'],
-		['name' => 'admin#setWizardStorage', 'url' => '/api/admin/setup-wizard/storage', 'verb' => 'POST'],
 
 		// Confluence HTML export importer (REQ-CFLI-001..012). Admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the
@@ -580,6 +605,10 @@ return [
 		 'url' => '/api/admin/demo-showcases/{id}', 'verb' => 'DELETE',
 		 'requirements' => ['id' => '[a-z0-9\-]+']],
 
+		// Attention feed: what the user's apps declare as needing attention
+		// (REQ-ATT-002). Declarations only; the widget runs the counts.
+		['name' => 'attention#sources', 'url' => '/api/attention/sources', 'verb' => 'GET'],
+
 		// Weather widget — cached reading for one placement (REQ-WEATHER-001).
 		// View-time ACL guarded in the controller; never returns the provider
 		// API key or raw provider URL.
@@ -630,4 +659,4 @@ return [
 		['name' => 'page#deepLink', 'url' => '/{deepLink}', 'verb' => 'GET',
 		 'requirements' => ['deepLink' => '(?!api(?:/|$)).+']],
 	],
-];
+]);

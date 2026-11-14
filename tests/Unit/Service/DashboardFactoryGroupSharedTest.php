@@ -52,8 +52,10 @@ class DashboardFactoryGroupSharedTest extends TestCase {
 		$this->factory->create(
 			userId: null,
 			name: 'Marketing Overview',
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: null
+			options: [
+				'type'    => Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => null,
+			]
 		);
 	}//end testCreateGroupSharedRequiresGroupId()
 
@@ -66,8 +68,10 @@ class DashboardFactoryGroupSharedTest extends TestCase {
 		$this->factory->create(
 			userId: null,
 			name: 'Marketing Overview',
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: ''
+			options: [
+				'type'    => Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => '',
+			]
 		);
 	}//end testCreateGroupSharedRejectsEmptyGroupId()
 
@@ -80,8 +84,10 @@ class DashboardFactoryGroupSharedTest extends TestCase {
 		$this->factory->create(
 			userId: 'alice',
 			name: 'Personal',
-			type: Dashboard::TYPE_USER,
-			groupId: 'marketing'
+			options: [
+				'type'    => Dashboard::TYPE_USER,
+				'groupId' => 'marketing',
+			]
 		);
 	}//end testCreateUserTypeRejectsGroupId()
 
@@ -92,8 +98,10 @@ class DashboardFactoryGroupSharedTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: null,
 			name: 'Marketing Overview',
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: 'marketing'
+			options: [
+				'type'    => Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => 'marketing',
+			]
 		);
 
 		$this->assertSame(
@@ -111,8 +119,10 @@ class DashboardFactoryGroupSharedTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: null,
 			name: 'Welcome',
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: Dashboard::DEFAULT_GROUP_ID
+			options: [
+				'type'    => Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => Dashboard::DEFAULT_GROUP_ID,
+			]
 		);
 
 		$this->assertSame(
@@ -128,8 +138,10 @@ class DashboardFactoryGroupSharedTest extends TestCase {
 		$dashboard = $this->factory->create(
 			userId: null,
 			name: 'Welcome',
-			type: Dashboard::TYPE_GROUP_SHARED,
-			groupId: 'marketing'
+			options: [
+				'type'    => Dashboard::TYPE_GROUP_SHARED,
+				'groupId' => 'marketing',
+			]
 		);
 
 		$this->assertSame(0, $dashboard->getIsActive());

@@ -34,7 +34,6 @@ use OCP\Activity\IManager;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserManager;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -44,24 +43,21 @@ class ActivityPublisher {
 	/**
 	 * Constructor.
 	 *
-	 * @param IManager $manager The NC Activity manager.
-	 * @param IGroupManager $groupManager The NC group manager.
-	 * @param IUserManager $userManager The NC user manager.
-	 * @param DebounceHelper $debounce The debounce guard.
-	 * @param LoggerInterface $logger The logger.
+	 * @param IManager       $manager The NC Activity manager.
+	 * @param IGroupManager  $groupManager The NC group manager.
+	 * @param IUserManager   $userManager The NC user manager.
+	 * @param PublisherTools $tools The debounce helper and logger.
 	 */
 	public function __construct(
 		private readonly IManager $manager,
 		private readonly IGroupManager $groupManager,
 		private readonly IUserManager $userManager,
-		private readonly DebounceHelper $debounce,
-		private readonly LoggerInterface $logger,
+		private readonly PublisherTools $tools,
 	) {
 	}//end __construct()
 
 	/**
-	 * Emit a single activity row to `$recipientUserId` for the given
-	 * dashboard.
+	 * Emit a single activity row to `$recipientUserId`.
 	 *
 	 * Unknown event types are silently dropped after a warning log entry
 	 * (REQ-ACT-002 contract). Reaction events go through the per-actor
@@ -69,62 +65,42 @@ class ActivityPublisher {
 	 * try/catch so an Activity failure never propagates back into the
 	 * owning capability's HTTP handler (REQ-ACT-011 scenario).
 	 *
-	 * @param string $type The event-type constant value.
-	 * @param string $actorUserId The acting NC user ID.
-	 * @param string $recipientUserId The recipient NC user ID.
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $dashboardName The human-readable dashboard name.
-	 * @param string $dashboardLink The absolute deep-link URL.
-	 * @param array<string, mixed> $extraParams Optional extra params (e.g. `recipient`, `role`, `target`, `message`).
+	 * @param ActivityRow $row             The activity to write.
+	 * @param string      $recipientUserId The recipient NC user ID.
 	 *
 	 * @return bool True when the event was successfully published; false when suppressed or dropped.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
-	public function publish(
-		string $type,
-		string $actorUserId,
-		string $recipientUserId,
-		string $dashboardUuid,
-		string $dashboardName,
-		string $dashboardLink,
-		array $extraParams = [],
-	): bool {
-		if (in_array(needle: $type, haystack: Extension::ALL_EVENTS, strict: true) === false) {
-			$this->logger->warning(
+	public function publish(ActivityRow $row, string $recipientUserId): bool {
+		if (in_array(needle: $row->type, haystack: Extension::ALL_EVENTS, strict: true) === false) {
+			$this->tools->logger->warning(
 				message: 'Unknown LaunchPad activity type rejected',
 				context: [
-					'type' => $type,
-					'dashboard' => $dashboardUuid,
+					'type' => $row->type,
+					'dashboard' => $row->dashboard->uuid,
 				]
 			);
 			return false;
 		}
 
-		if ($type === Extension::EVENT_REACTED
-			&& $this->debounce->allowReaction(
-				actorUserId: $actorUserId,
-				dashboardUuid: $dashboardUuid
+		if ($row->type === Extension::EVENT_REACTED
+			&& $this->tools->debounce->allowReaction(
+				actorUserId: $row->actorUserId,
+				dashboardUuid: $row->dashboard->uuid
 			) === false
 		) {
 			return false;
 		}
 
 		try {
-			$event = $this->buildEvent(
-				type: $type,
-				actorUserId: $actorUserId,
-				recipientUserId: $recipientUserId,
-				dashboardUuid: $dashboardUuid,
-				dashboardName: $dashboardName,
-				dashboardLink: $dashboardLink,
-				extraParams: $extraParams
-			);
-			$this->manager->publish(event: $event);
+			$this->manager->publish(event: $this->buildEvent(row: $row, recipientUserId: $recipientUserId));
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->tools->logger->error(
 				message: 'LaunchPad Activity publish failed',
 				context: [
-					'type' => $type,
-					'dashboard' => $dashboardUuid,
+					'type' => $row->type,
+					'dashboard' => $row->dashboard->uuid,
 					'recipient' => $recipientUserId,
 					'exception' => $e,
 				]
@@ -140,45 +116,23 @@ class ActivityPublisher {
 	 * one row to the actor (REQ-ACT-005). Recipients are de-duplicated
 	 * to prevent double-emission when the actor is also a recipient.
 	 *
-	 * @param string $type The event-type constant value.
-	 * @param string $actorUserId The acting NC user ID.
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $dashboardName The dashboard name.
-	 * @param string $dashboardLink The dashboard link.
-	 * @param string[] $recipientUserIds Recipient NC user IDs.
-	 * @param array<string, mixed> $extraParams Optional extra params.
+	 * @param ActivityRow $row              The activity to write.
+	 * @param string[]    $recipientUserIds Recipient NC user IDs.
 	 *
 	 * @return int The number of rows successfully written.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
-	public function publishToRecipients(
-		string $type,
-		string $actorUserId,
-		string $dashboardUuid,
-		string $dashboardName,
-		string $dashboardLink,
-		array $recipientUserIds,
-		array $extraParams = [],
-	): int {
+	public function publishToRecipients(ActivityRow $row, array $recipientUserIds): int {
 		$unique = array_values(
 			array: array_unique(
-				array: array_merge([$actorUserId], $recipientUserIds)
+				array: array_merge([$row->actorUserId], $recipientUserIds)
 			)
 		);
 
 		$count = 0;
 		foreach ($unique as $userId) {
-			$params = $extraParams;
-			$params['self'] = ($userId === $actorUserId);
-			$published = $this->publish(
-				type: $type,
-				actorUserId: $actorUserId,
-				recipientUserId: $userId,
-				dashboardUuid: $dashboardUuid,
-				dashboardName: $dashboardName,
-				dashboardLink: $dashboardLink,
-				extraParams: $params
-			);
-			if ($published === true) {
+			if ($this->publish(row: $row->forRecipient(recipientUserId: $userId), recipientUserId: $userId) === true) {
 				$count++;
 			}
 		}
@@ -193,25 +147,14 @@ class ActivityPublisher {
 	 * The actor is included exactly once even when they are also a
 	 * member of the group.
 	 *
-	 * @param string $type The event-type constant value.
-	 * @param string $actorUserId The acting NC user ID.
-	 * @param string $groupId The target group ID.
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $dashboardName The dashboard name.
-	 * @param string $dashboardLink The dashboard link.
-	 * @param array<string, mixed> $extraParams Optional extra params.
+	 * @param ActivityRow $row     The activity to write.
+	 * @param string      $groupId The target group ID.
 	 *
 	 * @return int The number of rows successfully written.
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
-	public function publishToGroup(
-		string $type,
-		string $actorUserId,
-		string $groupId,
-		string $dashboardUuid,
-		string $dashboardName,
-		string $dashboardLink,
-		array $extraParams = [],
-	): int {
+	public function publishToGroup(ActivityRow $row, string $groupId): int {
 		$group = $this->groupManager->get(gid: $groupId);
 		if ($group === null) {
 			return 0;
@@ -222,15 +165,7 @@ class ActivityPublisher {
 			$userIds[] = $user->getUID();
 		}
 
-		return $this->publishToRecipients(
-			type: $type,
-			actorUserId: $actorUserId,
-			dashboardUuid: $dashboardUuid,
-			dashboardName: $dashboardName,
-			dashboardLink: $dashboardLink,
-			recipientUserIds: $userIds,
-			extraParams: $extraParams
-		);
+		return $this->publishToRecipients(row: $row, recipientUserIds: $userIds);
 	}//end publishToGroup()
 
 	/**
@@ -240,33 +175,23 @@ class ActivityPublisher {
 	 * `DebounceHelper::allowGlobalFanout(dashboardUuid, type)` —
 	 * suppressed events are logged at DEBUG and produce zero rows.
 	 *
-	 * @param string $type The event-type constant value.
-	 * @param string $actorUserId The acting NC user ID.
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $dashboardName The dashboard name.
-	 * @param string $dashboardLink The dashboard link.
-	 * @param array<string, mixed> $extraParams Optional extra params.
+	 * @param ActivityRow $row The activity to write.
 	 *
 	 * @return int The number of rows successfully written (0 when debounced).
+	 *
+	 * @spec openspec/specs/activity-feed-integration/spec.md
 	 */
-	public function publishGlobal(
-		string $type,
-		string $actorUserId,
-		string $dashboardUuid,
-		string $dashboardName,
-		string $dashboardLink,
-		array $extraParams = [],
-	): int {
-		if ($this->debounce->allowGlobalFanout(
-			dashboardUuid: $dashboardUuid,
-			eventType: $type
+	public function publishGlobal(ActivityRow $row): int {
+		if ($this->tools->debounce->allowGlobalFanout(
+			dashboardUuid: $row->dashboard->uuid,
+			eventType: $row->type
 		) === false
 		) {
-			$this->logger->debug(
+			$this->tools->logger->debug(
 				message: 'LaunchPad global activity fan-out debounced',
 				context: [
-					'type' => $type,
-					'dashboard' => $dashboardUuid,
+					'type' => $row->type,
+					'dashboard' => $row->dashboard->uuid,
 				]
 			);
 			return 0;
@@ -274,27 +199,9 @@ class ActivityPublisher {
 
 		$count = 0;
 		$this->userManager->callForAllUsers(
-			callback: function (IUser $user) use (
-				$type,
-				$actorUserId,
-				$dashboardUuid,
-				$dashboardName,
-				$dashboardLink,
-				$extraParams,
-				&$count
-			): void {
-				$params = $extraParams;
-				$params['self'] = ($user->getUID() === $actorUserId);
-				$ok = $this->publish(
-					type: $type,
-					actorUserId: $actorUserId,
-					recipientUserId: $user->getUID(),
-					dashboardUuid: $dashboardUuid,
-					dashboardName: $dashboardName,
-					dashboardLink: $dashboardLink,
-					extraParams: $params
-				);
-				if ($ok === true) {
+			callback: function (IUser $user) use ($row, &$count): void {
+				$userId = $user->getUID();
+				if ($this->publish(row: $row->forRecipient(recipientUserId: $userId), recipientUserId: $userId) === true) {
 					$count++;
 				}
 			}
@@ -312,52 +219,37 @@ class ActivityPublisher {
 	 * the canonical dashboard regardless of database renumbering. The
 	 * subject parameters carry every field rendered by `parse()`.
 	 *
-	 * @param string $type The event type.
-	 * @param string $actorUserId The acting user ID.
-	 * @param string $recipientUserId The recipient user ID.
-	 * @param string $dashboardUuid The dashboard UUID.
-	 * @param string $dashboardName The dashboard name.
-	 * @param string $dashboardLink The dashboard link.
-	 * @param array<string, mixed> $extraParams Optional extra params.
+	 * @param ActivityRow $row             The activity to write.
+	 * @param string      $recipientUserId The recipient user ID.
 	 *
 	 * @return IEvent The fully populated event.
 	 */
-	private function buildEvent(
-		string $type,
-		string $actorUserId,
-		string $recipientUserId,
-		string $dashboardUuid,
-		string $dashboardName,
-		string $dashboardLink,
-		array $extraParams,
-	): IEvent {
-		$event = $this->manager->generateEvent();
-		$isSelf = ($actorUserId === $recipientUserId);
-
+	private function buildEvent(ActivityRow $row, string $recipientUserId): IEvent {
 		$params = array_merge(
 			[
-				'self' => $isSelf,
-				'actor' => $actorUserId,
-				'dashboard' => $dashboardName,
+				'self' => ($row->actorUserId === $recipientUserId),
+				'actor' => $row->actorUserId,
+				'dashboard' => $row->dashboard->name,
 			],
-			$extraParams
+			$row->extraParams
 		);
 
+		$event = $this->manager->generateEvent();
 		$event
 			->setApp(app: Extension::APP_ID)
-			->setType(type: $type)
-			->setAuthor(author: $actorUserId)
+			->setType(type: $row->type)
+			->setAuthor(author: $row->actorUserId)
 			->setAffectedUser(affectedUser: $recipientUserId)
-			->setSubject(subject: $type, parameters: $params)
+			->setSubject(subject: $row->type, parameters: $params)
 			->setObject(
 				objectType: Extension::OBJECT_TYPE,
 				objectId: 0,
-				objectName: $dashboardUuid
+				objectName: $row->dashboard->uuid
 			)
-			->setLink(link: $dashboardLink)
+			->setLink(link: $row->dashboard->link)
 			->setTimestamp(timestamp: time());
 
-		$message = (string)($extraParams['message'] ?? '');
+		$message = (string)($row->extraParams['message'] ?? '');
 		if ($message !== '') {
 			$event->setMessage(message: substr(string: $message, offset: 0, length: 200));
 		}

@@ -11,6 +11,7 @@
 	     renders empty and never writes back. Use `v-model` throughout. -->
 	<NcModal
 		v-model:show="isOpen"
+		class="launchpad-modal"
 		:name="tile ? t('launchpad', 'Edit Tile') : t('launchpad', 'Create Tile')"
 		size="normal"
 		@close="$emit('close')">
@@ -193,6 +194,7 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
+import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
 
@@ -213,15 +215,9 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			default: false,
-		},
+		open: FLAG_PROP,
 
-		tile: {
-			type: Object,
-			default: null,
-		},
+		tile: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['close', 'save', 'delete'],

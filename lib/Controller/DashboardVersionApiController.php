@@ -32,47 +32,35 @@ namespace OCA\LaunchPad\Controller;
 
 use Exception;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\DashboardVersionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * Controller for dashboard version endpoints (REQ-VERS-001..009).
  */
 class DashboardVersionApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request NC request.
-	 * @param DashboardMapper $dashboardMapper Dashboard row lookup.
-	 * @param DashboardVersionService $versionService Version service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession User session (IUser resolution).
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId Current user ID.
+	 * @param IRequest          $request NC request.
+	 * @param VersionApiSources $sources The dashboard mapper, version service and logger.
+	 * @param ActionCaller      $caller The session and the action check.
+	 * @param string|null       $userId Current user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly DashboardVersionService $versionService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
+		private readonly VersionApiSources $sources,
+		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -86,32 +74,19 @@ class DashboardVersionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function listVersions(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-version.list-versions');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-version.list-versions');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
-			$envelope = $this->versionService->listVersions(
+			$envelope = $this->sources->versionService->listVersions(
 				dashboard: $dashboard,
 				requestingUser: $this->userId
 			);
@@ -137,41 +112,25 @@ class DashboardVersionApiController extends Controller {
 		string $uuid,
 		int $versionNumber,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-version.fetch-version');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-version.fetch-version');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
-			$version = $this->versionService->fetchSnapshot(
+			$version = $this->sources->versionService->fetchSnapshot(
 				dashboard: $dashboard,
 				versionNumber: $versionNumber,
 				requestingUser: $this->userId
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Version not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Version not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return $this->mapServiceException(exception: $e);
 		}
@@ -202,32 +161,19 @@ class DashboardVersionApiController extends Controller {
 		string $uuid,
 		?string $note = null,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-version.create-version');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-version.create-version');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
-			$version = $this->versionService->createExplicitSnapshot(
+			$version = $this->sources->versionService->createExplicitSnapshot(
 				dashboard: $dashboard,
 				requestingUser: $this->userId,
 				note: $note
@@ -258,41 +204,25 @@ class DashboardVersionApiController extends Controller {
 		string $uuid,
 		int $versionNumber,
 	): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->actionRefusal(action: 'dashboard-version.restore-version');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
-			$this->actionAuth->requireAction($user, 'dashboard-version.restore-version');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
-		}
-
-		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->sources->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		}
 
 		try {
-			$result = $this->versionService->restoreVersion(
+			$result = $this->sources->versionService->restoreVersion(
 				dashboard: $dashboard,
 				versionNumber: $versionNumber,
 				restoringUser: $this->userId
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Version not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->failure(message: 'Version not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Exception $e) {
 			return $this->mapServiceException(exception: $e);
 		}
@@ -323,14 +253,24 @@ class DashboardVersionApiController extends Controller {
 			);
 		}
 
-		$this->logger->error(
+		$this->sources->logger->error(
 			message: 'launchpad: version operation failed',
 			context: ['exception' => $exception]
 		);
 
-		return new JSONResponse(
-			data: ['error' => 'Operation failed'],
-			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-		);
+		return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 	}//end mapServiceException()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

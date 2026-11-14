@@ -121,9 +121,14 @@
 import { translate as t } from '@nextcloud/l10n'
 import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import {
+	NULLABLE_OBJECT_PROP,
+	objectProp,
+} from '../../../constants/propDefinitions.js'
+import {
 	fetchConnectorAvailability,
 	validateLiveTileSource,
 } from '../../../services/liveTileClient.js'
+import { allowListMessage, urlFieldErrors } from '../../../utils/urlAllowList.js'
 
 const MIN_REFRESH_SECONDS = 30
 const DEFAULT_REFRESH_SECONDS = 300
@@ -140,6 +145,37 @@ const DEFAULT_CONTENT = Object.freeze({
 	linkUrl: '',
 	linkTarget: 'same-tab',
 })
+
+const SOURCE_FIELDS = Object.freeze(['label', 'sourceMode', 'url', 'sourceId', 'valueExpr', 'refresh'])
+const LINK_FIELDS = Object.freeze(['linkUrl', 'linkTarget'])
+
+/**
+ * The stored value of each named field, or its default when unset or null.
+ *
+ * @param {object} initial The stored content.
+ * @param {Array<string>} fields The field names.
+ * @return {object} the fields to edit.
+ */
+function storedOrDefault(initial, fields) {
+	return Object.fromEntries(
+		fields.map((field) => [field, initial[field] ?? DEFAULT_CONTENT[field]]),
+	)
+}
+
+/**
+ * The number-format fields of the form, read over the default format.
+ *
+ * @param {object|null|undefined} stored The stored format.
+ * @return {object} formatPrefix, formatSuffix and formatThousands.
+ */
+function formatFields(stored) {
+	const format = { ...DEFAULT_CONTENT.format, ...(stored || {}) }
+	return {
+		formatPrefix: format.prefix,
+		formatSuffix: format.suffix,
+		formatThousands: !!format.thousands,
+	}
+}
 
 /**
  * LiveTileWidgetForm — `CnAddWidgetModal` sub-form for creating or editing a
@@ -168,41 +204,25 @@ export default {
 		 *
 		 * @type {{content: object}|null}
 		 */
-		editingWidget: {
-			type: Object,
-			default: null,
-		},
+		editingWidget: NULLABLE_OBJECT_PROP,
 
 		/**
 		 * Initial content values — used when not editing.
 		 *
 		 * @type {object}
 		 */
-		value: {
-			type: Object,
-			default: () => ({ ...DEFAULT_CONTENT }),
-		},
+		value: objectProp(DEFAULT_CONTENT),
 	},
 
 	emits: ['update:content'],
 
 	data() {
 		const initial = this.editingWidget?.content || this.value || {}
-		const format = { ...DEFAULT_CONTENT.format, ...(initial.format || {}) }
-		const badge = { ...DEFAULT_CONTENT.badge, ...(initial.badge || {}) }
 		return {
-			label: initial.label ?? DEFAULT_CONTENT.label,
-			sourceMode: initial.sourceMode ?? DEFAULT_CONTENT.sourceMode,
-			url: initial.url ?? DEFAULT_CONTENT.url,
-			sourceId: initial.sourceId ?? DEFAULT_CONTENT.sourceId,
-			valueExpr: initial.valueExpr ?? DEFAULT_CONTENT.valueExpr,
-			refresh: initial.refresh ?? DEFAULT_CONTENT.refresh,
-			formatPrefix: format.prefix,
-			formatSuffix: format.suffix,
-			formatThousands: !!format.thousands,
-			badge,
-			linkUrl: initial.linkUrl ?? DEFAULT_CONTENT.linkUrl,
-			linkTarget: initial.linkTarget ?? DEFAULT_CONTENT.linkTarget,
+			...storedOrDefault(initial, SOURCE_FIELDS),
+			...formatFields(initial.format),
+			badge: { ...DEFAULT_CONTENT.badge, ...(initial.badge || {}) },
+			...storedOrDefault(initial, LINK_FIELDS),
 			connectorAvailable: false,
 			urlAllowListError: '',
 			MIN_REFRESH_SECONDS,
@@ -385,22 +405,7 @@ export default {
 				return
 			}
 			const result = await validateLiveTileSource(this.assembledContent)
-			if (
-				result.valid === false
-				&& result.errors.includes('host_not_allowed')
-			) {
-				this.urlAllowListError = t(
-					'launchpad',
-					'This host is not on the allow-list.',
-				)
-			} else if (
-				result.valid === false
-				&& result.errors.includes('invalid_url')
-			) {
-				this.urlAllowListError = t('launchpad', 'Enter a valid http(s) URL.')
-			} else {
-				this.urlAllowListError = ''
-			}
+			this.urlAllowListError = allowListMessage(result)
 		},
 
 		/**
@@ -413,33 +418,48 @@ export default {
 		 * @spec openspec/specs/live-data-tile-widget/spec.md
 		 */
 		validate() {
-			const errors = []
-
-			if (this.sourceMode === 'url') {
-				if (typeof this.url !== 'string' || this.url.trim() === '') {
-					errors.push(t('launchpad', 'URL is required'))
-				} else if (!/^https?:\/\/.+/i.test(this.url.trim())) {
-					errors.push(t('launchpad', 'Enter a valid http(s) URL.'))
-				}
-				if (this.urlAllowListError) {
-					errors.push(this.urlAllowListError)
-				}
-			} else if (this.sourceMode === 'connector') {
-				if (!this.connectorAvailable) {
-					errors.push(t('launchpad', 'OpenConnector is not available.'))
-				}
-				if (
-					typeof this.sourceId !== 'string'
-					|| this.sourceId.trim() === ''
-				) {
-					errors.push(t('launchpad', 'Source id is required'))
-				}
-			}
+			const errors = this.sourceErrors()
 
 			if (typeof this.valueExpr !== 'string' || this.valueExpr.trim() === '') {
 				errors.push(t('launchpad', 'Value expression is required'))
 			}
 
+			return errors
+		},
+
+		/**
+		 * The errors of the chosen source: the URL checks in `url` mode, the
+		 * connector checks in `connector` mode.
+		 *
+		 * @return {string[]} the source errors.
+		 */
+		sourceErrors() {
+			if (this.sourceMode === 'url') {
+				return [...urlFieldErrors(this.url, this.urlAllowListError)]
+			}
+			if (this.sourceMode === 'connector') {
+				return this.connectorErrors()
+			}
+			return []
+		},
+
+		/**
+		 * The errors of `connector` mode: OpenConnector must be available and
+		 * a source id chosen.
+		 *
+		 * @return {string[]} the connector errors.
+		 */
+		connectorErrors() {
+			const errors = []
+			if (!this.connectorAvailable) {
+				errors.push(t('launchpad', 'OpenConnector is not available.'))
+			}
+			if (
+				typeof this.sourceId !== 'string'
+				|| this.sourceId.trim() === ''
+			) {
+				errors.push(t('launchpad', 'Source id is required'))
+			}
 			return errors
 		},
 	},

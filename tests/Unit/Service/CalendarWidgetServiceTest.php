@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\FeedFetchTools;
 use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\UrlSafetyValidator;
 use OCP\Http\Client\IClient;
@@ -70,11 +71,13 @@ class CalendarWidgetServiceTest extends TestCase {
 
 		$this->service = new CalendarWidgetService(
 			appConfig: $this->appConfig,
-			cacheFactory: $this->cacheFactory,
-			clientService: $this->clientService,
+			fetch: new FeedFetchTools(
+				cacheFactory: $this->cacheFactory,
+				clientService: $this->clientService,
+				urlValidator: $this->urlValidator
+			),
 			logger: $this->logger,
-			urlValidator: $this->urlValidator,
-			calendarMgr: null,
+			calendarMgr: null
 		);
 	}
 
@@ -86,11 +89,13 @@ class CalendarWidgetServiceTest extends TestCase {
 		$realValidator = new UrlSafetyValidator(appConfig: $this->appConfig);
 		return new CalendarWidgetService(
 			appConfig: $this->appConfig,
-			cacheFactory: $this->cacheFactory,
-			clientService: $this->clientService,
+			fetch: new FeedFetchTools(
+				cacheFactory: $this->cacheFactory,
+				clientService: $this->clientService,
+				urlValidator: $realValidator
+			),
 			logger: $this->logger,
-			urlValidator: $realValidator,
-			calendarMgr: null,
+			calendarMgr: null
 		);
 	}
 
@@ -274,4 +279,157 @@ class CalendarWidgetServiceTest extends TestCase {
 		$this->assertSame([], $result['events']);
 		$this->assertNotEmpty($result['failures']);
 	}
+
+	/**
+	 * Internal events: no calendar manager, a bad range, a failing search,
+	 * and the principal filter on calendar key / uri / name.
+	 *
+	 * @return void
+	 */
+	public function testFetchInternalEventsGuardsAndFiltersByPrincipal(): void {
+		$this->assertSame(['events' => [], 'failures' => []], $this->service->fetchInternalEvents([], '2026-01-01', '2026-01-31'));
+
+		$calendars = $this->createMock(\OCP\Calendar\IManager::class);
+		$searches  = [];
+		$calendars->method('search')->willReturnCallback(
+			function (string $pattern, array $searchProperties, array $options) use (&$searches): array {
+				$searches[] = [$pattern, $searchProperties, $options['timerange']['start']->format('c'), $options['timerange']['end']->format('c')];
+				if ($options['timerange']['start']->format('Y') === '1999') {
+					throw new \RuntimeException('caldav down');
+				}
+				return [
+					['calendar-key' => 'work', 'calendar-name' => 'Work', 'objects' => []],
+					['calendarUri' => 'home', 'calendarName' => 'Home', 'objects' => []],
+					['calendar-key' => 'other', 'calendarName' => 'Shared', 'objects' => []],
+				];
+			}
+		);
+		$warnings = [];
+		$logger   = $this->createMock(LoggerInterface::class);
+		$logger->method('warning')->willReturnCallback(
+			function (string $message) use (&$warnings): void {
+				$warnings[] = $message;
+			}
+		);
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $this->urlValidator),
+			logger: $logger,
+			calendarMgr: $calendars
+		);
+
+		$this->assertSame(['events' => [], 'failures' => ['internal: invalid date range']], $service->fetchInternalEvents([], 'not a date', '2026-01-31'));
+		$this->assertSame(['events' => [], 'failures' => ['internal: caldav down']], $service->fetchInternalEvents([], '1999-01-01', '1999-01-31'));
+
+		$count = static fn (array $result): array => [count($result['events']), $result['failures']];
+		$this->assertSame([3, []], $count($service->fetchInternalEvents([], '2026-01-01', '2026-01-31')));
+		$this->assertSame([2, []], $count($service->fetchInternalEvents(['work', 'Home'], '2026-01-01', '2026-01-31')));
+		$this->assertSame([1, []], $count($service->fetchInternalEvents(['Shared'], '2026-01-01', '2026-01-31')));
+		$this->assertSame([0, []], $count($service->fetchInternalEvents(['nope'], '2026-01-01', '2026-01-31')));
+		$this->assertSame(
+			$service->normalizeInternalEvent(raw: ['calendarUri' => 'home', 'calendarName' => 'Home', 'objects' => []]),
+			$service->fetchInternalEvents(['home'], '2026-01-01', '2026-01-31')['events'][0]
+		);
+
+		$this->assertCount(6, $searches);
+		$this->assertSame(['', [], '1999-01-01T00:00:00+00:00', '1999-01-31T00:00:00+00:00'], $searches[0]);
+		$this->assertSame(2, count($warnings));
+		$this->assertStringStartsWith('Calendar widget received malformed from/to: ', $warnings[0]);
+		$this->assertSame('Calendar widget internal search failed: caldav down', $warnings[1]);
+	}//end testFetchInternalEventsGuardsAndFiltersByPrincipal()
+
+	/**
+	 * A cache miss re-validates the URL before any request; a refused URL is never fetched.
+	 *
+	 * @return void
+	 */
+	public function testFetchIcsBodyRevalidatesBeforeTheRequest(): void {
+		$validator = $this->createMock(UrlSafetyValidator::class);
+		$validator->method('isSafe')->willReturn(false);
+		$validator->method('checkAllowList')->willReturn(true);
+		$this->cache->method('get')->willReturn(null);
+		$this->clientService->expects($this->never())->method('newClient');
+
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $validator),
+			logger: $this->logger,
+			calendarMgr: null
+		);
+
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('ICS URL failed re-validation (SSRF guard)');
+		$service->fetchIcsBody('https://cal.example/a.ics');
+	}//end testFetchIcsBodyRevalidatesBeforeTheRequest()
+
+	/**
+	 * Internal search results normalise the same from every shape NC returns.
+	 *
+	 * @return void
+	 */
+	public function testNormalizeInternalEventReadsEveryShape(): void {
+		$start = new \DateTimeImmutable('2026-03-01T09:00:00+00:00');
+		$cases = [
+			'objects pairs' => [
+				'calendar-key' => 'work', 'calendar-name' => 'Work', 'calendar-color' => '#f00', 'allDay' => 1,
+				'objects' => [[
+					'SUMMARY' => ['Stand-up', []], 'DTSTART' => [$start, []], 'DTEND' => ['2026-03-01T09:15:00+00:00', []],
+					'LOCATION' => [['Room 1', []], ['Room 2', []]], 'DESCRIPTION' => ['', []], 'UID' => ['u-1', []],
+				]],
+			],
+			'raw wins over object' => [
+				'SUMMARY' => 'Raw title', 'UID' => 'raw-uid', 'objects' => [['SUMMARY' => ['Object title', []], 'UID' => ['obj-uid', []]]],
+			],
+			'flat keys' => [
+				'calendarUri' => 'home', 'calendarName' => 'Home', 'title' => 'Flat', 'start' => '2026-03-02', 'end' => '2026-03-03',
+				'location' => 'Hall', 'description' => 'Notes', 'uid' => 'flat-uid',
+			],
+			'nothing' => [],
+			'empty title and blank location' => ['objects' => [['SUMMARY' => ['', []], 'LOCATION' => ['', []], 'DTSTART' => [42, []]]]],
+		];
+
+		$actual = [];
+		foreach ($cases as $name => $raw) {
+			$actual[$name] = $this->service->normalizeInternalEvent($raw);
+		}
+
+		$fixture = __DIR__.'/fixtures/calendar-internal-events.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+		}
+
+		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
+	}//end testNormalizeInternalEventReadsEveryShape()
+
+	/**
+	 * A safe URL outside the allow-list is reported and never fetched.
+	 *
+	 * @return void
+	 */
+	public function testFetchExternalIcsEventsReportsUrlsOutsideTheAllowList(): void {
+		$validator = $this->createMock(UrlSafetyValidator::class);
+		$validator->method('isSafe')->willReturn(true);
+		$validator->method('checkAllowList')->willReturn(false);
+		$this->clientService->expects($this->never())->method('newClient');
+		$infos  = [];
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->method('info')->willReturnCallback(
+			function (string $message) use (&$infos): void {
+				$infos[] = $message;
+			}
+		);
+
+		$service = new CalendarWidgetService(
+			appConfig: $this->appConfig,
+			fetch: new FeedFetchTools(cacheFactory: $this->cacheFactory, clientService: $this->clientService, urlValidator: $validator),
+			logger: $logger,
+			calendarMgr: null
+		);
+
+		$this->assertSame(
+			['events' => [], 'failures' => ['external: not in allow-list https://cal.example/a.ics']],
+			$service->fetchExternalIcsEvents(urls: ['https://cal.example/a.ics'], from: '2026-05-01T00:00:00Z', to: '2026-05-31T23:59:59Z')
+		);
+		$this->assertSame(['Calendar widget URL not in allow-list: https://cal.example/a.ics'], $infos);
+	}//end testFetchExternalIcsEventsReportsUrlsOutsideTheAllowList()
 }

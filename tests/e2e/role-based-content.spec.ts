@@ -19,6 +19,7 @@
  */
 
 import { expect, test } from '@playwright/test'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 
 const ADMIN_URL = `${BASE}/index.php/settings/admin/launchpad`
@@ -53,7 +54,7 @@ test('admin settings page contains role-layout-defaults section', async ({
 	// The RoleLayoutDefaultsSection (REQ-RFP-002 / Task 6) lives inside the
 	// "Roles & Permissions" admin tab (slug `roles-permissions`). Select that
 	// tab before asserting the section.
-	const rolesTab = page.locator('[data-test="tab-roles-permissions"]')
+	const rolesTab = adminTab(page, 'roles-permissions')
 	await expect(rolesTab).toBeVisible({ timeout: 15_000 })
 	await rolesTab.click()
 

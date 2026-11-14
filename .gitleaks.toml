@@ -1,0 +1,62 @@
+# gitleaks configuration: the default rules, plus allowlists for findings
+# that are not secrets. Each allowlist names the exact files and only the
+# rules that fire there, so anything else in those files is still reported.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Documentation examples: the default admin:admin login of the local development and demo containers."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)docs/Installation/demo\-environment\.md$''',
+]
+
+[[allowlists]]
+description = "Spec scenario: an example public-share token in a Given/When/Then step, not a credential."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)openspec/changes/archive/2026\-06\-14\-dashboard\-public\-share/specs/dashboard\-public\-share/spec\.md$''',
+]
+
+[[allowlists]]
+description = "Smoke-test notes: curl logins of the throwaway local test users (admin, user, alice)."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)openspec/changes/archive/2026\-06\-14\-role\-based\-content/smoke\.md$''',
+]
+
+[[allowlists]]
+description = "Spec example: a truncated sample JWT in an SDK usage snippet, not a credential."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)openspec/changes/embedded\-analytics/specs/sdk\-and\-rendering\.md$''',
+]
+
+[[allowlists]]
+description = "Spec example: the same truncated sample JWT in the embedded-analytics SDK scenarios, not a credential."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)openspec/changes/embedded\-analytics/specs/embedded\-analytics/spec\.md$''',
+]
+
+[[allowlists]]
+description = "Design note: a curl example with a user:app-password placeholder."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)openspec/changes/governance\-rest\-api\-reference/design\.md$''',
+]
+
+[[allowlists]]
+description = "Spec scenario: an example public-share token in a Given/When/Then step, not a credential."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)openspec/specs/dashboard\-public\-share/spec\.md$''',
+]
+
+[[allowlists]]
+description = "E2E seed script: curl login built from the ADMIN_USER/ADMIN_PASSWORD environment variables, not a literal."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)tests/e2e/seed\.sh$''',
+]

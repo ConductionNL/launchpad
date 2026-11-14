@@ -87,7 +87,6 @@ class AdminSettingKeyTest extends TestCase {
 			'FOOTER_BACKGROUND_COLOR' => [AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,       AdminSettingKey::FOOTER_BACKGROUND_COLOR],
 			'FOOTER_TEXT_COLOR' => [AdminSetting::KEY_FOOTER_TEXT_COLOR,             AdminSettingKey::FOOTER_TEXT_COLOR],
 			'SETUP_WIZARD_COMPLETE' => [AdminSetting::KEY_SETUP_WIZARD_COMPLETE,         AdminSettingKey::SETUP_WIZARD_COMPLETE],
-			'CONTENT_STORAGE' => [AdminSetting::KEY_CONTENT_STORAGE,               AdminSettingKey::CONTENT_STORAGE],
 		];
 	}//end bcAliasProvider()
 
@@ -111,7 +110,6 @@ class AdminSettingKeyTest extends TestCase {
 			AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,
 			AdminSetting::KEY_FOOTER_TEXT_COLOR,
 			AdminSetting::KEY_SETUP_WIZARD_COMPLETE,
-			AdminSetting::KEY_CONTENT_STORAGE,
 		];
 
 		foreach ($aliases as $alias) {
@@ -120,4 +118,15 @@ class AdminSettingKeyTest extends TestCase {
 			$this->assertSame(expected: $alias, actual: $case->value);
 		}
 	}//end testFromWorksForEveryAlias()
+
+	/**
+	 * Decision 131: the content storage key is retired; a stored row is
+	 * left unread, so the enum must not resolve it.
+	 *
+	 * @return void
+	 */
+	public function testContentStorageKeyIsRetired(): void {
+		$this->assertNull(AdminSettingKey::tryFrom('content_storage'));
+		$this->assertFalse(defined(AdminSetting::class . '::KEY_CONTENT_STORAGE'));
+	}//end testContentStorageKeyIsRetired()
 }//end class

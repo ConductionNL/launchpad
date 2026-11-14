@@ -46,7 +46,6 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -56,6 +55,8 @@ use OCP\IUserSession;
  * @spec openspec/changes/archive/2026-05-02-dashboard-view-analytics/tasks.md
  */
 class AnalyticsController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
@@ -70,10 +71,7 @@ class AnalyticsController extends Controller {
 		private readonly ActionAuthService $actionAuth,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -91,15 +89,9 @@ class AnalyticsController extends Controller {
 		string $period = '30d',
 		int $limit = 10,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.top-dashboards');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.top-dashboards');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -108,14 +100,7 @@ class AnalyticsController extends Controller {
 				limit: $limit
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $rows);
@@ -137,15 +122,9 @@ class AnalyticsController extends Controller {
 		string $uuid,
 		string $period = '30d',
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.dashboard-detail');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.dashboard-detail');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -154,22 +133,9 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'not_found',
-				],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
+			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}//end try
 
 		return ResponseHelper::success(data: $rows);
@@ -186,15 +152,9 @@ class AnalyticsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function instanceSummary(string $period = '30d'): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.instance-summary');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.instance-summary');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -202,14 +162,7 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return ResponseHelper::success(data: $summary);
@@ -230,15 +183,9 @@ class AnalyticsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function exportCsv(string $period = '30d'): Response {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.export-csv');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.export-csv');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -246,14 +193,7 @@ class AnalyticsController extends Controller {
 				period: $period
 			);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'invalid_period',
-					'message' => $e->getMessage(),
-				],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return $this->badRequestWithCode(code: 'invalid_period', message: $e->getMessage());
 		}
 
 		return new DataDownloadResponse(
@@ -262,4 +202,16 @@ class AnalyticsController extends Controller {
 			contentType: 'text/csv'
 		);
 	}//end exportCsv()
+
+	/**
+	 * The caller guard: no session user → 401, a denied ADR-023 action → 403; NULL to proceed.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		$check = new SessionActionCheck(userSession: $this->userSession, actionAuth: $this->actionAuth);
+		return $check->refusal(action: $action);
+	}//end actionRefusal()
 }//end class

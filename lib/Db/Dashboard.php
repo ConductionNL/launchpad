@@ -661,6 +661,15 @@ class Dashboard extends Entity implements JsonSerializable {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function jsonSerialize(): array {
+		return $this->identityFields() + $this->treeAndPublicationFields() + $this->footerAndTemplateFields();
+	}//end jsonSerialize()
+
+	/**
+	 * The identity, ownership and behaviour fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function identityFields(): array {
 		return [
 			'id' => $this->getId(),
 			'uuid' => $this->uuid,
@@ -679,6 +688,16 @@ class Dashboard extends Entity implements JsonSerializable {
 			'commentsEnabled' => $this->commentsEnabled,
 			// REQ-RXN-006 — null/1/0 tri-state.
 			'reactionsEnabled' => $this->reactionsEnabled,
+		];
+	}//end identityFields()
+
+	/**
+	 * The timestamps, tree position and publication fields of the wire format.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function treeAndPublicationFields(): array {
+		return [
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 			'parentUuid' => $this->parentUuid,
@@ -688,17 +707,27 @@ class Dashboard extends Entity implements JsonSerializable {
 			'publishAt' => $this->publishAt,
 			'publishedAt' => $this->publishedAt,
 			'unpublishAt' => $this->unpublishAt,
-			// REQ-FTR-006 — surface the per-dashboard footer override
-			// fields on every API payload so frontend renderers can
-			// decide whether to draw an instance footer, hide it, or
-			// render the dashboard-specific HTML.
+		];
+	}//end treeAndPublicationFields()
+
+	/**
+	 * The footer override and template fields of the wire format.
+	 *
+	 * REQ-FTR-006 — surface the per-dashboard footer override fields on
+	 * every API payload so frontend renderers can decide whether to draw
+	 * an instance footer, hide it, or render the dashboard-specific HTML.
+	 *
+	 * @return array<string, mixed> The fields, in wire order.
+	 */
+	private function footerAndTemplateFields(): array {
+		return [
 			'dashboardFooterMode' => $this->dashboardFooterMode,
 			'dashboardFooterHtml' => $this->dashboardFooterHtml,
 			'templateCategory' => $this->templateCategory,
 			'templateDescription' => $this->templateDescription,
 			'templatePreviewImage' => $this->templatePreviewImage,
 		];
-	}//end jsonSerialize()
+	}//end footerAndTemplateFields()
 
 	/**
 	 * Serialize for a non-owner viewer (M5 — strips internal identity

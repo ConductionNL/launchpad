@@ -36,6 +36,14 @@ use OCP\IDBConnection;
  * @spec    openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class WidgetPlacementMapper extends QBMapper {
+	use ColumnMatchQueries;
+	use OrphanRowQueries;
+
+	/**
+	 * Parent link for the orphan queries: alias, parent table, parent alias, foreign key.
+	 */
+	private const ORPHAN_LINK = ['p', 'launchpad_dashboards', 'd', 'dashboard_id'];
+
 	/**
 	 * Constructor
 	 *
@@ -60,18 +68,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function find(int $id): WidgetPlacement {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -85,19 +82,8 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function findByDashboardId(int $dashboardId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'sort_order', order: 'ASC')
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId]);
+		$qb->orderBy(sort: 'sort_order', order: 'ASC')
 			->addOrderBy(sort: 'grid_y', order: 'ASC')
 			->addOrderBy(sort: 'grid_x', order: 'ASC');
 
@@ -116,15 +102,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function findByWidgetId(string $widgetId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'widget_id',
-					y: $qb->createNamedParameter(value: $widgetId)
-				)
-			);
+		$qb = $this->selectWhere(match: ['widget_id' => $widgetId]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByWidgetId()
@@ -165,15 +143,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/dashboard-acknowledgements/specs/dashboard-acknowledgements/spec.md
 	 */
 	public function findByAnnouncementKey(string $announcementKey): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'announcement_key',
-					y: $qb->createNamedParameter(value: $announcementKey)
-				)
-			);
+		$qb = $this->selectWhere(match: ['announcement_key' => $announcementKey]);
 
 		return $this->findEntities(query: $qb);
 	}//end findByAnnouncementKey()
@@ -187,17 +157,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardId(int $dashboardId): void {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_id' => $dashboardId]);
 
 		$qb->executeStatement();
 	}//end deleteByDashboardId()
@@ -242,56 +202,77 @@ class WidgetPlacementMapper extends QBMapper {
 	 */
 	public function updatePositions(array $updates): void {
 		foreach ($updates as $update) {
-			$qb = $this->db->getQueryBuilder();
-			$qb->update(update: $this->getTableName())
-				->set(
-					key: 'grid_x',
-					value: $qb->createNamedParameter(
-						value: $update['gridX'] ?? 0,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'grid_y',
-					value: $qb->createNamedParameter(
-						value: $update['gridY'] ?? 0,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'grid_width',
-					value: $qb->createNamedParameter(
-						value: $update['gridWidth'] ?? 4,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'grid_height',
-					value: $qb->createNamedParameter(
-						value: $update['gridHeight'] ?? 4,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-				->set(
-					key: 'updated_at',
-					value: $qb->createNamedParameter(
-						value: new DateTime(),
-						type: IQueryBuilder::PARAM_DATETIME_MUTABLE
-					)
-				)
-				->where(
-					$qb->expr()->eq(
-						x: 'id',
-						y: $qb->createNamedParameter(
-							value: $update['id'],
-							type: IQueryBuilder::PARAM_INT
-						)
-					)
-				);
-
-			$qb->executeStatement();
-		}//end foreach
+			$this->updatePosition(update: $update);
+		}
 	}//end updatePositions()
+
+	/**
+	 * Write the grid position of one placement and stamp `updated_at`.
+	 *
+	 * Missing coordinates default to 0, missing sizes to 4.
+	 *
+	 * @param mixed $update One `{id, gridX?, gridY?, gridWidth?, gridHeight?}` entry
+	 *                      (untyped like the incoming list, so a malformed entry
+	 *                      fails exactly where it always did).
+	 *
+	 * @return void
+	 */
+	private function updatePosition(mixed $update): void {
+		$columns = [
+			'grid_x' => ($update['gridX'] ?? 0),
+			'grid_y' => ($update['gridY'] ?? 0),
+			'grid_width' => ($update['gridWidth'] ?? 4),
+			'grid_height' => ($update['gridHeight'] ?? 4),
+		];
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->update(update: $this->getTableName());
+		foreach ($columns as $column => $value) {
+			$qb->set(
+				key: $column,
+				value: $qb->createNamedParameter(value: $value, type: IQueryBuilder::PARAM_INT)
+			);
+		}
+
+		// Every position write raises the widget's version, so a colleague's
+		// per-widget save made on the older version is refused
+		// (building-edit-a-dashboard-together, task 1.2).
+		$qb->set(key: 'version', value: $qb->createFunction(call: $qb->getColumnName(column: 'version') . ' + 1'));
+		$qb->set(
+			key: 'updated_at',
+			value: $qb->createNamedParameter(value: new DateTime(), type: IQueryBuilder::PARAM_DATETIME_MUTABLE)
+		)->where(
+			$qb->expr()->eq(
+				x: 'id',
+				y: $qb->createNamedParameter(value: $update['id'], type: IQueryBuilder::PARAM_INT)
+			)
+		);
+
+		$qb->executeStatement();
+	}//end updatePosition()
+
+	/**
+	 * Raise a widget's version by one, only when it is still the version the editor saw.
+	 *
+	 * One statement compares and raises, so of two saves on the same version
+	 * exactly one wins.
+	 *
+	 * @param int $id       The placement id.
+	 * @param int $expected The version the editor's change was made on.
+	 *
+	 * @return bool True when the version was claimed; false when a colleague saved first.
+	 *
+	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 */
+	public function claimVersion(int $id, int $expected): bool {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update(update: $this->getTableName())
+			->set(key: 'version', value: $qb->createNamedParameter(value: $expected + 1, type: IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq(x: 'id', y: $qb->createNamedParameter(value: $id, type: IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq(x: 'version', y: $qb->createNamedParameter(value: $expected, type: IQueryBuilder::PARAM_INT)));
+
+		return $qb->executeStatement() === 1;
+	}//end claimVersion()
 
 	/**
 	 * Clone all placements from one dashboard to another.
@@ -324,46 +305,12 @@ class WidgetPlacementMapper extends QBMapper {
 
 		foreach ($rows as $row) {
 			$clone = new WidgetPlacement();
-			// Force the new dashboard id — the rest of the fields below
-			// are byte-for-byte copies of the source row.
+			// Force the new dashboard id — the rest of the fields are
+			// byte-for-byte copies of the source row.
 			$clone->setDashboardId($targetDashboardId);
-			$clone->setWidgetId($row->getWidgetId());
-			$clone->setGridX($row->getGridX());
-			$clone->setGridY($row->getGridY());
-			$clone->setGridWidth($row->getGridWidth());
-			$clone->setGridHeight($row->getGridHeight());
-			$clone->setIsCompulsory($row->getIsCompulsory());
-			$clone->setIsVisible($row->getIsVisible());
-			$clone->setStyleConfig($row->getStyleConfig());
-			$clone->setCustomTitle($row->getCustomTitle());
-			$clone->setCustomIcon($row->getCustomIcon());
-			$clone->setShowTitle($row->getShowTitle());
-			$clone->setSortOrder($row->getSortOrder());
-			$clone->setTileType($row->getTileType());
-			$clone->setTileTitle($row->getTileTitle());
-			// REQ-DASH-022: same `/apps/launchpad/resource/...` URL — no
-			// file is duplicated in app data, both dashboards reference
-			// the shared resource record.
-			$clone->setTileIcon($row->getTileIcon());
-			$clone->setTileIconType($row->getTileIconType());
-			$clone->setTileBackgroundColor($row->getTileBackgroundColor());
-			$clone->setTileTextColor($row->getTileTextColor());
-			$clone->setTileLinkType($row->getTileLinkType());
-			$clone->setTileLinkValue($row->getTileLinkValue());
-			// REQ-DASH-020: `content` carries the widget configuration —
-			// for `nc-widget` rows the `{"widgetId": ...}` JSON that tells
-			// the renderer what to load. Dropping it forks widgets into a
-			// sourceless "No items available" state.
-			$clone->setContent($row->getContent());
-			// REQ-ACK-001: preserve the acknowledgement requirement and the
-			// shared `announcementKey` on fork so a forked dashboard keeps the
-			// same announcement identity.
-			$clone->setRequiresAcknowledgement($row->getRequiresAcknowledgement());
-			$clone->setAcknowledgementPrompt($row->getAcknowledgementPrompt());
-			$clone->setAcknowledgementDeadline($row->getAcknowledgementDeadline());
-			$clone->setReacknowledgeOnChange($row->getReacknowledgeOnChange());
-			$clone->setAcknowledgementContentVersion($row->getAcknowledgementContentVersion());
-			$clone->setAnnouncementKey($row->getAnnouncementKey());
+			$this->copyLayout(row: $row, clone: $clone);
+			$this->copyTile(row: $row, clone: $clone);
+			$this->copyAcknowledgement(row: $row, clone: $clone);
 			$clone->setCreatedAt($now);
 			$clone->setUpdatedAt($now);
 
@@ -373,6 +320,78 @@ class WidgetPlacementMapper extends QBMapper {
 
 		return $count;
 	}//end cloneToDashboard()
+
+	/**
+	 * Copy the widget, grid, style and content fields of a placement.
+	 *
+	 * REQ-DASH-020: `content` carries the widget configuration — for
+	 * `nc-widget` rows the `{"widgetId": ...}` JSON that tells the renderer
+	 * what to load. Dropping it forks widgets into a sourceless "No items
+	 * available" state.
+	 *
+	 * @param WidgetPlacement $row   The source placement.
+	 * @param WidgetPlacement $clone The clone being built.
+	 *
+	 * @return void
+	 */
+	private function copyLayout(WidgetPlacement $row, WidgetPlacement $clone): void {
+		$clone->setWidgetId($row->getWidgetId());
+		$clone->setGridX($row->getGridX());
+		$clone->setGridY($row->getGridY());
+		$clone->setGridWidth($row->getGridWidth());
+		$clone->setGridHeight($row->getGridHeight());
+		$clone->setIsCompulsory($row->getIsCompulsory());
+		$clone->setIsVisible($row->getIsVisible());
+		$clone->setStyleConfig($row->getStyleConfig());
+		$clone->setCustomTitle($row->getCustomTitle());
+		$clone->setCustomIcon($row->getCustomIcon());
+		$clone->setShowTitle($row->getShowTitle());
+		$clone->setSortOrder($row->getSortOrder());
+	}//end copyLayout()
+
+	/**
+	 * Copy the tile fields and the widget content of a placement.
+	 *
+	 * REQ-DASH-022: the tile icon keeps the same `/apps/launchpad/resource/...`
+	 * URL — no file is duplicated in app data, both dashboards reference the
+	 * shared resource record.
+	 *
+	 * @param WidgetPlacement $row   The source placement.
+	 * @param WidgetPlacement $clone The clone being built.
+	 *
+	 * @return void
+	 */
+	private function copyTile(WidgetPlacement $row, WidgetPlacement $clone): void {
+		$clone->setTileType($row->getTileType());
+		$clone->setTileTitle($row->getTileTitle());
+		$clone->setTileIcon($row->getTileIcon());
+		$clone->setTileIconType($row->getTileIconType());
+		$clone->setTileBackgroundColor($row->getTileBackgroundColor());
+		$clone->setTileTextColor($row->getTileTextColor());
+		$clone->setTileLinkType($row->getTileLinkType());
+		$clone->setTileLinkValue($row->getTileLinkValue());
+		$clone->setContent($row->getContent());
+	}//end copyTile()
+
+	/**
+	 * Copy the acknowledgement requirement of a placement.
+	 *
+	 * REQ-ACK-001: the shared `announcementKey` is preserved on fork so a
+	 * forked dashboard keeps the same announcement identity.
+	 *
+	 * @param WidgetPlacement $row   The source placement.
+	 * @param WidgetPlacement $clone The clone being built.
+	 *
+	 * @return void
+	 */
+	private function copyAcknowledgement(WidgetPlacement $row, WidgetPlacement $clone): void {
+		$clone->setRequiresAcknowledgement($row->getRequiresAcknowledgement());
+		$clone->setAcknowledgementPrompt($row->getAcknowledgementPrompt());
+		$clone->setAcknowledgementDeadline($row->getAcknowledgementDeadline());
+		$clone->setReacknowledgeOnChange($row->getReacknowledgeOnChange());
+		$clone->setAcknowledgementContentVersion($row->getAcknowledgementContentVersion());
+		$clone->setAnnouncementKey($row->getAnnouncementKey());
+	}//end copyAcknowledgement()
 
 	/**
 	 * Count placement rows whose `dashboard_id` no longer points at
@@ -387,22 +406,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function countOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('p.id'))
-			->from(from: $this->getTableName(), alias: 'p')
-			->leftJoin(
-				fromAlias: 'p',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = p.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$count = $result->fetchOne();
-		$result->closeCursor();
-
-		return (int)($count ?? 0);
+		return $this->countOrphanRows(link: self::ORPHAN_LINK);
 	}//end countOrphaned()
 
 	/**
@@ -417,42 +421,7 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('p.id')
-			->from(from: $this->getTableName(), alias: 'p')
-			->leftJoin(
-				fromAlias: 'p',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = p.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$ids = [];
-		while (($row = $result->fetch()) !== false) {
-			$ids[] = (int)$row['id'];
-		}
-
-		$result->closeCursor();
-
-		if (count(value: $ids) === 0) {
-			return 0;
-		}
-
-		$delete = $this->db->getQueryBuilder();
-		$delete->delete(delete: $this->getTableName())
-			->where(
-				$delete->expr()->in(
-					x: 'id',
-					y: $delete->createNamedParameter(
-						value: $ids,
-						type: IQueryBuilder::PARAM_INT_ARRAY
-					)
-				)
-			);
-
-		return $delete->executeStatement();
+		return $this->deleteOrphanRows(link: self::ORPHAN_LINK);
 	}//end deleteOrphaned()
 
 	/**
@@ -468,27 +437,6 @@ class WidgetPlacementMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function countByDashboardId(int $dashboardId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('*', 'cnt'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
-
-		$cursor = $qb->executeQuery();
-		$row = $cursor->fetch();
-		$cursor->closeCursor();
-
-		if ($row === false || isset($row['cnt']) === false) {
-			return 0;
-		}
-
-		return (int)$row['cnt'];
+		return $this->countWhere(match: ['dashboard_id' => $dashboardId]);
 	}//end countByDashboardId()
 }//end class

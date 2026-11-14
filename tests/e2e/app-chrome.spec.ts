@@ -95,7 +95,7 @@ test.describe('app chrome (ADR-114)', () => {
 		await expect(page.locator('#launchpad-main-content')).toBeAttached()
 	})
 
-	test('the chrome declares Documentation, Store, Reports and Features & roadmap', async () => {
+	test('the chrome declares Documentation, Store and Features & roadmap', async () => {
 		// The manifest is read here rather than restated, so a renamed or
 		// dropped entry is a failure instead of a silently stale literal.
 
@@ -113,8 +113,8 @@ test.describe('app chrome (ADR-114)', () => {
 
 		expect(
 			footer.map((e: any) => e.label),
-			'ADR-114 declares four footer destinations, in this order',
-		).toEqual(['Documentation', 'Store', 'Reports', 'Features & roadmap'])
+			'the footer declares three destinations, in this order; Reports sits in the Advanced foldout',
+		).toEqual(['Documentation', 'Store', 'Features & roadmap'])
 
 		// A GLYPH ON EVERY ONE. An icon name that is not registered renders no
 		// glyph — not a fallback, not a console error; this app shipped one.
@@ -123,7 +123,7 @@ test.describe('app chrome (ADR-114)', () => {
 		}
 
 		// Documentation leaves the app, so it is an href and there is nothing
-		// here to render. The other three name a page this app must host.
+		// here to render. The other two name a page this app must host.
 		expect(footer[0].href, 'Documentation must be an external href').toMatch(
 			/^https:\/\//,
 		)

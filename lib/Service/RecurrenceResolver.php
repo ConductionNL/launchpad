@@ -103,8 +103,24 @@ class RecurrenceResolver {
 
 		$zone  = self::zone(timezone: $timezone);
 		$local = DateTimeImmutable::createFromInterface($after)->setTimezone($zone);
-		$rule  = $this->compile(recurrence: $recurrence);
-		$day   = $local->setTime(0, 0);
+
+		return self::firstAfter(rule: $this->compile(recurrence: $recurrence), local: $local);
+	}//end nextRunAt()
+
+	/**
+	 * The first moment of a compiled rule after a local time, searched day by
+	 * day for SEARCH_DAYS days in that time's zone.
+	 *
+	 * @param array<string, mixed> $rule  The compiled recurrence.
+	 * @param DateTimeImmutable    $local The moment to search after, in the schedule's zone.
+	 *
+	 * @return DateTimeImmutable
+	 *
+	 * @throws InvalidArgumentException When the rule never fires.
+	 */
+	private static function firstAfter(array $rule, DateTimeImmutable $local): DateTimeImmutable {
+		$zone = $local->getTimezone();
+		$day  = $local->setTime(0, 0);
 
 		for ($i = 0; $i < self::SEARCH_DAYS; $i++) {
 			$date = $day->modify('+' . $i . ' days');
@@ -126,7 +142,7 @@ class RecurrenceResolver {
 		}
 
 		throw new InvalidArgumentException('The recurrence never fires.');
-	}//end nextRunAt()
+	}//end firstAfter()
 
 	/**
 	 * The first occurrence of a wall-clock time that a fall-back makes occur
@@ -313,15 +329,15 @@ class RecurrenceResolver {
 
 		$daysOfWeek = array_values(array_unique(array_map(
 			static fn (int $d): int => $d % 7,
-			self::cronField(field: $fields[4], min: 0, max: 7)
+			self::cronField(field: $fields[4], bounds: [0, 7])
 		)));
 		sort($daysOfWeek);
 
 		return [
-			'minutes' => self::cronField(field: $fields[0], min: 0, max: 59),
-			'hours' => self::cronField(field: $fields[1], min: 0, max: 23),
-			'daysOfMonth' => self::cronField(field: $fields[2], min: 1, max: 31),
-			'months' => self::cronField(field: $fields[3], min: 1, max: 12),
+			'minutes' => self::cronField(field: $fields[0], bounds: [0, 59]),
+			'hours' => self::cronField(field: $fields[1], bounds: [0, 23]),
+			'daysOfMonth' => self::cronField(field: $fields[2], bounds: [1, 31]),
+			'months' => self::cronField(field: $fields[3], bounds: [1, 12]),
 			'daysOfWeek' => $daysOfWeek,
 			'domRestricted' => $fields[2] !== '*',
 			'dowRestricted' => $fields[4] !== '*',
@@ -332,15 +348,15 @@ class RecurrenceResolver {
 	 * One cron field as its sorted allowed values: `*`, numbers or names,
 	 * ranges `a-b`, steps `/n`, and comma lists of those.
 	 *
-	 * @param string $field The field.
-	 * @param int    $min   The lowest value allowed.
-	 * @param int    $max   The highest value allowed.
+	 * @param string          $field  The field.
+	 * @param array{int, int} $bounds The lowest and the highest value allowed.
 	 *
 	 * @return list<int>
 	 *
 	 * @throws InvalidArgumentException When the field is malformed or out of range.
 	 */
-	private static function cronField(string $field, int $min, int $max): array {
+	private static function cronField(string $field, array $bounds): array {
+		[$min, $max] = $bounds;
 		$values = [];
 		foreach (explode(',', strtoupper($field)) as $part) {
 			if (preg_match('/^(\*|[0-9A-Z]+(?:-[0-9A-Z]+)?)(?:\/([0-9]+))?$/', $part, $m) !== 1) {
@@ -348,7 +364,7 @@ class RecurrenceResolver {
 			}
 
 			$step = (int)($m[2] ?? 1);
-			[$from, $to] = self::cronRange(range: $m[1], min: $min, max: $max, stepped: isset($m[2]));
+			[$from, $to] = self::cronRange(range: $m[1], bounds: $bounds, stepped: isset($m[2]));
 			if ($step < 1 || $from < $min || $to > $max || $from > $to) {
 				throw new InvalidArgumentException(sprintf('The cron field "%s" is out of range.', $field));
 			}
@@ -366,14 +382,14 @@ class RecurrenceResolver {
 	 * The bounds of one cron range: `*` is the whole field, `a` alone is a
 	 * single value (or `a` to the end when stepped), `a-b` is a range.
 	 *
-	 * @param string $range   The range part.
-	 * @param int    $min     The field's lowest value.
-	 * @param int    $max     The field's highest value.
-	 * @param bool   $stepped Whether a step follows.
+	 * @param string          $range   The range part.
+	 * @param array{int, int} $bounds  The field's lowest and highest value.
+	 * @param bool            $stepped Whether a step follows.
 	 *
 	 * @return array{int, int}
 	 */
-	private static function cronRange(string $range, int $min, int $max, bool $stepped): array {
+	private static function cronRange(string $range, array $bounds, bool $stepped): array {
+		[$min, $max] = $bounds;
 		if ($range === '*') {
 			return [$min, $max];
 		}

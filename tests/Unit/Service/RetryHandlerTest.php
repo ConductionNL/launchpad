@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace Unit\Service;
 
 use DateTimeImmutable;
+use OCA\LaunchPad\Service\RetryAttempt;
 use OCA\LaunchPad\Service\RetryHandler;
 use PHPUnit\Framework\TestCase;
 
@@ -95,7 +96,7 @@ class RetryHandlerTest extends TestCase {
 	 */
 	public function testAFailedAttemptSchedulesTheNextOne(): void {
 		$now      = new DateTimeImmutable('2026-11-16T09:00:00+01:00');
-		$delivery = (new RetryHandler())->afterAttempt(['recipientId' => 'r1', 'channel' => 'webhook'], false, self::NO_JITTER, $now, 'HTTP 503');
+		$delivery = (new RetryHandler())->afterAttempt(['recipientId' => 'r1', 'channel' => 'webhook'], new RetryAttempt(succeeded: false, now: $now, policy: self::NO_JITTER, error: 'HTTP 503'));
 
 		$this->assertSame(
 			['recipientId' => 'r1', 'channel' => 'webhook', 'attemptCount' => 1, 'error' => 'HTTP 503', 'status' => 'retrying', 'nextAttemptAt' => '2026-11-16T09:01:00+01:00'],
@@ -114,7 +115,7 @@ class RetryHandlerTest extends TestCase {
 		$policy   = ['maxAttempts' => 3] + self::NO_JITTER;
 		$delivery = ['recipientId' => 'r1'];
 		for ($i = 0; $i < 3; $i++) {
-			$delivery = $handler->afterAttempt($delivery, false, $policy, $now, 'HTTP 503');
+			$delivery = $handler->afterAttempt($delivery, new RetryAttempt(succeeded: false, now: $now, policy: $policy, error: 'HTTP 503'));
 		}
 
 		$this->assertSame(3, $delivery['attemptCount']);
@@ -136,12 +137,12 @@ class RetryHandlerTest extends TestCase {
 	public function testRecoveryOnTheThirdAttemptIsASuccess(): void {
 		$handler  = new RetryHandler();
 		$now      = new DateTimeImmutable('2026-11-16T09:00:00+01:00');
-		$delivery = $handler->afterAttempt(['recipientId' => 'r1'], false, self::NO_JITTER, $now, 'HTTP 503');
+		$delivery = $handler->afterAttempt(['recipientId' => 'r1'], new RetryAttempt(succeeded: false, now: $now, policy: self::NO_JITTER, error: 'HTTP 503'));
 		$this->assertFalse($handler->isDue($delivery, $now));
 		$this->assertTrue($handler->isDue($delivery, $now->modify('+60 seconds')));
 
-		$delivery = $handler->afterAttempt($delivery, false, self::NO_JITTER, $now->modify('+1 minute'), 'HTTP 503');
-		$delivery = $handler->afterAttempt($delivery, true, self::NO_JITTER, $now->modify('+3 minutes'));
+		$delivery = $handler->afterAttempt($delivery, new RetryAttempt(succeeded: false, now: $now->modify('+1 minute'), policy: self::NO_JITTER, error: 'HTTP 503'));
+		$delivery = $handler->afterAttempt($delivery, new RetryAttempt(succeeded: true, now: $now->modify('+3 minutes'), policy: self::NO_JITTER));
 
 		$this->assertSame(3, $delivery['attemptCount']);
 		$this->assertSame('success', $delivery['status']);

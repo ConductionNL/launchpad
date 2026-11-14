@@ -124,30 +124,19 @@ class RetryHandler {
 	 * waiting for its next attempt, or failed for good once the policy's
 	 * attempts are spent.
 	 *
-	 * @param array<string, mixed>  $delivery  The delivery as the run-row holds it.
-	 * @param bool                  $succeeded Whether this attempt delivered.
-	 * @param array<string, mixed>  $policy    A policy from `policy()`.
-	 * @param DateTimeInterface     $now       The moment of the attempt.
-	 * @param string|null           $error     Why the attempt failed.
-	 * @param (callable(int, int): int)|null $random The jitter source.
+	 * @param array<string, mixed> $delivery The delivery as the run-row holds it.
+	 * @param RetryAttempt         $attempt  Whether it delivered, when, under which policy, and why it failed.
 	 *
 	 * @return array<string, mixed> The updated delivery.
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-006-retry-with-exponential-backoff-and-dead-letter
 	 */
-	public function afterAttempt(
-		array $delivery,
-		bool $succeeded,
-		array $policy,
-		DateTimeInterface $now,
-		?string $error = null,
-		?callable $random = null,
-	): array {
+	public function afterAttempt(array $delivery, RetryAttempt $attempt): array {
 		$attempts = (int)($delivery['attemptCount'] ?? 0) + 1;
 		$delivery['attemptCount'] = $attempts;
-		$at = DateTimeImmutable::createFromInterface($now);
+		$at = DateTimeImmutable::createFromInterface($attempt->now);
 
-		if ($succeeded === true) {
+		if ($attempt->succeeded === true) {
 			$delivery['status']        = self::STATUS_SUCCESS;
 			$delivery['deliveredAt']   = $at->format(DateTimeInterface::ATOM);
 			$delivery['nextAttemptAt'] = null;
@@ -155,14 +144,14 @@ class RetryHandler {
 			return $delivery;
 		}
 
-		$delivery['error'] = $error;
-		if ($attempts >= (int)$policy['maxAttempts']) {
+		$delivery['error'] = $attempt->error;
+		if ($attempts >= (int)$attempt->policy['maxAttempts']) {
 			$delivery['status']        = self::STATUS_FAILED_PERMANENT;
 			$delivery['nextAttemptAt'] = null;
 			return $delivery;
 		}
 
-		$wait = $this->backoffSeconds(failedAttempts: $attempts, policy: $policy, random: $random);
+		$wait = $this->backoffSeconds(failedAttempts: $attempts, policy: $attempt->policy, random: $attempt->random);
 		$delivery['status']        = self::STATUS_RETRYING;
 		$delivery['nextAttemptAt'] = $at->modify('+' . $wait . ' seconds')->format(DateTimeInterface::ATOM);
 		return $delivery;

@@ -37,7 +37,7 @@
 			:id="listboxId"
 			class="runtime-shell-search__results"
 			role="listbox"
-			:aria-label="t('launchpad', 'Matching tiles')">
+			:aria-label="listboxLabel">
 			<li
 				v-for="(result, index) in search.state.results"
 				:id="optionId(index)"
@@ -289,9 +289,20 @@ export default {
 			if (!query) {
 				return ''
 			}
-			const count = this.search.state.results.length
+			const results = this.search.state.results
+			const count = results.length
 			if (count === 0) {
 				return this.noResultsMessage
+			}
+			// search-ai-prefix-shortcuts D3: a shortcut result or the list of
+			// shortcuts is read out as itself, not as a tile count.
+			if (results[0].kind === 'shortcut') {
+				return results[0].label
+			}
+			if (results[0].kind === 'shortcut-hint') {
+				return this.t('launchpad', 'Search shortcuts: {list}', {
+					list: results.map((result) => result.label).join(', '),
+				})
 			}
 			return this.n(
 				'launchpad',
@@ -299,6 +310,21 @@ export default {
 				'%n matching tiles',
 				count,
 			)
+		},
+
+		/**
+		 * The listbox's accessible name: tiles, or the search shortcuts when
+		 * the results come from a prefix (search-ai-prefix-shortcuts D3).
+		 *
+		 * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-users-can-see-the-shortcuts-req-spx-003
+		 * @return {string}
+		 */
+		listboxLabel() {
+			const first = this.search.state.results[0]
+			if (first && (first.kind === 'shortcut' || first.kind === 'shortcut-hint')) {
+				return this.t('launchpad', 'Search shortcuts')
+			}
+			return this.t('launchpad', 'Matching tiles')
 		},
 
 		/**

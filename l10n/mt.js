@@ -1373,7 +1373,11 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Għodd iż-żjarat tiegħi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Meta dan ikun mitfi, iż-żjarat tiegħek fid-dashboards u l-klikks fuq il-madum ma jingħaddux fin-numru ta' dehriet.",
-    "Your choice could not be saved." : "L-għażla tiegħek ma setgħetx tiġi ssejvjata."
+    "Your choice could not be saved." : "L-għażla tiegħek ma setgħetx tiġi ssejvjata.",
+    "Active filters" : "Filtri attivi",
+    "Pinned filter" : "Filtru mwaħħal",
+    "Remove filter: {label}" : "Neħħi l-filtru: {label}",
+    "Reset filters" : "Erġa' ssettja l-filtri"
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

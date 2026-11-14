@@ -1373,7 +1373,11 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Štej moje obiske",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Ko je to izklopljeno, se vaši obiski nadzornih plošč in kliki na ploščice ne štejejo v število ogledov.",
-    "Your choice could not be saved." : "Vaše izbire ni bilo mogoče shraniti."
+    "Your choice could not be saved." : "Vaše izbire ni bilo mogoče shraniti.",
+    "Active filters" : "Dejavni filtri",
+    "Pinned filter" : "Pripet filter",
+    "Remove filter: {label}" : "Odstrani filter: {label}",
+    "Reset filters" : "Ponastavi filtre"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

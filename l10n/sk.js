@@ -1373,7 +1373,11 @@ OC.L10N.register(
     "Statistics" : "Štatistiky",
     "Count my visits" : "Započítavať moje návštevy",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Keď je to vypnuté, vaše návštevy nástenok a kliknutia na dlaždice sa nezapočítavajú do počtu zobrazení.",
-    "Your choice could not be saved." : "Vašu voľbu sa nepodarilo uložiť."
+    "Your choice could not be saved." : "Vašu voľbu sa nepodarilo uložiť.",
+    "Active filters" : "Aktívne filtre",
+    "Pinned filter" : "Pripnutý filter",
+    "Remove filter: {label}" : "Odstrániť filter: {label}",
+    "Reset filters" : "Zrušiť filtre"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

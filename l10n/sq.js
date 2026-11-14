@@ -1373,7 +1373,11 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Numëro vizitat e mia",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kur kjo është e çaktivizuar, vizitat tuaja në panele dhe klikimet mbi pllakat nuk përfshihen në numrin e shikimeve.",
-    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej."
+    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej.",
+    "Active filters" : "Filtrat aktivë",
+    "Pinned filter" : "Filtër i fiksuar",
+    "Remove filter: {label}" : "Hiq filtrin: {label}",
+    "Reset filters" : "Rivendos filtrat"
 },
 "nplurals=2; plural=(n != 1);"
 );

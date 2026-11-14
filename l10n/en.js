@@ -1353,7 +1353,11 @@ OC.L10N.register(
     "Statistics" : "Statistics",
     "Count my visits" : "Count my visits",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "When this is off, your dashboard visits and tile clicks are left out of the view counts.",
-    "Your choice could not be saved." : "Your choice could not be saved."
+    "Your choice could not be saved." : "Your choice could not be saved.",
+    "Active filters" : "Active filters",
+    "Pinned filter" : "Pinned filter",
+    "Remove filter: {label}" : "Remove filter: {label}",
+    "Reset filters" : "Reset filters"
 },
 "nplurals=2; plural=(n != 1);"
 );

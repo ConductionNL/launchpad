@@ -1373,7 +1373,11 @@ OC.L10N.register(
     "Statistics" : "Statisticas",
     "Count my visits" : "Dumbrar mias visitas",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
-    "Your choice could not be saved." : "Tia tscherna n'ha betg pudì vegnir memorisada."
+    "Your choice could not be saved." : "Tia tscherna n'ha betg pudì vegnir memorisada.",
+    "Active filters" : "Filters activs",
+    "Pinned filter" : "Filter fixà",
+    "Remove filter: {label}" : "Allontanar il filter: {label}",
+    "Reset filters" : "Reinizialisar ils filters"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1669,7 +1669,11 @@ OC.L10N.register(
     "Sorted alphabetically" : "Alfabetisch gesorteerd",
     "Sorted by most used" : "Gesorteerd op meest gebruikt",
     "Sorted by last used" : "Gesorteerd op laatst gebruikt",
-    "Sorted at random" : "Willekeurig gesorteerd"
+    "Sorted at random" : "Willekeurig gesorteerd",
+    "Active filters" : "Actieve filters",
+    "Pinned filter" : "Vastgezet filter",
+    "Remove filter: {label}" : "Filter verwijderen: {label}",
+    "Reset filters" : "Filters wissen"
 },
 "nplurals=2; plural=(n != 1);"
 );

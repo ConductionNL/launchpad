@@ -1373,7 +1373,11 @@ OC.L10N.register(
     "Statistics" : "Staitisticí",
     "Count my visits" : "Comhair mo chuairteanna",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
-    "Your choice could not be saved." : "Níorbh fhéidir do rogha a shábháil."
+    "Your choice could not be saved." : "Níorbh fhéidir do rogha a shábháil.",
+    "Active filters" : "Scagairí gníomhacha",
+    "Pinned filter" : "Scagaire greamaithe",
+    "Remove filter: {label}" : "Bain an scagaire: {label}",
+    "Reset filters" : "Athshocraigh na scagairí"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

@@ -359,6 +359,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// createFile flow. POST-only; validates filename, dir, and the
 		// admin-configured extension allow-list before touching storage.
 		['name' => 'file#createFile', 'url' => '/api/files/create', 'verb' => 'POST'],
+		// integrations-office-tiles: the office tile pack and a new file from an office app's blank template.
+		['name' => 'officeTiles#list', 'url' => '/api/office-tiles', 'verb' => 'GET'],
+		['name' => 'officeTiles#create', 'url' => '/api/office-tiles/create', 'verb' => 'POST'],
 
 		// Files widget endpoints (REQ-FLS-003, REQ-FLS-007, REQ-FLS-008).
 		// All three are scoped to a placement id so the controller can

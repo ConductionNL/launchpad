@@ -25,6 +25,7 @@ use DateTime;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -49,11 +50,13 @@ class PublicStartPage {
 	 * @param AdminSettingMapper $settings The admin settings.
 	 * @param PublicShareMapper  $shares   The public links.
 	 * @param ITimeFactory       $time     The clock an expiry is measured against.
+	 * @param DashboardMapper    $dashboards The dashboards, for the name an administrator picks a link by.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settings,
 		private readonly PublicShareMapper $shares,
 		private readonly ITimeFactory $time,
+		private readonly DashboardMapper $dashboards,
 	) {
 	}//end __construct()
 
@@ -131,7 +134,7 @@ class PublicStartPage {
 	/**
 	 * The links that may be chosen: not revoked, not expired, no password.
 	 *
-	 * @return list<array{token: string, dashboardUuid: string, expiresAt: string|null}>
+	 * @return list<array{token: string, dashboardUuid: string, dashboardName: string, expiresAt: string|null}>
 	 *
 	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-administrators-choose-a-public-link-as-the-start-page-req-psp-001
 	 */
@@ -142,6 +145,7 @@ class PublicStartPage {
 				$candidates[] = [
 					'token' => (string)$share->getToken(),
 					'dashboardUuid' => (string)$share->getDashboardUuid(),
+					'dashboardName' => $this->dashboardName(uuid: (string)$share->getDashboardUuid()),
 					'expiresAt' => $share->getExpiresAt(),
 				];
 			}
@@ -180,6 +184,21 @@ class PublicStartPage {
 
 		return null;
 	}//end refusal()
+
+	/**
+	 * A dashboard's name, or '' when it has none or is gone.
+	 *
+	 * @param string $uuid The dashboard uuid.
+	 *
+	 * @return string
+	 */
+	private function dashboardName(string $uuid): string {
+		try {
+			return (string)$this->dashboards->findByUuid(uuid: $uuid)->getName();
+		} catch (DoesNotExistException $e) {
+			return '';
+		}
+	}//end dashboardName()
 
 	/**
 	 * The share with a token, or null.

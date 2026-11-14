@@ -1669,7 +1669,22 @@ OC.L10N.register(
     "Sorted alphabetically" : "Alfabetisch gesorteerd",
     "Sorted by most used" : "Gesorteerd op meest gebruikt",
     "Sorted by last used" : "Gesorteerd op laatst gebruikt",
-    "Sorted at random" : "Willekeurig gesorteerd"
+    "Sorted at random" : "Willekeurig gesorteerd",
+    "Sign in" : "Inloggen",
+    "Public start page" : "Openbare startpagina",
+    "Visitors who are not signed in see this public dashboard instead of the login screen. Staff sign in from it." : "Bezoekers die niet zijn ingelogd zien dit openbare dashboard in plaats van het inlogscherm. Medewerkers loggen er vanuit in.",
+    "Public start page: {name}" : "Openbare startpagina: {name}",
+    "Choose a public link without a password" : "Kies een openbare link zonder wachtwoord",
+    "There is no public link without a password that has not expired. Share a dashboard on a public link first." : "Er is geen openbare link zonder wachtwoord die nog niet is verlopen. Deel eerst een dashboard via een openbare link.",
+    "Show the public start page to visitors who are not signed in" : "Toon de openbare startpagina aan bezoekers die niet zijn ingelogd",
+    "Save start page" : "Startpagina opslaan",
+    "The start page is off: no public link is chosen." : "De startpagina staat uit: er is geen openbare link gekozen.",
+    "The start page is off: the chosen public link no longer exists." : "De startpagina staat uit: de gekozen openbare link bestaat niet meer.",
+    "The start page is off: the chosen public link has been revoked." : "De startpagina staat uit: de gekozen openbare link is ingetrokken.",
+    "The start page is off: the chosen public link now has a password." : "De startpagina staat uit: de gekozen openbare link heeft nu een wachtwoord.",
+    "The start page is off: the chosen public link has expired." : "De startpagina staat uit: de gekozen openbare link is verlopen.",
+    "Start page saved." : "Startpagina opgeslagen.",
+    "The start page could not be saved." : "De startpagina kon niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

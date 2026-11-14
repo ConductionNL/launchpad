@@ -7203,20 +7203,20 @@
 			"id": "d-public-start",
 			"area": "sharing",
 			"name": "Visitors who have not signed in see a public start page instead of the login screen.",
-			"launchpad": "partial",
+			"launchpad": "yes",
 			"workspace-365": "unknown",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "no",
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
 				"owner": "ConductionNL/launchpad",
-				"evidence": "appinfo/routes.php:189",
+				"evidence": "lib/Listener/PublicStartRedirectListener.php:117",
 				"change": "openspec/changes/sharing-public-start-page",
 				"requirement": "openspec/changes/sharing-public-start-page/specs/dashboard-public-share :: Signed-out visitors land on the start page (REQ-PSP-002)"
 			},
-			"reachedOn": "a public share link (/apps/launchpad/s/<token>), not the address signed-out visitors land on",
+			"reachedOn": "the Nextcloud address: a signed-out visitor on the plain login page goes to /apps/launchpad/start (lib/Listener/PublicStartRedirectListener.php:117, lib/Controller/PageController.php:570), which shows the chosen public link with a Sign in bar (src/views/DashboardPublicShareView.vue)",
 			"evidence": {
 				"workspace-365": "not checked: https://support.workspace365.net/en/articles/697783-use-workspace-365-as-relatives-portal even visitors get Entra guest accounts and sign in; no public page described; branding 175374 says 'It is not possible to brand the landing page' (read 2026-09-26)",
 				"microsoft-viva": "not checked: https://learn.microsoft.com/en-us/sharepoint/homesites/sharepoint-app-in-teams-overview describes access through Teams or the SharePoint home site with Entra identities; no anonymous start page found and no explicit statement of absence (read 2026-09-26)",
@@ -7230,7 +7230,7 @@
 			"featureConfidence": "high",
 			"origin": "tender",
 			"originUrl": "https://www.publicprocurement.be/nl/publication-workspaces/204ca8ae-6191-43b9-ac3b-c943f91d1d2d",
-			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass).",
+			"note": "A dashboard can be published read-only on a public link (routes.php:189-212, PublicShareController.php:248 #[PublicPage]), but signed-out visitors at the Nextcloud address still get the login page; nothing makes a public dashboard the start page for them. Tender text: VVSG Blink 2025: 'Er is een publieke startpagina die kan aangepast worden en die verschilt van de inlogpagina'. Specified 2026-09-27 in openspec/changes/sharing-public-start-page (openspec pass). Built 2026-11-14: the administrator picks a public link without a password on the Sharing tab (src/components/admin/PublicStartPageSettings.vue), the login page sends signed-out visitors to /start, and deep links keep their login form.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpPubliek"

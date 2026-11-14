@@ -21,6 +21,8 @@ use InvalidArgumentException;
 use OCA\LaunchPad\Controller\PublicStartController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
+use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\PublicShare;
 use OCA\LaunchPad\Db\PublicShareMapper;
 use OCA\LaunchPad\Service\PublicStartPage;
@@ -97,7 +99,18 @@ class PublicStartPageTest extends TestCase {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-06-01 12:00:00'));
 
-		return new PublicStartPage(settings: $settings, shares: $shares, time: $time);
+		$dashboards = $this->createMock(DashboardMapper::class);
+		$dashboards->method('findByUuid')->willReturnCallback(function (string $uuid): Dashboard {
+			if ($uuid !== 'dash-noord') {
+				throw new DoesNotExistException('no dashboard');
+			}
+
+			$dashboard = new Dashboard();
+			$dashboard->setName('Bibliotheek Noord');
+			return $dashboard;
+		});
+
+		return new PublicStartPage(settings: $settings, shares: $shares, time: $time, dashboards: $dashboards);
 	}//end service()
 
 	/**
@@ -201,9 +214,17 @@ class PublicStartPageTest extends TestCase {
 		$this->link(token: 'protected', password: '$2y$hash');
 		$this->link(token: 'expired', expires: '2026-01-01 00:00:00');
 
+		$this->link(token: 'orphan');
+
 		$response = (new PublicStartController(request: $this->createMock(IRequest::class), startPage: $this->service()))->show();
 
-		$this->assertSame([['token' => 'noord', 'dashboardUuid' => 'dash-noord', 'expiresAt' => null]], $response->getData()['candidates']);
+		$this->assertSame(
+			[
+				['token' => 'noord', 'dashboardUuid' => 'dash-noord', 'dashboardName' => 'Bibliotheek Noord', 'expiresAt' => null],
+				['token' => 'orphan', 'dashboardUuid' => 'dash-orphan', 'dashboardName' => '', 'expiresAt' => null],
+			],
+			$response->getData()['candidates']
+		);
 		foreach (['show', 'update'] as $method) {
 			$this->assertCount(1, (new ReflectionMethod(PublicStartController::class, $method))->getAttributes(AuthorizedAdminSetting::class));
 		}

@@ -460,6 +460,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// `IGroupManager::isAdmin` check inside the controller.
 		['name' => 'adminSettings#listGroups', 'url' => '/api/admin/groups', 'verb' => 'GET'],
 		['name' => 'adminSettings#updateGroupOrder', 'url' => '/api/admin/groups', 'verb' => 'POST'],
+		// sharing-public-start-page REQ-PSP-001: choose the public link signed-out visitors see.
+		['name' => 'publicStart#show', 'url' => '/api/admin/public-start', 'verb' => 'GET'],
+		['name' => 'publicStart#update', 'url' => '/api/admin/public-start', 'verb' => 'PUT'],
 
 		// Dashboard export / import (REQ-EXIM-002..004). Both admin-only
 		// via runtime `IGroupManager::isAdmin` check inside the

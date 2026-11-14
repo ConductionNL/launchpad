@@ -62,6 +62,8 @@ enum AdminSettingKey: string {
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';
 	case QUICKSEARCH_FALLBACK_TARGET = 'quicksearch_fallback_target';
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
+	case PUBLIC_START_ENABLED = 'public_start_enabled';
+	case PUBLIC_START_SHARE_TOKEN = 'public_start_share_token';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
 }//end enum

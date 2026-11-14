@@ -172,6 +172,10 @@
             "description": "Controller for public-share CRUD and anonymous render endpoints."
         },
         {
+            "name": "public-start",
+            "description": "The public start page signed-out visitors see."
+        },
+        {
             "name": "resource",
             "description": "Resource upload + serving controller."
         },
@@ -2145,6 +2149,71 @@
                         "$ref": "#/components/responses/Problem403"
                     }
                 }
+            }
+        },
+        "/admin/public-start": {
+            "get": {
+                "operationId": "public-start-show",
+                "summary": "The public start page and the links that may be chosen",
+                "description": "Answers `{enabled, token, active, reason, candidates}`: whether the public start page is on, the chosen link, whether it is live, why not (`off`, `no-link`, `not-found`, `revoked`, `password`, `expired`), and the public links without a password that are not revoked or expired. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "public-start"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            },
+            "put": {
+                "operationId": "public-start-update",
+                "summary": "Choose the public start page",
+                "description": "Body `{enabled, token}`. A link with a password, a revoked or expired link, an unknown token, and switching on without a link answer 400. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "public-start"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/admin/roles": {

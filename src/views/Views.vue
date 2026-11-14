@@ -267,6 +267,14 @@
 			<DashboardBreadcrumb
 				:dashboard="activeDashboard"
 				@navigate="onBreadcrumbNavigate" />
+			<!-- drill-down-cross-widget-filter REQ-CWF-006, REQ-CWF-007. -->
+			<ActiveFiltersPanel
+				v-if="activeDashboard"
+				:clauses="filterClauses"
+				:labels="filterSession?.labels ?? {}"
+				:widgetNames="filterWidgetNames"
+				@remove="onFilterRemove"
+				@reset="onFilterReset" />
 			<p
 				v-if="canManagePublication && publicationNote"
 				class="launchpad-publication-note"
@@ -500,7 +508,7 @@ import { showError } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { mapActions, mapState } from 'pinia'
-import { computed, provide, reactive } from 'vue'
+import { computed, provide, reactive, shallowRef } from 'vue'
 import MenuIcon from 'vue-material-design-icons/Menu.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 // Icons
@@ -509,6 +517,7 @@ import TileWidget from '../components/TileWidget.vue'
 import WidgetContextMenu from '../components/Widgets/WidgetContextMenu.vue'
 // Components
 import WidgetWrapper from '../components/WidgetWrapper.vue'
+import ActiveFiltersPanel from '../components/Workspace/ActiveFiltersPanel.vue'
 import DashboardBreadcrumb from '../components/Workspace/DashboardBreadcrumb.vue'
 import DashboardLanguageHeading from '../components/Workspace/DashboardLanguageHeading.vue'
 import DashboardReactions from '../components/Workspace/DashboardReactions.vue'
@@ -529,6 +538,7 @@ import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
 // Composables
+import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardLock } from '../composables/useDashboardLock.js'
 import { useGridManager } from '../composables/useGridManager.js'
 import { getWidgetTypeEntry } from '../constants/widgetRegistry.js'
@@ -582,6 +592,7 @@ export default {
 		ReadConfirmationDialog,
 		DashboardLanguageHeading,
 		DashboardBreadcrumb,
+		ActiveFiltersPanel,
 		DeleteDashboardDialog,
 		ScheduleDashboardDialog,
 		EditLockBanner,
@@ -703,7 +714,13 @@ export default {
 		// dashboards-personal-hide-ui: this person's own layer.
 		const personalLayer = usePersonalLayerStore()
 
-		return { canEditRef, grid, personalLayer }
+		// drill-down-cross-widget-filter: the open dashboard's filter session.
+		// Its bus is provided to the widgets below, which publish clicks into
+		// it and read the clauses they consume (REQ-CWF-001, REQ-CWF-002).
+		const filterSession = shallowRef(null)
+		provide('dashboardFilterBus', computed(() => filterSession.value?.bus ?? null))
+
+		return { canEditRef, grid, personalLayer, filterSession }
 	},
 
 	data() {
@@ -803,6 +820,31 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The open dashboard's filter clauses, for the active-filters panel.
+		 *
+		 * @return {object[]}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 */
+		filterClauses() {
+			return this.filterSession ? this.filterSession.clauses.value : []
+		},
+
+		/**
+		 * Each placement's title by placement id, so a chip names the widget
+		 * a clause was clicked in.
+		 *
+		 * @return {{[key: string]: string}}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 */
+		filterWidgetNames() {
+			const names = {}
+			for (const placement of this.widgetPlacements || []) {
+				names[placement.id] = resolveWidgetTitle(placement, this.availableWidgets)
+			}
+			return names
+		},
+
 		/**
 		 * The placements the grid shows: every placement in edit mode, and
 		 * outside it every placement but an object-list that asked to be
@@ -1224,6 +1266,9 @@ export default {
 				if (!uuid) {
 					return
 				}
+				// Filters belong to a dashboard: a switch starts a fresh
+				// session; only the first one reads a bookmarked `?f=`.
+				this.openFilterSession(prevUuid === undefined)
 				this.recordViewEventDebounced(uuid)
 				// Outbound URL sync — every uuid change pushes a new
 				// history entry so back/forward navigates between
@@ -1318,6 +1363,7 @@ export default {
 
 	/** @spec openspec/specs/dashboards/spec.md */
 	beforeUnmount() {
+		this.filterSession?.stop()
 		this.grid.detach()
 		// Drop the host pointer to avoid retaining the Vue instance.
 		this.grid._host = null
@@ -2685,6 +2731,40 @@ export default {
 		 *
 		 * @spec openspec/specs/dashboards/spec.md
 		 */
+		/**
+		 * Open the filter session of the active dashboard, stopping the
+		 * previous one (drill-down-cross-widget-filter REQ-CWF-003).
+		 *
+		 * @param {boolean} readUrl Whether the URL's `f` seeds the bus.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
+		 */
+		openFilterSession(readUrl) {
+			this.filterSession?.stop()
+			this.filterSession = useDashboardFilterSession({ dashboard: this.activeDashboard, readUrl })
+		},
+
+		/**
+		 * Remove one clause from the active-filters panel.
+		 *
+		 * @param {string} dimension The clause's dimension.
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-007-filter-stack-ui-shows-every-active-clause-with-its-source
+		 */
+		onFilterRemove(dimension) {
+			this.filterSession?.remove(dimension)
+		},
+
+		/**
+		 * "Reset filters": clear every clause that is not pinned.
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-006-reset-filters-clears-all-non-pinned-clauses
+		 */
+		onFilterReset() {
+			this.filterSession?.reset()
+		},
+
 		async pushUrlForActiveDashboard() {
 			const uuid = this.activeDashboard?.uuid
 			if (!uuid) {

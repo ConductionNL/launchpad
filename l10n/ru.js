@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Статистика",
     "Count my visits" : "Учитывать мои посещения",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Когда это выключено, ваши посещения панелей и нажатия на плитки не учитываются в числе просмотров.",
-    "Your choice could not be saved." : "Не удалось сохранить ваш выбор."
+    "Your choice could not be saved." : "Не удалось сохранить ваш выбор.",
+    "Active filters" : "Активные фильтры",
+    "Pinned filter" : "Закреплённый фильтр",
+    "Remove filter: {label}" : "Удалить фильтр: {label}",
+    "Reset filters" : "Сбросить фильтры"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

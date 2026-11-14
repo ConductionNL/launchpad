@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "İstatistikler",
     "Count my visits" : "Ziyaretlerimi say",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Bu kapalıyken pano ziyaretleriniz ve kutucuklara tıklamalarınız görüntülenme sayılarına dahil edilmez.",
-    "Your choice could not be saved." : "Seçiminiz kaydedilemedi."
+    "Your choice could not be saved." : "Seçiminiz kaydedilemedi.",
+    "Active filters" : "Etkin filtreler",
+    "Pinned filter" : "Sabitlenmiş filtre",
+    "Remove filter: {label}" : "Filtreyi kaldır: {label}",
+    "Reset filters" : "Filtreleri sıfırla"
 },
 "nplurals=2; plural=(n != 1);"
 );

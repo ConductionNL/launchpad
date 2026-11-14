@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Statistik",
     "Count my visits" : "Räkna mina besök",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "När detta är avstängt räknas dina besök på instrumentpaneler och klick på rutor inte med i visningsantalet.",
-    "Your choice could not be saved." : "Ditt val kunde inte sparas."
+    "Your choice could not be saved." : "Ditt val kunde inte sparas.",
+    "Active filters" : "Aktiva filter",
+    "Pinned filter" : "Fäst filter",
+    "Remove filter: {label}" : "Ta bort filter: {label}",
+    "Reset filters" : "Återställ filter"
 },
 "nplurals=2; plural=(n != 1);"
 );

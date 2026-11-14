@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Statisztika",
     "Count my visits" : "Látogatásaim számolása",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
-    "Your choice could not be saved." : "A választásodat nem sikerült menteni."
+    "Your choice could not be saved." : "A választásodat nem sikerült menteni.",
+    "Active filters" : "Aktív szűrők",
+    "Pinned filter" : "Rögzített szűrő",
+    "Remove filter: {label}" : "Szűrő eltávolítása: {label}",
+    "Reset filters" : "Szűrők visszaállítása"
 },
 "nplurals=2; plural=(n != 1);"
 );

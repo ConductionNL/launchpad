@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Tilastot",
     "Count my visits" : "Laske käyntini",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
-    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa."
+    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa.",
+    "Active filters" : "Aktiiviset suodattimet",
+    "Pinned filter" : "Kiinnitetty suodatin",
+    "Remove filter: {label}" : "Poista suodatin: {label}",
+    "Reset filters" : "Tyhjennä suodattimet"
 },
 "nplurals=2; plural=(n != 1);"
 );

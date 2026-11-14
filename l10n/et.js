@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Loe minu külastusi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
-    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada."
+    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada.",
+    "Active filters" : "Aktiivsed filtrid",
+    "Pinned filter" : "Kinnitatud filter",
+    "Remove filter: {label}" : "Eemalda filter: {label}",
+    "Reset filters" : "Lähtesta filtrid"
 },
 "nplurals=2; plural=(n != 1);"
 );

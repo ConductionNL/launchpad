@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Statistik",
     "Count my visits" : "Tæl mine besøg",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Når dette er slået fra, tælles dine besøg på dashboards og klik på fliser ikke med i visningstallene.",
-    "Your choice could not be saved." : "Dit valg kunne ikke gemmes."
+    "Your choice could not be saved." : "Dit valg kunne ikke gemmes.",
+    "Active filters" : "Aktive filtre",
+    "Pinned filter" : "Fastgjort filter",
+    "Remove filter: {label}" : "Fjern filter: {label}",
+    "Reset filters" : "Nulstil filtre"
 },
 "nplurals=2; plural=(n != 1);"
 );

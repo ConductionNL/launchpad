@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Statistiche",
     "Count my visits" : "Conta le mie visite",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quando è disattivato, le tue visite alle dashboard e i clic sui riquadri non vengono conteggiati nelle visualizzazioni.",
-    "Your choice could not be saved." : "Non è stato possibile salvare la tua scelta."
+    "Your choice could not be saved." : "Non è stato possibile salvare la tua scelta.",
+    "Active filters" : "Filtri attivi",
+    "Pinned filter" : "Filtro fissato",
+    "Remove filter: {label}" : "Rimuovi filtro: {label}",
+    "Reset filters" : "Reimposta filtri"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "Statistics" : "Statistiken",
     "Count my visits" : "Meng Visitten zielen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Wann dat aus ass, ginn deng Visitte vun Dashboarden an d'Klicken op Kachelen net an den Opruffzuelen matgezielt.",
-    "Your choice could not be saved." : "Deng Wiel konnt net gespäichert ginn."
+    "Your choice could not be saved." : "Deng Wiel konnt net gespäichert ginn.",
+    "Active filters" : "Aktiv Filteren",
+    "Pinned filter" : "Fixéierte Filter",
+    "Remove filter: {label}" : "Filter ewechhuelen: {label}",
+    "Reset filters" : "Filteren zrécksetzen"
 },
 "nplurals=2; plural=(n != 1);"
 );

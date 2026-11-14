@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Tölfræði",
     "Count my visits" : "Telja heimsóknir mínar",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
-    "Your choice could not be saved." : "Ekki tókst að vista valið þitt."
+    "Your choice could not be saved." : "Ekki tókst að vista valið þitt.",
+    "Active filters" : "Virkar síur",
+    "Pinned filter" : "Fest sía",
+    "Remove filter: {label}" : "Fjarlægja síu: {label}",
+    "Reset filters" : "Hreinsa síur"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

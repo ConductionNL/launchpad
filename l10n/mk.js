@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "Statistics" : "Статистика",
     "Count my visits" : "Број ги моите посети",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Кога ова е исклучено, вашите посети на контролните табли и кликовите на плочките не се бројат во прегледите.",
-    "Your choice could not be saved." : "Вашиот избор не може да се зачува."
+    "Your choice could not be saved." : "Вашиот избор не може да се зачува.",
+    "Active filters" : "Активни филтри",
+    "Pinned filter" : "Закачен филтер",
+    "Remove filter: {label}" : "Отстрани филтер: {label}",
+    "Reset filters" : "Ресетирај ги филтрите"
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

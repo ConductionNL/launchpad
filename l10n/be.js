@@ -1368,6 +1368,10 @@ OC.L10N.register(
     "Statistics" : "Статыстыка",
     "Count my visits" : "Улічваць мае наведванні",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
-    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар."
+    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар.",
+    "Active filters" : "Актыўныя фільтры",
+    "Pinned filter" : "Замацаваны фільтр",
+    "Remove filter: {label}" : "Выдаліць фільтр: {label}",
+    "Reset filters" : "Скінуць фільтры"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

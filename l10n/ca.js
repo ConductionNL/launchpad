@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Estadístiques",
     "Count my visits" : "Compta les meves visites",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quan això està desactivat, les teves visites als taulers i els clics a les rajoles no es tenen en compte en el recompte de visualitzacions.",
-    "Your choice could not be saved." : "No s'ha pogut desar la teva tria."
+    "Your choice could not be saved." : "No s'ha pogut desar la teva tria.",
+    "Active filters" : "Filtres actius",
+    "Pinned filter" : "Filtre fixat",
+    "Remove filter: {label}" : "Elimina el filtre: {label}",
+    "Reset filters" : "Restableix els filtres"
 },
 "nplurals=2; plural=(n != 1);"
 );

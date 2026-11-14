@@ -1377,7 +1377,11 @@ OC.L10N.register(
     "Statistics" : "Στατιστικά",
     "Count my visits" : "Καταμέτρηση των επισκέψεών μου",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
-    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
+    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας.",
+    "Active filters" : "Ενεργά φίλτρα",
+    "Pinned filter" : "Καρφιτσωμένο φίλτρο",
+    "Remove filter: {label}" : "Αφαίρεση φίλτρου: {label}",
+    "Reset filters" : "Επαναφορά φίλτρων"
 },
 "nplurals=2; plural=(n != 1);"
 );

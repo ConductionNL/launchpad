@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Scag na torthaí seo",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1368,7 +1369,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Aimsithe ar an bhfreastalaí seo",
     "Apps this server runs for you. One click places one as a tile." : "Aipeanna a ritheann an freastalaí seo duit. Cuireann cliceáil amháin ina tíl iad.",
-    "On this dashboard" : "Ar an deais seo"
+    "On this dashboard" : "Ar an deais seo",
+    "Statistics" : "Staitisticí",
+    "Count my visits" : "Comhair mo chuairteanna",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
+    "Your choice could not be saved." : "Níorbh fhéidir do rogha a shábháil."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

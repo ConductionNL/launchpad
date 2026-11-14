@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtriraj ove rezultate",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1368,7 +1369,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Pronađeno na ovom poslužitelju",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacije koje ovaj poslužitelj pokreće za vas. Jednim klikom postaju pločica.",
-    "On this dashboard" : "Na ovoj nadzornoj ploči"
+    "On this dashboard" : "Na ovoj nadzornoj ploči",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Broji moje posjete",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kad je ovo isključeno, vaši posjeti nadzornim pločama i klikovi na pločice ne ulaze u broj pregleda.",
+    "Your choice could not be saved." : "Vaš odabir nije moguće spremiti."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

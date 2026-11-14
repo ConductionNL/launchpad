@@ -475,7 +475,12 @@
                 "dashboardFooterHtml": null,
                 "templateCategory": null,
                 "templateDescription": null,
-                "templatePreviewImage": null
+                "templatePreviewImage": null,
+                "themeAccent": null,
+                "themeBackgroundColor": null,
+                "themeBackgroundResource": null,
+                "themeTextColor": null,
+                "customCss": null
             },
             "translation": {
                 "id": null,
@@ -532,7 +537,12 @@
                 "dashboardFooterHtml": null,
                 "templateCategory": null,
                 "templateDescription": null,
-                "templatePreviewImage": null
+                "templatePreviewImage": null,
+                "themeAccent": null,
+                "themeBackgroundColor": null,
+                "themeBackgroundResource": null,
+                "themeTextColor": null,
+                "customCss": null
             },
             "translation": {
                 "id": null,

@@ -144,14 +144,16 @@ describe('DashboardConfigModal tab split', () => {
 		expect(wrapper.vm.currentTab).toBe('general')
 	})
 
-	it('has the board\'s three tabs: Details, Languages, Sharing', () => {
+	it('has the board\'s tabs: Details, Languages, Look, Sharing', () => {
 		const wrapper = mountModal()
 		const ids = wrapper
 			.findAll('[role="tab"]')
 			.map((tab) => tab.attributes('data-test'))
+		// platform-dashboard-theme-and-css REQ-THM-001 adds Look.
 		expect(ids).toEqual([
 			'config-tab-general',
 			'config-tab-languages',
+			'config-tab-look',
 			'config-tab-sharing',
 		])
 		expect(wrapper.find('[data-test="config-tab-general"]').text()).toContain(

@@ -26,6 +26,7 @@ namespace OCA\LaunchPad\Controller;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\Dashboard;
+use OCA\LaunchPad\Exception\ContrastTooLowException;
 use OCA\LaunchPad\Exception\DashboardHasChildrenException;
 use OCA\LaunchPad\Exception\PersonalDashboardsDisabledException;
 use OCA\LaunchPad\Exception\QuotaExceededException;
@@ -577,6 +578,9 @@ class DashboardApiController extends Controller {
 	 *                                parent (re-roots the dashboard).
 	 * @param string|null $slug Optional new slug (REQ-DASH-024).
 	 * @param int|null $sortOrder Optional new sort order (REQ-DASH-029).
+	 * @param string|null $themeAccent Accent colour `#rrggbb`, empty to follow the theme (REQ-THM-001).
+	 * @param string|null $themeBackgroundColor Background colour `#rrggbb`, empty to follow the theme.
+	 * @param string|null $themeBackgroundResource Background image resource file name, empty for none.
 	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
@@ -592,8 +596,14 @@ class DashboardApiController extends Controller {
 		?string $parentUuid = null,
 		?string $slug = null,
 		?int $sortOrder = null,
+		?string $themeAccent = null,
+		?string $themeBackgroundColor = null,
+		?string $themeBackgroundResource = null,
 	): JSONResponse {
-		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $placements === null);
+		// REQ-THM-001: the look is not metadata; it needs the same permission as the layout.
+		$look = ['themeAccent' => $themeAccent, 'themeBackgroundColor' => $themeBackgroundColor, 'themeBackgroundResource' => $themeBackgroundResource];
+		$metadataOnly = $placements === null && array_filter($look, fn ($value): bool => $value !== null) === [];
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $metadataOnly);
 		if ($denial !== null) {
 			return $denial;
 		}
@@ -608,7 +618,7 @@ class DashboardApiController extends Controller {
 				'parentUuid'  => $parentUuid,
 				'slug'        => $slug,
 				'sortOrder'   => $sortOrder,
-			]
+			] + $look
 		);
 	}//end update()
 
@@ -693,6 +703,12 @@ class DashboardApiController extends Controller {
 
 			return ResponseHelper::success(
 				data: ['dashboard' => $dashboard->jsonSerialize()]
+			);
+		} catch (ContrastTooLowException $e) {
+			// REQ-THM-002: the measured ratio travels with the refusal.
+			return new JSONResponse(
+				data: ['status' => 'error', 'error' => 'contrast_too_low', 'ratio' => $e->getRatio(), 'message' => $e->getMessage()],
+				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		} catch (InvalidArgumentException $e) {
 			// REQ-DASH-023..029: parent / slug / depth / cycle violations

@@ -3567,6 +3567,7 @@ class DashboardService {
 		$this->applyFieldUpdates(dashboard: $dashboard, data: $data);
 		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
 		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
+		$this->applyLookUpdates(dashboard: $dashboard, data: $data);
 
 		$dashboard->setUpdatedAt(
 			(new DateTime())->format(format: 'Y-m-d H:i:s')
@@ -3574,6 +3575,69 @@ class DashboardService {
 
 		$this->applyPlacementUpdates(data: $data);
 	}//end applyDashboardUpdates()
+
+	/**
+	 * Apply a patched look: accent, background colour and background image (REQ-THM-001/002).
+	 *
+	 * An empty string clears a field, so the dashboard follows the theme
+	 * again. Colours are stored as lower-case `#rrggbb`, the image as a
+	 * LaunchPad resource file name. Whenever the accent or the background
+	 * changes, the accent that results must reach 3:1 against the background
+	 * that results (the instance's when the dashboard has none).
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a colour or image is malformed, or the accent is too pale.
+	 *
+	 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002
+	 */
+	private function applyLookUpdates(Dashboard $dashboard, array $data): void {
+		$accent     = $dashboard->getThemeAccent();
+		$background = $dashboard->getThemeBackgroundColor();
+		$colours    = ['themeAccent' => 'The accent', 'themeBackgroundColor' => 'The background colour'];
+		foreach ($colours as $key => $label) {
+			if (array_key_exists($key, $data) === false) {
+				continue;
+			}
+
+			$value = null;
+			if (trim((string)$data[$key]) !== '') {
+				$value = DashboardLook::normaliseHex(colour: (string)$data[$key], field: $label);
+			}
+
+			if ($key === 'themeAccent') {
+				$accent = $value;
+				continue;
+			}
+
+			$background = $value;
+		}
+
+		if (array_key_exists('themeBackgroundResource', $data) === true) {
+			$resource = trim((string)$data['themeBackgroundResource']);
+			if ($resource !== '' && DashboardLook::isResourceName(name: $resource) === false) {
+				throw new InvalidArgumentException('The background image must be an image uploaded to LaunchPad.');
+			}
+
+			$stored = null;
+			if ($resource !== '') {
+				$stored = $resource;
+			}
+
+			$dashboard->setThemeBackgroundResource($stored);
+		}
+
+		$colourChanged = array_key_exists('themeAccent', $data) === true || array_key_exists('themeBackgroundColor', $data) === true;
+		if ($colourChanged === true && $accent !== null) {
+			DashboardLook::assertAccentReadable(accent: $accent, background: $background);
+		}
+
+		$dashboard->setThemeAccent($accent);
+		$dashboard->setThemeBackgroundColor($background);
+	}//end applyLookUpdates()
 
 	/**
 	 * Apply a patched placement position list, when the payload has one.

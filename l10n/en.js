@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Admin settings" : "Admin settings",
+    "Look" : "Look",
+    "Accent color" : "Accent color",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Give this dashboard its own colors. Leave a field empty to follow the theme.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)",
+    "Enter colors like #1f5c3a." : "Enter colors like #1f5c3a.",
     "Features & roadmap" : "Features & roadmap",
     "share_not_found" : "Share not found",
     "share_expired" : "This share has expired",

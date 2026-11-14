@@ -20,6 +20,7 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\OfficeTilesController;
 use OCA\LaunchPad\Exception\InvalidFilenameException;
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCA\LaunchPad\Service\OfficeFileRequest;
 use OCA\LaunchPad\Service\OfficeTilesService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\OCS\OCSForbiddenException;
@@ -35,6 +36,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Controller\OfficeTilesController
  * @uses   \OCA\LaunchPad\Service\RequestGuard
+ * @uses   \OCA\LaunchPad\Service\OfficeFileRequest
  * @uses   \OCA\LaunchPad\Exception\InvalidFilenameException
  * @uses   \OCA\LaunchPad\Exception\ResourceException
  */
@@ -114,7 +116,7 @@ class OfficeTilesControllerTest extends TestCase {
 	public function testCreateAnswersTheNewFile(): void {
 		$controller = $this->controller(uid: 'pieter');
 		$this->tiles->expects($this->once())->method('create')
-			->with('pieter', 'richdocuments:.docx', 'Notulen', '/Documents')
+			->with('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: 'Notulen', folder: '/Documents'))
 			->willReturn(['fileId' => 42, 'path' => '/Documents/Notulen.docx', 'url' => '/f/42']);
 
 		$response = $controller->create(creatorId: 'richdocuments:.docx', name: 'Notulen');

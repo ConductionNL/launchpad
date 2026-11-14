@@ -25,6 +25,7 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ResourceException;
+use OCA\LaunchPad\Service\OfficeFileRequest;
 use OCA\LaunchPad\Service\OfficeTilesService;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCP\AppFramework\Controller;
@@ -93,6 +94,19 @@ class OfficeTilesController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function create(string $creatorId = '', string $name = '', string $folder = OfficeTilesService::DEFAULT_FOLDER): JSONResponse {
+		return $this->createFile(request: new OfficeFileRequest(creatorId: $creatorId, name: $name, folder: $folder));
+	}//end create()
+
+	/**
+	 * The guarded creation behind create().
+	 *
+	 * @param OfficeFileRequest $request The creator, the file name and the folder.
+	 *
+	 * @return JSONResponse `{fileId, path, url}`; 400 on an unknown creator or a bad name or folder.
+	 *
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+	 */
+	private function createFile(OfficeFileRequest $request): JSONResponse {
 		$refusal = $this->guard->actionRefusal(action: 'office-tiles.create');
 		if ($refusal !== null) {
 			return $refusal;
@@ -104,7 +118,7 @@ class OfficeTilesController extends Controller {
 		}
 
 		try {
-			$file = $this->tiles->create(userId: $user->getUID(), creatorId: $creatorId, name: $name, folder: $folder);
+			$file = $this->tiles->create(userId: $user->getUID(), request: $request);
 		} catch (ResourceException $exception) {
 			return new JSONResponse(
 				['error' => $exception->getErrorCode(), 'message' => $exception->getDisplayMessage()],
@@ -113,5 +127,5 @@ class OfficeTilesController extends Controller {
 		}
 
 		return new JSONResponse($file, Http::STATUS_CREATED);
-	}//end create()
+	}//end createFile()
 }//end class

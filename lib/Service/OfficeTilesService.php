@@ -136,10 +136,8 @@ class OfficeTilesService {
 	/**
 	 * Create a file from a creator's blank template under a free name.
 	 *
-	 * @param string $userId    The person.
-	 * @param string $creatorId The creator, as the pack names it (`<app>:<extension>`).
-	 * @param string $name      The file name without extension.
-	 * @param string $folder    The folder, created when missing (default /Documents).
+	 * @param string            $userId  The person.
+	 * @param OfficeFileRequest $request The creator, the file name without extension and the folder.
 	 *
 	 * @return array{fileId: int, path: string, url: string} The new file.
 	 *
@@ -149,15 +147,15 @@ class OfficeTilesService {
 	 *
 	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
 	 */
-	public function create(string $userId, string $creatorId, string $name, string $folder = self::DEFAULT_FOLDER): array {
-		$creator = ($this->creators()[$creatorId] ?? null);
+	public function create(string $userId, OfficeFileRequest $request): array {
+		$creator = ($this->creators()[$request->creatorId] ?? null);
 		if ($creator === null) {
 			throw new InvalidFilenameException(message: 'Unknown file creator');
 		}
 
-		$name = trim($name);
+		$name = trim($request->name);
 		$this->assertValidName(name: $name);
-		$folderPath = $this->normaliseFolder(folder: $folder);
+		$folderPath = $this->normaliseFolder(folder: $request->folder);
 
 		try {
 			$target = $this->folderFor(userId: $userId, path: $folderPath);

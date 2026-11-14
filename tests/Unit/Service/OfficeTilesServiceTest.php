@@ -20,6 +20,7 @@ namespace Unit\Service;
 use OCA\LaunchPad\Exception\InvalidDirectoryException;
 use OCA\LaunchPad\Exception\InvalidFilenameException;
 use OCA\LaunchPad\Exception\StorageFailureException;
+use OCA\LaunchPad\Service\OfficeFileRequest;
 use OCA\LaunchPad\Service\OfficeTilesService;
 use OCP\App\IAppManager;
 use OCP\Files\File;
@@ -38,6 +39,7 @@ use RuntimeException;
  * The pack lists what the server has; a new file never overwrites (REQ-OFT-001, REQ-OFT-002).
  *
  * @covers \OCA\LaunchPad\Service\OfficeTilesService
+ * @uses   \OCA\LaunchPad\Service\OfficeFileRequest
  */
 class OfficeTilesServiceTest extends TestCase {
 
@@ -171,7 +173,7 @@ class OfficeTilesServiceTest extends TestCase {
 			->with('/Documents/Notulen.docx', '', 'user')
 			->willReturn(['fileid' => 42]);
 
-		$file = $this->service()->create('pieter', 'richdocuments:.docx', ' Notulen ');
+		$file = $this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: ' Notulen '));
 
 		$this->assertSame(['fileId' => 42, 'path' => '/Documents/Notulen.docx', 'url' => '/apps/files/?openfile=42'], $file);
 	}//end testCreateMakesTheFileFromTheBlankTemplate()
@@ -193,7 +195,7 @@ class OfficeTilesServiceTest extends TestCase {
 			->with('/Documents/Notulen (3).docx', '', 'user')
 			->willReturn(['fileid' => 7]);
 
-		$this->assertSame('/Documents/Notulen (3).docx', $this->service()->create('pieter', 'richdocuments:.docx', 'Notulen')['path']);
+		$this->assertSame('/Documents/Notulen (3).docx', $this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: 'Notulen'))['path']);
 	}//end testAnExistingNameGetsTheNextFreeNumber()
 
 	/**
@@ -209,7 +211,7 @@ class OfficeTilesServiceTest extends TestCase {
 		$this->userFolder->expects($this->once())->method('newFolder')->with('Projects/2026')->willReturn($created);
 		$this->templateManager->method('createFromTemplate')->willReturn(['fileid' => 3]);
 
-		$this->assertSame('/Projects/2026/Plan.xlsx', $this->service()->create('pieter', 'richdocuments:.xlsx', 'Plan', '/Projects/2026/')['path']);
+		$this->assertSame('/Projects/2026/Plan.xlsx', $this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.xlsx', name: 'Plan', folder: '/Projects/2026/'))['path']);
 	}//end testAMissingFolderIsCreated()
 
 	/**
@@ -222,7 +224,7 @@ class OfficeTilesServiceTest extends TestCase {
 		$this->templateManager->expects($this->never())->method('createFromTemplate');
 
 		try {
-			$this->service()->create('pieter', 'onlyoffice:.docx', 'Notulen');
+			$this->service()->create('pieter', new OfficeFileRequest(creatorId: 'onlyoffice:.docx', name: 'Notulen'));
 			$this->fail('expected a refusal');
 		} catch (InvalidFilenameException $exception) {
 			$this->assertSame(400, $exception->getHttpStatus());
@@ -241,7 +243,7 @@ class OfficeTilesServiceTest extends TestCase {
 
 		foreach (['', '   ', '../escape', 'a/b', 'semi;colon', str_repeat('x', 201)] as $name) {
 			try {
-				$this->service()->create('pieter', 'richdocuments:.docx', $name);
+				$this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: $name));
 				$this->fail('expected a refusal for ' . $name);
 			} catch (InvalidFilenameException) {
 				$this->addToAssertionCount(1);
@@ -259,7 +261,7 @@ class OfficeTilesServiceTest extends TestCase {
 		$this->templateManager->expects($this->never())->method('createFromTemplate');
 
 		$this->expectException(InvalidDirectoryException::class);
-		$this->service()->create('pieter', 'richdocuments:.docx', 'Notulen', '/Documents/../../other');
+		$this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: 'Notulen', folder: '/Documents/../../other'));
 	}//end testAnEscapingFolderIsRefused()
 
 	/**
@@ -273,7 +275,7 @@ class OfficeTilesServiceTest extends TestCase {
 		$this->userFolder->method('get')->willReturn($this->createMock(File::class));
 
 		$this->expectException(InvalidDirectoryException::class);
-		$this->service()->create('pieter', 'richdocuments:.docx', 'Notulen', '/notes.txt');
+		$this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: 'Notulen', folder: '/notes.txt'));
 	}//end testAFolderThatIsAFileIsRefused()
 
 	/**
@@ -291,6 +293,6 @@ class OfficeTilesServiceTest extends TestCase {
 
 		$this->expectException(StorageFailureException::class);
 		$this->expectExceptionMessage('Failed to create the file');
-		$this->service()->create('pieter', 'richdocuments:.docx', 'Notulen');
+		$this->service()->create('pieter', new OfficeFileRequest(creatorId: 'richdocuments:.docx', name: 'Notulen'));
 	}//end testATemplateFailureIsAStorageFailure()
 }//end class

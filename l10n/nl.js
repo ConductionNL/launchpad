@@ -2,6 +2,11 @@ OC.L10N.register(
     "launchpad",
     {
     "Admin settings" : "Beheerinstellingen",
+    "Look" : "Uiterlijk",
+    "Accent color" : "Accentkleur",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Geef dit dashboard eigen kleuren. Laat een veld leeg om het thema te volgen.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Knoppen in deze kleur zijn slecht te zien (contrast {ratio} op 1, nodig is 3 op 1)",
+    "Enter colors like #1f5c3a." : "Voer kleuren in zoals #1f5c3a.",
     "Features & roadmap" : "Functies en roadmap",
     "share_not_found" : "Gedeeld dashboard niet gevonden",
     "share_expired" : "Dit gedeelde dashboard is verlopen",
@@ -1635,12 +1640,7 @@ OC.L10N.register(
     "Adapter" : "Adapter",
     "Source template" : "Bronsjabloon",
     "Configuration template" : "Configuratiesjabloon",
-    "Agent template" : "Agentsjabloon",
-    "Look" : "Uiterlijk",
-    "Accent color" : "Accentkleur",
-    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Geef dit dashboard eigen kleuren. Laat een veld leeg om het thema te volgen.",
-    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Knoppen in deze kleur zijn slecht te zien (contrast {ratio} op 1, nodig is 3 op 1)",
-    "Enter colors like #1f5c3a." : "Voer kleuren in zoals #1f5c3a."
+    "Agent template" : "Agentsjabloon"
 },
 "nplurals=2; plural=(n != 1);"
 );

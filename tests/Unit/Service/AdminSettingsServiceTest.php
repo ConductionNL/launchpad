@@ -53,7 +53,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 	/**
 	 * REQ-ASET-001 "Settings response format consistency": the response holds
-	 * exactly the twelve documented keys, each at its documented default.
+	 * exactly the fourteen documented keys, each at its documented default.
 	 *
 	 * The spec said "exactly four keys" long after the response had grown to
 	 * twelve, because nothing compared the two. This pins the whole response,
@@ -79,6 +79,9 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
 				'startPageWithoutNavigation' => false,
+				// launcher-tile-launch-types: both empty until an administrator fills them.
+				'tileAllowedSchemes' => [],
+				'ssoLaunchTemplates' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -162,7 +165,10 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(12, $settings);
+		// launcher-tile-launch-types: the program schemes and SSO launch templates.
+		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
+		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
+		$this->assertCount(14, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

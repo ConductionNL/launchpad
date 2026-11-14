@@ -18,6 +18,8 @@ parameters:
         # the leaf Health/Metrics controllers' "extends unknown class" resolves,
         # WITHOUT phpstan analysing/reporting the skeleton file itself (ADR-040).
         - tests/phpstan/apphost-symbols.php
+        # OpenRegister ships IMcpToolProvider at runtime only (mcp-tool-surface).
+        - tests/Stubs/Mcp/IMcpToolProvider.php
 
     # Prevents false-positive "always true/false" errors caused by defensive runtime
     # checks on values whose PHPDoc type is narrower than what callers may pass.

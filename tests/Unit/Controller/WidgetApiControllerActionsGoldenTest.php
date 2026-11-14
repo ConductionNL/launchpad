@@ -34,6 +34,7 @@ use OCA\LaunchPad\Controller\WidgetApiPolicy;
 use OCA\LaunchPad\Controller\WidgetApiSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\QuotaExceededException;
+use OCA\LaunchPad\Exception\StalePlacementException;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\CalendarWidgetService;
 use OCA\LaunchPad\Service\NewsWidgetService;
@@ -243,6 +244,31 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 	}
 
 	/**
+	 * A save made on an older version of the widget answers 409 with the colleague's version
+	 * (building-edit-a-dashboard-together, task 1.2).
+	 */
+	public function testAStalePlacementUpdateAnswersConflictWithTheColleaguesVersion(): void {
+		$this->params = ['version' => 3, 'customTitle' => 'Kalender'];
+		$this->permissionService->method('canStyleWidget')->willReturn(true);
+		$current = $this->placement();
+		$current->setCustomTitle('Agenda');
+		$current->setVersion(4);
+		$this->widgetService->method('updatePlacement')->willReturnCallback(
+			function (int $placementId, array $data) use ($current): WidgetPlacement {
+				$this->assertSame(3, $data['version']);
+				throw new StalePlacementException(current: $current);
+			}
+		);
+
+		[$status, $data] = $this->outcome($this->controller()->updatePlacement(placementId: 9));
+
+		$this->assertSame(409, $status);
+		$this->assertSame('stale', $data['error']);
+		$this->assertSame('A colleague changed this widget first.', $data['message']);
+		$this->assertSame(['Agenda', 4], [$data['placement']['customTitle'], $data['placement']['version']]);
+	}
+
+	/**
 	 * News limits and their outcome.
 	 *
 	 * @return array<string,array{0:?int,1:int|string}>
@@ -321,4 +347,41 @@ class WidgetApiControllerActionsGoldenTest extends TestCase {
 		$this->assertSame([403, ['error' => 'Access denied']], $this->outcome($this->controller()->calendarEvents(5, ...$range)));
 		$this->assertSame([400, ['error' => 'Operation failed']], $this->outcome($this->controller()->calendarEvents(5, ...$range)));
 	}
+
+	/**
+	 * A permitted removal hands the placement id to the service and answers ok.
+	 *
+	 * @return void
+	 */
+	public function testRemovePlacementRemovesWhatThePermissionAllows(): void {
+		$this->permissionService->expects($this->once())->method('canRemoveWidget')
+			->with('alice', 9)->willReturn(true);
+		$this->widgetService->expects($this->once())->method('removePlacement')->with(9);
+
+		$this->assertSame([200, ['status' => 'ok']], $this->outcome($this->controller()->removePlacement(9)));
+	}//end testRemovePlacementRemovesWhatThePermissionAllows()
+
+	/**
+	 * A refused removal is 403 and the service is never asked.
+	 *
+	 * @return void
+	 */
+	public function testRemovePlacementRefusedByPermissionIsForbidden(): void {
+		$this->permissionService->method('canRemoveWidget')->willReturn(false);
+		$this->widgetService->expects($this->never())->method('removePlacement');
+
+		$this->assertSame([403, ['error' => 'Access denied']], $this->outcome($this->controller()->removePlacement(9)));
+	}//end testRemovePlacementRefusedByPermissionIsForbidden()
+
+	/**
+	 * A failing removal answers a generic 400 without the exception's message.
+	 *
+	 * @return void
+	 */
+	public function testRemovePlacementFailureHidesTheCause(): void {
+		$this->permissionService->method('canRemoveWidget')->willReturn(true);
+		$this->widgetService->method('removePlacement')->willThrowException(new Exception('row 9 locked by another session'));
+
+		$this->assertSame([400, ['error' => 'Operation failed']], $this->outcome($this->controller()->removePlacement(9)));
+	}//end testRemovePlacementFailureHidesTheCause()
 }//end class

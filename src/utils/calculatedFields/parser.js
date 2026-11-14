@@ -285,6 +285,306 @@ function parseError(message, column) {
 }
 
 /**
+ * The reference a dotted name stands for on the widget itself.
+ *
+ * @param {string} path - The name.
+ * @param {Set<string>} calculatedNames - This widget's calculated field names.
+ * @return {object} A `calculatedRef` or a `fieldRef` on `self`.
+ */
+function selfReference(path, calculatedNames) {
+	return calculatedNames.has(path) ? { type: 'calculatedRef', name: path } : { type: 'fieldRef', source: 'self', path }
+}
+
+/**
+ * The reference a `widget:<id>.<field>` name stands for.
+ *
+ * @param {{value: string, column: number}} token - The name token.
+ * @param {Set<string>} calculatedNames - This widget's calculated field names.
+ * @return {object} The reference.
+ * @throws {CalculatedFieldError} When the field is missing.
+ */
+function widgetReference(token, calculatedNames) {
+	const text = token.value
+	const dot = text.indexOf('.')
+	if (dot === -1) {
+		throw parseError('A widget reference needs a field, e.g. widget:<id>.<field>', token.column)
+	}
+	const source = text.slice(0, dot)
+	const path = text.slice(dot + 1)
+	return source === 'widget:self' ? selfReference(path, calculatedNames) : { type: 'fieldRef', source, path }
+}
+
+/**
+ * The reference a name token stands for.
+ *
+ * @param {{value: string, column: number}} token - The name token.
+ * @param {Set<string>} calculatedNames - This widget's calculated field names.
+ * @return {object} The reference.
+ * @throws {CalculatedFieldError} On an unknown reference source.
+ */
+function referenceOf(token, calculatedNames) {
+	const text = token.value
+	if (text.startsWith('widget:')) {
+		return widgetReference(token, calculatedNames)
+	}
+	if (text.includes(':')) {
+		throw parseError(`Unknown reference '${text}'`, token.column)
+	}
+	return selfReference(text, calculatedNames)
+}
+
+/**
+ * The operators of the tighter binary levels.
+ */
+const MULTIPLICATIVE = ['*', '/', '%']
+const ADDITIVE = ['+', '-']
+
+/**
+ * A recursive-descent parser over one token list.
+ */
+class Parser {
+	/**
+	 * @param {Array<object>} tokens - The tokens, ending with `end`.
+	 * @param {Set<string>} calculatedNames - This widget's calculated field names.
+	 * @param {Set<string>|null} allowed - The function allowlist; null allows every built-in.
+	 */
+	constructor(tokens, calculatedNames, allowed) {
+		this.tokens = tokens
+		this.pos = 0
+		this.calculatedNames = calculatedNames
+		this.allowed = allowed
+	}
+
+	/**
+	 * @return {object} The current token.
+	 */
+	peek() {
+		return this.tokens[this.pos]
+	}
+
+	/**
+	 * @return {object} The current token, consumed.
+	 */
+	next() {
+		return this.tokens[this.pos++]
+	}
+
+	/**
+	 * Consume a token of a kind, or refuse.
+	 *
+	 * @param {string} kind - The token kind.
+	 * @param {string} what - How to name it in the refusal.
+	 * @return {object} The token.
+	 * @throws {CalculatedFieldError} When the current token is of another kind.
+	 */
+	expect(kind, what) {
+		const token = this.peek()
+		if (token.kind !== kind) {
+			throw parseError(`Expected ${what}`, token.column)
+		}
+		return this.next()
+	}
+
+	/**
+	 * @param {string[]} ops - Operators.
+	 * @return {boolean} Whether the current token is one of them.
+	 */
+	isOp(ops) {
+		const token = this.peek()
+		return token.kind === 'op' && ops.includes(token.value)
+	}
+
+	/**
+	 * Parse the whole token list.
+	 *
+	 * @return {object} The AST.
+	 * @throws {CalculatedFieldError} When tokens remain after the expression.
+	 */
+	parseAll() {
+		const ast = this.orExpr()
+		const token = this.peek()
+		if (token.kind !== 'end') {
+			throw parseError(`Unexpected '${token.value}'`, token.column)
+		}
+		return ast
+	}
+
+	/**
+	 * A left-associative chain of keyword operators (`and`, `or`).
+	 *
+	 * @param {string} kind - The keyword's token kind.
+	 * @param {function(): object} operand - Parses one operand.
+	 * @return {object} The AST.
+	 */
+	keywordChain(kind, operand) {
+		let left = operand()
+		while (this.peek().kind === kind) {
+			this.next()
+			left = { type: 'binary', op: kind, left, right: operand() }
+		}
+		return left
+	}
+
+	/**
+	 * A left-associative chain of symbol operators.
+	 *
+	 * @param {string[]} ops - The operators of this level.
+	 * @param {function(): object} operand - Parses one operand.
+	 * @return {object} The AST.
+	 */
+	operatorChain(ops, operand) {
+		let left = operand()
+		while (this.isOp(ops)) {
+			const op = this.next().value
+			left = { type: 'binary', op, left, right: operand() }
+		}
+		return left
+	}
+
+	/**
+	 * @return {object} An `or` expression; every sub-expression starts here.
+	 */
+	orExpr() {
+		return this.keywordChain('or', () => this.andExpr())
+	}
+
+	/**
+	 * @return {object} An `and` expression.
+	 */
+	andExpr() {
+		return this.keywordChain('and', () => this.notExpr())
+	}
+
+	/**
+	 * @return {object} A `not` expression.
+	 */
+	notExpr() {
+		if (this.peek().kind !== 'not') {
+			return this.comparison()
+		}
+		this.next()
+		return { type: 'unary', op: 'not', operand: this.notExpr() }
+	}
+
+	/**
+	 * @return {object} A comparison.
+	 */
+	comparison() {
+		return this.operatorChain(COMPARISON, () => this.additive())
+	}
+
+	/**
+	 * @return {object} A sum or difference.
+	 */
+	additive() {
+		return this.operatorChain(ADDITIVE, () => this.multiplicative())
+	}
+
+	/**
+	 * @return {object} A product, quotient or remainder.
+	 */
+	multiplicative() {
+		return this.operatorChain(MULTIPLICATIVE, () => this.unary())
+	}
+
+	/**
+	 * @return {object} A negation or a primary.
+	 */
+	unary() {
+		if (!this.isOp(['-'])) {
+			return this.primary()
+		}
+		this.next()
+		return { type: 'unary', op: '-', operand: this.unary() }
+	}
+
+	/**
+	 * @return {object} A literal, a parenthesised expression, an `if`, a call or a reference.
+	 * @throws {CalculatedFieldError} When the token cannot start an operand.
+	 */
+	primary() {
+		const token = this.next()
+		return literalOf(token) ?? this.nonLiteral(token)
+	}
+
+	/**
+	 * A primary that is not a literal.
+	 *
+	 * @param {object} token - Its first token, consumed.
+	 * @return {object} The AST.
+	 * @throws {CalculatedFieldError} When the token cannot start an operand.
+	 */
+	nonLiteral(token) {
+		switch (token.kind) {
+		case '(':
+			return this.parenthesised()
+		case 'if':
+			return this.ifCall(token)
+		case 'name':
+			return this.peek().kind === '(' ? this.call(token) : referenceOf(token, this.calculatedNames)
+		default:
+			throw unexpected(token)
+		}
+	}
+
+	/**
+	 * @return {object} The expression inside parentheses, the `(` already consumed.
+	 */
+	parenthesised() {
+		const inner = this.orExpr()
+		this.expect(')', "')'")
+		return inner
+	}
+
+	/**
+	 * @return {Array<object>} A parenthesised, comma-separated argument list.
+	 */
+	args() {
+		this.expect('(', "'('")
+		const list = this.peek().kind === ')' ? [] : this.argList()
+		this.expect(')', "')'")
+		return list
+	}
+
+	/**
+	 * @return {Array<object>} One or more comma-separated arguments.
+	 */
+	argList() {
+		const list = [this.orExpr()]
+		while (this.peek().kind === ',') {
+			this.next()
+			list.push(this.orExpr())
+		}
+		return list
+	}
+
+	/**
+	 * @param {object} token - The function name token.
+	 * @return {object} A `call` node.
+	 * @throws {CalculatedFieldError} On an unknown or disallowed function or a wrong argument count.
+	 */
+	call(token) {
+		assertCallable(token, this.allowed)
+		const list = this.args()
+		assertArity(token, list.length)
+		return { type: 'call', name: token.value, args: list }
+	}
+
+	/**
+	 * @param {object} token - The `if` token.
+	 * @return {object} An `if` node.
+	 * @throws {CalculatedFieldError} Unless it has exactly 3 arguments.
+	 */
+	ifCall(token) {
+		const list = this.args()
+		if (list.length !== 3) {
+			throw new CalculatedFieldError({ error: 'arityMismatch', name: 'if', message: `'if' takes 3 arguments, got ${list.length}`, column: token.column })
+		}
+		return { type: 'if', cond: list[0], then: list[1], else: list[2] }
+	}
+}
+
+/**
  * Parse an expression into its AST.
  *
  * @param {string} expression - The formula.
@@ -298,143 +598,36 @@ function parseError(message, column) {
 export function parse(expression, options = {}) {
 	const calculatedNames = new Set(options.calculatedNames || [])
 	const allowed = Array.isArray(options.allowedFunctions) ? new Set(options.allowedFunctions) : null
-	const tokens = tokenize(String(expression ?? ''))
-	let pos = 0
+	return new Parser(tokenize(String(expression ?? '')), calculatedNames, allowed).parseAll()
+}
 
-	const peek = () => tokens[pos]
-	const next = () => tokens[pos++]
-	const expect = (kind, what) => {
-		const token = peek()
-		if (token.kind !== kind) {
-			throw parseError(`Expected ${what}`, token.column)
-		}
-		return next()
-	}
-	const isOp = (...ops) => peek().kind === 'op' && ops.includes(peek().value)
+/**
+ * The child nodes of an AST node.
+ *
+ * @param {object} node - The node.
+ * @return {Array<object|undefined>} Its children, possibly undefined.
+ */
+function childrenOf(node) {
+	return [node.left, node.right, node.operand, node.cond, node.then, node.else, ...(node.args || [])]
+}
 
-	const binaryLevel = (operand, matches) => () => {
-		let left = operand()
-		while (matches()) {
-			const op = next().value
-			left = { type: 'binary', op, left, right: operand() }
-		}
-		return left
+/**
+ * Collect a node's references, then its children's.
+ *
+ * @param {object|undefined} node - The node.
+ * @param {{fields: Array<object>, calculated: string[]}} found - Extended here.
+ * @return {void}
+ */
+function collectReferences(node, found) {
+	if (!node || typeof node !== 'object') {
+		return
 	}
-
-	const reference = (token) => {
-		const text = token.value
-		if (text.startsWith('widget:')) {
-			const dot = text.indexOf('.')
-			if (dot === -1) {
-				throw parseError('A widget reference needs a field, e.g. widget:<id>.<field>', token.column)
-			}
-			const source = text.slice(0, dot)
-			const path = text.slice(dot + 1)
-			if (source === 'widget:self') {
-				return calculatedNames.has(path) ? { type: 'calculatedRef', name: path } : { type: 'fieldRef', source: 'self', path }
-			}
-			return { type: 'fieldRef', source, path }
-		}
-		if (text.includes(':')) {
-			throw parseError(`Unknown reference '${text}'`, token.column)
-		}
-		return calculatedNames.has(text) ? { type: 'calculatedRef', name: text } : { type: 'fieldRef', source: 'self', path: text }
+	if (node.type === 'fieldRef') {
+		found.fields.push({ source: node.source, path: node.path })
+	} else if (node.type === 'calculatedRef') {
+		found.calculated.push(node.name)
 	}
-
-	const args = () => {
-		expect('(', "'('")
-		const list = []
-		if (peek().kind !== ')') {
-			list.push(orExpr())
-			while (peek().kind === ',') {
-				next()
-				list.push(orExpr())
-			}
-		}
-		expect(')', "')'")
-		return list
-	}
-
-	const call = (token) => {
-		assertCallable(token, allowed)
-		const list = args()
-		assertArity(token, list.length)
-		return { type: 'call', name: token.value, args: list }
-	}
-
-	const ifCall = (token) => {
-		const list = args()
-		if (list.length !== 3) {
-			throw new CalculatedFieldError({ error: 'arityMismatch', name: 'if', message: `'if' takes 3 arguments, got ${list.length}`, column: token.column })
-		}
-		return { type: 'if', cond: list[0], then: list[1], else: list[2] }
-	}
-
-	const primary = () => {
-		const token = next()
-		const literal = literalOf(token)
-		if (literal) {
-			return literal
-		}
-		switch (token.kind) {
-		case '(': {
-			const inner = orExpr()
-			expect(')', "')'")
-			return inner
-		}
-		case 'if':
-			return ifCall(token)
-		case 'name':
-			return peek().kind === '(' ? call(token) : reference(token)
-		default:
-			throw unexpected(token)
-		}
-	}
-
-	const unary = () => {
-		if (isOp('-')) {
-			next()
-			return { type: 'unary', op: '-', operand: unary() }
-		}
-		return primary()
-	}
-	const multiplicative = binaryLevel(unary, () => isOp('*', '/', '%'))
-	const additive = binaryLevel(multiplicative, () => isOp('+', '-'))
-	const comparison = binaryLevel(additive, () => isOp(...COMPARISON))
-	const notExpr = () => {
-		if (peek().kind === 'not') {
-			next()
-			return { type: 'unary', op: 'not', operand: notExpr() }
-		}
-		return comparison()
-	}
-	const andExpr = () => {
-		let left = notExpr()
-		while (peek().kind === 'and') {
-			next()
-			left = { type: 'binary', op: 'and', left, right: notExpr() }
-		}
-		return left
-	}
-	/**
-	 * The loosest level, `or`; every sub-expression starts here.
-	 *
-	 * @return {object} The AST.
-	 */
-	function orExpr() {
-		let left = andExpr()
-		while (peek().kind === 'or') {
-			next()
-			left = { type: 'binary', op: 'or', left, right: andExpr() }
-		}
-		return left
-	}
-
-	const ast = orExpr()
-	if (peek().kind !== 'end') {
-		throw parseError(`Unexpected '${peek().value}'`, peek().column)
-	}
-	return ast
+	childrenOf(node).forEach((child) => collectReferences(child, found))
 }
 
 /**
@@ -445,21 +638,7 @@ export function parse(expression, options = {}) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
  */
 export function referencesOf(ast) {
-	const fields = []
-	const calculated = []
-	const walk = (node) => {
-		if (!node || typeof node !== 'object') {
-			return
-		}
-		if (node.type === 'fieldRef') {
-			fields.push({ source: node.source, path: node.path })
-		} else if (node.type === 'calculatedRef') {
-			calculated.push(node.name)
-		}
-		for (const child of [node.left, node.right, node.operand, node.cond, node.then, node.else, ...(node.args || [])]) {
-			walk(child)
-		}
-	}
-	walk(ast)
-	return { fields, calculated }
+	const found = { fields: [], calculated: [] }
+	collectReferences(ast, found)
+	return found
 }

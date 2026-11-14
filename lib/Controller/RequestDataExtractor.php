@@ -31,7 +31,7 @@ class RequestDataExtractor {
 	/**
 	 * The tile fields read from the request: field => [parameter, default].
 	 *
-	 * @var array<string, array{0: string, 1: string}>
+	 * @var array<string, array{0: string, 1: string|null}>
 	 */
 	private const TILE_PARAMS = [
 		'title'    => ['title', 'New Tile'],
@@ -41,6 +41,8 @@ class RequestDataExtractor {
 		'txtColor' => ['textColor', '#ffffff'],
 		'linkType' => ['linkType', 'app'],
 		'linkVal'  => ['linkValue', ''],
+		// Launcher-tile-open-behaviour D1: absent means "follow the dashboard".
+		'linkTarget' => ['linkTarget', null],
 	];
 
 	/**

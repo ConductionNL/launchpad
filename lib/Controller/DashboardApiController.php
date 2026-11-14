@@ -577,10 +577,13 @@ class DashboardApiController extends Controller {
 	 *                                parent (re-roots the dashboard).
 	 * @param string|null $slug Optional new slug (REQ-DASH-024).
 	 * @param int|null $sortOrder Optional new sort order (REQ-DASH-029).
+	 * @param string|null $defaultLinkTarget Optional default tile link target;
+	 *                                       an empty string clears it.
 	 *
 	 * @return JSONResponse The updated dashboard.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-19
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	#[NoAdminRequired]
 	public function update(
@@ -592,8 +595,10 @@ class DashboardApiController extends Controller {
 		?string $parentUuid = null,
 		?string $slug = null,
 		?int $sortOrder = null,
+		?string $defaultLinkTarget = null,
 	): JSONResponse {
-		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: $placements === null);
+		// How tiles open is a dashboard edit, not metadata (launcher-tile-open-behaviour).
+		$denial = $this->denyUpdate(dashboardId: $id, metadataOnly: ($placements === null && $defaultLinkTarget === null));
 		if ($denial !== null) {
 			return $denial;
 		}
@@ -608,6 +613,7 @@ class DashboardApiController extends Controller {
 				'parentUuid'  => $parentUuid,
 				'slug'        => $slug,
 				'sortOrder'   => $sortOrder,
+				'defaultLinkTarget' => $defaultLinkTarget,
 			]
 		);
 	}//end update()

@@ -32,7 +32,10 @@ class TileUpdater {
 	 *
 	 * @return void
 	 *
+	 * @throws \InvalidArgumentException When `linkTarget` is not a link target.
+	 *
 	 * @spec openspec/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function applyTileConfig(
 		WidgetPlacement $placement,
@@ -60,6 +63,13 @@ class TileUpdater {
 		$placement->setTileLinkValue(
 			$tileData['linkVal'] ?? ''
 		);
+
+		$linkTarget = TileLinkTarget::validated(value: ($tileData['linkTarget'] ?? null));
+		if ($linkTarget !== null) {
+			$placement->setContentArray(
+				array_merge($placement->getContentArray(), ['linkTarget' => $linkTarget])
+			);
+		}
 	}//end applyTileConfig()
 
 	/**
@@ -70,12 +80,21 @@ class TileUpdater {
 	 *
 	 * @return void
 	 *
+	 * @throws \InvalidArgumentException When `content.linkTarget` is not a link target.
+	 *
 	 * @spec openspec/specs/tiles/spec.md
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
 	 */
 	public function applyTileUpdates(
 		WidgetPlacement $placement,
 		array $data,
 	): void {
+		// Launcher-tile-open-behaviour D1: the tile's link target rides in
+		// content; anything but the three values is refused before saving.
+		if (is_array($data['content'] ?? null) === true && array_key_exists('linkTarget', $data['content']) === true) {
+			TileLinkTarget::validated(value: $data['content']['linkTarget'], field: 'content.linkTarget');
+		}
+
 		if (isset($data['tileTitle']) === true) {
 			$placement->setTileTitle($data['tileTitle']);
 		}

@@ -201,6 +201,7 @@ describe('Views tile editor', () => {
 			healthUrl: 'https://status.example.nl/health',
 			expectedStatus: 204,
 			pingInterval: 30,
+			linkTarget: '',
 		})
 	})
 

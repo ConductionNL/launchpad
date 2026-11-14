@@ -56,13 +56,14 @@ class RequestDataExtractorTest extends TestCase {
 				'txtColor' => '#ffffff',
 				'linkType' => 'app',
 				'linkVal' => '',
+				'linkTarget' => null,
 				'gridX' => 0,
 				'gridY' => 0,
 			],
 			RequestDataExtractor::extractTileData($this->request([]))
 		);
 		$this->assertSame(
-			['title', 'icon', 'iconType', 'bgColor', 'textColor', 'linkType', 'linkValue', 'gridX', 'gridY'],
+			['title', 'icon', 'iconType', 'bgColor', 'textColor', 'linkType', 'linkValue', 'linkTarget', 'gridX', 'gridY'],
 			$this->asked
 		);
 	}
@@ -77,13 +78,14 @@ class RequestDataExtractorTest extends TestCase {
 				'txtColor' => '#111111',
 				'linkType' => 'url',
 				'linkVal' => 'https://x',
+				'linkTarget' => 'side-panel',
 				'gridX' => 3,
 				'gridY' => 4,
 			],
 			RequestDataExtractor::extractTileData($this->request([
 				'title' => 'Mail', 'icon' => 'mail.svg', 'iconType' => 'url', 'bgColor' => '#000000',
 				'textColor' => '#111111', 'txtColor' => 'ignored', 'linkType' => 'url', 'linkValue' => 'https://x',
-				'gridX' => '3', 'gridY' => 4.7,
+				'linkTarget' => 'side-panel', 'gridX' => '3', 'gridY' => 4.7,
 			]))
 		);
 	}

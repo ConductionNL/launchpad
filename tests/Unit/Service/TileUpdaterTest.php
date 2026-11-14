@@ -118,4 +118,60 @@ class TileUpdaterTest extends TestCase {
 
 		$this->assertSame('Keep', $placement->getTileTitle());
 	}
+
+	/**
+	 * A new tile stores each link target in its content; none leaves content alone.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	public function testApplyTileConfigStoresTheLinkTarget(): void {
+		$stored = [];
+		foreach (['same-tab', 'new-tab', 'side-panel', null, ''] as $target) {
+			$placement = new WidgetPlacement();
+			(new TileUpdater())->applyTileConfig(placement: $placement, tileData: ['title' => 'T', 'linkTarget' => $target]);
+			$stored[] = $placement->getContentArray();
+		}
+
+		$this->assertSame(
+			[['linkTarget' => 'same-tab'], ['linkTarget' => 'new-tab'], ['linkTarget' => 'side-panel'], [], []],
+			$stored
+		);
+	}
+
+	/**
+	 * An unknown link target on create is refused.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	public function testApplyTileConfigRefusesAnUnknownLinkTarget(): void {
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('linkTarget must be one of same-tab, new-tab, side-panel');
+
+		(new TileUpdater())->applyTileConfig(placement: new WidgetPlacement(), tileData: ['linkTarget' => '_blank']);
+	}
+
+	/**
+	 * On update a valid or absent content.linkTarget passes; any other value is refused.
+	 *
+	 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+	 */
+	public function testApplyTileUpdatesChecksTheContentLinkTarget(): void {
+		$updater = new TileUpdater();
+		$placement = new WidgetPlacement();
+		$updater->applyTileUpdates(placement: $placement, data: ['content' => ['linkTarget' => 'side-panel', 'healthPing' => []]]);
+		$updater->applyTileUpdates(placement: $placement, data: ['content' => ['linkTarget' => null]]);
+		$updater->applyTileUpdates(placement: $placement, data: ['content' => ['healthPing' => []]]);
+
+		$refused = [];
+		foreach (['popup', 1, ['side-panel']] as $bad) {
+			try {
+				$updater->applyTileUpdates(placement: $placement, data: ['content' => ['linkTarget' => $bad]]);
+				$refused[] = false;
+			} catch (\InvalidArgumentException $e) {
+				$refused[] = $e->getMessage();
+			}
+		}
+
+		$this->assertSame(array_fill(0, 3, 'content.linkTarget must be one of same-tab, new-tab, side-panel'), $refused);
+	}
 }

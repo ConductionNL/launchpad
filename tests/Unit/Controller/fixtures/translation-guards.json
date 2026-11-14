@@ -473,6 +473,7 @@
                 "unpublishAt": null,
                 "dashboardFooterMode": "inherit",
                 "dashboardFooterHtml": null,
+                "defaultLinkTarget": null,
                 "templateCategory": null,
                 "templateDescription": null,
                 "templatePreviewImage": null
@@ -530,6 +531,7 @@
                 "unpublishAt": null,
                 "dashboardFooterMode": "inherit",
                 "dashboardFooterHtml": null,
+                "defaultLinkTarget": null,
                 "templateCategory": null,
                 "templateDescription": null,
                 "templatePreviewImage": null

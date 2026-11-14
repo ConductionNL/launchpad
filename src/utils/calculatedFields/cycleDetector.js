@@ -20,36 +20,58 @@ import { CalculatedFieldError, referencesOf } from './parser.js'
  * @return {{order: string[], cycle: string[]|null}}
  */
 function topologicalOrder(graph) {
-	const state = new Map()
-	const order = []
-	const stack = []
-	let cycle = null
-
-	const visit = (node) => {
-		if (cycle) {
-			return
-		}
-		if (state.get(node) === 'done') {
-			return
-		}
-		if (state.get(node) === 'active') {
-			cycle = [...stack.slice(stack.indexOf(node)), node]
-			return
-		}
-		state.set(node, 'active')
-		stack.push(node)
-		for (const dependency of [...(graph.get(node) || [])].sort()) {
-			visit(dependency)
-		}
-		stack.pop()
-		state.set(node, 'done')
-		order.push(node)
-	}
-
+	const walk = { graph, state: new Map(), order: [], stack: [], cycle: null }
 	for (const node of [...graph.keys()].sort()) {
-		visit(node)
+		visit(walk, node)
 	}
-	return { order: cycle ? [] : order, cycle }
+	return { order: walk.cycle ? [] : walk.order, cycle: walk.cycle }
+}
+
+/**
+ * Visit a node depth-first: its dependencies first, then itself.
+ *
+ * @param {{graph: Map, state: Map, order: string[], stack: string[], cycle: (string[]|null)}} walk - The walk, extended here.
+ * @param {string} node - The node.
+ * @return {void}
+ */
+function visit(walk, node) {
+	if (walk.cycle || walk.state.get(node) === 'done') {
+		return
+	}
+	if (walk.state.get(node) === 'active') {
+		walk.cycle = cycleAt(walk.stack, node)
+		return
+	}
+	walk.state.set(node, 'active')
+	walk.stack.push(node)
+	for (const dependency of dependenciesOf(walk.graph, node)) {
+		visit(walk, dependency)
+	}
+	walk.stack.pop()
+	walk.state.set(node, 'done')
+	walk.order.push(node)
+}
+
+/**
+ * The cycle closed by reaching a node already on the stack.
+ *
+ * @param {string[]} stack - The nodes being visited.
+ * @param {string} node - The node reached again.
+ * @return {string[]} The cycle, its first node repeated last.
+ */
+function cycleAt(stack, node) {
+	return [...stack.slice(stack.indexOf(node)), node]
+}
+
+/**
+ * A node's dependencies, sorted.
+ *
+ * @param {Map<string, Set<string>>} graph - The graph.
+ * @param {string} node - The node.
+ * @return {string[]} Its dependencies; none when it has no entry.
+ */
+function dependenciesOf(graph, node) {
+	return [...(graph.get(node) || [])].sort()
 }
 
 /**
@@ -85,18 +107,28 @@ function dependencyGraphs(widgets) {
 	const widgetGraph = new Map()
 	const calculated = new Map()
 	for (const widget of widgets) {
-		calculated.set(String(widget.id), new Set((widget.calculatedFields || []).map((field) => field.name)))
+		calculated.set(String(widget.id), new Set(calculatedFieldsOf(widget).map((field) => field.name)))
 		widgetGraph.set(String(widget.id), new Set())
 	}
 
 	for (const widget of widgets) {
 		const id = String(widget.id)
-		for (const field of widget.calculatedFields || []) {
+		for (const field of calculatedFieldsOf(widget)) {
 			fieldGraph.set(`${id}.${field.name}`, fieldDependencies(id, field, calculated, widgetGraph))
 		}
 	}
 
 	return { fieldGraph, widgetGraph }
+}
+
+/**
+ * A widget's calculated fields.
+ *
+ * @param {{calculatedFields?: Array<object>}} widget - The widget.
+ * @return {Array<object>} Its calculated fields; none when unset.
+ */
+function calculatedFieldsOf(widget) {
+	return widget.calculatedFields || []
 }
 
 /**
@@ -109,19 +141,27 @@ function dependencyGraphs(widgets) {
  * @return {Set<string>} The `<widgetId>.<field>` nodes it depends on.
  */
 function fieldDependencies(id, field, calculated, widgetGraph) {
-	const dependencies = new Set()
 	const refs = referencesOf(field.compiledExpression)
-	for (const name of refs.calculated) {
-		dependencies.add(`${id}.${name}`)
-	}
+	const dependencies = new Set(refs.calculated.map((name) => `${id}.${name}`))
 	for (const ref of refs.fields) {
-		const target = ref.source === 'self' ? id : ref.source.slice('widget:'.length)
+		const target = targetWidget(id, ref)
 		linkWidgets(widgetGraph, id, target)
 		if (calculated.get(target)?.has(ref.path)) {
 			dependencies.add(`${target}.${ref.path}`)
 		}
 	}
 	return dependencies
+}
+
+/**
+ * The widget a field reference reads.
+ *
+ * @param {string} id - The reading widget.
+ * @param {{source: string}} ref - The field reference.
+ * @return {string} The widget id read.
+ */
+function targetWidget(id, ref) {
+	return ref.source === 'self' ? id : ref.source.slice('widget:'.length)
 }
 
 /**

@@ -388,7 +388,8 @@
 			:placedAppIds="placedDiscoveredAppIds"
 			@close="closeWidgetModal"
 			@add="addWidget"
-			@addApp="addDiscoveredApp" />
+			@addApp="addDiscoveredApp"
+			@addOfficePack="addOfficePack" />
 
 		<!-- Custom widget add/edit modal — registry-driven host for label,
 		     text, image, link-button, etc. (REQ-WDG-010..014). The modal does
@@ -558,6 +559,7 @@ import { useWidgetStore } from '../stores/widgets.js'
 import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
 import { logger } from '../utils/logger.js'
+import { officePackContainer } from '../utils/officeTiles.js'
 import { resolveWidgetTitle } from '../utils/widgetTitle.js'
 
 export default {
@@ -2149,6 +2151,33 @@ export default {
 		 * @param {{appId: string, name: string, href: string, icon: string}} app The discovered app.
 		 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-one-click-turns-a-discovered-app-into-a-tile-req-disc-002
 		 */
+		/**
+		 * Place the office tile pack as one container titled "Office" at the
+		 * bottom of the dashboard (REQ-OFT-001). A pack with no tiles places
+		 * nothing and says so.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+		 */
+		async addOfficePack() {
+			try {
+				const response = await api.officeTilePack()
+				const tiles = Array.isArray(response?.data?.tiles) ? response.data.tiles : []
+				if (tiles.length === 0) {
+					showError(t('launchpad', 'This server has no office apps to make tiles for.'))
+					return
+				}
+				const pack = officePackContainer(tiles, t('launchpad', 'Office'))
+				const created = await this.addWidgetToDashboard({ type: 'container', content: pack.content }, pack.size)
+				if (created?.id) {
+					this.closeWidgetModal()
+				}
+			} catch (error) {
+				logger.error('[Views] Failed to place the office tiles:', error)
+				showError(t('launchpad', 'The office tiles could not be added.'))
+			}
+		},
+
 		async addDiscoveredApp(app) {
 			try {
 				await this.addTileToDashboard(tileFromDiscoveredApp(app))

@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Löytyi tältä palvelimelta",
     "Apps this server runs for you. One click places one as a tile." : "Sovellukset, joita tämä palvelin ajaa sinulle. Yksi napsautus tekee niistä ruudun.",
-    "On this dashboard" : "Tällä kojelaudalla"
+    "On this dashboard" : "Tällä kojelaudalla",
+    "Look" : "Ulkoasu",
+    "Accent color" : "Korostusväri",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Anna tälle kojelaudalle omat värit. Jätä kenttä tyhjäksi, niin teema on käytössä.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Tämän värisiä painikkeita on vaikea nähdä (kontrasti {ratio}:1, tarvitaan 3:1)",
+    "Enter colors like #1f5c3a." : "Anna värit muodossa #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

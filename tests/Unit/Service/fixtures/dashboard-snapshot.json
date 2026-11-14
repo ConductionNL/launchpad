@@ -60,7 +60,7 @@
             [
                 "u-1",
                 5,
-                "{\"dashboard\":{\"id\":7,\"uuid\":\"u-1\",\"name\":\"Board\",\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null},\"placements\":[]}",
+                "{\"dashboard\":{\"id\":7,\"uuid\":\"u-1\",\"name\":\"Board\",\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null,\"themeAccent\":null,\"themeBackgroundColor\":null,\"themeBackgroundResource\":null,\"themeTextColor\":null,\"customCss\":null},\"placements\":[]}",
                 "carol",
                 null,
                 true
@@ -73,7 +73,7 @@
             [
                 "u-1",
                 5,
-                "{\"dashboard\":{\"id\":7,\"uuid\":\"u-1\",\"name\":\"Board\",\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null},\"placements\":[]}",
+                "{\"dashboard\":{\"id\":7,\"uuid\":\"u-1\",\"name\":\"Board\",\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null,\"themeAccent\":null,\"themeBackgroundColor\":null,\"themeBackgroundResource\":null,\"themeTextColor\":null,\"customCss\":null},\"placements\":[]}",
                 "carol",
                 null,
                 true

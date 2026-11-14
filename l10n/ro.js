@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Găsite pe acest server",
     "Apps this server runs for you. One click places one as a tile." : "Aplicații pe care acest server le rulează pentru dvs. Un clic le transformă într-o dală.",
-    "On this dashboard" : "Pe acest panou"
+    "On this dashboard" : "Pe acest panou",
+    "Look" : "Aspect",
+    "Accent color" : "Culoare de accent",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Dați acestui panou propriile culori. Lăsați un câmp gol pentru a urma tema.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Butoanele în această culoare se văd greu (contrast {ratio} la 1, este nevoie de 3 la 1)",
+    "Enter colors like #1f5c3a." : "Introduceți culori precum #1f5c3a."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Funnet på denne serveren",
     "Apps this server runs for you. One click places one as a tile." : "Apper denne serveren kjører for deg. Ett klikk gjør en til en flis.",
-    "On this dashboard" : "På dette dashbordet"
+    "On this dashboard" : "På dette dashbordet",
+    "Look" : "Utseende",
+    "Accent color" : "Aksentfarge",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Gi dette dashbordet egne farger. La et felt stå tomt for å følge temaet.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Knapper i denne fargen er vanskelige å se (kontrast {ratio} til 1, krever 3 til 1)",
+    "Enter colors like #1f5c3a." : "Skriv inn farger som #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

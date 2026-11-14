@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Chattà sin quest server",
     "Apps this server runs for you. One click places one as a tile." : "Apps che quest server exequescha per Vus. In clic fa ina plattina.",
-    "On this dashboard" : "Sin quest dashboard"
+    "On this dashboard" : "Sin quest dashboard",
+    "Look" : "Aspect",
+    "Accent color" : "Colur d'accent",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Dai a quest tavel ses atgnas colurs. Laschai in champ vid per suandar il tema.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Buttuns en questa colur èn difficils da vesair (contrast {ratio} cunter 1, i dovra 3 cunter 1)",
+    "Enter colors like #1f5c3a." : "Endatai colurs sco #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

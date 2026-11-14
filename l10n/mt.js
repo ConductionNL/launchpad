@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Instab fuq dan is-server",
     "Apps this server runs for you. One click places one as a tile." : "Apps li dan is-server iħaddem għalik. Klikk wieħed jagħmilhom madum.",
-    "On this dashboard" : "Fuq dan id-dashboard"
+    "On this dashboard" : "Fuq dan id-dashboard",
+    "Look" : "Dehra",
+    "Accent color" : "Kulur tal-enfasi",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Agħti lil dan id-dashboard il-kuluri tiegħu. Ħalli qasam vojt biex issegwi t-tema.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Il-buttuni f'dan il-kulur huma diffiċli biex jidhru (kuntrast {ratio} għal 1, hemm bżonn 3 għal 1)",
+    "Enter colors like #1f5c3a." : "Daħħal kuluri bħal #1f5c3a."
 },
 "nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100>1 && n%100<11) ? 1 : (n%100>10 && n%100<20) ? 2 : 3);"
 );

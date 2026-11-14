@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Bu sunucuda bulundu",
     "Apps this server runs for you. One click places one as a tile." : "Bu sunucunun sizin için çalıştırdığı uygulamalar. Tek tıklama onları bir kutucuğa dönüştürür.",
-    "On this dashboard" : "Bu panoda"
+    "On this dashboard" : "Bu panoda",
+    "Look" : "Görünüm",
+    "Accent color" : "Vurgu rengi",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Bu panoya kendi renklerini verin. Temayı izlemek için bir alanı boş bırakın.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Bu renkteki düğmeler zor görülüyor (karşıtlık {ratio}'e 1, en az 3'e 1 gerekli)",
+    "Enter colors like #1f5c3a." : "Renkleri #1f5c3a biçiminde girin."
 },
 "nplurals=2; plural=(n != 1);"
 );

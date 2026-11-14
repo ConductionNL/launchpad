@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Leitud sellest serverist",
     "Apps this server runs for you. One click places one as a tile." : "Rakendused, mida see server sinu jaoks käitab. Üks klõps teeb neist paani.",
-    "On this dashboard" : "Sellel töölaual"
+    "On this dashboard" : "Sellel töölaual",
+    "Look" : "Välimus",
+    "Accent color" : "Rõhuvärv",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Anna sellele töölauale oma värvid. Jäta väli tühjaks, et järgida teemat.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Selle värvi nuppe on raske näha (kontrast {ratio} : 1, vaja on 3 : 1)",
+    "Enter colors like #1f5c3a." : "Sisesta värvid kujul #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

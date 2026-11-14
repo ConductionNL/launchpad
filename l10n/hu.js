@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Ezen a szerveren található",
     "Apps this server runs for you. One click places one as a tile." : "Alkalmazások, amelyeket ez a szerver futtat Önnek. Egy kattintással csempe lesz belőlük.",
-    "On this dashboard" : "Ezen az irányítópulton"
+    "On this dashboard" : "Ezen az irányítópulton",
+    "Look" : "Megjelenés",
+    "Accent color" : "Kiemelőszín",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Adjon ennek az irányítópultnak saját színeket. Hagyjon üresen egy mezőt a téma követéséhez.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Az ilyen színű gombok nehezen láthatók (kontraszt {ratio}:1, legalább 3:1 kell)",
+    "Enter colors like #1f5c3a." : "Adjon meg színeket #1f5c3a formában."
 },
 "nplurals=2; plural=(n != 1);"
 );

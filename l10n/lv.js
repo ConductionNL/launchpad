@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Atrasts šajā serverī",
     "Apps this server runs for you. One click places one as a tile." : "Lietotnes, ko šis serveris darbina jums. Viens klikšķis padara to par flīzi.",
-    "On this dashboard" : "Šajā informācijas panelī"
+    "On this dashboard" : "Šajā informācijas panelī",
+    "Look" : "Izskats",
+    "Accent color" : "Akcenta krāsa",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Piešķiriet šim informācijas panelim savas krāsas. Atstājiet lauku tukšu, lai sekotu motīvam.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Šīs krāsas pogas ir grūti saskatīt (kontrasts {ratio} pret 1, nepieciešams 3 pret 1)",
+    "Enter colors like #1f5c3a." : "Ievadiet krāsas, piemēram, #1f5c3a."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

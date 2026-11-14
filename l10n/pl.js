@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Znalezione na tym serwerze",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacje, które ten serwer uruchamia dla Ciebie. Jedno kliknięcie zamienia je w kafelek.",
-    "On this dashboard" : "Na tym pulpicie"
+    "On this dashboard" : "Na tym pulpicie",
+    "Look" : "Wygląd",
+    "Accent color" : "Kolor akcentu",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Nadaj temu pulpitowi własne kolory. Pozostaw pole puste, aby używać motywu.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Przyciski w tym kolorze są słabo widoczne (kontrast {ratio} do 1, wymagane 3 do 1)",
+    "Enter colors like #1f5c3a." : "Wpisz kolory w formacie #1f5c3a."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Βρέθηκαν σε αυτόν τον διακομιστή",
     "Apps this server runs for you. One click places one as a tile." : "Εφαρμογές που εκτελεί αυτός ο διακομιστής για εσάς. Ένα κλικ τις κάνει πλακίδιο.",
-    "On this dashboard" : "Σε αυτόν τον πίνακα"
+    "On this dashboard" : "Σε αυτόν τον πίνακα",
+    "Look" : "Εμφάνιση",
+    "Accent color" : "Χρώμα έμφασης",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Δώστε σε αυτόν τον πίνακα δικά του χρώματα. Αφήστε ένα πεδίο κενό για να ακολουθεί το θέμα.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Τα κουμπιά σε αυτό το χρώμα φαίνονται δύσκολα (αντίθεση {ratio} προς 1, απαιτείται 3 προς 1)",
+    "Enter colors like #1f5c3a." : "Εισαγάγετε χρώματα όπως #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

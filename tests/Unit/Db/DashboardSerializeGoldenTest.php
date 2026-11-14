@@ -46,7 +46,8 @@ class DashboardSerializeGoldenTest extends TestCase {
 				'permissionLevel', 'targetGroups', 'isDefault', 'isActive', 'commentsEnabled', 'reactionsEnabled',
 				'createdAt', 'updatedAt', 'parentUuid', 'slug', 'sortOrder', 'publicationStatus', 'publishAt',
 				'publishedAt', 'unpublishAt', 'dashboardFooterMode', 'dashboardFooterHtml', 'templateCategory',
-				'templateDescription', 'templatePreviewImage',
+				'templateDescription', 'templatePreviewImage', 'themeAccent', 'themeBackgroundColor',
+				'themeBackgroundResource', 'themeTextColor', 'customCss',
 			],
 			array_keys($data)
 		);
@@ -54,6 +55,7 @@ class DashboardSerializeGoldenTest extends TestCase {
 			json_encode([
 				3, 'u-3', 'Home', null, null, 'user', 'alice', null, null, 12, 'full', ['staff'], 0, 0, null, null,
 				null, null, null, 'home', 0, 'published', null, null, null, 'custom', null, 'team', null, null,
+				null, null, null, null, null,
 			]),
 			json_encode(array_values($data))
 		);
@@ -63,6 +65,19 @@ class DashboardSerializeGoldenTest extends TestCase {
 		$data = self::dashboard()->toViewerArray();
 		$this->assertArrayNotHasKey('userId', $data);
 		$this->assertArrayNotHasKey('templateCategory', $data);
-		$this->assertCount(25, $data);
+		$this->assertCount(30, $data);
+	}
+
+	public function testALookSerialisesWithItsDerivedTextColour(): void {
+		$dashboard = self::dashboard();
+		$dashboard->setThemeAccent('#1f5c3a');
+		$dashboard->setThemeBackgroundColor('#12301f');
+		$dashboard->setThemeBackgroundResource('resource_abc.png');
+
+		$data = $dashboard->toViewerArray();
+		$this->assertSame('#1f5c3a', $data['themeAccent']);
+		$this->assertSame('#12301f', $data['themeBackgroundColor']);
+		$this->assertSame('resource_abc.png', $data['themeBackgroundResource']);
+		$this->assertSame('#ffffff', $data['themeTextColor'], 'a dark green background gets white text (REQ-THM-002)');
 	}
 }

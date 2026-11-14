@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Pronađeno na ovom poslužitelju",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacije koje ovaj poslužitelj pokreće za vas. Jednim klikom postaju pločica.",
-    "On this dashboard" : "Na ovoj nadzornoj ploči"
+    "On this dashboard" : "Na ovoj nadzornoj ploči",
+    "Look" : "Izgled",
+    "Accent color" : "Boja naglaska",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Dajte ovoj nadzornoj ploči vlastite boje. Ostavite polje prazno da biste slijedili temu.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Gumbi u ovoj boji slabo se vide (kontrast {ratio} prema 1, potrebno je 3 prema 1)",
+    "Enter colors like #1f5c3a." : "Unesite boje poput #1f5c3a."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

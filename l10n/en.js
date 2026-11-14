@@ -1348,7 +1348,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Discovered on this server",
     "Apps this server runs for you. One click places one as a tile." : "Apps this server runs for you. One click places one as a tile.",
-    "On this dashboard" : "On this dashboard"
+    "On this dashboard" : "On this dashboard",
+    "Look" : "Look",
+    "Accent color" : "Accent color",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Give this dashboard its own colors. Leave a field empty to follow the theme.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)",
+    "Enter colors like #1f5c3a." : "Enter colors like #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

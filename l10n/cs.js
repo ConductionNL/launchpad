@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Nalezeno na tomto serveru",
     "Apps this server runs for you. One click places one as a tile." : "Aplikace, které pro vás tento server provozuje. Jedním kliknutím z nich uděláte dlaždici.",
-    "On this dashboard" : "Na této nástěnce"
+    "On this dashboard" : "Na této nástěnce",
+    "Look" : "Vzhled",
+    "Accent color" : "Barva zvýraznění",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Dejte tomuto panelu vlastní barvy. Ponechte pole prázdné, aby se použil motiv.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Tlačítka v této barvě jsou špatně vidět (kontrast {ratio} ku 1, je potřeba 3 ku 1)",
+    "Enter colors like #1f5c3a." : "Zadejte barvy jako #1f5c3a."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

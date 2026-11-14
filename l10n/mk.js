@@ -1359,7 +1359,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Пронајдено на овој сервер",
     "Apps this server runs for you. One click places one as a tile." : "Апликации што овој сервер ги извршува за вас. Еден клик ги прави плочка.",
-    "On this dashboard" : "На оваа контролна табла"
+    "On this dashboard" : "На оваа контролна табла",
+    "Look" : "Изглед",
+    "Accent color" : "Боја на акцент",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Дајте ѝ на оваа контролна табла сопствени бои. Оставете поле празно за да ја следите темата.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Копчињата во оваа боја тешко се гледаат (контраст {ratio} према 1, потребно е 3 према 1)",
+    "Enter colors like #1f5c3a." : "Внесете бои како #1f5c3a."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

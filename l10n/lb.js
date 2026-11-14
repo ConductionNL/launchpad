@@ -1359,7 +1359,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Op dësem Server fonnt",
     "Apps this server runs for you. One click places one as a tile." : "Apps, déi dësen Server fir Iech leeft. Ee Klick mécht eng Kachel draus.",
-    "On this dashboard" : "Op dësem Dashboard"
+    "On this dashboard" : "Op dësem Dashboard",
+    "Look" : "Ausgesinn",
+    "Accent color" : "Akzentfaarf",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Gitt dësem Dashboard seng eege Faarwen. Loosst e Feld eidel, fir dem Thema ze verfollegen.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Knäppercher an dëser Faarf si schwéier ze gesinn (Kontrast {ratio} zu 1, néideg sinn 3 zu 1)",
+    "Enter colors like #1f5c3a." : "Gitt Faarwe wéi #1f5c3a an."
 },
 "nplurals=2; plural=(n != 1);"
 );

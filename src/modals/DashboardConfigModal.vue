@@ -182,6 +182,83 @@
 			</div>
 
 
+			<!-- Look panel (platform-dashboard-theme-and-css REQ-THM-001/002):
+			     accent, background colour and background image of THIS
+			     dashboard, with the same contrast check the server applies. -->
+			<div
+				v-if="!isCreate && currentTab === 'look'"
+				id="config-panel-look"
+				role="tabpanel"
+				data-test="config-panel-look"
+				class="dashboard-config__panel">
+				<p class="dashboard-config__hint">
+					{{ t('launchpad', 'Give this dashboard its own colors. Leave a field empty to follow the theme.') }}
+				</p>
+				<div class="dashboard-config__field dashboard-config__look-row">
+					<NcTextField
+						:modelValue="look.accent"
+						:label="t('launchpad', 'Accent color')"
+						placeholder="#1f5c3a"
+						data-testid="look-accent"
+						@update:modelValue="look.accent = $event" />
+					<input
+						type="color"
+						class="dashboard-config__swatch"
+						:value="lookAccentHex || '#000000'"
+						:aria-label="t('launchpad', 'Accent color')"
+						@input="look.accent = $event.target.value">
+				</div>
+				<div class="dashboard-config__field dashboard-config__look-row">
+					<NcTextField
+						:modelValue="look.background"
+						:label="t('launchpad', 'Background color')"
+						placeholder="#ffffff"
+						data-testid="look-background"
+						@update:modelValue="look.background = $event" />
+					<input
+						type="color"
+						class="dashboard-config__swatch"
+						:value="lookBackgroundHex || '#ffffff'"
+						:aria-label="t('launchpad', 'Background color')"
+						@input="look.background = $event.target.value">
+				</div>
+				<p
+					v-if="lookFormatError"
+					class="dashboard-config__error"
+					role="alert"
+					data-testid="look-format-error">
+					{{ lookFormatError }}
+				</p>
+				<p
+					v-else-if="!lookAccentCheck.readable"
+					class="dashboard-config__error"
+					role="alert"
+					data-testid="look-contrast-error">
+					{{ t('launchpad', 'Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)', { ratio: lookAccentCheck.ratio.toFixed(1) }) }}
+				</p>
+				<div class="dashboard-config__field">
+					<label class="dashboard-config__label" for="look-image-input">
+						{{ t('launchpad', 'Image') }}
+					</label>
+					<input
+						id="look-image-input"
+						type="file"
+						accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+						data-testid="look-image-input"
+						:disabled="lookUploading"
+						@change="onLookImage">
+					<p v-if="look.resource" class="dashboard-config__hint" data-testid="look-image-name">
+						{{ look.resource }}
+						<NcButton variant="tertiary" data-testid="look-image-clear" @click="look.resource = ''">
+							{{ t('launchpad', 'Remove') }}
+						</NcButton>
+					</p>
+					<p v-if="lookUploadError" class="dashboard-config__error" role="alert">
+						{{ lookUploadError }}
+					</p>
+				</div>
+			</div>
+
 			<!-- Sharing panel (dashboard-sharing spec). The sharee picker and
 			     per-share permission rows are reachable ONLY from this tab. -->
 			<div
@@ -436,6 +513,7 @@ import ContentSave from 'vue-material-design-icons/ContentSave.vue'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import FormatListBulleted from 'vue-material-design-icons/FormatListBulleted.vue'
 import Lock from 'vue-material-design-icons/Lock.vue'
+import Palette from 'vue-material-design-icons/Palette.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ShareVariant from 'vue-material-design-icons/ShareVariant.vue'
 import Translate from 'vue-material-design-icons/Translate.vue'
@@ -444,8 +522,9 @@ import LanguagesTab from '../components/Workspace/config/LanguagesTab.vue'
 import { FLAG_PROP, LIST_PROP, NULLABLE_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
-import { uploadDataUrl } from '../services/resourceService.js'
+import { uploadDataUrl, uploadFile } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
+import { accentCheck, normaliseHex } from '../utils/dashboardLook.js'
 import { logger } from '../utils/logger.js'
 
 const PERMISSION_OPTIONS = [
@@ -476,6 +555,7 @@ export default {
 		Check,
 		Lock,
 		CnIconBrowser,
+		Palette,
 	},
 
 	props: {
@@ -548,6 +628,11 @@ export default {
 			},
 
 			saving: false,
+			// REQ-THM-001: the look being edited, and the stored one it started from.
+			look: { accent: '', background: '', resource: '' },
+			initialLook: { accent: '', background: '', resource: '' },
+			lookUploading: false,
+			lookUploadError: '',
 			// Server snapshot of shares as last loaded; used to compute dirty state.
 			serverShares: [],
 			// Local in-progress edit list; mutations buffer here until Save.
@@ -644,6 +729,14 @@ export default {
 					icon: Translate,
 				})
 			}
+			// REQ-THM-001: the look is the owner's, like sharing.
+			if (this.canManageShares) {
+				list.push({
+					id: 'look',
+					label: t('launchpad', 'Look'),
+					icon: Palette,
+				})
+			}
 			if (this.canManageShares) {
 				list.push({
 					id: 'sharing',
@@ -707,7 +800,62 @@ export default {
 
 		/** @spec openspec/specs/dashboards/spec.md */
 		canSave() {
-			return this.form.name.trim().length > 0
+			return this.form.name.trim().length > 0 && this.lookValid
+		},
+
+		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookAccentHex() {
+			return normaliseHex(this.look.accent)
+		},
+
+		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001 */
+		lookBackgroundHex() {
+			return normaliseHex(this.look.background)
+		},
+
+		/**
+		 * A colour field that holds something other than a colour.
+		 *
+		 * @return {string} the message, or '' when both fields are empty or colours.
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		lookFormatError() {
+			const bad = [this.look.accent, this.look.background].some(
+				(value) => String(value).trim() !== '' && normaliseHex(value) === null,
+			)
+			return bad ? t('launchpad', 'Enter colors like #1f5c3a.') : ''
+		},
+
+		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		lookAccentCheck() {
+			return accentCheck(this.lookAccentHex, this.lookBackgroundHex)
+		},
+
+		/** @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-a-look-must-stay-readable-req-thm-002 */
+		lookValid() {
+			return this.lookFormatError === '' && this.lookAccentCheck.readable
+		},
+
+		/**
+		 * The look fields that changed, as the update route takes them ('' clears),
+		 * or null when nothing changed, so a rename stays a metadata edit.
+		 *
+		 * @return {object|null}
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		lookPayload() {
+			const fields = {
+				themeAccent: ['accent', this.lookAccentHex ?? ''],
+				themeBackgroundColor: ['background', this.lookBackgroundHex ?? ''],
+				themeBackgroundResource: ['resource', this.look.resource || ''],
+			}
+			const payload = {}
+			for (const [field, [key, value]] of Object.entries(fields)) {
+				if (value !== (this.initialLook[key] || '')) {
+					payload[field] = value
+				}
+			}
+			return Object.keys(payload).length > 0 ? payload : null
 		},
 
 		/** @spec openspec/specs/dashboards/spec.md */
@@ -773,6 +921,14 @@ export default {
 					// only null/empty falls back to DEFAULT_ICON
 					// (REQ-ICON-002 + REQ-ICON-009).
 					this.form.icon = this.dashboard.icon || DEFAULT_ICON
+					// REQ-THM-001: the stored look, and a snapshot to send only what changes.
+					this.initialLook = {
+						accent: this.dashboard.themeAccent || '',
+						background: this.dashboard.themeBackgroundColor || '',
+						resource: this.dashboard.themeBackgroundResource || '',
+					}
+					this.look = { ...this.initialLook }
+					this.lookUploadError = ''
 					// Wave3.8 — initial toggle state mirrors whether
 					// THIS dashboard's UUID matches the user's pinned
 					// default. Snapshot for the dirty-check in onSave.
@@ -792,6 +948,33 @@ export default {
 
 	methods: {
 		t,
+
+		/**
+		 * Upload a chosen background image through LaunchPad's resource
+		 * uploads and keep its file name (REQ-THM-001).
+		 *
+		 * @param {Event} event The file input's change event.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/platform-dashboard-theme-and-css/specs/dashboards/spec.md#requirement-each-dashboard-can-have-its-own-look-req-thm-001
+		 */
+		async onLookImage(event) {
+			const file = event?.target?.files?.[0]
+			if (!file) {
+				return
+			}
+			this.lookUploading = true
+			this.lookUploadError = ''
+			try {
+				const resource = await uploadFile(file)
+				this.look.resource = resource.name
+			} catch (error) {
+				logger.error('Failed to upload the background image:', error)
+				this.lookUploadError = t('launchpad', 'Failed to upload image')
+			} finally {
+				this.lookUploading = false
+			}
+		},
+
 		/**
 		 * Resolve a permission level to its select option, falling back to
 		 * the first option for unknown levels.
@@ -1084,6 +1267,7 @@ export default {
 						: {
 								parentUuid: this.form.parent?.uuid ?? '',
 								slug: this.form.slug.trim(),
+								...(this.lookPayload ? { look: this.lookPayload } : {}),
 							}),
 				})
 
@@ -1434,5 +1618,20 @@ export default {
 	font-weight: 600;
 	line-height: 20px;
 	text-align: center;
+}
+.dashboard-config__look-row {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+}
+
+.dashboard-config__swatch {
+	inline-size: 44px;
+	block-size: 44px;
+	padding: 2px;
+	border: 1px solid var(--color-border-dark);
+	border-radius: var(--border-radius);
+	background: var(--color-main-background);
+	cursor: pointer;
 }
 </style>

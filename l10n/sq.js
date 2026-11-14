@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Gjetur në këtë server",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacione që ky server i ekzekuton për ju. Një klikim i bën pllakë.",
-    "On this dashboard" : "Në këtë panel"
+    "On this dashboard" : "Në këtë panel",
+    "Look" : "Pamja",
+    "Accent color" : "Ngjyra e theksit",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Jepini këtij paneli ngjyrat e veta. Lëreni një fushë bosh për të ndjekur temën.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Butonat në këtë ngjyrë shihen me vështirësi (kontrast {ratio} me 1, nevojitet 3 me 1)",
+    "Enter colors like #1f5c3a." : "Shkruani ngjyra si #1f5c3a."
 },
 "nplurals=2; plural=(n != 1);"
 );

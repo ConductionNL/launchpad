@@ -1359,6 +1359,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Знойдзена на гэтым серверы",
     "Apps this server runs for you. One click places one as a tile." : "Праграмы, якія гэты сервер запускае для вас. Адзін клік робіць з іх плітку.",
-    "On this dashboard" : "На гэтай панэлі"
+    "On this dashboard" : "На гэтай панэлі",
+    "Look" : "Выгляд",
+    "Accent color" : "Колер акцэнту",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Задайце гэтай панэлі ўласныя колеры. Пакіньце поле пустым, каб прытрымлівацца тэмы.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Кнопкі гэтага колеру дрэнна бачна (кантраст {ratio} да 1, патрэбна 3 да 1)",
+    "Enter colors like #1f5c3a." : "Увядзіце колеры ў выглядзе #1f5c3a."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

@@ -1368,7 +1368,12 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Fundið á þessum þjóni",
     "Apps this server runs for you. One click places one as a tile." : "Forrit sem þessi þjónn keyrir fyrir þig. Einn smellur gerir reit úr því.",
-    "On this dashboard" : "Á þessu stjórnborði"
+    "On this dashboard" : "Á þessu stjórnborði",
+    "Look" : "Útlit",
+    "Accent color" : "Áherslulitur",
+    "Give this dashboard its own colors. Leave a field empty to follow the theme." : "Gefðu þessu mælaborði eigin liti. Skildu reit eftir tóman til að fylgja þemanu.",
+    "Buttons in this colour are hard to see (contrast {ratio} to 1, needs 3 to 1)" : "Hnappar í þessum lit sjást illa (birtuskil {ratio} á móti 1, þarf 3 á móti 1)",
+    "Enter colors like #1f5c3a." : "Sláðu inn liti eins og #1f5c3a."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

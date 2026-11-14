@@ -89,7 +89,10 @@
 		"pinia": "$pinia",
 		"@vueuse/core": "^14.0.0",
 		"@vueuse/shared": "^14.0.0",
-		"dompurify": "$dompurify"
+		"dompurify": "$dompurify",
+		"webdav": {
+			"minimatch": "^11.0.1"
+		}
 	},
 	"prettier": "@nextcloud/prettier-config"
 }

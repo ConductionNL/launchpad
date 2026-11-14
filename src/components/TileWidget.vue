@@ -38,7 +38,7 @@
 		<a
 			:href="tileUrl"
 			class="tile-widget__link"
-			:target="tile.linkType === 'url' ? '_blank' : '_self'"
+			:target="tileTarget"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -81,6 +81,14 @@
 				{{ tile.title }}
 			</div>
 		</a>
+		<!-- launcher-tile-launch-types D2: the browser cannot tell whether a
+		     program started, so say what to check after the click. -->
+		<p
+			v-if="showProgramHint"
+			class="tile-widget__hint"
+			role="status">
+			{{ t('launchpad', 'Nothing happened? The program may not be installed on this computer.') }}
+		</p>
 	</div>
 </template>
 
@@ -91,6 +99,7 @@ import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
 import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { logger } from '../utils/logger.js'
+import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
 
 const { recordTileClick } = useTileClickTracking()
 
@@ -120,6 +129,17 @@ export default {
 		},
 
 		/**
+		 * The placement's content blob; a remote-desktop tile keeps its
+		 * gateway or RDP settings there (launcher-tile-launch-types).
+		 *
+		 * @type {object|null}
+		 */
+		content: {
+			type: Object,
+			default: null,
+		},
+
+		/**
 		 * Whether this tile has a health ping configured
 		 * (REQ-HPING-004 "Ping disabled shows no badge").
 		 *
@@ -140,9 +160,22 @@ export default {
 
 	emits: ['edit', 'remove'],
 
+	data() {
+		return {
+			showProgramHint: false,
+		}
+	},
+
 	computed: {
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * @spec openspec/specs/tiles/spec.md
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+		 */
 		tileUrl() {
+			const launch = launchHref(this.tile, this.content, this.placementId, generateUrl)
+			if (launch !== null) {
+				return launch
+			}
 			const value = this.tile.linkValue
 			if (this.tile.linkType === 'app') {
 				return generateUrl('/apps/' + value)
@@ -159,6 +192,17 @@ export default {
 				return generateUrl(value)
 			}
 			return value
+		},
+
+		/**
+		 * Where the link opens: a web address in a new tab, a Nextcloud page
+		 * in place, and per launch type as design D2 says.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+		 */
+		tileTarget() {
+			return launchTarget(this.tile, this.content) ?? (this.tile.linkType === 'url' ? '_blank' : '_self')
 		},
 	},
 
@@ -213,6 +257,9 @@ export default {
 		 */
 		handleActivate() {
 			recordTileClick(this.tile?.id)
+			if (this.tile?.linkType === LINK_PROGRAM) {
+				this.showProgramHint = true
+			}
 		},
 	},
 }
@@ -229,6 +276,18 @@ export default {
 	border: none;
 	overflow: hidden;
 	background-color: var(--tile-bg-color) !important;
+}
+
+.tile-widget__hint {
+	position: absolute;
+	inset-inline: 0;
+	bottom: 0;
+	margin: 0;
+	padding: 4px 8px;
+	font-size: 0.85em;
+	color: var(--color-main-text);
+	background-color: var(--color-main-background);
+	text-align: center;
 }
 
 .tile-widget__link {

@@ -190,6 +190,10 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setTileLaunchOptions(
+				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
+				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
+			)
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

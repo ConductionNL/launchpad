@@ -360,6 +360,35 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set what the tile editor offers for program and single sign-on tiles
+	 * (workspace): the schemes the administrator allowed, and the key and
+	 * name of each launch template. The template addresses stay on the
+	 * server, which resolves an sso tile's address itself.
+	 *
+	 * Optional keys, like {@see self::setQuicksearchFallbackTarget()}: the
+	 * JS reader defaults both to an empty list.
+	 *
+	 * @param array<int, string> $schemes   The allowed program schemes.
+	 * @param array<int, mixed>  $templates The launch templates (`key`, `name`, `urlTemplate`).
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 */
+	public function setTileLaunchOptions(array $schemes, array $templates): self {
+		$this->values['tileAllowedSchemes'] = array_values($schemes);
+		$names = [];
+		foreach ($templates as $template) {
+			if (is_array($template) === true && isset($template['key'], $template['name']) === true) {
+				$names[] = ['key' => (string)$template['key'], 'name' => (string)$template['name']];
+			}
+		}
+
+		$this->values['ssoLaunchTemplates'] = $names;
+		return $this;
+	}//end setTileLaunchOptions()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

@@ -67,6 +67,10 @@ const PAGE_KEYS = {
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// launcher-tile-launch-types: what the tile editor offers for program
+		// and single sign-on tiles. Optional keys; empty lists offer nothing.
+		tileAllowedSchemes: [],
+		ssoLaunchTemplates: [],
 	},
 	admin: {
 		allGroups: [],

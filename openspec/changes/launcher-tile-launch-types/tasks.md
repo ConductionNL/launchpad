@@ -8,8 +8,8 @@
 
 ## Frontend
 
-- [ ] 4. Add the three types to `src/modals/TileEditor.vue` (scheme address, gateway or RDP fields, template picker with `NcSelect` input label and app id). Verify: Vitest.
-- [ ] 5. Render the hrefs per type in `src/components/TileWidget.vue`, with the program hint. Verify: Vitest.
+- [x] 4. Add the three types to `src/modals/TileEditor.vue` (scheme address, gateway or RDP fields, template picker with `NcSelect` input label and app id). Verify: Vitest. (verified: an "Opens" `NcSelect` with input label; program address with the allowed schemes named under it; gateway address or host, port, published program and RD gateway; a sign-on template `NcSelect` and an app id, with no address field; the schemes and the template names (never their addresses) reach the workspace through initial state, `InitialStateBuilder::setTileLaunchOptions()`; `src/utils/tileLaunch.js` builds the content blob `Views.vue` saves with the tile, on create too; tests: src/modals/__tests__/TileEditor.launchTypes.spec.js, src/utils/__tests__/tileLaunch.spec.js, InitialStateBuilderTest.)
+- [x] 5. Render the hrefs per type in `src/components/TileWidget.vue`, with the program hint. Verify: Vitest. (verified: program tiles follow their scheme address in place and show "Nothing happened? The program may not be installed on this computer." after a click; gateway and sso tiles open the stored https address in a new tab; RDP tiles link to `/api/tiles/{placementId}/rdp`; `TileWidget` takes the placement's `content`; src/components/__tests__/TileWidget.spec.js.)
 - [ ] 6. Add the admin section for allowed schemes and SSO launch templates. Verify: Vitest and an axe check.
 
 ## Close

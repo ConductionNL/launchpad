@@ -331,6 +331,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'tileApi#create', 'url' => '/api/tiles', 'verb' => 'POST'],
 		['name' => 'tileApi#update', 'url' => '/api/tiles/{id}', 'verb' => 'PUT'],
 		['name' => 'tileApi#destroy', 'url' => '/api/tiles/{id}', 'verb' => 'DELETE'],
+		// launcher-tile-launch-types D3: the .rdp file of a remote-desktop tile,
+		// for a caller who may view the tile's dashboard.
+		['name' => 'tileLaunch#rdp', 'url' => '/api/tiles/{placementId}/rdp', 'verb' => 'GET',
+		 'requirements' => ['placementId' => '\d+']],
 
 		// Conditional rules endpoints
 		['name' => 'ruleApi#getRules', 'url' => '/api/widgets/{placementId}/rules', 'verb' => 'GET'],

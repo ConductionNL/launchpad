@@ -6753,19 +6753,21 @@
 			"id": "d-search-prefix",
 			"area": "search-ai",
 			"name": "Send a search straight to a chosen site, such as the ticket system, with a short prefix.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "partial",
 			"microsoft-viva": "unknown",
 			"nextcloud-dashboard": "partial",
 			"homarr": "yes",
 			"dashy": "yes",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "lib/Service/SearchShortcuts.php:70 normalise() validates up to 30 entries (prefix ! and 1 to 10 letters or digits, unique without regard to case, https template with {query}); lib/Controller/AdminController.php:466 accepts searchShortcuts on the admin settings PUT; lib/Controller/PageController.php:193 and lib/Settings/LaunchPadAdmin.php:119 hand the list to the workspace and admin pages as initial state; src/composables/useTileSearch.js:237 parsePrefix and :457 put a known prefix ahead of tile ranking, :532 opens the site through src/composables/useTileSearchHost.js:202 in a new tab (noopener); src/components/RuntimeShellSearch.vue reads the result or the ! / ? list out through its live region; src/components/admin/SearchShortcutsSettings.vue edits the list on the admin General tab. Tests: tests/Unit/Service/SearchShortcutsTest.php, src/composables/__tests__/useTileSearch.shortcuts.spec.js, src/components/__tests__/RuntimeShellSearch.shortcuts.spec.js, src/components/admin/__tests__/SearchShortcutsSettings.spec.js",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/search-ai-prefix-shortcuts",
+				"readOn": "2026-11-14",
 				"requirement": "openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search :: A prefix sends the query to its site (REQ-SPX-002)"
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Any search widget on the Workspace page (/apps/launchpad/): type a prefix such as !t and a query; the shortcuts are set in Administration settings, LaunchPad, General, Search shortcuts",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175653-global-search users 'search by category' (Announcements, Apps, Email, Files, Folders, Knowledge articles, People, plus OpenIMS or Egnyte when configured); no prefix syntax to send a query to another site (read 2026-09-26)",
 				"microsoft-viva": "not checked: Microsoft 365 roadmap 562015 'Scoped Search for SharePoint app in Teams' scopes search to SharePoint global search (cached roadmap, read 2026-09-26); no prefix to an external site found",
@@ -6779,7 +6781,7 @@
 			"featureConfidence": "medium",
 			"origin": "changelog",
 			"originUrl": "https://github.com/Lissy93/dashy/releases/tag/3.2.0",
-			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none. Specified 2026-09-27 in openspec/changes/search-ai-prefix-shortcuts (openspec pass).",
+			"note": "The search widget filters tiles and falls back to one configured web search per widget (SearchWidget.vue:178 onSearchFallback, SearchWidgetForm.vue:41); searched for prefix, bang and engine routing: none. Specified 2026-09-27 in openspec/changes/search-ai-prefix-shortcuts (openspec pass). Built 2026-11-14 (search-ai-prefix-shortcuts): admin list of prefix shortcuts, routed ahead of tile ranking in every search widget.",
 			"screen": {
 				"canvas": "design-system",
 				"board": "LpWerkplek"

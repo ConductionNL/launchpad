@@ -1669,7 +1669,23 @@ OC.L10N.register(
     "Sorted alphabetically" : "Alfabetisch gesorteerd",
     "Sorted by most used" : "Gesorteerd op meest gebruikt",
     "Sorted by last used" : "Gesorteerd op laatst gebruikt",
-    "Sorted at random" : "Willekeurig gesorteerd"
+    "Sorted at random" : "Willekeurig gesorteerd",
+    "Search {name} for {query}" : "{name} doorzoeken naar {query}",
+    "Search shortcuts" : "Zoeksnelkoppelingen",
+    "Search shortcuts: {list}" : "Zoeksnelkoppelingen: {list}",
+    "A query that starts with a prefix such as !t goes straight to that site in a new tab. Typing ! or ? in a search box lists the shortcuts." : "Een zoekopdracht die begint met een voorvoegsel zoals !t gaat in een nieuw tabblad direct naar die site. Typ ! of ? in een zoekvak om de snelkoppelingen te zien.",
+    "No search shortcuts yet." : "Nog geen zoeksnelkoppelingen.",
+    "Address with {query}" : "Adres met {query}",
+    "Remove shortcut {prefix}" : "Snelkoppeling {prefix} verwijderen",
+    "Add shortcut" : "Snelkoppeling toevoegen",
+    "Save shortcuts" : "Snelkoppelingen opslaan",
+    "At most {count} search shortcuts are allowed." : "Er zijn maximaal {count} zoeksnelkoppelingen toegestaan.",
+    "A prefix is ! followed by 1 to 10 letters or digits." : "Een voorvoegsel is ! gevolgd door 1 tot 10 letters of cijfers.",
+    "The prefix {prefix} is used twice." : "Het voorvoegsel {prefix} wordt twee keer gebruikt.",
+    "The shortcut {prefix} needs a name of at most {count} characters." : "De snelkoppeling {prefix} heeft een naam van maximaal {count} tekens nodig.",
+    "Use an https address that contains {query}" : "Gebruik een https-adres dat {query} bevat",
+    "Search shortcuts saved." : "Zoeksnelkoppelingen opgeslagen.",
+    "Failed to save the search shortcuts." : "De zoeksnelkoppelingen konden niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

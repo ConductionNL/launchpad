@@ -41,6 +41,11 @@ const COMPARISON = ['<=', '>=', '==', '!=', '<', '>']
 const KEYWORDS = { and: 'and', or: 'or', not: 'not', true: 'true', false: 'false', null: 'null', if: 'if' }
 
 /**
+ * The token readers, tried in this order at each position.
+ */
+const READERS = [readWhitespace, readComparison, readPunctuation, readString, readNumber, readWord]
+
+/**
  * Split an expression into tokens, each with its 1-based column.
  *
  * @param {string} source - The expression.
@@ -50,57 +55,222 @@ function tokenize(source) {
 	const tokens = []
 	let i = 0
 	while (i < source.length) {
-		const ch = source[i]
-		const column = i + 1
-		if (/\s/.test(ch)) {
-			i++
-			continue
+		const read = readAt(source, i)
+		if (read.token) {
+			tokens.push(read.token)
 		}
-		const two = source.slice(i, i + 2)
-		if (COMPARISON.includes(two)) {
-			tokens.push({ kind: 'op', value: two, column })
-			i += 2
-			continue
-		}
-		if ('+-*/%<>(),'.includes(ch)) {
-			tokens.push({ kind: ch === '(' || ch === ')' || ch === ',' ? ch : 'op', value: ch, column })
-			i++
-			continue
-		}
-		if (ch === '"' || ch === "'") {
-			let j = i + 1
-			let text = ''
-			while (j < source.length && source[j] !== ch) {
-				if (source[j] === '\\' && j + 1 < source.length) {
-					j++
-				}
-				text += source[j]
-				j++
-			}
-			if (j >= source.length) {
-				throw parseError('Unterminated string', column)
-			}
-			tokens.push({ kind: 'string', value: text, column })
-			i = j + 1
-			continue
-		}
-		const number = /^(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(source.slice(i))
-		if (number) {
-			tokens.push({ kind: 'number', value: Number(number[0]), column })
-			i += number[0].length
-			continue
-		}
-		const word = /^[A-Za-z_][A-Za-z0-9_]*(?::[A-Za-z0-9_-]+)?(?:\.[A-Za-z_][A-Za-z0-9_]*)*/.exec(source.slice(i))
-		if (word) {
-			const keyword = KEYWORDS[word[0]]
-			tokens.push(keyword ? { kind: keyword, value: word[0], column } : { kind: 'name', value: word[0], column })
-			i += word[0].length
-			continue
-		}
-		throw parseError(`Unexpected character '${ch}'`, column)
+		i = read.next
 	}
 	tokens.push({ kind: 'end', value: null, column: source.length + 1 })
 	return tokens
+}
+
+/**
+ * The token that starts at a position, tried reader by reader in order.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The 0-based position.
+ * @return {{token: object|null, next: number}} The token (null for whitespace) and where the next one starts.
+ * @throws {CalculatedFieldError} When no reader accepts the character.
+ */
+function readAt(source, i) {
+	for (const reader of READERS) {
+		const read = reader(source, i)
+		if (read) {
+			return read
+		}
+	}
+	throw parseError(`Unexpected character '${source[i]}'`, i + 1)
+}
+
+/**
+ * Whitespace: skipped.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The position.
+ * @return {object|null}
+ */
+function readWhitespace(source, i) {
+	return /\s/.test(source[i]) ? { token: null, next: i + 1 } : null
+}
+
+/**
+ * A two-character comparison operator.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The position.
+ * @return {object|null}
+ */
+function readComparison(source, i) {
+	const two = source.slice(i, i + 2)
+	return COMPARISON.includes(two) ? { token: { kind: 'op', value: two, column: i + 1 }, next: i + 2 } : null
+}
+
+/**
+ * A one-character operator, parenthesis or comma.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The position.
+ * @return {object|null}
+ */
+function readPunctuation(source, i) {
+	const ch = source[i]
+	if (!'+-*/%<>(),'.includes(ch)) {
+		return null
+	}
+	return { token: { kind: '(),'.includes(ch) ? ch : 'op', value: ch, column: i + 1 }, next: i + 1 }
+}
+
+/**
+ * A quoted string; a backslash takes the next character literally.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The position.
+ * @return {object|null}
+ * @throws {CalculatedFieldError} When the string is not closed.
+ */
+function readString(source, i) {
+	const quote = source[i]
+	if (quote !== '"' && quote !== "'") {
+		return null
+	}
+	const { text, end } = scanString(source, i + 1, quote)
+	if (end >= source.length) {
+		throw parseError('Unterminated string', i + 1)
+	}
+	return { token: { kind: 'string', value: text, column: i + 1 }, next: end + 1 }
+}
+
+/**
+ * The text of a string up to its closing quote.
+ *
+ * @param {string} source - The expression.
+ * @param {number} start - The position after the opening quote.
+ * @param {string} quote - The quote character.
+ * @return {{text: string, end: number}} The text and the closing quote's position (source.length when unclosed).
+ */
+function scanString(source, start, quote) {
+	let j = start
+	let text = ''
+	while (j < source.length && source[j] !== quote) {
+		const escaped = source[j] === '\\' && j + 1 < source.length
+		j += escaped ? 1 : 0
+		text += source[j]
+		j++
+	}
+	return { text, end: j }
+}
+
+/**
+ * A number literal.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The position.
+ * @return {object|null}
+ */
+function readNumber(source, i) {
+	const number = /^(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(source.slice(i))
+	return number ? { token: { kind: 'number', value: Number(number[0]), column: i + 1 }, next: i + number[0].length } : null
+}
+
+/**
+ * A keyword or a (dotted, optionally source-prefixed) name.
+ *
+ * @param {string} source - The expression.
+ * @param {number} i - The position.
+ * @return {object|null}
+ */
+function readWord(source, i) {
+	const word = /^[A-Za-z_][A-Za-z0-9_]*(?::[A-Za-z0-9_-]+)?(?:\.[A-Za-z_][A-Za-z0-9_]*)*/.exec(source.slice(i))
+	if (!word) {
+		return null
+	}
+	return { token: { kind: KEYWORDS[word[0]] || 'name', value: word[0], column: i + 1 }, next: i + word[0].length }
+}
+
+/**
+ * Refuse a call to an unknown function or one this instance does not allow.
+ *
+ * @param {{value: string, column: number}} token - The function name token.
+ * @param {Set<string>|null} allowed - The allowlist; null allows every built-in.
+ * @return {void}
+ * @throws {CalculatedFieldError} `unknownFunction` or `functionNotAllowed`.
+ */
+function assertCallable(token, allowed) {
+	const name = token.value
+	if (!isBuiltIn(name)) {
+		throw new CalculatedFieldError({ error: 'unknownFunction', name, message: `Unknown function '${name}'`, column: token.column })
+	}
+	if (allowed !== null && !allowed.has(name)) {
+		throw new CalculatedFieldError({ error: 'functionNotAllowed', name, message: `The function '${name}' is not allowed on this instance`, column: token.column })
+	}
+}
+
+/**
+ * Refuse a call with the wrong number of arguments.
+ *
+ * @param {{value: string, column: number}} token - The function name token.
+ * @param {number} count - The number of arguments given.
+ * @return {void}
+ * @throws {CalculatedFieldError} `arityMismatch`.
+ */
+function assertArity(token, count) {
+	const name = token.value
+	const { min, max } = FUNCTIONS[name]
+	if (count >= min && count <= max) {
+		return
+	}
+	throw new CalculatedFieldError({
+		error: 'arityMismatch',
+		name,
+		message: `'${name}' takes ${arityText(min, max)} argument(s), got ${count}`,
+		column: token.column,
+	})
+}
+
+/**
+ * How many arguments a function takes, in words.
+ *
+ * @param {number} min - The fewest.
+ * @param {number} max - The most; Infinity for no limit.
+ * @return {string|number}
+ */
+function arityText(min, max) {
+	if (max === Infinity) {
+		return `at least ${min}`
+	}
+	return min === max ? min : `${min} to ${max}`
+}
+
+/**
+ * Literal builders by token kind.
+ */
+const LITERALS = {
+	number: (token) => ({ type: 'literal', valueType: 'number', value: token.value }),
+	string: (token) => ({ type: 'literal', valueType: 'string', value: token.value }),
+	true: () => ({ type: 'literal', valueType: 'boolean', value: true }),
+	false: () => ({ type: 'literal', valueType: 'boolean', value: false }),
+	null: () => ({ type: 'literal', valueType: 'null', value: null }),
+}
+
+/**
+ * The literal a token stands for, or null when it is not a literal.
+ *
+ * @param {{kind: string, value: (string|number|null)}} token - The token.
+ * @return {object|null}
+ */
+function literalOf(token) {
+	return Object.hasOwn(LITERALS, token.kind) ? LITERALS[token.kind](token) : null
+}
+
+/**
+ * The refusal for a token that cannot start an operand.
+ *
+ * @param {{kind: string, value: (string|number|null), column: number}} token - The token.
+ * @return {CalculatedFieldError}
+ */
+function unexpected(token) {
+	return parseError(token.kind === 'end' ? 'Unexpected end of expression' : `Unexpected '${token.value}'`, token.column)
 }
 
 /**
@@ -186,54 +356,38 @@ export function parse(expression, options = {}) {
 	}
 
 	const call = (token) => {
-		const name = token.value
-		if (!isBuiltIn(name)) {
-			throw new CalculatedFieldError({ error: 'unknownFunction', name, message: `Unknown function '${name}'`, column: token.column })
-		}
-		if (allowed !== null && !allowed.has(name)) {
-			throw new CalculatedFieldError({ error: 'functionNotAllowed', name, message: `The function '${name}' is not allowed on this instance`, column: token.column })
-		}
+		assertCallable(token, allowed)
 		const list = args()
-		const { min, max } = FUNCTIONS[name]
-		if (list.length < min || list.length > max) {
-			throw new CalculatedFieldError({
-				error: 'arityMismatch',
-				name,
-				message: `'${name}' takes ${max === Infinity ? `at least ${min}` : (min === max ? min : `${min} to ${max}`)} argument(s), got ${list.length}`,
-				column: token.column,
-			})
+		assertArity(token, list.length)
+		return { type: 'call', name: token.value, args: list }
+	}
+
+	const ifCall = (token) => {
+		const list = args()
+		if (list.length !== 3) {
+			throw new CalculatedFieldError({ error: 'arityMismatch', name: 'if', message: `'if' takes 3 arguments, got ${list.length}`, column: token.column })
 		}
-		return { type: 'call', name, args: list }
+		return { type: 'if', cond: list[0], then: list[1], else: list[2] }
 	}
 
 	const primary = () => {
 		const token = next()
+		const literal = literalOf(token)
+		if (literal) {
+			return literal
+		}
 		switch (token.kind) {
-		case 'number':
-			return { type: 'literal', valueType: 'number', value: token.value }
-		case 'string':
-			return { type: 'literal', valueType: 'string', value: token.value }
-		case 'true':
-		case 'false':
-			return { type: 'literal', valueType: 'boolean', value: token.kind === 'true' }
-		case 'null':
-			return { type: 'literal', valueType: 'null', value: null }
 		case '(': {
 			const inner = orExpr()
 			expect(')', "')'")
 			return inner
 		}
-		case 'if': {
-			const list = args()
-			if (list.length !== 3) {
-				throw new CalculatedFieldError({ error: 'arityMismatch', name: 'if', message: `'if' takes 3 arguments, got ${list.length}`, column: token.column })
-			}
-			return { type: 'if', cond: list[0], then: list[1], else: list[2] }
-		}
+		case 'if':
+			return ifCall(token)
 		case 'name':
 			return peek().kind === '(' ? call(token) : reference(token)
 		default:
-			throw parseError(token.kind === 'end' ? 'Unexpected end of expression' : `Unexpected '${token.value}'`, token.column)
+			throw unexpected(token)
 		}
 	}
 

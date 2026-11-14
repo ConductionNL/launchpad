@@ -62,39 +62,7 @@ function topologicalOrder(graph) {
  * @spec openspec/changes/widget-calculated-fields/specs/calculated-fields/spec.md#requirement-req-calc-006-cross-widget-references-with-cycle-detection
  */
 export function assertAcyclic(widgets) {
-	const fieldGraph = new Map()
-	const widgetGraph = new Map()
-	const calculated = new Map()
-	for (const widget of widgets || []) {
-		calculated.set(String(widget.id), new Set((widget.calculatedFields || []).map((field) => field.name)))
-		widgetGraph.set(String(widget.id), new Set())
-	}
-
-	for (const widget of widgets || []) {
-		const id = String(widget.id)
-		for (const field of widget.calculatedFields || []) {
-			const node = `${id}.${field.name}`
-			const dependencies = new Set()
-			const refs = referencesOf(field.compiledExpression)
-			for (const name of refs.calculated) {
-				dependencies.add(`${id}.${name}`)
-			}
-			for (const ref of refs.fields) {
-				const target = ref.source === 'self' ? id : ref.source.slice('widget:'.length)
-				if (target !== id) {
-					widgetGraph.get(id).add(target)
-					if (!widgetGraph.has(target)) {
-						widgetGraph.set(target, new Set())
-					}
-				}
-				if (calculated.get(target)?.has(ref.path)) {
-					dependencies.add(`${target}.${ref.path}`)
-				}
-			}
-			fieldGraph.set(node, dependencies)
-		}
-	}
-
+	const { fieldGraph, widgetGraph } = dependencyGraphs(widgets || [])
 	const fields = topologicalOrder(fieldGraph)
 	if (fields.cycle) {
 		throw cycleError(fields.cycle, fields.cycle.map((node) => node.slice(0, node.indexOf('.'))))
@@ -104,6 +72,74 @@ export function assertAcyclic(widgets) {
 		throw cycleError(across.cycle, across.cycle)
 	}
 	return fields.order
+}
+
+/**
+ * The field-level and widget-level dependency graphs of a dashboard.
+ *
+ * @param {Array<object>} widgets - The dashboard's widgets.
+ * @return {{fieldGraph: Map<string, Set<string>>, widgetGraph: Map<string, Set<string>>}}
+ */
+function dependencyGraphs(widgets) {
+	const fieldGraph = new Map()
+	const widgetGraph = new Map()
+	const calculated = new Map()
+	for (const widget of widgets) {
+		calculated.set(String(widget.id), new Set((widget.calculatedFields || []).map((field) => field.name)))
+		widgetGraph.set(String(widget.id), new Set())
+	}
+
+	for (const widget of widgets) {
+		const id = String(widget.id)
+		for (const field of widget.calculatedFields || []) {
+			fieldGraph.set(`${id}.${field.name}`, fieldDependencies(id, field, calculated, widgetGraph))
+		}
+	}
+
+	return { fieldGraph, widgetGraph }
+}
+
+/**
+ * The calculated fields one field depends on; records the widgets it reads in the widget graph.
+ *
+ * @param {string} id - The field's widget.
+ * @param {{compiledExpression: object}} field - The field.
+ * @param {Map<string, Set<string>>} calculated - Calculated field names per widget.
+ * @param {Map<string, Set<string>>} widgetGraph - Widget dependencies, extended here.
+ * @return {Set<string>} The `<widgetId>.<field>` nodes it depends on.
+ */
+function fieldDependencies(id, field, calculated, widgetGraph) {
+	const dependencies = new Set()
+	const refs = referencesOf(field.compiledExpression)
+	for (const name of refs.calculated) {
+		dependencies.add(`${id}.${name}`)
+	}
+	for (const ref of refs.fields) {
+		const target = ref.source === 'self' ? id : ref.source.slice('widget:'.length)
+		linkWidgets(widgetGraph, id, target)
+		if (calculated.get(target)?.has(ref.path)) {
+			dependencies.add(`${target}.${ref.path}`)
+		}
+	}
+	return dependencies
+}
+
+/**
+ * Record that one widget reads another.
+ *
+ * @param {Map<string, Set<string>>} widgetGraph - Widget dependencies.
+ * @param {string} from - The reading widget.
+ * @param {string} to - The widget read.
+ * @return {void}
+ */
+function linkWidgets(widgetGraph, from, to) {
+	if (to === from) {
+		return
+	}
+	widgetGraph.get(from).add(to)
+	if (!widgetGraph.has(to)) {
+		widgetGraph.set(to, new Set())
+	}
 }
 
 /**

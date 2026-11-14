@@ -31,6 +31,7 @@
  * @spec openspec/specs/tile-quick-search/spec.md
  */
 
+import { t } from '@nextcloud/l10n'
 import { reactive } from 'vue'
 
 /**
@@ -223,6 +224,119 @@ export function resolveFallbackAction(fallbackTarget, query) {
 }
 
 /**
+ * The shortcut a query starts with, and the rest of the query
+ * (search-ai-prefix-shortcuts design D2). The first word must equal a
+ * shortcut's prefix, without regard to case.
+ *
+ * @param {string} query the raw query text.
+ * @param {Array<{prefix: string, name: string, urlTemplate: string}>} shortcuts the admin's shortcuts.
+ * @return {{shortcut: object, rest: string}|null} the match, or null when the first word is no known prefix.
+ *
+ * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-a-prefix-sends-the-query-to-its-site-req-spx-002
+ */
+export function parsePrefix(query, shortcuts) {
+	const text = typeof query === 'string' ? query.trim() : ''
+	if (!text.startsWith('!') || !Array.isArray(shortcuts)) {
+		return null
+	}
+	const [first] = text.split(/\s+/, 1)
+	const shortcut = shortcuts.find((entry) => entry && typeof entry.prefix === 'string'
+		&& entry.prefix.toLowerCase() === first.toLowerCase())
+	if (!shortcut) {
+		return null
+	}
+	return { shortcut, rest: text.slice(first.length).trim() }
+}
+
+/**
+ * The address a shortcut opens for a query: its template with the
+ * URL-encoded query in place of `{query}`, or null for a template that is
+ * not a valid `https` template (never opened).
+ *
+ * @param {{urlTemplate: string}} shortcut the shortcut.
+ * @param {string} rest the query after the prefix.
+ * @return {string|null} the address.
+ *
+ * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-a-prefix-sends-the-query-to-its-site-req-spx-002
+ */
+export function shortcutUrl(shortcut, rest) {
+	if (!shortcut || !isValidFallbackTemplate(shortcut.urlTemplate)) {
+		return null
+	}
+	return shortcut.urlTemplate.replace('{query}', encodeURIComponent(rest))
+}
+
+/**
+ * Whether a query asks for the list of shortcuts: `!` alone or `?`
+ * (search-ai-prefix-shortcuts design D3).
+ *
+ * @param {string} query the raw query text.
+ * @return {boolean} true for `!` or `?`.
+ *
+ * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-users-can-see-the-shortcuts-req-spx-003
+ */
+export function isShortcutListQuery(query) {
+	const text = typeof query === 'string' ? query.trim() : ''
+	return text === '!' || text === '?'
+}
+
+/**
+ * The results a query gets from the shortcuts, ahead of tile ranking: the
+ * list of shortcuts for `!` or `?`, one "Search <name> for <rest>" result
+ * for a known prefix with a query, the shortcut itself for a bare prefix,
+ * or null when the shortcuts have nothing to say and tiles are ranked as
+ * before.
+ *
+ * @param {string} query the raw query text.
+ * @param {Array<{prefix: string, name: string, urlTemplate: string}>} shortcuts the admin's shortcuts.
+ * @return {Array<object>|null} the results, or null.
+ *
+ * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-a-prefix-sends-the-query-to-its-site-req-spx-002
+ */
+export function shortcutResults(query, shortcuts) {
+	const list = Array.isArray(shortcuts) ? shortcuts : []
+	if (list.length === 0) {
+		return null
+	}
+	if (isShortcutListQuery(query)) {
+		return list.map((shortcut) => hintResult(shortcut))
+	}
+	const match = parsePrefix(query, list)
+	if (!match) {
+		return null
+	}
+	const url = shortcutUrl(match.shortcut, match.rest)
+	if (match.rest === '' || url === null) {
+		return [hintResult(match.shortcut)]
+	}
+	return [{
+		id: 'shortcut:' + match.shortcut.prefix,
+		kind: 'shortcut',
+		label: t('launchpad', 'Search {name} for {query}', { name: match.shortcut.name, query: match.rest }),
+		url,
+		item: null,
+		rank: 0,
+	}]
+}
+
+/**
+ * A listed shortcut: its prefix and name; choosing it starts a query with it.
+ *
+ * @param {{prefix: string, name: string}} shortcut the shortcut.
+ * @return {object} the result.
+ */
+function hintResult(shortcut) {
+	return {
+		id: 'shortcut-hint:' + shortcut.prefix,
+		kind: 'shortcut-hint',
+		label: shortcut.prefix + ' ' + shortcut.name,
+		prefix: shortcut.prefix,
+		item: null,
+		rank: 0,
+	}
+}
+
+/**
  * Whether a keydown `target` is a place where typing text is the user's
  * intent — the global `/` shortcut MUST NOT hijack it (REQ-QSEARCH-001
  * "Slash focuses the bar" scenario).
@@ -312,7 +426,7 @@ export function isCtrlKFocusShortcut(event) {
  * @spec openspec/specs/tile-quick-search/spec.md
  */
 export function useTileSearch(options = {}) {
-	const { onOpen, onFallback, getFallbackTarget } = options
+	const { onOpen, onFallback, getFallbackTarget, getShortcuts } = options
 
 	const state = reactive({
 		query: '',
@@ -337,7 +451,10 @@ export function useTileSearch(options = {}) {
 			state.activeIndex = -1
 			return
 		}
-		state.results = rankItems(trimmed, items)
+		// search-ai-prefix-shortcuts D2: a known prefix (or `!` / `?`) wins
+		// over tile ranking; anything else ranks tiles as before.
+		const shortcuts = typeof getShortcuts === 'function' ? getShortcuts() : []
+		state.results = shortcutResults(trimmed, shortcuts) || rankItems(trimmed, items)
 		state.activeIndex = state.results.length > 0 ? 0 : -1
 	}
 
@@ -412,6 +529,20 @@ export function useTileSearch(options = {}) {
 	 */
 	function pressEnter() {
 		const result = activeResult()
+		if (result && result.kind === 'shortcut') {
+			// REQ-SPX-002: open the site in a new tab through the same path
+			// as a web-search fallback.
+			const action = { type: 'web-search', url: result.url }
+			if (typeof onFallback === 'function') {
+				onFallback(action)
+			}
+			return action
+		}
+		if (result && result.kind === 'shortcut-hint') {
+			// REQ-SPX-003: choosing a listed shortcut starts a query with it.
+			setQuery(result.prefix + ' ')
+			return { type: 'shortcut-hint', prefix: result.prefix }
+		}
 		if (result) {
 			if (typeof onOpen === 'function') {
 				onOpen(result.item)

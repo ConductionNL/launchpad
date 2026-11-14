@@ -164,3 +164,20 @@ describe('SearchWidget — dimming is store state (REQ-QSEARCH-002)', () => {
 		).toBe(false)
 	})
 })
+
+describe('SearchWidget prefix shortcuts (search-ai-prefix-shortcuts REQ-SPX-001)', () => {
+	it('hands the admin shortcuts to the search bar, and none by default', () => {
+		const shortcuts = [{ prefix: '!t', name: 'TOPdesk', urlTemplate: 'https://t.example/?q={query}' }]
+		const withShortcuts = mount(SearchWidget, {
+			propsData: { content: {}, placement: { id: 1 } },
+			global: { plugins: [pinia], provide: { searchShortcuts: shortcuts }, stubs: { RuntimeShellSearch: true } },
+		})
+		expect(withShortcuts.findComponent(RuntimeShellSearch).props('shortcuts')).toEqual(shortcuts)
+
+		const without = mount(SearchWidget, {
+			propsData: { content: {}, placement: { id: 1 } },
+			global: { plugins: [pinia], stubs: { RuntimeShellSearch: true } },
+		})
+		expect(without.findComponent(RuntimeShellSearch).props('shortcuts')).toEqual([])
+	})
+})

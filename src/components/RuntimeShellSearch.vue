@@ -174,6 +174,13 @@ export default {
 		 * text, which advertises both focus shortcuts.
 		 */
 		placeholder: TEXT_PROP,
+
+		/**
+		 * The admin's prefix shortcuts, `{prefix, name, urlTemplate}`
+		 * (search-ai-prefix-shortcuts REQ-SPX-001). A known prefix wins over
+		 * tile ranking; `!` or `?` lists them.
+		 */
+		shortcuts: LIST_PROP,
 	},
 
 	emits: ['open', 'filter', 'fallback', 'clear'],
@@ -192,6 +199,7 @@ export default {
 					this.$emit('fallback', action)
 				},
 				getFallbackTarget: () => this.fallbackTarget,
+				getShortcuts: () => this.shortcuts,
 			}),
 
 			instanceId: `runtime-shell-search-${(instanceCounter += 1)}`,

@@ -2342,6 +2342,9 @@
                                     "startPageWithoutNavigation": {
                                         "type": "boolean",
                                         "description": "Dashboard view without the navigation panel (REQ-SHELL-009)."
+                                    },
+                                    "searchShortcuts": {
+                                        "description": "The quick-search prefix shortcuts, `[{prefix, name, urlTemplate}]` (REQ-SPX-001)."
                                     }
                                 },
                                 "additionalProperties": false

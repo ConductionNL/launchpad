@@ -67,6 +67,9 @@ const PAGE_KEYS = {
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// search-ai-prefix-shortcuts REQ-SPX-001: the admin's prefix
+		// shortcuts. Optional key, same rationale: none by default.
+		searchShortcuts: [],
 	},
 	admin: {
 		allGroups: [],

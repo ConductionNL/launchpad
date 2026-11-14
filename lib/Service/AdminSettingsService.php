@@ -152,6 +152,23 @@ class AdminSettingsService {
 	}//end getSettings()
 
 	/**
+	 * The quick-search prefix shortcuts (search-ai-prefix-shortcuts REQ-SPX-001).
+	 *
+	 * Read on its own rather than through {@see self::getSettings()}, whose
+	 * response admin-settings REQ-ASET-001 pins to exactly twelve keys. A
+	 * stored list that no longer validates reads as none.
+	 *
+	 * @return array<int, array{prefix: string, name: string, urlTemplate: string}> The shortcuts.
+	 *
+	 * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-administrators-define-search-shortcuts-req-spx-001
+	 */
+	public function getSearchShortcuts(): array {
+		return (new SearchShortcuts())->read(
+			stored: $this->settingMapper->getValue(key: AdminSetting::KEY_SEARCH_SHORTCUTS, default: null)
+		);
+	}//end getSearchShortcuts()
+
+	/**
 	 * Lower bound for the numeric quota settings (dashboard-quota-limits
 	 * REQ-QUOTA-001). `0` means unlimited.
 	 *
@@ -261,17 +278,8 @@ class AdminSettingsService {
 	 *              containing `{query}`.
 	 */
 	private function isValidQuicksearchFallbackUrlTemplate(string $value): bool {
-		if (trim($value) === '' || str_contains(haystack: $value, needle: '{query}') === false) {
-			return false;
-		}
-
-		$probe = str_replace(search: '{query}', replace: 'quicksearch-validation-probe', subject: $value);
-
-		if (parse_url(url: $probe, component: PHP_URL_SCHEME) !== 'https') {
-			return false;
-		}
-
-		return filter_var(value: $probe, filter: FILTER_VALIDATE_URL) !== false;
+		// One rule for the fallback and the prefix shortcuts (search-ai-prefix-shortcuts D1).
+		return (new SearchShortcuts())->isValidUrlTemplate(template: $value);
 	}//end isValidQuicksearchFallbackUrlTemplate()
 
 	/**
@@ -305,12 +313,13 @@ class AdminSettingsService {
 	 *                                       `quicksearchFallbackTarget` (`'none'`,
 	 *                                       `'unified-search'` or an `https` URL template containing
 	 *                                       `{query}`, REQ-QSEARCH-004) and
-	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009).
+	 *                                       `startPageWithoutNavigation` (REQ-SHELL-009) and
+	 *                                       `searchShortcuts` (the prefix shortcut list, REQ-SPX-001).
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel` or
-	 *                                   `quicksearchFallbackTarget` is not a valid value.
+	 * @throws \InvalidArgumentException When `defaultSharePermissionLevel`,
+	 *                                   `quicksearchFallbackTarget` or `searchShortcuts` is not a valid value.
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-2
 	 */
@@ -336,6 +345,14 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+
+		// Search-ai-prefix-shortcuts REQ-SPX-001: validated whole, refused with the reason.
+		if (array_key_exists('searchShortcuts', $settings) === true && $settings['searchShortcuts'] !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_SEARCH_SHORTCUTS,
+				value: (new SearchShortcuts())->normalise(value: $settings['searchShortcuts'])
+			);
+		}
 	}//end updateSettings()
 
 	/**

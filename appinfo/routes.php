@@ -442,6 +442,12 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		['name' => 'admin#getTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'GET'],
 		['name' => 'admin#updateTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'PUT'],
 		['name' => 'admin#deleteTemplate', 'url' => '/api/admin/templates/{id}', 'verb' => 'DELETE'],
+		// Activity reporting on named people (dashboards-and-who-may-see-them REQ-DWMS-005/006):
+		// off until an administrator turns it on with a purpose; anybody reads their own.
+		['name' => 'activityReport#report', 'url' => '/api/activity-report', 'verb' => 'GET'],
+		['name' => 'activityReport#export', 'url' => '/api/activity-report/export', 'verb' => 'GET'],
+		['name' => 'activityReport#policy', 'url' => '/api/admin/activity-reporting', 'verb' => 'GET'],
+		['name' => 'activityReport#updatePolicy', 'url' => '/api/admin/activity-reporting', 'verb' => 'PUT'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 

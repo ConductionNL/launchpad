@@ -222,6 +222,10 @@
         {
             "name": "analytics-opt-out",
             "description": "The signed-in person's own analytics opt-out."
+        },
+        {
+            "name": "activity-report",
+            "description": "A person's activity as counts and a calendar, gated by a purpose and logged."
         }
     ],
     "paths": {
@@ -8909,6 +8913,221 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/activity-report": {
+            "get": {
+                "operationId": "activity-report-report",
+                "x-launchpad-stability": "internal",
+                "summary": "GET a person's activity over a period",
+                "description": "GET a person's activity over a period as counts per activity type and per day (UTC), from the activity events; nothing reports hours. Anybody reads their own. Another person's activity is refused with 403 until an administrator turned activity reporting on with a purpose, is read only by an administrator, carries the purpose, and every such read is written to the audit log. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "activity-report"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whose activity; omitted for the caller's own.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "The first day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "The last day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/activity-report/export": {
+            "get": {
+                "operationId": "activity-report-export",
+                "x-launchpad-stability": "internal",
+                "summary": "GET a person's activity over a period as CSV",
+                "description": "The same report as CSV, with the same numbers: one row per activity type, one per active day, and the total. The same rules as the report decide who may have it. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "activity-report"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "query",
+                        "required": false,
+                        "description": "Whose activity; omitted for the caller's own.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "The first day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "The last day, YYYY-MM-DD.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/activity-reporting": {
+            "get": {
+                "operationId": "activity-report-policy",
+                "x-launchpad-stability": "internal",
+                "summary": "GET whether activity reporting on named people is on",
+                "description": "Whether activity reporting on named people is on, and the purpose it serves. Administrators only.",
+                "tags": [
+                    "activity-report"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "activity-report-update-policy",
+                "x-launchpad-stability": "internal",
+                "summary": "PUT the activity reporting switch",
+                "description": "Turn activity reporting on named people on or off. Turning it on needs a purpose, which every report on a named person shows. Administrators only.",
+                "tags": [
+                    "activity-report"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean"
+                                    },
+                                    "purpose": {
+                                        "type": "string",
+                                        "maxLength": 500
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }

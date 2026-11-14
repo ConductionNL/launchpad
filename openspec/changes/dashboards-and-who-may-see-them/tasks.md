@@ -27,13 +27,13 @@
 
 ## 4. Activity reporting
 
-- [ ] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty.
-- [ ] 4.2 Show the purpose on every screen reporting on a named person.
-- [ ] 4.3 Write an audit entry for every read of another person's activity.
-- [ ] 4.4 Let a person read their own without the setting and without a log entry.
-- [ ] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events.
-- [ ] 4.6 Export both as CSV, with totals equal to the screen.
-- [ ] 4.7 PHPUnit on the gate, the self-read exception and the audit entry.
+- [x] 4.1 Add the admin setting: off by default, with a purpose string that cannot be empty. — built: `ActivityReport\ActivityReportingPolicy` (app config, off by default; turning it on without a purpose, or with one over 500 characters, is refused; a stored switch without a purpose reads as off), read and set by administrators at `GET`/`PUT /api/admin/activity-reporting`.
+- [ ] 4.2 Show the purpose on every screen reporting on a named person. — left: every response and the CSV carry the purpose, but no screen reports on a named person yet; the screen over `/api/activity-report` is still to be made.
+- [x] 4.3 Write an audit entry for every read of another person's activity. — built: every read of another person's activity dispatches Nextcloud's `CriticalActionPerformedEvent` (the admin audit log) with the subject, the period, the reader and the purpose.
+- [x] 4.4 Let a person read their own without the setting and without a log entry. — built: `ActivityReportService::report()` gives anybody their own activity whatever the switch, with no audit entry; another person's is refused with 403 while the switch is off (the answer says how to turn it on) and for a non-administrator, before anything is read.
+- [x] 4.5 Report counts per activity type and a per day calendar of intensity, from the existing activity events. — built: `GET /api/activity-report?user=&from=&to=` counts per activity type and per day (UTC, a day without activity absent, at most 366 days), from the activity app's events (`ActivityEventReader`, one event per action however many people it was shown to); nothing measures hours. Without the activity app the report says `available: false`.
+- [x] 4.6 Export both as CSV, with totals equal to the screen. — built: `GET /api/activity-report/export` returns the same report as CSV (purpose, subject, period, a row per type and per day, the total), under the same rules.
+- [x] 4.7 PHPUnit on the gate, the self-read exception and the audit entry. — built: `ActivityReportServiceTest` (9: the gate, the self-read exception, the audit entry, the figures, the CSV totals), `ActivityReportingPolicyTest` (5), `ActivityEventReaderTest` (3), `ActivityReportControllerTest` (6).
 
 ## 5. Colleague activity
 

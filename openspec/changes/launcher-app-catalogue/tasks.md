@@ -14,8 +14,8 @@
 - [x] 6. Add the "From the app catalogue" section to `src/modals/WidgetPickerModal.vue`, creating a tile through the existing tile call. Verify: Vitest.
 - [ ] 7. Add the "Can't find your app?" request form. Verify: Vitest and an axe check.
   - Done in code: the form in `WidgetPickerModal` with Vitest (sent, limit, failure). Open: the axe check, which needs a browser.
-- [ ] 8. Add the admin "App catalogue" section: entries with group picker (`NcSelect` with input label) and the request list with approve and decline. Verify: Vitest.
-  - Open: the admin API (`/api/admin/catalogue`, approve, decline, manager group) is in place; the admin section is not built yet.
+- [x] 8. Add the admin "App catalogue" section: entries with group picker (`NcSelect` with input label) and the request list with approve and decline. Verify: Vitest.
+  - Done: the "App catalogue" admin tab (`src/components/admin/tabs/AppCatalogueTab.vue`) with entries (add, edit, remove, group picker), open requests (approve through the prefilled form, decline with a required note) and the catalogue manager group; Vitest in `AppCatalogueTab.spec.js`.
 
 ## Close
 

@@ -222,6 +222,9 @@
 				</div>
 				</CnSettingsSection>
 
+				<!-- launcher-tile-launch-types: program schemes and sign-on templates. -->
+				<TileLaunchSettings />
+
 				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
 				     `set-group-default` / `group-default-badge` data-test hooks. -->
 				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
@@ -329,6 +332,7 @@ import RolesPermissionsTab from './tabs/RolesPermissionsTab.vue'
 import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
+import TileLaunchSettings from './TileLaunchSettings.vue'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
 
@@ -349,6 +353,7 @@ export default {
 		RolesPermissionsTab,
 		VersioningAuditTab,
 		MetadataFieldsSettings,
+		TileLaunchSettings,
 		KioskTab,
 		ProfileFieldsTab,
 		SharingTab,

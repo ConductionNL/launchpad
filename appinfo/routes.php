@@ -45,6 +45,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Generic per-user preferences (used by shared nextcloud-vue widgets, e.g. CnSupportDialog).
 		['name' => 'preferences#getPreference', 'url' => '/api/preferences/{key}', 'verb' => 'GET'],
 		['name' => 'preferences#setPreference', 'url' => '/api/preferences/{key}', 'verb' => 'PUT'],
+		// The signed-in person's own analytics opt-out (REQ-ANLT-UI-001).
+		['name' => 'analyticsOptOut#show', 'url' => '/api/analytics/me', 'verb' => 'GET'],
+		['name' => 'analyticsOptOut#update', 'url' => '/api/analytics/me', 'verb' => 'PUT'],
 
 		// Main page
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],

@@ -218,12 +218,17 @@
         {
             "name": "widget-api",
             "description": "Controller for managing dashboard widgets."
+        },
+        {
+            "name": "analytics-opt-out",
+            "description": "The signed-in person's own analytics opt-out."
         }
     ],
     "paths": {
         "/acknowledgements": {
             "post": {
                 "operationId": "acknowledgement-acknowledge",
+                "x-launchpad-stability": "internal",
                 "summary": "POST /api/acknowledgements — record the calling user's receipt. Idempotent (REQ-ACK-003). A body `userId` that names another user is rejected with...",
                 "description": "POST /api/acknowledgements — record the calling user's receipt. Idempotent (REQ-ACK-003). A body `userId` that names another user is rejected with 403 (no IDOR, ADR-005 / REQ-ACK-003). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -271,6 +276,7 @@
         "/acknowledgements/pending": {
             "get": {
                 "operationId": "acknowledgement-pending",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/acknowledgements/pending — the current user's outstanding mandatory items and count. REQ-ACK-002",
                 "description": "GET /api/acknowledgements/pending — the current user's outstanding mandatory items and count. REQ-ACK-002. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -299,6 +305,7 @@
         "/acknowledgements/report/{announcementKey}": {
             "get": {
                 "operationId": "acknowledgement-report",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report. Admin / template owner only (REQ-ACK-004)",
                 "description": "GET /api/acknowledgements/report/{announcementKey} — the audience-scoped read-receipt report. Admin / template owner only (REQ-ACK-004). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -338,6 +345,7 @@
         "/acknowledgements/report/{announcementKey}/csv": {
             "get": {
                 "operationId": "acknowledgement-report-csv",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file. Admin / template owner only...",
                 "description": "GET /api/acknowledgements/report/{announcementKey}/csv — the report as a downloadable CSV compliance file. Admin / template owner only (REQ-ACK-004 / REQ-ACK-006). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -383,6 +391,7 @@
         "/admin/action-matrix": {
             "get": {
                 "operationId": "action-matrix-get-matrix",
+                "x-launchpad-stability": "internal",
                 "summary": "Get the full action matrix, the complete action key list, and all groups",
                 "description": "Get the full action matrix, the complete action key list, and all groups. The action key list is the union of the keys currently in the matrix and the keys declared in the seed file, so the admin sees every declared action even before any customization. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -412,6 +421,7 @@
             },
             "put": {
                 "operationId": "action-matrix-set-matrix",
+                "x-launchpad-stability": "internal",
                 "summary": "Persist the action matrix",
                 "description": "Persist the action matrix. Reads the `matrix` parameter from the request body and writes it through the action authorization service (which normalizes the shape). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -462,6 +472,7 @@
         "/admin/analytics/dashboards/top": {
             "get": {
                 "operationId": "analytics-top-dashboards",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/dashboards/top` (REQ-ANLT-006)",
                 "description": "Handle `GET /api/admin/analytics/dashboards/top` (REQ-ANLT-006). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -513,6 +524,7 @@
         "/admin/analytics/dashboards/{uuid}": {
             "get": {
                 "operationId": "analytics-dashboard-detail",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/dashboards/{uuid}` (REQ-ANLT-007)",
                 "description": "Handle `GET /api/admin/analytics/dashboards/{uuid}` (REQ-ANLT-007). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -567,6 +579,7 @@
         "/admin/analytics/export": {
             "get": {
                 "operationId": "analytics-export-csv",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/export` (REQ-ANLT-010)",
                 "description": "Handle `GET /api/admin/analytics/export` (REQ-ANLT-010). Returns a `text/csv` attachment with the filename `dashboard-analytics-YYYY-MM-DD.csv` (today's UTC date). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -612,6 +625,7 @@
         "/admin/analytics/summary": {
             "get": {
                 "operationId": "analytics-instance-summary",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/summary` (REQ-ANLT-008)",
                 "description": "Handle `GET /api/admin/analytics/summary` (REQ-ANLT-008). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -654,6 +668,7 @@
         "/admin/analytics/tiles/by-dashboard/{uuid}": {
             "get": {
                 "operationId": "tile-analytics-dashboard-breakdown",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/tiles/by-dashboard/{uuid}` (REQ-TANLT-004)",
                 "description": "Handle `GET /api/admin/analytics/tiles/by-dashboard/{uuid}` (REQ-TANLT-004). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -705,6 +720,7 @@
         "/admin/analytics/tiles/export": {
             "get": {
                 "operationId": "tile-analytics-export-csv",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/tiles/export` (REQ-TANLT-005)",
                 "description": "Handle `GET /api/admin/analytics/tiles/export` (REQ-TANLT-005). Returns a `text/csv` attachment with the filename `tile-analytics-YYYY-MM-DD.csv` (today's UTC date). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -750,6 +766,7 @@
         "/admin/analytics/tiles/top": {
             "get": {
                 "operationId": "tile-analytics-top-tiles",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/analytics/tiles/top` (REQ-TANLT-004)",
                 "description": "Handle `GET /api/admin/analytics/tiles/top` (REQ-TANLT-004). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -801,6 +818,7 @@
         "/admin/cleanup/purge": {
             "post": {
                 "operationId": "admin-cleanup-purge",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/cleanup/purge` — REQ-CLN-005",
                 "description": "`POST /api/admin/cleanup/purge` — REQ-CLN-005. Body shape: { \"categories\": [\"expired_locks\", ...], // optional, []=all \"dryRun\": true|false // optional, false default }. Returns the per-category breakdown plus total, duration, and dryRun flag. Unknown categories receive HTTP 400 with the list of valid names so the caller can correct the request. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -855,6 +873,7 @@
         "/admin/cleanup/scan": {
             "get": {
                 "operationId": "admin-cleanup-scan",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/admin/cleanup/scan` — REQ-CLN-004",
                 "description": "`GET /api/admin/cleanup/scan` — REQ-CLN-004. Returns a JSON envelope describing the per-category orphan counts. Reads from the distributed cache when available (REQ-CLN-010) and surfaces `cached`/`cachedAt` hints so the UI can display \"last refreshed\" badges. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -886,6 +905,7 @@
         "/admin/dashboards/bulk-delete": {
             "post": {
                 "operationId": "admin-bulk-bulk-delete",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/dashboards/bulk-delete` — REQ-BULK-001",
                 "description": "`POST /api/admin/dashboards/bulk-delete` — REQ-BULK-001. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -941,6 +961,7 @@
         "/admin/dashboards/bulk-move": {
             "post": {
                 "operationId": "admin-bulk-bulk-move",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/dashboards/bulk-move` — REQ-BULK-002",
                 "description": "`POST /api/admin/dashboards/bulk-move` — REQ-BULK-002. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -996,6 +1017,7 @@
         "/admin/dashboards/bulk-reindex": {
             "post": {
                 "operationId": "admin-bulk-bulk-reindex",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/dashboards/bulk-reindex` — REQ-BULK-004",
                 "description": "`POST /api/admin/dashboards/bulk-reindex` — REQ-BULK-004. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1047,6 +1069,7 @@
         "/admin/dashboards/bulk-status": {
             "post": {
                 "operationId": "admin-bulk-bulk-status",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/dashboards/bulk-status` — REQ-BULK-003",
                 "description": "`POST /api/admin/dashboards/bulk-status` — REQ-BULK-003. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1109,6 +1132,7 @@
         "/admin/demo-showcases": {
             "get": {
                 "operationId": "admin-demo-showcases-index",
+                "x-launchpad-stability": "internal",
                 "summary": "List bundled showcases with installation status (REQ-DEMO-002)",
                 "description": "List bundled showcases with installation status (REQ-DEMO-002). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1140,6 +1164,7 @@
         "/admin/demo-showcases/{id}": {
             "delete": {
                 "operationId": "admin-demo-showcases-destroy",
+                "x-launchpad-stability": "internal",
                 "summary": "Uninstall a previously-installed showcase (REQ-DEMO-006)",
                 "description": "Uninstall a previously-installed showcase (REQ-DEMO-006). Idempotent — returns 204 even when the showcase is not currently installed. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1180,6 +1205,7 @@
         "/admin/demo-showcases/{id}/install": {
             "post": {
                 "operationId": "admin-demo-showcases-install",
+                "x-launchpad-stability": "internal",
                 "summary": "Install a bundled showcase (REQ-DEMO-003, REQ-DEMO-004)",
                 "description": "Install a bundled showcase (REQ-DEMO-003, REQ-DEMO-004). Always returns the dashboard UUID — when the showcase is already installed and `force` is unset, the existing UUID is returned with `alreadyInstalled: true` so callers can render an informational banner. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1243,6 +1269,7 @@
         "/admin/export": {
             "post": {
                 "operationId": "admin-export",
+                "x-launchpad-stability": "public",
                 "summary": "Export a single dashboard or the entire site as a ZIP archive",
                 "description": "Export a single dashboard or the entire site as a ZIP archive. Implements REQ-EXIM-002 (single-dashboard export) and REQ-EXIM-003 (site export). Admin-only — non-admins receive HTTP 403. Query parameters: - `scope` (string, required): `dashboard` or `site`. - `dashboardUuid` (string, required when scope=dashboard). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1304,6 +1331,7 @@
         "/admin/feeds/refresh-now": {
             "post": {
                 "operationId": "admin-refresh-feeds-now",
+                "x-launchpad-stability": "internal",
                 "summary": "Trigger an immediate background feed refresh (REQ-FRJ-010)",
                 "description": "Trigger an immediate background feed refresh (REQ-FRJ-010). Admin-only — guarded by {@see self::requireAdmin()}. Optionally scope the refresh to a single feed URL (must be HTTP/HTTPS). Returns `{processedCount, successCount, failureCount, durationMs}`. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1355,6 +1383,7 @@
         "/admin/footer-settings": {
             "get": {
                 "operationId": "admin-get-footer-settings",
+                "x-launchpad-stability": "internal",
                 "summary": "Read the global footer settings (REQ-FTR-001, REQ-FTR-010)",
                 "description": "Read the global footer settings (REQ-FTR-001, REQ-FTR-010). Returns the five footer keys as a flat camelCase object so the admin UI can render the form with one round-trip. Admin-only — non-admins receive HTTP 403 because even the read path discloses potentially-sensitive draft footer copy. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1384,6 +1413,7 @@
             },
             "put": {
                 "operationId": "admin-update-footer-settings",
+                "x-launchpad-stability": "internal",
                 "summary": "Patch the global footer settings (REQ-FTR-001..003, REQ-FTR-009, REQ-FTR-010)",
                 "description": "Patch the global footer settings (REQ-FTR-001..003, REQ-FTR-009, REQ-FTR-010). Body: any subset of `{footerEnabled, footerHtml, footerConfig, footerBackgroundColor, footerTextColor}`. The service sanitises HTML, validates the structured-config schema, and validates hex colour strings before persistence. Validation failures map to HTTP 400 (or 413 when the HTML exceeds the 8 KB cap). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1446,6 +1476,7 @@
         "/admin/groups": {
             "get": {
                 "operationId": "admin-settings-list-groups",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/admin/groups` — REQ-ASET-013",
                 "description": "Handle `GET /api/admin/groups` — REQ-ASET-013. Returns the disjoint exhaustive split `{active, inactive, allKnown}`: - `active` — the persisted `group_order` list, in admin-chosen order. Stale IDs (no longer in Nextcloud) remain so admin can see and remove them. - `inactive` — every Nextcloud group ID NOT in `active`, sorted by displayName (case-insensitive). - `allKnown` — full `{id, displayName}` list for the UI to render display names without a second round-trip. Stale IDs MUST NOT appear here (no display name available). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1475,6 +1506,7 @@
             },
             "post": {
                 "operationId": "admin-settings-update-group-order",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `POST /api/admin/groups` — REQ-ASET-012, REQ-ASET-014",
                 "description": "Handle `POST /api/admin/groups` — REQ-ASET-012, REQ-ASET-014. Body: `{\"groups\": [\"id\", ...]}`. Replaces the persisted `group_order` setting wholesale. Validation: - `groups` MUST be present and an array. - Every element MUST be a non-empty string. - Duplicate IDs are deduplicated (first occurrence kept). - Unknown (not currently in Nextcloud) IDs are tolerated — they remain in the persisted setting per REQ-ASET-014. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1525,6 +1557,7 @@
         "/admin/import": {
             "post": {
                 "operationId": "admin-import",
+                "x-launchpad-stability": "public",
                 "summary": "Import a previously-exported ZIP archive",
                 "description": "Import a previously-exported ZIP archive. Implements REQ-EXIM-004..008. Admin-only. Multipart body: a `file` field containing the ZIP archive. Query parameter: `preserveUuids` (default false). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1576,6 +1609,7 @@
         "/admin/import/confluence": {
             "post": {
                 "operationId": "confluence-import-import",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/import/confluence` — REQ-CFLI-001..006, 009, 012",
                 "description": "`POST /api/admin/import/confluence` — REQ-CFLI-001..006, 009, 012. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1630,6 +1664,7 @@
         "/admin/import/confluence/dry-run": {
             "post": {
                 "operationId": "confluence-import-dry-run",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/import/confluence/dry-run` — REQ-CFLI-007",
                 "description": "`POST /api/admin/import/confluence/dry-run` — REQ-CFLI-007. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1667,6 +1702,7 @@
         "/admin/metadata-fields": {
             "get": {
                 "operationId": "metadata-admin-list-fields",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/admin/metadata-fields` — list all field definitions (REQ-MDFL-001)",
                 "description": "`GET /api/admin/metadata-fields` — list all field definitions (REQ-MDFL-001). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1696,6 +1732,7 @@
             },
             "post": {
                 "operationId": "metadata-admin-create-field",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/metadata-fields` — create a new field definition (REQ-MDFL-001)",
                 "description": "`POST /api/admin/metadata-fields` — create a new field definition (REQ-MDFL-001). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1763,6 +1800,7 @@
         "/admin/metadata-fields/{id}": {
             "get": {
                 "operationId": "metadata-admin-get-field",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/admin/metadata-fields/{id}` — fetch a single field definition (REQ-MDFL-001)",
                 "description": "`GET /api/admin/metadata-fields/{id}` — fetch a single field definition (REQ-MDFL-001). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1806,6 +1844,7 @@
             },
             "put": {
                 "operationId": "metadata-admin-update-field",
+                "x-launchpad-stability": "internal",
                 "summary": "`PUT /api/admin/metadata-fields/{id}` — update label / sortOrder / required / options. Forbids `key` rename (REQ-MDFL-002)",
                 "description": "`PUT /api/admin/metadata-fields/{id}` — update label / sortOrder / required / options. Forbids `key` rename (REQ-MDFL-002). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1881,6 +1920,7 @@
             },
             "delete": {
                 "operationId": "metadata-admin-delete-field",
+                "x-launchpad-stability": "internal",
                 "summary": "`DELETE /api/admin/metadata-fields/{id}?cascade=true` — REQ-MDFL-003",
                 "description": "`DELETE /api/admin/metadata-fields/{id}?cascade=true` — REQ-MDFL-003. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -1935,6 +1975,7 @@
         "/admin/org-navigation": {
             "get": {
                 "operationId": "admin-org-navigation-get-org-navigation",
+                "x-launchpad-stability": "internal",
                 "summary": "Read the org-navigation tree filtered for the current user",
                 "description": "Read the org-navigation tree filtered for the current user. Accessible to any logged-in user (REQ-ONAV-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -1975,6 +2016,7 @@
             },
             "put": {
                 "operationId": "admin-org-navigation-update-org-navigation",
+                "x-launchpad-stability": "internal",
                 "summary": "Replace the org-navigation tree for the given language",
                 "description": "Replace the org-navigation tree for the given language. Admin-only (REQ-ONAV-003); validates and persists in one go. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2029,6 +2071,7 @@
         "/admin/org-navigation/position": {
             "get": {
                 "operationId": "admin-org-navigation-get-position",
+                "x-launchpad-stability": "internal",
                 "summary": "Read the global rail-position setting (REQ-ONAV-004)",
                 "description": "Read the global rail-position setting (REQ-ONAV-004). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -2055,6 +2098,7 @@
             },
             "put": {
                 "operationId": "admin-org-navigation-update-position",
+                "x-launchpad-stability": "internal",
                 "summary": "Replace the global rail-position setting (REQ-ONAV-004)",
                 "description": "Replace the global rail-position setting (REQ-ONAV-004). Admin-only. Accepts `{position: 'left'|'right'|'top'|'hidden'}`. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2106,6 +2150,7 @@
         "/admin/roles": {
             "get": {
                 "operationId": "admin-list-roles",
+                "x-launchpad-stability": "internal",
                 "summary": "List every role assignment in the system (REQ-ROLE-006). NC-admin only",
                 "description": "List every role assignment in the system (REQ-ROLE-006). NC-admin only. Returns a JSON array of role-assignment rows with their persisted fields (id, userId, groupId, role, assignedBy, assignedAt). The caller MUST be a Nextcloud admin; non-admins receive HTTP 403. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2135,6 +2180,7 @@
             },
             "post": {
                 "operationId": "admin-create-role",
+                "x-launchpad-stability": "internal",
                 "summary": "Create a new role assignment (REQ-ROLE-004). NC-admin only",
                 "description": "Create a new role assignment (REQ-ROLE-004). NC-admin only. Accepts a JSON body `{userId?: string, groupId?: string, role: string}`. Exactly one of `userId` / `groupId` MUST be set. Returns the new assignment with HTTP 201 on success. Returns 400 on structural failure, 409 on duplicate, 401/403 on auth failure. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2197,6 +2243,7 @@
         "/admin/roles/{id}": {
             "delete": {
                 "operationId": "admin-delete-role",
+                "x-launchpad-stability": "internal",
                 "summary": "Delete a role assignment by ID (REQ-ROLE-004). NC-admin only",
                 "description": "Delete a role assignment by ID (REQ-ROLE-004). NC-admin only. Returns 204 on success, 404 when no row matches, 401/403 on auth. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2237,6 +2284,7 @@
         "/admin/settings": {
             "get": {
                 "operationId": "admin-get-settings",
+                "x-launchpad-stability": "internal",
                 "summary": "Get admin settings",
                 "description": "Get admin settings. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2266,6 +2314,7 @@
             },
             "put": {
                 "operationId": "admin-update-settings",
+                "x-launchpad-stability": "internal",
                 "summary": "Update admin settings",
                 "description": "Update admin settings. Five settings are read under one name and written under another: GET answers `allowUserDashboards`, this PUT took only `allowUserDash`. An unrecognised key binds to null, null means \"not supplied\", so a caller round-tripping GET into PUT wrote nothing and was told `{\"status\": \"ok\"}`. Both spellings are accepted; the short one wins, since AdminSettings.vue sends it. Covered by AdminControllerSettingsAliasTest. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2378,6 +2427,7 @@
         "/admin/setup-wizard/complete": {
             "post": {
                 "operationId": "admin-complete-wizard",
+                "x-launchpad-stability": "internal",
                 "summary": "Mark the setup-wizard complete (REQ-WIZ-009)",
                 "description": "Mark the setup-wizard complete (REQ-WIZ-009). Idempotent — calling on a completed instance returns 200 with the same payload. Admin-only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2409,6 +2459,7 @@
         "/admin/setup-wizard/state": {
             "get": {
                 "operationId": "admin-get-wizard-state",
+                "x-launchpad-stability": "internal",
                 "summary": "Get the setup-wizard state (REQ-WIZ-008)",
                 "description": "Get the setup-wizard state (REQ-WIZ-008). Admin-only — non-admins receive HTTP 403. Returns `{complete, currentRecommendedStep, stepStatuses}`. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2440,6 +2491,7 @@
         "/admin/templates": {
             "get": {
                 "operationId": "admin-list-templates",
+                "x-launchpad-stability": "internal",
                 "summary": "List all admin dashboard templates",
                 "description": "List all admin dashboard templates. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2469,6 +2521,7 @@
             },
             "post": {
                 "operationId": "admin-create-template",
+                "x-launchpad-stability": "internal",
                 "summary": "Create a new admin template",
                 "description": "Create a new admin template. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2535,6 +2588,7 @@
         "/admin/templates/shipped": {
             "get": {
                 "operationId": "admin-shipped-template-index",
+                "x-launchpad-stability": "internal",
                 "summary": "List the shipped templates with whether each is installed",
                 "description": "List the shipped templates with whether each is installed. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2566,6 +2620,7 @@
         "/admin/templates/shipped/{id}/install": {
             "post": {
                 "operationId": "admin-shipped-template-install",
+                "x-launchpad-stability": "internal",
                 "summary": "Add a shipped template as an admin template",
                 "description": "Add a shipped template as an admin template. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2644,6 +2699,7 @@
         "/admin/templates/shipped/{id}/update": {
             "post": {
                 "operationId": "admin-shipped-template-update",
+                "x-launchpad-stability": "internal",
                 "summary": "Update an installed shipped template to the version LaunchPad ships now, in place, and bring the members' copies along. With `dryRun` it only says...",
                 "description": "Update an installed shipped template to the version LaunchPad ships now, in place, and bring the members' copies along. With `dryRun` it only says what would change. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2712,6 +2768,7 @@
         "/admin/templates/{id}": {
             "get": {
                 "operationId": "admin-get-template",
+                "x-launchpad-stability": "internal",
                 "summary": "Get a specific admin template",
                 "description": "Get a specific admin template. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2755,6 +2812,7 @@
             },
             "put": {
                 "operationId": "admin-update-template",
+                "x-launchpad-stability": "internal",
                 "summary": "Update an admin template",
                 "description": "Update an admin template. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2831,6 +2889,7 @@
             },
             "delete": {
                 "operationId": "admin-delete-template",
+                "x-launchpad-stability": "internal",
                 "summary": "Delete an admin template",
                 "description": "Delete an admin template. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2873,6 +2932,7 @@
         "/admin/templates/{id}/resync": {
             "post": {
                 "operationId": "admin-resync-template",
+                "x-launchpad-stability": "internal",
                 "summary": "Push an updated admin template to its already-provisioned user copies (REQ-RESYNC-001)",
                 "description": "Push an updated admin template to its already-provisioned user copies (REQ-RESYNC-001). Body: `{strategy: \"overwrite\"|\"merge\", dryRun: bool}`. Dry-run (the default) computes and returns the plan — affected copies plus per-copy add/update/remove/preserve counts — without mutating anything. A real run (`dryRun: false`) applies inline for small target groups or enqueues {@see \\OCA\\LaunchPad\\BackgroundJob\\TemplateResyncJob} for large ones, writes one audit record, and notifies every affected user. Admin-guarded twice over — the `AuthorizedAdminSetting` attribute plus the explicit {@see self::assertAdmin()} guard — matching this controller's other mutating admin actions (export/import/footer). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -2939,6 +2999,7 @@
         "/admin/templates/{uuid}/preview-image": {
             "post": {
                 "operationId": "admin-upload-template-preview-image",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/admin/templates/{uuid}/preview-image` — admin-only preview-image upload (REQ-TMPL-017)",
                 "description": "`POST /api/admin/templates/{uuid}/preview-image` — admin-only preview-image upload (REQ-TMPL-017). Body (JSON): `{base64: 'data:image/<type>;base64,<bytes>'}`. The payload is delegated to {@see ResourceService::upload()} (the \"custom-icon-upload pattern\"); the returned URL is written to the template's `templatePreviewImage` column. Allowed image types: PNG, JPG, GIF, WebP, SVG (sanitised). Maximum decoded size: 5 MB. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -3001,6 +3062,7 @@
         "/admin/widgets/with-rules": {
             "get": {
                 "operationId": "admin-widget-rules-index",
+                "x-launchpad-stability": "internal",
                 "summary": "List every widget placement that carries at least one conditional rule",
                 "description": "List every widget placement that carries at least one conditional rule. Admin-only — the overview discloses every user's dashboard names and widget types, so it is gated with `#[AuthorizedAdminSetting]` like the rest of the Beheer surface (ADR-005). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -3032,6 +3094,7 @@
         "/attention/sources": {
             "get": {
                 "operationId": "attention-sources",
+                "x-launchpad-stability": "internal",
                 "summary": "The attention items the signed-in user's apps declare",
                 "description": "The attention items the signed-in user's apps declare. Any signed-in user may ask: the answer is what apps enabled for THIS user declare, and holds no object data. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3060,6 +3123,7 @@
         "/dashboard": {
             "get": {
                 "operationId": "dashboard-api-get-active",
+                "x-launchpad-stability": "public",
                 "summary": "Get the user's active dashboard with placements",
                 "description": "Get the user's active dashboard with placements. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3089,6 +3153,7 @@
             },
             "post": {
                 "operationId": "dashboard-api-create",
+                "x-launchpad-stability": "public",
                 "summary": "Create a new dashboard",
                 "description": "Create a new dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3153,6 +3218,7 @@
         "/dashboard/share/{shareId}": {
             "delete": {
                 "operationId": "dashboard-share-api-destroy",
+                "x-launchpad-stability": "public",
                 "summary": "Remove a share by ID. REQ-SHARE-001",
                 "description": "Remove a share by ID. REQ-SHARE-001. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3187,6 +3253,7 @@
         "/dashboard/{dashboardId}/tile": {
             "post": {
                 "operationId": "widget-api-add-tile",
+                "x-launchpad-stability": "public",
                 "summary": "Add a tile to a dashboard",
                 "description": "Add a tile to a dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3350,6 +3417,7 @@
         "/dashboard/{dashboardId}/widgets": {
             "post": {
                 "operationId": "widget-api-add-widget",
+                "x-launchpad-stability": "public",
                 "summary": "Add a widget to a dashboard",
                 "description": "Add a widget to a dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3425,6 +3493,7 @@
         "/dashboard/{id}": {
             "get": {
                 "operationId": "dashboard-api-show",
+                "x-launchpad-stability": "public",
                 "summary": "Get a single dashboard by id with its placements + permission level",
                 "description": "Get a single dashboard by id with its placements + permission level. Powers the front-end's `switchDashboard` flow: clicking a row in the sidebar issues `GET /api/dashboard/{id}` and the response is the same envelope shape as {@see self::getActive()}, so the store can write `activeDashboard`, `widgetPlacements`, and `permissionLevel` with no per-source branching. Returns 404 (not 403) when the dashboard exists but is not visible to the caller — this matches the `getVisibleToUser` policy and intentionally does not leak existence (REQ-DASH-020 scenario \"Cannot see what you cannot read\"). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3465,6 +3534,7 @@
             },
             "put": {
                 "operationId": "dashboard-api-update",
+                "x-launchpad-stability": "public",
                 "summary": "Update a dashboard",
                 "description": "Update a dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3542,6 +3612,7 @@
             },
             "delete": {
                 "operationId": "dashboard-api-delete",
+                "x-launchpad-stability": "public",
                 "summary": "Delete a dashboard",
                 "description": "Delete a dashboard. Honours the cascade-delete guard from REQ-DASH-030: when the dashboard has children the request MUST include `?cascade=true` (case-insensitive) — otherwise the response is HTTP 409 with the child count so the UI can surface a confirmation. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3584,6 +3655,7 @@
         "/dashboard/{id}/activate": {
             "post": {
                 "operationId": "dashboard-api-activate",
+                "x-launchpad-stability": "internal",
                 "summary": "Activate a dashboard",
                 "description": "Activate a dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3623,6 +3695,7 @@
         "/dashboard/{id}/shares": {
             "get": {
                 "operationId": "dashboard-share-api-index",
+                "x-launchpad-stability": "public",
                 "summary": "List all shares for a dashboard",
                 "description": "List all shares for a dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3660,6 +3733,7 @@
             },
             "post": {
                 "operationId": "dashboard-share-api-create",
+                "x-launchpad-stability": "public",
                 "summary": "Add or upsert a single share. REQ-SHARE-001",
                 "description": "Add or upsert a single share. REQ-SHARE-001. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3722,6 +3796,7 @@
             },
             "put": {
                 "operationId": "dashboard-share-api-replace",
+                "x-launchpad-stability": "public",
                 "summary": "Atomically replace all shares for a dashboard. REQ-SHARE-009",
                 "description": "Atomically replace all shares for a dashboard. REQ-SHARE-009. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3777,6 +3852,7 @@
         "/dashboards": {
             "get": {
                 "operationId": "dashboard-api-list",
+                "x-launchpad-stability": "public",
                 "summary": "List all personal dashboards for the current user",
                 "description": "List all personal dashboards for the current user. Backward compatible — this endpoint never returns group-shared dashboards (REQ-DASH-014). Use {@see self::visible()} for the unioned listing. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3805,6 +3881,7 @@
         "/dashboards/active": {
             "post": {
                 "operationId": "dashboard-api-set-active-dashboard",
+                "x-launchpad-stability": "internal",
                 "summary": "Persist the user's active-dashboard preference",
                 "description": "Persist the user's active-dashboard preference. Accepts any UUID string (including non-existent UUIDs — the resolver's stale-pref path handles invalid values on next render). Empty string clears the preference. REQ-DASH-019. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3850,6 +3927,7 @@
         "/dashboards/by-path/{path}": {
             "get": {
                 "operationId": "dashboard-api-by-path",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/by-path/{path} — resolve a slug-chain path (REQ-DASH-027)",
                 "description": "GET /api/dashboards/by-path/{path} — resolve a slug-chain path (REQ-DASH-027). Returns the matching dashboard with its computed `path` and `breadcrumbs` (REQ-DASH-025) attached. Responds with 404 (not 403) on any miss — including visibility misses — to avoid confirming that a given slug exists to an unauthorised caller. C2 fix (REQ-DASH-027 + REQ-PERM-001): after slug resolution the resolved dashboard is checked via PermissionService; callers with no view access receive the same 404 they would get for an unknown slug. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3892,6 +3970,7 @@
         "/dashboards/default": {
             "post": {
                 "operationId": "dashboard-api-set-default-dashboard",
+                "x-launchpad-stability": "internal",
                 "summary": "Pin (or clear) the user's EXPLICIT default-dashboard choice (wave3.7)",
                 "description": "Pin (or clear) the user's EXPLICIT default-dashboard choice (wave3.7). Distinct from {@see self::setActiveDashboard()} — this pref is only ever written when the user explicitly clicks \"Set as default\" on a row's cog menu, and is NOT auto-overwritten on every switch. The resolver checks it before the active pref so the pin survives across switches. Body shape: `{uuid: string}` — empty string clears the pin. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3935,6 +4014,7 @@
             },
             "get": {
                 "operationId": "dashboard-api-get-default-dashboard",
+                "x-launchpad-stability": "internal",
                 "summary": "Read the user's EXPLICIT default-dashboard pin (wave3.7)",
                 "description": "Read the user's EXPLICIT default-dashboard pin (wave3.7). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -3963,6 +4043,7 @@
         "/dashboards/group/{groupId}": {
             "get": {
                 "operationId": "dashboard-api-list-group",
+                "x-launchpad-stability": "internal",
                 "summary": "List the group-shared dashboards in a single group",
                 "description": "List the group-shared dashboards in a single group. Any logged-in user may list. REQ-DASH-014. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4000,6 +4081,7 @@
             },
             "post": {
                 "operationId": "dashboard-api-create-group",
+                "x-launchpad-stability": "internal",
                 "summary": "Create a new group-shared dashboard",
                 "description": "Create a new group-shared dashboard. Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute (gate-route-auth / gate-semantic-auth both pass since the framework-level check is the actual authorization point). REQ-DASH-014. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -4062,6 +4144,7 @@
         "/dashboards/group/{groupId}/default": {
             "post": {
                 "operationId": "dashboard-api-set-group-default",
+                "x-launchpad-stability": "internal",
                 "summary": "Promote a single group-shared dashboard to the group's default",
                 "description": "Promote a single group-shared dashboard to the group's default. Admin-only — enforced by the `#[AuthorizedAdminSetting]` attribute. The body payload is `{\"uuid\": \"...\"}`. Returns 404 when the uuid does not belong to the given groupId. REQ-DASH-015. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -4121,6 +4204,7 @@
         "/dashboards/group/{groupId}/{uuid}": {
             "get": {
                 "operationId": "dashboard-api-get-group",
+                "x-launchpad-stability": "internal",
                 "summary": "Get a single group-shared dashboard with placements",
                 "description": "Get a single group-shared dashboard with placements. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4170,6 +4254,7 @@
             },
             "put": {
                 "operationId": "dashboard-api-update-group",
+                "x-launchpad-stability": "internal",
                 "summary": "Update a group-shared dashboard. Admin-only",
                 "description": "Update a group-shared dashboard. Admin-only. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -4247,6 +4332,7 @@
             },
             "delete": {
                 "operationId": "dashboard-api-delete-group",
+                "x-launchpad-stability": "internal",
                 "summary": "Delete a group-shared dashboard. Admin-only",
                 "description": "Delete a group-shared dashboard. Admin-only. Returns HTTP 400 when the last-in-group guard rejects the delete (REQ-DASH-014). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -4301,6 +4387,7 @@
         "/dashboards/tree": {
             "get": {
                 "operationId": "dashboard-api-tree",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/tree — return the nested dashboard tree scoped to the calling user's visible dashboards (REQ-DASH-026)",
                 "description": "GET /api/dashboards/tree — return the nested dashboard tree scoped to the calling user's visible dashboards (REQ-DASH-026). Each node carries `{uuid, name, slug, sortOrder, children: [...]}`. Only nodes for dashboards that `DashboardService::getVisibleToUser` resolves for the caller are included — personal drafts owned by other users are not enumerable (C1 fix: REQ-DASH-026 + REQ-PERM-001). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4329,6 +4416,7 @@
         "/dashboards/visible": {
             "get": {
                 "operationId": "dashboard-api-visible",
+                "x-launchpad-stability": "public",
                 "summary": "List the deduplicated union of dashboards visible to the user",
                 "description": "List the deduplicated union of dashboards visible to the user. Returns personal + group-matching + default-group dashboards, each tagged with `source` (`'user'`, `'group'`, `'default'`). REQ-DASH-013. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4409,6 +4497,7 @@
         "/dashboards/{dashboardId}/personal-layer": {
             "get": {
                 "operationId": "personal-layer-api-show",
+                "x-launchpad-stability": "internal",
                 "summary": "GET the caller's own layer on one dashboard",
                 "description": "GET the caller's own layer on one dashboard. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4449,6 +4538,7 @@
             },
             "put": {
                 "operationId": "personal-layer-api-save",
+                "x-launchpad-stability": "internal",
                 "summary": "PUT the caller's arrangement",
                 "description": "PUT the caller's arrangement. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4511,6 +4601,7 @@
             },
             "delete": {
                 "operationId": "personal-layer-api-reset",
+                "x-launchpad-stability": "internal",
                 "summary": "DELETE the caller's layer: the reset",
                 "description": "DELETE the caller's layer: the reset. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4553,6 +4644,7 @@
         "/dashboards/{uuid}/fork": {
             "post": {
                 "operationId": "dashboard-api-fork",
+                "x-launchpad-stability": "internal",
                 "summary": "Fork any visible dashboard into a brand-new personal copy",
                 "description": "Fork any visible dashboard into a brand-new personal copy. REQ-DASH-020 / REQ-DASH-021 / REQ-DASH-022. Body shape: `{name?: string}` — when `name` is absent the system applies the default `t('My copy of {name}', source.name)` translated via the caller's active language. Status mapping: - HTTP 201 with the full new dashboard payload on success. - HTTP 401 when the session has no user. - HTTP 403 with stable error code `personal_dashboards_disabled` when the admin flag `allow_user_dashboards` is off — REQ-ASET-003 runtime gating runs FIRST so the envelope shape is stable regardless of body contents. - HTTP 404 when the source UUID is not visible to the caller — do not leak existence (REQ-DASH-020 scenario \"Cannot fork a dashboard you cannot read\"). - HTTP 500 when a partial-failure rollback fires — REQ-DASH-021. ADR-005: the response carries a stable error code and a generic user-facing message; the underlying exception is logged for ops. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4609,6 +4701,7 @@
         "/dashboards/{uuid}/lock": {
             "post": {
                 "operationId": "dashboard-lock-api-acquire",
+                "x-launchpad-stability": "internal",
                 "summary": "Acquire (or refresh) the lock for the given dashboard",
                 "description": "Acquire (or refresh) the lock for the given dashboard. Re-entrant for the same user — a second tab MUST receive HTTP 200 with the refreshed lock instead of HTTP 409 (REQ-LOCK-001). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4652,6 +4745,7 @@
             },
             "put": {
                 "operationId": "dashboard-lock-api-heartbeat",
+                "x-launchpad-stability": "internal",
                 "summary": "Refresh the lock (heartbeat). Owner-only",
                 "description": "Refresh the lock (heartbeat). Owner-only. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4692,6 +4786,7 @@
             },
             "delete": {
                 "operationId": "dashboard-lock-api-release",
+                "x-launchpad-stability": "internal",
                 "summary": "Release the lock. Owner-or-admin",
                 "description": "Release the lock. Owner-or-admin. Idempotent — releasing a non-existent lock returns 204 (the caller's intent \"no longer holding the lock\" is satisfied). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4724,6 +4819,7 @@
             },
             "get": {
                 "operationId": "dashboard-lock-api-get",
+                "x-launchpad-stability": "internal",
                 "summary": "Query the current lock state",
                 "description": "Query the current lock state. Returns the lock object when active, or HTTP 404 when none exists. Stale rows are scrubbed inline by the service before the response. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4763,6 +4859,7 @@
         "/dashboards/{uuid}/lock/force-release": {
             "post": {
                 "operationId": "dashboard-lock-api-force-release",
+                "x-launchpad-stability": "internal",
                 "summary": "Admin-only: force-release any user's lock (REQ-LOCK-006, design D4). The admin may then `acquire` normally if they want to take the lock themselves",
                 "description": "Admin-only: force-release any user's lock (REQ-LOCK-006, design D4). The admin may then `acquire` normally if they want to take the lock themselves. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4802,6 +4899,7 @@
         "/dashboards/{uuid}/metadata": {
             "get": {
                 "operationId": "dashboard-metadata-get-metadata",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/dashboards/{uuid}/metadata` — REQ-MDFL-004 / REQ-MDFL-008",
                 "description": "`GET /api/dashboards/{uuid}/metadata` — REQ-MDFL-004 / REQ-MDFL-008. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4842,6 +4940,7 @@
             },
             "put": {
                 "operationId": "dashboard-metadata-set-metadata",
+                "x-launchpad-stability": "internal",
                 "summary": "`PUT /api/dashboards/{uuid}/metadata` — REQ-MDFL-005 / REQ-MDFL-008",
                 "description": "`PUT /api/dashboards/{uuid}/metadata` — REQ-MDFL-005 / REQ-MDFL-008. Body: flat key-value object. Omitted keys are NOT removed; only keys present in the payload are upserted. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4903,6 +5002,7 @@
         "/dashboards/{uuid}/path": {
             "get": {
                 "operationId": "dashboard-api-compute-path",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/{uuid}/path — return a dashboard's canonical slug-chain path",
                 "description": "GET /api/dashboards/{uuid}/path — return a dashboard's canonical slug-chain path. Used by the frontend after every sidebar switch to keep the browser URL in sync with the active dashboard. The path is the leading-slash slug-chain returned by {@see DashboardTreeService::computePath()}; an empty string means the UUID does not resolve OR the dashboard has no slug (legal — NULL slugs are simply unaddressable by path), and the frontend treats either case as \"leave the URL alone\". Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -4942,6 +5042,7 @@
         "/dashboards/{uuid}/public-share": {
             "post": {
                 "operationId": "public-share-create",
+                "x-launchpad-stability": "public",
                 "summary": "Create a new public share for a dashboard",
                 "description": "Create a new public share for a dashboard. Owner-or-admin only (REQ-PSHR-001). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5002,6 +5103,7 @@
         "/dashboards/{uuid}/public-shares": {
             "get": {
                 "operationId": "public-share-index",
+                "x-launchpad-stability": "public",
                 "summary": "List active public shares for a dashboard",
                 "description": "List active public shares for a dashboard. Owner-or-admin only (REQ-PSHR-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5041,6 +5143,7 @@
         "/dashboards/{uuid}/public-shares/{id}": {
             "delete": {
                 "operationId": "public-share-destroy",
+                "x-launchpad-stability": "public",
                 "summary": "Soft-revoke a public share",
                 "description": "Soft-revoke a public share. Owner-or-admin only (REQ-PSHR-003). Idempotent — revoking an already-revoked share returns 204. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5084,6 +5187,7 @@
         "/dashboards/{uuid}/publish": {
             "post": {
                 "operationId": "dashboard-api-publish",
+                "x-launchpad-stability": "internal",
                 "summary": "Publish a dashboard. REQ-DASH-032",
                 "description": "Publish a dashboard. REQ-DASH-032. Owner-or-admin gated at the service boundary; the route attribute is `#[NoAdminRequired]` because the in-body owner check is the actual authorization point (gate-semantic-auth). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5123,6 +5227,7 @@
         "/dashboards/{uuid}/reactions": {
             "get": {
                 "operationId": "dashboard-reaction-api-get-reactions",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/{uuid}/reactions — return the `{counts, mine, enabled}` summary. REQ-RXN-003",
                 "description": "GET /api/dashboards/{uuid}/reactions — return the `{counts, mine, enabled}` summary. REQ-RXN-003. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5160,6 +5265,7 @@
             },
             "post": {
                 "operationId": "dashboard-reaction-api-add-reaction",
+                "x-launchpad-stability": "internal",
                 "summary": "POST /api/dashboards/{uuid}/reactions — add the calling user's reaction. Idempotent (REQ-RXN-001 scenario \"User re-posts the same emoji\")",
                 "description": "POST /api/dashboards/{uuid}/reactions — add the calling user's reaction. Idempotent (REQ-RXN-001 scenario \"User re-posts the same emoji\"). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5216,6 +5322,7 @@
         "/dashboards/{uuid}/reactions/{emoji}": {
             "delete": {
                 "operationId": "dashboard-reaction-api-remove-reaction",
+                "x-launchpad-stability": "internal",
                 "summary": "DELETE /api/dashboards/{uuid}/reactions/{emoji} — remove the calling user's reaction. Idempotent (REQ-RXN-002)",
                 "description": "DELETE /api/dashboards/{uuid}/reactions/{emoji} — remove the calling user's reaction. Idempotent (REQ-RXN-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5259,6 +5366,7 @@
         "/dashboards/{uuid}/reactions/{emoji}/users": {
             "get": {
                 "operationId": "dashboard-reaction-api-get-reactors-by-emoji",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/{uuid}/reactions/{emoji}/users — return the paginated list of reactors. REQ-RXN-004",
                 "description": "GET /api/dashboards/{uuid}/reactions/{emoji}/users — return the paginated list of reactors. REQ-RXN-004. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5316,6 +5424,7 @@
         "/dashboards/{uuid}/resolved": {
             "get": {
                 "operationId": "dashboard-translation-api-resolved",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/{uuid}/resolved — resolve the dashboard's content for the viewer's locale. Optional `?lang=<code>` query parameter overrides...",
                 "description": "GET /api/dashboards/{uuid}/resolved — resolve the dashboard's content for the viewer's locale. Optional `?lang=<code>` query parameter overrides the user's Nextcloud locale; in strict mode an unknown explicit lang returns 404 instead of falling back. REQ-DASH-039. Response shape: - `dashboard`: the dashboard entity payload - `translation`: the matched translation row - `availableLanguages`: sorted list of codes - `currentLanguage`: the matched code - `isFallback`: true when the primary fallback was used. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5358,6 +5467,7 @@
         "/dashboards/{uuid}/schedule": {
             "post": {
                 "operationId": "dashboard-api-schedule",
+                "x-launchpad-stability": "internal",
                 "summary": "Schedule a dashboard for automatic publication. REQ-DASH-034",
                 "description": "Schedule a dashboard for automatic publication. REQ-DASH-034. Body: `{\"publishAt\": \"2026-04-01T10:00:00Z\"}`. Returns 400 with an i18n-friendly error message when `publishAt` is missing, unparseable, or in the past; 403 when the actor is neither owner nor admin. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5418,6 +5528,7 @@
         "/dashboards/{uuid}/translations": {
             "get": {
                 "operationId": "dashboard-translation-api-list",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/dashboards/{uuid}/translations — list every translation variant for a dashboard. Returns 403 when the dashboard belongs to another user....",
                 "description": "GET /api/dashboards/{uuid}/translations — list every translation variant for a dashboard. Returns 403 when the dashboard belongs to another user. REQ-DASH-038. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5455,6 +5566,7 @@
             },
             "post": {
                 "operationId": "dashboard-translation-api-create",
+                "x-launchpad-stability": "internal",
                 "summary": "POST /api/dashboards/{uuid}/translations — create a new variant",
                 "description": "POST /api/dashboards/{uuid}/translations — create a new variant. Body: `{languageCode, name?, description?, widgetTreeJson?, copyFrom?}`. Returns 201 with the created entity. Maps duplicate-language conflicts to HTTP 409. REQ-DASH-040. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5527,6 +5639,7 @@
         "/dashboards/{uuid}/translations/{lang}": {
             "put": {
                 "operationId": "dashboard-translation-api-update",
+                "x-launchpad-stability": "internal",
                 "summary": "PUT /api/dashboards/{uuid}/translations/{lang} — update a variant",
                 "description": "PUT /api/dashboards/{uuid}/translations/{lang} — update a variant. Body: `{name?, description?, widgetTreeJson?}`. Returns 200 with the updated entity. REQ-DASH-041. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5598,6 +5711,7 @@
             },
             "delete": {
                 "operationId": "dashboard-translation-api-destroy",
+                "x-launchpad-stability": "internal",
                 "summary": "DELETE /api/dashboards/{uuid}/translations/{lang} — delete a variant. Maps last-variant / primary-variant guards to HTTP 400. REQ-DASH-042",
                 "description": "DELETE /api/dashboards/{uuid}/translations/{lang} — delete a variant. Maps last-variant / primary-variant guards to HTTP 400. REQ-DASH-042. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5649,6 +5763,7 @@
         "/dashboards/{uuid}/translations/{lang}/set-primary": {
             "post": {
                 "operationId": "dashboard-translation-api-set-primary",
+                "x-launchpad-stability": "internal",
                 "summary": "POST /api/dashboards/{uuid}/translations/{lang}/set-primary — promote a variant to primary. Idempotent. REQ-DASH-043",
                 "description": "POST /api/dashboards/{uuid}/translations/{lang}/set-primary — promote a variant to primary. Idempotent. REQ-DASH-043. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5697,6 +5812,7 @@
         "/dashboards/{uuid}/unpublish": {
             "post": {
                 "operationId": "dashboard-api-unpublish",
+                "x-launchpad-stability": "internal",
                 "summary": "Unpublish a dashboard. REQ-DASH-033",
                 "description": "Unpublish a dashboard. REQ-DASH-033. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5736,6 +5852,7 @@
         "/dashboards/{uuid}/versions": {
             "get": {
                 "operationId": "dashboard-version-api-list-versions",
+                "x-launchpad-stability": "internal",
                 "summary": "List the versions for a dashboard, newest-first (REQ-VERS-003)",
                 "description": "List the versions for a dashboard, newest-first (REQ-VERS-003). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5776,6 +5893,7 @@
             },
             "post": {
                 "operationId": "dashboard-version-api-create-version",
+                "x-launchpad-stability": "internal",
                 "summary": "Create an explicit snapshot (REQ-VERS-002). Bypasses the 60-second debounce window. The optional `note` field is read from the request body",
                 "description": "Create an explicit snapshot (REQ-VERS-002). Bypasses the 60-second debounce window. The optional `note` field is read from the request body. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5835,6 +5953,7 @@
         "/dashboards/{uuid}/versions/{versionNumber}": {
             "get": {
                 "operationId": "dashboard-version-api-fetch-version",
+                "x-launchpad-stability": "internal",
                 "summary": "Fetch a single snapshot body (REQ-VERS-004)",
                 "description": "Fetch a single snapshot body (REQ-VERS-004). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5886,6 +6005,7 @@
         "/dashboards/{uuid}/versions/{versionNumber}/restore": {
             "post": {
                 "operationId": "dashboard-version-api-restore-version",
+                "x-launchpad-stability": "internal",
                 "summary": "Restore a snapshot (REQ-VERS-005). Captures the pre-restore state as a new snapshot before applying the historical body",
                 "description": "Restore a snapshot (REQ-VERS-005). Captures the pre-restore state as a new snapshot before applying the historical body. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5937,6 +6057,7 @@
         "/dashboards/{uuid}/view-event": {
             "post": {
                 "operationId": "dashboard-api-view-event",
+                "x-launchpad-stability": "internal",
                 "summary": "Record a dashboard view event (REQ-ANLT-002)",
                 "description": "Record a dashboard view event (REQ-ANLT-002). Authenticated users only — POST `{}` body. Returns HTTP 204 after the daily counter has been incremented. Short-circuits silently to 204 when the user has opted out (REQ-ANLT-004) or when global analytics is disabled (REQ-ANLT-005). Returns 404 when the dashboard does not exist. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -5974,6 +6095,7 @@
         "/files/create": {
             "post": {
                 "operationId": "file-create-file",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `POST /api/files/create` (REQ-LBN-004)",
                 "description": "Handle `POST /api/files/create` (REQ-LBN-004). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6027,6 +6149,7 @@
         "/health-ping/validate": {
             "post": {
                 "operationId": "health-ping-validate",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/health-ping/validate`",
                 "description": "`POST /api/health-ping/validate`. Validates a candidate health-ping config before the author saves the placement (REQ-HPING-001 \"rejected at save time\" — host allow-list, fail-closed). Performs NO ping — only the allow-list check that `resolveForPlacement()` would apply. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6071,6 +6194,7 @@
         "/health-ping/{placementId}": {
             "get": {
                 "operationId": "health-ping-show",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/health-ping/{placementId}`",
                 "description": "`GET /api/health-ping/{placementId}`. Returns the health badge for one placement. Returns 401 when anonymous, 403 when the caller may not view the underlying dashboard (REQ-HPING-003 \"Caller authorization\" — the ping is NEVER performed in that case), 404 when the placement does not exist or has no ping configured, else 200 with the badge (possibly `stale: true`). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6113,6 +6237,7 @@
         "/iframe/framable": {
             "post": {
                 "operationId": "iframe-check-framable",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/iframe/framable`",
                 "description": "`POST /api/iframe/framable`. Server-side check of whether a URL may actually be framed (REQ-IFRAME-003 \"graceful degradation\"). The browser cannot tell an `X-Frame-Options: DENY` / `frame-ancestors 'none'` refusal apart from a normal cross-origin embed, so the widget calls this on mount and shows the fallback card up front when the target refuses framing, instead of a permanently blank frame. Allow-list fail-closed; never leaks the target's response body. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6157,6 +6282,7 @@
         "/iframe/validate-url": {
             "post": {
                 "operationId": "iframe-validate-url",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/iframe/validate-url`",
                 "description": "`POST /api/iframe/validate-url`. Validates a candidate iframe config before the author saves the placement (REQ-IFRAME-002 \"rejected at save time\" — host allow-list, fail-closed). Requires only an authenticated caller — the allow-list itself is admin-controlled, not per-user. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6201,6 +6327,7 @@
         "/kiosk/playlists": {
             "get": {
                 "operationId": "kiosk-index",
+                "x-launchpad-stability": "internal",
                 "summary": "List playlists visible to the caller",
                 "description": "List playlists visible to the caller. Own playlists for users, all playlists for admins (REQ-KIOSK-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6227,6 +6354,7 @@
             },
             "post": {
                 "operationId": "kiosk-create",
+                "x-launchpad-stability": "internal",
                 "summary": "Create a kiosk playlist",
                 "description": "Create a kiosk playlist. Owner-or-admin per referenced dashboard (REQ-KIOSK-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6279,6 +6407,7 @@
         "/kiosk/playlists/{id}": {
             "put": {
                 "operationId": "kiosk-update",
+                "x-launchpad-stability": "internal",
                 "summary": "Update a kiosk playlist",
                 "description": "Update a kiosk playlist. Owner-or-admin, re-validates every referenced dashboard (REQ-KIOSK-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6340,6 +6469,7 @@
             },
             "delete": {
                 "operationId": "kiosk-destroy",
+                "x-launchpad-stability": "internal",
                 "summary": "Soft-revoke a kiosk playlist",
                 "description": "Soft-revoke a kiosk playlist. Owner-or-admin only, idempotent (REQ-KIOSK-002). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6374,6 +6504,7 @@
         "/livetile/connector/status": {
             "get": {
                 "operationId": "live-tile-connector-status",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/livetile/connector/status`",
                 "description": "`GET /api/livetile/connector/status`. Reports whether the OpenConnector `dashboard-http-datasource` capability is currently available, so the config form can hide or disable `connector` source mode (REQ-LIVETILE-005). Requires only an authenticated caller — carries no placement-specific data. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6402,6 +6533,7 @@
         "/livetile/validate-source": {
             "post": {
                 "operationId": "live-tile-validate-source",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/livetile/validate-source`",
                 "description": "`POST /api/livetile/validate-source`. Validates a candidate source config before the author saves the placement (REQ-LIVETILE-002 \"rejected at save time\" — host allow-list, fail-closed). Performs NO fetch — only the allow-list / capability-probe checks that `resolveForPlacement()` would apply. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6446,6 +6578,7 @@
         "/livetile/{placementId}": {
             "get": {
                 "operationId": "live-tile-show",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/livetile/{placementId}`",
                 "description": "`GET /api/livetile/{placementId}`. Returns the live-tile value for one placement. Returns 401 when anonymous, 403 when the caller may not view the underlying dashboard (REQ-LIVETILE-003 \"Caller authorization\" — the fetch is NEVER performed in that case), 404 when the placement does not exist, else 200 with the value (possibly `stale: true`). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6488,6 +6621,7 @@
         "/manifest": {
             "get": {
                 "operationId": "manifest-index",
+                "x-launchpad-stability": "internal",
                 "summary": "Build and return the v2 app manifest for the authenticated user",
                 "description": "Build and return the v2 app manifest for the authenticated user. Reads the user's dashboard objects from OpenRegister. Each object with a `slug` and `title` property becomes one page entry and one menu entry. Objects the user owns, plus objects explicitly granted to them via OpenRegister's per-object sharing primitive, are included. Route: GET /apps/launchpad/api/manifest. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6516,6 +6650,7 @@
         "/me/role": {
             "get": {
                 "operationId": "admin-get-my-role",
+                "x-launchpad-stability": "internal",
                 "summary": "Return the calling user's effective LaunchPad role and source (REQ-ROLE-006). Available to any authenticated user",
                 "description": "Return the calling user's effective LaunchPad role and source (REQ-ROLE-006). Available to any authenticated user. Response shape: `{role: string|null, source: string|null}`. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6547,6 +6682,7 @@
         "/metadata-fields": {
             "get": {
                 "operationId": "dashboard-metadata-fields",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/metadata-fields`: the field definitions, readable by any logged-in user, so a dashboard owner who is not an administrator can fill in...",
                 "description": "`GET /api/metadata-fields`: the field definitions, readable by any logged-in user, so a dashboard owner who is not an administrator can fill in the Details tab. Definitions only (key, label, type, options); no values of any dashboard. Writing definitions stays administrator-only in MetadataAdminController. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6575,6 +6711,7 @@
         "/openapi.json": {
             "get": {
                 "operationId": "open-api-show",
+                "x-launchpad-stability": "internal",
                 "summary": "The OpenAPI document of this API",
                 "description": "Returns this document, with `info.version` set to the installed version. It needs no login and can be read from any origin.",
                 "tags": [
@@ -6616,6 +6753,7 @@
         "/people": {
             "get": {
                 "operationId": "people-widget-get-users",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/people",
                 "description": "GET /api/people. REQ-PPL-003: returns `{users, total, hasMore}`, offset-based pagination, capped at {@see PeopleWidgetService::MAX_LIMIT}. Request parameters: - `filters` JSON-encoded array of FilterObject entries (see REQ-PPL-002 / REQ-PPL-006). - `excludeDisabled` 1/0 boolean (default 1). - `showBirthdays` 1/0 boolean (default 1). - `sortBy` One of `displayName` (default), `group`, `recent-activity` (rejected with 400). - `limit` 1..100 (default 50). - `offset` >= 0 (default 0). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6712,6 +6850,7 @@
         "/preferences/{key}": {
             "get": {
                 "operationId": "preferences-get-preference",
+                "x-launchpad-stability": "internal",
                 "summary": "Read a per-user preference value",
                 "description": "Read a per-user preference value. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6752,6 +6891,7 @@
             },
             "put": {
                 "operationId": "preferences-set-preference",
+                "x-launchpad-stability": "internal",
                 "summary": "Write a per-user preference value. An empty value clears it",
                 "description": "Write a per-user preference value. An empty value clears it. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6808,9 +6948,113 @@
                 }
             }
         },
+        "/analytics/me": {
+            "get": {
+                "operationId": "analytics-opt-out-show",
+                "summary": "Whether analytics is on for everyone, and whether the caller opted out",
+                "description": "Whether analytics is on for everyone, and whether the caller opted out. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "analytics-opt-out"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "description": "Whether analytics is on for everyone."
+                                        },
+                                        "optedOut": {
+                                            "type": "boolean",
+                                            "description": "Whether the caller's visits are left out of the counts."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "analytics-opt-out-update",
+                "summary": "Store the caller's own opt-out",
+                "description": "Store the caller's own opt-out. A request naming another user is refused. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "analytics-opt-out"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "optedOut": {
+                                        "type": "boolean",
+                                        "description": "`true` to stop counting the caller's visits."
+                                    },
+                                    "userId": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "A user id the request names; anything but the caller is refused."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "description": "Whether analytics is on for everyone."
+                                        },
+                                        "optedOut": {
+                                            "type": "boolean",
+                                            "description": "Whether the caller's visits are left out of the counts."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/profile-fields/definitions": {
             "get": {
                 "operationId": "profile-fields-get-definitions",
+                "x-launchpad-stability": "internal",
                 "summary": "The field definitions (administrators)",
                 "description": "The field definitions (administrators). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -6840,6 +7084,7 @@
             },
             "put": {
                 "operationId": "profile-fields-save-definitions",
+                "x-launchpad-stability": "internal",
                 "summary": "Replace the field definitions (administrators)",
                 "description": "Replace the field definitions (administrators). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -6890,6 +7135,7 @@
         "/profile-fields/me": {
             "get": {
                 "operationId": "profile-fields-get-own",
+                "x-launchpad-stability": "internal",
                 "summary": "The caller's own fields and values. Each person reads only their own",
                 "description": "The caller's own fields and values. Each person reads only their own. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6916,6 +7162,7 @@
             },
             "put": {
                 "operationId": "profile-fields-save-own",
+                "x-launchpad-stability": "internal",
                 "summary": "Save the caller's own values. Each person writes only their own; LDAP fields stay read-only",
                 "description": "Save the caller's own values. Each person writes only their own; LDAP fields stay read-only. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -6963,6 +7210,7 @@
         "/resources": {
             "post": {
                 "operationId": "resource-upload",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `POST /api/resources`",
                 "description": "Handle `POST /api/resources`. Reads the raw JSON body from `php://input`, asserts an admin caller, delegates to ResourceService, and maps the response (success or any typed exception) to the standardised envelope. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -6992,6 +7240,7 @@
             },
             "get": {
                 "operationId": "resource-serve-list-resources",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/resources` — list uploaded resources",
                 "description": "Handle `GET /api/resources` — list uploaded resources. Returns `{status: 'success', resources: [{name, url, size, modifiedAt}, …]}` ordered by `modifiedAt` descending. When the `resources/` folder does not yet exist (or any other read error occurs) the response is HTTP 200 with `{status: 'success', resources: []}` — never a 404. The returned `url` values point at the serve route added by `getResource`. Cache busting falls out of the `uniqid` suffix REQ-RES-004 puts on every filename — a logical asset change yields a new name and a fresh cache entry. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7020,6 +7269,7 @@
         "/resources/upload": {
             "post": {
                 "operationId": "resource-upload-multipart",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `POST /api/resources/upload` — raw multipart upload",
                 "description": "Handle `POST /api/resources/upload` — raw multipart upload. Accepts `multipart/form-data` with a single `file` entry and stores the raw bytes directly — no base64, so large images and GIFs never become a huge in-memory string in the browser. Admin-only, enforced both by the `AuthorizedAdminSetting` attribute and a defensive `assertAdmin()`. The response mirrors the base64 endpoint's `{status, url, name, size}` envelope. CSRF stays enforced (no `@NoCSRFRequired`): admin-only is not CSRF-safe — a logged-in admin lured to a hostile page could otherwise be made to POST a resource. The frontend uses `@nextcloud/axios`, which auto-sends the `requesttoken` header, so this is zero-cost. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7051,6 +7301,7 @@
         "/role-feature-permissions": {
             "get": {
                 "operationId": "role-feature-permission-api-list-permissions",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/role-feature-permissions",
                 "description": "GET /api/role-feature-permissions. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7080,6 +7331,7 @@
             },
             "post": {
                 "operationId": "role-feature-permission-api-save-permission",
+                "x-launchpad-stability": "internal",
                 "summary": "POST /api/role-feature-permissions",
                 "description": "POST /api/role-feature-permissions. Body: `{name, description?, groupId, allowedWidgets, deniedWidgets?, priorityWeights?}`. Upsert keyed by `groupId`. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7111,6 +7363,7 @@
         "/role-feature-permissions/{id}": {
             "delete": {
                 "operationId": "role-feature-permission-api-delete-permission",
+                "x-launchpad-stability": "internal",
                 "summary": "DELETE /api/role-feature-permissions/{id}",
                 "description": "DELETE /api/role-feature-permissions/{id}. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7153,6 +7406,7 @@
         "/role-layout-defaults": {
             "get": {
                 "operationId": "role-feature-permission-api-list-layout-defaults",
+                "x-launchpad-stability": "internal",
                 "summary": "GET /api/role-layout-defaults",
                 "description": "GET /api/role-layout-defaults. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7182,6 +7436,7 @@
             },
             "post": {
                 "operationId": "role-feature-permission-api-save-layout-default",
+                "x-launchpad-stability": "internal",
                 "summary": "POST /api/role-layout-defaults",
                 "description": "POST /api/role-layout-defaults. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7213,6 +7468,7 @@
         "/role-layout-defaults/{id}": {
             "delete": {
                 "operationId": "role-feature-permission-api-delete-layout-default",
+                "x-launchpad-stability": "internal",
                 "summary": "DELETE /api/role-layout-defaults/{id}",
                 "description": "DELETE /api/role-layout-defaults/{id}. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7255,6 +7511,7 @@
         "/rules/{ruleId}": {
             "put": {
                 "operationId": "rule-api-update-rule",
+                "x-launchpad-stability": "internal",
                 "summary": "Update a conditional rule",
                 "description": "Update a conditional rule. C4 fix (REQ-PERM-001): the rule's owning placement is resolved and `verifyPlacementOwnership` is called before any mutation, mirroring the guard already present on `addRule`. Without this check any authenticated user could overwrite rules on other users' placements by iterating rule IDs. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7316,6 +7573,7 @@
             },
             "delete": {
                 "operationId": "rule-api-delete-rule",
+                "x-launchpad-stability": "internal",
                 "summary": "Delete a conditional rule",
                 "description": "Delete a conditional rule. C4 fix (REQ-PERM-001): the rule's owning placement is resolved and `verifyPlacementOwnership` is called before the deletion, mirroring the guard already present on `addRule`. Without this check any authenticated user could permanently delete conditional display logic on other users' widget placements by iterating rule IDs. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7355,6 +7613,7 @@
         "/setup/action/{actionId}": {
             "post": {
                 "operationId": "setup-run-action",
+                "x-launchpad-stability": "internal",
                 "summary": "Run a privileged server-side setup action",
                 "description": "Run a privileged server-side setup action. Admin-only by Nextcloud's default for an un-attributed method. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7400,6 +7659,7 @@
         "/setup/config": {
             "post": {
                 "operationId": "setup-save-config",
+                "x-launchpad-stability": "internal",
                 "summary": "Persist the wizard's `choice` answer",
                 "description": "Persist the wizard's `choice` answer. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7431,6 +7691,7 @@
         "/setup/status": {
             "get": {
                 "operationId": "setup-status",
+                "x-launchpad-stability": "internal",
                 "summary": "Report per-step setup status for the wizard",
                 "description": "Report per-step setup status for the wizard. `completed` is deliberately TRUE: this app declares no REQUIRED step, so setup must never gate the app. The demo-data step is reported so the wizard can stop asking once it has an answer. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7462,6 +7723,7 @@
         "/sharees": {
             "get": {
                 "operationId": "dashboard-share-api-search-sharees",
+                "x-launchpad-stability": "internal",
                 "summary": "Search users and groups for the share autocomplete picker. REQ-SHARE-006",
                 "description": "Search users and groups for the share autocomplete picker. REQ-SHARE-006. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7501,6 +7763,7 @@
         "/sharees/{shareType}/{shareWith}": {
             "delete": {
                 "operationId": "dashboard-share-api-revoke-for-recipient",
+                "x-launchpad-stability": "internal",
                 "summary": "Revoke all shares the caller has granted to a specific recipient. REQ-SHARE-010",
                 "description": "Revoke all shares the caller has granted to a specific recipient. REQ-SHARE-010. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7552,6 +7815,7 @@
         "/store/config": {
             "get": {
                 "operationId": "store-get-config",
+                "x-launchpad-stability": "internal",
                 "summary": "Read the registry connection",
                 "description": "Read the registry connection. The token is reported as a boolean and never as a value. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7581,6 +7845,7 @@
             },
             "put": {
                 "operationId": "store-update-config",
+                "x-launchpad-stability": "internal",
                 "summary": "Write the registry connection",
                 "description": "Write the registry connection. An omitted key leaves the stored value alone, so a form can change the URL without resubmitting the token. An empty string clears the key. Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7612,6 +7877,7 @@
         "/store/items": {
             "get": {
                 "operationId": "store-search",
+                "x-launchpad-stability": "internal",
                 "summary": "Search the configured registry",
                 "description": "Search the configured registry. Signed-in rather than admin: browsing is how a user finds out what an administrator could install for them, and the response carries only normalised cards. The engine drops every remote property outside the descriptor's card map, so the registry URL and token never ride back. The guard is in the body rather than only in the attribute so an anonymous caller gets an explicit 401 instead of a login redirect into a fetch that expected JSON. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7640,6 +7906,7 @@
         "/store/items/{slug}/install": {
             "post": {
                 "operationId": "store-install",
+                "x-launchpad-stability": "internal",
                 "summary": "Install one registry template into this instance",
                 "description": "Install one registry template into this instance. Administrative. An install writes dashboards from a third-party server into the instance, so it is gated exactly like the rest of LaunchPad's admin surface (ADR-005). Needs an administrator, or a user the matching admin setting is delegated to.",
                 "tags": [
@@ -7685,6 +7952,7 @@
         "/templates/gallery": {
             "get": {
                 "operationId": "template-gallery",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/templates/gallery` — list all admin templates with the gallery metadata (REQ-TMPL-014)",
                 "description": "`GET /api/templates/gallery` — list all admin templates with the gallery metadata (REQ-TMPL-014). Query parameters: - `category` (string, optional): exact-match category filter. - `sort` (string, optional): `name` (default) or `updatedAt`. Available to every logged-in user. Returns a `{status: 'success', templates: [...]}` envelope with no widget bodies — gallery is a list view, not a render. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7736,6 +8004,7 @@
         "/tile-analytics/config": {
             "get": {
                 "operationId": "tile-analytics-config",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `GET /api/tile-analytics/config`",
                 "description": "Handle `GET /api/tile-analytics/config`. Lets the frontend hook know whether tracking is currently active for the calling user, so it can suppress the fire-and- forget record call when analytics is globally disabled or the user has opted out — without re-implementing either gate client-side (REQ-TANLT-003). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7764,6 +8033,7 @@
         "/tile-click/{placementId}": {
             "post": {
                 "operationId": "tile-analytics-record-click",
+                "x-launchpad-stability": "internal",
                 "summary": "Handle `POST /api/tile-click/{placementId}` (REQ-TANLT-002)",
                 "description": "Handle `POST /api/tile-click/{placementId}` (REQ-TANLT-002). Authenticated users only — empty body. Returns HTTP 204 after the daily counter has been incremented (or short-circuited to a silent no-op per REQ-TANLT-003). Returns 404 when the placement does not exist. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7804,6 +8074,7 @@
         "/tiles": {
             "get": {
                 "operationId": "tile-api-index",
+                "x-launchpad-stability": "public",
                 "summary": "List all tiles for the current user",
                 "description": "List all tiles for the current user. Read-only endpoint kept for backwards compatibility per the DEPRECATED REQ-TILE-001 spec — admin tooling and migration scripts may still inspect `oc_launchpad_tiles` rows during the deprecation window. The write endpoints return HTTP 410 Gone instead. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7830,6 +8101,7 @@
             },
             "post": {
                 "operationId": "tile-api-create",
+                "x-launchpad-stability": "public",
                 "summary": "Create a new tile",
                 "description": "Create a new tile. DEPRECATED — returns HTTP 410 Gone. New tile placements MUST be created via the unified add-widget flow with `type: tile` (REQ-WDG-022 / REQ-TILE-PLACEMENT). Parameters retained for route binding compatibility only and intentionally ignored. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7858,6 +8130,7 @@
         "/tiles/discover": {
             "get": {
                 "operationId": "tile-api-discover",
+                "x-launchpad-stability": "internal",
                 "summary": "The apps this server runs for the caller, to place as tiles",
                 "description": "The apps this server runs for the caller, to place as tiles. Answers only the caller's own app menu: there is no id parameter, so nothing to point at someone else (REQ-DISC-001). Placing a tile still goes through the dashboard's own add-tile check. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7886,6 +8159,7 @@
         "/tiles/{id}": {
             "put": {
                 "operationId": "tile-api-update",
+                "x-launchpad-stability": "public",
                 "summary": "Update a tile",
                 "description": "Update a tile. DEPRECATED — returns HTTP 410 Gone. Tile placement edits MUST go through the standard widget-placement update endpoint (REQ-WDG-022 / REQ-TILE-PLACEMENT). The legacy parameter list is preserved so existing routing wiring continues to bind without raising an `InvalidArgumentException`. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7923,6 +8197,7 @@
             },
             "delete": {
                 "operationId": "tile-api-destroy",
+                "x-launchpad-stability": "public",
                 "summary": "Delete a tile",
                 "description": "Delete a tile. DEPRECATED — returns HTTP 410 Gone. Tile placement removal goes through the standard widget-placement delete endpoint going forward (REQ-WDG-022 / REQ-TILE-PLACEMENT). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -7962,6 +8237,7 @@
         "/visibility/preview": {
             "post": {
                 "operationId": "visibility-preview-preview",
+                "x-launchpad-stability": "internal",
                 "summary": "Preview the effective visibility of a supplied rule set for a supplied audience/date context",
                 "description": "Preview the effective visibility of a supplied rule set for a supplied audience/date context. Never writes to `oc_launchpad_conditional_rules` — the rules array in the request body is only ever materialised as transient, in-memory `ConditionalRule` entities passed straight into the evaluation pipeline and discarded at the end of the request. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8012,6 +8288,7 @@
         "/weather/{placementId}": {
             "get": {
                 "operationId": "weather-show",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/weather/{placementId}`",
                 "description": "`GET /api/weather/{placementId}`. Returns the weather reading for one placement. Returns 401 when anonymous, 403 when the caller may not view the underlying dashboard (REQ-WEATHER-001 \"Caller authorization\" — the fetch is NEVER performed in that case), 502 when resolution failed with no cached reading available, else 200 with the reading (possibly `stale: true`). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8054,6 +8331,7 @@
         "/widgets": {
             "get": {
                 "operationId": "widget-api-list-available",
+                "x-launchpad-stability": "internal",
                 "summary": "List all available Nextcloud widgets, filtered by the caller's role-feature permissions (REQ-RFP-001 / REQ-RFP-003)",
                 "description": "List all available Nextcloud widgets, filtered by the caller's role-feature permissions (REQ-RFP-001 / REQ-RFP-003). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8082,6 +8360,7 @@
         "/widgets/calendar/calendars": {
             "get": {
                 "operationId": "widget-api-calendars",
+                "x-launchpad-stability": "internal",
                 "summary": "List the current user's internal Nextcloud calendars so the calendar widget's config form can offer a picker instead of free-text principal URIs...",
                 "description": "List the current user's internal Nextcloud calendars so the calendar widget's config form can offer a picker instead of free-text principal URIs (REQ-CAL-002). Each entry carries the calendar key (the identifier `fetchInternalEvents` filters on), display name, and colour. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8113,6 +8392,7 @@
         "/widgets/calendar/{placementId}/events": {
             "get": {
                 "operationId": "widget-api-calendar-events",
+                "x-launchpad-stability": "internal",
                 "summary": "Get aggregated events for a calendar-widget placement",
                 "description": "Get aggregated events for a calendar-widget placement. Returns merged + sorted events from internal NC calendars and external ICS feeds configured on the placement. The date range is mandatory and is capped at one year in the controller as a defensive measure against runaway RRULE expansion. REQ-CAL-003. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8170,6 +8450,7 @@
         "/widgets/files/{placementId}/contents": {
             "get": {
                 "operationId": "files-widget-contents",
+                "x-launchpad-stability": "internal",
                 "summary": "`GET /api/widgets/files/{placementId}/contents`",
                 "description": "`GET /api/widgets/files/{placementId}/contents`. Returns the configured folder's contents as `{items: [...], nextCursor: ?string}`. Empty folder is HTTP 200 with `items: []`. Missing folder is HTTP 404. Read-denied folder is HTTP 403. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8236,6 +8517,7 @@
         "/widgets/files/{placementId}/files/{fileId}": {
             "delete": {
                 "operationId": "files-widget-destroy",
+                "x-launchpad-stability": "internal",
                 "summary": "`DELETE /api/widgets/files/{placementId}/files/{fileId}`",
                 "description": "`DELETE /api/widgets/files/{placementId}/files/{fileId}`. Moves the supplied file into the user's trash bin. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8284,6 +8566,7 @@
         "/widgets/files/{placementId}/upload": {
             "post": {
                 "operationId": "files-widget-upload",
+                "x-launchpad-stability": "internal",
                 "summary": "`POST /api/widgets/files/{placementId}/upload`",
                 "description": "`POST /api/widgets/files/{placementId}/upload`. Accepts `multipart/form-data` with one or more `files[]` entries and writes them into the placement-configured folder (or a sub-path of it, if `currentPath` is supplied). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8340,6 +8623,7 @@
         "/widgets/items": {
             "get": {
                 "operationId": "widget-api-get-items",
+                "x-launchpad-stability": "internal",
                 "summary": "Get widget items for specified widgets",
                 "description": "Get widget items for specified widgets. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8406,6 +8690,7 @@
         "/widgets/news/{placementId}/items": {
             "get": {
                 "operationId": "widget-api-news-items",
+                "x-launchpad-stability": "internal",
                 "summary": "Fetch merged news widget items for a placement (REQ-NEWS-003)",
                 "description": "Fetch merged news widget items for a placement (REQ-NEWS-003). Validates the caller, clamps the limit, and delegates to {@see NewsWidgetService::getItemsForPlacement()}. The response shape is `{items: array, feedsFailed: int, failedUrls: array}` — the placement-level metadata filter is applied server-side (REQ-NEWS-007), and a placement that fails the filter responds with an empty items array (no HTTP fetch occurs). Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8454,6 +8739,7 @@
         "/widgets/{placementId}": {
             "put": {
                 "operationId": "widget-api-update-placement",
+                "x-launchpad-stability": "public",
                 "summary": "Update a widget placement",
                 "description": "Update a widget placement. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8491,6 +8777,7 @@
             },
             "delete": {
                 "operationId": "widget-api-remove-placement",
+                "x-launchpad-stability": "public",
                 "summary": "Remove a widget placement",
                 "description": "Remove a widget placement. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8530,6 +8817,7 @@
         "/widgets/{placementId}/rules": {
             "get": {
                 "operationId": "rule-api-get-rules",
+                "x-launchpad-stability": "internal",
                 "summary": "Get conditional rules for a widget placement",
                 "description": "Get conditional rules for a widget placement. Needs a signed-in Nextcloud user.",
                 "tags": [
@@ -8567,6 +8855,7 @@
             },
             "post": {
                 "operationId": "rule-api-add-rule",
+                "x-launchpad-stability": "internal",
                 "summary": "Add a conditional rule to a widget placement",
                 "description": "Add a conditional rule to a widget placement. Needs a signed-in Nextcloud user.",
                 "tags": [

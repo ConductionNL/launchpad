@@ -19,8 +19,10 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Service;
 
 use DateTime;
+use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCA\LaunchPad\Exception\StalePlacementException;
 use OCP\IDBConnection;
 use Throwable;
 
@@ -51,6 +53,8 @@ class PlacementService {
 	 * @param QuotaService|null       $quotaService Widget-quota enforcer (dashboard-quota-limits
 	 *                                              REQ-QUOTA-003). Nullable to keep existing test doubles
 	 *                                              working — when absent no quota is enforced.
+	 * @param DashboardMapper|null    $dashboardMapper Reads the dashboard's grid width for a new widget's free spot.
+	 * @param FreeSpotFinder          $freeSpots The free-spot search for a new widget.
 	 * @param IDBConnection|null      $db           Wraps a bookmark import in one transaction
 	 *                                              (launcher-bookmark-import REQ-BMI-003).
 	 */
@@ -59,6 +63,8 @@ class PlacementService {
 		private readonly PlacementUpdaters $updaters,
 		private readonly ?PublicShareContext $publicShareContext = null,
 		private readonly ?QuotaService $quotaService = null,
+		private readonly ?DashboardMapper $dashboardMapper = null,
+		private readonly FreeSpotFinder $freeSpots = new FreeSpotFinder(),
 		private readonly ?IDBConnection $db = null,
 	) {
 	}//end __construct()
@@ -97,10 +103,11 @@ class PlacementService {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$placement->setDashboardId($dashboardId);
 		$placement->setWidgetId($widgetId);
-		$placement->setGridX($layout['gridX']);
-		$placement->setGridY($layout['gridY']);
-		$placement->setGridWidth($layout['gridWidth']);
-		$placement->setGridHeight($layout['gridHeight']);
+		$spot = $this->freeSpot(dashboardId: $dashboardId, wanted: $layout);
+		$placement->setGridX($spot['gridX']);
+		$placement->setGridY($spot['gridY']);
+		$placement->setGridWidth($spot['gridWidth']);
+		$placement->setGridHeight($spot['gridHeight']);
 		$placement->setIsCompulsory(0);
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
@@ -142,12 +149,19 @@ class PlacementService {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$placement->setDashboardId($dashboardId);
 		$placement->setWidgetId('tile-' . uniqid());
-		$placement->setGridX($tileData['gridX'] ?? 0);
-		$placement->setGridY($tileData['gridY'] ?? 0);
-		$placement->setGridWidth($tileData['gridWidth'] ?? 2);
-		$placement->setGridHeight(
-			$tileData['gridHeight'] ?? 2
+		$spot = $this->freeSpot(
+			dashboardId: $dashboardId,
+			wanted: [
+				'gridX'      => (int)($tileData['gridX'] ?? 0),
+				'gridY'      => (int)($tileData['gridY'] ?? 0),
+				'gridWidth'  => (int)($tileData['gridWidth'] ?? 2),
+				'gridHeight' => (int)($tileData['gridHeight'] ?? 2),
+			]
 		);
+		$placement->setGridX($spot['gridX']);
+		$placement->setGridY($spot['gridY']);
+		$placement->setGridWidth($spot['gridWidth']);
+		$placement->setGridHeight($spot['gridHeight']);
 		$placement->setIsCompulsory(0);
 		$placement->setIsVisible(1);
 		$placement->setShowTitle(1);
@@ -180,6 +194,7 @@ class PlacementService {
 		// Task-7 of dashboard-public-share — bearer cannot mutate placements.
 		$this->publicShareContext?->requireMutable();
 		$placement = $this->placementMapper->find(id: $placementId);
+		$placement->setVersion($this->nextVersion(placement: $placement, data: $data));
 
 		$this->updaters->placementUpdater->applyGridUpdates(
 			placement: $placement,
@@ -204,6 +219,92 @@ class PlacementService {
 
 		return $this->placementMapper->update(entity: $placement);
 	}//end updatePlacement()
+
+	/**
+	 * The version a save writes: one above the version it was made on.
+	 *
+	 * A save that names the version it was made on claims that version in
+	 * one statement; when a colleague saved first the claim fails and the
+	 * save is refused with the widget as it is now. A save that names no
+	 * version (an older client) just raises the version.
+	 *
+	 * @param WidgetPlacement      $placement The widget as loaded.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return int
+	 *
+	 * @throws StalePlacementException When the change was made on an older version.
+	 *
+	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 */
+	private function nextVersion(WidgetPlacement $placement, array $data): int {
+		if (array_key_exists('version', $data) === false || is_numeric($data['version']) === false) {
+			return ($placement->getVersion() + 1);
+		}
+
+		$expected = (int)$data['version'];
+		if ($this->placementMapper->claimVersion(id: (int)$placement->getId(), expected: $expected) === false) {
+			throw new StalePlacementException(current: $this->placementMapper->find(id: (int)$placement->getId()));
+		}
+
+		return ($expected + 1);
+	}//end nextVersion()
+
+	/**
+	 * The spot a new widget takes: the one asked for when free in the saved
+	 * layout, else the first free one, never over another widget.
+	 *
+	 * @param int                                                      $dashboardId The dashboard.
+	 * @param array{gridX:int,gridY:int,gridWidth:int,gridHeight:int} $wanted      The spot asked for and the size.
+	 *
+	 * @return array{gridX:int,gridY:int,gridWidth:int,gridHeight:int}
+	 *
+	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 */
+	private function freeSpot(int $dashboardId, array $wanted): array {
+		$occupied = array_map(
+			static fn (WidgetPlacement $saved): array => [
+				'gridX'      => (int)$saved->getGridX(),
+				'gridY'      => (int)$saved->getGridY(),
+				'gridWidth'  => (int)$saved->getGridWidth(),
+				'gridHeight' => (int)$saved->getGridHeight(),
+			],
+			array_filter(
+				(array)$this->placementMapper->findByDashboardId(dashboardId: $dashboardId),
+				static fn ($saved): bool => $saved instanceof WidgetPlacement
+			)
+		);
+
+		return $this->freeSpots->place(
+			occupied: array_values($occupied),
+			columns: $this->columnsOf(dashboardId: $dashboardId),
+			wanted: [
+				'gridX'      => (int)$wanted['gridX'],
+				'gridY'      => (int)$wanted['gridY'],
+				'gridWidth'  => (int)$wanted['gridWidth'],
+				'gridHeight' => (int)$wanted['gridHeight'],
+			]
+		);
+	}//end freeSpot()
+
+	/**
+	 * The dashboard's grid column count; 12 when it cannot be read.
+	 *
+	 * @param int $dashboardId The dashboard.
+	 *
+	 * @return int
+	 */
+	private function columnsOf(int $dashboardId): int {
+		if ($this->dashboardMapper === null) {
+			return 12;
+		}
+
+		try {
+			return max(1, (int)$this->dashboardMapper->find(id: $dashboardId)->getGridColumns());
+		} catch (\Throwable) {
+			return 12;
+		}
+	}//end columnsOf()
 
 	/**
 	 * Remove a widget placement.

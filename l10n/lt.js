@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Rasta šiame serveryje",
     "Apps this server runs for you. One click places one as a tile." : "Programos, kurias šis serveris paleidžia jums. Vienu spustelėjimu iš jų padaroma plytelė.",
-    "On this dashboard" : "Šiame skydelyje"
+    "On this dashboard" : "Šiame skydelyje",
+    "Import bookmarks" : "Importuoti žymes",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Pasirinkite naršyklės eksportuotą žymių failą ir pažymėkite, ką pridėti.",
+    "Loose bookmarks" : "Atskiros žymės",
+    "This file is larger than 5 MB. Export one folder at a time." : "Failas didesnis nei 5 MB. Eksportuokite po vieną aplanką.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Faile yra daugiau nei 2 000 žymių. Eksportuokite po vieną aplanką.",
+    "{count} skipped: only web addresses can become tiles" : "Praleista: {count} – plytelėmis gali tapti tik žiniatinklio adresai",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Šis skydelis dar gali priimti {count}. Pasirinkite mažiau aplankų ar žymių.",
+    "The bookmarks could not be imported." : "Žymių importuoti nepavyko.",
+    "This file holds no bookmarks." : "Faile nėra žymių.",
+    "Folders" : "Aplankai"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

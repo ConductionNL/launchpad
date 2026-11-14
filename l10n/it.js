@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trovate su questo server",
     "Apps this server runs for you. One click places one as a tile." : "App che questo server esegue per te. Un clic le trasforma in un riquadro.",
-    "On this dashboard" : "Su questa dashboard"
+    "On this dashboard" : "Su questa dashboard",
+    "Import bookmarks" : "Importa segnalibri",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Scegli il file dei segnalibri esportato dal tuo browser, poi seleziona cosa aggiungere.",
+    "Loose bookmarks" : "Segnalibri sciolti",
+    "This file is larger than 5 MB. Export one folder at a time." : "Questo file supera i 5 MB. Esporta una cartella alla volta.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Questo file contiene più di 2.000 segnalibri. Esporta una cartella alla volta.",
+    "{count} skipped: only web addresses can become tiles" : "{count} saltati: solo gli indirizzi web possono diventare riquadri",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Questa dashboard può accoglierne ancora {count}. Scegli meno cartelle o segnalibri.",
+    "The bookmarks could not be imported." : "Impossibile importare i segnalibri.",
+    "This file holds no bookmarks." : "Questo file non contiene segnalibri.",
+    "Folders" : "Cartelle"
 },
 "nplurals=2; plural=(n != 1);"
 );

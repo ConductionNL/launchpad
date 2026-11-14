@@ -1336,6 +1336,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Atrasts šajā serverī",
         "Apps this server runs for you. One click places one as a tile.": "Lietotnes, ko šis serveris darbina jums. Viens klikšķis padara to par flīzi.",
-        "On this dashboard": "Šajā informācijas panelī"
+        "On this dashboard": "Šajā informācijas panelī",
+        "Import bookmarks": "Importēt grāmatzīmes",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Izvēlieties pārlūka eksportēto grāmatzīmju failu un atzīmējiet, ko pievienot.",
+        "Loose bookmarks": "Atsevišķas grāmatzīmes",
+        "This file is larger than 5 MB. Export one folder at a time.": "Fails ir lielāks par 5 MB. Eksportējiet pa vienai mapei.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Failā ir vairāk nekā 2000 grāmatzīmju. Eksportējiet pa vienai mapei.",
+        "{count} skipped: only web addresses can become tiles": "Izlaistas: {count} – par flīzēm var kļūt tikai tīmekļa adreses",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Šajā informācijas panelī vēl ietilpst {count}. Izvēlieties mazāk mapju vai grāmatzīmju.",
+        "The bookmarks could not be imported.": "Grāmatzīmes neizdevās importēt.",
+        "This file holds no bookmarks.": "Failā nav grāmatzīmju.",
+        "Folders": "Mapes"
     }
 }

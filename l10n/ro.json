@@ -1336,6 +1336,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Găsite pe acest server",
         "Apps this server runs for you. One click places one as a tile.": "Aplicații pe care acest server le rulează pentru dvs. Un clic le transformă într-o dală.",
-        "On this dashboard": "Pe acest panou"
+        "On this dashboard": "Pe acest panou",
+        "Import bookmarks": "Importă marcaje",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Alegeți fișierul de marcaje exportat de browser, apoi bifați ce doriți să adăugați.",
+        "Loose bookmarks": "Marcaje separate",
+        "This file is larger than 5 MB. Export one folder at a time.": "Fișierul depășește 5 MB. Exportați câte un dosar.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Fișierul are peste 2.000 de marcaje. Exportați câte un dosar.",
+        "{count} skipped: only web addresses can become tiles": "Omise: {count} – doar adresele web pot deveni plăci",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Acest tablou de bord mai poate primi {count}. Alegeți mai puține dosare sau marcaje.",
+        "The bookmarks could not be imported.": "Marcajele nu au putut fi importate.",
+        "This file holds no bookmarks.": "Fișierul nu conține marcaje.",
+        "Folders": "Dosare"
     }
 }

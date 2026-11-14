@@ -1336,6 +1336,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Nájdené na tomto serveri",
         "Apps this server runs for you. One click places one as a tile.": "Aplikácie, ktoré pre vás tento server prevádzkuje. Jedným kliknutím z nich urobíte dlaždicu.",
-        "On this dashboard": "Na tejto nástenke"
+        "On this dashboard": "Na tejto nástenke",
+        "Import bookmarks": "Importovať záložky",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Vyberte súbor so záložkami exportovaný z prehliadača a označte, čo pridať.",
+        "Loose bookmarks": "Samostatné záložky",
+        "This file is larger than 5 MB. Export one folder at a time.": "Súbor je väčší ako 5 MB. Exportujte vždy jeden priečinok.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Súbor obsahuje viac ako 2 000 záložiek. Exportujte vždy jeden priečinok.",
+        "{count} skipped: only web addresses can become tiles": "Preskočené: {count} – dlaždicou sa môže stať len webová adresa",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Tento panel pojme ešte {count}. Vyberte menej priečinkov alebo záložiek.",
+        "The bookmarks could not be imported.": "Záložky sa nepodarilo importovať.",
+        "This file holds no bookmarks.": "Súbor neobsahuje žiadne záložky.",
+        "Folders": "Priečinky"
     }
 }

@@ -208,6 +208,43 @@ class QuotaService {
 	}//end assertCanAddPlacement()
 
 	/**
+	 * Refuse adding several placements at once when they would take the
+	 * dashboard over its widget limit, before any of them is created
+	 * (launcher-bookmark-import REQ-BMI-003). Same bypass and same limit as
+	 * {@see self::assertCanAddPlacement()}.
+	 *
+	 * @param int $dashboardId The target dashboard ID.
+	 * @param int $count       How many placements would be added.
+	 *
+	 * @return void
+	 *
+	 * @throws QuotaExceededException When the dashboard has room for fewer than `$count`.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-the-import-respects-the-widget-quota-as-one-operation-req-bmi-003
+	 */
+	public function assertCanAddPlacements(int $dashboardId, int $count): void {
+		if ($this->provisioningDepth > 0 || $count <= 0) {
+			return;
+		}
+
+		$limit = $this->maxWidgetsPerDashboard();
+		if ($limit === 0) {
+			return;
+		}
+
+		$current = $this->placementMapper->countByDashboardId(
+			dashboardId: $dashboardId
+		);
+		if (($current + $count) > $limit) {
+			throw new QuotaExceededException(
+				quota: QuotaExceededException::QUOTA_WIDGETS,
+				limit: $limit,
+				current: $current
+			);
+		}
+	}//end assertCanAddPlacements()
+
+	/**
 	 * Build the additive quota-status envelope for the dashboards list
 	 * response (REQ-QUOTA-006).
 	 *

@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Encontrado neste servidor",
     "Apps this server runs for you. One click places one as a tile." : "Aplicações que este servidor executa para si. Um clique transforma-as num mosaico.",
-    "On this dashboard" : "Neste painel"
+    "On this dashboard" : "Neste painel",
+    "Import bookmarks" : "Importar marcadores",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Escolha o ficheiro de marcadores exportado pelo seu navegador e assinale o que pretende adicionar.",
+    "Loose bookmarks" : "Marcadores soltos",
+    "This file is larger than 5 MB. Export one folder at a time." : "Este ficheiro tem mais de 5 MB. Exporte uma pasta de cada vez.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Este ficheiro tem mais de 2000 marcadores. Exporte uma pasta de cada vez.",
+    "{count} skipped: only web addresses can become tiles" : "{count} ignorados: só endereços web podem tornar-se mosaicos",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Este painel aceita mais {count}. Escolha menos pastas ou marcadores.",
+    "The bookmarks could not be imported." : "Não foi possível importar os marcadores.",
+    "This file holds no bookmarks." : "Este ficheiro não contém marcadores.",
+    "Folders" : "Pastas"
 },
 "nplurals=2; plural=(n != 1);"
 );

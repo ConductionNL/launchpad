@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Auf diesem Server gefunden",
     "Apps this server runs for you. One click places one as a tile." : "Apps, die dieser Server für Sie ausführt. Ein Klick macht daraus eine Kachel.",
-    "On this dashboard" : "Auf diesem Dashboard"
+    "On this dashboard" : "Auf diesem Dashboard",
+    "Import bookmarks" : "Lesezeichen importieren",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Wählen Sie die Lesezeichendatei, die Ihr Browser exportiert hat, und markieren Sie, was hinzugefügt werden soll.",
+    "Loose bookmarks" : "Einzelne Lesezeichen",
+    "This file is larger than 5 MB. Export one folder at a time." : "Diese Datei ist größer als 5 MB. Exportieren Sie jeweils einen Ordner.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Diese Datei enthält mehr als 2.000 Lesezeichen. Exportieren Sie jeweils einen Ordner.",
+    "{count} skipped: only web addresses can become tiles" : "{count} übersprungen: Nur Webadressen können zu Kacheln werden",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dieses Dashboard kann noch {count} aufnehmen. Wählen Sie weniger Ordner oder Lesezeichen.",
+    "The bookmarks could not be imported." : "Die Lesezeichen konnten nicht importiert werden.",
+    "This file holds no bookmarks." : "Diese Datei enthält keine Lesezeichen.",
+    "Folders" : "Ordner"
 },
 "nplurals=2; plural=(n != 1);"
 );

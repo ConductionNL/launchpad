@@ -1359,6 +1359,16 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Пронађено на овом серверу",
     "Apps this server runs for you. One click places one as a tile." : "Апликације које овај сервер покреће за вас. Један клик их претвара у плочицу.",
-    "On this dashboard" : "На овој контролној табли"
+    "On this dashboard" : "На овој контролној табли",
+    "Import bookmarks" : "Увези обележиваче",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Изаберите датотеку обележивача коју је извезао прегледач, па означите шта да се дода.",
+    "Loose bookmarks" : "Појединачни обележивачи",
+    "This file is larger than 5 MB. Export one folder at a time." : "Датотека је већа од 5 MB. Извозите једну по једну фасциклу.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Датотека има више од 2.000 обележивача. Извозите једну по једну фасциклу.",
+    "{count} skipped: only web addresses can become tiles" : "Прескочено: {count} – плочица може бити само веб адреса",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ова контролна табла може да прими још {count}. Изаберите мање фасцикли или обележивача.",
+    "The bookmarks could not be imported." : "Обележиваче није било могуће увести.",
+    "This file holds no bookmarks." : "Датотека не садржи обележиваче.",
+    "Folders" : "Фасцикле"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

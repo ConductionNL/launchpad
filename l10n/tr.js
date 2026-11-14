@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Bu sunucuda bulundu",
     "Apps this server runs for you. One click places one as a tile." : "Bu sunucunun sizin için çalıştırdığı uygulamalar. Tek tıklama onları bir kutucuğa dönüştürür.",
-    "On this dashboard" : "Bu panoda"
+    "On this dashboard" : "Bu panoda",
+    "Import bookmarks" : "Yer imlerini içe aktar",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Tarayıcınızın dışa aktardığı yer imleri dosyasını seçin, ardından eklenecekleri işaretleyin.",
+    "Loose bookmarks" : "Tekil yer imleri",
+    "This file is larger than 5 MB. Export one folder at a time." : "Bu dosya 5 MB'tan büyük. Her seferinde bir klasörü dışa aktarın.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Bu dosyada 2.000'den fazla yer imi var. Her seferinde bir klasörü dışa aktarın.",
+    "{count} skipped: only web addresses can become tiles" : "{count} atlandı: yalnızca web adresleri kutucuk olabilir",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Bu pano {count} tane daha alabilir. Daha az klasör veya yer imi seçin.",
+    "The bookmarks could not be imported." : "Yer imleri içe aktarılamadı.",
+    "This file holds no bookmarks." : "Bu dosyada yer imi yok.",
+    "Folders" : "Klasörler"
 },
 "nplurals=2; plural=(n != 1);"
 );

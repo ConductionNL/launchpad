@@ -21,6 +21,8 @@ namespace OCA\LaunchPad\Service;
 use DateTime;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
+use OCP\IDBConnection;
+use Throwable;
 
 /**
  * Service for managing widget placement CRUD operations.
@@ -49,12 +51,15 @@ class PlacementService {
 	 * @param QuotaService|null       $quotaService Widget-quota enforcer (dashboard-quota-limits
 	 *                                              REQ-QUOTA-003). Nullable to keep existing test doubles
 	 *                                              working — when absent no quota is enforced.
+	 * @param IDBConnection|null      $db           Wraps a bookmark import in one transaction
+	 *                                              (launcher-bookmark-import REQ-BMI-003).
 	 */
 	public function __construct(
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly PlacementUpdaters $updaters,
 		private readonly ?PublicShareContext $publicShareContext = null,
 		private readonly ?QuotaService $quotaService = null,
+		private readonly ?IDBConnection $db = null,
 	) {
 	}//end __construct()
 
@@ -241,4 +246,89 @@ class PlacementService {
 			dashboardId: $dashboardId
 		);
 	}//end getDashboardPlacements()
+
+	/**
+	 * Create the placements of a bookmark import: the dashboard quota is
+	 * checked once for the whole import before anything is written, and every
+	 * placement is created in one transaction, so a failure leaves nothing
+	 * behind (launcher-bookmark-import REQ-BMI-001, REQ-BMI-003). Everything
+	 * goes below the dashboard's lowest edge (bottom-append).
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return list<WidgetPlacement> The created placements, containers first.
+	 *
+	 * @throws \OCA\LaunchPad\Exception\QuotaExceededException When the import does not fit the quota.
+	 * @throws Throwable When a write fails; the transaction is rolled back first.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-the-import-respects-the-widget-quota-as-one-operation-req-bmi-003
+	 */
+	public function importBookmarks(int $dashboardId, BookmarkImportPlan $plan): array {
+		$this->publicShareContext?->requireMutable();
+		$this->quotaService?->assertCanAddPlacements(dashboardId: $dashboardId, count: $plan->placementCount());
+
+		$bottom = 0;
+		foreach ($this->getDashboardPlacements(dashboardId: $dashboardId) as $existing) {
+			$bottom = max($bottom, ((int)$existing->getGridY() + (int)$existing->getGridHeight()));
+		}
+
+		$this->db?->beginTransaction();
+		try {
+			$created = [];
+			foreach ($plan->layout(bottom: $bottom) as $spec) {
+				$created[] = $this->placementMapper->insert(entity: $this->importedPlacement(dashboardId: $dashboardId, spec: $spec));
+			}
+
+			$this->db?->commit();
+		} catch (Throwable $e) {
+			$this->db?->rollBack();
+			throw $e;
+		}
+
+		return $created;
+	}//end importBookmarks()
+
+	/**
+	 * One placement of an import: a container with its link children, or a
+	 * tile opening the bookmark in a new tab.
+	 *
+	 * @param int                  $dashboardId The dashboard.
+	 * @param array<string, mixed> $spec        One entry of {@see BookmarkImportPlan::layout()}.
+	 *
+	 * @return WidgetPlacement
+	 */
+	private function importedPlacement(int $dashboardId, array $spec): WidgetPlacement {
+		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
+		$placement = new WidgetPlacement();
+		$placement->setDashboardId($dashboardId);
+		$placement->setGridX($spec['gridX']);
+		$placement->setGridY($spec['gridY']);
+		$placement->setGridWidth($spec['gridWidth']);
+		$placement->setGridHeight($spec['gridHeight']);
+		$placement->setIsCompulsory(0);
+		$placement->setIsVisible(1);
+		$placement->setShowTitle(1);
+		$placement->setCreatedAt($now);
+		$placement->setUpdatedAt($now);
+
+		if (isset($spec['tile']) === true) {
+			$placement->setWidgetId('tile-' . uniqid());
+			$this->updaters->tileUpdater->applyTileConfig(
+				placement: $placement,
+				tileData: [
+					'title' => $spec['tile']['title'],
+					'linkType' => 'url',
+					'linkVal' => $spec['tile']['url'],
+					'icon' => 'icon-link',
+					'iconType' => 'class',
+				]
+			);
+			return $placement;
+		}
+
+		$placement->setWidgetId((string)$spec['widgetId']);
+		$placement->setContentArray($spec['content']);
+		return $placement;
+	}//end importedPlacement()
 }//end class

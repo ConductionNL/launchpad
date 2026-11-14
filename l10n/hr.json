@@ -1336,6 +1336,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Pronađeno na ovom poslužitelju",
         "Apps this server runs for you. One click places one as a tile.": "Aplikacije koje ovaj poslužitelj pokreće za vas. Jednim klikom postaju pločica.",
-        "On this dashboard": "Na ovoj nadzornoj ploči"
+        "On this dashboard": "Na ovoj nadzornoj ploči",
+        "Import bookmarks": "Uvezi oznake",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Odaberite datoteku oznaka koju je izvezao preglednik, zatim označite što dodati.",
+        "Loose bookmarks": "Pojedinačne oznake",
+        "This file is larger than 5 MB. Export one folder at a time.": "Datoteka je veća od 5 MB. Izvezite jednu po jednu mapu.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Datoteka ima više od 2.000 oznaka. Izvezite jednu po jednu mapu.",
+        "{count} skipped: only web addresses can become tiles": "Preskočeno: {count} – samo web-adrese mogu postati pločice",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ova nadzorna ploča može primiti još {count}. Odaberite manje mapa ili oznaka.",
+        "The bookmarks could not be imported.": "Oznake nije bilo moguće uvesti.",
+        "This file holds no bookmarks.": "Datoteka ne sadrži oznake.",
+        "Folders": "Mape"
     }
 }

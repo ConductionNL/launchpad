@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Znalezione na tym serwerze",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacje, które ten serwer uruchamia dla Ciebie. Jedno kliknięcie zamienia je w kafelek.",
-    "On this dashboard" : "Na tym pulpicie"
+    "On this dashboard" : "Na tym pulpicie",
+    "Import bookmarks" : "Importuj zakładki",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Wybierz plik zakładek wyeksportowany z przeglądarki i zaznacz, co dodać.",
+    "Loose bookmarks" : "Pojedyncze zakładki",
+    "This file is larger than 5 MB. Export one folder at a time." : "Ten plik jest większy niż 5 MB. Eksportuj po jednym folderze.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Ten plik zawiera ponad 2000 zakładek. Eksportuj po jednym folderze.",
+    "{count} skipped: only web addresses can become tiles" : "Pominięto: {count} – kafelkiem może zostać tylko adres internetowy",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ten pulpit pomieści jeszcze {count}. Wybierz mniej folderów lub zakładek.",
+    "The bookmarks could not be imported." : "Nie udało się zaimportować zakładek.",
+    "This file holds no bookmarks." : "Ten plik nie zawiera zakładek.",
+    "Folders" : "Foldery"
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

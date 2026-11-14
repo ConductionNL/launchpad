@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Βρέθηκαν σε αυτόν τον διακομιστή",
     "Apps this server runs for you. One click places one as a tile." : "Εφαρμογές που εκτελεί αυτός ο διακομιστής για εσάς. Ένα κλικ τις κάνει πλακίδιο.",
-    "On this dashboard" : "Σε αυτόν τον πίνακα"
+    "On this dashboard" : "Σε αυτόν τον πίνακα",
+    "Import bookmarks" : "Εισαγωγή σελιδοδεικτών",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Επιλέξτε το αρχείο σελιδοδεικτών που εξήγαγε το πρόγραμμα περιήγησης και σημειώστε τι θα προστεθεί.",
+    "Loose bookmarks" : "Μεμονωμένοι σελιδοδείκτες",
+    "This file is larger than 5 MB. Export one folder at a time." : "Το αρχείο είναι μεγαλύτερο από 5 MB. Εξαγάγετε έναν φάκελο τη φορά.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Το αρχείο έχει περισσότερους από 2.000 σελιδοδείκτες. Εξαγάγετε έναν φάκελο τη φορά.",
+    "{count} skipped: only web addresses can become tiles" : "Παραλείφθηκαν: {count} – μόνο διευθύνσεις ιστού μπορούν να γίνουν πλακίδια",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Αυτός ο πίνακας χωράει ακόμη {count}. Επιλέξτε λιγότερους φακέλους ή σελιδοδείκτες.",
+    "The bookmarks could not be imported." : "Δεν ήταν δυνατή η εισαγωγή των σελιδοδεικτών.",
+    "This file holds no bookmarks." : "Το αρχείο δεν περιέχει σελιδοδείκτες.",
+    "Folders" : "Φάκελοι"
 },
 "nplurals=2; plural=(n != 1);"
 );

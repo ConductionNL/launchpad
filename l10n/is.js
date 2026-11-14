@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Fundið á þessum þjóni",
     "Apps this server runs for you. One click places one as a tile." : "Forrit sem þessi þjónn keyrir fyrir þig. Einn smellur gerir reit úr því.",
-    "On this dashboard" : "Á þessu stjórnborði"
+    "On this dashboard" : "Á þessu stjórnborði",
+    "Import bookmarks" : "Flytja inn bókamerki",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Veldu bókamerkjaskrána sem vafrinn flutti út og hakaðu við það sem á að bæta við.",
+    "Loose bookmarks" : "Stök bókamerki",
+    "This file is larger than 5 MB. Export one folder at a time." : "Skráin er stærri en 5 MB. Fluttu út eina möppu í einu.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Skráin inniheldur meira en 2.000 bókamerki. Fluttu út eina möppu í einu.",
+    "{count} skipped: only web addresses can become tiles" : "Sleppt: {count} – aðeins veffang getur orðið að reit",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Þetta stjórnborð rúmar {count} í viðbót. Veldu færri möppur eða bókamerki.",
+    "The bookmarks could not be imported." : "Ekki tókst að flytja inn bókamerkin.",
+    "This file holds no bookmarks." : "Skráin inniheldur engin bókamerki.",
+    "Folders" : "Möppur"
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

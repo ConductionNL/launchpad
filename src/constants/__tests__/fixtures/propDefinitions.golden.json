@@ -1015,6 +1015,17 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../modals/BookmarkImportModal.vue | open": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
+	"../../modals/BookmarkImportModal.vue | importBookmarks": {
+		"type": "Function",
+		"required": true,
+		"validator": false
+	},
 	"../../modals/DashboardConfigModal.vue | open": {
 		"type": "Boolean",
 		"required": false,

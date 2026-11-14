@@ -1335,6 +1335,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Chattà sin quest server",
         "Apps this server runs for you. One click places one as a tile.": "Apps che quest server exequescha per Vus. In clic fa ina plattina.",
-        "On this dashboard": "Sin quest dashboard"
+        "On this dashboard": "Sin quest dashboard",
+        "Import bookmarks": "Importar marcaturas",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Tscherni la datoteca da marcaturas che Voss navigatur ha exportà e marcai quai che duai vegnir agiuntà.",
+        "Loose bookmarks": "Marcaturas singulas",
+        "This file is larger than 5 MB. Export one folder at a time.": "Questa datoteca è pli gronda che 5 MB. Exportai in ordinatur a la giada.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Questa datoteca cuntegna dapli che 2 000 marcaturas. Exportai in ordinatur a la giada.",
+        "{count} skipped: only web addresses can become tiles": "{count} sursiglientadas: mo adressas web pon daventar quadrins",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Quest dashboard po anc prender si {count}. Tscherni damain ordinaturs u marcaturas.",
+        "The bookmarks could not be imported.": "Las marcaturas n'han betg pudì vegnir importadas.",
+        "This file holds no bookmarks.": "Questa datoteca na cuntegna naginas marcaturas.",
+        "Folders": "Ordinaturs"
     }
 }

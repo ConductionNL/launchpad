@@ -49,6 +49,7 @@
 				@toggleEdit="onRowToggleEdit"
 				@openConfig="onRowOpenConfig"
 				@addCustomWidget="onRowAddCustomWidget"
+				@importBookmarks="onRowImportBookmarks"
 				@setDefault="onRowSetDefault" />
 			<SidebarBackdrop v-if="sidebarOpen" @close="sidebarOpen = false" />
 		</Teleport>
@@ -118,6 +119,9 @@
 					"
 					@addCustomWidget="
 						onRowAddCustomWidget(activeDashboard, activeDashboardSource)
+					"
+					@importBookmarks="
+						onRowImportBookmarks(activeDashboard, activeDashboardSource)
 					"
 					@setDefault="
 						onRowSetDefault(activeDashboard, activeDashboardSource)
@@ -423,6 +427,11 @@
 			@delete="deleteWidget" />
 
 		<!-- Tile editor modal -->
+		<BookmarkImportModal
+			:open="isBookmarkImportOpen"
+			:importBookmarks="importChosenBookmarks"
+			@close="isBookmarkImportOpen = false" />
+
 		<TileEditor
 			:open="isTileEditorOpen"
 			:tile="editingTile"
@@ -522,6 +531,7 @@ import DeleteDashboardDialog from '../dialogs/DeleteDashboardDialog.vue'
 import ReadConfirmationDialog from '../dialogs/ReadConfirmationDialog.vue'
 import ScheduleDashboardDialog from '../dialogs/ScheduleDashboardDialog.vue'
 import AcknowledgementReportModal from '../modals/AcknowledgementReportModal.vue'
+import BookmarkImportModal from '../modals/BookmarkImportModal.vue'
 import DashboardConfigModal from '../modals/DashboardConfigModal.vue'
 import TileEditor from '../modals/TileEditor.vue'
 import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
@@ -568,6 +578,7 @@ export default {
 		TileWidget,
 		WidgetPickerModal,
 		CnWidgetStyleEditorModal,
+		BookmarkImportModal,
 		TileEditor,
 		DashboardConfigModal,
 		CnAddWidgetModal,
@@ -733,6 +744,7 @@ export default {
 			// keeps the live store placement untouched until the patch persists.
 			styleEditorWidget: null,
 			isTileEditorOpen: false,
+			isBookmarkImportOpen: false,
 			editingTile: null,
 			// Custom widget add/edit modal state. `customWidgetEditing`
 			// non-null = edit mode; `customWidgetPreselectedType` non-null =
@@ -1482,6 +1494,7 @@ export default {
 			'updatePlacements',
 			'addWidgetToDashboard',
 			'addTileToDashboard',
+			'importBookmarks',
 			'removeWidgetFromDashboard',
 			'updateWidgetPlacement',
 			'recordViewEvent',
@@ -2794,6 +2807,31 @@ export default {
 		async onRowAddCustomWidget(dashboard, source) {
 			await this.maybeSwitchTo(dashboard.id, source)
 			this.openCustomWidgetModal()
+		},
+
+		/**
+		 * Open the bookmark import for the row's dashboard, switching to it
+		 * first so the new containers and tiles land where the user looks
+		 * (launcher-bookmark-import REQ-BMI-001).
+		 *
+		 * @param {object} dashboard Row payload.
+		 * @param {'group'|'default'|'user'} source Row section discriminator.
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		async onRowImportBookmarks(dashboard, source) {
+			await this.maybeSwitchTo(dashboard.id, source)
+			this.isBookmarkImportOpen = true
+		},
+
+		/**
+		 * Send the chosen bookmarks for the active dashboard through the store.
+		 *
+		 * @param {{folders: Array<object>, bookmarks: Array<object>}} chosen The chosen items.
+		 * @return {Promise<{placements: Array<object>, skipped: Array<object>}>}
+		 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+		 */
+		importChosenBookmarks(chosen) {
+			return this.importBookmarks(chosen)
 		},
 
 		/**

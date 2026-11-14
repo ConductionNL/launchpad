@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Hittat på den här servern",
     "Apps this server runs for you. One click places one as a tile." : "Appar som den här servern kör åt dig. Ett klick gör en till en ruta.",
-    "On this dashboard" : "På den här instrumentpanelen"
+    "On this dashboard" : "På den här instrumentpanelen",
+    "Import bookmarks" : "Importera bokmärken",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Välj bokmärkesfilen som din webbläsare exporterade och kryssa i det du vill lägga till.",
+    "Loose bookmarks" : "Lösa bokmärken",
+    "This file is larger than 5 MB. Export one folder at a time." : "Filen är större än 5 MB. Exportera en mapp i taget.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Filen har fler än 2 000 bokmärken. Exportera en mapp i taget.",
+    "{count} skipped: only web addresses can become tiles" : "{count} hoppades över: bara webbadresser kan bli rutor",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Den här instrumentpanelen rymmer {count} till. Välj färre mappar eller bokmärken.",
+    "The bookmarks could not be imported." : "Bokmärkena kunde inte importeras.",
+    "This file holds no bookmarks." : "Filen innehåller inga bokmärken.",
+    "Folders" : "Mappar"
 },
 "nplurals=2; plural=(n != 1);"
 );

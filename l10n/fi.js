@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Löytyi tältä palvelimelta",
     "Apps this server runs for you. One click places one as a tile." : "Sovellukset, joita tämä palvelin ajaa sinulle. Yksi napsautus tekee niistä ruudun.",
-    "On this dashboard" : "Tällä kojelaudalla"
+    "On this dashboard" : "Tällä kojelaudalla",
+    "Import bookmarks" : "Tuo kirjanmerkit",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Valitse selaimen viemä kirjanmerkkitiedosto ja rastita lisättävät.",
+    "Loose bookmarks" : "Erilliset kirjanmerkit",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tiedosto on yli 5 Mt. Vie yksi kansio kerrallaan.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tiedostossa on yli 2 000 kirjanmerkkiä. Vie yksi kansio kerrallaan.",
+    "{count} skipped: only web addresses can become tiles" : "Ohitettu: {count} – vain verkko-osoitteista voi tulla ruutuja",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Tähän koontinäkymään mahtuu vielä {count}. Valitse vähemmän kansioita tai kirjanmerkkejä.",
+    "The bookmarks could not be imported." : "Kirjanmerkkejä ei voitu tuoda.",
+    "This file holds no bookmarks." : "Tiedostossa ei ole kirjanmerkkejä.",
+    "Folders" : "Kansiot"
 },
 "nplurals=2; plural=(n != 1);"
 );

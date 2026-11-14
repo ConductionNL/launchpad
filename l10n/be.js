@@ -1359,6 +1359,16 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Знойдзена на гэтым серверы",
     "Apps this server runs for you. One click places one as a tile." : "Праграмы, якія гэты сервер запускае для вас. Адзін клік робіць з іх плітку.",
-    "On this dashboard" : "На гэтай панэлі"
+    "On this dashboard" : "На гэтай панэлі",
+    "Import bookmarks" : "Імпартаваць закладкі",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Выберыце файл закладак, экспартаваны браўзерам, і адзначце, што дадаць.",
+    "Loose bookmarks" : "Асобныя закладкі",
+    "This file is larger than 5 MB. Export one folder at a time." : "Файл большы за 5 МБ. Экспартуйце па адной папцы.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "У файле больш за 2000 закладак. Экспартуйце па адной папцы.",
+    "{count} skipped: only web addresses can become tiles" : "Прапушчана: {count} – пліткай можа стаць толькі вэб-адрас",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "На гэту панэль можна дадаць яшчэ {count}. Выберыце менш папак або закладак.",
+    "The bookmarks could not be imported." : "Не ўдалося імпартаваць закладкі.",
+    "This file holds no bookmarks." : "У файле няма закладак.",
+    "Folders" : "Папкі"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

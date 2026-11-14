@@ -1635,7 +1635,17 @@ OC.L10N.register(
     "Adapter" : "Adapter",
     "Source template" : "Bronsjabloon",
     "Configuration template" : "Configuratiesjabloon",
-    "Agent template" : "Agentsjabloon"
+    "Agent template" : "Agentsjabloon",
+    "Import bookmarks" : "Bladwijzers importeren",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Kies het bladwijzerbestand dat uw browser heeft geëxporteerd en vink aan wat u wilt toevoegen.",
+    "Loose bookmarks" : "Losse bladwijzers",
+    "This file is larger than 5 MB. Export one folder at a time." : "Dit bestand is groter dan 5 MB. Exporteer één map tegelijk.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Dit bestand bevat meer dan 2.000 bladwijzers. Exporteer één map tegelijk.",
+    "{count} skipped: only web addresses can become tiles" : "{count} overgeslagen: alleen webadressen kunnen tegels worden",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dit dashboard kan er nog {count} bij hebben. Kies minder mappen of bladwijzers.",
+    "The bookmarks could not be imported." : "De bladwijzers konden niet worden geïmporteerd.",
+    "This file holds no bookmarks." : "Dit bestand bevat geen bladwijzers.",
+    "Folders" : "Mappen"
 },
 "nplurals=2; plural=(n != 1);"
 );

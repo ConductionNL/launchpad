@@ -180,6 +180,20 @@ class WidgetService {
 	}//end addTileFromArray()
 
 	/**
+	 * Import chosen bookmarks onto a dashboard as containers and tiles.
+	 *
+	 * @param int                $dashboardId The dashboard.
+	 * @param BookmarkImportPlan $plan        What to create.
+	 *
+	 * @return list<WidgetPlacement> The created placements.
+	 *
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md#requirement-users-can-import-a-browser-bookmarks-file-as-tiles-req-bmi-001
+	 */
+	public function importBookmarks(int $dashboardId, BookmarkImportPlan $plan): array {
+		return $this->placementService->importBookmarks(dashboardId: $dashboardId, plan: $plan);
+	}//end importBookmarks()
+
+	/**
 	 * Update a widget placement.
 	 *
 	 * When the update carries a `content` payload, run the same save-time

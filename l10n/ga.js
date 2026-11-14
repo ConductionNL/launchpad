@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Aimsithe ar an bhfreastalaí seo",
     "Apps this server runs for you. One click places one as a tile." : "Aipeanna a ritheann an freastalaí seo duit. Cuireann cliceáil amháin ina tíl iad.",
-    "On this dashboard" : "Ar an deais seo"
+    "On this dashboard" : "Ar an deais seo",
+    "Import bookmarks" : "Iompórtáil leabharmharcanna",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Roghnaigh an comhad leabharmharcanna a d'easpórtáil do bhrabhsálaí, ansin cuir tic leis an méid atá le cur leis.",
+    "Loose bookmarks" : "Leabharmharcanna scaoilte",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tá an comhad seo níos mó ná 5 MB. Easpórtáil fillteán amháin ag an am.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tá níos mó ná 2,000 leabharmharc sa chomhad seo. Easpórtáil fillteán amháin ag an am.",
+    "{count} skipped: only web addresses can become tiles" : "Scipeáladh {count}: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Is féidir {count} eile a chur ar an deais seo. Roghnaigh níos lú fillteán nó leabharmharcanna.",
+    "The bookmarks could not be imported." : "Níorbh fhéidir na leabharmharcanna a iompórtáil.",
+    "This file holds no bookmarks." : "Níl aon leabharmharc sa chomhad seo.",
+    "Folders" : "Fillteáin"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 );

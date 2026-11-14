@@ -1359,7 +1359,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Op dësem Server fonnt",
     "Apps this server runs for you. One click places one as a tile." : "Apps, déi dësen Server fir Iech leeft. Ee Klick mécht eng Kachel draus.",
-    "On this dashboard" : "Op dësem Dashboard"
+    "On this dashboard" : "Op dësem Dashboard",
+    "Import bookmarks" : "Lieszeechen importéieren",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Wielt d'Lieszeechendatei, déi Äre Browser exportéiert huet, a markéiert, wat derbäikomme soll.",
+    "Loose bookmarks" : "Eenzel Lieszeechen",
+    "This file is larger than 5 MB. Export one folder at a time." : "Dës Datei ass méi grouss wéi 5 MB. Exportéiert een Dossier gläichzäiteg.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Dës Datei huet méi wéi 2.000 Lieszeechen. Exportéiert een Dossier gläichzäiteg.",
+    "{count} skipped: only web addresses can become tiles" : "{count} iwwersprong: nëmme Webadressen kënne Kacheln ginn",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dësen Dashboard kann nach {count} ophuelen. Wielt manner Dossieren oder Lieszeechen.",
+    "The bookmarks could not be imported." : "D'Lieszeeche konnten net importéiert ginn.",
+    "This file holds no bookmarks." : "Dës Datei enthält keng Lieszeechen.",
+    "Folders" : "Dossieren"
 },
 "nplurals=2; plural=(n != 1);"
 );

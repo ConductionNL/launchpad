@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Najdeno na tem strežniku",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacije, ki jih ta strežnik poganja za vas. En klik naredi iz njih ploščico.",
-    "On this dashboard" : "Na tej nadzorni plošči"
+    "On this dashboard" : "Na tej nadzorni plošči",
+    "Import bookmarks" : "Uvozi zaznamke",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Izberite datoteko z zaznamki, ki jo je izvozil brskalnik, in označite, kaj dodati.",
+    "Loose bookmarks" : "Posamezni zaznamki",
+    "This file is larger than 5 MB. Export one folder at a time." : "Datoteka je večja od 5 MB. Izvozite po eno mapo.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Datoteka vsebuje več kot 2.000 zaznamkov. Izvozite po eno mapo.",
+    "{count} skipped: only web addresses can become tiles" : "Preskočeno: {count} – ploščica je lahko le spletni naslov",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ta nadzorna plošča sprejme še {count}. Izberite manj map ali zaznamkov.",
+    "The bookmarks could not be imported." : "Zaznamkov ni bilo mogoče uvoziti.",
+    "This file holds no bookmarks." : "Datoteka ne vsebuje zaznamkov.",
+    "Folders" : "Mape"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 );

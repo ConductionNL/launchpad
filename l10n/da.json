@@ -1335,6 +1335,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Fundet på denne server",
         "Apps this server runs for you. One click places one as a tile.": "Apps, som denne server kører for dig. Ét klik gør en til en flise.",
-        "On this dashboard": "På dette dashboard"
+        "On this dashboard": "På dette dashboard",
+        "Import bookmarks": "Importér bogmærker",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Vælg den bogmærkefil, din browser har eksporteret, og markér det, der skal tilføjes.",
+        "Loose bookmarks": "Løse bogmærker",
+        "This file is larger than 5 MB. Export one folder at a time.": "Filen er større end 5 MB. Eksportér én mappe ad gangen.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Filen har mere end 2.000 bogmærker. Eksportér én mappe ad gangen.",
+        "{count} skipped: only web addresses can become tiles": "{count} sprunget over: kun webadresser kan blive til fliser",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Dette dashboard kan rumme {count} mere. Vælg færre mapper eller bogmærker.",
+        "The bookmarks could not be imported.": "Bogmærkerne kunne ikke importeres.",
+        "This file holds no bookmarks.": "Filen indeholder ingen bogmærker.",
+        "Folders": "Mapper"
     }
 }

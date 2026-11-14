@@ -1335,6 +1335,16 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Encontrado en este servidor",
         "Apps this server runs for you. One click places one as a tile.": "Aplicaciones que este servidor ejecuta para usted. Un clic las convierte en un mosaico.",
-        "On this dashboard": "En este panel"
+        "On this dashboard": "En este panel",
+        "Import bookmarks": "Importar marcadores",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Elija el archivo de marcadores que exportó su navegador y marque lo que desea añadir.",
+        "Loose bookmarks": "Marcadores sueltos",
+        "This file is larger than 5 MB. Export one folder at a time.": "Este archivo supera los 5 MB. Exporte una carpeta cada vez.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Este archivo tiene más de 2.000 marcadores. Exporte una carpeta cada vez.",
+        "{count} skipped: only web addresses can become tiles": "{count} omitidos: solo las direcciones web pueden convertirse en mosaicos",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Este panel admite {count} más. Elija menos carpetas o marcadores.",
+        "The bookmarks could not be imported.": "No se pudieron importar los marcadores.",
+        "This file holds no bookmarks.": "Este archivo no contiene marcadores.",
+        "Folders": "Carpetas"
     }
 }

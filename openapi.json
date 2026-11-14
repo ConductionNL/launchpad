@@ -3223,6 +3223,130 @@
                 }
             }
         },
+        "/dashboard/{dashboardId}/tiles/import": {
+            "post": {
+                "operationId": "bookmark-import-import",
+                "summary": "Import chosen browser bookmarks as containers and tiles",
+                "description": "Import chosen browser bookmarks onto a dashboard (launcher-bookmark-import REQ-BMI-001..003): each folder becomes a container of link tiles, each loose bookmark a tile, appended at the bottom. Addresses that are not http or https are skipped and listed back. The widget quota is checked for the whole import; nothing is created when it does not fit. Needs a signed-in Nextcloud user who may add to the dashboard.",
+                "tags": [
+                    "widget-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "dashboardId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Dashboard ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "folders": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "bookmarks": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "url": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "bookmarks": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The placements were created; `skipped` lists the bookmarks that were not, with the reason.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "placements": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "skipped": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    },
+                                                    "reason": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
+        },
         "/dashboard/{dashboardId}/widgets": {
             "post": {
                 "operationId": "widget-api-add-widget",

@@ -1368,7 +1368,17 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Ezen a szerveren található",
     "Apps this server runs for you. One click places one as a tile." : "Alkalmazások, amelyeket ez a szerver futtat Önnek. Egy kattintással csempe lesz belőlük.",
-    "On this dashboard" : "Ezen az irányítópulton"
+    "On this dashboard" : "Ezen az irányítópulton",
+    "Import bookmarks" : "Könyvjelzők importálása",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Válassza ki a böngésző által exportált könyvjelzőfájlt, majd jelölje be, mit szeretne hozzáadni.",
+    "Loose bookmarks" : "Különálló könyvjelzők",
+    "This file is larger than 5 MB. Export one folder at a time." : "A fájl nagyobb 5 MB-nál. Egyszerre egy mappát exportáljon.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "A fájl több mint 2000 könyvjelzőt tartalmaz. Egyszerre egy mappát exportáljon.",
+    "{count} skipped: only web addresses can become tiles" : "Kihagyva: {count} – csak webcímből lehet csempe",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ez az irányítópult még {count} elemet fogad. Válasszon kevesebb mappát vagy könyvjelzőt.",
+    "The bookmarks could not be imported." : "A könyvjelzőket nem sikerült importálni.",
+    "This file holds no bookmarks." : "A fájl nem tartalmaz könyvjelzőket.",
+    "Folders" : "Mappák"
 },
 "nplurals=2; plural=(n != 1);"
 );

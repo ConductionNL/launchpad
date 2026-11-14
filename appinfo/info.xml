@@ -97,6 +97,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 		<!-- widgets-people-expertise-and-fields REQ-PEX-001/004: daily LDAP and profile mirror sync. -->
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
+		<!-- engagement-announcements D5: tell category followers about newly visible announcements. -->
+		<job>OCA\LaunchPad\BackgroundJob\AnnouncementNotifyJob</job>
 	</background-jobs>
 
 	<repair-steps>

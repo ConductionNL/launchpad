@@ -23,6 +23,7 @@ use OCA\LaunchPad\Db\Announcement;
 use OCA\LaunchPad\Db\AnnouncementMapper;
 use OCA\LaunchPad\Exception\ForbiddenException;
 use OCA\LaunchPad\Service\AdminTemplateService;
+use OCA\LaunchPad\Service\AnnouncementFollowNotifier;
 use OCA\LaunchPad\Service\AnnouncementInput;
 use OCA\LaunchPad\Service\AnnouncementService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -74,7 +75,7 @@ class AnnouncementServiceTest extends TestCase {
 	 *
 	 * @return AnnouncementService
 	 */
-	private function service(array $editorGroups = ['redactie']): AnnouncementService {
+	private function service(array $editorGroups = ['redactie'], ?AnnouncementFollowNotifier $notifier = null): AnnouncementService {
 		$mapper = $this->createMock(AnnouncementMapper::class);
 		$mapper->method('insert')->willReturnCallback(function (Announcement $entity): Announcement {
 			$this->stored[$entity->getUuid()] = $entity;
@@ -137,7 +138,7 @@ class AnnouncementServiceTest extends TestCase {
 		$userManager = $this->createMock(IUserManager::class);
 		$userManager->method('countUsersTotal')->willReturn(4);
 
-		return new AnnouncementService($mapper, new AnnouncementInput(), $settings, $userGroups, $groupManager, $time, $userManager);
+		return new AnnouncementService($mapper, new AnnouncementInput(), $settings, $userGroups, $groupManager, $time, $userManager, $notifier);
 	}//end service()
 
 	/**
@@ -340,4 +341,19 @@ class AnnouncementServiceTest extends TestCase {
 		$service->delete('karin', $news->getUuid());
 		$this->assertSame([], $this->stored);
 	}//end testDelete()
+	/**
+	 * D5: publishing hands the published announcement to the follow notifier,
+	 * which tells followers at once when its publish time has come.
+	 *
+	 * @return void
+	 */
+	public function testPublishingHandsTheAnnouncementToTheFollowNotifier(): void {
+		$notifier = $this->createMock(AnnouncementFollowNotifier::class);
+		$notifier->expects($this->once())->method('notify')->with(
+			$this->callback(static fn (Announcement $announcement): bool => $announcement->getStatus() === 'published' && $announcement->getTitle() === 'Nieuwe privacyverklaring')
+		)->willReturn(1);
+		$service = $this->service(notifier: $notifier);
+
+		$service->publish('karin', $service->create('karin', ['title' => 'Nieuwe privacyverklaring', 'category' => 'Privacy'])->getUuid());
+	}//end testPublishingHandsTheAnnouncementToTheFollowNotifier()
 }//end class

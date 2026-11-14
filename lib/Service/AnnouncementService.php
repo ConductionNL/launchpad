@@ -67,6 +67,7 @@ class AnnouncementService {
 	 * @param IGroupManager            $groupManager  Administrators and group sizes.
 	 * @param ITimeFactory             $time          The clock.
 	 * @param IUserManager             $userManager   Counts everyone, for an announcement without target groups.
+	 * @param AnnouncementFollowNotifier|null $followNotifier Tells followers at once when the publish time is already here (D5).
 	 */
 	public function __construct(
 		private readonly AnnouncementMapper $announcements,
@@ -76,6 +77,7 @@ class AnnouncementService {
 		private readonly IGroupManager $groupManager,
 		private readonly ITimeFactory $time,
 		private readonly IUserManager $userManager,
+		private readonly ?AnnouncementFollowNotifier $followNotifier = null,
 	) {
 	}//end __construct()
 
@@ -251,8 +253,11 @@ class AnnouncementService {
 
 		$announcement->setStatus(Announcement::STATUS_PUBLISHED);
 		$announcement->setUpdatedAt($this->now());
+		$published = $this->announcements->update(entity: $announcement);
+		// A publish time that has come notifies at once; a later one is left to AnnouncementNotifyJob.
+		$this->followNotifier?->notify(announcement: $published);
 
-		return $this->announcements->update(entity: $announcement);
+		return $published;
 	}//end publish()
 
 	/**

@@ -286,7 +286,7 @@ describe('LiveTileWidgetForm — REQ-LIVETILE-005 connector-mode gating', () => 
 		// Component self-heals to url mode; force back to connector to
 		// exercise the defensive validate() branch directly.
 		wrapper.vm.sourceMode = 'connector'
-		expect(wrapper.vm.validate()).toContain('OpenConnector is not available.')
+		expect(wrapper.vm.validate()).toContain('Integriq is not available.')
 	})
 
 	it('requires a source id in connector mode', async () => {

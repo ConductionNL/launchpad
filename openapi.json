@@ -148,6 +148,10 @@
             "description": "Admin field-definition CRUD controller."
         },
         {
+            "name": "office-tiles",
+            "description": "The office tile pack and new files from office templates."
+        },
+        {
             "name": "open-api",
             "description": "The OpenAPI document that describes this API."
         },
@@ -6582,6 +6586,102 @@
                         "$ref": "#/components/responses/Problem401"
                     }
                 }
+            }
+        },
+        "/office-tiles": {
+            "get": {
+                "operationId": "office-tiles-list",
+                "summary": "Handle `GET /api/office-tiles` (REQ-OFT-001)",
+                "description": "Handle `GET /api/office-tiles` (REQ-OFT-001): the office tile pack for the signed-in user, a \"New ...\" tile per file creator the server's office apps register and a tile per enabled office app. Needs a signed-in Nextcloud user with the `office-tiles.list` action.",
+                "tags": [
+                    "office-tiles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
+            }
+        },
+        "/office-tiles/create": {
+            "post": {
+                "operationId": "office-tiles-create",
+                "summary": "Handle `POST /api/office-tiles/create` (REQ-OFT-002)",
+                "description": "Handle `POST /api/office-tiles/create` (REQ-OFT-002): create a file in the signed-in user's own files from an office app's blank template, under a free name (never overwriting). Needs a signed-in Nextcloud user with the `office-tiles.create` action.",
+                "tags": [
+                    "office-tiles"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "creatorId": {
+                                        "type": "string",
+                                        "description": "The file creator, as the pack names it (`<app>:<extension>`)."
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The file name without extension."
+                                    },
+                                    "folder": {
+                                        "type": "string",
+                                        "description": "The folder, created when missing (default `/Documents`)."
+                                    }
+                                },
+                                "required": [
+                                    "creatorId",
+                                    "name"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The file was created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/openapi.json": {

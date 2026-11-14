@@ -130,6 +130,18 @@
 		"validator": false,
 		"default": 60
 	},
+	"../../components/TileWidget.vue | linkTarget": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/TileWidget.vue | defaultLinkTarget": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/WidgetRenderer.vue | widget": {
 		"type": "Object",
 		"required": false,

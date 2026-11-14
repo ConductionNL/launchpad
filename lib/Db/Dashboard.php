@@ -85,6 +85,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTemplateDescription(?string $templateDescription)
  * @method string|null getTemplatePreviewImage()
  * @method void setTemplatePreviewImage(?string $templatePreviewImage)
+ * @method string|null getDefaultLinkTarget()
+ * @method void setDefaultLinkTarget(?string $defaultLinkTarget)
  *
  * @SuppressWarnings(PHPMD.TooManyFields) Each field maps to a documented
  *                                        column on `oc_launchpad_dashboards`
@@ -550,6 +552,15 @@ class Dashboard extends Entity implements JsonSerializable {
 	protected string $dashboardFooterMode = self::FOOTER_MODE_INHERIT;
 
 	/**
+	 * How a tile on this dashboard opens when the tile has no choice of its
+	 * own: `same-tab`, `new-tab` or `side-panel`. NULL keeps the rule from
+	 * before the setting existed (launcher-tile-open-behaviour D2).
+	 *
+	 * @var string|null
+	 */
+	protected ?string $defaultLinkTarget = null;
+
+	/**
 	 * Per-dashboard footer HTML (REQ-FTR-006).
 	 *
 	 * Sanitised server-side via the same allow-list as the global
@@ -723,6 +734,7 @@ class Dashboard extends Entity implements JsonSerializable {
 		return [
 			'dashboardFooterMode' => $this->dashboardFooterMode,
 			'dashboardFooterHtml' => $this->dashboardFooterHtml,
+			'defaultLinkTarget' => $this->defaultLinkTarget,
 			'templateCategory' => $this->templateCategory,
 			'templateDescription' => $this->templateDescription,
 			'templatePreviewImage' => $this->templatePreviewImage,

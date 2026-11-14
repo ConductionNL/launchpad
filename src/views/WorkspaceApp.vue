@@ -69,6 +69,8 @@
 		     widget machinery. `tabindex="-1"` makes the grid a valid
 		     programmatic focus target for the quick-search Esc contract
 		     (REQ-QSEARCH-003 "Escape clears and returns focus"). -->
+		<!-- Launcher-tile-open-behaviour D3: a side-panel tile opens beside the grid. -->
+		<div class="workspace-shell__body">
 		<div id="launchpad-main-content" class="workspace-shell__grid" tabindex="-1">
 			<Views v-if="hasActiveDashboard" />
 			<div v-else class="workspace-shell__empty">
@@ -98,6 +100,8 @@
 				</button>
 			</div>
 		</div>
+		<TileSidePanel />
+		</div>
 
 		<!-- Region 5 (footer-customization): branded footer below the
 		     dashboard grid. Renders nothing when `effectiveFooter` is
@@ -115,6 +119,7 @@ import DashboardFooter from '../components/DashboardFooter.vue'
 import OrgNavigationPanel from '../components/OrgNavigationPanel.vue'
 import SidebarBackdrop from '../components/Workspace/SidebarBackdrop.vue'
 import StartPageMenu from '../components/Workspace/StartPageMenu.vue'
+import TileSidePanel from '../components/Workspace/TileSidePanel.vue'
 import Views from './Views.vue'
 import { useDashboardStore } from '../stores/dashboard.js'
 import { useOrgNavigationStore } from '../stores/orgNavigation.js'
@@ -156,6 +161,7 @@ export default {
 		OrgNavigationPanel,
 		SidebarBackdrop,
 		StartPageMenu,
+		TileSidePanel,
 	},
 
 	inject: {
@@ -542,8 +548,15 @@ export default {
 	background: var(--color-background-hover, #f5f5f5);
 }
 
+.workspace-shell__body {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+}
+
 .workspace-shell__grid {
 	flex: 1;
+	min-width: 0;
 	/* min-height:0 is required for the flex item to shrink below its content
 	   height; without it overflow:auto never engages and the grid grows
 	   unbounded, clipping silently out of the viewport. */

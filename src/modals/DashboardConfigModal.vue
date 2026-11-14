@@ -126,6 +126,18 @@
 							data-testid="dashboard-slug-input"
 							@update:modelValue="form.slug = $event" />
 					</div>
+					<!-- launcher-tile-open-behaviour D2: how a tile without its
+					     own choice opens on this dashboard. -->
+					<div class="dashboard-config__field">
+						<NcSelect
+							v-model="form.defaultLinkTarget"
+							:inputLabel="t('launchpad', 'Opens in')"
+							:options="linkTargetChoices"
+							label="label"
+							trackBy="id"
+							:clearable="false"
+							data-testid="dashboard-link-target-select" />
+					</div>
 				</template>
 				<p
 					v-if="saveError"
@@ -447,6 +459,7 @@ import { ICON_CATALOGUE } from '../services/iconCatalogue.js'
 import { uploadDataUrl } from '../services/resourceService.js'
 import { usePublicShareStore } from '../stores/publicShares.js'
 import { logger } from '../utils/logger.js'
+import { NEW_TAB, SAME_TAB, SIDE_PANEL } from '../utils/tileLinkTarget.js'
 
 const PERMISSION_OPTIONS = [
 	{ value: 'view_only', label: 'View only' },
@@ -545,6 +558,9 @@ export default {
 				// (uuid '' for none) and the web address name.
 				parent: null,
 				slug: '',
+				// launcher-tile-open-behaviour D2: `{id, label}`, id '' for
+				// the link-type rule.
+				defaultLinkTarget: null,
 			},
 
 			saving: false,
@@ -571,6 +587,21 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The dashboard default choices for how tiles open.
+		 *
+		 * @return {Array<{id: string, label: string}>}
+		 * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
+		 */
+		linkTargetChoices() {
+			return [
+				{ id: '', label: t('launchpad', 'Web addresses in a new tab, apps in the same tab') },
+				{ id: SAME_TAB, label: t('launchpad', 'Same tab') },
+				{ id: NEW_TAB, label: t('launchpad', 'New tab') },
+				{ id: SIDE_PANEL, label: t('launchpad', 'Panel beside the tiles') },
+			]
+		},
+
 		/**
 		 * Parent choices: "No parent" first, then the other dashboards.
 		 *
@@ -763,6 +794,11 @@ export default {
 					this.form.name = this.dashboard.name || ''
 					this.form.description = this.dashboard.description || ''
 					this.form.slug = this.dashboard.slug || ''
+					this.form.defaultLinkTarget =
+						this.linkTargetChoices.find(
+							(c) => c.id === (this.dashboard.defaultLinkTarget || ''),
+						) || this.linkTargetChoices[0]
+					this._initialLinkTarget = this.form.defaultLinkTarget.id
 					this.form.parent =
 						this.parentChoices.find(
 							(p) => p.uuid === (this.dashboard.parentUuid || ''),
@@ -1084,6 +1120,11 @@ export default {
 						: {
 								parentUuid: this.form.parent?.uuid ?? '',
 								slug: this.form.slug.trim(),
+								// Only when changed: it needs full edit rights, so a
+								// metadata-only editor's save must not carry it.
+								...((this.form.defaultLinkTarget?.id ?? '') !== this._initialLinkTarget
+									? { defaultLinkTarget: this.form.defaultLinkTarget?.id ?? '' }
+									: {}),
 							}),
 				})
 

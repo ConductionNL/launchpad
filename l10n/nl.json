@@ -1649,6 +1649,11 @@
         "Adapter": "Adapter",
         "Source template": "Bronsjabloon",
         "Configuration template": "Configuratiesjabloon",
-        "Agent template": "Agentsjabloon"
+        "Agent template": "Agentsjabloon",
+        "Opens in": "Opent in",
+        "As the dashboard decides": "Zoals het dashboard bepaalt",
+        "Panel beside the tiles": "Paneel naast de tegels",
+        "Web addresses in a new tab, apps in the same tab": "Webadressen in een nieuw tabblad, apps in hetzelfde tabblad",
+        "This address cannot open in the panel.": "Dit adres kan niet in het paneel openen."
     }
 }

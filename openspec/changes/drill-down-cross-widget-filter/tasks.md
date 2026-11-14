@@ -4,11 +4,11 @@
 
 ### Core Filter Bus Implementation
 
-- [ ] Task 1: Create `src/composables/useFilterBus.js` with the pub/sub implementation. Export a composable that manages the filter state, accepts `publish(clause)` calls, and broadcasts to subscribers. Implement internal `_applyConflictResolution(newClause)` that enforces last-write-wins per dimension and tracks audit info (old value, new value, source transition). Inline comment linking REQ-CWF-001 through REQ-CWF-005.
+- [x] Task 1: Create `src/composables/useFilterBus.js` with the pub/sub implementation. Export a composable that manages the filter state, accepts `publish(clause)` calls, and broadcasts to subscribers. Implement internal `_applyConflictResolution(newClause)` that enforces last-write-wins per dimension and tracks audit info (old value, new value, source transition). Inline comment linking REQ-CWF-001 through REQ-CWF-005.
 
-- [ ] Task 2: Implement hierarchy resolution in `useFilterBus.js`. Add `_resolveHierarchy(clause, dashboardHierarchies)` that detects when a published clause belongs to a hierarchy level, infers ancestor clauses (marked `source=parentScope`) from the administrative/temporal hierarchy, and clears any descendant clauses currently in the bus. Handle missing parent levels gracefully with a console warning. Link REQ-CWF-004.
+- [x] Task 2: Implement hierarchy resolution in `useFilterBus.js`. Add `_resolveHierarchy(clause, dashboardHierarchies)` that detects when a published clause belongs to a hierarchy level, infers ancestor clauses (marked `source=parentScope`) from the administrative/temporal hierarchy, and clears any descendant clauses currently in the bus. Handle missing parent levels gracefully with a console warning. Link REQ-CWF-004.
 
-- [ ] Task 3: Create `src/composables/useDashboardFilter.js` with URL serialization/deserialization. Export `serializeFilterState(clauses): string` (returns base64url-encoded compact JSON with keys `d, o, v, s, w, p`) and `deserializeFilterState(param): {clauses, error}`. Implement lenient parsing (malformed param logs warning, returns empty clauses). Link REQ-CWF-003.
+- [x] Task 3: Create `src/composables/useDashboardFilter.js` with URL serialization/deserialization. Export `serializeFilterState(clauses): string` (returns base64url-encoded compact JSON with keys `d, o, v, s, w, p`) and `deserializeFilterState(param): {clauses, error}`. Implement lenient parsing (malformed param logs warning, returns empty clauses). Link REQ-CWF-003.
 
 - [ ] Task 4: Integrate the filter bus into `src/components/Dashboard.vue`. Instantiate `useFilterBus()` on mount, hydrate from URL parameter via `useDashboardFilter()` on initial load (mark restored clauses with `source=urlBootstrap`), and sync the bus to the URL whenever the filter state changes (debounced 500ms to avoid excessive URL rewrites). Link REQ-CWF-003.
 
@@ -46,11 +46,11 @@
 
 ### Testing
 
-- [ ] Task 18: Vitest — `useFilterBus.js` conflict resolution. New clause for dimension X replaces old clause for X when sources differ; widget-click replaces widget-click (shows toast); urlBootstrap → widget-click is silent; pinned clause cannot be replaced (publication dropped, console log). Test that toggle (same clause clicked twice) removes the clause. Link REQ-CWF-001, REQ-CWF-005.
+- [x] Task 18: Vitest — `useFilterBus.js` conflict resolution. New clause for dimension X replaces old clause for X when sources differ; widget-click replaces widget-click (shows toast); urlBootstrap → widget-click is silent; pinned clause cannot be replaced (publication dropped, console log). Test that toggle (same clause clicked twice) removes the clause. Link REQ-CWF-001, REQ-CWF-005.
 
-- [ ] Task 19: Vitest — `useFilterBus.js` hierarchy resolution. When a wijk-level click arrives, infer ancestor clauses (gemeentecode, provincecode) marked `source=parentScope`. When a province-level click arrives with existing wijk clauses, clear the wijk. When a wijk from a different gemeente is clicked, reject and log error (no matching parent). Test breadcrumb updates. Link REQ-CWF-004.
+- [x] Task 19: Vitest — `useFilterBus.js` hierarchy resolution. When a wijk-level click arrives, infer ancestor clauses (gemeentecode, provincecode) marked `source=parentScope`. When a province-level click arrives with existing wijk clauses, clear the wijk. When a wijk from a different gemeente is clicked, reject and log error (no matching parent). Test breadcrumb updates. Link REQ-CWF-004.
 
-- [ ] Task 20: Vitest — `useDashboardFilter.js` serialization/deserialization. Serialize a set of clauses (verschiedende dimensions, operators, sources) to base64url-compact-JSON and back; verify round-trip fidelity. Malformed parameter returns empty clauses + warning. Verify the compact JSON uses short keys (d, o, v, s, w, p) and stays under 2 KB for a 10-clause set. Link REQ-CWF-003.
+- [x] Task 20: Vitest — `useDashboardFilter.js` serialization/deserialization. Serialize a set of clauses (verschiedende dimensions, operators, sources) to base64url-compact-JSON and back; verify round-trip fidelity. Malformed parameter returns empty clauses + warning. Verify the compact JSON uses short keys (d, o, v, s, w, p) and stays under 2 KB for a 10-clause set. Link REQ-CWF-003.
 
 - [ ] Task 21: Vitest — widget manifest validation. Dashboard loads a widget with `consumes: ["wijkCode"]` but no hierarchy includes wijkCode; validation surfaces warning and marks widget as non-bus-participant. Widget with `publishes: [{fromField: "missingField"}]` but data has no "missingField" key; validation logs error and disables bus participation. Matching dimensions pass validation. Link REQ-CWF-008.
 
@@ -83,6 +83,8 @@
 - [ ] Task 34: Changelog entry. Summarize the feature: "Add cross-widget filter bus enabling drill-down exploration across dashboard widgets. Widgets publish filters on click; all consuming widgets re-render. Filter state is bookmarkable via URL and saveable as named views. Opt-in telemetry measures drill-down path usage." Include a note that existing widgets that accept `filterContext` become instant bus participants with zero code change.
 
 - [ ] Task 35: Performance audit. After widgets are wired to the bus, measure query time for drill-down operations (e.g., click gemeentecode, then wijkcode) on the production OR cluster. Confirm the 300 ms responsiveness bound is met. Log a performance warning if a single widget re-render exceeds 200 ms (indicating slow OR query). Profile memory usage on a dashboard with 100+ widgets to ensure the bus's pub/sub subscription overhead is negligible (<1 MB). Document results as a comment in `Dashboard.vue`. Link REQ-CWF-002.
+
+Built so far: Tasks 1-3 (`src/composables/useFilterBus.js`, `src/composables/useDashboardFilter.js`) and their vitest specs, Tasks 18-20. Ancestor clauses are inferred from the clicked row's fields (`publish(clause, {row})`); a wijk in another gemeente moves the inferred ancestors with it (Task 23), and a publication is refused only when an ancestor is pinned to another value. Open: the dashboard integration and UI (Tasks 4-13), the register and telemetry (14-17), the Playwright and performance tasks (22-30, 35), and 31-34.
 
 ## Verification
 

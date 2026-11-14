@@ -3411,7 +3411,8 @@
                     "409": {
                         "$ref": "#/components/responses/Problem409"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/dashboard/{dashboardId}/widgets": {

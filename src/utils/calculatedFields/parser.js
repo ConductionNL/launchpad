@@ -185,7 +185,7 @@ function readWord(source, i) {
 	if (!word) {
 		return null
 	}
-	return { token: { kind: KEYWORDS[word[0]] || 'name', value: word[0], column: i + 1 }, next: i + word[0].length }
+	return { token: { kind: Object.hasOwn(KEYWORDS, word[0]) ? KEYWORDS[word[0]] : 'name', value: word[0], column: i + 1 }, next: i + word[0].length }
 }
 
 /**

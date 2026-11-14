@@ -1359,7 +1359,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Пронајдено на овој сервер",
     "Apps this server runs for you. One click places one as a tile." : "Апликации што овој сервер ги извршува за вас. Еден клик ги прави плочка.",
-    "On this dashboard" : "На оваа контролна табла"
+    "On this dashboard" : "На оваа контролна табла",
+    "Statistics" : "Статистика",
+    "Count my visits" : "Број ги моите посети",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Кога ова е исклучено, вашите посети на контролните табли и кликовите на плочките не се бројат во прегледите.",
+    "Your choice could not be saved." : "Вашиот избор не може да се зачува."
 },
 "nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);"
 );

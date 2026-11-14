@@ -1635,7 +1635,11 @@ OC.L10N.register(
     "Adapter" : "Adapter",
     "Source template" : "Bronsjabloon",
     "Configuration template" : "Configuratiesjabloon",
-    "Agent template" : "Agentsjabloon"
+    "Agent template" : "Agentsjabloon",
+    "Statistics" : "Statistieken",
+    "Count my visits" : "Mijn bezoeken meetellen",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Als dit uit staat, tellen je bezoeken aan dashboards en je klikken op tegels niet mee in de bezoekcijfers.",
+    "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

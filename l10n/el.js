@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Βρέθηκαν σε αυτόν τον διακομιστή",
     "Apps this server runs for you. One click places one as a tile." : "Εφαρμογές που εκτελεί αυτός ο διακομιστής για εσάς. Ένα κλικ τις κάνει πλακίδιο.",
-    "On this dashboard" : "Σε αυτόν τον πίνακα"
+    "On this dashboard" : "Σε αυτόν τον πίνακα",
+    "Statistics" : "Στατιστικά",
+    "Count my visits" : "Καταμέτρηση των επισκέψεών μου",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
+    "Your choice could not be saved." : "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
 },
 "nplurals=2; plural=(n != 1);"
 );

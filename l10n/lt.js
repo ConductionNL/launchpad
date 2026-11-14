@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Rasta šiame serveryje",
     "Apps this server runs for you. One click places one as a tile." : "Programos, kurias šis serveris paleidžia jums. Vienu spustelėjimu iš jų padaroma plytelė.",
-    "On this dashboard" : "Šiame skydelyje"
+    "On this dashboard" : "Šiame skydelyje",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Skaičiuoti mano apsilankymus",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kai tai išjungta, jūsų apsilankymai skydeliuose ir paspaudimai ant plytelių neįskaičiuojami į peržiūrų skaičių.",
+    "Your choice could not be saved." : "Nepavyko išsaugoti jūsų pasirinkimo."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

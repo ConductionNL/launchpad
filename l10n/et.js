@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Leitud sellest serverist",
     "Apps this server runs for you. One click places one as a tile." : "Rakendused, mida see server sinu jaoks käitab. Üks klõps teeb neist paani.",
-    "On this dashboard" : "Sellel töölaual"
+    "On this dashboard" : "Sellel töölaual",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Loe minu külastusi",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
+    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada."
 },
 "nplurals=2; plural=(n != 1);"
 );

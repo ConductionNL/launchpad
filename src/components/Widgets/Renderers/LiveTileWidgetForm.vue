@@ -42,13 +42,13 @@
 				{{
 					t(
 						'launchpad',
-						'OpenConnector is not installed — direct-URL mode only.',
+						'Integriq is not installed — direct-URL mode only.',
 					)
 				}}
 			</p>
 			<NcTextField
 				:modelValue="sourceId"
-				:label="t('launchpad', 'OpenConnector source id')"
+				:label="t('launchpad', 'Integriq source id')"
 				:disabled="!connectorAvailable"
 				@update:modelValue="updateField('sourceId', $event)" />
 		</template>
@@ -70,6 +70,69 @@
 			:label="t('launchpad', 'Value expression')"
 			placeholder="$.data.count"
 			@update:modelValue="updateField('valueExpr', $event)" />
+
+		<!-- REQ-LTC-001: a single value, or several mapped fields as a list,
+		     a table or key-value pairs. -->
+		<NcSelect
+			:modelValue="display"
+			:options="displayOptions"
+			:inputLabel="t('launchpad', 'Display')"
+			:reduce="(option) => option.value"
+			label="label"
+			@update:modelValue="onDisplayChange" />
+
+		<template v-if="display !== 'value'">
+			<NcSelect
+				:modelValue="null"
+				:options="presetOptions"
+				:inputLabel="t('launchpad', 'Preset')"
+				:placeholder="t('launchpad', 'Fill the mapping from a preset')"
+				label="label"
+				@update:modelValue="applyPreset" />
+
+			<NcTextField
+				v-if="display !== 'keyvalue'"
+				:modelValue="String(limit)"
+				type="number"
+				:label="t('launchpad', 'Number of rows (1 to 50)')"
+				@update:modelValue="onLimitChange" />
+
+			<fieldset class="live-tile-widget-form__mapping">
+				<legend>{{ t('launchpad', 'Fields') }}</legend>
+				<div
+					v-for="(field, index) in mapping"
+					:key="index"
+					class="live-tile-widget-form__mapping-row">
+					<NcTextField
+						:modelValue="field.label"
+						:label="t('launchpad', 'Field label')"
+						@update:modelValue="updateMapping(index, 'label', $event)" />
+					<NcTextField
+						:modelValue="field.path"
+						:label="t('launchpad', 'Field path')"
+						placeholder="name"
+						@update:modelValue="updateMapping(index, 'path', $event)" />
+					<NcSelect
+						:modelValue="field.role"
+						:options="roleOptions"
+						:inputLabel="t('launchpad', 'Field role')"
+						:reduce="(option) => option.value"
+						label="label"
+						@update:modelValue="updateMapping(index, 'role', $event || 'field')" />
+					<NcButton
+						variant="tertiary"
+						:aria-label="t('launchpad', 'Remove field')"
+						@click="removeMapping(index)">
+						{{ t('launchpad', 'Remove') }}
+					</NcButton>
+				</div>
+				<NcButton
+					:disabled="mapping.length >= MAX_FIELDS"
+					@click="addMapping">
+					{{ t('launchpad', 'Add field') }}
+				</NcButton>
+			</fieldset>
+		</template>
 
 		<NcTextField
 			:modelValue="String(refresh)"
@@ -119,7 +182,7 @@
 
 <script>
 import { translate as t } from '@nextcloud/l10n'
-import { NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
+import { NcButton, NcCheckboxRadioSwitch, NcSelect, NcTextField } from '@nextcloud/vue'
 import {
 	NULLABLE_OBJECT_PROP,
 	objectProp,
@@ -145,6 +208,37 @@ const DEFAULT_CONTENT = Object.freeze({
 	linkUrl: '',
 	linkTarget: 'same-tab',
 })
+
+const MAX_FIELDS = 6
+const DEFAULT_LIMIT = 10
+
+/**
+ * The "Latest documents" presets (REQ-LTC-004): where each system keeps its
+ * documents and which fields give the title, link, last modified and editor.
+ *
+ * @type {Record<string, {valueExpr: string, paths: string[]}>}
+ */
+const DOCUMENT_PRESETS = Object.freeze({
+	sharepoint: { valueExpr: '$.value', paths: ['name', 'webUrl', 'lastModifiedDateTime', 'lastModifiedBy.user.displayName'] },
+	confluence: { valueExpr: '$.results', paths: ['title', '_links.webui', 'version.when', 'version.by.displayName'] },
+})
+
+/**
+ * The stored mapping as editable rows.
+ *
+ * @param {Array<object>|undefined} stored The stored mapping.
+ * @return {Array<{label: string, path: string, role: string}>} the rows.
+ */
+function mappingRows(stored) {
+	if (!Array.isArray(stored)) {
+		return []
+	}
+	return stored.slice(0, MAX_FIELDS).map((field) => ({
+		label: typeof field?.label === 'string' ? field.label : '',
+		path: typeof field?.path === 'string' ? field.path : '',
+		role: ['title', 'link', 'date', 'field'].includes(field?.role) ? field.role : 'field',
+	}))
+}
 
 const SOURCE_FIELDS = Object.freeze(['label', 'sourceMode', 'url', 'sourceId', 'valueExpr', 'refresh'])
 const LINK_FIELDS = Object.freeze(['linkUrl', 'linkTarget'])
@@ -193,6 +287,7 @@ export default {
 	name: 'LiveTileWidgetForm',
 
 	components: {
+		NcButton,
 		NcTextField,
 		NcSelect,
 		NcCheckboxRadioSwitch,
@@ -223,6 +318,10 @@ export default {
 			...formatFields(initial.format),
 			badge: { ...DEFAULT_CONTENT.badge, ...(initial.badge || {}) },
 			...storedOrDefault(initial, LINK_FIELDS),
+			display: ['list', 'table', 'keyvalue'].includes(initial.display) ? initial.display : 'value',
+			limit: Number.isInteger(Number(initial.limit)) && Number(initial.limit) > 0 ? Number(initial.limit) : DEFAULT_LIMIT,
+			mapping: mappingRows(initial.mapping),
+			MAX_FIELDS,
 			connectorAvailable: false,
 			urlAllowListError: '',
 			MIN_REFRESH_SECONDS,
@@ -238,10 +337,53 @@ export default {
 			if (this.connectorAvailable) {
 				options.push({
 					value: 'connector',
-					label: t('launchpad', 'OpenConnector source'),
+					label: t('launchpad', 'Integriq source'),
 				})
 			}
 			return options
+		},
+
+		/**
+		 * The displays a tile can have.
+		 *
+		 * @return {Array<{value: string, label: string}>}
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		displayOptions() {
+			return [
+				{ value: 'value', label: t('launchpad', 'Single value') },
+				{ value: 'list', label: t('launchpad', 'List') },
+				{ value: 'table', label: t('launchpad', 'Table') },
+				{ value: 'keyvalue', label: t('launchpad', 'Key-value pairs') },
+			]
+		},
+
+		/**
+		 * What a mapped field is for.
+		 *
+		 * @return {Array<{value: string, label: string}>}
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		roleOptions() {
+			return [
+				{ value: 'title', label: t('launchpad', 'Title') },
+				{ value: 'link', label: t('launchpad', 'Link') },
+				{ value: 'date', label: t('launchpad', 'Date') },
+				{ value: 'field', label: t('launchpad', 'Other field') },
+			]
+		},
+
+		/**
+		 * The mapping presets.
+		 *
+		 * @return {Array<{value: string, label: string}>}
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-preset-shows-another-intranets-latest-documents-req-ltc-004
+		 */
+		presetOptions() {
+			return [
+				{ value: 'sharepoint', label: t('launchpad', 'Latest documents (SharePoint)') },
+				{ value: 'confluence', label: t('launchpad', 'Latest documents (Confluence)') },
+			]
 		},
 
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
@@ -270,7 +412,29 @@ export default {
 				badge: this.badge,
 				linkUrl: this.linkUrl,
 				linkTarget: this.linkTarget,
+				...this.displayContent,
 			}
+		},
+
+		/**
+		 * The display, limit and mapping of the content; nothing for a single-value tile,
+		 * so a tile saved before lists existed is stored as it was.
+		 *
+		 * @return {object}
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		displayContent() {
+			if (this.display === 'value') {
+				return {}
+			}
+			const content = {
+				display: this.display,
+				mapping: this.mapping.map((field) => ({ ...field })),
+			}
+			if (this.display !== 'keyvalue') {
+				content.limit = Number(this.limit)
+			}
+			return content
 		},
 	},
 
@@ -384,6 +548,94 @@ export default {
 			this.emitUpdate()
 		},
 
+		/**
+		 * Choose how the tile shows its data. A list, table or key-value tile
+		 * starts with one title field.
+		 *
+		 * @param {string} val The display; falsy is a single value.
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		onDisplayChange(val) {
+			this.display = val || 'value'
+			if (this.display !== 'value' && this.mapping.length === 0) {
+				this.mapping = [{ label: '', path: '', role: 'title' }]
+			}
+			this.emitUpdate()
+		},
+
+		/**
+		 * Set how many rows a list or table shows.
+		 *
+		 * @param {string|number} val The limit.
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		onLimitChange(val) {
+			this.limit = val
+			this.emitUpdate()
+		},
+
+		/**
+		 * Change one key of one mapped field.
+		 *
+		 * @param {number} index The row.
+		 * @param {string} key label, path or role.
+		 * @param {string} val The new value.
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		updateMapping(index, key, val) {
+			this.mapping = this.mapping.map((field, at) => (at === index ? { ...field, [key]: val } : field))
+			this.emitUpdate()
+		},
+
+		/**
+		 * Add a mapped field, up to six.
+		 *
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		addMapping() {
+			if (this.mapping.length >= MAX_FIELDS) {
+				return
+			}
+			this.mapping = [...this.mapping, { label: '', path: '', role: 'field' }]
+			this.emitUpdate()
+		},
+
+		/**
+		 * Remove a mapped field.
+		 *
+		 * @param {number} index The row.
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		removeMapping(index) {
+			this.mapping = this.mapping.filter((_, at) => at !== index)
+			this.emitUpdate()
+		},
+
+		/**
+		 * Fill a list of the latest documents from a preset, for the author to confirm.
+		 * The source stays the author's choice.
+		 *
+		 * @param {{value: string}|string|null} option The chosen preset.
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-preset-shows-another-intranets-latest-documents-req-ltc-004
+		 */
+		applyPreset(option) {
+			const preset = DOCUMENT_PRESETS[option?.value ?? option]
+			if (!preset) {
+				return
+			}
+			const [title, link, modified, editor] = preset.paths
+			this.display = 'list'
+			this.limit = DEFAULT_LIMIT
+			this.valueExpr = preset.valueExpr
+			this.mapping = [
+				{ label: t('launchpad', 'Document'), path: title, role: 'title' },
+				{ label: t('launchpad', 'Open'), path: link, role: 'link' },
+				{ label: t('launchpad', 'Last modified'), path: modified, role: 'date' },
+				{ label: t('launchpad', 'Modified by'), path: editor, role: 'field' },
+			]
+			this.emitUpdate()
+		},
+
 		/** @spec openspec/specs/live-data-tile-widget/spec.md */
 		emitUpdate() {
 			this.$emit('update:content', this.assembledContent)
@@ -424,6 +676,31 @@ export default {
 				errors.push(t('launchpad', 'Value expression is required'))
 			}
 
+			return errors.concat(this.displayErrors())
+		},
+
+		/**
+		 * The errors of a list, table or key-value display: at least one field,
+		 * every field with a path, and a limit from 1 to 50.
+		 *
+		 * @return {string[]} the display errors.
+		 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
+		 */
+		displayErrors() {
+			if (!['list', 'table', 'keyvalue'].includes(this.display)) {
+				return []
+			}
+			const errors = []
+			const mapping = Array.isArray(this.mapping) ? this.mapping : []
+			if (mapping.length === 0) {
+				errors.push(t('launchpad', 'Add at least one field'))
+			} else if (mapping.some((field) => typeof field.path !== 'string' || field.path.trim() === '')) {
+				errors.push(t('launchpad', 'Every field needs a path'))
+			}
+			const limit = Number(this.limit)
+			if (this.display !== 'keyvalue' && (!Number.isInteger(limit) || limit < 1 || limit > 50)) {
+				errors.push(t('launchpad', 'The number of rows is from 1 to 50'))
+			}
 			return errors
 		},
 
@@ -452,7 +729,7 @@ export default {
 		connectorErrors() {
 			const errors = []
 			if (!this.connectorAvailable) {
-				errors.push(t('launchpad', 'OpenConnector is not available.'))
+				errors.push(t('launchpad', 'Integriq is not available.'))
 			}
 			if (
 				typeof this.sourceId !== 'string'
@@ -489,6 +766,22 @@ export default {
 	margin: 0;
 	font-size: 13px;
 	color: var(--color-warning-text, var(--color-text-maxcontrast));
+}
+
+.live-tile-widget-form__mapping {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: 8px;
+}
+
+.live-tile-widget-form__mapping-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr auto;
+	gap: 8px;
+	align-items: end;
 }
 
 .live-tile-widget-form__row {

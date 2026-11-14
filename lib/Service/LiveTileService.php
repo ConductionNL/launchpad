@@ -175,6 +175,7 @@ class LiveTileService {
 	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
 	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or
 	 *                                                    nothing when absent.
+	 * @param LiveTileListMapper      $lists              Maps a source node onto a list, table or key-value display.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
@@ -183,6 +184,7 @@ class LiveTileService {
 		private readonly LiveTileSettings $settings,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly ?ConnectionReporter $connectionReporter = null,
+		private readonly LiveTileListMapper $lists = new LiveTileListMapper(),
 	) {
 	}//end __construct()
 
@@ -226,7 +228,7 @@ class LiveTileService {
 			return $this->publicShape(reading: $cached, config: $config, stale: false);
 		}
 
-		$fresh = $this->fetchFresh(config: $config);
+		$fresh = $this->mapped(reading: $this->fetchFresh(config: $config), config: $config);
 		if ($fresh === null) {
 			return $this->staleOrEmpty(cached: $cached, config: $config);
 		}
@@ -236,6 +238,35 @@ class LiveTileService {
 
 		return $this->publicShape(reading: $fresh, config: $config, stale: false);
 	}//end valueFor()
+
+	/**
+	 * A reading in the shape that is cached: for a list, table or key-value
+	 * tile only the mapped fields, so the raw response is neither cached nor
+	 * sent to the browser (REQ-LTC-002). A single-value tile is unchanged.
+	 *
+	 * @param array<string,mixed>|null $reading The fresh reading, or null when the fetch failed.
+	 * @param array<string,mixed>      $config  The tile config.
+	 *
+	 * @return array<string,mixed>|null The reading to cache, or null when it does not fit the display.
+	 *
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 */
+	private function mapped(?array $reading, array $config): ?array {
+		if ($reading === null || $this->lists->displayOf(config: $config) === 'value') {
+			return $reading;
+		}
+
+		$mapped = $this->lists->map(
+			node: ($reading['rawValue'] ?? null),
+			config: $config,
+			extract: fn (mixed $item, string $expr): mixed => $this->extractValue(data: $item, expr: $expr)
+		);
+		if ($mapped === null) {
+			return null;
+		}
+
+		return ['rawValue' => null, 'mapped' => $mapped];
+	}//end mapped()
 
 	/**
 	 * The tile's effective refresh interval in seconds.
@@ -312,10 +343,13 @@ class LiveTileService {
 		}
 
 		if ($sourceMode === 'url') {
-			return $this->urlConfigErrors(url: trim(string: (string)($config['url'] ?? '')));
+			$errors = $this->urlConfigErrors(url: trim(string: (string)($config['url'] ?? '')));
+		} else {
+			$errors = $this->connectorConfigErrors(config: $config);
 		}
 
-		return $this->connectorConfigErrors(config: $config);
+		// REQ-LTC-001: the display, mapping and limit, checked for both modes.
+		return array_merge($errors, $this->lists->configErrors(config: $config));
 	}//end validateSourceConfig()
 
 	/**
@@ -914,13 +948,22 @@ class LiveTileService {
 			$badge = $this->resolveBadge(value: $rawValue, badge: (array)($config['badge'] ?? []));
 		}
 
-		return [
+		$shape = [
 			'value' => $rawValue,
 			'formatted' => $formatted,
 			'badge' => $badge,
 			'fetchedAt' => (new DateTime('@' . $fetchedAtTs))->format(format: DATE_ATOM),
 			'stale' => $stale,
 		];
+
+		$display = $this->lists->displayOf(config: $config);
+		if ($display !== 'value') {
+			// REQ-LTC-001: only the mapped rows or pairs, never the raw node.
+			$shape['display'] = $display;
+			$shape += (array)($reading['mapped'] ?? []);
+		}
+
+		return $shape;
 	}//end publicShape()
 
 	/**

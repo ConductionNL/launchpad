@@ -74,6 +74,8 @@ class AdminSettingsServiceTest extends TestCase {
 				'linkCreateFileExtensions' => ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 				'defaultSharePermissionLevel' => 'add_only',
 				'forcedShareGroups' => [],
+				'sharingAllowedGroups' => [],
+				'sharingRecipientScope' => 'everyone',
 				'legacyWidgetBridgeEnabled' => false,
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
@@ -157,6 +159,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// dashboard-sharing + legacy-widget-bridge spec keys.
 		$this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
 		$this->assertArrayHasKey('forcedShareGroups', $settings);
+		// dashboard-sharing REQ-SHARE-014: who may share, and with whom.
+		$this->assertArrayHasKey('sharingAllowedGroups', $settings);
+		$this->assertArrayHasKey('sharingRecipientScope', $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);
@@ -168,7 +173,7 @@ class AdminSettingsServiceTest extends TestCase {
 		// launcher-tile-launch-types: the program schemes and SSO launch templates.
 		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
 		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
-		$this->assertCount(14, $settings);
+		$this->assertCount(16, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

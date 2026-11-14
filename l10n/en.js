@@ -1348,7 +1348,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Discovered on this server",
     "Apps this server runs for you. One click places one as a tile." : "Apps this server runs for you. One click places one as a tile.",
-    "On this dashboard" : "On this dashboard"
+    "On this dashboard" : "On this dashboard",
+    "Statistics" : "Statistics",
+    "Count my visits" : "Count my visits",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "When this is off, your dashboard visits and tile clicks are left out of the view counts.",
+    "Your choice could not be saved." : "Your choice could not be saved."
 },
 "nplurals=2; plural=(n != 1);"
 );

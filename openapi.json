@@ -218,6 +218,10 @@
         {
             "name": "widget-api",
             "description": "Controller for managing dashboard widgets."
+        },
+        {
+            "name": "analytics-opt-out",
+            "description": "The signed-in person's own analytics opt-out."
         }
     ],
     "paths": {
@@ -6680,6 +6684,109 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/analytics/me": {
+            "get": {
+                "operationId": "analytics-opt-out-show",
+                "summary": "Whether analytics is on for everyone, and whether the caller opted out",
+                "description": "Whether analytics is on for everyone, and whether the caller opted out. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "analytics-opt-out"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "description": "Whether analytics is on for everyone."
+                                        },
+                                        "optedOut": {
+                                            "type": "boolean",
+                                            "description": "Whether the caller's visits are left out of the counts."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "analytics-opt-out-update",
+                "summary": "Store the caller's own opt-out",
+                "description": "Store the caller's own opt-out. A request naming another user is refused. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "analytics-opt-out"
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "optedOut": {
+                                        "type": "boolean",
+                                        "description": "`true` to stop counting the caller's visits."
+                                    },
+                                    "userId": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "description": "A user id the request names; anything but the caller is refused."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enabled": {
+                                            "type": "boolean",
+                                            "description": "Whether analytics is on for everyone."
+                                        },
+                                        "optedOut": {
+                                            "type": "boolean",
+                                            "description": "Whether the caller's visits are left out of the counts."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
                     }
                 }
             }

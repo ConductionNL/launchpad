@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Encontrado en este servidor",
     "Apps this server runs for you. One click places one as a tile." : "Aplicaciones que este servidor ejecuta para usted. Un clic las convierte en un mosaico.",
-    "On this dashboard" : "En este panel"
+    "On this dashboard" : "En este panel",
+    "Statistics" : "Estadísticas",
+    "Count my visits" : "Contar mis visitas",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Si esto está desactivado, tus visitas a los paneles y tus clics en los mosaicos no se incluyen en el recuento de visualizaciones.",
+    "Your choice could not be saved." : "No se ha podido guardar tu elección."
 },
 "nplurals=2; plural=(n != 1);"
 );

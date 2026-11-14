@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Löytyi tältä palvelimelta",
     "Apps this server runs for you. One click places one as a tile." : "Sovellukset, joita tämä palvelin ajaa sinulle. Yksi napsautus tekee niistä ruudun.",
-    "On this dashboard" : "Tällä kojelaudalla"
+    "On this dashboard" : "Tällä kojelaudalla",
+    "Statistics" : "Tilastot",
+    "Count my visits" : "Laske käyntini",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
+    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa."
 },
 "nplurals=2; plural=(n != 1);"
 );

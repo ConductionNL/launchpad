@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Fundið á þessum þjóni",
     "Apps this server runs for you. One click places one as a tile." : "Forrit sem þessi þjónn keyrir fyrir þig. Einn smellur gerir reit úr því.",
-    "On this dashboard" : "Á þessu stjórnborði"
+    "On this dashboard" : "Á þessu stjórnborði",
+    "Statistics" : "Tölfræði",
+    "Count my visits" : "Telja heimsóknir mínar",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
+    "Your choice could not be saved." : "Ekki tókst að vista valið þitt."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

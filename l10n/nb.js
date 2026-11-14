@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Funnet på denne serveren",
     "Apps this server runs for you. One click places one as a tile." : "Apper denne serveren kjører for deg. Ett klikk gjør en til en flis.",
-    "On this dashboard" : "På dette dashbordet"
+    "On this dashboard" : "På dette dashbordet",
+    "Statistics" : "Statistikk",
+    "Count my visits" : "Tell besøkene mine",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Når dette er slått av, telles ikke besøkene dine på dashbord og klikk på fliser med i visningstallene.",
+    "Your choice could not be saved." : "Valget ditt kunne ikke lagres."
 },
 "nplurals=2; plural=(n != 1);"
 );

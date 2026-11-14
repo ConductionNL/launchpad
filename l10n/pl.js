@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Znalezione na tym serwerze",
     "Apps this server runs for you. One click places one as a tile." : "Aplikacje, które ten serwer uruchamia dla Ciebie. Jedno kliknięcie zamienia je w kafelek.",
-    "On this dashboard" : "Na tym pulpicie"
+    "On this dashboard" : "Na tym pulpicie",
+    "Statistics" : "Statystyki",
+    "Count my visits" : "Licz moje odwiedziny",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Gdy to jest wyłączone, Twoje odwiedziny pulpitów i kliknięcia kafelków nie są wliczane do liczby wyświetleń.",
+    "Your choice could not be saved." : "Nie udało się zapisać Twojego wyboru."
 },
 "nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

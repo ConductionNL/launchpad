@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Bu sunucuda bulundu",
     "Apps this server runs for you. One click places one as a tile." : "Bu sunucunun sizin için çalıştırdığı uygulamalar. Tek tıklama onları bir kutucuğa dönüştürür.",
-    "On this dashboard" : "Bu panoda"
+    "On this dashboard" : "Bu panoda",
+    "Statistics" : "İstatistikler",
+    "Count my visits" : "Ziyaretlerimi say",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Bu kapalıyken pano ziyaretleriniz ve kutucuklara tıklamalarınız görüntülenme sayılarına dahil edilmez.",
+    "Your choice could not be saved." : "Seçiminiz kaydedilemedi."
 },
 "nplurals=2; plural=(n != 1);"
 );

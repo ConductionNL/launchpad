@@ -1368,7 +1368,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trobat en aquest servidor",
     "Apps this server runs for you. One click places one as a tile." : "Aplicacions que aquest servidor executa per a vostè. Un clic en fa una rajola.",
-    "On this dashboard" : "En aquest tauler"
+    "On this dashboard" : "En aquest tauler",
+    "Statistics" : "Estadístiques",
+    "Count my visits" : "Compta les meves visites",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quan això està desactivat, les teves visites als taulers i els clics a les rajoles no es tenen en compte en el recompte de visualitzacions.",
+    "Your choice could not be saved." : "No s'ha pogut desar la teva tria."
 },
 "nplurals=2; plural=(n != 1);"
 );

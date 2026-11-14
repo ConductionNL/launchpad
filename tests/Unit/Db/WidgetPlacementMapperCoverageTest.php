@@ -280,6 +280,10 @@ class WidgetPlacementMapperCoverageTest extends TestCase {
 				$expected[] = $tag . '.set("' . $column . '", ":p' . (++$param) . '")';
 			}
 
+			// Every position write raises the widget's version (building-edit-a-dashboard-together, task 1.2).
+			$expected[] = $tag . '.getColumnName("version", "")';
+			$expected[] = $tag . '.createFunction("version + 1")';
+			$expected[] = $tag . '.set("version", version + 1)';
 			$expected[] = $tag . '.createNamedParameter(DateTime, "datetime", null)';
 			$expected[] = $tag . '.set("updated_at", ":p' . (++$param) . '")';
 			$expected[] = $tag . '.expr()';

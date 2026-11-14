@@ -213,6 +213,24 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_QUICKSEARCH_FALLBACK_TARGET = AdminSettingKey::QUICKSEARCH_FALLBACK_TARGET->value;
 
 	/**
+	 * BC alias for AdminSettingKey::TILE_ALLOWED_SCHEMES (launcher-tile-launch-types).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::TILE_ALLOWED_SCHEMES
+	 */
+	public const KEY_TILE_ALLOWED_SCHEMES = AdminSettingKey::TILE_ALLOWED_SCHEMES->value;
+
+	/**
+	 * BC alias for AdminSettingKey::SSO_LAUNCH_TEMPLATES (launcher-tile-launch-types).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::SSO_LAUNCH_TEMPLATES
+	 */
+	public const KEY_SSO_LAUNCH_TEMPLATES = AdminSettingKey::SSO_LAUNCH_TEMPLATES->value;
+
+	/**
 	 * BC alias for AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION (runtime-shell REQ-SHELL-009).
 	 *
 	 * @var string

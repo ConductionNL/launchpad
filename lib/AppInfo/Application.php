@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\AppInfo;
 
+use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\LaunchPad\Activity\DebounceHelper;
 use OCA\LaunchPad\Controller\HealthController;
 use OCA\LaunchPad\Controller\MetricsController;
@@ -109,7 +110,30 @@ class Application extends App implements IBootstrap {
 		// resolved through self::optional(), so an instance without OpenRegister
 		// gets a store that reports `not_configured` rather than a fatal.
 		$this->registerStore(context: $context);
+
+		$this->registerMcpToolProvider(context: $context);
 	}//end register()
+
+	/**
+	 * Register LaunchPad's MCP tool provider under the key OpenRegister enumerates.
+	 *
+	 * OpenRegister looks providers up as `'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::' . $appId`,
+	 * so the suffix must stay this app's id. The alias is a string pair: nothing
+	 * is autoloaded at registration, so an instance without OpenRegister boots
+	 * as before and simply never resolves it (mcp-tool-surface task 2, ADR-083).
+	 *
+	 * @param IRegistrationContext $context The registration context.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	private function registerMcpToolProvider(IRegistrationContext $context): void {
+		$context->registerServiceAlias(
+			'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad',
+			LaunchpadToolProvider::class
+		);
+	}//end registerMcpToolProvider()
 
 	/**
 	 * Register the notifier and the user-deletion cascade listener.

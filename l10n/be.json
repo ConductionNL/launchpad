@@ -1336,6 +1336,10 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Знойдзена на гэтым серверы",
         "Apps this server runs for you. One click places one as a tile.": "Праграмы, якія гэты сервер запускае для вас. Адзін клік робіць з іх плітку.",
-        "On this dashboard": "На гэтай панэлі"
+        "On this dashboard": "На гэтай панэлі",
+        "Statistics": "Статыстыка",
+        "Count my visits": "Улічваць мае наведванні",
+        "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
+        "Your choice could not be saved.": "Не ўдалося захаваць ваш выбар."
     }
 }

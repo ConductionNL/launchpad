@@ -78,7 +78,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * A matcher for a full settings map that holds the expected entries.
+	 * A matcher for a full settings map (fourteen entries) that holds the expected entries.
 	 *
 	 * @param array<string, mixed> $expected The entries the map must hold.
 	 *
@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 12 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 14 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -215,6 +215,8 @@ class AdminControllerSettingsAliasTest extends TestCase {
 						'maxWidgetsPerDashboard' => null,
 						'quicksearchFallbackTarget' => null,
 						'startPageWithoutNavigation' => true,
+						'tileAllowedSchemes' => null,
+						'ssoLaunchTemplates' => null,
 					]
 				)
 			);
@@ -232,8 +234,24 @@ class AdminControllerSettingsAliasTest extends TestCase {
 		$list = [['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://t.example/?q={query}']];
 		$this->settingsService->expects($this->once())
 			->method('updateSettings')
-			->with($this->callback(static fn (array $settings): bool => count($settings) === 13 && $settings['searchShortcuts'] === $list));
+			->with($this->callback(static fn (array $settings): bool => count($settings) === 15 && $settings['searchShortcuts'] === $list));
 
 		$this->controller->updateSettings(searchShortcuts: $list);
 	}//end testSearchShortcutsArePassedThroughOnlyWhenSent()
+
+	/**
+	 * Launcher-tile-launch-types: the program schemes and SSO launch templates reach the service under their own names.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 */
+	public function testTileLaunchSettingsArePassedThrough(): void {
+		$templates = [['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}']];
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'tileAllowedSchemes' => ['ms-word'], 'ssoLaunchTemplates' => $templates]));
+
+		$this->controller->updateSettings(tileAllowedSchemes: ['ms-word'], ssoLaunchTemplates: $templates);
+	}//end testTileLaunchSettingsArePassedThrough()
 }//end class

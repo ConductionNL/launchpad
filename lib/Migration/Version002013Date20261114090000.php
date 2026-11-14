@@ -3,9 +3,10 @@
 /**
  * Version002013Date20261114090000
  *
- * Adds the app catalogue (launcher-app-catalogue, REQ-ACAT-001..004):
- * `launchpad_catalogue_apps`, the applications an administrator approved,
- * and `launchpad_app_requests`, what users asked for and how it was decided.
+ * Adds `version` to `launchpad_widget_placements`: a per-widget counter that
+ * every save raises by one. A save made on an older version of a widget is
+ * refused, so two editors' changes to the same widget never silently replace
+ * each other (building-edit-a-dashboard-together, task 1.2).
  *
  * @category Migration
  * @package  OCA\LaunchPad\Migration
@@ -16,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
  */
 
 declare(strict_types=1);
@@ -30,21 +31,22 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Create the catalogue and request tables.
+ * Adds the per-widget version column.
  *
- * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+ * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
  */
 class Version002013Date20261114090000 extends SimpleMigrationStep {
+
 	/**
-	 * Create each table when it is not already there.
+	 * Add the column when the placements table lacks it.
 	 *
-	 * @param IOutput $output Migration output.
-	 * @param Closure $schemaClosure Schema closure (provides ISchemaWrapper).
-	 * @param array $options Migration options (unused).
+	 * @param IOutput $output        Migration output.
+	 * @param Closure $schemaClosure Returns the current schema.
+	 * @param array   $options       Migration options.
 	 *
-	 * @return ISchemaWrapper|null The modified schema, or null when unchanged.
+	 * @return ISchemaWrapper|null
 	 *
-	 * @spec openspec/changes/launcher-app-catalogue/tasks.md#task-1
+	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
 	 */
 	public function changeSchema(
 		IOutput $output,
@@ -52,100 +54,28 @@ class Version002013Date20261114090000 extends SimpleMigrationStep {
 		array $options,
 	): ?ISchemaWrapper {
 		// @var ISchemaWrapper $schema.
-		$schema  = $schemaClosure();
-		$changed = false;
+		$schema = $schemaClosure();
 
-		if ($schema->hasTable('launchpad_catalogue_apps') === false) {
-			$this->createCatalogueApps(schema: $schema);
-			$changed = true;
-		}
-
-		if ($schema->hasTable('launchpad_app_requests') === false) {
-			$this->createAppRequests(schema: $schema);
-			$changed = true;
-		}
-
-		if ($changed === false) {
+		if ($schema->hasTable('launchpad_widget_placements') === false) {
 			return null;
 		}
 
+		$table = $schema->getTable('launchpad_widget_placements');
+		if ($table->hasColumn('version') === true) {
+			return null;
+		}
+
+		$table->addColumn(
+			'version',
+			Types::INTEGER,
+			[
+				'notnull' => true,
+				'default' => 0,
+				'unsigned' => true,
+				'comment' => 'Raised by one on every save of the placement; a save on an older version is refused.',
+			]
+		);
+
 		return $schema;
 	}//end changeSchema()
-
-	/**
-	 * The approved applications.
-	 *
-	 * @param ISchemaWrapper $schema The schema.
-	 *
-	 * @return void
-	 */
-	private function createCatalogueApps(ISchemaWrapper $schema): void {
-		$table = $schema->createTable('launchpad_catalogue_apps');
-		$table->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'notnull' => true, 'unsigned' => true]);
-		$table->addColumn('uuid', Types::STRING, ['notnull' => true, 'length' => 36]);
-		$table->addColumn('name', Types::STRING, ['notnull' => true, 'length' => 255]);
-		$table->addColumn('description', Types::TEXT, ['notnull' => false]);
-		$table->addColumn('icon', Types::TEXT, ['notnull' => false]);
-		$table->addColumn('icon_type', Types::STRING, ['notnull' => true, 'length' => 16, 'default' => 'class']);
-		$table->addColumn(
-			'link_type',
-			Types::STRING,
-			[
-				'notnull' => true,
-				'length' => 8,
-				'comment' => 'app (a Nextcloud app id) or url (a web address).',
-			]
-		);
-		$table->addColumn('link_value', Types::TEXT, ['notnull' => true]);
-		$table->addColumn(
-			'target_groups',
-			Types::TEXT,
-			[
-				'notnull' => false,
-				'comment' => 'JSON list of group ids that see the entry; empty means everyone.',
-			]
-		);
-		$table->addColumn('sort_order', Types::INTEGER, ['notnull' => true, 'default' => 0]);
-		$table->addColumn('created_at', Types::DATETIME, ['notnull' => false]);
-		$table->addColumn('updated_at', Types::DATETIME, ['notnull' => false]);
-
-		$table->setPrimaryKey(['id']);
-		$table->addUniqueIndex(['uuid'], 'launchpad_cat_uuid');
-	}//end createCatalogueApps()
-
-	/**
-	 * The requests for a missing application.
-	 *
-	 * @param ISchemaWrapper $schema The schema.
-	 *
-	 * @return void
-	 */
-	private function createAppRequests(ISchemaWrapper $schema): void {
-		$table = $schema->createTable('launchpad_app_requests');
-		$table->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'notnull' => true, 'unsigned' => true]);
-		$table->addColumn('uuid', Types::STRING, ['notnull' => true, 'length' => 36]);
-		$table->addColumn('requested_by', Types::STRING, ['notnull' => true, 'length' => 64]);
-		$table->addColumn('app_name', Types::STRING, ['notnull' => true, 'length' => 255]);
-		$table->addColumn('purpose', Types::TEXT, ['notnull' => false]);
-		$table->addColumn(
-			'status',
-			Types::STRING,
-			[
-				'notnull' => true,
-				'length' => 16,
-				'default' => 'open',
-				'comment' => 'open, approved or declined.',
-			]
-		);
-		$table->addColumn('decided_by', Types::STRING, ['notnull' => false, 'length' => 64]);
-		$table->addColumn('decision_note', Types::TEXT, ['notnull' => false]);
-		$table->addColumn('catalogue_app_id', Types::BIGINT, ['notnull' => false, 'unsigned' => true]);
-		$table->addColumn('created_at', Types::DATETIME, ['notnull' => false]);
-		$table->addColumn('decided_at', Types::DATETIME, ['notnull' => false]);
-
-		$table->setPrimaryKey(['id']);
-		$table->addUniqueIndex(['uuid'], 'launchpad_areq_uuid');
-		$table->addIndex(['requested_by', 'status'], 'launchpad_areq_user_status');
-		$table->addIndex(['status'], 'launchpad_areq_status');
-	}//end createAppRequests()
 }//end class

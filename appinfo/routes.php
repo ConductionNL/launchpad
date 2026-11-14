@@ -313,6 +313,8 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['placementId' => '\d+']],
 		['name' => 'widgetApi#addWidget', 'url' => '/api/dashboard/{dashboardId}/widgets', 'verb' => 'POST'],
 		['name' => 'widgetApi#addTile', 'url' => '/api/dashboard/{dashboardId}/tile', 'verb' => 'POST'],
+		// launcher-bookmark-import REQ-BMI-001: chosen browser bookmarks as containers and tiles.
+		['name' => 'bookmarkImport#import', 'url' => '/api/dashboard/{dashboardId}/tiles/import', 'verb' => 'POST'],
 		// REQ-CAL-003: calendar widget events endpoint. Registered BEFORE
 		// the wildcard `/api/widgets/{placementId}` PUT/DELETE so the
 		// literal `calendar` segment is matched first.

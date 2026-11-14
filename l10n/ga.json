@@ -1342,6 +1342,16 @@
         "Statistics": "Staitisticí",
         "Count my visits": "Comhair mo chuairteanna",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
-        "Your choice could not be saved.": "Níorbh fhéidir do rogha a shábháil."
+        "Your choice could not be saved.": "Níorbh fhéidir do rogha a shábháil.",
+        "Import bookmarks": "Iompórtáil leabharmharcanna",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Roghnaigh an comhad leabharmharcanna a d'easpórtáil do bhrabhsálaí, ansin cuir tic leis an méid atá le cur leis.",
+        "Loose bookmarks": "Leabharmharcanna scaoilte",
+        "This file is larger than 5 MB. Export one folder at a time.": "Tá an comhad seo níos mó ná 5 MB. Easpórtáil fillteán amháin ag an am.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Tá níos mó ná 2,000 leabharmharc sa chomhad seo. Easpórtáil fillteán amháin ag an am.",
+        "{count} skipped: only web addresses can become tiles": "Scipeáladh {count}: ní féidir ach seoltaí gréasáin a dhéanamh ina dtíleanna",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Is féidir {count} eile a chur ar an deais seo. Roghnaigh níos lú fillteán nó leabharmharcanna.",
+        "The bookmarks could not be imported.": "Níorbh fhéidir na leabharmharcanna a iompórtáil.",
+        "This file holds no bookmarks.": "Níl aon leabharmharc sa chomhad seo.",
+        "Folders": "Fillteáin"
     }
 }

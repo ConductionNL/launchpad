@@ -1339,6 +1339,16 @@
         "Statistics": "Statistik",
         "Count my visits": "Tæl mine besøg",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Når dette er slået fra, tælles dine besøg på dashboards og klik på fliser ikke med i visningstallene.",
-        "Your choice could not be saved.": "Dit valg kunne ikke gemmes."
+        "Your choice could not be saved.": "Dit valg kunne ikke gemmes.",
+        "Import bookmarks": "Importér bogmærker",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Vælg den bogmærkefil, din browser har eksporteret, og markér det, der skal tilføjes.",
+        "Loose bookmarks": "Løse bogmærker",
+        "This file is larger than 5 MB. Export one folder at a time.": "Filen er større end 5 MB. Eksportér én mappe ad gangen.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Filen har mere end 2.000 bogmærker. Eksportér én mappe ad gangen.",
+        "{count} skipped: only web addresses can become tiles": "{count} sprunget over: kun webadresser kan blive til fliser",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Dette dashboard kan rumme {count} mere. Vælg færre mapper eller bogmærker.",
+        "The bookmarks could not be imported.": "Bogmærkerne kunne ikke importeres.",
+        "This file holds no bookmarks.": "Filen indeholder ingen bogmærker.",
+        "Folders": "Mapper"
     }
 }

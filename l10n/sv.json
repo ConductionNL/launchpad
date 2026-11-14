@@ -1339,6 +1339,16 @@
         "Statistics": "Statistik",
         "Count my visits": "Räkna mina besök",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "När detta är avstängt räknas dina besök på instrumentpaneler och klick på rutor inte med i visningsantalet.",
-        "Your choice could not be saved.": "Ditt val kunde inte sparas."
+        "Your choice could not be saved.": "Ditt val kunde inte sparas.",
+        "Import bookmarks": "Importera bokmärken",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Välj bokmärkesfilen som din webbläsare exporterade och kryssa i det du vill lägga till.",
+        "Loose bookmarks": "Lösa bokmärken",
+        "This file is larger than 5 MB. Export one folder at a time.": "Filen är större än 5 MB. Exportera en mapp i taget.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Filen har fler än 2 000 bokmärken. Exportera en mapp i taget.",
+        "{count} skipped: only web addresses can become tiles": "{count} hoppades över: bara webbadresser kan bli rutor",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Den här instrumentpanelen rymmer {count} till. Välj färre mappar eller bokmärken.",
+        "The bookmarks could not be imported.": "Bokmärkena kunde inte importeras.",
+        "This file holds no bookmarks.": "Filen innehåller inga bokmärken.",
+        "Folders": "Mappar"
     }
 }

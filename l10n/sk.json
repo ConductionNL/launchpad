@@ -1340,6 +1340,16 @@
         "Statistics": "Štatistiky",
         "Count my visits": "Započítavať moje návštevy",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Keď je to vypnuté, vaše návštevy nástenok a kliknutia na dlaždice sa nezapočítavajú do počtu zobrazení.",
-        "Your choice could not be saved.": "Vašu voľbu sa nepodarilo uložiť."
+        "Your choice could not be saved.": "Vašu voľbu sa nepodarilo uložiť.",
+        "Import bookmarks": "Importovať záložky",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Vyberte súbor so záložkami exportovaný z prehliadača a označte, čo pridať.",
+        "Loose bookmarks": "Samostatné záložky",
+        "This file is larger than 5 MB. Export one folder at a time.": "Súbor je väčší ako 5 MB. Exportujte vždy jeden priečinok.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Súbor obsahuje viac ako 2 000 záložiek. Exportujte vždy jeden priečinok.",
+        "{count} skipped: only web addresses can become tiles": "Preskočené: {count} – dlaždicou sa môže stať len webová adresa",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Tento panel pojme ešte {count}. Vyberte menej priečinkov alebo záložiek.",
+        "The bookmarks could not be imported.": "Záložky sa nepodarilo importovať.",
+        "This file holds no bookmarks.": "Súbor neobsahuje žiadne záložky.",
+        "Folders": "Priečinky"
     }
 }

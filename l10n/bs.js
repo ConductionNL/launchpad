@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Broji moje posjete",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kada je ovo isključeno, vaše posjete kontrolnim pločama i klikovi na pločice ne ulaze u broj pregleda.",
-    "Your choice could not be saved." : "Vaš izbor nije moguće sačuvati."
+    "Your choice could not be saved." : "Vaš izbor nije moguće sačuvati.",
+    "Import bookmarks" : "Uvezi oznake",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Odaberite datoteku oznaka koju je izvezao preglednik, zatim označite šta dodati.",
+    "Loose bookmarks" : "Pojedinačne oznake",
+    "This file is larger than 5 MB. Export one folder at a time." : "Datoteka je veća od 5 MB. Izvozite jedan po jedan folder.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Datoteka ima više od 2.000 oznaka. Izvozite jedan po jedan folder.",
+    "{count} skipped: only web addresses can become tiles" : "Preskočeno: {count} – samo web adrese mogu postati pločice",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ova kontrolna tabla može primiti još {count}. Odaberite manje foldera ili oznaka.",
+    "The bookmarks could not be imported." : "Oznake nije bilo moguće uvesti.",
+    "This file holds no bookmarks." : "Datoteka ne sadrži oznake.",
+    "Folders" : "Folderi"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

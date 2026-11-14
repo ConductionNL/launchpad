@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Loe minu külastusi",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
-    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada."
+    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada.",
+    "Import bookmarks" : "Impordi järjehoidjad",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Vali brauseri eksporditud järjehoidjate fail ja märgi, mida lisada.",
+    "Loose bookmarks" : "Üksikud järjehoidjad",
+    "This file is larger than 5 MB. Export one folder at a time." : "Fail on suurem kui 5 MB. Ekspordi üks kaust korraga.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Failis on üle 2000 järjehoidja. Ekspordi üks kaust korraga.",
+    "{count} skipped: only web addresses can become tiles" : "Vahele jäetud: {count} – paaniks saab olla ainult veebiaadress",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Sellele töölauale mahub veel {count}. Vali vähem kaustu või järjehoidjaid.",
+    "The bookmarks could not be imported." : "Järjehoidjaid ei õnnestunud importida.",
+    "This file holds no bookmarks." : "Failis pole järjehoidjaid.",
+    "Folders" : "Kaustad"
 },
 "nplurals=2; plural=(n != 1);"
 );

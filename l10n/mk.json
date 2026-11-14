@@ -1339,6 +1339,16 @@
         "Statistics": "Статистика",
         "Count my visits": "Број ги моите посети",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Кога ова е исклучено, вашите посети на контролните табли и кликовите на плочките не се бројат во прегледите.",
-        "Your choice could not be saved.": "Вашиот избор не може да се зачува."
+        "Your choice could not be saved.": "Вашиот избор не може да се зачува.",
+        "Import bookmarks": "Увези обележувачи",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Изберете ја датотеката со обележувачи што ја извезе прелистувачот, па означете што да се додаде.",
+        "Loose bookmarks": "Поединечни обележувачи",
+        "This file is larger than 5 MB. Export one folder at a time.": "Датотеката е поголема од 5 MB. Извезувајте по една папка.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Датотеката има повеќе од 2.000 обележувачи. Извезувајте по една папка.",
+        "{count} skipped: only web addresses can become tiles": "Прескокнати: {count} – само веб-адреси можат да станат плочки",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Оваа контролна табла може да прими уште {count}. Изберете помалку папки или обележувачи.",
+        "The bookmarks could not be imported.": "Обележувачите не можеа да се увезат.",
+        "This file holds no bookmarks.": "Датотеката не содржи обележувачи.",
+        "Folders": "Папки"
     }
 }

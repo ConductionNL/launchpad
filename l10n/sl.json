@@ -1341,6 +1341,16 @@
         "Statistics": "Statistika",
         "Count my visits": "Štej moje obiske",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Ko je to izklopljeno, se vaši obiski nadzornih plošč in kliki na ploščice ne štejejo v število ogledov.",
-        "Your choice could not be saved.": "Vaše izbire ni bilo mogoče shraniti."
+        "Your choice could not be saved.": "Vaše izbire ni bilo mogoče shraniti.",
+        "Import bookmarks": "Uvozi zaznamke",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Izberite datoteko z zaznamki, ki jo je izvozil brskalnik, in označite, kaj dodati.",
+        "Loose bookmarks": "Posamezni zaznamki",
+        "This file is larger than 5 MB. Export one folder at a time.": "Datoteka je večja od 5 MB. Izvozite po eno mapo.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Datoteka vsebuje več kot 2.000 zaznamkov. Izvozite po eno mapo.",
+        "{count} skipped: only web addresses can become tiles": "Preskočeno: {count} – ploščica je lahko le spletni naslov",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Ta nadzorna plošča sprejme še {count}. Izberite manj map ali zaznamkov.",
+        "The bookmarks could not be imported.": "Zaznamkov ni bilo mogoče uvoziti.",
+        "This file holds no bookmarks.": "Datoteka ne vsebuje zaznamkov.",
+        "Folders": "Mape"
     }
 }

@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statisztika",
     "Count my visits" : "Látogatásaim számolása",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
-    "Your choice could not be saved." : "A választásodat nem sikerült menteni."
+    "Your choice could not be saved." : "A választásodat nem sikerült menteni.",
+    "Import bookmarks" : "Könyvjelzők importálása",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Válassza ki a böngésző által exportált könyvjelzőfájlt, majd jelölje be, mit szeretne hozzáadni.",
+    "Loose bookmarks" : "Különálló könyvjelzők",
+    "This file is larger than 5 MB. Export one folder at a time." : "A fájl nagyobb 5 MB-nál. Egyszerre egy mappát exportáljon.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "A fájl több mint 2000 könyvjelzőt tartalmaz. Egyszerre egy mappát exportáljon.",
+    "{count} skipped: only web addresses can become tiles" : "Kihagyva: {count} – csak webcímből lehet csempe",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ez az irányítópult még {count} elemet fogad. Válasszon kevesebb mappát vagy könyvjelzőt.",
+    "The bookmarks could not be imported." : "A könyvjelzőket nem sikerült importálni.",
+    "This file holds no bookmarks." : "A fájl nem tartalmaz könyvjelzőket.",
+    "Folders" : "Mappák"
 },
 "nplurals=2; plural=(n != 1);"
 );

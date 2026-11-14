@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Статистика",
     "Count my visits" : "Отчитай посещенията ми",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Когато това е изключено, посещенията ви на таблата и щракванията върху плочки не се включват в броя на прегледите.",
-    "Your choice could not be saved." : "Изборът ви не можа да бъде запазен."
+    "Your choice could not be saved." : "Изборът ви не можа да бъде запазен.",
+    "Import bookmarks" : "Импортиране на отметки",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Изберете файла с отметки, експортиран от браузъра, и отбележете какво да се добави.",
+    "Loose bookmarks" : "Отделни отметки",
+    "This file is larger than 5 MB. Export one folder at a time." : "Файлът е по-голям от 5 MB. Експортирайте по една папка.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Файлът съдържа повече от 2000 отметки. Експортирайте по една папка.",
+    "{count} skipped: only web addresses can become tiles" : "Пропуснати: {count} – само уеб адреси могат да станат плочки",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Това табло може да поеме още {count}. Изберете по-малко папки или отметки.",
+    "The bookmarks could not be imported." : "Отметките не можаха да бъдат импортирани.",
+    "This file holds no bookmarks." : "Файлът не съдържа отметки.",
+    "Folders" : "Папки"
 },
 "nplurals=2; plural=(n != 1);"
 );

@@ -1339,6 +1339,16 @@
         "Statistics": "Estatísticas",
         "Count my visits": "Contar as minhas visitas",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Quando isto está desativado, as suas visitas aos painéis e os cliques nos mosaicos não entram na contagem de visualizações.",
-        "Your choice could not be saved.": "Não foi possível guardar a sua escolha."
+        "Your choice could not be saved.": "Não foi possível guardar a sua escolha.",
+        "Import bookmarks": "Importar marcadores",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Escolha o ficheiro de marcadores exportado pelo seu navegador e assinale o que pretende adicionar.",
+        "Loose bookmarks": "Marcadores soltos",
+        "This file is larger than 5 MB. Export one folder at a time.": "Este ficheiro tem mais de 5 MB. Exporte uma pasta de cada vez.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "Este ficheiro tem mais de 2000 marcadores. Exporte uma pasta de cada vez.",
+        "{count} skipped: only web addresses can become tiles": "{count} ignorados: só endereços web podem tornar-se mosaicos",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "Este painel aceita mais {count}. Escolha menos pastas ou marcadores.",
+        "The bookmarks could not be imported.": "Não foi possível importar os marcadores.",
+        "This file holds no bookmarks.": "Este ficheiro não contém marcadores.",
+        "Folders": "Pastas"
     }
 }

@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statistiky",
     "Count my visits" : "Počítat moje návštěvy",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Když je to vypnuté, vaše návštěvy nástěnek a kliknutí na dlaždice se nezapočítávají do počtu zobrazení.",
-    "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit."
+    "Your choice could not be saved." : "Vaši volbu se nepodařilo uložit.",
+    "Import bookmarks" : "Importovat záložky",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Vyberte soubor záložek exportovaný z prohlížeče a zaškrtněte, co přidat.",
+    "Loose bookmarks" : "Samostatné záložky",
+    "This file is larger than 5 MB. Export one folder at a time." : "Soubor je větší než 5 MB. Exportujte vždy jednu složku.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Soubor obsahuje více než 2 000 záložek. Exportujte vždy jednu složku.",
+    "{count} skipped: only web addresses can become tiles" : "Přeskočeno: {count} – dlaždicí se může stát jen webová adresa",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Tato nástěnka pojme ještě {count}. Vyberte méně složek nebo záložek.",
+    "The bookmarks could not be imported." : "Záložky se nepodařilo importovat.",
+    "This file holds no bookmarks." : "Soubor neobsahuje žádné záložky.",
+    "Folders" : "Složky"
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

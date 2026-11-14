@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statistiche",
     "Count my visits" : "Conta le mie visite",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Quando è disattivato, le tue visite alle dashboard e i clic sui riquadri non vengono conteggiati nelle visualizzazioni.",
-    "Your choice could not be saved." : "Non è stato possibile salvare la tua scelta."
+    "Your choice could not be saved." : "Non è stato possibile salvare la tua scelta.",
+    "Import bookmarks" : "Importa segnalibri",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Scegli il file dei segnalibri esportato dal tuo browser, poi seleziona cosa aggiungere.",
+    "Loose bookmarks" : "Segnalibri sciolti",
+    "This file is larger than 5 MB. Export one folder at a time." : "Questo file supera i 5 MB. Esporta una cartella alla volta.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Questo file contiene più di 2.000 segnalibri. Esporta una cartella alla volta.",
+    "{count} skipped: only web addresses can become tiles" : "{count} saltati: solo gli indirizzi web possono diventare riquadri",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Questa dashboard può accoglierne ancora {count}. Scegli meno cartelle o segnalibri.",
+    "The bookmarks could not be imported." : "Impossibile importare i segnalibri.",
+    "This file holds no bookmarks." : "Questo file non contiene segnalibri.",
+    "Folders" : "Cartelle"
 },
 "nplurals=2; plural=(n != 1);"
 );

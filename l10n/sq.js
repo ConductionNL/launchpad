@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statistika",
     "Count my visits" : "Numëro vizitat e mia",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kur kjo është e çaktivizuar, vizitat tuaja në panele dhe klikimet mbi pllakat nuk përfshihen në numrin e shikimeve.",
-    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej."
+    "Your choice could not be saved." : "Zgjedhja juaj nuk mund të ruhej.",
+    "Import bookmarks" : "Importo faqeruajtësit",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Zgjidhni skedarin e faqeruajtësve që eksportoi shfletuesi, pastaj shënoni çfarë të shtohet.",
+    "Loose bookmarks" : "Faqeruajtës të veçantë",
+    "This file is larger than 5 MB. Export one folder at a time." : "Skedari është më i madh se 5 MB. Eksportoni një dosje në një kohë.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Skedari ka më shumë se 2.000 faqeruajtës. Eksportoni një dosje në një kohë.",
+    "{count} skipped: only web addresses can become tiles" : "U anashkaluan {count}: vetëm adresat e uebit mund të bëhen pllaka",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Ky panel mund të marrë edhe {count}. Zgjidhni më pak dosje ose faqeruajtës.",
+    "The bookmarks could not be imported." : "Faqeruajtësit nuk mund të importoheshin.",
+    "This file holds no bookmarks." : "Skedari nuk përmban faqeruajtës.",
+    "Folders" : "Dosjet"
 },
 "nplurals=2; plural=(n != 1);"
 );

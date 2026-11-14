@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Statistikk",
     "Count my visits" : "Tell besøkene mine",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Når dette er slått av, telles ikke besøkene dine på dashbord og klikk på fliser med i visningstallene.",
-    "Your choice could not be saved." : "Valget ditt kunne ikke lagres."
+    "Your choice could not be saved." : "Valget ditt kunne ikke lagres.",
+    "Import bookmarks" : "Importer bokmerker",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Velg bokmerkefilen nettleseren eksporterte, og kryss av det som skal legges til.",
+    "Loose bookmarks" : "Løse bokmerker",
+    "This file is larger than 5 MB. Export one folder at a time." : "Filen er større enn 5 MB. Eksporter én mappe om gangen.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Filen har mer enn 2 000 bokmerker. Eksporter én mappe om gangen.",
+    "{count} skipped: only web addresses can become tiles" : "{count} hoppet over: bare nettadresser kan bli fliser",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Dette dashbordet har plass til {count} til. Velg færre mapper eller bokmerker.",
+    "The bookmarks could not be imported." : "Bokmerkene kunne ikke importeres.",
+    "This file holds no bookmarks." : "Filen inneholder ingen bokmerker.",
+    "Folders" : "Mapper"
 },
 "nplurals=2; plural=(n != 1);"
 );

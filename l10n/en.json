@@ -1317,6 +1317,16 @@
         "Statistics": "Statistics",
         "Count my visits": "Count my visits",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "When this is off, your dashboard visits and tile clicks are left out of the view counts.",
-        "Your choice could not be saved.": "Your choice could not be saved."
+        "Your choice could not be saved.": "Your choice could not be saved.",
+        "Import bookmarks": "Import bookmarks",
+        "Choose the bookmarks file your browser exported, then tick what to add.": "Choose the bookmarks file your browser exported, then tick what to add.",
+        "Loose bookmarks": "Loose bookmarks",
+        "This file is larger than 5 MB. Export one folder at a time.": "This file is larger than 5 MB. Export one folder at a time.",
+        "This file has more than 2,000 bookmarks. Export one folder at a time.": "This file has more than 2,000 bookmarks. Export one folder at a time.",
+        "{count} skipped: only web addresses can become tiles": "{count} skipped: only web addresses can become tiles",
+        "This dashboard can take {count} more. Choose fewer folders or bookmarks.": "This dashboard can take {count} more. Choose fewer folders or bookmarks.",
+        "The bookmarks could not be imported.": "The bookmarks could not be imported.",
+        "This file holds no bookmarks.": "This file holds no bookmarks.",
+        "Folders": "Folders"
     }
 }

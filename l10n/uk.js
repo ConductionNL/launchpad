@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Статистика",
     "Count my visits" : "Враховувати мої відвідування",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Коли це вимкнено, ваші відвідування панелей і натискання на плитки не враховуються в кількості переглядів.",
-    "Your choice could not be saved." : "Не вдалося зберегти ваш вибір."
+    "Your choice could not be saved." : "Не вдалося зберегти ваш вибір.",
+    "Import bookmarks" : "Імпортувати закладки",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Виберіть файл закладок, експортований браузером, і позначте, що додати.",
+    "Loose bookmarks" : "Окремі закладки",
+    "This file is larger than 5 MB. Export one folder at a time." : "Файл більший за 5 МБ. Експортуйте по одній теці.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "У файлі понад 2000 закладок. Експортуйте по одній теці.",
+    "{count} skipped: only web addresses can become tiles" : "Пропущено: {count} – плиткою може стати лише вебадреса",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "На цю панель можна додати ще {count}. Виберіть менше тек або закладок.",
+    "The bookmarks could not be imported." : "Не вдалося імпортувати закладки.",
+    "This file holds no bookmarks." : "У файлі немає закладок.",
+    "Folders" : "Теки"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 );

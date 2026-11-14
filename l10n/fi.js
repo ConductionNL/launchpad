@@ -1373,7 +1373,17 @@ OC.L10N.register(
     "Statistics" : "Tilastot",
     "Count my visits" : "Laske käyntini",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
-    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa."
+    "Your choice could not be saved." : "Valintaasi ei voitu tallentaa.",
+    "Import bookmarks" : "Tuo kirjanmerkit",
+    "Choose the bookmarks file your browser exported, then tick what to add." : "Valitse selaimen viemä kirjanmerkkitiedosto ja rastita lisättävät.",
+    "Loose bookmarks" : "Erilliset kirjanmerkit",
+    "This file is larger than 5 MB. Export one folder at a time." : "Tiedosto on yli 5 Mt. Vie yksi kansio kerrallaan.",
+    "This file has more than 2,000 bookmarks. Export one folder at a time." : "Tiedostossa on yli 2 000 kirjanmerkkiä. Vie yksi kansio kerrallaan.",
+    "{count} skipped: only web addresses can become tiles" : "Ohitettu: {count} – vain verkko-osoitteista voi tulla ruutuja",
+    "This dashboard can take {count} more. Choose fewer folders or bookmarks." : "Tähän koontinäkymään mahtuu vielä {count}. Valitse vähemmän kansioita tai kirjanmerkkejä.",
+    "The bookmarks could not be imported." : "Kirjanmerkkejä ei voitu tuoda.",
+    "This file holds no bookmarks." : "Tiedostossa ei ole kirjanmerkkejä.",
+    "Folders" : "Kansiot"
 },
 "nplurals=2; plural=(n != 1);"
 );

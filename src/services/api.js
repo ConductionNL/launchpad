@@ -661,6 +661,18 @@ export const api = {
 	},
 
 	/**
+	 * Import chosen browser bookmarks onto a dashboard as containers and tiles.
+	 *
+	 * @param {number|string} dashboardId Numeric id of the target dashboard.
+	 * @param {{folders: Array<object>, bookmarks: Array<object>}} data The chosen folders and loose bookmarks.
+	 * @return {Promise} Axios response with `{placements, skipped}`; 409 when the import does not fit the quota.
+	 * @spec openspec/changes/launcher-bookmark-import/specs/tiles/spec.md
+	 */
+	importBookmarks(dashboardId, data) {
+		return axios.post(`${baseUrl}/api/dashboard/${dashboardId}/tiles/import`, data)
+	},
+
+	/**
 	 * The apps this server runs for the current user, to place as tiles.
 	 *
 	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.

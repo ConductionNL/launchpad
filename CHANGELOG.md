@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Scheduled Exports v1** (`scheduled-exports`): recurring exports with
+  multi-format rendering and multi-channel delivery (email, Files, webhook,
+  SFTP). Exports and their run records are OpenRegister objects reached
+  through `/api/exports` (owner or administrator only); a background runner
+  fires due exports every minute, renders PDF/PNG through an
+  operator-configured headless browser (`export_chromium_binary`) and
+  CSV/XLSX from the widgets' rows, once per distinct recipient filter
+  context, and delivers with per-recipient retries and exponential backoff.
+  Webhooks are HMAC-SHA256-signed (`X-LaunchPad-Signature`); webhook and
+  SFTP hosts must be listed in `export_allowed_hosts`; channel secrets are
+  encrypted at rest and redacted on read. An hourly janitor enforces
+  artefact and audit retention.
+
 - **Dashboard quota limits** (`dashboard-quota-limits`): two
   admin-configurable numeric quotas — `maxDashboardsPerUser` and
   `maxWidgetsPerDashboard` — with server-side fail-closed enforcement on

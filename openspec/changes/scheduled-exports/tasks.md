@@ -40,8 +40,8 @@
 - [ ] Task 14: Create run-history panel showing list of past fires with columns: triggered-at, status (success/partial/failed), recipient count, delivery outcomes summary. Clicking a run opens detail modal.
 - [ ] Task 15: Create run-detail modal (`src/modals/RunDetailModal.vue`) showing: export name, fire timestamp, status, list of deliveries (per-recipient channel, status, attempt count, error if failed), list of render artefacts (format, size, download link), "Retry" button if any delivery failed
 - [ ] Task 16: Create preview modal (`src/modals/PreviewModal.vue`) accepting render format choice (pdf/png/csv/xlsx) and recipient selection, displaying render output (PDF/PNG embedded, CSV/XLSX as download link)
-- [ ] Task 17: Frontend store action `useExportsStore.runExportNow(exportId)` POSTs to `/api/exports/{id}/run` and polls run-status until completion (show progress toast)
-- [ ] Task 18: Frontend store action `useExportsStore.previewExport(exportId, recipientId, format)` POSTs to `/api/exports/{id}/preview` and returns streaming response
+- [x] Task 17: Frontend store action `useExportsStore.runExportNow(exportId)` POSTs to `/api/exports/{id}/run` and polls run-status until completion (show progress toast)
+- [x] Task 18: Frontend store action `useExportsStore.previewExport(exportId, recipientId, format)` POSTs to `/api/exports/{id}/preview` and returns streaming response
 - [ ] Task 19: Add "Scheduled Exports" menu item to dashboard toolbar (alongside Share, Bulk, Comments); clicking opens export-list modal
 
 ### Testing
@@ -62,12 +62,12 @@
 
 - [ ] Task 31: Composer checks: `composer check:strict`, `composer check:lint` — no errors
 - [ ] Task 32: ESLint + Stylelint on all `.vue` and `.js` files — green
-- [ ] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license EUPL-1.2`, `@copyright ...`)
+- [x] Task 33: SPDX docblock on every PHP class/method per ADR-005 (`@license EUPL-1.2`, `@copyright ...`)
 - [ ] Task 34: Hydra gates green: `hydra-gate-spdx`, `hydra-gate-modal-isolation` (export modals live in `src/modals/`, not inlined), `hydra-gate-route-auth` (all routes have permission checks)
-- [ ] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
+- [x] Task 35: OpenAPI schema generation for new 11 routes (Newman/Postman regen)
 - [ ] Task 36: i18n translations `nl_NL` + `en_US` for: UI strings (menu items, button labels, form placeholders), validation messages, admin notifications, schema descriptions
-- [ ] Task 37: Update `CHANGELOG.md` with feature summary: "Scheduled Exports v1 — recurring exports with multi-format rendering and multi-channel delivery (email, Files, webhook, SFTP)"
-- [ ] Task 38: Document in `design.md` why stale recurrence preferences are skipped per-request rather than via background job (DST/leap-day edge cases are transient; recompute on every read for consistency)
+- [x] Task 37: Update `CHANGELOG.md` with feature summary: "Scheduled Exports v1 — recurring exports with multi-format rendering and multi-channel delivery (email, Files, webhook, SFTP)"
+- [x] Task 38: Document in `design.md` why stale recurrence preferences are skipped per-request rather than via background job (DST/leap-day edge cases are transient; recompute on every read for consistency)
 
 ## Verification
 

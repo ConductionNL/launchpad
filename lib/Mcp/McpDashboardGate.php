@@ -91,6 +91,24 @@ class McpDashboardGate {
 	}//end requireAction()
 
 	/**
+	 * A refusal when there is no signed-in caller; null otherwise.
+	 *
+	 * The tools whose HTTP route only needs a session use this, and leave the
+	 * rest to the service the route calls.
+	 *
+	 * @return array<string, mixed>|null The refusal, or null.
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function requireSignedIn(): ?array {
+		if ($this->currentUserId() === '') {
+			return McpArgumentValidator::error(code: 'unauthenticated', message: 'This tool needs a signed-in user.');
+		}
+
+		return null;
+	}//end requireSignedIn()
+
+	/**
 	 * Refuse unless the signed-in caller is an administrator, for instance-reach tools.
 	 *
 	 * @return array<string, mixed>|null The refusal, or null for an administrator.

@@ -116,4 +116,17 @@ class McpDashboardGateTest extends TestCase {
 		$this->assertSame('forbidden', $this->gate('alice', $auth, $groups)->requireAdmin()['error']);
 		$this->assertSame('forbidden', $this->gate('broken', $auth, $groups)->requireAdmin()['error']);
 	}//end testOnlyAnAdministratorPassesTheAdminCheck()
+
+	/**
+	 * A session is all requireSignedIn asks for; without one it refuses.
+	 *
+	 * @return void
+	 */
+	public function testRequireSignedInNeedsOnlyASession(): void {
+		$auth = $this->createMock(ActionAuthService::class);
+		$auth->expects($this->never())->method('requireAction');
+
+		$this->assertNull($this->gate('alice', $auth, $this->createMock(IGroupManager::class))->requireSignedIn());
+		$this->assertSame('unauthenticated', $this->gate(null, $auth, $this->createMock(IGroupManager::class))->requireSignedIn()['error']);
+	}//end testRequireSignedInNeedsOnlyASession()
 }//end class

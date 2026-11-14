@@ -15,6 +15,10 @@ namespace Unit\Mcp;
 
 use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\LaunchPad\Mcp\McpDashboardTools;
+use OCA\LaunchPad\Mcp\McpDashboardTreeTools;
+use OCA\LaunchPad\Mcp\McpPersonalTools;
+use OCA\LaunchPad\Mcp\McpReadHandlers;
+use OCA\LaunchPad\Mcp\McpShareTools;
 use OCA\LaunchPad\Mcp\McpTileTools;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use PHPUnit\Framework\TestCase;
@@ -24,6 +28,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\LaunchPad\Mcp\LaunchpadToolProvider
  * @uses   \OCA\LaunchPad\Mcp\McpArgumentValidator
+ * @uses   \OCA\LaunchPad\Mcp\McpReadHandlers
  */
 class LaunchpadToolProviderTest extends TestCase {
 
@@ -63,7 +68,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheProviderIsLaunchpads(): void {
-		$provider = new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class));
+		$provider = new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class), $this->readHandlers());
 
 		$this->assertInstanceOf(IMcpToolProvider::class, $provider);
 		$this->assertSame('launchpad', $provider->getAppId());
@@ -84,7 +89,15 @@ class LaunchpadToolProviderTest extends TestCase {
 		$tools->expects($this->once())->method('getActiveDashboard')->with([])->willReturn(['dashboard' => ['id' => 1]]);
 		$tiles = $this->createMock(McpTileTools::class);
 		$tiles->expects($this->once())->method('listTiles')->with([])->willReturn(['items' => ['t']]);
-		$provider = new LaunchpadToolProvider($tools, $tiles);
+		$tree = $this->createMock(McpDashboardTreeTools::class);
+		$tree->expects($this->once())->method('getDashboardTree')->with([])->willReturn(['items' => ['tree']]);
+		$shares = $this->createMock(McpShareTools::class);
+		$shares->expects($this->once())->method('listShares')->with(['dashboardId' => 7])->willReturn(['items' => ['s']]);
+		$personal = $this->createMock(McpPersonalTools::class);
+		$personal->expects($this->once())->method('listTemplates')->with(['category' => 'hr'])->willReturn(['items' => ['tpl']]);
+		$personal->expects($this->once())->method('listPendingAcknowledgements')->with([])->willReturn(['count' => 0, 'items' => []]);
+		$personal->expects($this->once())->method('listKioskPlaylists')->with([])->willReturn(['items' => ['k']]);
+		$provider = new LaunchpadToolProvider($tools, $tiles, new McpReadHandlers($tree, $shares, $personal));
 
 		$this->assertSame(['dashboard' => []], $provider->invokeTool('launchpad.getDashboard', ['dashboardUuid' => 'u']));
 		$this->assertSame(['items' => []], $provider->invokeTool('launchpad.listDashboards', []));
@@ -92,7 +105,25 @@ class LaunchpadToolProviderTest extends TestCase {
 		$this->assertSame(['items' => ['w']], $provider->invokeTool('launchpad.listWidgetTypes', []));
 		$this->assertSame(['dashboard' => ['id' => 1]], $provider->invokeTool('launchpad.getActiveDashboard', []));
 		$this->assertSame(['items' => ['t']], $provider->invokeTool('launchpad.listTiles', []));
+		$this->assertSame(['items' => ['tree']], $provider->invokeTool('launchpad.getDashboardTree', []));
+		$this->assertSame(['items' => ['s']], $provider->invokeTool('launchpad.listShares', ['dashboardId' => 7]));
+		$this->assertSame(['items' => ['tpl']], $provider->invokeTool('launchpad.listTemplates', ['category' => 'hr']));
+		$this->assertSame(['count' => 0, 'items' => []], $provider->invokeTool('launchpad.listPendingAcknowledgements', []));
+		$this->assertSame(['items' => ['k']], $provider->invokeTool('launchpad.listKioskPlaylists', []));
 	}//end testEachToolDispatchesToItsHandler()
+
+	/**
+	 * Read handlers that answer nothing, for the tests that do not reach them.
+	 *
+	 * @return McpReadHandlers
+	 */
+	private function readHandlers(): McpReadHandlers {
+		return new McpReadHandlers(
+			$this->createMock(McpDashboardTreeTools::class),
+			$this->createMock(McpShareTools::class),
+			$this->createMock(McpPersonalTools::class)
+		);
+	}//end readHandlers()
 
 	/**
 	 * An unknown tool is a structured error naming the available ids.
@@ -100,7 +131,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnknownToolIsAStructuredError(): void {
-		$result = (new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class)))->invokeTool('launchpad.dropTables', []);
+		$result = (new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class), $this->readHandlers()))->invokeTool('launchpad.dropTables', []);
 
 		$this->assertTrue($result['isError']);
 		$this->assertSame('unknown_tool', $result['error']);

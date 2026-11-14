@@ -119,6 +119,62 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'annotations' => ['readOnlyHint' => true],
 			'inputSchema' => self::NO_ARGUMENTS,
 		],
+		[
+			'id' => 'launchpad.getDashboardTree',
+			'name' => 'Get dashboard tree',
+			'description' => 'The tree of the dashboards you can see, by parent and child.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
+		[
+			'id' => 'launchpad.listShares',
+			'name' => 'List shares',
+			'description' => 'List who one of your own dashboards is shared with.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => ['dashboardId' => ['type' => 'integer', 'minimum' => 1]],
+				'required' => ['dashboardId'],
+			],
+		],
+		[
+			'id' => 'launchpad.listTemplates',
+			'name' => 'List templates',
+			'description' => 'List the dashboard templates in the gallery, optionally of one category.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => [
+				'type' => 'object',
+				'properties' => [
+					'category' => ['type' => 'string', 'maxLength' => 255],
+					'sort' => ['type' => 'string', 'enum' => ['name', 'updatedAt']],
+				],
+				'required' => [],
+			],
+		],
+		[
+			'id' => 'launchpad.listPendingAcknowledgements',
+			'name' => 'List pending acknowledgements',
+			'description' => 'List the announcements on your dashboards that wait for your acknowledgement.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
+		[
+			'id' => 'launchpad.listKioskPlaylists',
+			'name' => 'List kiosk playlists',
+			'description' => 'List the kiosk playlists you may see.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
 	];
 
 	/**
@@ -126,10 +182,12 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 	 *
 	 * @param McpDashboardTools $dashboardTools The dashboard and widget-type handlers.
 	 * @param McpTileTools      $tileTools      The tile handlers.
+	 * @param McpReadHandlers   $readHandlers   The tree, share and personal read handlers.
 	 */
 	public function __construct(
 		private readonly McpDashboardTools $dashboardTools,
 		private readonly McpTileTools $tileTools,
+		private readonly McpReadHandlers $readHandlers,
 	) {
 	}//end __construct()
 
@@ -173,6 +231,11 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'launchpad.listGroupDashboards' => $this->dashboardTools->listGroupDashboards(args: $arguments),
 			'launchpad.listWidgetTypes' => $this->dashboardTools->listWidgetTypes(args: $arguments),
 			'launchpad.listTiles' => $this->tileTools->listTiles(args: $arguments),
+			'launchpad.getDashboardTree' => $this->readHandlers->tree->getDashboardTree(args: $arguments),
+			'launchpad.listShares' => $this->readHandlers->shares->listShares(args: $arguments),
+			'launchpad.listTemplates' => $this->readHandlers->personal->listTemplates(args: $arguments),
+			'launchpad.listPendingAcknowledgements' => $this->readHandlers->personal->listPendingAcknowledgements(args: $arguments),
+			'launchpad.listKioskPlaylists' => $this->readHandlers->personal->listKioskPlaylists(args: $arguments),
 			default => McpArgumentValidator::error(
 				code: 'unknown_tool',
 				message: "Unknown tool id '{$toolId}'. Available tools: "

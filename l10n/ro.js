@@ -1368,7 +1368,18 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Găsite pe acest server",
     "Apps this server runs for you. One click places one as a tile." : "Aplicații pe care acest server le rulează pentru dvs. Un clic le transformă într-o dală.",
-    "On this dashboard" : "Pe acest panou"
+    "On this dashboard" : "Pe acest panou",
+    "Address on the office network" : "Address on the office network",
+    "Optional, e.g. http://intranet.local" : "Optional, e.g. http://intranet.local",
+    "You are on the office network: this tile opens the internal address" : "You are on the office network: this tile opens the internal address",
+    "You are not on the office network: this tile opens the main address" : "You are not on the office network: this tile opens the main address",
+    "Office networks" : "Office networks",
+    "On these networks a tile with an address on the office network opens that address. One IPv4 or IPv6 range per line, such as 10.20.0.0/16." : "On these networks a tile with an address on the office network opens that address. One IPv4 or IPv6 range per line, such as 10.20.0.0/16.",
+    "Office network ranges" : "Office network ranges",
+    "Save office networks" : "Save office networks",
+    "This is not a valid network range" : "This is not a valid network range",
+    "Your current address is {address}, which is inside the office networks." : "Your current address is {address}, which is inside the office networks.",
+    "Your current address is {address}, which is outside the office networks." : "Your current address is {address}, which is outside the office networks."
 },
 "nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100>0 && n%100<20)) ? 1 : 2);"
 );

@@ -53,7 +53,7 @@ class AdminSettingsServiceTest extends TestCase {
 
 	/**
 	 * REQ-ASET-001 "Settings response format consistency": the response holds
-	 * exactly the twelve documented keys, each at its documented default.
+	 * exactly the documented keys, each at its documented default.
 	 *
 	 * The spec said "exactly four keys" long after the response had grown to
 	 * twelve, because nothing compared the two. This pins the whole response,
@@ -79,6 +79,9 @@ class AdminSettingsServiceTest extends TestCase {
 				'maxWidgetsPerDashboard' => 0,
 				'quicksearchFallbackTarget' => 'none',
 				'startPageWithoutNavigation' => false,
+				'officeNetworks' => [],
+				'currentAddress' => '',
+				'currentAddressInOfficeNetworks' => false,
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -162,7 +165,11 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertArrayHasKey('quicksearchFallbackTarget', $settings);
 		// runtime-shell REQ-SHELL-009.
 		$this->assertArrayHasKey('startPageWithoutNavigation', $settings);
-		$this->assertCount(12, $settings);
+		// launcher-tile-internal-address REQ-TIA-001: the ranges, and the caller's address against them.
+		$this->assertArrayHasKey('officeNetworks', $settings);
+		$this->assertArrayHasKey('currentAddress', $settings);
+		$this->assertArrayHasKey('currentAddressInOfficeNetworks', $settings);
+		$this->assertCount(15, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----

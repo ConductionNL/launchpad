@@ -67,6 +67,10 @@ const PAGE_KEYS = {
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// launcher-tile-internal-address REQ-TIA-003: whether the server saw
+		// this request come from an office network. Optional key: a server
+		// without the setter leaves every tile on its main address.
+		onOfficeNetwork: false,
 	},
 	admin: {
 		allGroups: [],
@@ -107,6 +111,16 @@ export function loadInitialState(page) {
 	}
 
 	return state
+}
+
+/**
+ * Whether the server saw this request come from inside the office networks.
+ *
+ * @return {boolean} True only when the server said so.
+ * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+ */
+export function isOnOfficeNetwork() {
+	return readKey('onOfficeNetwork', false) === true
 }
 
 /**

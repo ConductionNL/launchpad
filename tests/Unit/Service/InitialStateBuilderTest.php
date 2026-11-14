@@ -105,6 +105,7 @@ class InitialStateBuilderTest extends TestCase {
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
 			->setStartPageWithoutNavigation(true)
+			->setOnOfficeNetwork(true)
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -119,6 +120,8 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertTrue($sink['allowUserDashboards']);
 		// runtime-shell REQ-SHELL-009, an optional key: pushed when set.
 		$this->assertTrue($sink['startPageWithoutNavigation']);
+		// launcher-tile-internal-address REQ-TIA-003, an optional key: pushed when set.
+		$this->assertTrue($sink['onOfficeNetwork']);
 	}
 
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {

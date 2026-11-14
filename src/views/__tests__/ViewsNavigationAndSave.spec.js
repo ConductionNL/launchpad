@@ -315,7 +315,7 @@ describe('Views saving tiles and custom widgets', () => {
 			tileTextColor: '#fff',
 			tileLinkType: 'url',
 			tileLinkValue: 'https://example.org',
-			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60 },
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: '' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(1)
 	})
@@ -334,9 +334,23 @@ describe('Views saving tiles and custom widgets', () => {
 
 		await host.saveTile({ ...tile, healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 })
 		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
-			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30 },
+			content: { healthPingEnabled: true, healthUrl: '/status', expectedStatus: 204, pingInterval: 30, internalUrl: '' },
 		})
 		expect(host.closeTileEditor).toHaveBeenCalledTimes(2)
+	})
+
+	it('adds a new tile with an office-network address, patching it in (launcher-tile-internal-address)', async () => {
+		const host = makeHost({
+			editingTile: null,
+			addTileToDashboard: vi.fn(async () => ({ id: 9 })),
+			updateWidgetPlacement: vi.fn(),
+			closeTileEditor: vi.fn(),
+		})
+
+		await host.saveTile({ ...tile, internalUrl: 'http://zaken.intern' })
+		expect(host.updateWidgetPlacement).toHaveBeenCalledWith(9, {
+			content: { healthPingEnabled: false, healthUrl: '', expectedStatus: 200, pingInterval: 60, internalUrl: 'http://zaken.intern' },
+		})
 	})
 
 	it('keeps the tile editor open and logs when saving fails', async () => {

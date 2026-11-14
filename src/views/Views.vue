@@ -1448,6 +1448,8 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				// launcher-tile-internal-address REQ-TIA-002: the office-network address, in `content`.
+				internalUrl: (placement.content && placement.content.internalUrl) || '',
 			}
 		},
 
@@ -2423,6 +2425,7 @@ export default {
 				textColor: placement.tileTextColor,
 				linkType: placement.tileLinkType,
 				linkValue: placement.tileLinkValue,
+				internalUrl: content.internalUrl || '',
 				// service-health-ping: config lives in the placement's
 				// `content` JSON blob, no schema change (REQ-HPING-001).
 				healthPingEnabled: content.healthPingEnabled === true,
@@ -2455,6 +2458,8 @@ export default {
 				healthUrl: tileData.healthUrl || '',
 				expectedStatus: tileData.expectedStatus || 200,
 				pingInterval: tileData.pingInterval || 60,
+				// launcher-tile-internal-address REQ-TIA-002: validated by the server.
+				internalUrl: tileData.internalUrl || '',
 			}
 			try {
 				if (this.editingTile) {
@@ -2474,7 +2479,7 @@ export default {
 					// `addWidget` create-then-patch pattern above) — persist
 					// the health-ping block with a follow-up patch only when
 					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
+					if (newPlacement?.id && (healthPingContent.healthPingEnabled || healthPingContent.internalUrl)) {
 						await this.updateWidgetPlacement(newPlacement.id, {
 							content: healthPingContent,
 						})

@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 12 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 13 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -215,10 +215,24 @@ class AdminControllerSettingsAliasTest extends TestCase {
 						'maxWidgetsPerDashboard' => null,
 						'quicksearchFallbackTarget' => null,
 						'startPageWithoutNavigation' => true,
+						'officeNetworks' => null,
 					]
 				)
 			);
 
 		$this->controller->updateSettings(startPageWithoutNavigation: true);
 	}//end testStartPageWithoutNavigationIsPassedThrough()
+
+	/**
+	 * The office networks reach the service as given (launcher-tile-internal-address REQ-TIA-001).
+	 *
+	 * @return void
+	 */
+	public function testOfficeNetworksArePassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'officeNetworks' => ['10.20.0.0/16']]));
+
+		$this->controller->updateSettings(officeNetworks: ['10.20.0.0/16']);
+	}//end testOfficeNetworksArePassedThrough()
 }//end class

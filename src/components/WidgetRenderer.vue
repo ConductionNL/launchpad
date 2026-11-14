@@ -267,6 +267,7 @@ export default {
 					textColor: this.placement.tileTextColor,
 					linkType: this.placement.tileLinkType,
 					linkValue: this.placement.tileLinkValue,
+					internalUrl: (this.placement.content && this.placement.content.internalUrl) || '',
 				}
 			}
 			// Referenced tile: resolve the Tile entity from the store by id.

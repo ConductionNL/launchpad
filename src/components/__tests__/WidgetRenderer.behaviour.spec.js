@@ -110,6 +110,7 @@ describe('WidgetRenderer dispatch computeds', () => {
 			textColor: '#fff',
 			linkType: 'url',
 			linkValue: 'https://example.org',
+			internalUrl: '',
 		})
 	})
 

@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use InvalidArgumentException;
 use OCA\LaunchPad\Db\WidgetPlacement;
 
 /**
@@ -113,5 +114,50 @@ class TileUpdater {
 				$data['tileLinkValue']
 			);
 		}
+
+		if (isset($data['content']) === true
+			&& is_array($data['content']) === true
+			&& array_key_exists('internalUrl', $data['content']) === true
+		) {
+			$this->assertValidInternalUrl(url: $data['content']['internalUrl']);
+		}
 	}//end applyTileUpdates()
+
+	/**
+	 * Refuse an office-network address that is not an http or https address or a path on this instance.
+	 *
+	 * Empty clears the address. Anything else, `javascript:` and `data:`
+	 * included, is refused before the placement is saved.
+	 *
+	 * @param mixed $url The `content.internalUrl` value.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the address is not allowed; the caller answers 400.
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-a-tile-can-hold-an-office-network-address-req-tia-002
+	 */
+	public function assertValidInternalUrl(mixed $url): void {
+		if ($url === null || $url === '') {
+			return;
+		}
+
+		if (is_string($url) === false || preg_match('/[\x00-\x20\x7f]/', $url) === 1) {
+			throw new InvalidArgumentException(message: 'The address on the office network is not a valid address');
+		}
+
+		// A path on this instance, but not a protocol-relative `//host`.
+		if (str_starts_with(haystack: $url, needle: '/') === true && str_starts_with(haystack: $url, needle: '//') === false) {
+			return;
+		}
+
+		$scheme = strtolower((string)parse_url(url: $url, component: PHP_URL_SCHEME));
+		if (in_array(needle: $scheme, haystack: ['http', 'https'], strict: true) === true
+			&& filter_var(value: $url, filter: FILTER_VALIDATE_URL) !== false
+		) {
+			return;
+		}
+
+		throw new InvalidArgumentException(message: 'The address on the office network is not a valid address');
+	}//end assertValidInternalUrl()
 }//end class

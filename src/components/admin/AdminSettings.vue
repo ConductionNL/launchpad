@@ -222,6 +222,46 @@
 				</div>
 				</CnSettingsSection>
 
+				<!-- launcher-tile-internal-address REQ-TIA-001: the office networks a
+				     tile's office-network address is used on. Saved on its own, so a
+				     malformed range never blocks the other settings. -->
+				<CnSettingsSection
+					:name="t('launchpad', 'Office networks')"
+					data-testid="admin-office-networks">
+					<p class="launchpad-admin__hint">
+						{{
+							t(
+								'launchpad',
+								'On these networks a tile with an address on the office network opens that address. One IPv4 or IPv6 range per line, such as 10.20.0.0/16.',
+							)
+						}}
+					</p>
+					<label class="launchpad-admin__label" for="launchpad-office-networks">
+						{{ t('launchpad', 'Office network ranges') }}
+					</label>
+					<textarea
+						id="launchpad-office-networks"
+						v-model="officeNetworksText"
+						class="launchpad-admin__textarea"
+						rows="4"
+						data-testid="admin-office-networks-input" />
+					<p
+						v-if="officeNetworksError"
+						class="launchpad-admin__error"
+						role="alert"
+						data-testid="admin-office-networks-error">
+						{{ officeNetworksError }}
+					</p>
+					<p class="launchpad-admin__hint" data-testid="admin-office-networks-current">
+						{{ currentAddressLine }}
+					</p>
+					<NcButton
+						data-testid="admin-office-networks-save"
+						@click="saveOfficeNetworks">
+						{{ t('launchpad', 'Save office networks') }}
+					</NcButton>
+				</CnSettingsSection>
+
 				<!-- Group-shared dashboards (REQ-DASH-015..017). Owns the
 				     `set-group-default` / `group-default-badge` data-test hooks. -->
 				<CnSettingsSection :name="t('launchpad', 'Group-shared dashboards')">
@@ -393,6 +433,10 @@ export default {
 				maxWidgetsPerDashboard: 0,
 			},
 
+			// launcher-tile-internal-address REQ-TIA-001.
+			officeNetworksText: '',
+			officeNetworksError: '',
+
 			permissionOptions: [
 				{ id: 'view_only', label: this.t('launchpad', 'View only') },
 				{ id: 'add_only', label: this.t('launchpad', 'Add only') },
@@ -412,6 +456,24 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The administrator's own address and whether it is inside the
+		 * office networks, so a wrong proxy setup shows at once.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 */
+		currentAddressLine() {
+			const address = this.settings.currentAddress || ''
+			if (address === '') {
+				return ''
+			}
+			if (this.settings.currentAddressInOfficeNetworks === true) {
+				return this.t('launchpad', 'Your current address is {address}, which is inside the office networks.', { address })
+			}
+			return this.t('launchpad', 'Your current address is {address}, which is outside the office networks.', { address })
+		},
+
 		/**
 		 * The page title names the open tab, as the boards do
 		 * ("Launchpad-beheer: algemeen").
@@ -529,6 +591,7 @@ export default {
 				const settingsRes = await api.getAdminSettings()
 				const data = settingsRes.data?.data ?? settingsRes.data
 				if (data) {
+					this.officeNetworksText = (Array.isArray(data.officeNetworks) ? data.officeNetworks : []).join('\n')
 					this.settings = {
 						...this.settings,
 						...data,
@@ -567,6 +630,36 @@ export default {
 			} catch (error) {
 				logger.error('Failed to save settings:', error)
 			}
+		},
+
+		/**
+		 * Save the office networks, one range per line, and show the server's
+		 * verdict on the administrator's own address. A malformed range is
+		 * refused by the server and nothing is stored.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+		 */
+		async saveOfficeNetworks() {
+			this.officeNetworksError = ''
+			const ranges = this.officeNetworksText
+				.split(/[\n,]+/)
+				.map((range) => range.trim())
+				.filter((range) => range !== '')
+			try {
+				await api.updateAdminSettings({ officeNetworks: ranges })
+			} catch (error) {
+				this.officeNetworksError = this.t('launchpad', 'This is not a valid network range')
+				// The server names the range it refused after a colon; keep the
+				// translated sentence and add that range to it.
+				const detail = error?.response?.data?.error || error?.response?.data?.message
+				const named = typeof detail === 'string' ? detail.match(/^This is not a valid network range: (.+)$/) : null
+				if (named) {
+					this.officeNetworksError += ': ' + named[1]
+				}
+				return
+			}
+			await this.loadData()
 		},
 
 		/**
@@ -829,5 +922,20 @@ export default {
 .launchpad-admin__wizard-rerun {
 	display: flex;
 	justify-content: flex-end;
+}
+.launchpad-admin__label {
+	display: block;
+	margin-top: 8px;
+	font-weight: bold;
+}
+
+.launchpad-admin__textarea {
+	width: 100%;
+	max-width: 480px;
+	font-family: monospace;
+}
+
+.launchpad-admin__error {
+	color: var(--color-error-text);
 }
 </style>

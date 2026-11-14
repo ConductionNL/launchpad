@@ -234,6 +234,10 @@ class WidgetPlacementMapper extends QBMapper {
 			);
 		}
 
+		// Every position write raises the widget's version, so a colleague's
+		// per-widget save made on the older version is refused
+		// (building-edit-a-dashboard-together, task 1.2).
+		$qb->set(key: 'version', value: $qb->createFunction(call: $qb->getColumnName(column: 'version') . ' + 1'));
 		$qb->set(
 			key: 'updated_at',
 			value: $qb->createNamedParameter(value: new DateTime(), type: IQueryBuilder::PARAM_DATETIME_MUTABLE)
@@ -246,6 +250,29 @@ class WidgetPlacementMapper extends QBMapper {
 
 		$qb->executeStatement();
 	}//end updatePosition()
+
+	/**
+	 * Raise a widget's version by one, only when it is still the version the editor saw.
+	 *
+	 * One statement compares and raises, so of two saves on the same version
+	 * exactly one wins.
+	 *
+	 * @param int $id       The placement id.
+	 * @param int $expected The version the editor's change was made on.
+	 *
+	 * @return bool True when the version was claimed; false when a colleague saved first.
+	 *
+	 * @spec openspec/changes/building-edit-a-dashboard-together/specs/dashboard-co-editing/spec.md
+	 */
+	public function claimVersion(int $id, int $expected): bool {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update(update: $this->getTableName())
+			->set(key: 'version', value: $qb->createNamedParameter(value: $expected + 1, type: IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq(x: 'id', y: $qb->createNamedParameter(value: $id, type: IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq(x: 'version', y: $qb->createNamedParameter(value: $expected, type: IQueryBuilder::PARAM_INT)));
+
+		return $qb->executeStatement() === 1;
+	}//end claimVersion()
 
 	/**
 	 * Clone all placements from one dashboard to another.

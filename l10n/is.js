@@ -1299,6 +1299,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Sía þessar niðurstöður",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1372,7 +1373,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Fundið á þessum þjóni",
     "Apps this server runs for you. One click places one as a tile." : "Forrit sem þessi þjónn keyrir fyrir þig. Einn smellur gerir reit úr því.",
-    "On this dashboard" : "Á þessu stjórnborði"
+    "On this dashboard" : "Á þessu stjórnborði",
+    "Statistics" : "Tölfræði",
+    "Count my visits" : "Telja heimsóknir mínar",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
+    "Your choice could not be saved." : "Ekki tókst að vista valið þitt."
 },
 "nplurals=2; plural=(n%10!=1 || n%100==11);"
 );

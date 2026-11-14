@@ -437,6 +437,8 @@ class AdminController extends Controller {
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
 	 * @param array|null $sharingAllowedGroups The groups whose members may share; empty means everyone (REQ-SHARE-014).
 	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
+	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
+	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -462,6 +464,8 @@ class AdminController extends Controller {
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
 		array|null $sharingAllowedGroups = null,
 		string|null $sharingRecipientScope = null,
+		array|null $tileAllowedSchemes = null,
+		array|null $ssoLaunchTemplates = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -487,6 +491,8 @@ class AdminController extends Controller {
 					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
 					'sharingAllowedGroups'        => $sharingAllowedGroups,
 					'sharingRecipientScope'       => $sharingRecipientScope,
+					'tileAllowedSchemes'          => $tileAllowedSchemes,
+					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
 				]
 			);
 

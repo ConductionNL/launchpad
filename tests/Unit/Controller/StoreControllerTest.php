@@ -24,9 +24,9 @@ namespace Unit\Controller;
 use OCA\LaunchPad\Controller\StoreController;
 use OCA\LaunchPad\Service\StoreService;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
-use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -248,4 +248,23 @@ class StoreControllerTest extends TestCase {
 
 		$this->controller->updateConfig();
 	}//end testAnAbsentParameterIsPassedAsNull()
+
+	/**
+	 * Without a signed-in user nothing is installed and the answer is a 401
+	 * the page can show.
+	 *
+	 * @return void
+	 */
+	public function testInstallWithoutAUserIsUnauthorized(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->storeService->expects($this->never())->method('install');
+
+		$response = $this->controller->install(slug: 'sales-overview');
+
+		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertSame(
+			['success' => false, 'message' => 'Sign in to install a template.', 'components' => []],
+			$response->getData()
+		);
+	}//end testInstallWithoutAUserIsUnauthorized()
 }//end class

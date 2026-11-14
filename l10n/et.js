@@ -1299,6 +1299,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtreeri neid tulemusi",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1372,7 +1373,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Leitud sellest serverist",
     "Apps this server runs for you. One click places one as a tile." : "Rakendused, mida see server sinu jaoks käitab. Üks klõps teeb neist paani.",
-    "On this dashboard" : "Sellel töölaual"
+    "On this dashboard" : "Sellel töölaual",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Loe minu külastusi",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
+    "Your choice could not be saved." : "Sinu valikut ei õnnestunud salvestada."
 },
 "nplurals=2; plural=(n != 1);"
 );

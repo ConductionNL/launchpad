@@ -1299,6 +1299,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrēt šos rezultātus",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1372,7 +1373,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Atrasts šajā serverī",
     "Apps this server runs for you. One click places one as a tile." : "Lietotnes, ko šis serveris darbina jums. Viens klikšķis padara to par flīzi.",
-    "On this dashboard" : "Šajā informācijas panelī"
+    "On this dashboard" : "Šajā informācijas panelī",
+    "Statistics" : "Statistika",
+    "Count my visits" : "Skaitīt manus apmeklējumus",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Kad tas ir izslēgts, jūsu informācijas paneļu apmeklējumi un klikšķi uz flīzēm netiek ieskaitīti skatījumu skaitā.",
+    "Your choice could not be saved." : "Jūsu izvēli neizdevās saglabāt."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);"
 );

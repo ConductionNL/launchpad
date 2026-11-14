@@ -65,6 +65,21 @@ describe('NewsWidget items', () => {
 		expect(axios.get.mock.calls[0][1]).toEqual({ params: { limit: 10 } })
 	})
 
+	it('filters the rendered items in view state, without another request (REQ-DWMS-008)', async () => {
+		const content = { itemLimit: 5 }
+		const wrapper = mountWidget(content)
+		await flushPromises()
+
+		await wrapper.find('[data-testid="widget-row-filter"]').setValue('plain')
+		const rows = wrapper.findAll('.news-widget__item')
+		expect(rows.map((r) => r.find('.news-widget__title').text())).toEqual(['Plain'])
+		expect(axios.get).toHaveBeenCalledTimes(1)
+		expect(content).toEqual({ itemLimit: 5 })
+
+		await wrapper.find('[data-testid="widget-row-filter"]').setValue('')
+		expect(wrapper.findAll('.news-widget__item')).toHaveLength(2)
+	})
+
 	it('does not load without a placement id', async () => {
 		const wrapper = mountWidget({}, {})
 		await flushPromises()

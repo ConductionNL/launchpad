@@ -37,12 +37,22 @@ class AdminSettingsService {
 	/**
 	 * Constructor
 	 *
-	 * @param AdminSettingMapper $settingMapper The admin setting mapper.
+	 * @param AdminSettingMapper      $settingMapper The admin setting mapper.
+	 * @param TileLaunchSettings|null $tileLaunch    Checks the program schemes and SSO launch templates; built when not injected.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
+		?TileLaunchSettings $tileLaunch = null,
 	) {
+		$this->tileLaunch = ($tileLaunch ?? new TileLaunchSettings());
 	}//end __construct()
+
+	/**
+	 * Checks the program schemes and SSO launch templates (launcher-tile-launch-types).
+	 *
+	 * @var TileLaunchSettings
+	 */
+	private readonly TileLaunchSettings $tileLaunch;
 
 	/**
 	 * Default link-button-widget createFile extension allow-list
@@ -152,6 +162,10 @@ class AdminSettingsService {
 			// navigation panel. Off by default so an existing instance keeps its
 			// rail; a stored value that is not a boolean reads as off.
 			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Launcher-tile-launch-types D1/D4: empty until an administrator fills
+			// them; a stored value that no longer validates reads as empty.
+			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
+			'ssoLaunchTemplates' => $this->tileLaunch->stored(setting: 'templates', stored: $settings[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] ?? null),
 		];
 	}//end getSettings()
 
@@ -345,7 +359,37 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+		$this->persistTileLaunchSettings(settings: $settings);
 	}//end updateSettings()
+
+	/**
+	 * Persist the program schemes and the SSO launch templates, each checked whole first.
+	 *
+	 * Both are checked before either is written, so a refused value leaves
+	 * both as they were.
+	 *
+	 * @param array<string, mixed> $settings The settings: `tileAllowedSchemes` and `ssoLaunchTemplates`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException Naming the scheme or template refused.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/specs/tiles/spec.md#requirement-a-tile-can-start-a-program-on-the-users-computer-req-tlt-001
+	 */
+	private function persistTileLaunchSettings(array $settings): void {
+		$writes = [];
+		if (($settings['tileAllowedSchemes'] ?? null) !== null) {
+			$writes[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] = $this->tileLaunch->schemes(input: $settings['tileAllowedSchemes']);
+		}
+
+		if (($settings['ssoLaunchTemplates'] ?? null) !== null) {
+			$writes[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] = $this->tileLaunch->templates(input: $settings['ssoLaunchTemplates']);
+		}
+
+		foreach ($writes as $key => $value) {
+			$this->settingMapper->setSetting(key: $key, value: $value);
+		}
+	}//end persistTileLaunchSettings()
 
 	/**
 	 * Write one setting when a value is given.

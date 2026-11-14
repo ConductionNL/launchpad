@@ -1299,6 +1299,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrer ces résultats",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1372,7 +1373,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Trouvé sur ce serveur",
     "Apps this server runs for you. One click places one as a tile." : "Les applications que ce serveur exécute pour vous. Un clic en fait une tuile.",
-    "On this dashboard" : "Sur ce tableau de bord"
+    "On this dashboard" : "Sur ce tableau de bord",
+    "Statistics" : "Statistiques",
+    "Count my visits" : "Compter mes visites",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Lorsque cette option est désactivée, vos visites des tableaux de bord et vos clics sur les tuiles ne sont pas comptés dans les statistiques de consultation.",
+    "Your choice could not be saved." : "Votre choix n'a pas pu être enregistré."
 },
 "nplurals=2; plural=(n > 1);"
 );

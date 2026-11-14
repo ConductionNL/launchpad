@@ -1299,6 +1299,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrovať tieto výsledky",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1372,7 +1373,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Nájdené na tomto serveri",
     "Apps this server runs for you. One click places one as a tile." : "Aplikácie, ktoré pre vás tento server prevádzkuje. Jedným kliknutím z nich urobíte dlaždicu.",
-    "On this dashboard" : "Na tejto nástenke"
+    "On this dashboard" : "Na tejto nástenke",
+    "Statistics" : "Štatistiky",
+    "Count my visits" : "Započítavať moje návštevy",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Keď je to vypnuté, vaše návštevy nástenok a kliknutia na dlaždice sa nezapočítavajú do počtu zobrazení.",
+    "Your choice could not be saved." : "Vašu voľbu sa nepodarilo uložiť."
 },
 "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
 );

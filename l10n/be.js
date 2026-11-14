@@ -1290,6 +1290,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Фільтраваць гэтыя вынікі",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1363,6 +1364,10 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Знойдзена на гэтым серверы",
     "Apps this server runs for you. One click places one as a tile." : "Праграмы, якія гэты сервер запускае для вас. Адзін клік робіць з іх плітку.",
-    "On this dashboard" : "На гэтай панэлі"
+    "On this dashboard" : "На гэтай панэлі",
+    "Statistics" : "Статыстыка",
+    "Count my visits" : "Улічваць мае наведванні",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
+    "Your choice could not be saved." : "Не ўдалося захаваць ваш выбар."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

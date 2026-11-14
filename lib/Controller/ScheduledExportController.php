@@ -276,7 +276,8 @@ class ScheduledExportController extends Controller {
 	#[NoAdminRequired]
 	public function showRun(string $id, string $runId): Response {
 		$refusal = $this->guard->actionRefusal(action: 'scheduled-exports.runs');
-		return $this->guarded(refusal: $refusal, work: fn (string $uid): JSONResponse => new JSONResponse($this->visibleRun(id: $id, runId: $runId, userId: $uid)));
+		$show    = fn (string $uid): JSONResponse => new JSONResponse($this->visibleRun(id: $id, runId: $runId, userId: $uid));
+		return $this->guarded(refusal: $refusal, work: $show);
 	}//end showRun()
 
 	/**

@@ -19,7 +19,7 @@
 
 ### Controller & Routes
 
-- [ ] Task 10: Implement `ScheduledExportController` with endpoints:
+- [x] Task 10: Implement `ScheduledExportController` with endpoints:
   - `GET /api/exports` → list visible exports with pagination/sorting (delegate to ObjectService)
   - `POST /api/exports` → create export with required fields; validate recurrence; returns 201 with new UUID
   - `GET /api/exports/{id}` → read single export; 404 if not visible
@@ -31,7 +31,7 @@
   - `GET /api/exports/{id}/runs/{runId}` → read single run-row details including all deliveries
   - `POST /api/exports/{id}/runs/{runId}/retry` → retry all failed deliveries in that run
   - All endpoints require `#[NoAdminRequired]` where applicable; permission checks via OpenRegister (export must be visible to user)
-- [ ] Task 11: Register all 11 routes in `appinfo/routes.php`
+- [x] Task 11: Register all 11 routes in `appinfo/routes.php`
 
 ### Frontend
 

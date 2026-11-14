@@ -635,6 +635,19 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// widget asks the server before rendering the iframe.
 		['name' => 'iframe#checkFramable', 'url' => '/api/iframe/framable', 'verb' => 'POST'],
 
+		// Scheduled exports (scheduled-exports tasks 10-11): CRUD, run now,
+		// preview, run history and retry. Owner-or-admin checked in the service.
+		['name' => 'scheduledExport#index', 'url' => '/api/exports', 'verb' => 'GET'],
+		['name' => 'scheduledExport#create', 'url' => '/api/exports', 'verb' => 'POST'],
+		['name' => 'scheduledExport#show', 'url' => '/api/exports/{id}', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#update', 'url' => '/api/exports/{id}', 'verb' => 'PATCH', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#destroy', 'url' => '/api/exports/{id}', 'verb' => 'DELETE', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#run', 'url' => '/api/exports/{id}/run', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#preview', 'url' => '/api/exports/{id}/preview', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#runs', 'url' => '/api/exports/{id}/runs', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#showRun', 'url' => '/api/exports/{id}/runs/{runId}', 'verb' => 'GET', 'requirements' => ['id' => '[A-Za-z0-9\\-]+', 'runId' => '[A-Za-z0-9\\-]+']],
+		['name' => 'scheduledExport#retry', 'url' => '/api/exports/{id}/runs/{runId}/retry', 'verb' => 'POST', 'requirements' => ['id' => '[A-Za-z0-9\\-]+', 'runId' => '[A-Za-z0-9\\-]+']],
+
 		// Service health ping — cached online/offline/degraded badge for one
 		// placement (REQ-HPING-003). View-time ACL guarded in the controller;
 		// never returns the health URL, headers, or upstream response body.

@@ -184,7 +184,7 @@ class InitialStateBuilderTest extends TestCase {
 			->apply();
 
 		$this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
-		$this->assertSame(2, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
+		$this->assertSame(3, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
 	}
 
 	public function testMissingFirstKeyExceptionMessageNamesTheFirstMissingKey(): void {
@@ -195,6 +195,26 @@ class InitialStateBuilderTest extends TestCase {
 		// Set nothing — apply should fail on the first required key.
 		$this->expectException(MissingInitialStateException::class);
 		$this->expectExceptionMessage('"widgets"');
+		$builder->apply();
+	}
+
+	public function testPublicStartBuilderPushesTheTokenAndTheVersion(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::PUBLIC_START);
+
+		$builder->setPublicStartToken('Bib1Noord')->apply();
+
+		$this->assertSame(['publicStartToken' => 'Bib1Noord', InitialStateBuilder::KEY_SCHEMA_VERSION => 3], $sink);
+	}
+
+	public function testPublicStartBuilderRefusesToRenderWithoutTheToken(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::PUBLIC_START);
+
+		$this->expectException(MissingInitialStateException::class);
+		$this->expectExceptionMessage('"publicStartToken"');
 		$builder->apply();
 	}
 }

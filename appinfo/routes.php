@@ -205,6 +205,9 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
 		['name' => 'page#publicShare', 'url' => '/s/{token}', 'verb' => 'GET',
 		 'requirements' => ['token' => '[A-Za-z0-9]+']],
+		// sharing-public-start-page REQ-PSP-002: the public start page signed-out
+		// visitors land on. #[PublicPage]; falls back to the login form.
+		['name' => 'page#start', 'url' => '/start', 'verb' => 'GET'],
 
 		// Kiosk playlist management endpoints (REQ-KIOSK-002). Owner-or-admin,
 		// `#[NoAdminRequired]` + service-layer per-dashboard guards. The literal

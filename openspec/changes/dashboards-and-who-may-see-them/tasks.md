@@ -49,9 +49,9 @@
 
 ## 7. Geographic reporting
 
-- [ ] 7.1 Add the aggregation: counts and rates per declared area property over a period.
-- [ ] 7.2 Count objects with no location in an explicit bucket.
-- [ ] 7.3 PHPUnit on the bucket, including the empty case.
+- [x] 7.1 Add the aggregation: counts and rates per declared area property over a period. `Reporting\AreaAggregation`, run by the shipped report kind `area` (section 2).
+- [x] 7.2 Count objects with no location in an explicit bucket.
+- [x] 7.3 PHPUnit on the bucket, including the empty case.
 
 ## 8. Storage reporting
 

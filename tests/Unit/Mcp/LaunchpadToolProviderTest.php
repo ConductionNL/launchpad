@@ -15,6 +15,7 @@ namespace Unit\Mcp;
 
 use OCA\LaunchPad\Mcp\LaunchpadToolProvider;
 use OCA\LaunchPad\Mcp\McpDashboardTools;
+use OCA\LaunchPad\Mcp\McpTileTools;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -62,7 +63,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheProviderIsLaunchpads(): void {
-		$provider = new LaunchpadToolProvider($this->createMock(McpDashboardTools::class));
+		$provider = new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class));
 
 		$this->assertInstanceOf(IMcpToolProvider::class, $provider);
 		$this->assertSame('launchpad', $provider->getAppId());
@@ -80,12 +81,17 @@ class LaunchpadToolProviderTest extends TestCase {
 		$tools->expects($this->once())->method('listDashboards')->willReturn(['items' => []]);
 		$tools->expects($this->once())->method('listGroupDashboards')->willReturn(['items' => ['g']]);
 		$tools->expects($this->once())->method('listWidgetTypes')->willReturn(['items' => ['w']]);
-		$provider = new LaunchpadToolProvider($tools);
+		$tools->expects($this->once())->method('getActiveDashboard')->with([])->willReturn(['dashboard' => ['id' => 1]]);
+		$tiles = $this->createMock(McpTileTools::class);
+		$tiles->expects($this->once())->method('listTiles')->with([])->willReturn(['items' => ['t']]);
+		$provider = new LaunchpadToolProvider($tools, $tiles);
 
 		$this->assertSame(['dashboard' => []], $provider->invokeTool('launchpad.getDashboard', ['dashboardUuid' => 'u']));
 		$this->assertSame(['items' => []], $provider->invokeTool('launchpad.listDashboards', []));
 		$this->assertSame(['items' => ['g']], $provider->invokeTool('launchpad.listGroupDashboards', ['groupId' => 'x']));
 		$this->assertSame(['items' => ['w']], $provider->invokeTool('launchpad.listWidgetTypes', []));
+		$this->assertSame(['dashboard' => ['id' => 1]], $provider->invokeTool('launchpad.getActiveDashboard', []));
+		$this->assertSame(['items' => ['t']], $provider->invokeTool('launchpad.listTiles', []));
 	}//end testEachToolDispatchesToItsHandler()
 
 	/**
@@ -94,7 +100,7 @@ class LaunchpadToolProviderTest extends TestCase {
 	 * @return void
 	 */
 	public function testAnUnknownToolIsAStructuredError(): void {
-		$result = (new LaunchpadToolProvider($this->createMock(McpDashboardTools::class)))->invokeTool('launchpad.dropTables', []);
+		$result = (new LaunchpadToolProvider($this->createMock(McpDashboardTools::class), $this->createMock(McpTileTools::class)))->invokeTool('launchpad.dropTables', []);
 
 		$this->assertTrue($result['isError']);
 		$this->assertSame('unknown_tool', $result['error']);

@@ -2,10 +2,10 @@
 
 ## Backend
 
-- [ ] 1. Add the two tables in one migration with builders, entities and mappers (including `notified_at`). Verify: migration test.
+- [x] 1. Add the two tables in one migration with builders, entities and mappers (including `notified_at`). Verify: migration test.
 - [ ] 2. Seed `announcement.manage`, `announcement.read`, `announcement.follow`, `announcement.comment` and add the `announcement_editor_groups` admin setting. Verify: action-matrix test.
-- [ ] 3. Implement `AnnouncementService` (create, update, publish, visibleTo, drafts for authors, notice end time required, reach count). Verify: PHPUnit.
-- [ ] 4. Add `AnnouncementController` routes for list, get, create, update, publish, delete, follow and unfollow, each with the action check and no IDOR (visibility checked per id). Verify: PHPUnit and route-reachability.
+- [x] 3. Implement `AnnouncementService` (create, update, publish, visibleTo, drafts for authors, notice end time required, reach count). Verify: PHPUnit.
+- [x] 4. Add `AnnouncementController` routes for list, get, create, update, publish, delete, follow and unfollow, each with the action check and no IDOR (visibility checked per id). Verify: PHPUnit and route-reachability.
 - [ ] 5. Wire likes and comments through `ICommentsManager` with object type `launchpad_announcement` and the access check. Verify: PHPUnit with the comments manager.
 - [ ] 6. Add `announcement_published` to `lib/Notification/Notifier.php` and `AnnouncementNotifyJob` to `appinfo/info.xml`. Verify: PHPUnit that followers are notified once.
 
@@ -21,3 +21,5 @@
 - [ ] 11. Add the three demo announcements. Verify: PHPUnit on the showcase.
 - [ ] 12. Playwright for the notice flow and a liked, commented news item.
 - [ ] 13. Add `nl` and `en` strings, copy the spec to `openspec/specs/announcements/spec.md` on archive, and set e-announcements, d-news-preview and e-maintenance to `built` in the parity matrix with evidence lines.
+
+Built: tasks 1, 3 and 4 (`AnnouncementTablesBuilder` and migration `Version002013Date20261114000000`, `Announcement`/`AnnouncementFollow` with their mappers, `AnnouncementService`, `AnnouncementInput`, `AnnouncementFollowService`, `AnnouncementController` with nine routes in `appinfo/routes.php` and `openapi.json`). Of task 2, `announcement.manage`, `announcement.read` and `announcement.follow` are seeded and the `announcement_editor_groups` key exists and is read; `announcement.comment` waits for task 5, and making the editor groups editable in the admin settings is still open. Open: tasks 2 (rest), 5 to 13.

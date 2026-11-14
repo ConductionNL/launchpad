@@ -265,6 +265,26 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'url' => '/api/dashboards/{dashboardId}/personal-layer', 'verb' => 'DELETE',
 		 'requirements' => ['dashboardId' => '\d+']],
 
+		// engagement-announcements: news items and notices. The literal
+		// `/reach` and `/follows` routes come before `/{uuid}`.
+		['name' => 'announcement#index', 'url' => '/api/announcements', 'verb' => 'GET'],
+		['name' => 'announcement#create', 'url' => '/api/announcements', 'verb' => 'POST'],
+		['name' => 'announcement#reach', 'url' => '/api/announcements/reach', 'verb' => 'GET'],
+		['name' => 'announcement#follow', 'url' => '/api/announcements/follows', 'verb' => 'POST'],
+		['name' => 'announcement#unfollow', 'url' => '/api/announcements/follows/{category}', 'verb' => 'DELETE'],
+		['name' => 'announcement#show',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'GET',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#update',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'PUT',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#destroy',
+		 'url' => '/api/announcements/{uuid}', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+		['name' => 'announcement#publish',
+		 'url' => '/api/announcements/{uuid}/publish', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[0-9a-f\-]{36}']],
+
 		// Mandatory-read acknowledgement endpoints (REQ-ACK-002..006).
 		// The `/report/{announcementKey}/csv` route is registered BEFORE the
 		// plain report route so the `/csv` suffix is matched first, and both

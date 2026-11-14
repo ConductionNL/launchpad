@@ -322,6 +322,25 @@
 		"validator": false,
 		"default": false
 	},
+	"../../components/Widgets/Renderers/ContainerWidgetForm.vue | editingWidget": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
+	"../../components/Widgets/Renderers/ContainerWidgetForm.vue | value": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {
+			"placements": [],
+			"backgroundColor": "transparent",
+			"padding": "medium",
+			"title": "",
+			"sortBy": "manual"
+		},
+		"fresh": true
+	},
 	"../../components/Widgets/Renderers/FilesWidget.vue | content": {
 		"type": "Object",
 		"required": false,

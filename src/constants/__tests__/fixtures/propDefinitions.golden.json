@@ -611,6 +611,12 @@
 		"required": true,
 		"validator": false
 	},
+	"../../components/Widgets/WidgetRowFilter.vue | modelValue": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
 	"../../components/Workspace/DashboardBreadcrumb.vue | dashboard": {
 		"type": "Object",
 		"required": false,

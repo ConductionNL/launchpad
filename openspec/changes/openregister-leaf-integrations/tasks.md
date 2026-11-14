@@ -2,13 +2,16 @@
 
 ## Schema Overlay
 
-- [ ] Task 1: REQ-LEAF-001 — Create `lib/Settings/register.d/dashboard-talk-leaf.json` with the fleet overlay shape: `{"components": {"schemas": {"Dashboard": {"configuration": {"linkedTypes": ["talk"]}}}}` (mirror larpingapp's `register.d/player-to-contacts-leaf.json`)
-- [ ] Task 2: REQ-LEAF-001 — Do NOT touch `lib/Settings/launchpad_register.json`; verify with `git diff --stat` that the base register file is unchanged
+- [x] Task 1: REQ-LEAF-001 — Create `lib/Settings/register.d/dashboard-talk-leaf.json` with the fleet overlay shape: `{"components": {"schemas": {"Dashboard": {"configuration": {"linkedTypes": ["talk"]}}}}` (mirror larpingapp's `register.d/player-to-contacts-leaf.json`)
+  - Done. `ImportLaunchpadRegister` read only the base file, so a fragment never reached OpenRegister; it now merges `register.d/*.json` the way OpenRegister's app host does, and its version moved to 1.0.2 because the importer does not compare `configuration` by content.
+- [x] Task 2: REQ-LEAF-001 — Do NOT touch `lib/Settings/launchpad_register.json`; verify with `git diff --stat` that the base register file is unchanged
 - [ ] Task 3: REQ-LEAF-001 — Verify the overlay actually imports: after `occ app:enable launchpad` (or the register repair step), fetch the Dashboard schema from OpenRegister and assert `configuration.linkedTypes == ["talk"]`. The register json itself warns that the importer can silently reject a schema — check the imported schema, not the file.
+  - Left for a live instance. `ImportLaunchpadRegisterTest` asserts the merged document handed to the importer carries `linkedTypes: ["talk"]`.
 
 ## Frontend Wiring
 
 - [ ] Task 4: REQ-LEAF-002 — Mount the talk leaf's render surface on the dashboard view for collaborative dashboards only: `type === 'group_shared'` OR the dashboard has active shares (via the existing shares data from `GET /api/dashboard/{id}/shares`) OR `sharedWith` is non-empty
+  - Blocked: the talk leaf (`CnTalkTab`) keys on the dashboard's OpenRegister object id, but dashboards are stored in launchpad's own table and reach OpenRegister only through the one-time `Version002000Date20260519000000` copy (slug = dashboard uuid). A dashboard made since has no OpenRegister object to discuss. Tasks 4-8 need dashboards kept in OpenRegister, or a mapping from a dashboard to its object, decided first.
 - [ ] Task 5: REQ-LEAF-002 — Ensure no discussion affordance renders for unshared personal dashboards (no hidden mount, no room creation side effect)
 - [ ] Task 6: REQ-LEAF-004 — Feature-detect the leaf/Talk availability; when absent, skip the mount without console errors or server log noise
 

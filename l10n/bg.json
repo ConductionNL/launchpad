@@ -1335,6 +1335,10 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Открити на този сървър",
         "Apps this server runs for you. One click places one as a tile.": "Приложения, които този сървър изпълнява за вас. Едно щракване ги превръща в плочка.",
-        "On this dashboard": "На това табло"
+        "On this dashboard": "На това табло",
+        "Statistics": "Статистика",
+        "Count my visits": "Отчитай посещенията ми",
+        "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Когато това е изключено, посещенията ви на таблата и щракванията върху плочки не се включват в броя на прегледите.",
+        "Your choice could not be saved.": "Изборът ви не можа да бъде запазен."
     }
 }

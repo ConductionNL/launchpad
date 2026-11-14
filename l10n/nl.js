@@ -1331,6 +1331,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "Het sjabloon \"{name}\" kon niet worden gedownload.",
     "First today" : "Vandaag eerst",
     "Checking your apps…" : "Uw apps worden nagekeken…",
+    "Filter these results" : "Deze resultaten filteren",
     "This list could not be loaded. Reload the page to try again." : "Deze lijst kon niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
     "And {count} more." : "En nog {count}.",
     "Nothing needs your attention right now." : "Niets vraagt nu uw aandacht.",
@@ -1653,7 +1654,11 @@ OC.L10N.register(
     "Adapter" : "Adapter",
     "Source template" : "Bronsjabloon",
     "Configuration template" : "Configuratiesjabloon",
-    "Agent template" : "Agentsjabloon"
+    "Agent template" : "Agentsjabloon",
+    "Statistics" : "Statistieken",
+    "Count my visits" : "Mijn bezoeken meetellen",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Als dit uit staat, tellen je bezoeken aan dashboards en je klikken op tegels niet mee in de bezoekcijfers.",
+    "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen."
 },
 "nplurals=2; plural=(n != 1);"
 );

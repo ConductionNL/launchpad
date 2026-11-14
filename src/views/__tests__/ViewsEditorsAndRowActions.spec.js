@@ -197,6 +197,7 @@ describe('Views tile editor', () => {
 			textColor: '#fff',
 			linkType: 'url',
 			linkValue: 'https://status.example.nl',
+			internalUrl: '',
 			healthPingEnabled: true,
 			healthUrl: 'https://status.example.nl/health',
 			expectedStatus: 204,

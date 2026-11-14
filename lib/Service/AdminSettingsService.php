@@ -36,10 +36,12 @@ class AdminSettingsService {
 	/**
 	 * Constructor
 	 *
-	 * @param AdminSettingMapper $settingMapper The admin setting mapper.
+	 * @param AdminSettingMapper        $settingMapper  The admin setting mapper.
+	 * @param OfficeNetworkService|null $officeNetworks Checks the office network ranges (REQ-TIA-001).
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
+		private readonly ?OfficeNetworkService $officeNetworks = null,
 	) {
 	}//end __construct()
 
@@ -148,6 +150,13 @@ class AdminSettingsService {
 			// navigation panel. Off by default so an existing instance keeps its
 			// rail; a stored value that is not a boolean reads as off.
 			'startPageWithoutNavigation' => ($settings[$noRailKey] ?? false) === true,
+			// Launcher-tile-internal-address REQ-TIA-001: the office networks
+			// as CIDR ranges; none by default, so no tile changes address.
+			'officeNetworks' => $this->storedOfficeNetworks(stored: $settings[AdminSetting::KEY_OFFICE_NETWORKS] ?? null),
+			// Read only: the administrator's own address and whether it falls
+			// inside those ranges, so a wrong proxy setup shows at once.
+			'currentAddress' => ($this->officeNetworks?->currentAddress() ?? ''),
+			'currentAddressInOfficeNetworks' => ($this->officeNetworks?->isOfficeRequest() ?? false),
 		];
 	}//end getSettings()
 
@@ -336,7 +345,50 @@ class AdminSettingsService {
 		);
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
+
+		$this->persistOfficeNetworks(ranges: $settings['officeNetworks'] ?? null);
 	}//end updateSettings()
+
+	/**
+	 * Store the office networks when given, refusing the whole list when one range is malformed.
+	 *
+	 * @param array<mixed>|null $ranges The entered ranges, or null to leave them as they are.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a range is not a valid CIDR range; nothing is stored then.
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-administrators-declare-the-office-networks-req-tia-001
+	 */
+	private function persistOfficeNetworks(?array $ranges): void {
+		if ($ranges === null) {
+			return;
+		}
+
+		if ($this->officeNetworks === null) {
+			throw new InvalidArgumentException(message: 'Office networks cannot be checked here');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_OFFICE_NETWORKS,
+			value: $this->officeNetworks->normaliseRanges(ranges: $ranges)
+		);
+	}//end persistOfficeNetworks()
+
+	/**
+	 * The stored office networks as a list of strings.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return array<int,string>
+	 */
+	private function storedOfficeNetworks(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values(array_filter($stored, 'is_string'));
+	}//end storedOfficeNetworks()
 
 	/**
 	 * Write one setting when a value is given.

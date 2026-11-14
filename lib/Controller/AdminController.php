@@ -435,6 +435,7 @@ class AdminController extends Controller {
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
+	 * @param array|null $officeNetworks The office networks as CIDR ranges; a malformed one answers 400 (REQ-TIA-001).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -458,6 +459,7 @@ class AdminController extends Controller {
 		bool|null $allowMultipleDashboards = null,
 		int|null $defaultGridColumns = null,
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
+		array|null $officeNetworks = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -481,6 +483,7 @@ class AdminController extends Controller {
 					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
 					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
 					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
+					'officeNetworks'              => $officeNetworks,
 				]
 			);
 

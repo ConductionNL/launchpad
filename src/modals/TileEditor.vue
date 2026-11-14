@@ -115,6 +115,15 @@
 					"
 					type="text" />
 
+				<NcTextField
+					v-model="form.internalUrl"
+					:label="t('launchpad', 'Address on the office network')"
+					:placeholder="t('launchpad', 'Optional, e.g. http://intranet.local')"
+					type="text" />
+				<p class="tile-editor__hint-small tile-editor__address-in-effect">
+					{{ addressInEffect }}
+				</p>
+
 				<div class="tile-editor__health-ping">
 					<NcCheckboxRadioSwitch
 						:modelValue="form.healthPingEnabled"
@@ -194,9 +203,11 @@ import {
 	NcTextField,
 } from '@conduction/nextcloud-vue'
 import { mdiLink } from '@mdi/js'
+import { translate as t } from '@nextcloud/l10n'
 import { FLAG_PROP, NULLABLE_OBJECT_PROP } from '../constants/propDefinitions.js'
 import { validateHealthPingConfig } from '../services/healthPingClient.js'
 import { ICON_CATALOGUE, normaliseIconValue } from '../services/iconCatalogue.js'
+import { isOnOfficeNetwork } from '../utils/loadInitialState.js'
 
 const MIN_PING_INTERVAL = 15
 const DEFAULT_PING_INTERVAL = 60
@@ -232,6 +243,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,
@@ -239,6 +251,7 @@ export default {
 			},
 
 			healthUrlError: '',
+			onOfficeNetwork: isOnOfficeNetwork(),
 			MIN_PING_INTERVAL,
 		}
 	},
@@ -296,6 +309,20 @@ export default {
 		displayIcon() {
 			return normaliseIconValue(this.form.icon)
 		},
+
+		/**
+		 * Which address this tile opens for the author right now, from the
+		 * same server answer every viewer gets (launcher-tile-internal-address D3).
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+		 */
+		addressInEffect() {
+			if (this.onOfficeNetwork) {
+				return t('launchpad', 'You are on the office network: this tile opens the internal address')
+			}
+			return t('launchpad', 'You are not on the office network: this tile opens the main address')
+		},
 	},
 
 	watch: {
@@ -312,6 +339,7 @@ export default {
 				if (newTile) {
 					this.form = {
 						...newTile,
+						internalUrl: newTile.internalUrl || '',
 						iconType: newTile.iconType || 'class',
 					}
 				} else {
@@ -348,6 +376,7 @@ export default {
 				textColor: '#ffffff',
 				linkType: 'url',
 				linkValue: '',
+				internalUrl: '',
 				healthPingEnabled: false,
 				healthUrl: '',
 				expectedStatus: DEFAULT_EXPECTED_STATUS,

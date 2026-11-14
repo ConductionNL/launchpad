@@ -222,6 +222,14 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_START_PAGE_WITHOUT_NAVIGATION = AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION->value;
 
 	/**
+	 * The office networks, as a list of IPv4 and IPv6 CIDR ranges
+	 * (launcher-tile-internal-address REQ-TIA-001).
+	 *
+	 * @var string
+	 */
+	public const KEY_OFFICE_NETWORKS = AdminSettingKey::OFFICE_NETWORKS->value;
+
+	/**
 	 * The setting key.
 	 *
 	 * @var string

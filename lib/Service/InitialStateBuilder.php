@@ -360,6 +360,24 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set whether this request comes from inside the office networks.
+	 *
+	 * Optional key, like {@see self::setStartPageWithoutNavigation()}: a
+	 * server that never calls it leaves the JS reader's `false` default, so
+	 * every tile opens its main address (launcher-tile-internal-address D1).
+	 *
+	 * @param bool $onOfficeNetwork True when the request address falls in an office network.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/launcher-tile-internal-address/specs/tiles/spec.md#requirement-the-tile-opens-the-address-that-fits-the-network-req-tia-003
+	 */
+	public function setOnOfficeNetwork(bool $onOfficeNetwork): self {
+		$this->values['onOfficeNetwork'] = $onOfficeNetwork;
+		return $this;
+	}//end setOnOfficeNetwork()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

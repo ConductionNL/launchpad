@@ -103,6 +103,7 @@ describe('Views placements', () => {
 			textColor: '#ffffff',
 			linkType: 'url',
 			linkValue: 'https://intranet.example.nl',
+			internalUrl: '',
 		})
 		expect(host.isTilePlacement({ id: 1, widgetId: 'notes' })).toBe(false)
 		expect(host.getTileData({ id: 1, tileType: 'preset' })).toBeNull()

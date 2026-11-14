@@ -2,14 +2,14 @@
 
 ## Provider Skeleton
 
-- [ ] Task 1: REQ-MCP-001 — Create `lib/Mcp/LaunchpadToolProvider.php` implementing `OCA\OpenRegister\Mcp\IMcpToolProvider`: dispatcher only, tool catalogue as a `TOOL_DESCRIPTORS` class constant (unit-testable fixture), routing to domain handler classes — mirror `decidesk/lib/Mcp/DecideskToolProvider.php`
-- [ ] Task 2: REQ-MCP-001 — Register the string DI alias `'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad'` in `lib/AppInfo/Application::register()` (string alias, no autoload at registration — decidesk's `DomainServiceRegistrar` pattern, ADR-083 boot safety)
-- [ ] Task 3: REQ-MCP-001 — All tool ids namespaced `launchpad.{toolName}`; add a unit test asserting the namespace and id uniqueness across the catalogue
+- [x] Task 1: REQ-MCP-001 — Create `lib/Mcp/LaunchpadToolProvider.php` implementing `OCA\OpenRegister\Mcp\IMcpToolProvider`: dispatcher only, tool catalogue as a `TOOL_DESCRIPTORS` class constant (unit-testable fixture), routing to domain handler classes — mirror `decidesk/lib/Mcp/DecideskToolProvider.php`
+- [x] Task 2: REQ-MCP-001 — Register the string DI alias `'OCA\\OpenRegister\\Mcp\\IMcpToolProvider::launchpad'` in `lib/AppInfo/Application::register()` (string alias, no autoload at registration — decidesk's `DomainServiceRegistrar` pattern, ADR-083 boot safety)
+- [x] Task 3: REQ-MCP-001 — All tool ids namespaced `launchpad.{toolName}`; add a unit test asserting the namespace and id uniqueness across the catalogue
 
 ## Gate and Validator
 
-- [ ] Task 4: REQ-MCP-004 — Create `lib/Mcp/McpDashboardGate.php`: `currentUserId()`, `authorise(toolId, args)` delegating to `PermissionService::canViewDashboard()/canEditDashboard()/canAddWidget()/canRemoveWidget()/canCreateDashboard()`, `ActionAuthService::requireAction()` for ADR-023-gated actions, and the admin check for `instance`-reach tools. No `catch (\Throwable) { return null; }` shapes (hydra-gate-unsafe-auth-resolver)
-- [ ] Task 5: REQ-MCP-005 — Create `lib/Mcp/McpArgumentValidator.php`: UUID, id, string-length, enum, and grid-bound checks returning structured error arrays (decidesk's validator as the template)
+- [x] Task 4: REQ-MCP-004 — Create `lib/Mcp/McpDashboardGate.php`: `currentUserId()`, `authorise(toolId, args)` delegating to `PermissionService::canViewDashboard()/canEditDashboard()/canAddWidget()/canRemoveWidget()/canCreateDashboard()`, `ActionAuthService::requireAction()` for ADR-023-gated actions, and the admin check for `instance`-reach tools. No `catch (\Throwable) { return null; }` shapes (hydra-gate-unsafe-auth-resolver)
+- [x] Task 5: REQ-MCP-005 — Create `lib/Mcp/McpArgumentValidator.php`: UUID, id, string-length, enum, and grid-bound checks returning structured error arrays (decidesk's validator as the template)
 - [ ] Task 6: REQ-MCP-004 — Every handler: validate → authorise → call the existing service (`DashboardService`, `WidgetService`/`WidgetPlacementService`, `TileService`, `DashboardShareService`, `PublicShareService`, `KioskService`, `TemplateService`/`AdminTemplateService`, `ReactionService`, `AcknowledgementService`, `MetadataService`, `DashboardVersionService`). Never controllers, never mappers/ObjectService directly for writes
 
 ## Read Tools (REQ-MCP-002)
@@ -40,8 +40,8 @@
 
 - [ ] Task 19: PHPUnit — for a non-owner caller: updateDashboard, deleteDashboard, addWidget, and shareDashboard tools all deny; assert no state change (subclass `ObjectEntity`-backed fixtures rather than mocking magic accessors)
 - [ ] Task 20: PHPUnit — non-admin caller invoking each `instance`-reach tool is denied by the gate
-- [ ] Task 21: PHPUnit — gate error path: a throwing PermissionService produces a denial result, never an allow
-- [ ] Task 22: PHPUnit — validator rejections: malformed UUID, over-long title, invalid enum, negative grid values — each returns a structured error and performs no service call
+- [x] Task 21: PHPUnit — gate error path: a throwing PermissionService produces a denial result, never an allow
+- [x] Task 22: PHPUnit — validator rejections: malformed UUID, over-long title, invalid enum, negative grid values — each returns a structured error and performs no service call
 
 ## Integration / Chat Flows (REQ-MCP-008)
 
@@ -54,6 +54,10 @@
 - [ ] Task 26: `composer check:strict` clean (PHPCS, PHPMD, Psalm, PHPStan) including the new `lib/Mcp/` namespace; SPDX headers on every new PHP file (hydra-gate-spdx)
 - [ ] Task 27: Run the hydra gates; specifically confirm no orphan-auth finding (every gate method must be called) and no redundant-controller finding (no wrapper controllers were added)
 - [ ] Task 28: Boot test without OpenRegister installed: app registers and the launchpad UI loads (alias unresolved is acceptable; boot failure is not)
+
+## Build notes
+
+Built so far: tasks 1 to 5, 21 and 22. `LaunchpadToolProvider` has its catalogue as `TOOL_DESCRIPTORS`. It is registered under the string alias `OCA\OpenRegister\Mcp\IMcpToolProvider::launchpad`, which is a literal, so nothing autoloads at boot. The gate (`McpDashboardGate`) applies the same ADR-023 action each HTTP route checks, plus the admin check, and denies on any exception. The validator (`McpArgumentValidator`) handles UUID, id, string length, enum and grid bounds. Four of the 14 read tools from task 7 exist: listDashboards, getDashboard, listGroupDashboards and listWidgetTypes, each calling the service its route calls. The other read tools, all write tools (tasks 9 to 14), the closure test (15), the schema overlay (17, 18), the remaining parity tests and the integration flows are open. Task 4's `PermissionService::can*()` delegation comes with the write tools that need it.
 
 ## Verification
 

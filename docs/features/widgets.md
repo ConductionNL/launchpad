@@ -548,6 +548,12 @@ Example `content` for reports on a map:
     "popupField": "title", "clustering": true } }
 ```
 
+On save LaunchPad refuses a malformed map (HTTP 400 with the reason): a
+register without a schema or the other way round, a `markers.dataSource` that
+names neither or both of a `url` and a register + schema, `layers` that are not
+a list of `tile` / `wms` / `wfs` / `geojson` / `image` layers, or a `center`
+that is not `[lat, lng]`. Nothing is required: a map of layers only is valid.
+
 The coordinates come from OpenRegister: objects whose schema stores a location
 (see OpenRegister's geo metadata on schemas) are what this widget can show.
 

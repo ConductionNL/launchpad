@@ -31,22 +31,24 @@ class WidgetService {
 	 * @param PlacementService $placementService Placement service for CRUD.
 	 * @param WidgetRendering  $rendering The formatter and item loader.
 	 * @param MenuService      $menuService Validator for `menu` widgets (REQ-MENU-002).
+	 * @param MapWidgetValidator $mapValidator Validator for `map` widgets (map-support).
 	 */
 	public function __construct(
 		private readonly WidgetPlatform $platform,
 		private readonly PlacementService $placementService,
 		private readonly WidgetRendering $rendering,
 		private readonly MenuService $menuService = new MenuService(),
+		private readonly MapWidgetValidator $mapValidator = new MapWidgetValidator(),
 	) {
 	}//end __construct()
 
 	/**
 	 * Validate the `content` blob of a widget placement before save.
 	 *
-	 * REQ-MENU-002 server-side hook. Currently only the `menu` widget type
-	 * has a server-side validator; any future widget that needs save-time
-	 * validation should add its own branch here so the dispatcher stays
-	 * single-responsibility.
+	 * REQ-MENU-002 server-side hook. The `menu` widget type and the `map`
+	 * widget type (map-support) have a server-side validator; any future
+	 * widget that needs save-time validation should add its own branch here
+	 * so the dispatcher stays single-responsibility.
 	 *
 	 * @param string $widgetType Widget type identifier (e.g. `menu`).
 	 * @param array $content Widget content blob.
@@ -55,8 +57,14 @@ class WidgetService {
 	 * @throws \InvalidArgumentException When the content blob is invalid.
 	 *
 	 * @spec openspec/specs/widgets/spec.md
+	 * @spec openspec/changes/map-support/tasks.md
 	 */
 	public function validateWidgetContent(string $widgetType, array $content): void {
+		if ($this->mapValidator->appliesTo(widgetType: $widgetType) === true) {
+			$this->mapValidator->validate(content: $content);
+			return;
+		}
+
 		if ($widgetType !== 'menu') {
 			return;
 		}

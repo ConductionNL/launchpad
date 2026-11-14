@@ -25,9 +25,15 @@
 ## Backend
 
 - [ ] Document the `map` widget type in the canonical launchpad widget catalogue.
-- [ ] Validate `map`-typed widget configurations on save (left: the library widget's content has no `geoProperty`, and a map of `layers` only, or of a `url` source, is valid without a register or schema, so the rule as written would refuse working maps; it needs restating against the library's content shape first): required `register`, `schema`, `geoProperty` keys; optional `spatialFilter`, `clusterThreshold`.
+- [x] Validate `map`-typed widget configurations on save, restated against the library widget's content shape (`lib/Service/MapWidgetValidator.php`, wired into `WidgetService::validateWidgetContent()` for `map` and its `map-viewer` alias on create and update). Nothing is required, since a map of `layers` only or of a `url` source is valid without a register or schema; what is present must be well-formed: `register` and `schema` come together; `markers` is an object; `markers.dataSource` names either a `url` or a `register` + `schema`, exactly one; `layers` is a list of objects of type `tile`, `wms`, `wfs`, `geojson` or `image`; `center` is `[lat, lng]`. The original `geoProperty`, `spatialFilter` and `clusterThreshold` keys do not exist in the library widget.
 
 ## Testing
+
+> The two unit-test items below name `MapWidgetConfig.vue` and a store-side
+> spatial-filter translator, which are superseded with the frontend items above
+> (the form and the data fetch live in nextcloud-vue). The save validation is
+> covered by `tests/Unit/Service/MapWidgetValidatorTest.php` (25 tests). The
+> Playwright smoke needs a live instance and is left for that lane.
 
 - [ ] Unit test for `MapWidgetConfig.vue` validation logic.
 - [ ] Unit test for the spatial-filter to API-query translator in the store.

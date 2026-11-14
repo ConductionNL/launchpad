@@ -27,12 +27,21 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
+use Closure;
+
 /**
  * Validates a tile's display, mapping and limit, and maps a source node onto them.
  *
  * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-a-live-tile-can-show-a-list-a-table-or-key-value-pairs-req-ltc-001
  */
 class LiveTileListMapper {
+
+	/**
+	 * Evaluates a `$.path` expression on one item, for the map() call in progress.
+	 *
+	 * @var Closure(mixed, string): mixed
+	 */
+	private Closure $extract;
 
 	/**
 	 * The displays a tile can have; `value` is the single value of old tiles.
@@ -138,31 +147,62 @@ class LiveTileListMapper {
 	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
 	 */
 	public function map(mixed $node, array $config, callable $extract): ?array {
-		$mapping = array_values((array)($config['mapping'] ?? []));
 		if (is_array($node) === false) {
 			return null;
 		}
 
+		$this->extract = Closure::fromCallable($extract);
+		$mapping       = array_values((array)($config['mapping'] ?? []));
 		if ($this->displayOf(config: $config) === 'keyvalue') {
-			if (array_is_list($node) === true && $node !== []) {
-				return null;
-			}
-
-			return ['pairs' => $this->mapItem(item: $node, mapping: $mapping, extract: $extract)];
+			return $this->pairsOf(node: $node, mapping: $mapping);
 		}
 
+		return $this->itemsOf(node: $node, config: ['mapping' => $mapping] + $config);
+
+	}//end map()
+
+	/**
+	 * A key-value display: one object's mapped fields; null for a list.
+	 *
+	 * @param array<mixed>                   $node    What the tile's expression selected.
+	 * @param array<int,array<string,mixed>> $mapping The mapping.
+	 *
+	 * @return array<string,mixed>|null
+	 *
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 */
+	private function pairsOf(array $node, array $mapping): ?array {
+		if (array_is_list($node) === true && $node !== []) {
+			return null;
+		}
+
+		return ['pairs' => $this->mapItem(item: $node, mapping: $mapping)];
+
+	}//end pairsOf()
+
+	/**
+	 * A list or table display: the first rows of a list, each mapped; null for an object.
+	 *
+	 * @param array<mixed>        $node   What the tile's expression selected.
+	 * @param array<string,mixed> $config The tile config, its mapping as a list.
+	 *
+	 * @return array<string,mixed>|null
+	 *
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 */
+	private function itemsOf(array $node, array $config): ?array {
 		if (array_is_list($node) === false) {
 			return null;
 		}
 
 		$items = [];
 		foreach (array_slice($node, 0, $this->limitOf(config: $config)) as $item) {
-			$items[] = $this->mapItem(item: $item, mapping: $mapping, extract: $extract);
+			$items[] = $this->mapItem(item: $item, mapping: $config['mapping']);
 		}
 
 		return ['items' => $items];
 
-	}//end map()
+	}//end itemsOf()
 
 	/**
 	 * The rows a list or table shows.
@@ -246,19 +286,18 @@ class LiveTileListMapper {
 	/**
 	 * One item's mapped fields, in mapping order.
 	 *
-	 * @param mixed                            $item    One item of the source.
-	 * @param array<int,array<string,mixed>>   $mapping The mapping.
-	 * @param callable                         $extract The path evaluator.
+	 * @param mixed                          $item    One item of the source.
+	 * @param array<int,array<string,mixed>> $mapping The mapping.
 	 *
 	 * @return array<int,array{label: string, role: string, value: string|int|float|bool|null}>
 	 */
-	private function mapItem(mixed $item, array $mapping, callable $extract): array {
+	private function mapItem(mixed $item, array $mapping): array {
 		$fields = [];
 		foreach ($mapping as $field) {
 			$expression = $this->expressionOf(path: ($field['path'] ?? null));
 			$value = null;
 			if ($expression !== null) {
-				$value = $this->scalar(value: $extract($item, $expression));
+				$value = $this->scalar(value: ($this->extract)($item, $expression));
 			}
 
 			if (($field['role'] ?? '') === 'link' && $this->isHttps(value: $value) === false) {

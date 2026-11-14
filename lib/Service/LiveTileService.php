@@ -168,6 +168,13 @@ class LiveTileService {
 	private ?ICache $cache = null;
 
 	/**
+	 * Maps a source node onto a list, table or key-value display.
+	 *
+	 * @var LiveTileListMapper
+	 */
+	private readonly LiveTileListMapper $lists;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
@@ -175,7 +182,6 @@ class LiveTileService {
 	 * @param WidgetPlacementMapper   $placementMapper Resolves placements by id.
 	 * @param ConnectionReporter|null $connectionReporter Tells integriq what a direct-URL fetch met, or
 	 *                                                    nothing when absent.
-	 * @param LiveTileListMapper      $lists              Maps a source node onto a list, table or key-value display.
 	 *
 	 * @spec openspec/changes/adopt-connection-registry/specs/app-connections/spec.md#requirement-req-lp-conn-003-launchpad-reports-what-its-outbound-calls-met
 	 */
@@ -184,8 +190,8 @@ class LiveTileService {
 		private readonly LiveTileSettings $settings,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly ?ConnectionReporter $connectionReporter = null,
-		private readonly LiveTileListMapper $lists = new LiveTileListMapper(),
 	) {
+		$this->lists = new LiveTileListMapper();
 	}//end __construct()
 
 	/**
@@ -948,23 +954,35 @@ class LiveTileService {
 			$badge = $this->resolveBadge(value: $rawValue, badge: (array)($config['badge'] ?? []));
 		}
 
-		$shape = [
+		return [
 			'value' => $rawValue,
 			'formatted' => $formatted,
 			'badge' => $badge,
 			'fetchedAt' => (new DateTime('@' . $fetchedAtTs))->format(format: DATE_ATOM),
 			'stale' => $stale,
-		];
+		] + $this->displayPart(reading: $reading, config: $config);
+	}//end publicShape()
 
+	/**
+	 * The display and its mapped rows or pairs, for a list, table or
+	 * key-value tile; nothing for a single-value tile. Only the mapped data,
+	 * never the raw node (REQ-LTC-001).
+	 *
+	 * @param array<string,mixed> $reading The internal reading.
+	 * @param array<string,mixed> $config  The placement's resolved config.
+	 *
+	 * @return array<string,mixed>
+	 *
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 */
+	private function displayPart(array $reading, array $config): array {
 		$display = $this->lists->displayOf(config: $config);
-		if ($display !== 'value') {
-			// REQ-LTC-001: only the mapped rows or pairs, never the raw node.
-			$shape['display'] = $display;
-			$shape += (array)($reading['mapped'] ?? []);
+		if ($display === 'value') {
+			return [];
 		}
 
-		return $shape;
-	}//end publicShape()
+		return ['display' => $display] + (array)($reading['mapped'] ?? []);
+	}//end displayPart()
 
 	/**
 	 * Build the value cache key — placement id + a hash of the resolved

@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 12 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 14 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 

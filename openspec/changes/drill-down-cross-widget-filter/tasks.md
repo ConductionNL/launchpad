@@ -22,6 +22,7 @@
 ### Widget Integration
 
 - [ ] Task 7: Update `src/components/widgets/ChartWidget.vue` (and analogous table/list widgets) to accept `filterContext` prop (already passed from dashboard for share-links; no change needed). Emit a `filter-published` event on chartable element click (bar, row, cell) with payload `{dimension, operator, value}`. The dashboard's bus subscriber listens for this event and calls `bus.publish()`. Link REQ-CWF-001, REQ-CWF-002.
+  - Blocked on `@conduction/nextcloud-vue`: launchpad's charts are `CnChartWidget` (`ChartHost.vue`), which handles a bar or slice click inside itself (`onDataPointSelection`, route navigation for `dataSource.drilldown`) and keeps the clicked category's raw key in its internal `drilldownKeys`; it emits no selection event. The library needs to emit the selection (raw key and grouped field) before a chart can publish a clause; the bus is already provided as `dashboardFilterBus`.
 
 - [ ] Task 8: Update widget manifest schema to include `publishes`, `consumes`, and `hierarchies` arrays. For existing chart and table widgets, populate `consumes` with the dimensions they accept in `filterContext`. For "click-enabled" widgets (charts with drill-down configured), populate `publishes` with the clickable dimensions. Hierarchies are inherited from the dashboard config. Link REQ-CWF-008.
 

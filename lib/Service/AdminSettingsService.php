@@ -162,8 +162,28 @@ class AdminSettingsService {
 			// them; a stored value that no longer validates reads as empty.
 			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
 			'ssoLaunchTemplates' => $this->tileLaunch->stored(setting: 'templates', stored: $settings[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] ?? null),
+			// Engagement-announcements D6: the groups whose members may write
+			// announcements besides administrators; none until one is chosen.
+			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
 		];
 	}//end getSettings()
+
+	/**
+	 * A stored group-id list as it is read back: a list, empty when unset or not a list.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return list<mixed>
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private static function groupList(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values($stored);
+	}//end groupList()
 
 	/**
 	 * Lower bound for the numeric quota settings (dashboard-quota-limits
@@ -351,7 +371,34 @@ class AdminSettingsService {
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
+		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 	}//end updateSettings()
+
+	/**
+	 * Persist the announcement editor groups when given, normalised like the forced-share groups.
+	 *
+	 * @param mixed $groups The group ids, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a list.
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private function persistAnnouncementEditorGroups(mixed $groups): void {
+		if ($groups === null) {
+			return;
+		}
+
+		if (is_array($groups) === false) {
+			throw new InvalidArgumentException(message: 'announcementEditorGroups must be a list of group ids.');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS,
+			value: $this->normaliseGroupList(input: $groups)
+		);
+	}//end persistAnnouncementEditorGroups()
 
 	/**
 	 * Persist the program schemes and the SSO launch templates, each checked whole first.

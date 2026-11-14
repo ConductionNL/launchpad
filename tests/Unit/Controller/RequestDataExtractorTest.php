@@ -98,7 +98,7 @@ class RequestDataExtractorTest extends TestCase {
 		);
 		$this->assertSame(
 			[
-				'gridX', 'gridY', 'gridWidth', 'gridHeight', 'isVisible', 'showTitle', 'customTitle', 'customIcon',
+				'version', 'gridX', 'gridY', 'gridWidth', 'gridHeight', 'isVisible', 'showTitle', 'customTitle', 'customIcon',
 				'styleConfig', 'content', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor', 'tileTextColor',
 				'tileLinkType', 'tileLinkValue', 'requiresAcknowledgement', 'acknowledgementPrompt',
 				'acknowledgementDeadline', 'reacknowledgeOnChange', 'acknowledgementContentVersion',

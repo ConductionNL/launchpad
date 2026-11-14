@@ -45,6 +45,7 @@
 		-->
 		<template #user-settings-sections>
 			<ProfileFieldsSettings />
+			<AnalyticsOptOutSettings />
 		</template>
 		<template v-if="railSuppressed" #menu>
 			<span
@@ -59,6 +60,7 @@
 import { CnAppRoot } from '@conduction/nextcloud-vue'
 import { translate as ncTranslate } from '@nextcloud/l10n'
 import { computed } from 'vue'
+import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vue'
 import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
 import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
@@ -129,6 +131,7 @@ export default {
 	name: 'App',
 	components: {
 		CnAppRoot,
+		AnalyticsOptOutSettings,
 		ProfileFieldsSettings,
 	},
 

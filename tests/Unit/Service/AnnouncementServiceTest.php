@@ -137,6 +137,7 @@ class AnnouncementServiceTest extends TestCase {
 
 		$userManager = $this->createMock(IUserManager::class);
 		$userManager->method('countUsersTotal')->willReturn(4);
+		$userManager->method('userExists')->willReturnCallback(fn (string $uid): bool => array_key_exists($uid, $this->groupsOf));
 
 		return new AnnouncementService($mapper, new AnnouncementInput(), $settings, $userGroups, $groupManager, $time, $userManager, $notifier);
 	}//end service()
@@ -356,4 +357,20 @@ class AnnouncementServiceTest extends TestCase {
 
 		$service->publish('karin', $service->create('karin', ['title' => 'Nieuwe privacyverklaring', 'category' => 'Privacy'])->getUuid());
 	}//end testPublishingHandsTheAnnouncementToTheFollowNotifier()
+	/**
+	 * D4 "Preview as": targeting reaches a member of a target group, not an
+	 * outsider, everyone when no group is set, and never an unknown account.
+	 *
+	 * @return void
+	 */
+	public function testPreviewAsTellsWhetherTheTargetingReachesOnePerson(): void {
+		$service = $this->service();
+		$memberOf = array_key_first(array_filter($this->groupsOf, static fn (array $groups): bool => $groups !== []));
+		$group = $this->groupsOf[$memberOf][0];
+
+		$this->assertTrue($service->reachesUser([$group], $memberOf));
+		$this->assertFalse($service->reachesUser(['niemand-zit-hier'], $memberOf));
+		$this->assertTrue($service->reachesUser([], $memberOf));
+		$this->assertFalse($service->reachesUser([], 'onbekend'));
+	}//end testPreviewAsTellsWhetherTheTargetingReachesOnePerson()
 }//end class

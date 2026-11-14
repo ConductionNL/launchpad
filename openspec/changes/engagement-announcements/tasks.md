@@ -11,10 +11,10 @@
 
 ## Frontend
 
-- [ ] 7. Add the `announcements` widget to `src/constants/widgetRegistry.js` with card, category filter, like and comment counts. Verify: Vitest.
-- [ ] 8. Build the announcement editor modal with the preview step, reach count and "Preview as". Verify: Vitest and an axe check.
-- [ ] 9. Add the notice banner region to `src/views/WorkspaceApp.vue` with dismiss for dismissible notices. Verify: Vitest.
-- [ ] 10. Add follow and unfollow per category in the widget. Verify: Vitest.
+- [x] 7. Add the `announcements` widget to `src/constants/widgetRegistry.js` with card, category filter, like and comment counts. Verify: Vitest.
+- [x] 8. Build the announcement editor modal with the preview step, reach count and "Preview as". Verify: Vitest and an axe check.
+- [x] 9. Add the notice banner region to `src/views/WorkspaceApp.vue` with dismiss for dismissible notices. Verify: Vitest.
+- [x] 10. Add follow and unfollow per category in the widget. Verify: Vitest.
 
 ## Close
 

@@ -312,6 +312,24 @@ class AnnouncementService {
 	}//end reach()
 
 	/**
+	 * "Preview as": whether target groups reach one person (D4).
+	 *
+	 * @param list<string> $groups The target groups; none means everyone.
+	 * @param string       $userId The person to check.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/engagement-announcements/specs/announcements/spec.md#requirement-authors-preview-before-publishing-req-ann-004
+	 */
+	public function reachesUser(array $groups, string $userId): bool {
+		if ($this->userManager->userExists($userId) === false) {
+			return false;
+		}
+
+		return $groups === [] || array_intersect($groups, $this->userGroups->getUserGroupIdsFor($userId)) !== [];
+	}//end reachesUser()
+
+	/**
 	 * An announcement the user may change.
 	 *
 	 * @param string $userId The user.

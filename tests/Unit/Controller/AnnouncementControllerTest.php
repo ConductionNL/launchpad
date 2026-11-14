@@ -231,11 +231,14 @@ class AnnouncementControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testReach(): void {
-		$this->service->method('isAuthor')->willReturnOnConsecutiveCalls(false, true);
+		$this->service->method('isAuthor')->willReturnOnConsecutiveCalls(false, true, true);
 		$this->service->method('reach')->with(['Burgerzaken'])->willReturn(42);
+		$this->service->method('reachesUser')->with(['Burgerzaken'], 'sanne')->willReturn(false);
 
 		$this->assertSame(403, $this->controller(['groups' => ['Burgerzaken']])->reach()->getStatus());
 		$this->assertSame(['reach' => 42], $this->controller(['groups' => ['Burgerzaken', 7]])->reach()->getData());
+		// "Preview as" (D4): the answer says whether the chosen person is reached.
+		$this->assertSame(['reach' => 42, 'reachesUser' => false], $this->controller(['groups' => ['Burgerzaken'], 'user' => ' sanne '])->reach()->getData());
 	}//end testReach()
 
 	/**

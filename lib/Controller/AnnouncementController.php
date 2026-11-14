@@ -196,7 +196,15 @@ class AnnouncementController extends Controller {
 				$groups = [];
 			}
 
-			return new JSONResponse(['reach' => $this->announcements->reach(groups: array_values(array_filter($groups, 'is_string')))]);
+			$groups = array_values(array_filter($groups, 'is_string'));
+			$answer = ['reach' => $this->announcements->reach(groups: $groups)];
+			// "Preview as" (D4): whether the targeting reaches one chosen person.
+			$previewAs = trim((string) $this->request->getParam(key: 'user', default: ''));
+			if ($previewAs !== '') {
+				$answer['reachesUser'] = $this->announcements->reachesUser(groups: $groups, userId: $previewAs);
+			}
+
+			return new JSONResponse($answer);
 		});
 	}//end reach()
 

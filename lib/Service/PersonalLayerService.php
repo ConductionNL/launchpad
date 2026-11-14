@@ -248,6 +248,32 @@ class PersonalLayerService {
 	}//end pruneOrphans()
 
 	/**
+	 * Drop every person's entries for placements that are gone from one dashboard.
+	 *
+	 * Called after a template re-sync removed placements: one re-sync changes the
+	 * dashboard for everybody, so the sweep walks every layer on it.
+	 *
+	 * @param int             $dashboardId The dashboard.
+	 * @param array<int, int> $liveIds     The placement ids that still exist.
+	 *
+	 * @return int How many entries were dropped, over all layers.
+	 *
+	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md
+	 */
+	public function pruneDashboard(int $dashboardId, array $liveIds): int {
+		if ($dashboardId <= 0) {
+			return 0;
+		}
+
+		$dropped = 0;
+		foreach ($this->layers->findByDashboard(dashboardId: $dashboardId) as $layer) {
+			$dropped += $this->pruneOrphans(userId: (string)$layer->getUserId(), dashboardId: $dashboardId, liveIds: $liveIds);
+		}
+
+		return $dropped;
+	}//end pruneDashboard()
+
+	/**
 	 * The person's layer, or null.
 	 *
 	 * @param string $userId The person.

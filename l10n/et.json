@@ -1339,6 +1339,15 @@
         "Statistics": "Statistika",
         "Count my visits": "Loe minu külastusi",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kui see on välja lülitatud, ei arvestata sinu töölaua külastusi ega paanidele klõpsamisi vaatamiste arvu hulka.",
-        "Your choice could not be saved.": "Sinu valikut ei õnnestunud salvestada."
+        "Your choice could not be saved.": "Sinu valikut ei õnnestunud salvestada.",
+        "%1$s asked for the app **%2$s**": "%1$s taotles rakendust **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s taotles rakendust %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Kiitke see heaks või lükake tagasi LaunchPadi administraatori seadete jaotises Rakenduste kataloog",
+        "**%1$s** is now in the app catalogue": "**%1$s** on nüüd rakenduste kataloogis",
+        "%1$s is now in the app catalogue": "%1$s on nüüd rakenduste kataloogis",
+        "Add it as a tile from Add on your dashboard": "Lisage see oma töölaual nupu „Lisa” kaudu paanina",
+        "Your request for **%1$s** was declined: %2$s": "Teie taotlus rakenduse **%1$s** kohta lükati tagasi: %2$s",
+        "Your request for %1$s was declined: %2$s": "Teie taotlus rakenduse %1$s kohta lükati tagasi: %2$s",
+        "An administrator decided on your request in the app catalogue": "Administraator tegi rakenduste kataloogis teie taotluse kohta otsuse"
     }
 }

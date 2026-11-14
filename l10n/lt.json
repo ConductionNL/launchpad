@@ -1340,6 +1340,15 @@
         "Statistics": "Statistika",
         "Count my visits": "Skaičiuoti mano apsilankymus",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kai tai išjungta, jūsų apsilankymai skydeliuose ir paspaudimai ant plytelių neįskaičiuojami į peržiūrų skaičių.",
-        "Your choice could not be saved.": "Nepavyko išsaugoti jūsų pasirinkimo."
+        "Your choice could not be saved.": "Nepavyko išsaugoti jūsų pasirinkimo.",
+        "%1$s asked for the app **%2$s**": "%1$s paprašė programos **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s paprašė programos %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Patvirtinkite arba atmeskite ją LaunchPad administravimo nustatymų skiltyje „Programų katalogas“",
+        "**%1$s** is now in the app catalogue": "**%1$s** dabar yra programų kataloge",
+        "%1$s is now in the app catalogue": "%1$s dabar yra programų kataloge",
+        "Add it as a tile from Add on your dashboard": "Pridėkite ją kaip plytelę savo valdymo skyde per „Pridėti“",
+        "Your request for **%1$s** was declined: %2$s": "Jūsų užklausa dėl **%1$s** atmesta: %2$s",
+        "Your request for %1$s was declined: %2$s": "Jūsų užklausa dėl %1$s atmesta: %2$s",
+        "An administrator decided on your request in the app catalogue": "Administratorius priėmė sprendimą dėl jūsų užklausos programų kataloge"
     }
 }

@@ -1339,6 +1339,15 @@
         "Statistics": "Estadístiques",
         "Count my visits": "Compta les meves visites",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Quan això està desactivat, les teves visites als taulers i els clics a les rajoles no es tenen en compte en el recompte de visualitzacions.",
-        "Your choice could not be saved.": "No s'ha pogut desar la teva tria."
+        "Your choice could not be saved.": "No s'ha pogut desar la teva tria.",
+        "%1$s asked for the app **%2$s**": "%1$s ha sol·licitat l'aplicació **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s ha sol·licitat l'aplicació %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Aproveu-la o rebutgeu-la a Catàleg d'aplicacions, als paràmetres d'administració de LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** ja és al catàleg d'aplicacions",
+        "%1$s is now in the app catalogue": "%1$s ja és al catàleg d'aplicacions",
+        "Add it as a tile from Add on your dashboard": "Afegiu-la com a tessel·la des d'Afegeix al vostre tauler",
+        "Your request for **%1$s** was declined: %2$s": "S'ha rebutjat la vostra sol·licitud de **%1$s**: %2$s",
+        "Your request for %1$s was declined: %2$s": "S'ha rebutjat la vostra sol·licitud de %1$s: %2$s",
+        "An administrator decided on your request in the app catalogue": "Un administrador ha decidit sobre la vostra sol·licitud al catàleg d'aplicacions"
     }
 }

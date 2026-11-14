@@ -1340,6 +1340,15 @@
         "Statistics": "Statistika",
         "Count my visits": "Skaitīt manus apmeklējumus",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kad tas ir izslēgts, jūsu informācijas paneļu apmeklējumi un klikšķi uz flīzēm netiek ieskaitīti skatījumu skaitā.",
-        "Your choice could not be saved.": "Jūsu izvēli neizdevās saglabāt."
+        "Your choice could not be saved.": "Jūsu izvēli neizdevās saglabāt.",
+        "%1$s asked for the app **%2$s**": "%1$s pieprasīja lietotni **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s pieprasīja lietotni %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Apstipriniet vai noraidiet to LaunchPad administratora iestatījumu sadaļā “Lietotņu katalogs”",
+        "**%1$s** is now in the app catalogue": "**%1$s** tagad ir lietotņu katalogā",
+        "%1$s is now in the app catalogue": "%1$s tagad ir lietotņu katalogā",
+        "Add it as a tile from Add on your dashboard": "Pievienojiet to kā elementu savā vadības panelī, izmantojot “Pievienot”",
+        "Your request for **%1$s** was declined: %2$s": "Jūsu pieprasījums pēc **%1$s** tika noraidīts: %2$s",
+        "Your request for %1$s was declined: %2$s": "Jūsu pieprasījums pēc %1$s tika noraidīts: %2$s",
+        "An administrator decided on your request in the app catalogue": "Administrators pieņēma lēmumu par Jūsu pieprasījumu lietotņu katalogā"
     }
 }

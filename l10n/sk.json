@@ -1340,6 +1340,15 @@
         "Statistics": "Štatistiky",
         "Count my visits": "Započítavať moje návštevy",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Keď je to vypnuté, vaše návštevy nástenok a kliknutia na dlaždice sa nezapočítavajú do počtu zobrazení.",
-        "Your choice could not be saved.": "Vašu voľbu sa nepodarilo uložiť."
+        "Your choice could not be saved.": "Vašu voľbu sa nepodarilo uložiť.",
+        "%1$s asked for the app **%2$s**": "Žiadosť od %1$s o aplikáciu **%2$s**",
+        "%1$s asked for the app %2$s": "Žiadosť od %1$s o aplikáciu %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Schváľte ju alebo zamietnite v sekcii „Katalóg aplikácií“ v nastaveniach administrácie LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** je teraz v katalógu aplikácií",
+        "%1$s is now in the app catalogue": "%1$s je teraz v katalógu aplikácií",
+        "Add it as a tile from Add on your dashboard": "Pridajte si ju ako dlaždicu cez „Pridať“ na svojej nástenke",
+        "Your request for **%1$s** was declined: %2$s": "Vaša žiadosť o **%1$s** bola zamietnutá: %2$s",
+        "Your request for %1$s was declined: %2$s": "Vaša žiadosť o %1$s bola zamietnutá: %2$s",
+        "An administrator decided on your request in the app catalogue": "O vašej žiadosti v katalógu aplikácií rozhodol administrátor"
     }
 }

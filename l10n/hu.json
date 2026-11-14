@@ -1339,6 +1339,15 @@
         "Statistics": "Statisztika",
         "Count my visits": "Látogatásaim számolása",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Ha ez ki van kapcsolva, az irányítópultokon tett látogatásaid és a csempékre kattintásaid nem számítanak bele a megtekintések számába.",
-        "Your choice could not be saved.": "A választásodat nem sikerült menteni."
+        "Your choice could not be saved.": "A választásodat nem sikerült menteni.",
+        "%1$s asked for the app **%2$s**": "%1$s kérte a(z) **%2$s** alkalmazást",
+        "%1$s asked for the app %2$s": "%1$s kérte a(z) %2$s alkalmazást",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Hagyja jóvá vagy utasítsa el a LaunchPad adminisztrációs beállításainak Alkalmazáskatalógus részében",
+        "**%1$s** is now in the app catalogue": "**%1$s** bekerült az alkalmazáskatalógusba",
+        "%1$s is now in the app catalogue": "%1$s bekerült az alkalmazáskatalógusba",
+        "Add it as a tile from Add on your dashboard": "Adja hozzá csempeként az irányítópultja Hozzáadás gombjával",
+        "Your request for **%1$s** was declined: %2$s": "A(z) **%1$s** alkalmazásra vonatkozó kérelmét elutasították: %2$s",
+        "Your request for %1$s was declined: %2$s": "A(z) %1$s alkalmazásra vonatkozó kérelmét elutasították: %2$s",
+        "An administrator decided on your request in the app catalogue": "Egy rendszergazda döntött az alkalmazáskatalógusban benyújtott kérelméről"
     }
 }

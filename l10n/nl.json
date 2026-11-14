@@ -1682,6 +1682,15 @@
         "Sorted alphabetically": "Alfabetisch gesorteerd",
         "Sorted by most used": "Gesorteerd op meest gebruikt",
         "Sorted by last used": "Gesorteerd op laatst gebruikt",
-        "Sorted at random": "Willekeurig gesorteerd"
+        "Sorted at random": "Willekeurig gesorteerd",
+        "%1$s asked for the app **%2$s**": "%1$s vroeg om de app **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s vroeg om de app %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Keur het verzoek goed of wijs het af onder ‘App-catalogus’ in de beheerinstellingen van LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** staat nu in de app-catalogus",
+        "%1$s is now in the app catalogue": "%1$s staat nu in de app-catalogus",
+        "Add it as a tile from Add on your dashboard": "Voeg de app als tegel toe via ‘Toevoegen’ op je dashboard",
+        "Your request for **%1$s** was declined: %2$s": "Je verzoek om **%1$s** is afgewezen: %2$s",
+        "Your request for %1$s was declined: %2$s": "Je verzoek om %1$s is afgewezen: %2$s",
+        "An administrator decided on your request in the app catalogue": "Een beheerder heeft over je verzoek in de app-catalogus beslist"
     }
 }

@@ -1339,6 +1339,15 @@
         "Statistics": "İstatistikler",
         "Count my visits": "Ziyaretlerimi say",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Bu kapalıyken pano ziyaretleriniz ve kutucuklara tıklamalarınız görüntülenme sayılarına dahil edilmez.",
-        "Your choice could not be saved.": "Seçiminiz kaydedilemedi."
+        "Your choice could not be saved.": "Seçiminiz kaydedilemedi.",
+        "%1$s asked for the app **%2$s**": "%1$s, **%2$s** uygulamasını istedi",
+        "%1$s asked for the app %2$s": "%1$s, %2$s uygulamasını istedi",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "LaunchPad yönetim ayarlarındaki Uygulama kataloğu bölümünden onaylayın veya reddedin",
+        "**%1$s** is now in the app catalogue": "**%1$s** artık uygulama kataloğunda",
+        "%1$s is now in the app catalogue": "%1$s artık uygulama kataloğunda",
+        "Add it as a tile from Add on your dashboard": "Panonuzdaki Ekle üzerinden döşeme olarak ekleyin",
+        "Your request for **%1$s** was declined: %2$s": "**%1$s** için isteğiniz reddedildi: %2$s",
+        "Your request for %1$s was declined: %2$s": "%1$s için isteğiniz reddedildi: %2$s",
+        "An administrator decided on your request in the app catalogue": "Bir yönetici, uygulama kataloğundaki isteğiniz hakkında karar verdi"
     }
 }

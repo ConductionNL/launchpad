@@ -1339,6 +1339,15 @@
         "Statistics": "Tölfræði",
         "Count my visits": "Telja heimsóknir mínar",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Þegar slökkt er á þessu eru heimsóknir þínar á stjórnborð og smellir á reiti ekki taldar með í áhorfstölum.",
-        "Your choice could not be saved.": "Ekki tókst að vista valið þitt."
+        "Your choice could not be saved.": "Ekki tókst að vista valið þitt.",
+        "%1$s asked for the app **%2$s**": "%1$s bað um forritið **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s bað um forritið %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Samþykktu eða hafnaðu henni undir „Forritaskrá“ í stjórnunarstillingum LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** er nú í forritaskránni",
+        "%1$s is now in the app catalogue": "%1$s er nú í forritaskránni",
+        "Add it as a tile from Add on your dashboard": "Bættu því við sem reit úr „Bæta við“ á stjórnborðinu þínu",
+        "Your request for **%1$s** was declined: %2$s": "Beiðni þinni um **%1$s** var hafnað: %2$s",
+        "Your request for %1$s was declined: %2$s": "Beiðni þinni um %1$s var hafnað: %2$s",
+        "An administrator decided on your request in the app catalogue": "Stjórnandi hefur tekið ákvörðun um beiðni þína í forritaskránni"
     }
 }

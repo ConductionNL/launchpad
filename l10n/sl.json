@@ -1341,6 +1341,15 @@
         "Statistics": "Statistika",
         "Count my visits": "Štej moje obiske",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Ko je to izklopljeno, se vaši obiski nadzornih plošč in kliki na ploščice ne štejejo v število ogledov.",
-        "Your choice could not be saved.": "Vaše izbire ni bilo mogoče shraniti."
+        "Your choice could not be saved.": "Vaše izbire ni bilo mogoče shraniti.",
+        "%1$s asked for the app **%2$s**": "Zahteva uporabnika %1$s za aplikacijo **%2$s**",
+        "%1$s asked for the app %2$s": "Zahteva uporabnika %1$s za aplikacijo %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Zahtevo odobrite ali zavrnite v razdelku »Katalog aplikacij« v skrbniških nastavitvah LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** je zdaj v katalogu aplikacij",
+        "%1$s is now in the app catalogue": "%1$s je zdaj v katalogu aplikacij",
+        "Add it as a tile from Add on your dashboard": "Dodajte jo kot ploščico prek »Dodaj« na svoji nadzorni plošči",
+        "Your request for **%1$s** was declined: %2$s": "Vaša zahteva za **%1$s** je bila zavrnjena: %2$s",
+        "Your request for %1$s was declined: %2$s": "Vaša zahteva za %1$s je bila zavrnjena: %2$s",
+        "An administrator decided on your request in the app catalogue": "Skrbnik je odločil o vaši zahtevi v katalogu aplikacij"
     }
 }

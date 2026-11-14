@@ -1339,6 +1339,15 @@
         "Statistics": "Statisticas",
         "Count my visits": "Dumbrar mias visitas",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
-        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada."
+        "Your choice could not be saved.": "Tia tscherna n'ha betg pudì vegnir memorisada.",
+        "%1$s asked for the app **%2$s**": "%1$s ha dumandà l'applicaziun **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s ha dumandà l'applicaziun %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Approvai u refusai ella sut Catalog d'applicaziuns en ils parameters d'administraziun da LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** è ussa en il catalog d'applicaziuns",
+        "%1$s is now in the app catalogue": "%1$s è ussa en il catalog d'applicaziuns",
+        "Add it as a tile from Add on your dashboard": "Agiuntai ella sco plattatscha via «Agiuntar» sin Sia tabla da cumond",
+        "Your request for **%1$s** was declined: %2$s": "Sia dumonda per **%1$s** è vegnida refusada: %2$s",
+        "Your request for %1$s was declined: %2$s": "Sia dumonda per %1$s è vegnida refusada: %2$s",
+        "An administrator decided on your request in the app catalogue": "In administratur ha decidì davart Sia dumonda en il catalog d'applicaziuns"
     }
 }

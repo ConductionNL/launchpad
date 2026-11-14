@@ -1317,6 +1317,15 @@
         "Statistics": "Statistics",
         "Count my visits": "Count my visits",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "When this is off, your dashboard visits and tile clicks are left out of the view counts.",
-        "Your choice could not be saved.": "Your choice could not be saved."
+        "Your choice could not be saved.": "Your choice could not be saved.",
+        "%1$s asked for the app **%2$s**": "%1$s asked for the app **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s asked for the app %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Approve or decline it under App catalogue in the LaunchPad admin settings",
+        "**%1$s** is now in the app catalogue": "**%1$s** is now in the app catalogue",
+        "%1$s is now in the app catalogue": "%1$s is now in the app catalogue",
+        "Add it as a tile from Add on your dashboard": "Add it as a tile from Add on your dashboard",
+        "Your request for **%1$s** was declined: %2$s": "Your request for **%1$s** was declined: %2$s",
+        "Your request for %1$s was declined: %2$s": "Your request for %1$s was declined: %2$s",
+        "An administrator decided on your request in the app catalogue": "An administrator decided on your request in the app catalogue"
     }
 }

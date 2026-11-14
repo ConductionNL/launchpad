@@ -1339,6 +1339,15 @@
         "Statistics": "Estatísticas",
         "Count my visits": "Contar as minhas visitas",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Quando isto está desativado, as suas visitas aos painéis e os cliques nos mosaicos não entram na contagem de visualizações.",
-        "Your choice could not be saved.": "Não foi possível guardar a sua escolha."
+        "Your choice could not be saved.": "Não foi possível guardar a sua escolha.",
+        "%1$s asked for the app **%2$s**": "%1$s pediu a aplicação **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s pediu a aplicação %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Aprove-o ou recuse-o em “Catálogo de aplicações” nas definições de administração do LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** está agora no catálogo de aplicações",
+        "%1$s is now in the app catalogue": "%1$s está agora no catálogo de aplicações",
+        "Add it as a tile from Add on your dashboard": "Adicione-a como mosaico a partir de “Adicionar” no seu painel",
+        "Your request for **%1$s** was declined: %2$s": "O seu pedido de **%1$s** foi recusado: %2$s",
+        "Your request for %1$s was declined: %2$s": "O seu pedido de %1$s foi recusado: %2$s",
+        "An administrator decided on your request in the app catalogue": "Um administrador decidiu sobre o seu pedido no catálogo de aplicações"
     }
 }

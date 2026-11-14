@@ -1340,6 +1340,15 @@
         "Statistics": "Статистика",
         "Count my visits": "Учитывать мои посещения",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Когда это выключено, ваши посещения панелей и нажатия на плитки не учитываются в числе просмотров.",
-        "Your choice could not be saved.": "Не удалось сохранить ваш выбор."
+        "Your choice could not be saved.": "Не удалось сохранить ваш выбор.",
+        "%1$s asked for the app **%2$s**": "Запрос от %1$s на приложение **%2$s**",
+        "%1$s asked for the app %2$s": "Запрос от %1$s на приложение %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Одобрите или отклоните его в разделе «Каталог приложений» в настройках администратора LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** теперь в каталоге приложений",
+        "%1$s is now in the app catalogue": "%1$s теперь в каталоге приложений",
+        "Add it as a tile from Add on your dashboard": "Добавьте его в виде плитки через «Добавить» на своей панели управления",
+        "Your request for **%1$s** was declined: %2$s": "Ваш запрос на **%1$s** отклонён: %2$s",
+        "Your request for %1$s was declined: %2$s": "Ваш запрос на %1$s отклонён: %2$s",
+        "An administrator decided on your request in the app catalogue": "Администратор принял решение по вашему запросу в каталоге приложений"
     }
 }

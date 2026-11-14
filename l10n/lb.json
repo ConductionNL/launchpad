@@ -1339,6 +1339,15 @@
         "Statistics": "Statistiken",
         "Count my visits": "Meng Visitten zielen",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Wann dat aus ass, ginn deng Visitte vun Dashboarden an d'Klicken op Kachelen net an den Opruffzuelen matgezielt.",
-        "Your choice could not be saved.": "Deng Wiel konnt net gespäichert ginn."
+        "Your choice could not be saved.": "Deng Wiel konnt net gespäichert ginn.",
+        "%1$s asked for the app **%2$s**": "%1$s huet d'App **%2$s** ugefrot",
+        "%1$s asked for the app %2$s": "%1$s huet d'App %2$s ugefrot",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Heescht se gutt oder leent se of ënner App-Katalog an den Administratiounsastellunge vu LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** ass elo am App-Katalog",
+        "%1$s is now in the app catalogue": "%1$s ass elo am App-Katalog",
+        "Add it as a tile from Add on your dashboard": "Füügt se iwwer „Derbäifügen“ op Ärem Dashboard als Kachel derbäi",
+        "Your request for **%1$s** was declined: %2$s": "Är Ufro fir **%1$s** gouf ofgeleent: %2$s",
+        "Your request for %1$s was declined: %2$s": "Är Ufro fir %1$s gouf ofgeleent: %2$s",
+        "An administrator decided on your request in the app catalogue": "En Administrateur huet iwwer Är Ufro am App-Katalog entscheet"
     }
 }

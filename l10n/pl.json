@@ -1340,6 +1340,15 @@
         "Statistics": "Statystyki",
         "Count my visits": "Licz moje odwiedziny",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Gdy to jest wyłączone, Twoje odwiedziny pulpitów i kliknięcia kafelków nie są wliczane do liczby wyświetleń.",
-        "Your choice could not be saved.": "Nie udało się zapisać Twojego wyboru."
+        "Your choice could not be saved.": "Nie udało się zapisać Twojego wyboru.",
+        "%1$s asked for the app **%2$s**": "Użytkownik %1$s poprosił o aplikację **%2$s**",
+        "%1$s asked for the app %2$s": "Użytkownik %1$s poprosił o aplikację %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Zatwierdź lub odrzuć go w sekcji Katalog aplikacji w ustawieniach administracyjnych LaunchPad",
+        "**%1$s** is now in the app catalogue": "Aplikacja **%1$s** jest teraz w katalogu aplikacji",
+        "%1$s is now in the app catalogue": "Aplikacja %1$s jest teraz w katalogu aplikacji",
+        "Add it as a tile from Add on your dashboard": "Dodaj ją jako kafelek za pomocą przycisku „Dodaj” na swoim pulpicie",
+        "Your request for **%1$s** was declined: %2$s": "Twój wniosek o aplikację **%1$s** został odrzucony: %2$s",
+        "Your request for %1$s was declined: %2$s": "Twój wniosek o aplikację %1$s został odrzucony: %2$s",
+        "An administrator decided on your request in the app catalogue": "Administrator podjął decyzję w sprawie Twojego wniosku w katalogu aplikacji"
     }
 }

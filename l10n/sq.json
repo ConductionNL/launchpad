@@ -1339,6 +1339,15 @@
         "Statistics": "Statistika",
         "Count my visits": "Numëro vizitat e mia",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kur kjo është e çaktivizuar, vizitat tuaja në panele dhe klikimet mbi pllakat nuk përfshihen në numrin e shikimeve.",
-        "Your choice could not be saved.": "Zgjedhja juaj nuk mund të ruhej."
+        "Your choice could not be saved.": "Zgjedhja juaj nuk mund të ruhej.",
+        "%1$s asked for the app **%2$s**": "%1$s kërkoi aplikacionin **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s kërkoi aplikacionin %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Miratojeni ose refuzojeni te «Katalogu i aplikacioneve» në cilësimet e administrimit të LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** tani është në katalogun e aplikacioneve",
+        "%1$s is now in the app catalogue": "%1$s tani është në katalogun e aplikacioneve",
+        "Add it as a tile from Add on your dashboard": "Shtojeni si pllakëz nga «Shto» në pultin tuaj",
+        "Your request for **%1$s** was declined: %2$s": "Kërkesa juaj për **%1$s** u refuzua: %2$s",
+        "Your request for %1$s was declined: %2$s": "Kërkesa juaj për %1$s u refuzua: %2$s",
+        "An administrator decided on your request in the app catalogue": "Një administrator vendosi për kërkesën tuaj në katalogun e aplikacioneve"
     }
 }

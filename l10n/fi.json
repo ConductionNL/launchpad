@@ -1339,6 +1339,15 @@
         "Statistics": "Tilastot",
         "Count my visits": "Laske käyntini",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Kun tämä on pois päältä, kojelautakäyntejäsi ja ruutujen napsautuksiasi ei lasketa mukaan katselukertoihin.",
-        "Your choice could not be saved.": "Valintaasi ei voitu tallentaa."
+        "Your choice could not be saved.": "Valintaasi ei voitu tallentaa.",
+        "%1$s asked for the app **%2$s**": "%1$s pyysi sovellusta **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s pyysi sovellusta %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Hyväksy tai hylkää se LaunchPadin ylläpitoasetusten kohdassa Sovelluskatalogi",
+        "**%1$s** is now in the app catalogue": "**%1$s** on nyt sovelluskatalogissa",
+        "%1$s is now in the app catalogue": "%1$s on nyt sovelluskatalogissa",
+        "Add it as a tile from Add on your dashboard": "Lisää se ruuduksi kojelautasi Lisää-painikkeella",
+        "Your request for **%1$s** was declined: %2$s": "Pyyntösi sovelluksesta **%1$s** hylättiin: %2$s",
+        "Your request for %1$s was declined: %2$s": "Pyyntösi sovelluksesta %1$s hylättiin: %2$s",
+        "An administrator decided on your request in the app catalogue": "Ylläpitäjä teki päätöksen pyynnöstäsi sovelluskatalogissa"
     }
 }

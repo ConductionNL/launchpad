@@ -1339,6 +1339,15 @@
         "Statistics": "Statistik",
         "Count my visits": "Meine Besuche zählen",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Wenn das aus ist, werden deine Dashboard-Besuche und Klicks auf Kacheln nicht in den Aufrufzahlen mitgezählt.",
-        "Your choice could not be saved.": "Deine Auswahl konnte nicht gespeichert werden."
+        "Your choice could not be saved.": "Deine Auswahl konnte nicht gespeichert werden.",
+        "%1$s asked for the app **%2$s**": "%1$s hat die App **%2$s** angefragt",
+        "%1$s asked for the app %2$s": "%1$s hat die App %2$s angefragt",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Genehmigen oder lehnen Sie die Anfrage unter „App-Katalog“ in den LaunchPad-Administrationseinstellungen ab",
+        "**%1$s** is now in the app catalogue": "**%1$s** ist jetzt im App-Katalog",
+        "%1$s is now in the app catalogue": "%1$s ist jetzt im App-Katalog",
+        "Add it as a tile from Add on your dashboard": "Fügen Sie die App über „Hinzufügen“ als Kachel zu Ihrem Dashboard hinzu",
+        "Your request for **%1$s** was declined: %2$s": "Ihre Anfrage für **%1$s** wurde abgelehnt: %2$s",
+        "Your request for %1$s was declined: %2$s": "Ihre Anfrage für %1$s wurde abgelehnt: %2$s",
+        "An administrator decided on your request in the app catalogue": "Ein Administrator hat über Ihre Anfrage im App-Katalog entschieden"
     }
 }

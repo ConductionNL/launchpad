@@ -1340,6 +1340,15 @@
         "Statistics": "Статыстыка",
         "Count my visits": "Улічваць мае наведванні",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Калі гэта выключана, вашы наведванні панэляў і пстрычкі па пліткам не ўлічваюцца ў лічбах праглядаў.",
-        "Your choice could not be saved.": "Не ўдалося захаваць ваш выбар."
+        "Your choice could not be saved.": "Не ўдалося захаваць ваш выбар.",
+        "%1$s asked for the app **%2$s**": "Запыт ад %1$s на праграму **%2$s**",
+        "%1$s asked for the app %2$s": "Запыт ад %1$s на праграму %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Ухваліце або адхіліце яго ў раздзеле «Каталог праграм» у наладах адміністравання LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** цяпер у каталогу праграм",
+        "%1$s is now in the app catalogue": "%1$s цяпер у каталогу праграм",
+        "Add it as a tile from Add on your dashboard": "Дадайце яе як плітку праз «Дадаць» на сваёй панэлі",
+        "Your request for **%1$s** was declined: %2$s": "Ваш запыт на **%1$s** адхілены: %2$s",
+        "Your request for %1$s was declined: %2$s": "Ваш запыт на %1$s адхілены: %2$s",
+        "An administrator decided on your request in the app catalogue": "Адміністратар прыняў рашэнне па вашым запыце ў каталогу праграм"
     }
 }

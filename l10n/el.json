@@ -1339,6 +1339,15 @@
         "Statistics": "Στατιστικά",
         "Count my visits": "Καταμέτρηση των επισκέψεών μου",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Όταν αυτό είναι απενεργοποιημένο, οι επισκέψεις σας στους πίνακες και τα κλικ σε πλακίδια δεν μετρώνται στις προβολές.",
-        "Your choice could not be saved.": "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας."
+        "Your choice could not be saved.": "Δεν ήταν δυνατή η αποθήκευση της επιλογής σας.",
+        "%1$s asked for the app **%2$s**": "Ο χρήστης %1$s ζήτησε την εφαρμογή **%2$s**",
+        "%1$s asked for the app %2$s": "Ο χρήστης %1$s ζήτησε την εφαρμογή %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Εγκρίνετε ή απορρίψτε το στην ενότητα Κατάλογος εφαρμογών των ρυθμίσεων διαχείρισης του LaunchPad",
+        "**%1$s** is now in the app catalogue": "Η εφαρμογή **%1$s** είναι πλέον στον κατάλογο εφαρμογών",
+        "%1$s is now in the app catalogue": "Η εφαρμογή %1$s είναι πλέον στον κατάλογο εφαρμογών",
+        "Add it as a tile from Add on your dashboard": "Προσθέστε την ως πλακίδιο από την «Προσθήκη» στον πίνακά σας",
+        "Your request for **%1$s** was declined: %2$s": "Το αίτημά σας για την εφαρμογή **%1$s** απορρίφθηκε: %2$s",
+        "Your request for %1$s was declined: %2$s": "Το αίτημά σας για την εφαρμογή %1$s απορρίφθηκε: %2$s",
+        "An administrator decided on your request in the app catalogue": "Ένας διαχειριστής αποφάσισε για το αίτημά σας στον κατάλογο εφαρμογών"
     }
 }

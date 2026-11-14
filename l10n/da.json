@@ -1339,6 +1339,15 @@
         "Statistics": "Statistik",
         "Count my visits": "Tæl mine besøg",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Når dette er slået fra, tælles dine besøg på dashboards og klik på fliser ikke med i visningstallene.",
-        "Your choice could not be saved.": "Dit valg kunne ikke gemmes."
+        "Your choice could not be saved.": "Dit valg kunne ikke gemmes.",
+        "%1$s asked for the app **%2$s**": "%1$s har anmodet om appen **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s har anmodet om appen %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Godkend eller afvis anmodningen under »App-katalog« i LaunchPads administrationsindstillinger",
+        "**%1$s** is now in the app catalogue": "**%1$s** er nu i app-kataloget",
+        "%1$s is now in the app catalogue": "%1$s er nu i app-kataloget",
+        "Add it as a tile from Add on your dashboard": "Tilføj den som et felt via »Tilføj« på dit dashboard",
+        "Your request for **%1$s** was declined: %2$s": "Din anmodning om **%1$s** blev afvist: %2$s",
+        "Your request for %1$s was declined: %2$s": "Din anmodning om %1$s blev afvist: %2$s",
+        "An administrator decided on your request in the app catalogue": "En administrator har truffet beslutning om din anmodning i app-kataloget"
     }
 }

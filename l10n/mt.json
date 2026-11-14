@@ -1341,6 +1341,15 @@
         "Statistics": "Statistika",
         "Count my visits": "Għodd iż-żjarat tiegħi",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Meta dan ikun mitfi, iż-żjarat tiegħek fid-dashboards u l-klikks fuq il-madum ma jingħaddux fin-numru ta' dehriet.",
-        "Your choice could not be saved.": "L-għażla tiegħek ma setgħetx tiġi ssejvjata."
+        "Your choice could not be saved.": "L-għażla tiegħek ma setgħetx tiġi ssejvjata.",
+        "%1$s asked for the app **%2$s**": "%1$s talab l-app **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s talab l-app %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Approvaha jew iċħadha taħt Katalgu tal-apps fis-settings tal-amministrazzjoni ta' LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** issa jinsab fil-katalgu tal-apps",
+        "%1$s is now in the app catalogue": "%1$s issa jinsab fil-katalgu tal-apps",
+        "Add it as a tile from Add on your dashboard": "Żidha bħala madum minn Żid fid-dashboard tiegħek",
+        "Your request for **%1$s** was declined: %2$s": "It-talba tiegħek għal **%1$s** ġiet miċħuda: %2$s",
+        "Your request for %1$s was declined: %2$s": "It-talba tiegħek għal %1$s ġiet miċħuda: %2$s",
+        "An administrator decided on your request in the app catalogue": "Amministratur iddeċieda dwar it-talba tiegħek fil-katalgu tal-apps"
     }
 }

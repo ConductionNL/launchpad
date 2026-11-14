@@ -1342,6 +1342,15 @@
         "Statistics": "Staitisticí",
         "Count my visits": "Comhair mo chuairteanna",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
-        "Your choice could not be saved.": "Níorbh fhéidir do rogha a shábháil."
+        "Your choice could not be saved.": "Níorbh fhéidir do rogha a shábháil.",
+        "%1$s asked for the app **%2$s**": "D'iarr %1$s an aip **%2$s**",
+        "%1$s asked for the app %2$s": "D'iarr %1$s an aip %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Ceadaigh nó diúltaigh dó faoi Catalóg aipeanna i socruithe riaracháin LaunchPad",
+        "**%1$s** is now in the app catalogue": "Tá **%1$s** sa chatalóg aipeanna anois",
+        "%1$s is now in the app catalogue": "Tá %1$s sa chatalóg aipeanna anois",
+        "Add it as a tile from Add on your dashboard": "Cuir leis é mar thíl ó “Cuir leis” ar do dheais",
+        "Your request for **%1$s** was declined: %2$s": "Diúltaíodh d'iarratas ar **%1$s**: %2$s",
+        "Your request for %1$s was declined: %2$s": "Diúltaíodh d'iarratas ar %1$s: %2$s",
+        "An administrator decided on your request in the app catalogue": "Rinne riarthóir cinneadh ar d'iarratas sa chatalóg aipeanna"
     }
 }

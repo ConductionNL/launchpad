@@ -2343,14 +2343,15 @@
 			"id": "tile-catalogue",
 			"area": "launcher",
 			"name": "Browse a catalogue of approved apps and ask IT for one that is missing.",
-			"launchpad": "no",
+			"launchpad": "yes",
 			"workspace-365": "yes",
 			"microsoft-viva": "partial",
 			"nextcloud-dashboard": "no",
 			"homarr": "partial",
 			"dashy": "no",
 			"built": {
-				"state": "specified",
+				"state": "built",
+				"evidence": "src/modals/WidgetPickerModal.vue:38 'From the app catalogue' section in the add flow, filled from GET /api/catalogue; lib/Service/CatalogueService.php:152 listFor() returns only the entries the caller's groups may see; lib/Service/CatalogueService.php:254 request() stores the request, notifies administrators and the manager group, at most 10 open; src/components/admin/tabs/AppCatalogueTab.vue:33 admin App catalogue tab: open requests with approve and decline, entries with group picker",
 				"owner": "ConductionNL/launchpad",
 				"change": "openspec/changes/launcher-app-catalogue",
 				"requirement": [
@@ -2358,7 +2359,7 @@
 					"openspec/changes/launcher-app-catalogue/specs/app-catalogue :: Users can ask for a missing app (REQ-ACAT-003)"
 				]
 			},
-			"reachedOn": "nothing",
+			"reachedOn": "Workspace page (/apps/launchpad/), Add in edit mode, section 'From the app catalogue'; admin settings, LaunchPad, tab App catalogue",
 			"evidence": {
 				"workspace-365": "https://support.workspace365.net/en/articles/175398-understand-and-manage-user-permissions 'Request apps in the app store'; https://portal.productboard.com/iqfsnhkpzih6grzjwagif2ek/tabs/3-launched launched 'Request/Approve application from App Store' (read 2026-09-26)",
 				"nextcloud-dashboard": "source read at v35.0.1: apps/dashboard/src/DashboardApp.vue:113 only admins see 'Get more widgets from the App Store'; searched apps/dashboard for request, catalogue: no way for an employee to browse approved apps or ask for one",

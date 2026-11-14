@@ -890,6 +890,13 @@
 		"validator": false,
 		"default": "30d"
 	},
+	"../../components/admin/tabs/AppCatalogueTab.vue | groups": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/admin/tabs/OrgNavigationTab.vue | groups": {
 		"type": "Array",
 		"required": false,

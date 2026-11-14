@@ -22,4 +22,4 @@
 - [x] 9. Add the four demo entries to `DemoShowcasesService`. Verify: PHPUnit on the showcase.
 - [ ] 10. Playwright for the add path, group visibility and the decline path.
 - [ ] 11. Add `nl` and `en` strings, copy the spec to `openspec/specs/app-catalogue/spec.md` on archive, and set tile-catalogue to `built` in the parity matrix with evidence lines.
-  - Open: the locale parity gate needs every key in all 36 locales, so the strings ship together with the admin section; until then the new texts show in English.
+  - Done: the 44 frontend strings (picker catalogue section, request form, admin tab) and the 9 notifier strings in `en` and all 36 required locales; tile-catalogue set to `built` with evidence lines in `openspec/parity/capabilities.json`. Open: copying the spec to `openspec/specs/app-catalogue/spec.md`, which happens on archive.

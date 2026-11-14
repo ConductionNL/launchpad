@@ -1340,6 +1340,15 @@
         "Statistics": "Statistici",
         "Count my visits": "Numără vizitele mele",
         "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Când aceasta este dezactivată, vizitele tale pe panouri și clicurile pe dale nu sunt incluse în numărul de vizualizări.",
-        "Your choice could not be saved.": "Alegerea ta nu a putut fi salvată."
+        "Your choice could not be saved.": "Alegerea ta nu a putut fi salvată.",
+        "%1$s asked for the app **%2$s**": "%1$s a solicitat aplicația **%2$s**",
+        "%1$s asked for the app %2$s": "%1$s a solicitat aplicația %2$s",
+        "Approve or decline it under App catalogue in the LaunchPad admin settings": "Aprobați sau refuzați cererea în „Catalog de aplicații” din setările de administrare LaunchPad",
+        "**%1$s** is now in the app catalogue": "**%1$s** este acum în catalogul de aplicații",
+        "%1$s is now in the app catalogue": "%1$s este acum în catalogul de aplicații",
+        "Add it as a tile from Add on your dashboard": "Adăugați-o ca dală din „Adăugați” pe tabloul de bord",
+        "Your request for **%1$s** was declined: %2$s": "Cererea dumneavoastră pentru **%1$s** a fost refuzată: %2$s",
+        "Your request for %1$s was declined: %2$s": "Cererea dumneavoastră pentru %1$s a fost refuzată: %2$s",
+        "An administrator decided on your request in the app catalogue": "Un administrator a decis asupra cererii dumneavoastră în catalogul de aplicații"
     }
 }

@@ -78,7 +78,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * A matcher for a full settings map (fourteen entries) that holds the expected entries.
+	 * A matcher for a full settings map (sixteen entries) that holds the expected entries.
 	 *
 	 * @param array<string, mixed> $expected The entries the map must hold.
 	 *
@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 14 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 16 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -215,6 +215,8 @@ class AdminControllerSettingsAliasTest extends TestCase {
 						'maxWidgetsPerDashboard' => null,
 						'quicksearchFallbackTarget' => null,
 						'startPageWithoutNavigation' => true,
+						'sharingAllowedGroups' => null,
+						'sharingRecipientScope' => null,
 						'tileAllowedSchemes' => null,
 						'ssoLaunchTemplates' => null,
 					]

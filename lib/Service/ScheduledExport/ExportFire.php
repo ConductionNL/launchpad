@@ -38,6 +38,7 @@ use Throwable;
  * Fires an export, and retries its deliveries.
  *
  * @spec openspec/changes/scheduled-exports/tasks.md#task-8
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) A fire joins render, dispatch, audit and the export.
  */
 class ExportFire {
 
@@ -67,29 +68,29 @@ class ExportFire {
 	 * Fire an export now.
 	 *
 	 * @param array<string, mixed> $export The export as stored.
-	 * @param FireTrigger          $by     The schedule or a user's "Run now".
+	 * @param FireTrigger          $trigger     The schedule or a user's "Run now".
 	 *
 	 * @return array<string, mixed> The run-row.
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
-	public function fire(array $export, FireTrigger $by): array {
+	public function fire(array $export, FireTrigger $trigger): array {
 		$now = $this->support->time->now();
 		if ($this->inProgress(exportId: (string)($export['id'] ?? '')) === true) {
-			$run = $this->log->skipped(export: $export, by: $by, status: 'partial', reason: self::REASON_OVERLAP);
-			$this->finish(export: $export, run: $run, by: $by);
+			$run = $this->log->skipped(export: $export, trigger: $trigger, status: 'partial', reason: self::REASON_OVERLAP);
+			$this->finish(export: $export, run: $run, trigger: $trigger);
 			return $run;
 		}
 
 		$creator = $this->support->users->get((string)($export['createdBy'] ?? ''));
 		if ($creator === null || $creator->isEnabled() === false) {
-			$run = $this->log->skipped(export: $export, by: $by, status: 'failed', reason: self::REASON_CREATOR_DISABLED);
+			$run = $this->log->skipped(export: $export, trigger: $trigger, status: 'failed', reason: self::REASON_CREATOR_DISABLED);
 			$this->support->notifier->failed(export: $export + ['creatorEnabled' => false], reason: self::REASON_CREATOR_DISABLED);
-			$this->finish(export: $export, run: $run, by: $by);
+			$this->finish(export: $export, run: $run, trigger: $trigger);
 			return $run;
 		}
 
-		$run    = $this->log->start(export: $export, by: $by);
+		$run    = $this->log->start(export: $export, trigger: $trigger);
 		$secret = $this->exports->forDispatch(id: (string)($export['id'] ?? '')) ?? $export;
 
 		$artefacts  = [];
@@ -109,8 +110,8 @@ class ExportFire {
 			$artefacts = array_merge($artefacts, array_map(static fn (RenderResult $r): array => $r->toAudit(), $rendered));
 			$done      = $deliveries;
 			$context   = new DeliveryContext(export: $secret, artefacts: $rendered, now: $now);
-			$progress  = function (array $so) use ($run, $done, $artefacts): void {
-				$this->log->update(run: $run + ['renderArtefacts' => $artefacts, 'deliveries' => array_merge($done, $so)]);
+			$progress  = function (array $sent) use ($run, $done, $artefacts): void {
+				$this->log->update(run: $run + ['renderArtefacts' => $artefacts, 'deliveries' => array_merge($done, $sent)]);
 			};
 			$sent      = $this->dispatch->dispatch(context: $context, recipients: $group['recipients'], afterEach: $progress);
 			foreach ($sent as $delivery) {
@@ -120,7 +121,7 @@ class ExportFire {
 
 		$run = $this->log->record(run: $run, artefacts: $artefacts, deliveries: $deliveries);
 		$this->notifyPermanent(export: $export, deliveries: $deliveries);
-		$this->finish(export: $export, run: $run, by: $by);
+		$this->finish(export: $export, run: $run, trigger: $trigger);
 
 		return $run;
 	}//end fire()
@@ -136,7 +137,7 @@ class ExportFire {
 		$now      = $this->support->time->now();
 		$attempts = 0;
 		foreach ($this->log->allRuns() as $run) {
-			$isDue = fn ($d): bool => is_array($d) === true && $this->support->retry->isDue(delivery: $d, now: $now);
+			$isDue = fn ($delivery): bool => is_array($delivery) === true && $this->support->retry->isDue(delivery: $delivery, now: $now);
 			$due   = array_filter((array)($run['deliveries'] ?? []), $isDue);
 			if ($due === []) {
 				continue;
@@ -354,13 +355,13 @@ class ExportFire {
 	 *
 	 * @param array<string, mixed> $export The export.
 	 * @param array<string, mixed> $run    The run-row.
-	 * @param FireTrigger          $by     The trigger.
+	 * @param FireTrigger          $trigger     The trigger.
 	 *
 	 * @return void
 	 */
-	private function finish(array $export, array $run, FireTrigger $by): void {
+	private function finish(array $export, array $run, FireTrigger $trigger): void {
 		$fields = ['lastRunAt' => (string)($run['startedAt'] ?? ''), 'lastRunStatus' => (string)($run['status'] ?? 'failed')];
-		if ($by->isScheduled() === true) {
+		if ($trigger->isScheduled() === true) {
 			try {
 				$fields['nextRunAt'] = $this->exports->nextRunAfter(export: $export, after: $this->support->time->now());
 			} catch (Throwable) {

@@ -41,6 +41,8 @@ use Throwable;
  * Visibility, validation, scheduling and secret handling of exports.
  *
  * @spec openspec/changes/scheduled-exports/tasks.md#task-3
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Validation and secret sealing of one export document.
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)     save() merges, validates, seals and reschedules in one pass.
  */
 class ScheduledExportService {
 
@@ -411,11 +413,10 @@ class ScheduledExportService {
 				}
 
 				if ($config[$key] === self::REDACTED) {
+					unset($config[$key]);
 					$previous = $stored[$index]['channelConfig'][$key] ?? null;
 					if (is_string($previous) === true) {
 						$config[$key] = $previous;
-					} else {
-						unset($config[$key]);
 					}
 
 					continue;

@@ -59,14 +59,14 @@ class AuditLog {
 	 * Open the row of a fire, `running`, before anything is rendered.
 	 *
 	 * @param array<string, mixed> $export The export being fired.
-	 * @param FireTrigger          $by     Who or what fired it.
+	 * @param FireTrigger          $trigger     Who or what fired it.
 	 *
 	 * @return array<string, mixed> The saved row.
 	 *
 	 * @spec openspec/changes/scheduled-exports/tasks.md#task-7
 	 */
-	public function start(array $export, FireTrigger $by): array {
-		$row = $this->fresh(export: $export, by: $by) + ['status' => 'running'];
+	public function start(array $export, FireTrigger $trigger): array {
+		$row = $this->fresh(export: $export, trigger: $trigger) + ['status' => 'running'];
 		return $this->store->save(schema: ExportObjectStore::SCHEMA_RUN, data: $row, system: true);
 	}//end start()
 
@@ -97,7 +97,7 @@ class AuditLog {
 	 * Write the row of a fire that was skipped without rendering (REQ-SCH-002).
 	 *
 	 * @param array<string, mixed> $export The export.
-	 * @param FireTrigger          $by     Who or what fired it.
+	 * @param FireTrigger          $trigger     Who or what fired it.
 	 * @param string               $status `partial` for an overlap, `failed` for a blocked creator.
 	 * @param string               $reason Why it was skipped.
 	 *
@@ -105,8 +105,8 @@ class AuditLog {
 	 *
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-002-background-runner-fires-schedules-without-an-active-browser-session
 	 */
-	public function skipped(array $export, FireTrigger $by, string $status, string $reason): array {
-		$row = $this->fresh(export: $export, by: $by) + [
+	public function skipped(array $export, FireTrigger $trigger, string $status, string $reason): array {
+		$row = $this->fresh(export: $export, trigger: $trigger) + [
 			'status' => $status,
 			'finishedAt' => $this->now(),
 			'skipReason' => $reason,
@@ -194,16 +194,16 @@ class AuditLog {
 	 * The fields every new row starts with.
 	 *
 	 * @param array<string, mixed> $export The export.
-	 * @param FireTrigger          $by     Who or what fired it.
+	 * @param FireTrigger          $trigger     Who or what fired it.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function fresh(array $export, FireTrigger $by): array {
+	private function fresh(array $export, FireTrigger $trigger): array {
 		return [
 			'exportId' => (string)($export['id'] ?? ''),
 			'startedAt' => $this->now(),
-			'triggeredBy' => $by->kind,
-			'triggeredByUser' => $by->userId,
+			'triggeredBy' => $trigger->kind,
+			'triggeredByUser' => $trigger->userId,
 			'correlationId' => $this->uuid(),
 		];
 	}//end fresh()

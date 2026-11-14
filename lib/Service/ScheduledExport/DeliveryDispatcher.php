@@ -43,6 +43,8 @@ use Throwable;
  * Sends artefacts to recipients.
  *
  * @spec openspec/changes/scheduled-exports/tasks.md#task-5
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Four channels and the vault route, each with its refusals.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   Mailer, HTTP, Files, SFTP and the vault are the channels themselves.
  */
 class DeliveryDispatcher {
 
@@ -53,13 +55,13 @@ class DeliveryDispatcher {
 	/**
 	 * Constructor.
 	 *
-	 * @param DeliveryChannels $nc    Mailer, HTTP, Files and config.
+	 * @param DeliveryChannels $services Mailer, HTTP, Files and config.
 	 * @param SftpUploader     $sftp  The SFTP channel.
 	 * @param ConnectorVault   $vault The credential vault route.
 	 * @param RetryHandler     $retry The retry policy.
 	 */
 	public function __construct(
-		private readonly DeliveryChannels $nc,
+		private readonly DeliveryChannels $services,
 		private readonly SftpUploader $sftp,
 		private readonly ConnectorVault $vault,
 		private readonly RetryHandler $retry,
@@ -187,22 +189,22 @@ class DeliveryDispatcher {
 		}
 
 		foreach ($addresses as $address) {
-			if ($this->nc->mailer->validateMailAddress($address) === false) {
+			if ($this->services->mailer->validateMailAddress($address) === false) {
 				throw new DeliveryException('Not a valid email address: ' . $address);
 			}
 		}
 
 		$name    = (string)($context->export['name'] ?? 'Scheduled export');
-		$message = $this->nc->mailer->createMessage();
+		$message = $this->services->mailer->createMessage();
 		$message->setTo($addresses);
 		$message->setSubject($name);
 		$message->setPlainBody((string)($context->export['description'] ?? $name));
 		$message->setAutoSubmitted('auto-generated');
 		foreach ($context->artefacts as $artefact) {
-			$message->attach($this->nc->mailer->createAttachment($artefact->content, $artefact->filename, $artefact->mimeType()));
+			$message->attach($this->services->mailer->createAttachment($artefact->content, $artefact->filename, $artefact->mimeType()));
 		}
 
-		$failed = $this->nc->mailer->send($message);
+		$failed = $this->services->mailer->send($message);
 		if ($failed !== []) {
 			throw new DeliveryException('The mailer refused: ' . implode(', ', $failed));
 		}
@@ -230,8 +232,8 @@ class DeliveryDispatcher {
 		}
 
 		try {
-			$folder = $this->nc->rootFolder->getUserFolder($owner);
-			$parts  = array_filter(explode('/', (string)($config['targetPath'] ?? 'Exports')), static fn (string $s): bool => $s !== '');
+			$folder = $this->services->rootFolder->getUserFolder($owner);
+			$parts  = array_filter(explode('/', (string)($config['targetPath'] ?? 'Exports')), static fn (string $part): bool => $part !== '');
 			foreach ($parts as $part) {
 				if ($part === '..') {
 					throw new DeliveryException('The target path may not contain ..');
@@ -277,7 +279,7 @@ class DeliveryDispatcher {
 
 		try {
 			$options  = ['body' => $payload['body'], 'headers' => $headers, 'timeout' => 30, 'http_errors' => false];
-			$response = $this->nc->http->newClient()->post($url, $options);
+			$response = $this->services->http->newClient()->post($url, $options);
 		} catch (Throwable) {
 			throw new DeliveryException('The webhook could not be reached');
 		}
@@ -434,6 +436,6 @@ class DeliveryDispatcher {
 	 * @return HostAllowList
 	 */
 	private function allowList(): HostAllowList {
-		return new HostAllowList(appConfig: $this->nc->appConfig, configKey: self::CONFIG_ALLOWED_HOSTS);
+		return new HostAllowList(appConfig: $this->services->appConfig, configKey: self::CONFIG_ALLOWED_HOSTS);
 	}//end allowList()
 }//end class

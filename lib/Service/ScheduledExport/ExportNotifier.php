@@ -67,7 +67,8 @@ class ExportNotifier {
 		$users = [];
 		$admin = $this->groups->get('admin');
 		if ($admin !== null) {
-			$users = array_map(static fn (IUser $u): string => $u->getUID(), array_filter($admin->getUsers(), static fn (IUser $u): bool => $u->isEnabled()));
+			$enabled = array_filter($admin->getUsers(), static fn (IUser $user): bool => $user->isEnabled());
+			$users   = array_map(static fn (IUser $user): string => $user->getUID(), $enabled);
 		}
 
 		$creator = (string)($export['createdBy'] ?? '');

@@ -36,6 +36,7 @@ use Throwable;
  * Purges expired artefacts and run-rows.
  *
  * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-007-retention-policy-enforced-by-janitor
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity) sweep() applies both retention periods to every row in one pass.
  */
 class RetentionJanitor {
 

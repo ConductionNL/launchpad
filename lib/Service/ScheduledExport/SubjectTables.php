@@ -138,7 +138,7 @@ class SubjectTables {
 		}
 
 		$headers = array_keys($headers);
-		$rows    = array_map(static fn (array $row): array => array_map(static fn (string $h): mixed => $row[$h] ?? null, $headers), $data);
+		$rows    = array_map(static fn (array $row): array => array_map(static fn (string $header): mixed => $row[$header] ?? null, $headers), $data);
 
 		return ['title' => $title, 'headers' => array_map('strval', $headers), 'rows' => $rows];
 	}//end table()

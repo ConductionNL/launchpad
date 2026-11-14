@@ -141,7 +141,7 @@ class SftpUploader {
 			throw new DeliveryException('SFTP needs a valid host');
 		}
 
-		$segments = array_values(array_filter(explode('/', (string)($config['remotePath'] ?? '')), static fn (string $s): bool => $s !== ''));
+		$segments = array_values(array_filter(explode('/', (string)($config['remotePath'] ?? '')), static fn (string $part): bool => $part !== ''));
 		if (in_array('..', $segments, true) === true) {
 			throw new DeliveryException('The SFTP remote path may not contain ..');
 		}

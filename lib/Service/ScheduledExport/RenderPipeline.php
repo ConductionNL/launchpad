@@ -47,13 +47,13 @@ class RenderPipeline {
 	 * @param SubjectTables    $tables  The subject's tabular data.
 	 * @param TabularWriter    $writer  CSV and XLSX.
 	 * @param HeadlessRenderer $browser PDF and PNG.
-	 * @param RenderServices   $nc      Files, URLs and the clock.
+	 * @param RenderServices   $services Files, URLs and the clock.
 	 */
 	public function __construct(
 		private readonly SubjectTables $tables,
 		private readonly TabularWriter $writer,
 		private readonly HeadlessRenderer $browser,
-		private readonly RenderServices $nc,
+		private readonly RenderServices $services,
 	) {
 	}//end __construct()
 
@@ -96,7 +96,7 @@ class RenderPipeline {
 	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-009-manual-run-now-and-preview-actions
 	 */
 	public function preview(array $export, array $filterContext): array {
-		$now     = $this->nc->time->now();
+		$now     = $this->services->time->now();
 		$tables  = null;
 		$results = [];
 		foreach ((array)($export['renderTargets'] ?? []) as $target) {
@@ -139,7 +139,7 @@ class RenderPipeline {
 	public function filename(string $pattern, array $export, string $format): string {
 		$name = strtr($pattern, [
 			'{name}' => (string)($export['name'] ?? 'export'),
-			'{date}' => $this->nc->time->now()->format('Y-m-d'),
+			'{date}' => $this->services->time->now()->format('Y-m-d'),
 			'{recipient}' => (string)($export['recipientLabel'] ?? ''),
 			'{ext}' => $format,
 		]);
@@ -169,7 +169,7 @@ class RenderPipeline {
 			$query['filters'] = (string)json_encode($filterContext);
 		}
 
-		return $this->nc->urls->linkToRouteAbsolute('launchpad.page.index') . '?' . http_build_query($query);
+		return $this->services->urls->linkToRouteAbsolute('launchpad.page.index') . '?' . http_build_query($query);
 	}//end pageUrl()
 
 	/**
@@ -183,7 +183,7 @@ class RenderPipeline {
 	 */
 	private function folder(array $export): Folder {
 		try {
-			$folder = $this->nc->rootFolder->getUserFolder((string)($export['createdBy'] ?? ''));
+			$folder = $this->services->rootFolder->getUserFolder((string)($export['createdBy'] ?? ''));
 			foreach (explode('/', self::EXPORT_FOLDER . '/' . (string)($export['id'] ?? 'unknown')) as $part) {
 				try {
 					$next = $folder->get($part);

@@ -136,7 +136,7 @@ class ExportFireTest extends TestCase {
 		$this->log->expects($this->exactly(2))->method('update');
 		$this->exports->expects($this->once())->method('recordFire')->with($this->anything(), ['lastRunAt' => '2026-11-16T09:00:00+01:00', 'lastRunStatus' => 'success', 'nextRunAt' => '2026-11-23T09:00:00+01:00']);
 
-		$run = $this->fire->fire(export: $this->export(), by: FireTrigger::schedule());
+		$run = $this->fire->fire(export: $this->export(), trigger: FireTrigger::schedule());
 
 		$this->assertSame([['gemeenteCode' => 'GM0355'], ['gemeenteCode' => 'GM0344']], $contexts);
 		$this->assertSame([[[0, 'sftp-1'], 'GM0355'], [[2], 'GM0344']], $batches);
@@ -162,7 +162,7 @@ class ExportFireTest extends TestCase {
 		$this->dispatch->method('dispatch')->willReturnCallback(static fn (DeliveryContext $c, array $r): array => array_map(static fn ($id): array => ['recipientId' => (string)$id, 'status' => 'success'], array_keys($r)));
 		$this->notifier->expects($this->once())->method('failed')->with($this->anything(), 'webhook: Unknown filter field: gemeenteCode');
 
-		$run = $this->fire->fire(export: $this->export(), by: FireTrigger::manual(userId: 'alice'));
+		$run = $this->fire->fire(export: $this->export(), trigger: FireTrigger::manual(userId: 'alice'));
 
 		$this->assertSame('partial', $run['status']);
 		$this->assertSame(['recipientId' => '2', 'channel' => 'webhook', 'attemptCount' => 0, 'status' => 'failed-permanent', 'error' => 'Unknown filter field: gemeenteCode'], $run['deliveries'][2]);
@@ -178,7 +178,7 @@ class ExportFireTest extends TestCase {
 		$this->exports->expects($this->never())->method('nextRunAfter');
 		$this->exports->expects($this->once())->method('recordFire')->with($this->anything(), ['lastRunAt' => '2026-11-16T09:00:00+01:00', 'lastRunStatus' => 'failed']);
 
-		$this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'alice'], by: FireTrigger::manual(userId: 'alice'));
+		$this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'alice'], trigger: FireTrigger::manual(userId: 'alice'));
 	}//end testManualRunKeepsTheSchedule()
 
 	/**
@@ -195,8 +195,8 @@ class ExportFireTest extends TestCase {
 		$this->log->expects($this->once())->method('start');
 		$this->render->expects($this->never())->method('render');
 
-		$this->assertSame('partial', $this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'alice'], by: FireTrigger::schedule())['status']);
-		$this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'alice'], by: FireTrigger::schedule());
+		$this->assertSame('partial', $this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'alice'], trigger: FireTrigger::schedule())['status']);
+		$this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'alice'], trigger: FireTrigger::schedule());
 	}//end testOverlapIsSkipped()
 
 	/**
@@ -210,7 +210,7 @@ class ExportFireTest extends TestCase {
 		$this->exports->expects($this->once())->method('recordFire')->with($this->anything(), ['lastRunAt' => 'T', 'lastRunStatus' => 'failed', 'nextRunAt' => '2026-11-23T09:00:00+01:00']);
 		$this->render->expects($this->never())->method('render');
 
-		$this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'mallory'], by: FireTrigger::schedule());
+		$this->fire->fire(export: ['id' => 'e1', 'createdBy' => 'mallory'], trigger: FireTrigger::schedule());
 	}//end testDisabledCreatorIsSkipped()
 
 	/**

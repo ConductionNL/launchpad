@@ -77,7 +77,7 @@ class AuditLogTest extends TestCase {
 			'status' => 'running',
 		], true)->willReturnArgument(1);
 
-		$this->log->start(export: ['id' => 'e1'], by: FireTrigger::manual(userId: 'alice'));
+		$this->log->start(export: ['id' => 'e1'], trigger: FireTrigger::manual(userId: 'alice'));
 	}//end testStartOpensARunningRow()
 
 	/**
@@ -109,7 +109,7 @@ class AuditLogTest extends TestCase {
 	 */
 	public function testSkippedRecordsTheReason(): void {
 		$this->store->method('save')->willReturnArgument(1);
-		$row = $this->log->skipped(export: ['id' => 'e1'], by: FireTrigger::schedule(), status: 'partial', reason: 'The previous run is still running.');
+		$row = $this->log->skipped(export: ['id' => 'e1'], trigger: FireTrigger::schedule(), status: 'partial', reason: 'The previous run is still running.');
 
 		$this->assertSame('partial', $row['status']);
 		$this->assertSame('schedule', $row['triggeredBy']);

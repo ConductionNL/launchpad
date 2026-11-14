@@ -52,6 +52,9 @@ use RuntimeException;
  * Scheduled exports over HTTP.
  *
  * @spec openspec/changes/scheduled-exports/tasks.md#task-10
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)   One action per documented route (tasks.md task 10).
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The route surface spans exports, runs, run now and preview.
+ * @SuppressWarnings(PHPMD.StaticAccess)           FireTrigger::manual() is the named constructor of the value.
  */
 class ScheduledExportController extends Controller {
 
@@ -191,7 +194,7 @@ class ScheduledExportController extends Controller {
 		$refusal = $this->guard->actionRefusal(action: 'scheduled-exports.run');
 		return $this->guarded(refusal: $refusal, work: function (string $uid) use ($id): JSONResponse {
 			$export = $this->exports->findOne(id: $id, userId: $uid);
-			return new JSONResponse($this->fire->fire(export: $export, by: FireTrigger::manual(userId: $uid)), Http::STATUS_CREATED);
+			return new JSONResponse($this->fire->fire(export: $export, trigger: FireTrigger::manual(userId: $uid)), Http::STATUS_CREATED);
 		});
 	}//end run()
 

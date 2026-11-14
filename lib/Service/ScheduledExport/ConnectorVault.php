@@ -35,6 +35,7 @@ use Throwable;
  * Sends a request through a connector source.
  *
  * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-010-header-signing-and-credential-vaulting
+ * @SuppressWarnings(PHPMD.StaticAccess) FleetAppId resolves the connector app under either of its names.
  */
 class ConnectorVault {
 

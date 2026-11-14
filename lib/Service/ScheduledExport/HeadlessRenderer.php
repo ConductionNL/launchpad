@@ -84,8 +84,11 @@ class HeadlessRenderer {
 		stream_get_contents($pipes[1]);
 		stream_get_contents($pipes[2]);
 		$exit  = proc_close($process);
-		$bytes = (string)@file_get_contents($out);
-		@unlink($out);
+		$bytes = '';
+		if (is_file($out) === true) {
+			$bytes = (string)file_get_contents($out);
+			unlink($out);
+		}
 
 		if ($exit !== 0 || $bytes === '') {
 			throw new RenderException('The headless browser failed to render the ' . strtoupper($format));
@@ -115,11 +118,12 @@ class HeadlessRenderer {
 			$command[] = '--window-size=' . $width . ',' . $height;
 			$command[] = '--force-device-scale-factor=' . rtrim(rtrim(number_format($scale, 2, '.', ''), '0'), '.');
 			$command[] = '--screenshot=' . $request['out'];
-		} else {
-			$command[] = '--no-pdf-header-footer';
-			$command[] = '--print-to-pdf=' . $request['out'];
+			$command[] = (string)$request['url'];
+			return $command;
 		}
 
+		$command[] = '--no-pdf-header-footer';
+		$command[] = '--print-to-pdf=' . $request['out'];
 		$command[] = (string)$request['url'];
 		return $command;
 	}//end command()

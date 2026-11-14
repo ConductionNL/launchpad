@@ -39,6 +39,7 @@ use Throwable;
  *
  * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $argument required by TimedJob interface.
  * @spec                                          openspec/changes/scheduled-exports/tasks.md#task-8
+ * @SuppressWarnings(PHPMD.StaticAccess) FireTrigger::schedule() is the named constructor of the value.
  */
 class ScheduledExportRunner extends TimedJob {
 
@@ -72,7 +73,7 @@ class ScheduledExportRunner extends TimedJob {
 	protected function run($argument): void {
 		foreach ($this->exports->due(now: $this->time->now()) as $export) {
 			try {
-				$this->fire->fire(export: $export, by: FireTrigger::schedule());
+				$this->fire->fire(export: $export, trigger: FireTrigger::schedule());
 			} catch (Throwable $e) {
 				$this->logger->error(
 					message: 'launchpad scheduled export ' . (string)($export['id'] ?? '') . ' failed: ' . $e->getMessage(),

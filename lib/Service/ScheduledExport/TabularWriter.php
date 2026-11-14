@@ -96,14 +96,16 @@ class TabularWriter {
 			foreach ($tables as $table) {
 				$sheets[] = ['name' => $table['title'], 'rows' => array_merge([$table['headers']], $table['rows'])];
 			}
-		} else {
-			$rows = [];
-			foreach ($tables as $table) {
-				$rows = array_merge($rows, [[$table['title']], $table['headers']], $table['rows'], [[]]);
-			}
 
-			$sheets[] = ['name' => 'Data', 'rows' => $rows];
+			return $this->package(sheets: $this->uniqueNames(sheets: $sheets));
 		}
+
+		$rows = [];
+		foreach ($tables as $table) {
+			$rows = array_merge($rows, [[$table['title']], $table['headers']], $table['rows'], [[]]);
+		}
+
+		$sheets[] = ['name' => 'Data', 'rows' => $rows];
 
 		return $this->package(sheets: $this->uniqueNames(sheets: $sheets));
 	}//end xlsx()
@@ -124,8 +126,8 @@ class TabularWriter {
 			throw new RenderException('The workbook could not be written');
 		}
 
-		$ns        = 'http://schemas.openxmlformats.org/';
-		$rel       = $ns . 'officeDocument/2006/relationships';
+		$base        = 'http://schemas.openxmlformats.org/';
+		$rel       = $base . 'officeDocument/2006/relationships';
 		$head      = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 		$overrides = '';
 		$entries   = '';
@@ -139,23 +141,23 @@ class TabularWriter {
 			$zip->addFromString('xl/' . $part, $this->sheetXml(rows: $sheet['rows']));
 		}
 
-		$types = '<Types xmlns="' . $ns . 'package/2006/content-types">'
+		$types = '<Types xmlns="' . $base . 'package/2006/content-types">'
 			. '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
 			. '<Default Extension="xml" ContentType="application/xml"/>'
 			. '<Override PartName="/xl/workbook.xml" ContentType="' . self::MIME_WORKBOOK . '"/>' . $overrides . '</Types>';
 		$zip->addFromString('[Content_Types].xml', $head . $types);
 		$zip->addFromString(
 			'_rels/.rels',
-			$head . '<Relationships xmlns="' . $ns . 'package/2006/relationships">'
+			$head . '<Relationships xmlns="' . $base . 'package/2006/relationships">'
 				. '<Relationship Id="rId1" Type="' . $rel . '/officeDocument" Target="xl/workbook.xml"/></Relationships>'
 		);
 		$zip->addFromString(
 			'xl/workbook.xml',
-			$head . '<workbook xmlns="' . $ns . 'spreadsheetml/2006/main" xmlns:r="' . $rel . '"><sheets>' . $entries . '</sheets></workbook>'
+			$head . '<workbook xmlns="' . $base . 'spreadsheetml/2006/main" xmlns:r="' . $rel . '"><sheets>' . $entries . '</sheets></workbook>'
 		);
 		$zip->addFromString(
 			'xl/_rels/workbook.xml.rels',
-			$head . '<Relationships xmlns="' . $ns . 'package/2006/relationships">' . $rels . '</Relationships>'
+			$head . '<Relationships xmlns="' . $base . 'package/2006/relationships">' . $rels . '</Relationships>'
 		);
 		$zip->close();
 

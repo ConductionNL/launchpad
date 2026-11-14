@@ -96,6 +96,10 @@
             "description": "Controller for dashboard editing-lock endpoints (REQ-LOCK-001..008)."
         },
         {
+            "name": "dashboard-presence-api",
+            "description": "Controller for who is editing a dashboard (building-edit-a-dashboard-together)."
+        },
+        {
             "name": "dashboard-metadata",
             "description": "Dashboard metadata read/write controller."
         },
@@ -4723,6 +4727,85 @@
                         "content": {
                             "application/json": {
                                 "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/dashboards/{uuid}/presence": {
+            "post": {
+                "operationId": "dashboard-presence-api-join",
+                "x-launchpad-stability": "internal",
+                "summary": "Announce or renew the caller's editing of a dashboard",
+                "description": "Announce or renew the caller's editing of a dashboard and answer the colleagues editing it, each with display name and start time (building-edit-a-dashboard-together). Needs edit rights on the dashboard and a signed-in Nextcloud user.",
+                "tags": [
+                    "dashboard-presence-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "dashboard-presence-api-leave",
+                "x-launchpad-stability": "internal",
+                "summary": "Withdraw the caller from a dashboard's editors",
+                "description": "Withdraw the caller from a dashboard's editors. Idempotent. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "dashboard-presence-api"
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The dashboard UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
                             }
                         }
                     },

@@ -179,6 +179,11 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 		['name' => 'dashboardLockApi#get', 'url' => '/api/dashboards/{uuid}/lock', 'verb' => 'GET',
 		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		// Who edits a dashboard right now (building-edit-a-dashboard-together 1.1).
+		['name' => 'dashboardPresenceApi#join', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'POST',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
+		['name' => 'dashboardPresenceApi#leave', 'url' => '/api/dashboards/{uuid}/presence', 'verb' => 'DELETE',
+		 'requirements' => ['uuid' => '[A-Za-z0-9\-]+']],
 
 		// Public-share management endpoints (REQ-PSHR-001..003). Owner-or-admin.
 		// Registered BEFORE the wildcard `{id}` personal-scope routes above so the

@@ -37,6 +37,8 @@
     "dashboard-lock.release": ["admin", "@all"],
     "dashboard-lock.force-release": ["admin"],
     "dashboard-lock.get": ["admin", "@all"],
+    "dashboard-presence.join": ["admin", "@all"],
+    "dashboard-presence.leave": ["admin", "@all"],
     "dashboard-metadata.get-metadata": ["admin", "@all"],
     "dashboard-metadata.set-metadata": ["admin"],
     "dashboard-reaction.get-reactions": ["admin", "@all"],

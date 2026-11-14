@@ -12,11 +12,11 @@
 
 ## 2. The report library
 
-- [ ] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas.
-- [ ] 2.2 Ship a first set of definitions with the app and list them in a gallery.
-- [ ] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
-- [ ] 2.4 Save a result as an ordinary dashboard owned by the saver.
-- [ ] 2.5 PHPUnit on the availability check and on save-as-dashboard.
+- [x] 2.1 Define the report definition shape: id, title, description, aggregation, parameters, rendering, required registers and schemas. `Reporting\ReportDefinitions::check()`.
+- [ ] 2.2 Ship a first set of definitions with the app and list them in a gallery. Shipped: `lib/Settings/reports.json` (three reports) and the gallery data at `GET /api/reports`. Left: the gallery screen over that endpoint.
+- [x] 2.3 List a report whose registers or schemas are missing as unavailable, naming them.
+- [x] 2.4 Save a result as an ordinary dashboard owned by the saver. `POST /api/reports/{reportId}/dashboard`: a dashboard of the caller holding one chart of the result.
+- [x] 2.5 PHPUnit on the availability check and on save-as-dashboard.
 
 ## 3. The status report
 

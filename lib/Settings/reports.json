@@ -1,0 +1,43 @@
+{
+    "_comment": [
+        "The reports launchpad ships (dashboards-and-who-may-see-them REQ-DWMS-003).",
+        "Definitions, not dashboards: versioned with the app and never edited in place.",
+        "Each names the registers and schemas it reads; one the instance lacks is listed as unavailable with those names.",
+        "aggregation.kind is one of ReportDefinitions::KINDS: count-by (rows per value of a property) or area (AreaAggregation)."
+    ],
+    "reports": [
+        {
+            "id": "open-cases-by-handler",
+            "title": "Open cases by handler",
+            "description": "How many cases that have not reached a final status each handler holds.",
+            "source": {"register": "dossiq", "schema": "case"},
+            "filters": {"isFinalStatus": false},
+            "aggregation": {"kind": "count-by", "property": "assignee", "emptyLabel": "Unassigned"},
+            "parameters": [],
+            "rendering": {"widget": "chart", "chartKind": "bar"}
+        },
+        {
+            "id": "cases-per-area",
+            "title": "Cases per area",
+            "description": "Cases started in a period per area, with the share of each and the cases without a location counted apart.",
+            "source": {"register": "dossiq", "schema": "case"},
+            "filters": {},
+            "aggregation": {"kind": "area", "property": "district", "dateProperty": "startDate"},
+            "parameters": [
+                {"name": "from", "type": "date", "default": null},
+                {"name": "until", "type": "date", "default": null}
+            ],
+            "rendering": {"widget": "chart", "chartKind": "bar"}
+        },
+        {
+            "id": "dashboards-by-type",
+            "title": "Dashboards by type",
+            "description": "How many dashboards of each type this instance holds.",
+            "source": {"register": "launchpad", "schema": "dashboard"},
+            "filters": {},
+            "aggregation": {"kind": "count-by", "property": "type", "emptyLabel": "No type"},
+            "parameters": [],
+            "rendering": {"widget": "chart", "chartKind": "donut"}
+        }
+    ]
+}

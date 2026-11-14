@@ -19,18 +19,18 @@ namespace Unit\Migration;
 
 use OCP\DB\Schema\IColumn;
 use OCP\DB\Schema\ITable;
-use OCA\LaunchPad\Migration\Version002013Date20261114090000;
+use OCA\LaunchPad\Migration\Version002014Date20261114100000;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \OCA\LaunchPad\Migration\Version002013Date20261114090000
+ * @covers \OCA\LaunchPad\Migration\Version002014Date20261114100000
  *
  * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
  */
-class Version002013Date20261114090000Test extends TestCase {
+class Version002014Date20261114100000Test extends TestCase {
 
 	/**
 	 * Run the migration over a schema whose dashboards table has or lacks the column.
@@ -55,7 +55,7 @@ class Version002013Date20261114090000Test extends TestCase {
 		$schema->method('hasTable')->with('launchpad_dashboards')->willReturn($hasTable);
 		$schema->method('getTable')->willReturn($table);
 
-		return (new Version002013Date20261114090000())->changeSchema(
+		return (new Version002014Date20261114100000())->changeSchema(
 			$this->createMock(IOutput::class),
 			static fn () => $schema,
 			[]

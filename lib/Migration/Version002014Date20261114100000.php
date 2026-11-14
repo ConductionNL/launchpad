@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Version002013Date20261114090000
+ * Version002014Date20261114100000
  *
  * Adds `default_link_target` to `launchpad_dashboards`: how a tile on the
  * dashboard opens when the tile has no choice of its own (`same-tab`,
@@ -38,7 +38,7 @@ use OCP\Migration\SimpleMigrationStep;
  *
  * @spec openspec/changes/launcher-tile-open-behaviour/specs/tiles/spec.md
  */
-class Version002013Date20261114090000 extends SimpleMigrationStep {
+class Version002014Date20261114100000 extends SimpleMigrationStep {
 	/**
 	 * Add the nullable column when it is not already there.
 	 *

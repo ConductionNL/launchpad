@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filtrér disse resultater",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",

@@ -1640,7 +1640,18 @@ OC.L10N.register(
     "Statistics" : "Statistieken",
     "Count my visits" : "Mijn bezoeken meetellen",
     "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Als dit uit staat, tellen je bezoeken aan dashboards en je klikken op tegels niet mee in de bezoekcijfers.",
-    "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen."
+    "Your choice could not be saved." : "Je keuze kon niet worden opgeslagen.",
+    "Sort tiles" : "Tegels sorteren",
+    "By hand" : "Handmatig",
+    "Alphabetically" : "Alfabetisch",
+    "Most used" : "Meest gebruikt",
+    "Last used" : "Laatst gebruikt",
+    "At random" : "Willekeurig",
+    "Forget my usage" : "Mijn gebruik vergeten",
+    "Sorted alphabetically" : "Alfabetisch gesorteerd",
+    "Sorted by most used" : "Gesorteerd op meest gebruikt",
+    "Sorted by last used" : "Gesorteerd op laatst gebruikt",
+    "Sorted at random" : "Willekeurig gesorteerd"
 },
 "nplurals=2; plural=(n != 1);"
 );

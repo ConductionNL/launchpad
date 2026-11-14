@@ -777,6 +777,11 @@
                   "type": "string",
                   "format": "date-time"
                 },
+                "artefactIndexes": {
+                  "type": "array",
+                  "items": {"type": "integer", "minimum": 0},
+                  "description": "Which renderArtefacts this recipient was sent, so a retry resends the same files."
+                },
                 "providerMessageId": {
                   "type": "string"
                 },

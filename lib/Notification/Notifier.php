@@ -140,6 +140,10 @@ class Notifier implements INotifier {
 			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
 		}
 
+		if ($notification->getSubject() === 'scheduled_export_failed') {
+			return $this->buildDashboardUrl(objectId: '');
+		}
+
 		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
 	}//end linkFor()
 
@@ -161,6 +165,7 @@ class Notifier implements INotifier {
 			'dashboard_shared' => $this->sharedCopy(params: $params, l: $l),
 			'dashboard_ownership_transferred' => $this->transferredCopy(params: $params, l: $l),
 			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
+			'scheduled_export_failed' => $this->exportFailedCopy(params: $params, l: $l),
 			default => throw new UnknownNotificationException(
 				message: 'Unknown subject: ' . $notification->getSubject()
 			),
@@ -256,6 +261,28 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end resyncedCopy()
+
+	/**
+	 * Copy for a scheduled export that failed for good (scheduled-exports
+	 * REQ-SCH-002, REQ-SCH-006): parameters are the export name and the reason.
+	 *
+	 * @param array<int, string> $params The export name and the reason.
+	 * @param IL10N              $l      The translator.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/scheduled-exports/specs/scheduled-exports/spec.md#requirement-req-sch-006-retry-with-exponential-backoff-and-dead-letter
+	 */
+	private function exportFailedCopy(array $params, IL10N $l): NotificationCopy {
+		$name = [($params[0] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('The scheduled export **%1$s** failed', $name);
+		$copy->parsedSubject = $l->t('The scheduled export %1$s failed', $name);
+		$copy->message       = (string)($params[1] ?? '');
+
+		return $copy;
+	}//end exportFailedCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

@@ -97,6 +97,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 		<!-- widgets-people-expertise-and-fields REQ-PEX-001/004: daily LDAP and profile mirror sync. -->
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
+		<!-- scheduled-exports REQ-SCH-002/006: due fires and due retries, every minute. -->
+		<job>OCA\LaunchPad\BackgroundJob\ScheduledExportRunner</job>
+		<!-- scheduled-exports REQ-SCH-007: artefact and run-row retention, hourly. -->
+		<job>OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor</job>
 	</background-jobs>
 
 	<repair-steps>

@@ -9,13 +9,13 @@
 - [x] Task 3: Implement `ScheduledExportService` with methods: `findVisible($userId)`, `findOne($id, $userId)`, `save($export)`, `delete($id, $userId)`, `setEnabled($id, $enabled)` — delegate object CRUD to OpenRegister `ObjectService`, not custom Entity/Mapper
 - [x] Task 4: Implement `RenderPipeline` service class with method `render($export, $filterContext): RenderResult[]` handling PDF (headless Chromium, A4 portrait/landscape), PNG (viewport size, DPI), CSV (tabular data extraction), XLSX (per-widget sheets); returns array of `{format, sizeBytes, sha256, storagePath}`
 - [x] Task 5: Implement `DeliveryDispatcher` service class with method `dispatch($export, $artefacts, $recipients): DeliveryResult[]` handling email (Nextcloud mailer), nextcloudFiles (Files API), webhook (signed POST), SFTP (phpseclib) — each delivery attempt writes immediately to audit row
-- [ ] Task 6: Implement `RetryHandler` service class with methods `scheduleRetry($deliveryId, $retryPolicy)` and `retryDelivery($deliveryId): DeliveryResult` — exponential backoff with jitter, cap at `maxBackoffSeconds`, mark permanent-failed after `maxAttempts`
+- [x] Task 6: Implement `RetryHandler` service class with methods `scheduleRetry($deliveryId, $retryPolicy)` and `retryDelivery($deliveryId): DeliveryResult` — exponential backoff with jitter, cap at `maxBackoffSeconds`, mark permanent-failed after `maxAttempts`
 - [x] Task 7: Implement `AuditLog` service class persisting `scheduled_export_run` rows via OpenRegister `ObjectService` with `renderArtefacts` array (format, sha256, path) and `deliveries` array (recipientId, channel, attemptCount, status, error)
 
 ### Background Jobs
 
-- [ ] Task 8: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportRunner` registered at one-minute granularity; fetch all enabled exports with `nextRunAt <= now()`, check for overlapping previous run (skip if running), invoke render → dispatch → audit, recompute `nextRunAt`, handle disabled creator with admin notification
-- [ ] Task 9: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor` registered at one-hour granularity; delete `renderArtefacts` files after `retention.keepArtefactsForDays` (null = forever), null out `storagePath` in run-rows, delete entire run-rows after `retention.keepAuditForDays` via OpenRegister retention hooks
+- [x] Task 8: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportRunner` registered at one-minute granularity; fetch all enabled exports with `nextRunAt <= now()`, check for overlapping previous run (skip if running), invoke render → dispatch → audit, recompute `nextRunAt`, handle disabled creator with admin notification
+- [x] Task 9: Implement `OCA\LaunchPad\BackgroundJob\ScheduledExportJanitor` registered at one-hour granularity; delete `renderArtefacts` files after `retention.keepArtefactsForDays` (null = forever), null out `storagePath` in run-rows, delete entire run-rows after `retention.keepAuditForDays` via OpenRegister retention hooks
 
 ### Controller & Routes
 
@@ -51,8 +51,8 @@
 - [x] Task 22: PHPUnit — `RenderPipeline` mocking Chromium renderer, testing all four formats (PDF page size/orientation, PNG viewport DPI, CSV headers/rows, XLSX per-widget sheets)
 - [x] Task 23: PHPUnit — `DeliveryDispatcher` mocking email/Files/webhook/SFTP channels, verifying signed webhook headers, redacted SFTP password responses, per-recipient filter context applied
 - [x] Task 24: PHPUnit — `RetryHandler` exponential backoff timing, max-attempts rollover to permanent-failed, jitter application
-- [ ] Task 25: PHPUnit — `ScheduledExportRunner` background job behavior: fires enabled exports with `nextRunAt <= now()`, skips overlapping previous run, marks disabled creator as failed with admin notification, recomputes `nextRunAt` post-fire
-- [ ] Task 26: PHPUnit — `ScheduledExportJanitor` retention enforcement: deletes artefacts after `keepArtefactsForDays`, deletes run-rows after `keepAuditForDays`, handles null (forever) retention
+- [x] Task 25: PHPUnit — `ScheduledExportRunner` background job behavior: fires enabled exports with `nextRunAt <= now()`, skips overlapping previous run, marks disabled creator as failed with admin notification, recomputes `nextRunAt` post-fire
+- [x] Task 26: PHPUnit — `ScheduledExportJanitor` retention enforcement: deletes artefacts after `keepArtefactsForDays`, deletes run-rows after `keepAuditForDays`, handles null (forever) retention
 - [ ] Task 27: Playwright — full workflow: create export with weekly recurrence → save → manual "Run now" → check run-row appears in history → preview render (PDF) → edit export → toggle enabled off → verify next fire is skipped
 - [ ] Task 28: Playwright — filter context workflow: create export with two recipients (gemeente A, gemeente B) with distinct `filterContext` → manual run → verify two renders in audit row → verify each recipient gets its filtered version
 - [ ] Task 29: Playwright — failure + retry: create webhook recipient with bad URL → manual run → verify delivery marked failed → click "Retry" → verify retry scheduled → advance time → verify successful delivery on retry

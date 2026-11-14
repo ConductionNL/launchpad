@@ -128,6 +128,20 @@ class ReportLibrary {
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function saveAsDashboard(string $id, array $parameters, string $userId): Dashboard {
+		return $this->dashboardFor(run: $this->runnable(id: $id, parameters: $parameters), userId: $userId);
+	}//end saveAsDashboard()
+
+	/**
+	 * A successful run of a report.
+	 *
+	 * @param string               $id         The report id.
+	 * @param array<string, mixed> $parameters The parameter values.
+	 *
+	 * @return array<string, mixed> The run.
+	 *
+	 * @throws InvalidArgumentException When the report is unknown or cannot run here.
+	 */
+	private function runnable(string $id, array $parameters): array {
 		$run = $this->run(id: $id, parameters: $parameters);
 		if ($run === null) {
 			throw new InvalidArgumentException("There is no report {$id}.");
@@ -137,6 +151,18 @@ class ReportLibrary {
 			throw new InvalidArgumentException("Report {$id} cannot run here: missing " . implode(', ', $run['missing']) . '.');
 		}
 
+		return $run;
+	}//end runnable()
+
+	/**
+	 * Create the dashboard a saved run shows: one chart of its result.
+	 *
+	 * @param array<string, mixed> $run    A successful run.
+	 * @param string               $userId The saver, who owns the dashboard.
+	 *
+	 * @return Dashboard The new dashboard.
+	 */
+	private function dashboardFor(array $run, string $userId): Dashboard {
 		$dashboard = $this->dashboards->createDashboard(userId: $userId, name: $run['title'], options: ['description' => $run['description']]);
 		$this->placements->addWidget(
 			dashboardId: (int)$dashboard->getId(),
@@ -145,7 +171,7 @@ class ReportLibrary {
 		);
 
 		return $dashboard;
-	}//end saveAsDashboard()
+	}//end dashboardFor()
 
 	/**
 	 * The chart a saved report shows: the result as series and categories, and where it came from.
@@ -202,36 +228,50 @@ class ReportLibrary {
 	private function aggregate(array $definition, array $rows, array $values): array {
 		$aggregation = $definition['aggregation'];
 		if ($aggregation['kind'] === 'area') {
-			$areas = $this->areas->aggregate(
-				rows: $rows,
-				areaProperty: $aggregation['property'],
-				dateProperty: ($aggregation['dateProperty'] ?? null),
-				from: $this->date(value: ($values['from'] ?? null)),
-				until: $this->date(value: ($values['until'] ?? null))
-			);
-			$groups = array_map(
-				static fn (array $area): array => ['label' => $area['area'], 'count' => $area['count'], 'rate' => $area['rate']],
-				$areas['areas']
-			);
-			$groups[] = ['label' => AreaAggregation::NO_LOCATION, 'count' => $areas['noLocation']['count'], 'rate' => $areas['noLocation']['rate']];
-
-			return ['total' => $areas['total'], 'groups' => $groups];
+			$period = ['from' => $this->date(value: ($values['from'] ?? null)), 'until' => $this->date(value: ($values['until'] ?? null))];
+			return $this->areaGroups(rows: $rows, aggregation: $aggregation + $period);
 		}
 
-		return $this->countBy(rows: $rows, property: $aggregation['property'], emptyLabel: (string)($aggregation['emptyLabel'] ?? '-'));
+		return $this->countBy(rows: $rows, aggregation: $aggregation);
 	}//end aggregate()
+
+	/**
+	 * The `area` aggregation as groups: one per area, then the rows without one.
+	 *
+	 * @param list<array<string, mixed>> $rows        The source rows.
+	 * @param array<string, mixed>       $aggregation The aggregation, with the period's `from` and `until`.
+	 *
+	 * @return array{total: int, groups: list<array<string, mixed>>}
+	 */
+	private function areaGroups(array $rows, array $aggregation): array {
+		$areas = $this->areas->aggregate(
+			rows: $rows,
+			areaProperty: $aggregation['property'],
+			dateProperty: ($aggregation['dateProperty'] ?? null),
+			from: $aggregation['from'],
+			until: $aggregation['until']
+		);
+		$groups = array_map(
+			static fn (array $area): array => ['label' => $area['area'], 'count' => $area['count'], 'rate' => $area['rate']],
+			$areas['areas']
+		);
+		$groups[] = ['label' => AreaAggregation::NO_LOCATION, 'count' => $areas['noLocation']['count'], 'rate' => $areas['noLocation']['rate']];
+
+		return ['total' => $areas['total'], 'groups' => $groups];
+	}//end areaGroups()
 
 	/**
 	 * Rows per value of one property, the largest group first.
 	 *
-	 * @param list<array<string, mixed>> $rows       The rows.
-	 * @param string                     $property   The property.
-	 * @param string                     $emptyLabel The label for rows without a value.
+	 * @param list<array<string, mixed>> $rows        The rows.
+	 * @param array<string, mixed>       $aggregation The aggregation: its `property`, and `emptyLabel` for rows without a value.
 	 *
 	 * @return array{total: int, groups: list<array{label: string, count: int}>}
 	 */
-	private function countBy(array $rows, string $property, string $emptyLabel): array {
-		$counts = [];
+	private function countBy(array $rows, array $aggregation): array {
+		$property   = $aggregation['property'];
+		$emptyLabel = (string)($aggregation['emptyLabel'] ?? '-');
+		$counts     = [];
 		foreach ($rows as $row) {
 			$value = ($row[$property] ?? null);
 			$label = $emptyLabel;

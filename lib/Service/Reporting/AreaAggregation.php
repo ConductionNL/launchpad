@@ -62,16 +62,31 @@ class AreaAggregation {
 		?DateTimeImmutable $from=null,
 		?DateTimeImmutable $until=null
 	): array {
+		return $this->countAreas(
+			rows: $rows,
+			query: ['area' => $areaProperty, 'date' => $dateProperty, 'from' => $from, 'until' => $until]
+		);
+	}//end aggregate()
+
+	/**
+	 * Count rows per area for one query; see {@see self::aggregate()}.
+	 *
+	 * @param array<int, array<string, mixed>>                                                         $rows  The objects, as arrays.
+	 * @param array{area: string, date: ?string, from: ?DateTimeImmutable, until: ?DateTimeImmutable} $query The area property and the period.
+	 *
+	 * @return array{total: int, areas: list<array{area: string, count: int, rate: float}>, noLocation: array{count: int, rate: float}}
+	 */
+	private function countAreas(array $rows, array $query): array {
 		$counts = [];
 		$noLocation = 0;
 		$total = 0;
 		foreach ($rows as $row) {
-			if (is_array($row) === false || $this->inPeriod(row: $row, dateProperty: $dateProperty, from: $from, until: $until) === false) {
+			if (is_array($row) === false || $this->inPeriod(row: $row, query: $query) === false) {
 				continue;
 			}
 
 			$total++;
-			$area = $this->areaOf(row: $row, areaProperty: $areaProperty);
+			$area = $this->areaOf(row: $row, areaProperty: $query['area']);
 			if ($area === null) {
 				$noLocation++;
 				continue;
@@ -91,7 +106,7 @@ class AreaAggregation {
 			'areas'      => $areas,
 			'noLocation' => ['count' => $noLocation, 'rate' => $this->rate(count: $noLocation, total: $total)],
 		];
-	}//end aggregate()
+	}//end countAreas()
 
 	/**
 	 * The area of one row, or null when it has none.
@@ -122,19 +137,19 @@ class AreaAggregation {
 	/**
 	 * Whether a row falls in the period; a row without a readable date falls outside a bounded one.
 	 *
-	 * @param array<string, mixed>   $row          The object.
-	 * @param string|null            $dateProperty The date property.
-	 * @param DateTimeImmutable|null $from         Inclusive start.
-	 * @param DateTimeImmutable|null $until        Exclusive end.
+	 * @param array<string, mixed>                                                                     $row   The object.
+	 * @param array{area: string, date: ?string, from: ?DateTimeImmutable, until: ?DateTimeImmutable} $query The period.
 	 *
 	 * @return bool
 	 */
-	private function inPeriod(array $row, ?string $dateProperty, ?DateTimeImmutable $from, ?DateTimeImmutable $until): bool {
-		if ($dateProperty === null || ($from === null && $until === null)) {
+	private function inPeriod(array $row, array $query): bool {
+		$from  = $query['from'];
+		$until = $query['until'];
+		if ($query['date'] === null || ($from === null && $until === null)) {
 			return true;
 		}
 
-		$raw = $this->read(row: $row, path: $dateProperty);
+		$raw = $this->read(row: $row, path: $query['date']);
 		if (is_string($raw) === false || trim($raw) === '') {
 			return false;
 		}

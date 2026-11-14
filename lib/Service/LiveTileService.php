@@ -168,6 +168,13 @@ class LiveTileService {
 	private ?ICache $cache = null;
 
 	/**
+	 * Maps a source node onto a list, table or key-value display.
+	 *
+	 * @var LiveTileListMapper
+	 */
+	private readonly LiveTileListMapper $lists;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ReadingSources          $sources The app manager, container, HTTP client service and cache factory.
@@ -184,6 +191,7 @@ class LiveTileService {
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly ?ConnectionReporter $connectionReporter = null,
 	) {
+		$this->lists = new LiveTileListMapper();
 	}//end __construct()
 
 	/**
@@ -226,7 +234,7 @@ class LiveTileService {
 			return $this->publicShape(reading: $cached, config: $config, stale: false);
 		}
 
-		$fresh = $this->fetchFresh(config: $config);
+		$fresh = $this->mapped(reading: $this->fetchFresh(config: $config), config: $config);
 		if ($fresh === null) {
 			return $this->staleOrEmpty(cached: $cached, config: $config);
 		}
@@ -236,6 +244,35 @@ class LiveTileService {
 
 		return $this->publicShape(reading: $fresh, config: $config, stale: false);
 	}//end valueFor()
+
+	/**
+	 * A reading in the shape that is cached: for a list, table or key-value
+	 * tile only the mapped fields, so the raw response is neither cached nor
+	 * sent to the browser (REQ-LTC-002). A single-value tile is unchanged.
+	 *
+	 * @param array<string,mixed>|null $reading The fresh reading, or null when the fetch failed.
+	 * @param array<string,mixed>      $config  The tile config.
+	 *
+	 * @return array<string,mixed>|null The reading to cache, or null when it does not fit the display.
+	 *
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 */
+	private function mapped(?array $reading, array $config): ?array {
+		if ($reading === null || $this->lists->displayOf(config: $config) === 'value') {
+			return $reading;
+		}
+
+		$mapped = $this->lists->map(
+			node: ($reading['rawValue'] ?? null),
+			config: $config,
+			extract: fn (mixed $item, string $expr): mixed => $this->extractValue(data: $item, expr: $expr)
+		);
+		if ($mapped === null) {
+			return null;
+		}
+
+		return ['rawValue' => null, 'mapped' => $mapped];
+	}//end mapped()
 
 	/**
 	 * The tile's effective refresh interval in seconds.
@@ -312,10 +349,13 @@ class LiveTileService {
 		}
 
 		if ($sourceMode === 'url') {
-			return $this->urlConfigErrors(url: trim(string: (string)($config['url'] ?? '')));
+			$errors = $this->urlConfigErrors(url: trim(string: (string)($config['url'] ?? '')));
+		} else {
+			$errors = $this->connectorConfigErrors(config: $config);
 		}
 
-		return $this->connectorConfigErrors(config: $config);
+		// REQ-LTC-001: the display, mapping and limit, checked for both modes.
+		return array_merge($errors, $this->lists->configErrors(config: $config));
 	}//end validateSourceConfig()
 
 	/**
@@ -920,8 +960,29 @@ class LiveTileService {
 			'badge' => $badge,
 			'fetchedAt' => (new DateTime('@' . $fetchedAtTs))->format(format: DATE_ATOM),
 			'stale' => $stale,
-		];
+		] + $this->displayPart(reading: $reading, config: $config);
 	}//end publicShape()
+
+	/**
+	 * The display and its mapped rows or pairs, for a list, table or
+	 * key-value tile; nothing for a single-value tile. Only the mapped data,
+	 * never the raw node (REQ-LTC-001).
+	 *
+	 * @param array<string,mixed> $reading The internal reading.
+	 * @param array<string,mixed> $config  The placement's resolved config.
+	 *
+	 * @return array<string,mixed>
+	 *
+	 * @spec openspec/changes/integrations-live-tile-lists/specs/live-data-tile-widget/spec.md#requirement-mapping-happens-on-the-server-and-drops-unmapped-data-req-ltc-002
+	 */
+	private function displayPart(array $reading, array $config): array {
+		$display = $this->lists->displayOf(config: $config);
+		if ($display === 'value') {
+			return [];
+		}
+
+		return ['display' => $display] + (array)($reading['mapped'] ?? []);
+	}//end displayPart()
 
 	/**
 	 * Build the value cache key — placement id + a hash of the resolved

@@ -76,18 +76,28 @@ class ObjectRows {
 	 * @spec openspec/changes/dashboards-and-who-may-see-them/specs/dashboards-and-who-may-see-them/spec.md#requirement-req-dwms-003-reports-the-product-ships
 	 */
 	public function rows(string $register, string $schema, array $filters=[], int $limit=self::MAX_ROWS): ?array {
-		$service = $this->service();
+		$query = array_merge(
+			$filters,
+			['@self' => ['register' => $register, 'schema' => $schema], '_limit' => max(1, min($limit, self::MAX_ROWS))]
+		);
+
+		return $this->search(query: $query);
+	}//end rows()
+
+	/**
+	 * Run one search and turn the found objects into arrays; see {@see self::rows()}.
+	 *
+	 * @param array<string, mixed> $query The search query, with `@self` naming the register and schema.
+	 *
+	 * @return list<array<string, mixed>>|null
+	 */
+	private function search(array $query): ?array {
+		$register = $query['@self']['register'];
+		$schema   = $query['@self']['schema'];
+		$service  = $this->service();
 		if ($service === null || $register === '' || $schema === '') {
 			return null;
 		}
-
-		$query = array_merge(
-			$filters,
-			[
-				'@self'  => ['register' => $register, 'schema' => $schema],
-				'_limit' => max(1, min($limit, self::MAX_ROWS)),
-			]
-		);
 
 		try {
 			$found = $service->searchObjects(query: $query);
@@ -112,7 +122,7 @@ class ObjectRows {
 		}
 
 		return $rows;
-	}//end rows()
+	}//end search()
 
 	/**
 	 * Whether OpenRegister's object service is installed.

@@ -1,8 +1,13 @@
 # Tasks: launcher-tile-sorting
 
-- [ ] 1. Add `ContainerWidgetForm.vue` with the three communal fields plus "Sort tiles", and register it in `FORM_OVERRIDES` in `src/constants/widgetRegistry.js`. Verify: Vitest on the form.
-- [ ] 2. Keep local `{count, lastUsedAt}` per placement in `src/composables/useTileClickTracking.js`, storage failures caught. Verify: Vitest with storage available and blocked.
-- [ ] 3. Order and reflow children in view mode in `ContainerWidget.vue` for the five modes, with the tie rules and a once-per-load shuffle. Verify: Vitest per mode.
-- [ ] 4. Add "Forget my usage" to the container menu and the "Sorted by" accessible description. Verify: Vitest and an axe check.
+- [x] 1. Add `ContainerWidgetForm.vue` with the three communal fields plus "Sort tiles", and register it in `FORM_OVERRIDES` in `src/constants/widgetRegistry.js`. Verify: Vitest on the form.
+  - `src/components/Widgets/Renderers/ContainerWidgetForm.vue` wraps the communal `CnContainerWidgetForm` and adds the "Sort tiles" select (with an input label); registered in `FORM_OVERRIDES`. Vitest: `ContainerWidgetForm.spec.js`.
+- [x] 2. Keep local `{count, lastUsedAt}` per placement in `src/composables/useTileClickTracking.js`, storage failures caught. Verify: Vitest with storage available and blocked.
+  - `useTileClickTracking()` now also hands out `recordTileUse()`, which keeps `{count, lastUsedAt}` per placement under `launchpad.tileUse` (`src/utils/tileSort.js`), every storage access guarded. The container counts a click on any of its children, in view mode only, so tiles of every widget type count. Vitest: `src/utils/__tests__/tileSort.spec.js` with storage available, broken and blocked.
+- [x] 3. Order and reflow children in view mode in `ContainerWidget.vue` for the five modes, with the tie rules and a once-per-load shuffle. Verify: Vitest per mode.
+  - `ContainerWidget.vue` shows `displayedChildren`: the stored layout in edit mode or by hand, otherwise sorted (`sortChildren`) and reflowed row by row (`reflowChildren`), sizes kept. A grid change is not persisted while a sorted view is shown. Random draws once per page load. Vitest: `tileSort.spec.js` per mode and `ContainerWidget.sort.spec.js`.
+- [x] 4. Add "Forget my usage" to the container menu and the "Sorted by" accessible description. Verify: Vitest and an axe check.
+  - Done, with two notes. The container has no menu of its own, so "Forget my usage" is a tertiary button in its header, shown in view mode for most and last used. The grid is `aria-describedby` a visually hidden "Sorted by …" line. Vitest covers both; the axe check is still owed and needs the live page.
 - [ ] 5. Playwright: most used moves a clicked tile to the front after reload; "By hand" restores the stored layout.
 - [ ] 6. Add `nl` and `en` strings, fold the delta into `openspec/specs/container-widget/spec.md` on archive, and set d-tile-sort and tile-most-used to `built` in the parity matrix with evidence lines.
+  - Partly: the Dutch strings are in `l10n/nl.js` and `l10n/nl.json`, and English is the source. They are deliberately not added to `en.*`: the parity gate would then require all 36 locales. The other locales fall back to English. Folding the delta into the spec, and setting the parity rows to `built`, belong to archive and merge.

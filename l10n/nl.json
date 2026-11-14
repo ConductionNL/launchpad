@@ -1649,6 +1649,17 @@
         "Adapter": "Adapter",
         "Source template": "Bronsjabloon",
         "Configuration template": "Configuratiesjabloon",
-        "Agent template": "Agentsjabloon"
+        "Agent template": "Agentsjabloon",
+        "Sort tiles": "Tegels sorteren",
+        "By hand": "Handmatig",
+        "Alphabetically": "Alfabetisch",
+        "Most used": "Meest gebruikt",
+        "Last used": "Laatst gebruikt",
+        "At random": "Willekeurig",
+        "Forget my usage": "Mijn gebruik vergeten",
+        "Sorted alphabetically": "Alfabetisch gesorteerd",
+        "Sorted by most used": "Gesorteerd op meest gebruikt",
+        "Sorted by last used": "Gesorteerd op laatst gebruikt",
+        "Sorted at random": "Willekeurig gesorteerd"
     }
 }

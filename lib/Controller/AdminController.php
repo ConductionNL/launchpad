@@ -435,6 +435,8 @@ class AdminController extends Controller {
 	 * @param int|null $defaultGridColumns Alias of `$defaultGridCols`.
 	 * @param array|null $linkCreateFileExtensions Alias of `$linkCreateFileExts`.
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
+	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
+	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
 	 * @param array|null $pinnedCommunities Talk conversation tokens pinned as the organisation's
 	 *                                      communities, at most 20 (REQ-COMM-003).
 	 *
@@ -460,6 +462,8 @@ class AdminController extends Controller {
 		bool|null $allowMultipleDashboards = null,
 		int|null $defaultGridColumns = null,
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
+		array|null $tileAllowedSchemes = null,
+		array|null $ssoLaunchTemplates = null,
 		array|null $pinnedCommunities = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
@@ -484,6 +488,8 @@ class AdminController extends Controller {
 					'maxWidgetsPerDashboard'      => $maxWidgetsPerDashboard,
 					'quicksearchFallbackTarget'   => $quicksearchFallbackTarget,
 					'startPageWithoutNavigation'  => $startPageWithoutNavigation,
+					'tileAllowedSchemes'          => $tileAllowedSchemes,
+					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
 					'pinnedCommunities'           => $pinnedCommunities,
 				]
 			);

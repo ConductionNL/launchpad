@@ -1295,6 +1295,7 @@ OC.L10N.register(
     "The template \"{name}\" could not be downloaded." : "The template \"{name}\" could not be downloaded.",
     "First today" : "First today",
     "Checking your apps…" : "Checking your apps…",
+    "Filter these results" : "Filter these results",
     "This list could not be loaded. Reload the page to try again." : "This list could not be loaded. Reload the page to try again.",
     "And {count} more." : "And {count} more.",
     "Nothing needs your attention right now." : "Nothing needs your attention right now.",
@@ -1368,7 +1369,11 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Chattà sin quest server",
     "Apps this server runs for you. One click places one as a tile." : "Apps che quest server exequescha per Vus. In clic fa ina plattina.",
-    "On this dashboard" : "Sin quest dashboard"
+    "On this dashboard" : "Sin quest dashboard",
+    "Statistics" : "Statisticas",
+    "Count my visits" : "Dumbrar mias visitas",
+    "When this is off, your dashboard visits and tile clicks are left out of the view counts." : "Sche quai è deactivà, na vegnan tias visitas da dashboards ed tes clics sin plattinas betg dumbrads en las cifras da visitas.",
+    "Your choice could not be saved." : "Tia tscherna n'ha betg pudì vegnir memorisada."
 },
 "nplurals=2; plural=(n != 1);"
 );

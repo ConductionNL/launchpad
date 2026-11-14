@@ -75,6 +75,7 @@ import ClockWidgetForm from '../components/Widgets/Renderers/ClockWidgetForm.vue
 import CommunitiesWidget from '../components/Widgets/Renderers/CommunitiesWidget.vue'
 import CommunitiesWidgetForm from '../components/Widgets/Renderers/CommunitiesWidgetForm.vue'
 import ContainerWidget from '../components/Widgets/Renderers/ContainerWidget.vue'
+import ContainerWidgetForm from '../components/Widgets/Renderers/ContainerWidgetForm.vue'
 // `iframe` — embeds an admin-allow-listed external URL in a sandboxed
 // frame, with a client-side graceful-degradation fallback for targets that
 // refuse framing (REQ-IFRAME-001..004, openspec/specs/iframe-embed-widget).
@@ -137,6 +138,8 @@ const FORM_OVERRIDES = {
 	people: PeopleForm,
 	'spend-analytics': SpendAnalyticsForm,
 	'nc-widget': NcDashboardForm,
+	// launcher-tile-sorting: the communal fields plus "Sort tiles".
+	container: ContainerWidgetForm,
 }
 
 // The shared bundle (beta.155) exports CnNcWidgetWidget but its self-

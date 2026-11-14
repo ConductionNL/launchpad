@@ -254,3 +254,58 @@ describe('DashboardSharingPolicy', () => {
 		expect(logger.error).toHaveBeenCalledWith('Failed to save sharing policy:', expect.any(Error))
 	})
 })
+
+describe('DashboardSharingPolicy sharing limits (REQ-SHARE-014)', () => {
+	const scope = (wrapper) => wrapper.find('[data-test="sharing-policy-recipient-scope"]').findComponent(SelectStub)
+	const allowed = (wrapper) => wrapper.find('[data-test="sharing-policy-allowed-groups"]').findComponent(TagsStub)
+
+	it('loads the allowed groups and the recipient scope', async () => {
+		api.getAdminSettings.mockResolvedValue({
+			data: { sharingAllowedGroups: ['communicatie'], sharingRecipientScope: 'shared-groups' },
+		})
+		const wrapper = mountWith(DashboardSharingPolicy, { groups: ['communicatie', 'staff'] })
+		await flushPromises()
+
+		expect(wrapper.vm.allowedGroups).toEqual(['communicatie'])
+		expect(wrapper.vm.recipientScope).toEqual({ id: 'shared-groups', label: 'Only people who share a group with the sharer' })
+	})
+
+	it('reads missing or unknown values as everyone may share with anyone', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: { sharingAllowedGroups: 'x', sharingRecipientScope: 'odd' } })
+		const wrapper = mountWith(DashboardSharingPolicy)
+		await flushPromises()
+
+		expect(wrapper.vm.allowedGroups).toEqual([])
+		expect(wrapper.vm.recipientScope.id).toBe('everyone')
+	})
+
+	it('saves only the two limits when either changes', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: {} })
+		const wrapper = mountWith(DashboardSharingPolicy, { groups: ['a', 'b'] })
+		await flushPromises()
+		api.updateAdminSettings.mockClear()
+
+		wrapper.vm.allowedGroups = ['a']
+		allowed(wrapper).vm.$emit('update:modelValue', ['a'])
+		await flushPromises()
+		wrapper.vm.recipientScope = wrapper.vm.scopeOptions[1]
+		scope(wrapper).vm.$emit('update:modelValue', wrapper.vm.scopeOptions[1])
+		await flushPromises()
+
+		expect(api.updateAdminSettings.mock.calls).toEqual([
+			[{ sharingAllowedGroups: ['a'], sharingRecipientScope: 'everyone' }],
+			[{ sharingAllowedGroups: ['a'], sharingRecipientScope: 'shared-groups' }],
+		])
+	})
+
+	it('logs a failed save of the limits', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: {} })
+		api.updateAdminSettings.mockRejectedValue(new Error('x'))
+		const wrapper = mountWith(DashboardSharingPolicy)
+		await flushPromises()
+
+		await wrapper.vm.saveLimits()
+		expect(logger.error).toHaveBeenCalledWith('Failed to save sharing limits:', expect.any(Error))
+	})
+})
+

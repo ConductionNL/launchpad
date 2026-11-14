@@ -109,6 +109,54 @@ class McpDashboardTools {
 			return McpArgumentValidator::error(code: 'not_found', message: 'No dashboard with that UUID is visible to you.');
 		}
 
+		return $this->getEnvelope(result: $result, userId: $userId);
+	}//end getDashboard()
+
+	/**
+	 * The caller's active dashboard: the one the app opens on, with its
+	 * placements, the caller's permission level and, when someone else owns
+	 * it, who. Same service call and action as `GET /api/dashboard`.
+	 *
+	 * @param array<string, mixed> $args The tool arguments (none).
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	public function getActiveDashboard(array $args): array {
+		$refusal = $this->gate->requireAction(action: 'dashboard.get-active');
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$userId = $this->gate->currentUserId();
+		$result = $this->dashboards->getEffectiveDashboard(userId: $userId);
+		if ($result === null) {
+			return McpArgumentValidator::error(code: 'not_found', message: 'You have no dashboard yet.');
+		}
+
+		$owner = $result['dashboard']->getUserId();
+		$shape = $this->getEnvelope(result: $result, userId: $userId);
+
+		$shape['sharedBy'] = null;
+		if ($owner !== $userId) {
+			$shape['sharedBy'] = $owner;
+		}
+
+		return $shape;
+	}//end getActiveDashboard()
+
+	/**
+	 * A dashboard, its placements, the permission level and ownership, as the tools return them.
+	 *
+	 * @param array<string, mixed> $result The service's dashboard, placements and permission level.
+	 * @param string               $userId The caller.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/mcp-tool-surface/specs/mcp-tools/spec.md
+	 */
+	private function getEnvelope(array $result, string $userId): array {
 		$placements = [];
 		foreach ($result['placements'] as $placement) {
 			$placements[] = $placement->jsonSerialize();
@@ -120,7 +168,7 @@ class McpDashboardTools {
 			'permissionLevel' => $result['permissionLevel'],
 			'isOwner' => ($result['dashboard']->getUserId() === $userId),
 		];
-	}//end getDashboard()
+	}//end getEnvelope()
 
 	/**
 	 * The group-shared dashboards of a group the caller belongs to, as viewers see them.

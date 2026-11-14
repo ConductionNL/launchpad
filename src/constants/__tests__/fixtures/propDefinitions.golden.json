@@ -98,6 +98,13 @@
 		"validator": false,
 		"default": ""
 	},
+	"../../components/RuntimeShellSearch.vue | shortcuts": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
 	"../../components/TileWidget.vue | tile": {
 		"type": "Object",
 		"required": true,

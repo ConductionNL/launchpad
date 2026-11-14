@@ -2391,6 +2391,9 @@
                                     "startPageWithoutNavigation": {
                                         "type": "boolean",
                                         "description": "Dashboard view without the navigation panel (REQ-SHELL-009)."
+                                    },
+                                    "searchShortcuts": {
+                                        "description": "The quick-search prefix shortcuts, `[{prefix, name, urlTemplate}]` (REQ-SPX-001)."
                                     }
                                 },
                                 "additionalProperties": false
@@ -6861,7 +6864,8 @@
                     "401": {
                         "$ref": "#/components/responses/Problem401"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             },
             "put": {
                 "operationId": "analytics-opt-out-update",
@@ -6924,7 +6928,8 @@
                     "403": {
                         "$ref": "#/components/responses/Problem403"
                     }
-                }
+                },
+                "x-launchpad-stability": "internal"
             }
         },
         "/profile-fields/definitions": {

@@ -437,6 +437,7 @@ class AdminController extends Controller {
 	 * @param bool|null $startPageWithoutNavigation Dashboard view without the navigation panel (REQ-SHELL-009).
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
+	 * @param array|null $searchShortcuts The quick-search prefix shortcuts, `[{prefix, name, urlTemplate}]` (REQ-SPX-001).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -462,6 +463,7 @@ class AdminController extends Controller {
 		array|null $linkCreateFileExtensions = null, bool|null $startPageWithoutNavigation = null,
 		array|null $tileAllowedSchemes = null,
 		array|null $ssoLaunchTemplates = null,
+		array|null $searchShortcuts = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -470,9 +472,15 @@ class AdminController extends Controller {
 		$defaultGridCols ??= $defaultGridColumns;
 		$linkCreateFileExts ??= $linkCreateFileExtensions;
 
+		$extra = [];
+		if ($searchShortcuts !== null) {
+			// Search-ai-prefix-shortcuts REQ-SPX-001: only when supplied.
+			$extra['searchShortcuts'] = $searchShortcuts;
+		}
+
 		try {
 			$this->settings->settingsService->updateSettings(
-				settings: [
+				settings: $extra + [
 					'defaultPermLevel'            => $defaultPermLevel,
 					'allowUserDash'               => $allowUserDash,
 					'allowMultiDash'              => $allowMultiDash,

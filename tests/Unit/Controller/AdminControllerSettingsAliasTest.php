@@ -225,6 +225,21 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	}//end testStartPageWithoutNavigationIsPassedThrough()
 
 	/**
+	 * search-ai-prefix-shortcuts REQ-SPX-001: the shortcut list reaches the
+	 * service, and only when it was sent.
+	 *
+	 * @return void
+	 */
+	public function testSearchShortcutsArePassedThroughOnlyWhenSent(): void {
+		$list = [['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://t.example/?q={query}']];
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->callback(static fn (array $settings): bool => count($settings) === 15 && $settings['searchShortcuts'] === $list));
+
+		$this->controller->updateSettings(searchShortcuts: $list);
+	}//end testSearchShortcutsArePassedThroughOnlyWhenSent()
+
+	/**
 	 * Launcher-tile-launch-types: the program schemes and SSO launch templates reach the service under their own names.
 	 *
 	 * @return void

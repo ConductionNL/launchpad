@@ -360,6 +360,25 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Set the admin's quick-search prefix shortcuts (workspace).
+	 *
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: the JS
+	 * reader defaults to no shortcuts, so a server that has not called this
+	 * setter still renders (search-ai-prefix-shortcuts REQ-SPX-001). The list
+	 * reaches the page here so a keystroke needs no extra request (design D1).
+	 *
+	 * @param array<int, array{prefix: string, name: string, urlTemplate: string}> $shortcuts The validated list.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/search-ai-prefix-shortcuts/specs/tile-quick-search/spec.md#requirement-administrators-define-search-shortcuts-req-spx-001
+	 */
+	public function setSearchShortcuts(array $shortcuts): self {
+		$this->values['searchShortcuts'] = array_values($shortcuts);
+		return $this;
+	}//end setSearchShortcuts()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.

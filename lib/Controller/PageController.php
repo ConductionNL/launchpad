@@ -190,6 +190,7 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setSearchShortcuts($this->settings->adminSettingsService->getSearchShortcuts())
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass

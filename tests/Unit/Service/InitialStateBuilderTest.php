@@ -105,6 +105,7 @@ class InitialStateBuilderTest extends TestCase {
 			->setAllowUserDashboards(true)
 			->setAllowedWidgets(null)
 			->setStartPageWithoutNavigation(true)
+			->setSearchShortcuts([3 => ['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://t.example/?q={query}']])
 			->apply();
 
 		$this->assertSame($widgets, $sink['widgets']);
@@ -119,6 +120,8 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertTrue($sink['allowUserDashboards']);
 		// runtime-shell REQ-SHELL-009, an optional key: pushed when set.
 		$this->assertTrue($sink['startPageWithoutNavigation']);
+		// search-ai-prefix-shortcuts REQ-SPX-001, an optional key: pushed as a list when set.
+		$this->assertSame([['prefix' => '!t', 'name' => 'TOPdesk', 'urlTemplate' => 'https://t.example/?q={query}']], $sink['searchShortcuts']);
 	}
 
 	public function testAdminBuilderWritesEveryKeyWithCorrectValues(): void {

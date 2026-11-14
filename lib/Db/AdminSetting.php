@@ -240,6 +240,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_START_PAGE_WITHOUT_NAVIGATION = AdminSettingKey::START_PAGE_WITHOUT_NAVIGATION->value;
 
 	/**
+	 * BC alias for AdminSettingKey::SEARCH_SHORTCUTS (search-ai-prefix-shortcuts REQ-SPX-001).
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::SEARCH_SHORTCUTS
+	 */
+	public const KEY_SEARCH_SHORTCUTS = AdminSettingKey::SEARCH_SHORTCUTS->value;
+
+	/**
 	 * The setting key.
 	 *
 	 * @var string

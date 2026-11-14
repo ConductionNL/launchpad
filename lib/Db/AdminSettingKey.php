@@ -16,7 +16,7 @@
  *  - Footer:               FOOTER_ENABLED, FOOTER_HTML, FOOTER_CONFIG,
  *                          FOOTER_BACKGROUND_COLOR, FOOTER_TEXT_COLOR
  *  - Setup wizard:         SETUP_WIZARD_COMPLETE
- *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET (tile-quick-search)
+ *  - Quick search:         QUICKSEARCH_FALLBACK_TARGET, SEARCH_SHORTCUTS (tile-quick-search)
  *
  * @category Db
  * @package  OCA\LaunchPad\Db
@@ -64,4 +64,5 @@ enum AdminSettingKey: string {
 	case START_PAGE_WITHOUT_NAVIGATION = 'start_page_without_navigation';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
+	case SEARCH_SHORTCUTS = 'search_shortcuts';
 }//end enum

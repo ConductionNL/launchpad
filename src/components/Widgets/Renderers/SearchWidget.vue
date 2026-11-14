@@ -9,6 +9,7 @@
 			:items="searchableTiles"
 			:placeholder="content.placeholder || ''"
 			:fallbackTarget="effectiveFallbackTarget"
+			:shortcuts="injectedSearchShortcuts"
 			@open="onSearchOpen"
 			@filter="onSearchFilter"
 			@fallback="onSearchFallback"
@@ -64,6 +65,16 @@ export default {
 		injectedQuicksearchFallbackTarget: {
 			from: 'quicksearchFallbackTarget',
 			default: 'none',
+		},
+
+		/**
+		 * The admin's prefix shortcuts (search-ai-prefix-shortcuts
+		 * REQ-SPX-001). None by default, so a server without them searches
+		 * tiles exactly as before.
+		 */
+		injectedSearchShortcuts: {
+			from: 'searchShortcuts',
+			default: () => [],
 		},
 	},
 

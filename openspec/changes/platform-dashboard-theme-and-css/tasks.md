@@ -11,7 +11,7 @@
 
 - [x] 5. Add the "Look" tab to `src/modals/DashboardConfigModal.vue` with colour pickers, the resource picker and live contrast. Verify: Vitest and an axe check.
 - [x] 6. Apply the look and scoped CSS in `src/views/WorkspaceApp.vue` to the dashboard region only, inserting CSS as text. Verify: Vitest.
-- [ ] 7. Add the admin CSS section showing what the sanitiser dropped. Verify: Vitest.
+- [x] 7. Add the admin CSS section showing what the sanitiser dropped. Verify: Vitest.
 
 ## Close
 

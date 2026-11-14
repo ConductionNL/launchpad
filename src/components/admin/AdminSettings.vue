@@ -294,6 +294,11 @@
 					}}
 				</p>
 				</CnSettingsSection>
+
+				<!-- Administrator CSS, cleaned and scoped on save (REQ-THM-003). -->
+				<CnSettingsSection :name="t('launchpad', 'Custom CSS')">
+					<AdminCustomCss />
+				</CnSettingsSection>
 			</template>
 		</CnAdminSettingsShell>
 
@@ -318,6 +323,7 @@ import {
 } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import SetupWizardModal from '../../modals/SetupWizardModal.vue'
+import AdminCustomCss from './AdminCustomCss.vue'
 import MetadataFieldsSettings from './MetadataFieldsSettings.vue'
 import DemoDataTab from './tabs/DemoDataTab.vue'
 import GroupDashboardsTab from './tabs/GroupDashboardsTab.vue'
@@ -336,6 +342,7 @@ export default {
 	name: 'AdminSettings',
 
 	components: {
+		AdminCustomCss,
 		CnAdminSettingsShell,
 		CnSettingsSection,
 		NcButton,

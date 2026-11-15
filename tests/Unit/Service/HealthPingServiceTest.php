@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\PingSettings;
+use OCA\LaunchPad\Service\PingTransport;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\HealthPingService;
@@ -98,11 +100,15 @@ class HealthPingServiceTest extends TestCase {
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 
 		$this->service = new HealthPingService(
-			clientService: $this->clientService,
-			cacheFactory: $cacheFactory,
-			appConfig: $this->appConfig,
-			placementMapper: $this->placementMapper,
-			logger: $this->logger,
+			transport: new PingTransport(
+				clientService: $this->clientService,
+				cacheFactory: $cacheFactory
+			),
+			settings: new PingSettings(
+				appConfig: $this->appConfig,
+				logger: $this->logger
+			),
+			placementMapper: $this->placementMapper
 		);
 	}//end setUp()
 
@@ -314,11 +320,15 @@ class HealthPingServiceTest extends TestCase {
 		$this->appConfig->method('getValueString')->willReturn('');
 		$this->appConfig->method('getValueInt')->willReturn(HealthPingService::DEFAULT_LATENCY_THRESHOLD_MS);
 		$this->service = new HealthPingService(
-			clientService: $this->clientService,
-			cacheFactory: $cacheFactory,
-			appConfig: $this->appConfig,
-			placementMapper: $this->placementMapper,
-			logger: $this->logger,
+			transport: new PingTransport(
+				clientService: $this->clientService,
+				cacheFactory: $cacheFactory
+			),
+			settings: new PingSettings(
+				appConfig: $this->appConfig,
+				logger: $this->logger
+			),
+			placementMapper: $this->placementMapper
 		);
 
 		$client->expects($this->never())->method('get');
@@ -423,4 +433,25 @@ class HealthPingServiceTest extends TestCase {
 
 		$this->assertSame('not_configured', $result['error']);
 	}//end testPingDisabledPlacementReturnsNotConfiguredError()
+
+	/**
+	 * The ping is one GET with the service's timeouts, no redirects and no
+	 * throwing on an error status.
+	 *
+	 * @return void
+	 */
+	public function testPingRequestOptions(): void {
+		$this->allowHost(host: 'example.com', thresholdMs: 2000);
+		$placement = $this->placementWithConfig(id: 1, config: $this->baseConfig());
+		$this->placementMapper->method('find')->willReturn($placement);
+
+		$client = $this->createMock(originalClassName: IClient::class);
+		$client->expects($this->once())->method('get')->with(
+			$this->isType('string'),
+			['connect_timeout' => 5, 'timeout' => 10, 'http_errors' => false, 'allow_redirects' => false]
+		)->willReturn($this->mockHttpResponse(status: 200));
+		$this->clientService->method('newClient')->willReturn($client);
+
+		$this->service->resolveForPlacement(placementId: 1);
+	}//end testPingRequestOptions()
 }//end class

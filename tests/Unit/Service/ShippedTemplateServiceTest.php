@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
+use OCA\LaunchPad\Service\ShippedTemplateStore;
+use OCA\LaunchPad\Service\ShippedTemplatePlatform;
+use OCA\LaunchPad\Service\AdminTemplateStores;
 use InvalidArgumentException;
 use OCA\LaunchPad\Command\ExportCommand;
 use OCA\LaunchPad\Command\ImportCommand;
@@ -185,16 +188,22 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = new ShippedTemplateService(
 			importService: $instance['import'],
 			templateService: new AdminTemplateService(
-				dashboardMapper: $instance['dashboardMapper'],
-				placementMapper: $instance['placementMapper'],
+				stores: new AdminTemplateStores(
+					dashboardMapper: $instance['dashboardMapper'],
+					placementMapper: $instance['placementMapper']
+				),
 				settingsService: $this->createMock(AdminSettingsService::class),
 				groupManager: $groupManager,
-				userManager: $this->createMock(IUserManager::class),
+				userManager: $this->createMock(IUserManager::class)
 			),
-			dashboardMapper: $instance['dashboardMapper'],
-			appConfig: $appConfig,
-			dashboardMgr: $dashboardManager,
-			groupManager: $groupManager,
+			store: new ShippedTemplateStore(
+				dashboardMapper: $instance['dashboardMapper'],
+				appConfig: $appConfig
+			),
+			platform: new ShippedTemplatePlatform(
+				dashboardMgr: $dashboardManager,
+				groupManager: $groupManager
+			)
 		);
 		if ($dataDir !== null) {
 			$service->setDataDirForTesting(path: $dataDir);
@@ -294,7 +303,7 @@ class ShippedTemplateServiceTest extends TestCase {
 	public function testTheShippedTemplateSurvivesExportAndImport(): void {
 		$a = $this->makeInstance();
 		$service = $this->makeService($a);
-		$installed = $service->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers']);
+		$installed = $service->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers']]);
 		$onA = $a['export']->serializeDashboard(dashboard: $a['dashboards'][0]);
 		self::assertSame(['medewerkers'], $onA['targetGroups']);
 
@@ -333,7 +342,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		// The control: the comparison would also pass if both sides were
 		// empty, so pin that the compulsory flags really crossed.
 		self::assertSame(
-			[1, 1, 0, 0, 0, 0, 0],
+			[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
 			array_column(self::definitionOf($onB)['widgets'], 'isCompulsory')
 		);
 	}
@@ -346,7 +355,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = $this->makeService($instance);
 		$first = $service->install(templateId: 'mijn-werkdag');
 
-		$second = $service->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers'], makeDefault: true);
+		$second = $service->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers'], 'makeDefault' => true]);
 
 		self::assertTrue($second['alreadyInstalled']);
 		self::assertSame($first['uuid'], $second['uuid']);
@@ -363,12 +372,83 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = $this->makeService($instance);
 		$first = $service->install(templateId: 'mijn-werkdag');
 
-		$second = $service->install(templateId: 'mijn-werkdag', force: true);
+		$second = $service->install(templateId: 'mijn-werkdag', options: ['force' => true]);
 
 		self::assertFalse($second['alreadyInstalled']);
 		self::assertNotSame($first['uuid'], $second['uuid']);
 		self::assertCount(2, $instance['dashboards']);
 		self::assertSame($second['uuid'], $this->config['shipped_template_mijn-werkdag']);
+	}
+
+	/**
+	 * Run one install with named options.
+	 *
+	 * @param ShippedTemplateService $service The service.
+	 * @param array<string, mixed>   $options The install options.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function runInstall(ShippedTemplateService $service, array $options): array {
+		return $service->install(templateId: 'mijn-werkdag', options: $options);
+	}
+
+	/**
+	 * REQ-TMPL-018: a sequence of installs, each with its own options, pinned
+	 * step by step (result, stored rows, recorded config) against a fixture.
+	 */
+	public function testInstallSequenceMatchesTheRecordedFixture(): void {
+		$fixture = __DIR__ . '/fixtures/shipped-install.json';
+		$steps = [
+			'plain' => [],
+			'again with groups and default' => ['targetGroups' => ['medewerkers'], 'makeDefault' => true],
+			'again plain' => [],
+			'forced by a named user' => ['force' => true, 'userId' => 'alice'],
+			'forced with groups' => ['force' => true, 'targetGroups' => ['medewerkers']],
+			'unknown group' => ['targetGroups' => ['medewerkers', 'nobody']],
+			'default only' => ['makeDefault' => true],
+		];
+
+		$instance = $this->makeInstance();
+		$service = $this->makeService($instance);
+		$uuids = [];
+		$actual = [];
+		foreach ($steps as $name => $options) {
+			try {
+				$result = self::runInstall($service, $options);
+				$uuids[$result['uuid']] ??= 'uuid-' . count($uuids);
+				$result['uuid'] = $uuids[$result['uuid']];
+			} catch (InvalidArgumentException $e) {
+				$result = ['error' => $e->getMessage()];
+			}
+
+			$rows = [];
+			foreach ($instance['dashboards'] as $dashboard) {
+				$rows[] = [
+					'id' => $dashboard->getId(),
+					'name' => $dashboard->getName(),
+					'userId' => $dashboard->getUserId(),
+					'type' => $dashboard->getType(),
+					'targetGroups' => $dashboard->getTargetGroupsArray(),
+					'isDefault' => $dashboard->getIsDefault(),
+				];
+			}
+
+			$config = $this->config;
+			foreach ($config as $key => $value) {
+				if (is_string($value) === true && isset($uuids[$value]) === true) {
+					$config[$key] = $uuids[$value];
+				}
+			}
+
+			$actual[$name] = ['result' => $result, 'rows' => $rows, 'config' => $config];
+		}
+
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+			$this->markTestIncomplete('Fixture recorded.');
+		}
+
+		self::assertSame(json_decode((string)file_get_contents($fixture), true), $actual);
 	}
 
 	/**
@@ -394,7 +474,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		$service = $this->makeService($instance);
 
 		try {
-			$service->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkerz']);
+			$service->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkerz']]);
 			self::fail('an unknown group must throw');
 		} catch (InvalidArgumentException $e) {
 			self::assertStringContainsString('medewerkerz', $e->getMessage());
@@ -455,7 +535,7 @@ class ShippedTemplateServiceTest extends TestCase {
 		self::assertSame('mijn-werkdag', $listing[0]['id']);
 		self::assertSame('Mijn werkdag', $listing[0]['name']);
 		self::assertSame('nl', $listing[0]['language']);
-		self::assertSame(7, $listing[0]['widgetCount']);
+		self::assertSame(10, $listing[0]['widgetCount']);
 		self::assertSame(['dossiq', 'pipelinq', 'decidiq'], $listing[0]['registers']);
 		self::assertFalse($listing[0]['isInstalled']);
 		self::assertNull($listing[0]['installedVersion']);
@@ -519,14 +599,25 @@ class ShippedTemplateServiceTest extends TestCase {
 				if ($widget['widgetId'] === 'nc-widget') {
 					self::assertContains($content['widgetId'], $itemsApiWidgets, 'this widget cannot paint without the legacy bridge');
 				}
-				if ($widget['widgetId'] !== 'object-list') {
+				if ($widget['widgetId'] !== 'object-list' && $widget['widgetId'] !== 'stat') {
 					continue;
 				}
 
+				// A list names its register at the top of its content and
+				// shows columns; a number (the app tiles of Mijn werkdag 4)
+				// names it under `source` and only filters.
+				$title = (string)($widget['customTitle'] ?? $content['label'] ?? $widget['widgetId']);
+				$named = [];
+				if ($widget['widgetId'] === 'stat') {
+					$content = array_merge($content, (array)$content['source']);
+				} else {
+					$named = array_column($content['columns'], 'key');
+					$named[] = $content['sort']['field'];
+				}
+
+				$widget['customTitle'] = $title;
 				$key = $content['register'] . '/' . $content['schema'];
 				self::assertArrayHasKey($key, $schemas, 'no field list for ' . $key . ': add tests/fixtures/registers');
-				$named = array_column($content['columns'], 'key');
-				$named[] = $content['sort']['field'];
 				foreach (array_keys($content['filter']) as $filterKey) {
 					// `deadline[lt]` names the field `deadline`.
 					$named[] = preg_replace('/\[.*$/', '', (string)$filterKey);
@@ -556,7 +647,7 @@ class ShippedTemplateServiceTest extends TestCase {
 			}
 		}
 
-		self::assertSame(4, $listsChecked, 'two dossiq lists, the pipelinq list and the decidiq list');
+		self::assertSame(3, $listsChecked, 'the dossiq, pipelinq and decidiq tiles');
 	}
 
 	/**

@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\AdminTemplateStores;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
@@ -81,11 +82,13 @@ class AdminTemplateServiceTest extends TestCase {
 		$this->userManager = $this->createMock(IUserManager::class);
 
 		$this->service = new AdminTemplateService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
+			stores: new AdminTemplateStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper
+			),
 			settingsService: $this->settingsService,
 			groupManager: $this->groupManager,
-			userManager: $this->userManager,
+			userManager: $this->userManager
 		);
 	}//end setUp()
 

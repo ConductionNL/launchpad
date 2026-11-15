@@ -42,11 +42,9 @@ use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Db\CleanupResult;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
 use OCP\Activity\Exceptions\IncompleteActivityException;
-use OCP\Activity\IManager as IActivityManager;
 use OCP\ICache;
 use OCP\ICacheFactory;
 use OCP\IDBConnection;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
@@ -89,23 +87,15 @@ class OrphanedDataCleanupService {
 	 * Constructor.
 	 *
 	 * @param CategoryRegistryService $registry Category registry.
-	 * @param ICacheFactory $cacheFactory Distributed-cache
-	 *                                    factory.
-	 * @param IDBConnection $db DB connection
-	 *                          (for dry-run
-	 *                          transactions).
-	 * @param IActivityManager $activityManager Activity event
-	 *                                          publisher.
-	 * @param LoggerInterface $logger PSR-3 logger
-	 *                                used for purge
-	 *                                audit lines.
+	 * @param ICacheFactory           $cacheFactory Distributed-cache factory.
+	 * @param IDBConnection           $db DB connection (for dry-run transactions).
+	 * @param CleanupReporting        $reporting The activity manager and logger.
 	 */
 	public function __construct(
 		private readonly CategoryRegistryService $registry,
 		private readonly ICacheFactory $cacheFactory,
 		private readonly IDBConnection $db,
-		private readonly IActivityManager $activityManager,
-		private readonly LoggerInterface $logger,
+		private readonly CleanupReporting $reporting,
 	) {
 	}//end __construct()
 
@@ -324,7 +314,7 @@ class OrphanedDataCleanupService {
 			);
 		}
 
-		$this->logger->info(
+		$this->reporting->logger->info(
 			message: sprintf(
 				'launchpad.cleanup.purge source=%s user=%s rows=%d duration_ms=%d categories=%s',
 				$source,
@@ -455,7 +445,7 @@ class OrphanedDataCleanupService {
 		string $source,
 	): void {
 		try {
-			$event = $this->activityManager->generateEvent();
+			$event = $this->reporting->activityManager->generateEvent();
 			$event->setApp(app: Application::APP_ID)
 				->setType(type: self::ACTIVITY_TYPE)
 				->setAffectedUser(affectedUser: ($userId ?? ''))
@@ -475,16 +465,16 @@ class OrphanedDataCleanupService {
 					objectName: $source
 				);
 
-			$this->activityManager->publish(event: $event);
+			$this->reporting->activityManager->publish(event: $event);
 		} catch (IncompleteActivityException $e) {
-			$this->logger->warning(
+			$this->reporting->logger->warning(
 				message: sprintf(
 					'launchpad.cleanup.activity_emit_failed: %s',
 					$e->getMessage()
 				)
 			);
 		} catch (Throwable $t) {
-			$this->logger->warning(
+			$this->reporting->logger->warning(
 				message: sprintf(
 					'launchpad.cleanup.activity_emit_threw: %s',
 					$t->getMessage()

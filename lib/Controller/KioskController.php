@@ -31,6 +31,7 @@ use Exception;
 use Throwable;
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
+use OCA\LaunchPad\Service\KioskPlaylistDraft;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
 use OCA\LaunchPad\Service\PublicShareService;
@@ -77,10 +78,7 @@ class KioskController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -103,35 +101,22 @@ class KioskController extends Controller {
 		?int $refreshSeconds = null,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$playlist = $this->kioskService->createPlaylist(
-				name: (string)($name ?? ''),
-				entries: ($entries ?? []),
-				refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT),
-				callerId: $this->userId
-			);
-			return new DataResponse(
-				data: $playlist->jsonSerialize(),
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->kioskService->createPlaylist(
+					draft: new KioskPlaylistDraft(
+						name: (string)($name ?? ''),
+						entries: ($entries ?? []),
+						refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT)
+					),
+					callerId: $this->userId
+				)->jsonSerialize(),
 				statusCode: Http::STATUS_CREATED
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			)
+		);
 	}//end create()
 
 	/**
@@ -146,10 +131,7 @@ class KioskController extends Controller {
 	#[NoAdminRequired]
 	public function index(): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
 		$playlists = $this->kioskService->listPlaylists(callerId: $this->userId);
@@ -183,38 +165,22 @@ class KioskController extends Controller {
 		?int $refreshSeconds = null,
 	): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$playlist = $this->kioskService->updatePlaylist(
-				id: $id,
-				name: (string)($name ?? ''),
-				entries: ($entries ?? []),
-				refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT),
-				callerId: $this->userId
-			);
-			return new DataResponse(data: $playlist->jsonSerialize());
-		} catch (PlaylistNotFoundException) {
-			return new DataResponse(
-				data: ['error' => 'Not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+		return $this->respond(
+			operation: fn (): DataResponse => new DataResponse(
+				data: $this->kioskService->updatePlaylist(
+					id: $id,
+					callerId: $this->userId,
+					draft: new KioskPlaylistDraft(
+						name: (string)($name ?? ''),
+						entries: ($entries ?? []),
+						refresh: (int)($refreshSeconds ?? KioskService::REFRESH_DEFAULT)
+					)
+				)->jsonSerialize()
+			)
+		);
 	}//end update()
 
 	/**
@@ -231,32 +197,15 @@ class KioskController extends Controller {
 	#[NoAdminRequired]
 	public function destroy(int $id): DataResponse {
 		if ($this->userId === null) {
-			return new DataResponse(
-				data: ['error' => 'Not logged in'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->notLoggedIn();
 		}
 
-		try {
-			$this->kioskService->revokePlaylist(id: $id, callerId: $this->userId);
-			return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
-		} catch (PlaylistNotFoundException) {
-			return new DataResponse(
-				data: ['error' => 'Not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (OCSForbiddenException) {
-			return new DataResponse(
-				data: ['error' => 'Not authorized'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		} catch (Exception $e) {
-			$this->logError(message: $e->getMessage());
-			return new DataResponse(
-				data: ['error' => 'Internal error'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+		return $this->respond(
+			operation: function () use ($id): DataResponse {
+				$this->kioskService->revokePlaylist(id: $id, callerId: $this->userId);
+				return new DataResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);
+			}
+		);
 	}//end destroy()
 
 	/**
@@ -377,4 +326,46 @@ class KioskController extends Controller {
 			context: ['app' => Application::APP_ID]
 		);
 	}//end logError()
+
+	/**
+	 * The 401 answer for a caller without a session.
+	 *
+	 * @return DataResponse
+	 */
+	private function notLoggedIn(): DataResponse {
+		return new DataResponse(
+			data: ['error' => 'Not logged in'],
+			statusCode: Http::STATUS_UNAUTHORIZED
+		);
+	}//end notLoggedIn()
+
+	/**
+	 * Run a playlist change: unknown playlist → 404, not authorized → 403,
+	 * anything else logged → 500.
+	 *
+	 * @param \Closure $operation Runs the change and builds the success response.
+	 *
+	 * @return DataResponse
+	 */
+	private function respond(\Closure $operation): DataResponse {
+		try {
+			return $operation();
+		} catch (PlaylistNotFoundException) {
+			return new DataResponse(
+				data: ['error' => 'Not found'],
+				statusCode: Http::STATUS_NOT_FOUND
+			);
+		} catch (OCSForbiddenException) {
+			return new DataResponse(
+				data: ['error' => 'Not authorized'],
+				statusCode: Http::STATUS_FORBIDDEN
+			);
+		} catch (Exception $e) {
+			$this->logError(message: $e->getMessage());
+			return new DataResponse(
+				data: ['error' => 'Internal error'],
+				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
+	}//end respond()
 }//end class

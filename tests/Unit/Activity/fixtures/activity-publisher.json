@@ -1,0 +1,662 @@
+{
+    "publish to other": {
+        "returns": [
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_shared",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_shared",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "publish to self": {
+        "returns": [
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_created",
+                "author": "alice",
+                "affected": "alice",
+                "subject": "dashboard_created",
+                "params": {
+                    "self": true,
+                    "actor": "alice",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "publish with params": {
+        "returns": [
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_shared",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_shared",
+                "params": {
+                    "self": true,
+                    "actor": "mallory",
+                    "dashboard": "Other",
+                    "recipient": "bob",
+                    "role": "view"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "publish long message": {
+        "returns": [
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_commented",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_commented",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "message": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "publish empty message": {
+        "returns": [
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_commented",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_commented",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "message": ""
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "publish numeric message": {
+        "returns": [
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_commented",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_commented",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "message": 42
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "42",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "publish unknown type": {
+        "returns": [
+            false
+        ],
+        "rows": [],
+        "log": [
+            [
+                "warning",
+                "Unknown LaunchPad activity type rejected",
+                {
+                    "type": "dashboard_viewed",
+                    "dashboard": "uuid-1"
+                }
+            ]
+        ]
+    },
+    "publish failing manager": {
+        "returns": [
+            false
+        ],
+        "rows": [],
+        "log": [
+            [
+                "error",
+                "LaunchPad Activity publish failed",
+                {
+                    "type": "dashboard_deleted",
+                    "dashboard": "uuid-1",
+                    "recipient": "boom"
+                }
+            ]
+        ]
+    },
+    "reaction debounced": {
+        "returns": [
+            true,
+            false,
+            true
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_reacted",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_reacted",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_reacted",
+                "author": "dave",
+                "affected": "bob",
+                "subject": "dashboard_reacted",
+                "params": {
+                    "self": false,
+                    "actor": "dave",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "recipients": {
+        "returns": [
+            3
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_shared",
+                "author": "alice",
+                "affected": "alice",
+                "subject": "dashboard_shared",
+                "params": {
+                    "self": true,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "role": "edit"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_shared",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_shared",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "role": "edit"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_shared",
+                "author": "alice",
+                "affected": "carol",
+                "subject": "dashboard_shared",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "role": "edit"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "recipients none": {
+        "returns": [
+            1
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_shared",
+                "author": "alice",
+                "affected": "alice",
+                "subject": "dashboard_shared",
+                "params": {
+                    "self": true,
+                    "actor": "alice",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "recipients one fails": {
+        "returns": [
+            2
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "alice",
+                "affected": "alice",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": true,
+                    "actor": "alice",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "alice",
+                "affected": "bob",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": [
+            [
+                "error",
+                "LaunchPad Activity publish failed",
+                {
+                    "type": "dashboard_updated",
+                    "dashboard": "uuid-1",
+                    "recipient": "boom"
+                }
+            ]
+        ]
+    },
+    "group": {
+        "returns": [
+            3
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "alice",
+                "affected": "alice",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": true,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "k": "v"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "alice",
+                "affected": "carol",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "k": "v"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "alice",
+                "affected": "erin",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": false,
+                    "actor": "alice",
+                    "dashboard": "Team",
+                    "k": "v"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": []
+    },
+    "group unknown": {
+        "returns": [
+            0
+        ],
+        "rows": [],
+        "log": []
+    },
+    "global": {
+        "returns": [
+            2,
+            0,
+            2,
+            2
+        ],
+        "rows": [
+            {
+                "app": "launchpad",
+                "type": "dashboard_published",
+                "author": "bob",
+                "affected": "alice",
+                "subject": "dashboard_published",
+                "params": {
+                    "self": false,
+                    "actor": "bob",
+                    "dashboard": "Team",
+                    "k": "v"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_published",
+                "author": "bob",
+                "affected": "bob",
+                "subject": "dashboard_published",
+                "params": {
+                    "self": true,
+                    "actor": "bob",
+                    "dashboard": "Team",
+                    "k": "v"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "bob",
+                "affected": "alice",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": false,
+                    "actor": "bob",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_updated",
+                "author": "bob",
+                "affected": "bob",
+                "subject": "dashboard_updated",
+                "params": {
+                    "self": true,
+                    "actor": "bob",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-1"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_published",
+                "author": "bob",
+                "affected": "alice",
+                "subject": "dashboard_published",
+                "params": {
+                    "self": false,
+                    "actor": "bob",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-2"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            },
+            {
+                "app": "launchpad",
+                "type": "dashboard_published",
+                "author": "bob",
+                "affected": "bob",
+                "subject": "dashboard_published",
+                "params": {
+                    "self": true,
+                    "actor": "bob",
+                    "dashboard": "Team"
+                },
+                "object": [
+                    "launchpad_dashboard",
+                    0,
+                    "uuid-2"
+                ],
+                "link": "https://nc.example/d/1",
+                "message": "",
+                "stamped": true
+            }
+        ],
+        "log": [
+            [
+                "error",
+                "LaunchPad Activity publish failed",
+                {
+                    "type": "dashboard_published",
+                    "dashboard": "uuid-1",
+                    "recipient": "boom"
+                }
+            ],
+            [
+                "debug",
+                "LaunchPad global activity fan-out debounced",
+                {
+                    "type": "dashboard_published",
+                    "dashboard": "uuid-1"
+                }
+            ],
+            [
+                "error",
+                "LaunchPad Activity publish failed",
+                {
+                    "type": "dashboard_updated",
+                    "dashboard": "uuid-1",
+                    "recipient": "boom"
+                }
+            ],
+            [
+                "error",
+                "LaunchPad Activity publish failed",
+                {
+                    "type": "dashboard_published",
+                    "dashboard": "uuid-2",
+                    "recipient": "boom"
+                }
+            ]
+        ]
+    }
+}

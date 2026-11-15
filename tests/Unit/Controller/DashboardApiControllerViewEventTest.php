@@ -28,6 +28,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -127,15 +130,21 @@ class DashboardApiControllerViewEventTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->dashboardService,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService
+			),
 			permissionService: $this->permissionService,
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->analyticsService,
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			userId: $userId,
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->analyticsService,
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			),
+			userId: $userId
 		);
 
 	}//end makeController()

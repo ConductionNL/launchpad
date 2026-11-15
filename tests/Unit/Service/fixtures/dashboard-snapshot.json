@@ -1,0 +1,88 @@
+{
+    "automatic": {
+        "rows": [
+            [
+                "u-1",
+                5,
+                "{\"a\":1}",
+                "alice",
+                null,
+                true
+            ]
+        ],
+        "returned": true
+    },
+    "automatic note": {
+        "rows": [
+            [
+                "u-1",
+                5,
+                "{\"a\":1}",
+                "alice",
+                null,
+                true
+            ]
+        ],
+        "returned": true
+    },
+    "automatic debounce": {
+        "rows": [],
+        "returned": false
+    },
+    "explicit": {
+        "rows": [
+            [
+                "u-1",
+                5,
+                "{\"b\":2}",
+                "bob",
+                "kept",
+                true
+            ]
+        ],
+        "returned": true
+    },
+    "explicit no note": {
+        "rows": [
+            [
+                "u-1",
+                5,
+                "{\"b\":2}",
+                "bob",
+                null,
+                true
+            ]
+        ],
+        "returned": true
+    },
+    "derived payload": {
+        "rows": [
+            [
+                "u-1",
+                5,
+                "{\"dashboard\":{\"id\":7,\"uuid\":\"u-1\",\"name\":\"Board\",\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null},\"placements\":[]}",
+                "carol",
+                null,
+                true
+            ]
+        ],
+        "returned": true
+    },
+    "empty payload": {
+        "rows": [
+            [
+                "u-1",
+                5,
+                "{\"dashboard\":{\"id\":7,\"uuid\":\"u-1\",\"name\":\"Board\",\"description\":null,\"icon\":null,\"type\":\"user\",\"userId\":null,\"groupId\":null,\"basedOnTemplate\":null,\"gridColumns\":12,\"permissionLevel\":\"full\",\"targetGroups\":[],\"isDefault\":0,\"isActive\":0,\"commentsEnabled\":null,\"reactionsEnabled\":null,\"createdAt\":null,\"updatedAt\":null,\"parentUuid\":null,\"slug\":null,\"sortOrder\":0,\"publicationStatus\":\"published\",\"publishAt\":null,\"publishedAt\":null,\"unpublishAt\":null,\"dashboardFooterMode\":\"inherit\",\"dashboardFooterHtml\":null,\"templateCategory\":null,\"templateDescription\":null,\"templatePreviewImage\":null},\"placements\":[]}",
+                "carol",
+                null,
+                true
+            ]
+        ],
+        "returned": true
+    },
+    "no uuid": {
+        "rows": [],
+        "returned": false
+    }
+}

@@ -127,7 +127,7 @@
     },
     {
       "id": "StoreMenu",
-      "label": "Store",
+      "label": "Marketplace",
       "icon": "StoreOutline",
       "route": "Store",
       "section": "footer",
@@ -163,10 +163,10 @@
       "id": "Store",
       "route": "/store",
       "type": "store",
-      "title": "Store",
+      "title": "Marketplace",
       "config": {
         "app": "launchpad",
-        "title": "Store",
+        "title": "Marketplace",
         "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.",
         "kindLenses": [
           { "kind": "app-template", "label": "App template" },

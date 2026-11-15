@@ -39,6 +39,10 @@
  *  - linkCreateFileExtensions — admin-configurable allow-list for the
  *                                link-button-widget createFile flow (REQ-LBN-004)
  *
+ * Public start page (`#public-share-vue` at `/start`) keys, version 3:
+ *  - publicStartToken — token of the public link the start page shows
+ *                       (sharing-public-start-page D3)
+ *
  * Both payloads always carry `_schemaVersion`.
  *
  * @category  Service
@@ -77,7 +81,7 @@ class InitialStateBuilder {
 	 *
 	 * @var integer
 	 */
-	public const INITIAL_STATE_SCHEMA_VERSION = 2;
+	public const INITIAL_STATE_SCHEMA_VERSION = 3;
 
 	/**
 	 * Reserved payload key carrying the schema version.
@@ -114,6 +118,10 @@ class InitialStateBuilder {
 			'widgets',
 			'allowUserDashboards',
 			'linkCreateFileExtensions',
+		],
+		// Sharing-public-start-page D3: the link the start page shows.
+		Page::PUBLIC_START->value => [
+			'publicStartToken',
 		],
 	];
 
@@ -406,6 +414,20 @@ class InitialStateBuilder {
 		$this->values['linkCreateFileExtensions'] = $extensions;
 		return $this;
 	}//end setLinkCreateFileExtensions()
+
+	/**
+	 * Set the token of the public link the start page shows (public-start page).
+	 *
+	 * @param string $token The public link's token.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-signed-out-visitors-land-on-the-start-page-req-psp-002
+	 */
+	public function setPublicStartToken(string $token): self {
+		$this->values['publicStartToken'] = $token;
+		return $this;
+	}//end setPublicStartToken()
 
 	/**
 	 * Validate required keys then push every buffered pair plus the

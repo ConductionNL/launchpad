@@ -97,17 +97,26 @@ describe('loadInitialState', () => {
 		const message = warn.mock.calls[0][0]
 		expect(message).toMatch(/LaunchPad initial-state schema mismatch/)
 		expect(message).toMatch(/server v99/)
-		expect(message).toMatch(/client v2/)
+		expect(message).toMatch(/client v3/)
 	})
 
 	it('does not warn when the schema versions match', async () => {
-		pushedState = { _schemaVersion: 2 }
+		pushedState = { _schemaVersion: 3 }
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 		const { loadInitialState } = await import('../loadInitialState.js')
 		loadInitialState('workspace')
 
 		expect(warn).not.toHaveBeenCalled()
+	})
+
+	it('reads the public start page token, empty when the server pushed none', async () => {
+		pushedState = { publicStartToken: 'Bib1Noord', _schemaVersion: 3 }
+		const { loadInitialState } = await import('../loadInitialState.js')
+		expect(loadInitialState('public-start')).toEqual({ publicStartToken: 'Bib1Noord' })
+
+		pushedState = {}
+		expect(loadInitialState('public-start')).toEqual({ publicStartToken: '' })
 	})
 
 	it('throws on an unknown page identifier', async () => {
@@ -230,7 +239,7 @@ describe('loadInitialState', () => {
 	})
 
 	it('fills defaults for every admin key the server omitted', async () => {
-		pushedState = { _schemaVersion: 2 }
+		pushedState = { _schemaVersion: 3 }
 
 		const { loadInitialState } = await import('../loadInitialState.js')
 		const state = loadInitialState('admin')
@@ -254,14 +263,14 @@ describe('loadInitialState', () => {
 		}
 	})
 
-	it('exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (2)', async () => {
+	it('exports INITIAL_STATE_SCHEMA_VERSION matching the PHP constant (3)', async () => {
 		const mod = await import('../loadInitialState.js')
-		expect(mod.INITIAL_STATE_SCHEMA_VERSION).toBe(2)
+		expect(mod.INITIAL_STATE_SCHEMA_VERSION).toBe(3)
 	})
 
 	describe('quicksearchFallbackTarget (tile-quick-search REQ-QSEARCH-004)', () => {
 		it('defaults to "none" when the server omits the key (older deploy)', async () => {
-			pushedState = { _schemaVersion: 2 }
+			pushedState = { _schemaVersion: 3 }
 			const { loadInitialState } = await import('../loadInitialState.js')
 			const state = loadInitialState('workspace')
 			expect(state.quicksearchFallbackTarget).toBe('none')
@@ -269,7 +278,7 @@ describe('loadInitialState', () => {
 
 		it('returns the server-pushed value when present', async () => {
 			pushedState = {
-				_schemaVersion: 2,
+				_schemaVersion: 3,
 				quicksearchFallbackTarget: 'unified-search',
 			}
 			const { loadInitialState } = await import('../loadInitialState.js')

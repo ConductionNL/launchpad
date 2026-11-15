@@ -1313,6 +1313,12 @@
 		"required": true,
 		"validator": false
 	},
+	"../../views/DashboardPublicShareView.vue | startPage": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../views/KioskPlayerView.vue | token": {
 		"type": "String",
 		"required": true,

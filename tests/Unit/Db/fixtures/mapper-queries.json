@@ -4371,6 +4371,54 @@
             ],
             "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\PublicShare {\\\"id\\\":5,\\\"dashboardUuid\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"passwordRequired\\\":false,\\\"expiresAt\\\":null,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"viewCount\\\":0,\\\"lastViewedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\PublicShare {\\\"id\\\":6,\\\"dashboardUuid\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"passwordRequired\\\":false,\\\"expiresAt\\\":null,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"viewCount\\\":0,\\\"lastViewedAt\\\":null}\"]"
         },
+        "findStartPageCandidates all": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_public_shares\", null)",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"revoked_at\")",
+                "qb1.andWhere(\"isNull(\\\"revoked_at\\\")\")",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"password_hash\")",
+                "qb1.andWhere(\"isNull(\\\"password_hash\\\")\")",
+                "qb1.expr()",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"expires_at\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"<date>\", 2, null)",
+                "qb1.expr.gt(\"expires_at\", \":p1\", null)",
+                "qb1.expr.orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p1\\\", null)\")",
+                "qb1.andWhere(orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p1\\\", null)\"))",
+                "qb1.orderBy(\"created_at\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array []"
+        },
+        "findStartPageCandidates rows": {
+            "calls": [
+                "qb1 new",
+                "qb1.select(\"*\")",
+                "qb1.from(\"launchpad_public_shares\", null)",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"revoked_at\")",
+                "qb1.andWhere(\"isNull(\\\"revoked_at\\\")\")",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"password_hash\")",
+                "qb1.andWhere(\"isNull(\\\"password_hash\\\")\")",
+                "qb1.expr()",
+                "qb1.expr()",
+                "qb1.expr.isNull(\"expires_at\")",
+                "qb1.expr()",
+                "qb1.createNamedParameter(\"<date>\", 2, null)",
+                "qb1.expr.gt(\"expires_at\", \":p1\", null)",
+                "qb1.expr.orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p1\\\", null)\")",
+                "qb1.andWhere(orX(\"isNull(\\\"expires_at\\\")\", \"gt(\\\"expires_at\\\", \\\":p1\\\", null)\"))",
+                "qb1.orderBy(\"created_at\", \"ASC\")",
+                "qb1.executeQuery(null)"
+            ],
+            "outcome": "returned array [\"OCA\\\\LaunchPad\\\\Db\\\\PublicShare {\\\"id\\\":5,\\\"dashboardUuid\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"passwordRequired\\\":false,\\\"expiresAt\\\":null,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"viewCount\\\":0,\\\"lastViewedAt\\\":null}\",\"OCA\\\\LaunchPad\\\\Db\\\\PublicShare {\\\"id\\\":6,\\\"dashboardUuid\\\":null,\\\"token\\\":null,\\\"url\\\":null,\\\"passwordRequired\\\":false,\\\"expiresAt\\\":null,\\\"createdBy\\\":null,\\\"createdAt\\\":null,\\\"revokedAt\\\":null,\\\"viewCount\\\":0,\\\"lastViewedAt\\\":null}\"]"
+        },
         "softRevoke all": {
             "calls": [
                 "qb1 new",

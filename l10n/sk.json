@@ -1082,7 +1082,7 @@
         "Kind": "Druh",
         "Version": "Verzia",
         "How many dashboards there are, and who they belong to.": "Koľko je prehľadov a komu patria.",
-        "Store": "Obchod",
+        "Marketplace": "Obchod",
         "Integrations": "Integrácie",
         "Connection": "Pripojenie",
         "Status": "Stav",
@@ -1341,9 +1341,8 @@
         "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.": "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.",
         "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.",
         "Start page without navigation panel": "Start page without navigation panel",
-        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
+        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Marketplace, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
         "Personal settings": "Personal settings",
-        "Store": "Store",
         "Reports": "Reports",
         "Flows": "Flows",
         "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Nakonfigurujte svoju inštanciu LaunchPad s usporiadaním skupín, demo údajmi, rolami administrátora a nastaveniami päty.",
@@ -1359,6 +1358,10 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Nájdené na tomto serveri",
         "Apps this server runs for you. One click places one as a tile.": "Aplikácie, ktoré pre vás tento server prevádzkuje. Jedným kliknutím z nich urobíte dlaždicu.",
-        "On this dashboard": "Na tejto nástenke"
+        "On this dashboard": "Na tejto nástenke",
+        "Statistics": "Štatistiky",
+        "Count my visits": "Započítavať moje návštevy",
+        "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Keď je to vypnuté, vaše návštevy nástenok a kliknutia na dlaždice sa nezapočítavajú do počtu zobrazení.",
+        "Your choice could not be saved.": "Vašu voľbu sa nepodarilo uložiť."
     }
 }

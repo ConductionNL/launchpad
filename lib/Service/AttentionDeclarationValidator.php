@@ -162,31 +162,10 @@ class AttentionDeclarationValidator {
 	private function checkItem(string $appId, string $id, array $item): array {
 		$label = 'item "' . $id . '"';
 
-		$texts = [
-			'title' => ($item['title'] ?? null),
-			'reason' => ($item['reason'] ?? null),
-			'action.label' => ($item['action']['label'] ?? null),
-		];
-		foreach ($texts as $field => $text) {
-			if (is_string($text) === false || trim(string: $text) === '') {
-				throw new InvalidArgumentException(message: $label . ': "' . $field . '" must be a text');
-			}
-		}
-
-		$severity = ($item['severity'] ?? 'info');
-		if (in_array(needle: $severity, haystack: self::SEVERITIES, strict: true) === false) {
-			throw new InvalidArgumentException(message: $label . ': "severity" must be error, warning or info');
-		}
-
-		$operator = ($item['op'] ?? 'gt');
-		if (in_array(needle: $operator, haystack: self::OPERATORS, strict: true) === false) {
-			throw new InvalidArgumentException(message: $label . ': "op" must be gt, gte, lt, lte, eq or neq');
-		}
-
-		$value = ($item['value'] ?? 0);
-		if (is_int($value) === false && is_float($value) === false) {
-			throw new InvalidArgumentException(message: $label . ': "value" must be a number');
-		}
+		$texts = self::checkTexts(label: $label, item: $item);
+		$severity = self::checkSeverity(label: $label, item: $item);
+		$operator = self::checkOperator(label: $label, item: $item);
+		$value = self::checkValue(label: $label, value: ($item['value'] ?? 0));
 
 		return [
 			'id' => $id,
@@ -202,6 +181,88 @@ class AttentionDeclarationValidator {
 			],
 		];
 	}//end checkItem()
+
+	/**
+	 * The title, reason and action label of an item; each must be a
+	 * non-blank text.
+	 *
+	 * @param string $label The item label for messages.
+	 * @param array  $item  The declared item.
+	 *
+	 * @return array{title: string, reason: string, "action.label": string} The texts.
+	 *
+	 * @throws InvalidArgumentException When one is missing or blank.
+	 */
+	private static function checkTexts(string $label, array $item): array {
+		$texts = [
+			'title' => ($item['title'] ?? null),
+			'reason' => ($item['reason'] ?? null),
+			'action.label' => ($item['action']['label'] ?? null),
+		];
+		foreach ($texts as $field => $text) {
+			if (is_string($text) === false || trim(string: $text) === '') {
+				throw new InvalidArgumentException(message: $label . ': "' . $field . '" must be a text');
+			}
+		}
+
+		return $texts;
+	}//end checkTexts()
+
+	/**
+	 * The severity of an item (default `info`); it must be error, warning or info.
+	 *
+	 * @param string $label The item label for messages.
+	 * @param array  $item  The declared item.
+	 *
+	 * @return string The severity.
+	 *
+	 * @throws InvalidArgumentException When it is not allowed.
+	 */
+	private static function checkSeverity(string $label, array $item): string {
+		$severity = ($item['severity'] ?? 'info');
+		if (in_array(needle: $severity, haystack: self::SEVERITIES, strict: true) === false) {
+			throw new InvalidArgumentException(message: $label . ': "severity" must be error, warning or info');
+		}
+
+		return $severity;
+	}//end checkSeverity()
+
+	/**
+	 * The comparison operator of an item (default `gt`).
+	 *
+	 * @param string $label The item label for messages.
+	 * @param array  $item  The declared item.
+	 *
+	 * @return string The operator.
+	 *
+	 * @throws InvalidArgumentException When it is not gt, gte, lt, lte, eq or neq.
+	 */
+	private static function checkOperator(string $label, array $item): string {
+		$operator = ($item['op'] ?? 'gt');
+		if (in_array(needle: $operator, haystack: self::OPERATORS, strict: true) === false) {
+			throw new InvalidArgumentException(message: $label . ': "op" must be gt, gte, lt, lte, eq or neq');
+		}
+
+		return $operator;
+	}//end checkOperator()
+
+	/**
+	 * The threshold value of an item; it must be a number.
+	 *
+	 * @param string $label The item label for messages.
+	 * @param mixed  $value The declared value.
+	 *
+	 * @return int|float The value.
+	 *
+	 * @throws InvalidArgumentException When it is not a number.
+	 */
+	private static function checkValue(string $label, mixed $value): int|float {
+		if (is_int($value) === false && is_float($value) === false) {
+			throw new InvalidArgumentException(message: $label . ': "value" must be a number');
+		}
+
+		return $value;
+	}//end checkValue()
 
 	/**
 	 * Check an item's count source.

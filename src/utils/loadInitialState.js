@@ -22,7 +22,7 @@ import { logger } from './logger.js'
  * server-pushed `_schemaVersion`; mismatch logs a console warning so
  * deploy-skew between PHP and JS surfaces (REQ-INIT-002).
  */
-export const INITIAL_STATE_SCHEMA_VERSION = 2
+export const INITIAL_STATE_SCHEMA_VERSION = 3
 
 /**
  * Reserved key carrying the schema version on the wire.
@@ -71,6 +71,10 @@ const PAGE_KEYS = {
 		// navigation panel. Optional key, same rationale as `deepLinkPath`:
 		// a server without the setter keeps the panel.
 		startPageWithoutNavigation: false,
+		// launcher-tile-launch-types: what the tile editor offers for program
+		// and single sign-on tiles. Optional keys; empty lists offer nothing.
+		tileAllowedSchemes: [],
+		ssoLaunchTemplates: [],
 	},
 	admin: {
 		allGroups: [],
@@ -79,13 +83,19 @@ const PAGE_KEYS = {
 		allowUserDashboards: false,
 		linkCreateFileExtensions: ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 	},
+	// sharing-public-start-page D3 (version 3): the public link the start
+	// page at /apps/launchpad/start shows. Absent on /s/{token}, where the
+	// token is the URL's last segment.
+	'public-start': {
+		publicStartToken: '',
+	},
 }
 
 /**
  * Read every initial-state key declared for the given page, fill defaults
  * for any missing keys, and validate the schema version stamp.
  *
- * @param {('workspace'|'admin')} page Destination page identifier.
+ * @param {('workspace'|'admin'|'public-start')} page Destination page identifier.
  * @return {object} Typed snapshot — never carries `undefined` values.
  * @throws {Error} When `page` is not a known page identifier.
  * @spec openspec/specs/initial-state-contract/spec.md

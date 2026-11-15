@@ -31,8 +31,6 @@ use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Db\DashboardReactionMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\DB\Exception as DbException;
-use OCP\IAppConfig;
-use OCP\IUserManager;
 
 /**
  * Service for managing dashboard emoji reactions.
@@ -78,22 +76,15 @@ class ReactionService {
 	 * Constructor
 	 *
 	 * @param DashboardReactionMapper $reactionMapper The reaction mapper.
-	 * @param DashboardMapper $dashboardMapper Dashboard lookups
-	 *                                         (toggle resolution).
-	 * @param PermissionService $permissionService VIEW permission gate.
-	 * @param IAppConfig $appConfig App config — admin
-	 *                              settings.
-	 * @param IUserManager $userManager Display name
-	 *                                  resolution for the
-	 *                                  reactors-by-emoji
-	 *                                  endpoint.
+	 * @param DashboardMapper         $dashboardMapper Dashboard lookups (toggle resolution).
+	 * @param PermissionService       $permissionService VIEW permission gate.
+	 * @param ReactionDirectory       $directory The app config and user manager.
 	 */
 	public function __construct(
 		private readonly DashboardReactionMapper $reactionMapper,
 		private readonly DashboardMapper $dashboardMapper,
 		private readonly PermissionService $permissionService,
-		private readonly IAppConfig $appConfig,
-		private readonly IUserManager $userManager,
+		private readonly ReactionDirectory $directory,
 	) {
 	}//end __construct()
 
@@ -134,7 +125,7 @@ class ReactionService {
 	 * @spec openspec/specs/dashboard-reactions/spec.md
 	 */
 	public function isReactionsEnabledByDefault(): bool {
-		return $this->appConfig->getValueBool(
+		return $this->directory->appConfig->getValueBool(
 			app: Application::APP_ID,
 			key: self::KEY_ENABLED_DEFAULT,
 			default: false
@@ -150,7 +141,7 @@ class ReactionService {
 	 * @spec openspec/specs/dashboard-reactions/spec.md
 	 */
 	public function getAllowedEmojis(): array {
-		$raw = $this->appConfig->getValueString(
+		$raw = $this->directory->appConfig->getValueString(
 			app: Application::APP_ID,
 			key: self::KEY_ALLOWED_EMOJIS,
 			default: ''
@@ -442,7 +433,7 @@ class ReactionService {
 		$items = [];
 		foreach ($rows as $reaction) {
 			$reactorId = (string)$reaction->getUserId();
-			$user = $this->userManager->get(uid: $reactorId);
+			$user = $this->directory->userManager->get(uid: $reactorId);
 			$items[] = [
 				'userId' => $reactorId,
 				'displayName' => $user?->getDisplayName() ?? $reactorId,

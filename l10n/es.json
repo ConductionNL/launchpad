@@ -1081,7 +1081,7 @@
         "Kind": "Tipo",
         "Version": "Versión",
         "How many dashboards there are, and who they belong to.": "Cuántos paneles hay y a quién pertenecen.",
-        "Store": "Tienda",
+        "Marketplace": "Tienda",
         "Integrations": "Integraciones",
         "Connection": "Conexión",
         "Status": "Estado",
@@ -1340,9 +1340,8 @@
         "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.": "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.",
         "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.",
         "Start page without navigation panel": "Start page without navigation panel",
-        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
+        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Marketplace, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
         "Personal settings": "Personal settings",
-        "Store": "Store",
         "Reports": "Reports",
         "Flows": "Flows",
         "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Configure su instancia de LaunchPad con ordenación de grupos, datos de demostración, roles de administrador y ajustes del pie de página.",
@@ -1358,6 +1357,10 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Encontrado en este servidor",
         "Apps this server runs for you. One click places one as a tile.": "Aplicaciones que este servidor ejecuta para usted. Un clic las convierte en un mosaico.",
-        "On this dashboard": "En este panel"
+        "On this dashboard": "En este panel",
+        "Statistics": "Estadísticas",
+        "Count my visits": "Contar mis visitas",
+        "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Si esto está desactivado, tus visitas a los paneles y tus clics en los mosaicos no se incluyen en el recuento de visualizaciones.",
+        "Your choice could not be saved.": "No se ha podido guardar tu elección."
     }
 }

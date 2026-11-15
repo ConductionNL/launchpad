@@ -1,0 +1,6354 @@
+{
+	"_note": "Shared calculated-field evaluator suite (REQ-CALC-005): each case is an expression, its canonical AST, the row context, the time now() reads (epoch ms) and either the expected value or the runtime error. The TypeScript/JS evaluator and the PHP evaluator both run every case; numbers compare to within 1e-9.",
+	"cases": [
+		{
+			"name": "number literal",
+			"expression": "42",
+			"ast": {
+				"type": "literal",
+				"valueType": "number",
+				"value": 42
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 42
+		},
+		{
+			"name": "string literal",
+			"expression": "\"hello\"",
+			"ast": {
+				"type": "literal",
+				"valueType": "string",
+				"value": "hello"
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "hello"
+		},
+		{
+			"name": "boolean literal",
+			"expression": "true",
+			"ast": {
+				"type": "literal",
+				"valueType": "boolean",
+				"value": true
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "null literal",
+			"expression": "null",
+			"ast": {
+				"type": "literal",
+				"valueType": "null",
+				"value": null
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "field ref",
+			"expression": "revenue",
+			"ast": {
+				"type": "fieldRef",
+				"source": "self",
+				"path": "revenue"
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 100000
+		},
+		{
+			"name": "nested field ref",
+			"expression": "order.total",
+			"ast": {
+				"type": "fieldRef",
+				"source": "self",
+				"path": "order.total"
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 12.5
+		},
+		{
+			"name": "missing field is null",
+			"expression": "missing",
+			"ast": {
+				"type": "fieldRef",
+				"source": "self",
+				"path": "missing"
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "addition",
+			"expression": "revenue - cost",
+			"ast": {
+				"type": "binary",
+				"op": "-",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "cost"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 40000
+		},
+		{
+			"name": "precedence",
+			"expression": "1 + 2 * 3",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				},
+				"right": {
+					"type": "binary",
+					"op": "*",
+					"left": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 3
+					}
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 7
+		},
+		{
+			"name": "parentheses",
+			"expression": "(1 + 2) * 3",
+			"ast": {
+				"type": "binary",
+				"op": "*",
+				"left": {
+					"type": "binary",
+					"op": "+",
+					"left": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 3
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 9
+		},
+		{
+			"name": "division",
+			"expression": "a / 2",
+			"ast": {
+				"type": "binary",
+				"op": "/",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 3.5
+		},
+		{
+			"name": "float sum",
+			"expression": "0.1 + 0.2",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 0.1
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 0.2
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 0.30000000000000004
+		},
+		{
+			"name": "modulo",
+			"expression": "a % 3",
+			"ast": {
+				"type": "binary",
+				"op": "%",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 3
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 1
+		},
+		{
+			"name": "negative modulo",
+			"expression": "-7 % 3",
+			"ast": {
+				"type": "binary",
+				"op": "%",
+				"left": {
+					"type": "unary",
+					"op": "-",
+					"operand": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 7
+					}
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 3
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": -1
+		},
+		{
+			"name": "unary minus",
+			"expression": "-a",
+			"ast": {
+				"type": "unary",
+				"op": "-",
+				"operand": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": -7
+		},
+		{
+			"name": "double unary",
+			"expression": "--a",
+			"ast": {
+				"type": "unary",
+				"op": "-",
+				"operand": {
+					"type": "unary",
+					"op": "-",
+					"operand": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "a"
+					}
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 7
+		},
+		{
+			"name": "null propagation add",
+			"expression": "a + null",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "null",
+					"value": null
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "null propagation field",
+			"expression": "n * 2",
+			"ast": {
+				"type": "binary",
+				"op": "*",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "n"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "null propagation compare",
+			"expression": "n > 1",
+			"ast": {
+				"type": "binary",
+				"op": ">",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "n"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "division by zero",
+			"expression": "a / b",
+			"ast": {
+				"type": "binary",
+				"op": "/",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "b"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "division by zero"
+		},
+		{
+			"name": "modulo by zero",
+			"expression": "a % b",
+			"ast": {
+				"type": "binary",
+				"op": "%",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "b"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "division by zero"
+		},
+		{
+			"name": "comparison",
+			"expression": "revenue > cost",
+			"ast": {
+				"type": "binary",
+				"op": ">",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "revenue"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "cost"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "equality",
+			"expression": "a == 7",
+			"ast": {
+				"type": "binary",
+				"op": "==",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "a"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 7
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "inequality",
+			"expression": "\"x\" != \"y\"",
+			"ast": {
+				"type": "binary",
+				"op": "!=",
+				"left": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "x"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "y"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "string ordering",
+			"expression": "\"apple\" < \"banana\"",
+			"ast": {
+				"type": "binary",
+				"op": "<",
+				"left": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "apple"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "banana"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "date ordering",
+			"expression": "closed > opened",
+			"ast": {
+				"type": "binary",
+				"op": ">",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "closed"
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "opened"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "and",
+			"expression": "flag and a > 1",
+			"ast": {
+				"type": "binary",
+				"op": "and",
+				"left": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "flag"
+				},
+				"right": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "a"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					}
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "or",
+			"expression": "false or flag",
+			"ast": {
+				"type": "binary",
+				"op": "or",
+				"left": {
+					"type": "literal",
+					"valueType": "boolean",
+					"value": false
+				},
+				"right": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "flag"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "not",
+			"expression": "not flag",
+			"ast": {
+				"type": "unary",
+				"op": "not",
+				"operand": {
+					"type": "fieldRef",
+					"source": "self",
+					"path": "flag"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": false
+		},
+		{
+			"name": "if then",
+			"expression": "if(revenue > 50000, \"High\", \"Low\")",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 50000
+					}
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "High"
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "Low"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "High"
+		},
+		{
+			"name": "if else",
+			"expression": "if(revenue > 500000, \"High\", \"Low\")",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 500000
+					}
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "High"
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "Low"
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "Low"
+		},
+		{
+			"name": "if null condition",
+			"expression": "if(n > 1, 1, 2)",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "n"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					}
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				},
+				"else": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "nested if",
+			"expression": "if(revenue > 100000, \"High\", if(revenue > 10000, \"Medium\", \"Low\"))",
+			"ast": {
+				"type": "if",
+				"cond": {
+					"type": "binary",
+					"op": ">",
+					"left": {
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					"right": {
+						"type": "literal",
+						"valueType": "number",
+						"value": 100000
+					}
+				},
+				"then": {
+					"type": "literal",
+					"valueType": "string",
+					"value": "High"
+				},
+				"else": {
+					"type": "if",
+					"cond": {
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "revenue"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 10000
+						}
+					},
+					"then": {
+						"type": "literal",
+						"valueType": "string",
+						"value": "Medium"
+					},
+					"else": {
+						"type": "literal",
+						"valueType": "string",
+						"value": "Low"
+					}
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "Medium"
+		},
+		{
+			"name": "abs",
+			"expression": "abs(neg)",
+			"ast": {
+				"type": "call",
+				"name": "abs",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "neg"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 2.5
+		},
+		{
+			"name": "round",
+			"expression": "round(3.14159, 2)",
+			"ast": {
+				"type": "call",
+				"name": "round",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 3.14159
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 3.14
+		},
+		{
+			"name": "round half away from zero",
+			"expression": "round(neg)",
+			"ast": {
+				"type": "call",
+				"name": "round",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "neg"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": -3
+		},
+		{
+			"name": "round 1.005",
+			"expression": "round(small, 2)",
+			"ast": {
+				"type": "call",
+				"name": "round",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "small"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 1.01
+		},
+		{
+			"name": "ceil",
+			"expression": "ceil(1.2)",
+			"ast": {
+				"type": "call",
+				"name": "ceil",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1.2
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 2
+		},
+		{
+			"name": "floor",
+			"expression": "floor(-1.2)",
+			"ast": {
+				"type": "call",
+				"name": "floor",
+				"args": [
+					{
+						"type": "unary",
+						"op": "-",
+						"operand": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 1.2
+						}
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": -2
+		},
+		{
+			"name": "min",
+			"expression": "min(3, 1, 2)",
+			"ast": {
+				"type": "call",
+				"name": "min",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 3
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 1
+		},
+		{
+			"name": "max over list",
+			"expression": "max(lines.amount)",
+			"ast": {
+				"type": "call",
+				"name": "max",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.amount"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 10
+		},
+		{
+			"name": "pow",
+			"expression": "pow(2, 10)",
+			"ast": {
+				"type": "call",
+				"name": "pow",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 10
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 1024
+		},
+		{
+			"name": "sqrt",
+			"expression": "sqrt(16)",
+			"ast": {
+				"type": "call",
+				"name": "sqrt",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 16
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 4
+		},
+		{
+			"name": "sqrt negative",
+			"expression": "sqrt(-1)",
+			"ast": {
+				"type": "call",
+				"name": "sqrt",
+				"args": [
+					{
+						"type": "unary",
+						"op": "-",
+						"operand": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 1
+						}
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "square root of a negative number"
+		},
+		{
+			"name": "log natural",
+			"expression": "log(1)",
+			"ast": {
+				"type": "call",
+				"name": "log",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 0
+		},
+		{
+			"name": "log base",
+			"expression": "log(8, 2)",
+			"ast": {
+				"type": "call",
+				"name": "log",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 8
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 3
+		},
+		{
+			"name": "log of zero",
+			"expression": "log(0)",
+			"ast": {
+				"type": "call",
+				"name": "log",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 0
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "logarithm of a number that is not positive"
+		},
+		{
+			"name": "sum list skips null",
+			"expression": "sum(lines.amount)",
+			"ast": {
+				"type": "call",
+				"name": "sum",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.amount"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 17.5
+		},
+		{
+			"name": "avg",
+			"expression": "avg(1, 2, 3, 4)",
+			"ast": {
+				"type": "call",
+				"name": "avg",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 3
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 4
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 2.5
+		},
+		{
+			"name": "count",
+			"expression": "count(lines.amount)",
+			"ast": {
+				"type": "call",
+				"name": "count",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.amount"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 3
+		},
+		{
+			"name": "countIf",
+			"expression": "countIf(tags, \"a\")",
+			"ast": {
+				"type": "call",
+				"name": "countIf",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "tags"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 2
+		},
+		{
+			"name": "sumIf",
+			"expression": "sumIf(lines.amount, lines.kind, \"x\")",
+			"ast": {
+				"type": "call",
+				"name": "sumIf",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.amount"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.kind"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "x"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 15
+		},
+		{
+			"name": "avgIf",
+			"expression": "avgIf(lines.amount, lines.kind, \"y\")",
+			"ast": {
+				"type": "call",
+				"name": "avgIf",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.amount"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.kind"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "y"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 2.5
+		},
+		{
+			"name": "avgIf no match",
+			"expression": "avgIf(lines.amount, lines.kind, \"z\")",
+			"ast": {
+				"type": "call",
+				"name": "avgIf",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.amount"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "lines.kind"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "z"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "now",
+			"expression": "now()",
+			"ast": {
+				"type": "call",
+				"name": "now",
+				"args": []
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-11-14T15:30:45Z"
+		},
+		{
+			"name": "today",
+			"expression": "today()",
+			"ast": {
+				"type": "call",
+				"name": "today",
+				"args": []
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-11-14T00:00:00Z"
+		},
+		{
+			"name": "dateDiff days",
+			"expression": "dateDiff(closed, opened, \"days\")",
+			"ast": {
+				"type": "call",
+				"name": "dateDiff",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "days"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 29
+		},
+		{
+			"name": "dateDiff months",
+			"expression": "dateDiff(closed, opened, \"months\")",
+			"ast": {
+				"type": "call",
+				"name": "dateDiff",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "months"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 1
+		},
+		{
+			"name": "dateDiff default unit",
+			"expression": "dateDiff(closed, opened)",
+			"ast": {
+				"type": "call",
+				"name": "dateDiff",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 29
+		},
+		{
+			"name": "dateAdd days",
+			"expression": "dateAdd(opened, 10, \"days\")",
+			"ast": {
+				"type": "call",
+				"name": "dateAdd",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 10
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "days"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-02-10T00:00:00Z"
+		},
+		{
+			"name": "dateAdd month clamps",
+			"expression": "dateAdd(opened, 1, \"months\")",
+			"ast": {
+				"type": "call",
+				"name": "dateAdd",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "months"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-02-28T00:00:00Z"
+		},
+		{
+			"name": "dateAdd unknown unit",
+			"expression": "dateAdd(opened, 1, \"fortnights\")",
+			"ast": {
+				"type": "call",
+				"name": "dateAdd",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "fortnights"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "unknown unit 'fortnights'"
+		},
+		{
+			"name": "formatDate",
+			"expression": "formatDate(closed, \"dd-MM-yyyy HH:mm\")",
+			"ast": {
+				"type": "call",
+				"name": "formatDate",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "dd-MM-yyyy HH:mm"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "01-03-2026 12:00"
+		},
+		{
+			"name": "parseDate iso",
+			"expression": "parseDate(\"2026-02-03\")",
+			"ast": {
+				"type": "call",
+				"name": "parseDate",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "2026-02-03"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-02-03T00:00:00Z"
+		},
+		{
+			"name": "parseDate pattern",
+			"expression": "parseDate(\"03/02/2026\", \"dd/MM/yyyy\")",
+			"ast": {
+				"type": "call",
+				"name": "parseDate",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "03/02/2026"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "dd/MM/yyyy"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-02-03T00:00:00Z"
+		},
+		{
+			"name": "parseDate invalid",
+			"expression": "parseDate(\"31/02/2026\", \"dd/MM/yyyy\")",
+			"ast": {
+				"type": "call",
+				"name": "parseDate",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "31/02/2026"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "dd/MM/yyyy"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "invalid date"
+		},
+		{
+			"name": "durationBetween",
+			"expression": "durationBetween(closed, opened)",
+			"ast": {
+				"type": "call",
+				"name": "durationBetween",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "closed"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "opened"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 2548800
+		},
+		{
+			"name": "durationFormat",
+			"expression": "durationFormat(durationBetween(closed, opened))",
+			"ast": {
+				"type": "call",
+				"name": "durationFormat",
+				"args": [
+					{
+						"type": "call",
+						"name": "durationBetween",
+						"args": [
+							{
+								"type": "fieldRef",
+								"source": "self",
+								"path": "closed"
+							},
+							{
+								"type": "fieldRef",
+								"source": "self",
+								"path": "opened"
+							}
+						]
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "708:00:00"
+		},
+		{
+			"name": "durationFormat pattern",
+			"expression": "durationFormat(-3725, \"hh:mm\")",
+			"ast": {
+				"type": "call",
+				"name": "durationFormat",
+				"args": [
+					{
+						"type": "unary",
+						"op": "-",
+						"operand": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 3725
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "hh:mm"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "-01:02"
+		},
+		{
+			"name": "concat",
+			"expression": "concat(\"a\", 1, true)",
+			"ast": {
+				"type": "call",
+				"name": "concat",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 1
+					},
+					{
+						"type": "literal",
+						"valueType": "boolean",
+						"value": true
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "a1true"
+		},
+		{
+			"name": "concat null",
+			"expression": "concat(\"a\", n)",
+			"ast": {
+				"type": "call",
+				"name": "concat",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "n"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "upper",
+			"expression": "upper(\"abc\")",
+			"ast": {
+				"type": "call",
+				"name": "upper",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "abc"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "ABC"
+		},
+		{
+			"name": "lower",
+			"expression": "lower(\"ABC\")",
+			"ast": {
+				"type": "call",
+				"name": "lower",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "ABC"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "abc"
+		},
+		{
+			"name": "trim",
+			"expression": "trim(name)",
+			"ast": {
+				"type": "call",
+				"name": "trim",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "name"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "Ada Lovelace"
+		},
+		{
+			"name": "contains",
+			"expression": "contains(name, \"Ada\")",
+			"ast": {
+				"type": "call",
+				"name": "contains",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "name"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "Ada"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "startsWith",
+			"expression": "startsWith(\"hello\", \"he\")",
+			"ast": {
+				"type": "call",
+				"name": "startsWith",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "hello"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "he"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "endsWith",
+			"expression": "endsWith(\"hello\", \"lo\")",
+			"ast": {
+				"type": "call",
+				"name": "endsWith",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "hello"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "lo"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "replace all",
+			"expression": "replace(\"a-b-c\", \"-\", \"+\")",
+			"ast": {
+				"type": "call",
+				"name": "replace",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "a-b-c"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "-"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "+"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "a+b+c"
+		},
+		{
+			"name": "format",
+			"expression": "format(\"{0} of {1}\", 3, 5)",
+			"ast": {
+				"type": "call",
+				"name": "format",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "{0} of {1}"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 3
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 5
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "3 of 5"
+		},
+		{
+			"name": "coalesce",
+			"expression": "coalesce(null, n, revenue, 0)",
+			"ast": {
+				"type": "call",
+				"name": "coalesce",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "n"
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "revenue"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 0
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 100000
+		},
+		{
+			"name": "coalesce all null",
+			"expression": "coalesce(null, n)",
+			"ast": {
+				"type": "call",
+				"name": "coalesce",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "null",
+						"value": null
+					},
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "n"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "ifNull",
+			"expression": "ifNull(n, 5)",
+			"ast": {
+				"type": "call",
+				"name": "ifNull",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "n"
+					},
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 5
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 5
+		},
+		{
+			"name": "case first match",
+			"expression": "case(a > 10, \"big\", a > 5, \"mid\", \"small\")",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "a"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 10
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "big"
+					},
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "a"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 5
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "mid"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "small"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "mid"
+		},
+		{
+			"name": "case default",
+			"expression": "case(a > 10, \"big\", \"small\")",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "a"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 10
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "big"
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "small"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "small"
+		},
+		{
+			"name": "case no default",
+			"expression": "case(a > 10, \"big\")",
+			"ast": {
+				"type": "call",
+				"name": "case",
+				"args": [
+					{
+						"type": "binary",
+						"op": ">",
+						"left": {
+							"type": "fieldRef",
+							"source": "self",
+							"path": "a"
+						},
+						"right": {
+							"type": "literal",
+							"valueType": "number",
+							"value": 10
+						}
+					},
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "big"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": null
+		},
+		{
+			"name": "toNumber string",
+			"expression": "toNumber(text)",
+			"ast": {
+				"type": "call",
+				"name": "toNumber",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "self",
+						"path": "text"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 42
+		},
+		{
+			"name": "toNumber bad",
+			"expression": "toNumber(\"abc\")",
+			"ast": {
+				"type": "call",
+				"name": "toNumber",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "abc"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "cannot convert to a number"
+		},
+		{
+			"name": "toNumber boolean",
+			"expression": "toNumber(true)",
+			"ast": {
+				"type": "call",
+				"name": "toNumber",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "boolean",
+						"value": true
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 1
+		},
+		{
+			"name": "toString number",
+			"expression": "toString(2.5)",
+			"ast": {
+				"type": "call",
+				"name": "toString",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 2.5
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2.5"
+		},
+		{
+			"name": "toBool string",
+			"expression": "toBool(\"yes\")",
+			"ast": {
+				"type": "call",
+				"name": "toBool",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "yes"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": true
+		},
+		{
+			"name": "toBool number",
+			"expression": "toBool(0)",
+			"ast": {
+				"type": "call",
+				"name": "toBool",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "number",
+						"value": 0
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": false
+		},
+		{
+			"name": "toBool bad",
+			"expression": "toBool(\"maybe\")",
+			"ast": {
+				"type": "call",
+				"name": "toBool",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "maybe"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "cannot convert to a boolean"
+		},
+		{
+			"name": "toDate",
+			"expression": "toDate(\"2026-05-01\")",
+			"ast": {
+				"type": "call",
+				"name": "toDate",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "2026-05-01"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": "2026-05-01T00:00:00Z"
+		},
+		{
+			"name": "toDate invalid",
+			"expression": "toDate(\"not a date\")",
+			"ast": {
+				"type": "call",
+				"name": "toDate",
+				"args": [
+					{
+						"type": "literal",
+						"valueType": "string",
+						"value": "not a date"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				}
+			},
+			"now": 1794670245000,
+			"error": "invalid date"
+		},
+		{
+			"name": "calculated ref",
+			"expression": "profit * 2",
+			"ast": {
+				"type": "binary",
+				"op": "*",
+				"left": {
+					"type": "calculatedRef",
+					"name": "profit"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 2
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				},
+				"calculated": {
+					"profit": 40000
+				}
+			},
+			"now": 1794670245000,
+			"expected": 80000
+		},
+		{
+			"name": "cross widget field",
+			"expression": "widget:w2.total + 1",
+			"ast": {
+				"type": "binary",
+				"op": "+",
+				"left": {
+					"type": "fieldRef",
+					"source": "widget:w2",
+					"path": "total"
+				},
+				"right": {
+					"type": "literal",
+					"valueType": "number",
+					"value": 1
+				}
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				},
+				"widgets": {
+					"w2": {
+						"total": 9
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 10
+		},
+		{
+			"name": "cross widget calculated",
+			"expression": "widget:w2.margin",
+			"ast": {
+				"type": "fieldRef",
+				"source": "widget:w2",
+				"path": "margin"
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				},
+				"widgetCalculated": {
+					"w2": {
+						"margin": 0.25
+					}
+				}
+			},
+			"now": 1794670245000,
+			"expected": 0.25
+		},
+		{
+			"name": "cross widget list",
+			"expression": "sum(widget:w2.amount)",
+			"ast": {
+				"type": "call",
+				"name": "sum",
+				"args": [
+					{
+						"type": "fieldRef",
+						"source": "widget:w2",
+						"path": "amount"
+					}
+				]
+			},
+			"context": {
+				"row": {
+					"revenue": 100000,
+					"cost": 60000,
+					"a": 7,
+					"b": 0,
+					"n": null,
+					"name": "  Ada Lovelace ",
+					"flag": true,
+					"opened": "2026-01-31T00:00:00Z",
+					"closed": "2026-03-01T12:00:00Z",
+					"lines": [
+						{
+							"amount": 10,
+							"kind": "x"
+						},
+						{
+							"amount": null,
+							"kind": "y"
+						},
+						{
+							"amount": 5,
+							"kind": "x"
+						},
+						{
+							"amount": 2.5,
+							"kind": "y"
+						}
+					],
+					"tags": [
+						"a",
+						"b",
+						"a",
+						null
+					],
+					"small": 1.005,
+					"neg": -2.5,
+					"text": "42",
+					"order": {
+						"total": 12.5
+					}
+				},
+				"widgets": {
+					"w2": [
+						{
+							"amount": 1
+						},
+						{
+							"amount": 2
+						}
+					]
+				}
+			},
+			"now": 1794670245000,
+			"expected": 3
+		}
+	]
+}

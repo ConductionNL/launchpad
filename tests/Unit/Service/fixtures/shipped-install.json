@@ -1,0 +1,301 @@
+{
+    "plain": {
+        "result": {
+            "templateId": "mijn-werkdag",
+            "uuid": "uuid-0",
+            "id": 1,
+            "version": 4,
+            "alreadyInstalled": false,
+            "targetGroups": [],
+            "isDefault": false,
+            "missingWidgets": [
+                "activity"
+            ],
+            "registers": [
+                "dossiq",
+                "pipelinq",
+                "decidiq"
+            ]
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [],
+                "isDefault": 0
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-0",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    },
+    "again with groups and default": {
+        "result": {
+            "templateId": "mijn-werkdag",
+            "uuid": "uuid-0",
+            "id": 1,
+            "version": 4,
+            "alreadyInstalled": true,
+            "targetGroups": [
+                "medewerkers"
+            ],
+            "isDefault": true,
+            "missingWidgets": [
+                "activity"
+            ],
+            "registers": [
+                "dossiq",
+                "pipelinq",
+                "decidiq"
+            ]
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 1
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-0",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    },
+    "again plain": {
+        "result": {
+            "templateId": "mijn-werkdag",
+            "uuid": "uuid-0",
+            "id": 1,
+            "version": 4,
+            "alreadyInstalled": true,
+            "targetGroups": [
+                "medewerkers"
+            ],
+            "isDefault": true,
+            "missingWidgets": [
+                "activity"
+            ],
+            "registers": [
+                "dossiq",
+                "pipelinq",
+                "decidiq"
+            ]
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 1
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-0",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    },
+    "forced by a named user": {
+        "result": {
+            "templateId": "mijn-werkdag",
+            "uuid": "uuid-1",
+            "id": 2,
+            "version": 4,
+            "alreadyInstalled": false,
+            "targetGroups": [],
+            "isDefault": false,
+            "missingWidgets": [
+                "activity"
+            ],
+            "registers": [
+                "dossiq",
+                "pipelinq",
+                "decidiq"
+            ]
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 1
+            },
+            {
+                "id": 2,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [],
+                "isDefault": 0
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-1",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    },
+    "forced with groups": {
+        "result": {
+            "templateId": "mijn-werkdag",
+            "uuid": "uuid-2",
+            "id": 3,
+            "version": 4,
+            "alreadyInstalled": false,
+            "targetGroups": [
+                "medewerkers"
+            ],
+            "isDefault": false,
+            "missingWidgets": [
+                "activity"
+            ],
+            "registers": [
+                "dossiq",
+                "pipelinq",
+                "decidiq"
+            ]
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 1
+            },
+            {
+                "id": 2,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [],
+                "isDefault": 0
+            },
+            {
+                "id": 3,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 0
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-2",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    },
+    "unknown group": {
+        "result": {
+            "error": "Unknown group: nobody"
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 1
+            },
+            {
+                "id": 2,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [],
+                "isDefault": 0
+            },
+            {
+                "id": 3,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 0
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-2",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    },
+    "default only": {
+        "result": {
+            "templateId": "mijn-werkdag",
+            "uuid": "uuid-2",
+            "id": 3,
+            "version": 4,
+            "alreadyInstalled": true,
+            "targetGroups": [
+                "medewerkers"
+            ],
+            "isDefault": true,
+            "missingWidgets": [
+                "activity"
+            ],
+            "registers": [
+                "dossiq",
+                "pipelinq",
+                "decidiq"
+            ]
+        },
+        "rows": [
+            {
+                "id": 1,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 0
+            },
+            {
+                "id": 2,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [],
+                "isDefault": 0
+            },
+            {
+                "id": 3,
+                "name": "Mijn werkdag",
+                "userId": null,
+                "type": "admin_template",
+                "targetGroups": [
+                    "medewerkers"
+                ],
+                "isDefault": 1
+            }
+        ],
+        "config": {
+            "shipped_template_mijn-werkdag": "uuid-2",
+            "shipped_template_version_mijn-werkdag": 4
+        }
+    }
+}

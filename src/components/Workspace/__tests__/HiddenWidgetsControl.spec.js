@@ -28,11 +28,12 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		emits: ['click'],
 		template: '<button @click="$emit(\'click\')"><slot /></button>',
 	},
-	NcDialog: {
-		name: 'NcDialog',
-		props: ['open'],
+	CnConfirmDialog: {
+		name: 'CnConfirmDialog',
+		props: ['dialogTitle', 'message', 'confirmLabel'],
+		emits: ['confirm', 'close'],
 		template:
-			'<div v-if="open" class="dialog"><slot /><slot name="actions" /></div>',
+			'<div class="dialog">{{ message }}<button data-testid="cn-confirm-dialog-confirm" @click="$emit(\'confirm\')">{{ confirmLabel }}</button></div>',
 	},
 }))
 
@@ -66,9 +67,14 @@ describe('HiddenWidgetsControl', () => {
 			.findAll('[data-testid="hidden-show-again"]')[0]
 			.trigger('click')
 		expect(wrapper.emitted('showAgain')[0][0]).toBe(2)
+		expect(
+			wrapper.find('[data-testid="cn-confirm-dialog-confirm"]').exists(),
+		).toBe(false)
 		await wrapper.find('[data-testid="hidden-reset"]').trigger('click')
 		expect(wrapper.emitted('reset')).toBeUndefined()
-		await wrapper.find('[data-testid="hidden-reset-confirm"]').trigger('click')
+		await wrapper
+			.find('[data-testid="cn-confirm-dialog-confirm"]')
+			.trigger('click')
 		expect(wrapper.emitted('reset')).toHaveLength(1)
 	})
 })

@@ -172,6 +172,34 @@ class InitialStateBuilderTest extends TestCase {
 		$this->assertSame(['txt', 'md'], $sink['linkCreateFileExtensions']);
 	}
 
+	/**
+	 * The tile editor gets the allowed schemes and the template names, never the template addresses.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 */
+	public function testTileLaunchOptionsLeaveTheTemplateAddressesOut(): void {
+		$sink = [];
+		$builder = new InitialStateBuilder(initialState: $this->makeRecordingState($sink), page: Page::ADMIN);
+
+		$builder
+			->setAllGroups([])
+			->setConfiguredGroups([])
+			->setWidgets([])
+			->setAllowUserDashboards(false)
+			->setLinkCreateFileExtensions(['txt'])
+			->setTileLaunchOptions(
+				schemes: ['ms-word', 'vscode'],
+				templates: [
+					['key' => 'entra', 'name' => 'Microsoft Entra ID', 'urlTemplate' => 'https://launcher.myapps.microsoft.com/api/signin/{appId}'],
+					'not a template',
+				]
+			)
+			->apply();
+
+		$this->assertSame(['ms-word', 'vscode'], $sink['tileAllowedSchemes']);
+		$this->assertSame([['key' => 'entra', 'name' => 'Microsoft Entra ID']], $sink['ssoLaunchTemplates']);
+	}
+
 	public function testSchemaVersionAlwaysPushedForWorkspace(): void {
 		$sink = [];
 		$state = $this->makeRecordingState($sink);
@@ -212,7 +240,7 @@ class InitialStateBuilderTest extends TestCase {
 			->apply();
 
 		$this->assertArrayHasKey(InitialStateBuilder::KEY_SCHEMA_VERSION, $sink);
-		$this->assertSame(2, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
+		$this->assertSame(3, $sink[InitialStateBuilder::KEY_SCHEMA_VERSION]);
 	}
 
 	public function testMissingFirstKeyExceptionMessageNamesTheFirstMissingKey(): void {
@@ -223,6 +251,26 @@ class InitialStateBuilderTest extends TestCase {
 		// Set nothing — apply should fail on the first required key.
 		$this->expectException(MissingInitialStateException::class);
 		$this->expectExceptionMessage('"widgets"');
+		$builder->apply();
+	}
+
+	public function testPublicStartBuilderPushesTheTokenAndTheVersion(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::PUBLIC_START);
+
+		$builder->setPublicStartToken('Bib1Noord')->apply();
+
+		$this->assertSame(['publicStartToken' => 'Bib1Noord', InitialStateBuilder::KEY_SCHEMA_VERSION => 3], $sink);
+	}
+
+	public function testPublicStartBuilderRefusesToRenderWithoutTheToken(): void {
+		$sink = [];
+		$state = $this->makeRecordingState($sink);
+		$builder = new InitialStateBuilder(initialState: $state, page: Page::PUBLIC_START);
+
+		$this->expectException(MissingInitialStateException::class);
+		$this->expectExceptionMessage('"publicStartToken"');
 		$builder->apply();
 	}
 }

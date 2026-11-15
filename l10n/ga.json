@@ -1084,7 +1084,7 @@
         "Kind": "Cineál",
         "Version": "Leagan",
         "How many dashboards there are, and who they belong to.": "Cé mhéad painéal atá ann, agus cé leis iad.",
-        "Store": "Siopa",
+        "Marketplace": "Siopa",
         "Integrations": "Comhtháthuithe",
         "Connection": "Nasc",
         "Status": "Stádas",
@@ -1343,9 +1343,8 @@
         "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.": "Its lists read these registers: {registers}. A list whose register is not on this instance is hidden for members.",
         "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.": "\"{title}\" is part of the start page your administrator set for your group and cannot be removed.",
         "Start page without navigation panel": "Start page without navigation panel",
-        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
+        "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Marketplace, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.": "When on, the dashboard view has no left navigation panel and uses the full width. The dashboard switcher and the Documentation, Store, Reports, Features & roadmap and settings destinations are in the Menu button in the top row. Other pages keep the panel.",
         "Personal settings": "Personal settings",
-        "Store": "Store",
         "Reports": "Reports",
         "Flows": "Flows",
         "Configure your LaunchPad instance with group ordering, demo data, admin roles, and footer settings.": "Cumraigh do shampla LaunchPad le hordú grúpaí, sonraí taispeána, róil riaracháin, agus socruithe buntáisc.",
@@ -1361,6 +1360,10 @@
         "applies to the whole organisation": "applies to the whole organisation",
         "Discovered on this server": "Aimsithe ar an bhfreastalaí seo",
         "Apps this server runs for you. One click places one as a tile.": "Aipeanna a ritheann an freastalaí seo duit. Cuireann cliceáil amháin ina tíl iad.",
-        "On this dashboard": "Ar an deais seo"
+        "On this dashboard": "Ar an deais seo",
+        "Statistics": "Staitisticí",
+        "Count my visits": "Comhair mo chuairteanna",
+        "When this is off, your dashboard visits and tile clicks are left out of the view counts.": "Nuair atá sé seo múchta, ní áirítear do chuairteanna ar dheaiseanna ná do chliceanna ar thíleanna sna líon amharc.",
+        "Your choice could not be saved.": "Níorbh fhéidir do rogha a shábháil."
     }
 }

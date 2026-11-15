@@ -10,6 +10,7 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import AnnouncementEditorsPolicy from '../AnnouncementEditorsPolicy.vue'
 import DashboardSharingPolicy from '../DashboardSharingPolicy.vue'
 import HealthPanel from '../HealthPanel.vue'
 import LegacyWidgetBridgeToggle from '../LegacyWidgetBridgeToggle.vue'
@@ -254,3 +255,98 @@ describe('DashboardSharingPolicy', () => {
 		expect(logger.error).toHaveBeenCalledWith('Failed to save sharing policy:', expect.any(Error))
 	})
 })
+
+describe('AnnouncementEditorsPolicy', () => {
+	it('loads the stored editor groups and offers the given groups', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: { data: { announcementEditorGroups: ['communicatie'] } } })
+		const wrapper = mountWith(AnnouncementEditorsPolicy, { groups: ['communicatie', 'hr'] })
+		await flushPromises()
+
+		expect(wrapper.findComponent(TagsStub).props()).toEqual({ modelValue: ['communicatie'], options: ['communicatie', 'hr'] })
+	})
+
+	it('reads a stored value that is not a list as no groups', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: { announcementEditorGroups: 'hr' } })
+		const wrapper = mountWith(AnnouncementEditorsPolicy)
+		await flushPromises()
+
+		expect(wrapper.vm.editorGroups).toEqual([])
+	})
+
+	it('saves the chosen groups on every change', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: {} })
+		const wrapper = mountWith(AnnouncementEditorsPolicy, { groups: ['a', 'b'] })
+		await flushPromises()
+
+		wrapper.findComponent(TagsStub).vm.$emit('update:modelValue', ['b'])
+		await flushPromises()
+
+		expect(api.updateAdminSettings).toHaveBeenCalledWith({ announcementEditorGroups: ['b'] })
+	})
+
+	it('logs a failed load and a failed save', async () => {
+		api.getAdminSettings.mockRejectedValue(new Error('x'))
+		api.updateAdminSettings.mockRejectedValue(new Error('y'))
+		const wrapper = mountWith(AnnouncementEditorsPolicy)
+		await flushPromises()
+		await wrapper.vm.save()
+
+		expect(logger.error).toHaveBeenCalledWith('Failed to load announcement editors:', expect.any(Error))
+		expect(logger.error).toHaveBeenCalledWith('Failed to save announcement editors:', expect.any(Error))
+	})
+})
+
+describe('DashboardSharingPolicy sharing limits (REQ-SHARE-014)', () => {
+	const scope = (wrapper) => wrapper.find('[data-test="sharing-policy-recipient-scope"]').findComponent(SelectStub)
+	const allowed = (wrapper) => wrapper.find('[data-test="sharing-policy-allowed-groups"]').findComponent(TagsStub)
+
+	it('loads the allowed groups and the recipient scope', async () => {
+		api.getAdminSettings.mockResolvedValue({
+			data: { sharingAllowedGroups: ['communicatie'], sharingRecipientScope: 'shared-groups' },
+		})
+		const wrapper = mountWith(DashboardSharingPolicy, { groups: ['communicatie', 'staff'] })
+		await flushPromises()
+
+		expect(wrapper.vm.allowedGroups).toEqual(['communicatie'])
+		expect(wrapper.vm.recipientScope).toEqual({ id: 'shared-groups', label: 'Only people who share a group with the sharer' })
+	})
+
+	it('reads missing or unknown values as everyone may share with anyone', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: { sharingAllowedGroups: 'x', sharingRecipientScope: 'odd' } })
+		const wrapper = mountWith(DashboardSharingPolicy)
+		await flushPromises()
+
+		expect(wrapper.vm.allowedGroups).toEqual([])
+		expect(wrapper.vm.recipientScope.id).toBe('everyone')
+	})
+
+	it('saves only the two limits when either changes', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: {} })
+		const wrapper = mountWith(DashboardSharingPolicy, { groups: ['a', 'b'] })
+		await flushPromises()
+		api.updateAdminSettings.mockClear()
+
+		wrapper.vm.allowedGroups = ['a']
+		allowed(wrapper).vm.$emit('update:modelValue', ['a'])
+		await flushPromises()
+		wrapper.vm.recipientScope = wrapper.vm.scopeOptions[1]
+		scope(wrapper).vm.$emit('update:modelValue', wrapper.vm.scopeOptions[1])
+		await flushPromises()
+
+		expect(api.updateAdminSettings.mock.calls).toEqual([
+			[{ sharingAllowedGroups: ['a'], sharingRecipientScope: 'everyone' }],
+			[{ sharingAllowedGroups: ['a'], sharingRecipientScope: 'shared-groups' }],
+		])
+	})
+
+	it('logs a failed save of the limits', async () => {
+		api.getAdminSettings.mockResolvedValue({ data: {} })
+		api.updateAdminSettings.mockRejectedValue(new Error('x'))
+		const wrapper = mountWith(DashboardSharingPolicy)
+		await flushPromises()
+
+		await wrapper.vm.saveLimits()
+		expect(logger.error).toHaveBeenCalledWith('Failed to save sharing limits:', expect.any(Error))
+	})
+})
+

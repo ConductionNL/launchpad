@@ -74,6 +74,8 @@ class AdminSettingsServiceTest extends TestCase {
 				'linkCreateFileExtensions' => ['txt', 'md', 'docx', 'xlsx', 'csv', 'odt'],
 				'defaultSharePermissionLevel' => 'add_only',
 				'forcedShareGroups' => [],
+				'sharingAllowedGroups' => [],
+				'sharingRecipientScope' => 'everyone',
 				'legacyWidgetBridgeEnabled' => false,
 				'maxDashboardsPerUser' => 0,
 				'maxWidgetsPerDashboard' => 0,
@@ -82,6 +84,8 @@ class AdminSettingsServiceTest extends TestCase {
 				// launcher-tile-launch-types: both empty until an administrator fills them.
 				'tileAllowedSchemes' => [],
 				'ssoLaunchTemplates' => [],
+				// engagement-announcements D6: no editor groups until one is chosen.
+				'announcementEditorGroups' => [],
 			],
 			$this->service->getSettings(),
 			'GET /api/admin/settings no longer matches REQ-ASET-001; update the spec and this list together'
@@ -157,6 +161,9 @@ class AdminSettingsServiceTest extends TestCase {
 		// dashboard-sharing + legacy-widget-bridge spec keys.
 		$this->assertArrayHasKey('defaultSharePermissionLevel', $settings);
 		$this->assertArrayHasKey('forcedShareGroups', $settings);
+		// dashboard-sharing REQ-SHARE-014: who may share, and with whom.
+		$this->assertArrayHasKey('sharingAllowedGroups', $settings);
+		$this->assertArrayHasKey('sharingRecipientScope', $settings);
 		$this->assertArrayHasKey('legacyWidgetBridgeEnabled', $settings);
 		// dashboard-quota-limits REQ-QUOTA-001 — two numeric quota keys.
 		$this->assertArrayHasKey('maxDashboardsPerUser', $settings);
@@ -168,8 +175,44 @@ class AdminSettingsServiceTest extends TestCase {
 		// launcher-tile-launch-types: the program schemes and SSO launch templates.
 		$this->assertArrayHasKey('tileAllowedSchemes', $settings);
 		$this->assertArrayHasKey('ssoLaunchTemplates', $settings);
-		$this->assertCount(14, $settings);
+		// engagement-announcements D6.
+		$this->assertArrayHasKey('announcementEditorGroups', $settings);
+		$this->assertCount(17, $settings);
 	}//end testGetSettingsReturnsCamelCaseKeys()
+
+	/**
+	 * Engagement-announcements D6: the stored editor groups read back as a
+	 * list, and a stored value that is not a list reads as none.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsReadBackAsAList(): void {
+		$this->settingMapper->method('getAllAsArray')->willReturnOnConsecutiveCalls(
+			[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS => ['communicatie' => 'communicatie', 'hr' => 'hr']],
+			[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS => 'communicatie']
+		);
+
+		$this->assertSame(['communicatie', 'hr'], $this->service->getSettings()['announcementEditorGroups']);
+		$this->assertSame([], $this->service->getSettings()['announcementEditorGroups']);
+	}//end testAnnouncementEditorGroupsReadBackAsAList()
+
+	/**
+	 * Engagement-announcements D6: the editor groups are stored trimmed and
+	 * deduplicated, and a value that is not a list is refused unwritten.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsAreNormalisedOrRefused(): void {
+		$this->settingMapper->expects($this->once())
+			->method('setSetting')
+			->with(AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS, ['communicatie', 'hr']);
+
+		$this->service->updateSettings(settings: ['announcementEditorGroups' => [' communicatie ', 'hr', 'communicatie', '', 7]]);
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('announcementEditorGroups must be a list of group ids.');
+		$this->service->updateSettings(settings: ['announcementEditorGroups' => 'hr']);
+	}//end testAnnouncementEditorGroupsAreNormalisedOrRefused()
 
 	// ----- dashboard-quota-limits REQ-QUOTA-001 -----
 

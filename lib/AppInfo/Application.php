@@ -37,6 +37,7 @@ use OCA\LaunchPad\Listener\UserDeletedListener;
 use OCA\LaunchPad\Listener\VersionsListener;
 use OCA\LaunchPad\Listener\ViewAnalyticsListener;
 use OCA\LaunchPad\Listener\WidgetPlacementsListener;
+use OCA\LaunchPad\Listener\PublicStartRedirectListener;
 use OCA\LaunchPad\Middleware\ApiContractMiddleware;
 use OCA\LaunchPad\Notification\Notifier;
 use OCA\LaunchPad\Search\LaunchPadSearchProvider;
@@ -49,6 +50,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\AppFramework\Http\Events\BeforeLoginTemplateRenderedEvent;
 use OCP\Group\Events\GroupDeletedEvent;
 use OCP\Security\CSP\AddContentSecurityPolicyEvent;
 use OCP\User\Events\UserDeletedEvent;
@@ -292,6 +294,13 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(
 			event: AddContentSecurityPolicyEvent::class,
 			listener: CspListener::class
+		);
+
+		// Sharing-public-start-page REQ-PSP-002: a signed-out visitor on the
+		// plain login page goes to the public start page when it is on.
+		$context->registerEventListener(
+			event: BeforeLoginTemplateRenderedEvent::class,
+			listener: PublicStartRedirectListener::class
 		);
 	}//end registerIntegrations()
 

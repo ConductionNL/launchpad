@@ -19,6 +19,8 @@
  *                         CnChartWidget's apexcharts props)
  *       - `stats-block` → StatsBlockHost  (maps `content` onto CnStatsBlockWidget's
  *                         separate props)
+ *       - `tile`        → TileHost        (a `create` office tile opens the new-file
+ *                         dialog; every other tile renders through CnDashTileWidget)
  *     `files` keeps the communal CnFilesWidget renderer — its launchpad backend
  *     `apiBase` is injected by WidgetRenderer.rendererProps, not the registry.
  *
@@ -53,6 +55,8 @@ import {
 	registerDashboardWidget,
 	CnSpendAnalyticsWidgetForm as SpendAnalyticsForm,
 } from '@conduction/nextcloud-vue'
+import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
+import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
 // `clock` and `weather` — LaunchPad-only "ambient tile" widget types with no
 // communal nc-vue equivalent (openspec/specs/clock-weather-widgets/spec.md). Both
 // self-register into the shared `dashboardWidgetRegistry` below, exactly
@@ -62,8 +66,8 @@ import {
 // `ai-assistant` — ask Hermiq about the dashboard (search-ai-dashboard-assistant,
 // openspec/specs/launchpad-ai-dashboard-assistant). Same LaunchPad-only
 // registration pattern as `clock`/`weather`.
-import AiAssistantWidget from '../components/Widgets/Renderers/AiAssistantWidget.vue'
-import AiAssistantWidgetForm from '../components/Widgets/Renderers/AiAssistantWidgetForm.vue'
+import AnnouncementsWidget from '../components/Widgets/Renderers/AnnouncementsWidget.vue'
+import AnnouncementsWidgetForm from '../components/Widgets/Renderers/AnnouncementsWidgetForm.vue'
 import AttentionWidget from '../components/Widgets/Renderers/AttentionWidget.vue'
 import AttentionWidgetForm from '../components/Widgets/Renderers/AttentionWidgetForm.vue'
 import ChartHost from '../components/Widgets/Renderers/ChartHost.vue'
@@ -97,6 +101,7 @@ import NewsWidgetForm from '../components/Widgets/Renderers/NewsWidgetForm.vue'
 import SearchWidget from '../components/Widgets/Renderers/SearchWidget.vue'
 import SearchWidgetForm from '../components/Widgets/Renderers/SearchWidgetForm.vue'
 import StatsBlockHost from '../components/Widgets/Renderers/StatsBlockHost.vue'
+import TileHost from '../components/Widgets/Renderers/TileHost.vue'
 import WeatherWidget from '../components/Widgets/Renderers/WeatherWidget.vue'
 import WeatherWidgetForm from '../components/Widgets/Renderers/WeatherWidgetForm.vue'
 
@@ -121,6 +126,9 @@ const RENDERER_OVERRIDES = {
 	container: ContainerWidget,
 	chart: ChartHost,
 	'stats-block': StatsBlockHost,
+	// integrations-office-tiles: a `create` tile opens the new-file dialog;
+	// every other tile still renders through CnDashTileWidget.
+	tile: TileHost,
 }
 
 /**
@@ -284,6 +292,19 @@ registerDashboardWidget('search', {
 	},
 	displayName: 'Search',
 	icon: 'Magnify',
+})
+
+// engagement-announcements REQ-ANN-001..003: targeted news with likes,
+// comments and follow per category; notices show as banners instead.
+registerDashboardWidget('announcements', {
+	renderer: AnnouncementsWidget,
+	form: AnnouncementsWidgetForm,
+	defaultContent: {
+		category: '',
+		limit: 10,
+	},
+	displayName: 'Announcements',
+	icon: 'BullhornOutline',
 })
 
 // `news` — RSS/Atom headlines fetched server-side

@@ -777,6 +777,11 @@
                   "type": "string",
                   "format": "date-time"
                 },
+                "artefactIndexes": {
+                  "type": "array",
+                  "items": {"type": "integer", "minimum": 0},
+                  "description": "Which renderArtefacts this recipient was sent, so a retry resends the same files."
+                },
                 "providerMessageId": {
                   "type": "string"
                 },
@@ -789,6 +794,11 @@
           "correlationId": {
             "type": "string",
             "format": "uuid"
+          },
+          "skipReason": {
+            "type": "string",
+            "title": "Skip reason",
+            "description": "Why a fire was skipped without rendering, for example because the previous run was still running."
           }
         }
       }

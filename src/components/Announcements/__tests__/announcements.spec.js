@@ -11,11 +11,11 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AnnouncementEditorModal, { toIso } from '../../../modals/AnnouncementEditorModal.vue'
-import { announcementsApi } from '../../../services/announcementsApi.js'
 import AnnouncementsWidget from '../../Widgets/Renderers/AnnouncementsWidget.vue'
 import AnnouncementsWidgetForm from '../../Widgets/Renderers/AnnouncementsWidgetForm.vue'
 import NoticeBanner from '../NoticeBanner.vue'
 import NoticeBannerRegion, { TICK_MS } from '../NoticeBannerRegion.vue'
+import { announcementsApi } from '../../../services/announcementsApi.js'
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal()),
@@ -43,12 +43,14 @@ vi.mock('../../../services/announcementsApi.js', () => ({
 }))
 vi.mock('../../../utils/logger.js', () => ({ logger: { error: vi.fn() } }))
 
-const field = (name) => ({
+function field (name) {
+  return {
 	name,
 	props: ['modelValue', 'label', 'inputLabel', 'options'],
 	emits: ['update:modelValue'],
 	template: `<input class="${name}" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)">`,
-})
+}
+}
 const stubs = {
 	NcButton: {
 		props: ['disabled', 'type'],

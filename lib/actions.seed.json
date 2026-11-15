@@ -89,6 +89,15 @@
     "widget.update-placement": ["admin", "@all"],
     "widget.remove-placement": ["admin", "@all"],
     "widget.news-items": ["admin", "@all"],
-    "widget.calendar-events": ["admin", "@all"]
+    "widget.calendar-events": ["admin", "@all"],
+    "scheduled-exports.list": ["admin", "@all"],
+    "scheduled-exports.create": ["admin", "@all"],
+    "scheduled-exports.read": ["admin", "@all"],
+    "scheduled-exports.update": ["admin", "@all"],
+    "scheduled-exports.delete": ["admin", "@all"],
+    "scheduled-exports.run": ["admin", "@all"],
+    "scheduled-exports.preview": ["admin", "@all"],
+    "scheduled-exports.runs": ["admin", "@all"],
+    "scheduled-exports.retry": ["admin", "@all"]
   }
 }

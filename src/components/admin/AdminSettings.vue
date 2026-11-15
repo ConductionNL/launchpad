@@ -166,6 +166,26 @@
 					}}
 				</p>
 
+				<!-- drill-down-cross-widget-filter REQ-CWF-010: off by default;
+				     only later filter changes are recorded. -->
+				<NcCheckboxRadioSwitch
+					type="switch"
+					:modelValue="settings.filterTelemetryEnabled"
+					data-testid="admin-filter-telemetry-enabled"
+					@update:modelValue="
+						updateSetting('filterTelemetryEnabled', $event)
+					">
+					{{ t('launchpad', 'Record how dashboard filters are used') }}
+				</NcCheckboxRadioSwitch>
+				<p class="launchpad-admin__hint launchpad-admin__hint--inline">
+					{{
+						t(
+							'launchpad',
+							'When on, applying, resetting or bookmarking dashboard filters records which dimensions were filtered, never the values. Earlier filter changes are not recorded.',
+						)
+					}}
+				</p>
+
 				<div class="launchpad-admin__field">
 					<NcSelect
 						v-model="settings.defaultGridColumns"
@@ -408,6 +428,8 @@ export default {
 				allowMultipleDashboards: true,
 				// runtime-shell REQ-SHELL-009: off by default.
 				startPageWithoutNavigation: false,
+				// drill-down-cross-widget-filter REQ-CWF-010: off by default.
+				filterTelemetryEnabled: false,
 				defaultGridColumns: 12,
 				// dashboard-quota-limits REQ-QUOTA-001 — `0` = unlimited.
 				maxDashboardsPerUser: 0,
@@ -643,6 +665,8 @@ export default {
 					allowMultiDash: this.settings.allowMultipleDashboards,
 					startPageWithoutNavigation:
 						this.settings.startPageWithoutNavigation === true,
+					filterTelemetryEnabled:
+						this.settings.filterTelemetryEnabled === true,
 					defaultGridCols: this.settings.defaultGridColumns,
 					// dashboard-quota-limits REQ-QUOTA-001 — sent as integers;
 					// the server clamps into [0, 10000].

@@ -539,6 +539,7 @@ import VersionHistoryModal from '../modals/VersionHistoryModal.vue'
 import VisibilityRulesModal from '../modals/VisibilityRulesModal.vue'
 import WidgetMovePanel from '../modals/WidgetMovePanel.vue'
 import WidgetPickerModal from '../modals/WidgetPickerModal.vue'
+import { createFilterTelemetry } from '../composables/filterTelemetry.js'
 // Composables
 import { useDashboardFilterSession } from '../composables/useDashboardFilterSession.js'
 import { useDashboardLock } from '../composables/useDashboardLock.js'
@@ -559,6 +560,7 @@ import { useTileSearchStore } from '../stores/tileSearch.js'
 import { useWidgetStore } from '../stores/widgets.js'
 import { discoveredAppIdsOnDashboard, tileFromDiscoveredApp } from '../utils/discoveredTile.js'
 import { resolveHeaderActionsTarget } from '../utils/headerActionsDock.js'
+import { loadInitialState } from '../utils/loadInitialState.js'
 import { logger } from '../utils/logger.js'
 import { officePackContainer } from '../utils/officeTiles.js'
 import { isLaunchType, launchContent, launchFields } from '../utils/tileLaunch.js'
@@ -2806,7 +2808,16 @@ export default {
 		 */
 		openFilterSession(readUrl) {
 			this.filterSession?.stop()
-			this.filterSession = useDashboardFilterSession({ dashboard: this.activeDashboard, readUrl })
+			this.filterSession = useDashboardFilterSession({
+				dashboard: this.activeDashboard,
+				readUrl,
+				// REQ-CWF-010: rows are written only when the organisation opted in.
+				telemetry: createFilterTelemetry({
+					enabled: () => loadInitialState('workspace').filterTelemetryEnabled === true,
+					dashboardId: this.activeDashboard?.uuid ?? '',
+					userId: typeof window.OC?.currentUser === 'string' ? window.OC.currentUser : '',
+				}),
+			})
 		},
 
 		/**

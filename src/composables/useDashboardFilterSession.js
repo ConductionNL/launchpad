@@ -56,12 +56,13 @@ export function levelLabels(hierarchies) {
  * @param {boolean} options.readUrl Whether the URL's `f` parameter seeds the bus (the first dashboard of a page load).
  * @param {{href: string}} [options.location] The location (window.location).
  * @param {{replaceState: (state: unknown, title: string, url: string) => void, state: unknown}} [options.history] The history (window.history).
+ * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes when the organisation opted in (REQ-CWF-010).
  * @return {{bus: object, clauses: import('vue').ShallowRef<Array<object>>, labels: {[key: string]: string}, remove: (dimension: string) => boolean, reset: () => boolean, stop: () => void}}
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-003-url-encoding-makes-filtered-views-bookmarkable
  */
-export function useDashboardFilterSession({ dashboard, readUrl, location = window.location, history = window.history }) {
+export function useDashboardFilterSession({ dashboard, readUrl, location = window.location, history = window.history, telemetry = null }) {
 	const hierarchies = hierarchiesOf(dashboard)
-	const bus = useFilterBus({ hierarchies })
+	const bus = useFilterBus({ hierarchies, telemetry })
 	const sync = useFilterUrlSync({ bus, location, history, hydrate: readUrl })
 
 	return {

@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 17 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 18 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -253,4 +253,17 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(announcementEditorGroups: ['communicatie']);
 	}//end testAnnouncementEditorGroupsArePassedThrough()
+
+	/**
+	 * Drill-down-cross-widget-filter REQ-CWF-010: the telemetry switch reaches the service.
+	 *
+	 * @return void
+	 */
+	public function testFilterTelemetrySwitchIsPassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['startPageWithoutNavigation' => null, 'filterTelemetryEnabled' => true]));
+
+		$this->controller->updateSettings(filterTelemetryEnabled: true);
+	}//end testFilterTelemetrySwitchIsPassedThrough()
 }//end class

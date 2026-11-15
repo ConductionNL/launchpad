@@ -70,4 +70,6 @@ enum AdminSettingKey: string {
 	case PUBLIC_START_SHARE_TOKEN = 'public_start_share_token';
 	case TILE_ALLOWED_SCHEMES = 'tile_allowed_schemes';
 	case SSO_LAUNCH_TEMPLATES = 'sso_launch_templates';
+	// Drill-down-cross-widget-filter REQ-CWF-010: org-level opt-in for filter telemetry, off by default.
+	case FILTER_TELEMETRY_ENABLED = 'filter_telemetry_enabled';
 }//end enum

@@ -191,6 +191,7 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setFilterTelemetryEnabled(($settings['filterTelemetryEnabled'] ?? false) === true)
 			->setTileLaunchOptions(
 				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
 				templates: (array)($settings['ssoLaunchTemplates'] ?? [])

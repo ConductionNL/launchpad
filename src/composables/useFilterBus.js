@@ -204,10 +204,11 @@ function replaceAudit(incoming, existing) {
  * @param {object} [options] Bus options.
  * @param {Array<object>} [options.hierarchies] The dashboard's hierarchy descriptors.
  * @param {(clause: object) => boolean} [options.canAccess] False refuses the clause.
+ * @param {{record: (eventType: string, clauses: Array<object>, widgetId?: string|null) => unknown}|null} [options.telemetry] Records filter changes (REQ-CWF-010); none by default.
  * @return {object} The bus: `clauses` (a read-only ref), `publish`, `remove`, `reset`, `hydrate`, `subscribe`, `clausesFor`, `breadcrumb`.
  * @spec openspec/changes/drill-down-cross-widget-filter/specs/cross-widget-filter/spec.md#requirement-req-cwf-001-widget-click-publishes-to-the-filter-bus
  */
-export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) {
+export function useFilterBus({ hierarchies = [], canAccess = () => true, telemetry = null } = {}) {
 	const clauses = shallowRef([])
 	const subscribers = new Set()
 
@@ -335,6 +336,7 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 		})
 		const inferred = ancestors.filter((ancestor) => !kept.some((entry) => entry.dimension === ancestor.dimension))
 		commit(pruneOrphanedAncestors([...kept, ...inferred, incoming]))
+		telemetry?.record('apply', [incoming], incoming.sourceWidgetId)
 		return { accepted: true, toggled: false, audit: decision.audit }
 	}
 
@@ -366,7 +368,9 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 		if (kept.length === clauses.value.length) {
 			return false
 		}
+		const cleared = clauses.value.filter((entry) => !entry.pinned)
 		commit(kept)
+		telemetry?.record('reset', cleared)
 		return true
 	}
 
@@ -410,6 +414,11 @@ export function useFilterBus({ hierarchies = [], canAccess = () => true } = {}) 
 			}
 		}
 		commit(next)
+		const bookmarked = next.filter((entry) => !pinned.includes(entry))
+		if (telemetry && source === 'urlBootstrap' && bookmarked.length > 0) {
+			// REQ-CWF-010: a bookmarked URL is recorded on the next tick, after the page settled.
+			setTimeout(() => telemetry.record('bookmark', bookmarked), 0)
+		}
 	}
 
 	/**

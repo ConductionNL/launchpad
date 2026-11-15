@@ -368,6 +368,23 @@ class InitialStateBuilder {
 	}//end setStartPageWithoutNavigation()
 
 	/**
+	 * Push whether the organisation opted in to filter telemetry, so the
+	 * dashboard's filter bus writes `filter_event` rows only when it did
+	 * (drill-down-cross-widget-filter REQ-CWF-010). Optional key: the JS
+	 * reader defaults to `false`.
+	 *
+	 * @param bool $enabled True when the administrator switched telemetry on.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/drill-down-cross-widget-filter/tasks.md#task-17
+	 */
+	public function setFilterTelemetryEnabled(bool $enabled): self {
+		$this->values['filterTelemetryEnabled'] = $enabled;
+		return $this;
+	}//end setFilterTelemetryEnabled()
+
+	/**
 	 * Set what the tile editor offers for program and single sign-on tiles
 	 * (workspace): the schemes the administrator allowed, and the key and
 	 * name of each launch template. The template addresses stay on the

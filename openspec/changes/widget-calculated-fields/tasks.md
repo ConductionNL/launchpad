@@ -21,13 +21,14 @@
 - [x] Task 11: Handle all AST node types: literals, field refs (with `source='self'` and `source='widget:<id>'`), binary/unary ops, conditionals, function calls; return typed result or `null` on null propagation (REQ-CALC-005)
 - [x] Task 12: Error handling: catch runtime errors (divide by zero, null dereference, function error) and return `{error: message, expression, inputs}` so the widget can display an inline error (REQ-CALC-008)
 - [ ] Task 13: Cross-widget field refs resolved via the dashboard store's widget data at evaluation time (REQ-CALC-003)
-- [ ] Task 14: Numeric precision: all math follows IEEE 754 (JavaScript Number), test suite validates equivalence with PHP to within 1e-9 (REQ-CALC-005)
+- [x] Task 14: Numeric precision: all math follows IEEE 754 (JavaScript Number), test suite validates equivalence with PHP to within 1e-9 (REQ-CALC-005)
+  - Validated: the shared suite holds both evaluators to its expected numbers within 1e-9 (Vitest `evaluator.spec.js`, PHPUnit `CalculatedFieldEvaluatorTest`).
 
 ## 4. Shared Test Suite
 
 - [x] Task 15: Create `test/shared-evaluator-test-suite.json` containing 50+ test cases: each case specifies an AST, input data (field values), expected output, and error conditions; suite is language-agnostic JSON
-- [ ] Task 16: Import and run the shared suite in Vitest (TypeScript evaluator) and PHPUnit (PHP evaluator); both must pass 100% of tests (REQ-CALC-005)
-  - Vitest half built: `src/utils/calculatedFields/__tests__/evaluator.spec.js` runs every case of `tests/fixtures/calculated-fields/shared-evaluator-test-suite.json` (98 cases, parse and evaluate); the PHPUnit half waits for the PHP evaluator (tasks 30-33).
+- [x] Task 16: Import and run the shared suite in Vitest (TypeScript evaluator) and PHPUnit (PHP evaluator); both must pass 100% of tests (REQ-CALC-005)
+  - Vitest half built: `src/utils/calculatedFields/__tests__/evaluator.spec.js` runs every case of `tests/fixtures/calculated-fields/shared-evaluator-test-suite.json` (98 cases, parse and evaluate); the PHPUnit half is `tests/Unit/Service/CalculatedFields/CalculatedFieldEvaluatorTest.php`, one data-provider case per suite case, all 98 passing.
 
 ## 5. Frontend Integration (Vue/Store)
 
@@ -53,10 +54,14 @@
 
 ## 8. PHP Evaluator (Server-side)
 
-- [ ] Task 30: Implement `CalculatedFieldEvaluator.php` that deserialises the AST (JSON) and evaluates it on a row context (REQ-CALC-005)
-- [ ] Task 31: Mirror the TypeScript evaluator exactly: all AST node types, all operators, all functions; numeric precision via IEEE 754 floats; null propagation (REQ-CALC-005)
+- [x] Task 30: Implement `CalculatedFieldEvaluator.php` that deserialises the AST (JSON) and evaluates it on a row context (REQ-CALC-005)
+  - Built: `lib/Service/CalculatedFields/CalculatedFieldEvaluator.php` evaluates the parser's JSON AST on a row context (`row`, `calculated`, `widgets`, `widgetCalculated`), with `now` injectable.
+- [x] Task 31: Mirror the TypeScript evaluator exactly: all AST node types, all operators, all functions; numeric precision via IEEE 754 floats; null propagation (REQ-CALC-005)
+  - Built: node for node and function for function as `src/utils/calculatedFields/evaluator.js`: `CalculatedFieldFunctions` (the allowlist, the same failures and messages), `CalculatedFieldValues` (JavaScript's number text, `===` over int and float, path reading across lists, UTC dates and calendar months), null propagation and the null-aware functions.
 - [ ] Task 32: Error handling: catch runtime errors and store them in OpenRegister's computed-field error log (not thrown to the widget caller); return `null` for the materialised value (REQ-CALC-008)
-- [ ] Task 33: Run the shared test suite (Task 16) against the PHP evaluator; all tests must pass (REQ-CALC-005)
+  - Partly built: `CalculatedFieldEvaluator::evaluateField()` catches a run-time failure and answers `{value: null, error, expression}` instead of throwing. Left: writing the failure to OpenRegister's computed-field error log, which belongs with the materialisation (tasks 26-28).
+- [x] Task 33: Run the shared test suite (Task 16) against the PHP evaluator; all tests must pass (REQ-CALC-005)
+  - All 98 cases of `tests/fixtures/calculated-fields/shared-evaluator-test-suite.json` pass against the PHP evaluator.
 
 ## 9. Format Options and Rendering
 
@@ -67,7 +72,8 @@
 ## 10. Testing — Backend
 
 - [ ] Task 37: PHPUnit — `CalculatedFieldValidationTest.php`: parse errors, type errors, cycle detection, unknownFunction errors all return correct 400 envelope (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
-- [ ] Task 38: PHPUnit — `CalculatedFieldEvaluatorTest.php`: shared test suite (Task 16) runs against PHP evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
+- [x] Task 38: PHPUnit — `CalculatedFieldEvaluatorTest.php`: shared test suite (Task 16) runs against PHP evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
+  - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
 - [ ] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
 - [ ] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
 

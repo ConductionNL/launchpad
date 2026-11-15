@@ -67,16 +67,10 @@ factory was reachable only through the three orphaned facade methods.
 The `launchpad.content_storage` admin setting, `AdminSettingKey::CONTENT_STORAGE`,
 `SetupWizardService::{getContentStorage,setContentStorage,hasGroupfolderApp}`,
 `AdminController::setWizardStorage`, its route, and step 2 of the setup wizard
-are **retained**. They belong to the `setup-wizard` capability, which *writes*
-the setting; this capability was the *reader*. The setting was already inert
-before this change — nothing read it, because the readers were orphaned — so
-removing the reader does not make it worse.
-
-Retiring the wizard step is a separate, reviewable decision that changes the
-`setup-wizard` spec, and it is tracked on launchpad#87 rather than folded into
-this retirement. Anyone completing that follow-up should note that
-`tools/spec-annotations-allowlist.txt` carries entries for those three
-`SetupWizardService` methods and for `AdminController::setWizardStorage`.
+were retained by this retirement, because they belonged to the `setup-wizard`
+capability. They were removed afterwards, on 9 Oct 2026, by the change
+`retire-setup-wizard-storage-step` (decision 131). A `content_storage` row
+already stored stays in the table, unread.
 
 `lib/Migration/Version002001Date20260603000000.php` and
 `DashboardTableBuilder::addContentStorageColumns()` are also retained: a shipped

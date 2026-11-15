@@ -26,8 +26,6 @@ namespace OCA\LaunchPad\Command;
 
 use DateTimeImmutable;
 use OCA\LaunchPad\Db\Dashboard;
-use OCA\LaunchPad\Db\DashboardMapper;
-use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Event\DashboardDeletedEvent;
 use OCA\LaunchPad\Service\CommandService;
 use OCA\LaunchPad\Service\DashboardTreeService;
@@ -48,22 +46,15 @@ class DashboardDeleteCommand extends CommandBase {
 	/**
 	 * Constructor.
 	 *
-	 * @param CommandService $commandService Shared CLI helper.
-	 * @param IUserSession $userSession Caller resolution.
-	 * @param DashboardMapper $dashboardMapper Dashboard mapper.
-	 * @param WidgetPlacementMapper $placementMapper Widget mapper.
-	 * @param DashboardTreeService $treeService Tree service for
-	 *                                          cascading delete.
-	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for
-	 *                                               DashboardDeletedEvent
-	 *                                               (SB1 fix, REQ-CSC-001).
+	 * @param CommandService        $commandService Shared CLI helper.
+	 * @param IUserSession          $userSession Caller resolution.
+	 * @param DeleteCommandStores   $stores The mappers and tree service.
+	 * @param IEventDispatcher|null $eventDispatcher Event dispatcher for DashboardDeletedEvent (SB1 fix, REQ-CSC-001).
 	 */
 	public function __construct(
 		CommandService $commandService,
 		IUserSession $userSession,
-		private readonly DashboardMapper $dashboardMapper,
-		private readonly WidgetPlacementMapper $placementMapper,
-		private readonly DashboardTreeService $treeService,
+		private readonly DeleteCommandStores $stores,
 		private readonly ?IEventDispatcher $eventDispatcher = null,
 	) {
 		parent::__construct(commandService: $commandService, userSession: $userSession);
@@ -114,35 +105,22 @@ class DashboardDeleteCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$uuid = (string)$input->getArgument(name: 'uuid');
 		$cascade = (bool)$input->getOption(name: 'cascade');
 
 		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
+			$dashboard = $this->stores->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
-			);
+			return $this->emitDashboardNotFound(input: $input, output: $output, uuid: $uuid);
 		}
 
-		$childCount = $this->dashboardMapper->countChildrenByParent(parentUuid: $uuid);
+		$childCount = $this->stores->dashboardMapper->countChildrenByParent(parentUuid: $uuid);
 		if ($childCount > 0 && $cascade === false) {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'CHILDREN_EXIST',
-				message: 'Use --cascade to also delete child dashboards',
-				context: ['uuid' => $uuid, 'childCount' => $childCount]
+				error: $this->childrenExistError(uuid: $uuid, childCount: $childCount)
 			);
 		}
 
@@ -156,9 +134,7 @@ class DashboardDeleteCommand extends CommandBase {
 			return $this->emitError(
 				input: $input,
 				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'ABORTED',
-				message: 'Deletion aborted by user.'
+				error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Deletion aborted by user.']
 			);
 		}
 
@@ -168,20 +144,48 @@ class DashboardDeleteCommand extends CommandBase {
 			cascade: $cascade
 		);
 
-		$cascadeNote = '';
-		if ($cascade === true) {
-			$cascadeNote = ' and ' . $childCount . ' descendant(s)';
-		}
-
 		$this->emitSuccess(
 			input: $input,
 			output: $output,
 			data: ['uuid' => $uuid, 'cascade' => $cascade, 'childCount' => $childCount],
-			human: 'Deleted dashboard ' . $uuid . $cascadeNote
+			human: 'Deleted dashboard ' . $uuid . $this->descendantsNote(cascade: $cascade, childCount: $childCount)
 		);
 
 		return CommandService::EXIT_SUCCESS;
 	}//end handle()
+
+	/**
+	 * The refusal for a dashboard with children when --cascade is not given.
+	 *
+	 * @param string $uuid       The dashboard UUID.
+	 * @param int    $childCount Its direct child count.
+	 *
+	 * @return array<string, mixed> The error for {@see CommandBase::emitError()}.
+	 */
+	private function childrenExistError(string $uuid, int $childCount): array {
+		return [
+			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'code'     => 'CHILDREN_EXIST',
+			'message'  => 'Use --cascade to also delete child dashboards',
+			'context'  => ['uuid' => $uuid, 'childCount' => $childCount],
+		];
+	}//end childrenExistError()
+
+	/**
+	 * The " and N descendant(s)" suffix of the success line for a cascading delete.
+	 *
+	 * @param bool $cascade    Whether --cascade was given.
+	 * @param int  $childCount The direct child count.
+	 *
+	 * @return string The suffix, or ''.
+	 */
+	private function descendantsNote(bool $cascade, int $childCount): string {
+		if ($cascade === true) {
+			return ' and ' . $childCount . ' descendant(s)';
+		}
+
+		return '';
+	}//end descendantsNote()
 
 	/**
 	 * Ask the operator to confirm the deletion.
@@ -244,12 +248,12 @@ class DashboardDeleteCommand extends CommandBase {
 		bool $cascade,
 	): void {
 		if ($cascade === true) {
-			$this->treeService->deleteSubtree(dashboard: $dashboard);
+			$this->stores->treeService->deleteSubtree(dashboard: $dashboard);
 			return;
 		}
 
-		$this->placementMapper->deleteByDashboardId(dashboardId: (int)$dashboard->getId());
-		$this->dashboardMapper->delete(entity: $dashboard);
+		$this->stores->placementMapper->deleteByDashboardId(dashboardId: (int)$dashboard->getId());
+		$this->stores->dashboardMapper->delete(entity: $dashboard);
 
 		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
 		// (REQ-CSC-001).

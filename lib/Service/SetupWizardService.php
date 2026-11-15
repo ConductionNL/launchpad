@@ -24,10 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Service;
 
-use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
-use OCP\App\IAppManager;
 
 /**
  * Service backing the setup wizard state + completion endpoints.
@@ -35,7 +33,7 @@ use OCP\App\IAppManager;
  * Status values follow the spec (REQ-WIZ-008): `'done'`, `'skipped'`,
  * `'pending'`. The wizard "pending" state means a step has not been
  * traversed yet (no sibling setting written). `'skipped'` is reserved for
- * the optional steps 5/6 — when their guarded capability isn't available,
+ * the optional steps 4/5 — when their guarded capability isn't available,
  * the heuristic returns `'skipped'` so the UI can collapse the step.
  */
 class SetupWizardService {
@@ -44,40 +42,15 @@ class SetupWizardService {
 	 *
 	 * @var integer
 	 */
-	public const STEP_COUNT = 7;
-
-	/**
-	 * Storage backend value: relational database (default).
-	 *
-	 * @var string
-	 */
-	public const STORAGE_DATABASE = 'database';
-
-	/**
-	 * Storage backend value: GroupFolder app.
-	 *
-	 * @var string
-	 */
-	public const STORAGE_GROUPFOLDER = 'groupfolder';
-
-	/**
-	 * GroupFolder dependency app id used by Step 2's tooltip gate.
-	 *
-	 * @var string
-	 */
-	public const GROUPFOLDER_APP_ID = 'groupfolders';
+	public const STEP_COUNT = 6;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param AdminSettingMapper $settingMapper Admin-setting persistence.
-	 * @param IAppManager $appManager Used to detect the optional
-	 *                                `groupfolders` Nextcloud
-	 *                                app for Step 2's gate.
 	 */
 	public function __construct(
 		private readonly AdminSettingMapper $settingMapper,
-		private readonly IAppManager $appManager,
 	) {
 	}//end __construct()
 
@@ -86,7 +59,7 @@ class SetupWizardService {
 	 *
 	 * Shape: `{complete: bool, currentRecommendedStep: int,
 	 *         stepStatuses: array<string,string>}`. Step 1 is always
-	 * `'done'`; Step 7 stays `'pending'` until the admin clicks Finish.
+	 * `'done'`; Step 6 stays `'pending'` until the admin clicks Finish.
 	 *
 	 * @return array{complete: bool, currentRecommendedStep: int, stepStatuses: array<int,string>}
 	 *                                                                                             The wizard state payload.
@@ -125,58 +98,6 @@ class SetupWizardService {
 	}//end markWizardComplete()
 
 	/**
-	 * Whether the GroupFolder dependency is installed (REQ-WIZ-003).
-	 *
-	 * @return boolean True when the GroupFolder option may be selected.
-	 */
-	public function hasGroupfolderApp(): bool {
-		return $this->appManager->isInstalled(self::GROUPFOLDER_APP_ID);
-	}//end hasGroupfolderApp()
-
-	/**
-	 * Persist the storage backend choice from Step 2.
-	 *
-	 * @param string $value `'database'` or `'groupfolder'`.
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/setup-wizard/spec.md
-	 */
-	public function setContentStorage(string $value): void {
-		$allowed = [self::STORAGE_DATABASE, self::STORAGE_GROUPFOLDER];
-		if (in_array(needle: $value, haystack: $allowed, strict: true) === false) {
-			throw new InvalidArgumentException(
-				message: 'Unsupported storage backend: ' . $value
-			);
-		}
-
-		$this->settingMapper->setSetting(
-			key: AdminSetting::KEY_CONTENT_STORAGE,
-			value: $value
-		);
-	}//end setContentStorage()
-
-	/**
-	 * Read the persisted storage backend choice with the safe default.
-	 *
-	 * @return string The persisted backend or `'database'` when unset.
-	 *
-	 * @spec openspec/specs/setup-wizard/spec.md
-	 */
-	public function getContentStorage(): string {
-		$value = $this->settingMapper->getValue(
-			key: AdminSetting::KEY_CONTENT_STORAGE,
-			default: null
-		);
-
-		if (is_string($value) === true && $value !== '') {
-			return $value;
-		}
-
-		return self::STORAGE_DATABASE;
-	}//end getContentStorage()
-
-	/**
 	 * Whether the wizard has been completed at least once.
 	 *
 	 * @return boolean True when the flag is JSON `true`.
@@ -203,21 +124,15 @@ class SetupWizardService {
 	private function computeStepStatuses(bool $complete): array {
 		$settings = $this->settingMapper->getAllAsArray();
 
-		$hasStorage = isset($settings[AdminSetting::KEY_CONTENT_STORAGE]);
 		$groupOrder = ($settings[AdminSetting::KEY_GROUP_ORDER] ?? null);
 		$hasGroup = (is_array($groupOrder) === true && count($groupOrder) > 0);
 		$hasFooter = isset($settings[AdminSetting::KEY_FOOTER_CONFIG]);
 
-		// Steps 4 (demos) and 5 (admin-roles) live in sibling capabilities
+		// Steps 3 (demos) and 4 (admin-roles) live in sibling capabilities
 		// not yet implemented in this branch; surface them as `'skipped'`
 		// so the wizard advances cleanly when the embed component is a
 		// local stub. They flip to `'done'` once the sibling capability
 		// ships and writes its own settings.
-		$statusStorage = 'pending';
-		if ($hasStorage === true) {
-			$statusStorage = 'done';
-		}
-
 		$statusGroup = 'pending';
 		if ($hasGroup === true) {
 			$statusGroup = 'done';
@@ -235,12 +150,11 @@ class SetupWizardService {
 
 		return [
 			'1' => 'done',
-			'2' => $statusStorage,
-			'3' => $statusGroup,
+			'2' => $statusGroup,
+			'3' => 'skipped',
 			'4' => 'skipped',
-			'5' => 'skipped',
-			'6' => $statusFooter,
-			'7' => $statusDone,
+			'5' => $statusFooter,
+			'6' => $statusDone,
 		];
 	}//end computeStepStatuses()
 

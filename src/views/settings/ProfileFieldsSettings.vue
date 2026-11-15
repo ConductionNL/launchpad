@@ -4,14 +4,22 @@
 -->
 
 <template>
-	<NcSettingsSection
-		:name="t('launchpad', 'LaunchPad profile')"
-		:description="
-			t(
-				'launchpad',
-				'Colleagues see these fields on your card in the people widget and can find you by them.',
-			)
-		">
+	<!--
+		A section of the user settings dialog. It stays out of the dialog while
+		no profile field is defined, as the old personal settings form did.
+	-->
+	<NcAppSettingsSection
+		v-if="loading || loadError || fields.length > 0"
+		id="launchpad-profile-fields"
+		:name="t('launchpad', 'My profile')">
+		<p class="profile-fields__description">
+			{{
+				t(
+					'launchpad',
+					'Fields your organisation adds to your profile. Colleagues see them in profile widgets.',
+				)
+			}}
+		</p>
 		<p v-if="loading">
 			{{ t('launchpad', 'Loading…') }}
 		</p>
@@ -70,23 +78,23 @@
 				{{ saving ? t('launchpad', 'Saving…') : t('launchpad', 'Save') }}
 			</NcButton>
 		</form>
-	</NcSettingsSection>
+	</NcAppSettingsSection>
 </template>
 
 <script>
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import {
+	NcAppSettingsSection,
 	NcButton,
 	NcNoteCard,
 	NcSelect,
-	NcSettingsSection,
 	NcTextField,
 } from '@nextcloud/vue'
 
 /**
- * ProfileFieldsSettings: the person's own LaunchPad profile fields on the
- * personal settings page (REQ-PEX-002). Text fields are a text box, tags a
+ * ProfileFieldsSettings: the person's own LaunchPad profile fields, a section
+ * of the user settings dialog (REQ-PEX-002). Text fields are a text box, tags a
  * taggable select; fields read from LDAP show read-only.
  *
  * @spec openspec/specs/people-widget/spec.md
@@ -94,7 +102,7 @@ import {
 export default {
 	name: 'ProfileFieldsSettings',
 
-	components: { NcButton, NcNoteCard, NcSelect, NcSettingsSection, NcTextField },
+	components: { NcAppSettingsSection, NcButton, NcNoteCard, NcSelect, NcTextField },
 
 	data() {
 		return {
@@ -181,6 +189,11 @@ export default {
 </script>
 
 <style scoped>
+.profile-fields__description {
+	margin-bottom: calc(var(--default-grid-baseline) * 3);
+	color: var(--color-text-maxcontrast);
+}
+
 .profile-fields {
 	display: flex;
 	flex-direction: column;

@@ -38,7 +38,6 @@ namespace OCA\LaunchPad\Service;
 
 use DateTime;
 use OCA\LaunchPad\Db\DashboardLock;
-use OCA\LaunchPad\Db\DashboardLockMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
 use OCA\LaunchPad\Exception\LockConflictException;
 use OCA\LaunchPad\Exception\LockForbiddenException;
@@ -46,7 +45,6 @@ use OCA\LaunchPad\Exception\LockNotFoundException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserManager;
-use Psr\Log\LoggerInterface;
 
 /**
  * Service for acquiring, refreshing, releasing and querying dashboard
@@ -56,31 +54,17 @@ class DashboardLockService {
 	/**
 	 * Constructor
 	 *
-	 * @param DashboardLockMapper $lockMapper The lock mapper.
-	 * @param DashboardMapper $dashboardMapper Used to verify the
-	 *                                         dashboard exists
-	 *                                         before a lock row
-	 *                                         is written.
-	 * @param IUserManager $userManager Resolves display names for
-	 *                                  new locks.
-	 * @param IGroupManager $groupManager Admin check for force-release.
-	 * @param LoggerInterface $logger PSR logger — used for
-	 *                                the force-release audit
-	 *                                trail (REQ-LOCK-006,
-	 *                                design D4).
-	 * @param PermissionService $permissionService Permission resolver — used
-	 *                                             to verify the caller has at
-	 *                                             least view access before
-	 *                                             granting or extending a lock
-	 *                                             (C3 fix: REQ-LOCK-001 +
-	 *                                             REQ-PERM-001).
+	 * @param LockStore         $locks The lock mapper and logger.
+	 * @param DashboardMapper   $dashboardMapper Used to verify the dashboard exists before a lock row is written.
+	 * @param LockDirectory     $directory The user and group managers.
+	 * @param PermissionService $permissionService Permission resolver — used to verify the caller has at
+	 *                                             least view access before granting or extending a lock (C3
+	 *                                             fix: REQ-LOCK-001 + REQ-PERM-001).
 	 */
 	public function __construct(
-		private readonly DashboardLockMapper $lockMapper,
+		private readonly LockStore $locks,
 		private readonly DashboardMapper $dashboardMapper,
-		private readonly IUserManager $userManager,
-		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
+		private readonly LockDirectory $directory,
 		private readonly PermissionService $permissionService,
 	) {
 	}//end __construct()
@@ -127,7 +111,32 @@ class DashboardLockService {
 		// C3 fix (REQ-LOCK-001 + REQ-PERM-001): a caller without at least
 		// view access MUST NOT be allowed to acquire an edit lock — the
 		// lock acts as a denial-of-service vector against any discovered UUID.
-		$dashboardId = (int)$dashboard->getId();
+		$this->assertCanView(userId: $userId, dashboardId: (int)$dashboard->getId());
+
+		// Inline cleanup so stale rows don't block the new acquire.
+		$this->locks->lockMapper->deleteExpiredForDashboard(
+			dashboardUuid: $dashboardUuid
+		);
+
+		$existing = $this->storedLock(dashboardUuid: $dashboardUuid);
+		if ($existing !== null) {
+			return $this->reenterLock(existing: $existing, userId: $userId);
+		}
+
+		return $this->insertLock(dashboardUuid: $dashboardUuid, userId: $userId);
+	}//end acquireLock()
+
+	/**
+	 * Refuse a caller without at least view access to the dashboard.
+	 *
+	 * @param string $userId      The caller.
+	 * @param int    $dashboardId The dashboard ID.
+	 *
+	 * @return void
+	 *
+	 * @throws LockForbiddenException When the caller cannot view the dashboard.
+	 */
+	private function assertCanView(string $userId, int $dashboardId): void {
 		if ($this->permissionService->canViewDashboard(
 			userId: $userId,
 			dashboardId: $dashboardId
@@ -137,34 +146,59 @@ class DashboardLockService {
 				message: 'You do not have access to this dashboard'
 			);
 		}
+	}//end assertCanView()
 
-		// Inline cleanup so stale rows don't block the new acquire.
-		$this->lockMapper->deleteExpiredForDashboard(
-			dashboardUuid: $dashboardUuid
-		);
-
+	/**
+	 * The lock row of a dashboard, or null when there is none.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return DashboardLock|null The lock, or null.
+	 */
+	private function storedLock(string $dashboardUuid): DashboardLock|null {
 		try {
-			$existing = $this->lockMapper->findByDashboardUuid(
+			return $this->locks->lockMapper->findByDashboardUuid(
 				dashboardUuid: $dashboardUuid
 			);
 		} catch (DoesNotExistException) {
-			$existing = null;
+			return null;
+		}
+	}//end storedLock()
+
+	/**
+	 * Acquire an existing lock again: the holder's own acquire bumps the
+	 * heartbeat, anyone else's is a conflict.
+	 *
+	 * @param DashboardLock $existing The existing lock.
+	 * @param string        $userId   The caller.
+	 *
+	 * @return DashboardLock The refreshed lock.
+	 *
+	 * @throws LockConflictException When another user holds the lock.
+	 */
+	private function reenterLock(DashboardLock $existing, string $userId): DashboardLock {
+		if ($existing->getUserId() === $userId) {
+			// Re-entrant refresh — bump heartbeat and return.
+			$existing->setUpdatedAt($this->now());
+			return $this->locks->lockMapper->update(entity: $existing);
 		}
 
-		if ($existing !== null) {
-			if ($existing->getUserId() === $userId) {
-				// Re-entrant refresh — bump heartbeat and return.
-				$existing->setUpdatedAt($this->now());
-				return $this->lockMapper->update(entity: $existing);
-			}
+		// Held by someone else — surface the conflict.
+		throw new LockConflictException(
+			message: 'Lock held by another user',
+			existingLock: $existing,
+		);
+	}//end reenterLock()
 
-			// Held by someone else — surface the conflict.
-			throw new LockConflictException(
-				message: 'Lock held by another user',
-				existingLock: $existing,
-			);
-		}
-
+	/**
+	 * Insert a fresh lock for the caller.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 * @param string $userId        The caller.
+	 *
+	 * @return DashboardLock The inserted lock.
+	 */
+	private function insertLock(string $dashboardUuid, string $userId): DashboardLock {
 		$now = $this->now();
 		$lock = new DashboardLock();
 		$lock->setDashboardUuid($dashboardUuid);
@@ -173,8 +207,8 @@ class DashboardLockService {
 		$lock->setCreatedAt($now);
 		$lock->setUpdatedAt($now);
 
-		return $this->lockMapper->insert(entity: $lock);
-	}//end acquireLock()
+		return $this->locks->lockMapper->insert(entity: $lock);
+	}//end insertLock()
 
 	/**
 	 * Refresh the lock by bumping `updatedAt` (the "heartbeat").
@@ -203,24 +237,9 @@ class DashboardLockService {
 		// C3 fix: verify the caller has at least view access before
 		// allowing a heartbeat — prevents indefinite lock extension by
 		// an attacker who discovered the UUID.
-		try {
-			$dashboard = $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
-			$dashboardId = (int)$dashboard->getId();
-		} catch (DoesNotExistException) {
-			throw new LockNotFoundException(message: 'Lock not found; call acquire first');
-		}
+		$this->assertCanView(userId: $userId, dashboardId: $this->lockedDashboardId(dashboardUuid: $dashboardUuid));
 
-		if ($this->permissionService->canViewDashboard(
-			userId: $userId,
-			dashboardId: $dashboardId
-		) === false
-		) {
-			throw new LockForbiddenException(
-				message: 'You do not have access to this dashboard'
-			);
-		}
-
-		$existing = $this->lockMapper->findActive(
+		$existing = $this->locks->lockMapper->findActive(
 			dashboardUuid: $dashboardUuid
 		);
 
@@ -237,8 +256,27 @@ class DashboardLockService {
 		}
 
 		$existing->setUpdatedAt($this->now());
-		return $this->lockMapper->update(entity: $existing);
+		return $this->locks->lockMapper->update(entity: $existing);
 	}//end heartbeat()
+
+	/**
+	 * The ID of the dashboard a heartbeat targets; a missing dashboard
+	 * has no lock to extend.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return int The dashboard ID.
+	 *
+	 * @throws LockNotFoundException When the dashboard does not exist.
+	 */
+	private function lockedDashboardId(string $dashboardUuid): int {
+		try {
+			$dashboard = $this->dashboardMapper->findByUuid(uuid: $dashboardUuid);
+			return (int)$dashboard->getId();
+		} catch (DoesNotExistException) {
+			throw new LockNotFoundException(message: 'Lock not found; call acquire first');
+		}
+	}//end lockedDashboardId()
 
 	/**
 	 * Release the editing lock on a dashboard.
@@ -269,7 +307,7 @@ class DashboardLockService {
 		string $userId,
 		bool $allowAdminOverride = true,
 	): void {
-		$existing = $this->lockMapper->findActive(
+		$existing = $this->locks->lockMapper->findActive(
 			dashboardUuid: $dashboardUuid
 		);
 
@@ -280,7 +318,7 @@ class DashboardLockService {
 
 		if ($existing->getUserId() !== $userId) {
 			if ($allowAdminOverride === false
-				|| $this->groupManager->isAdmin(userId: $userId) === false
+				|| $this->directory->groupManager->isAdmin(userId: $userId) === false
 			) {
 				throw new LockForbiddenException(
 					message: 'Only the lock owner or an admin can release this lock'
@@ -288,7 +326,7 @@ class DashboardLockService {
 			}
 
 			// L2: audit log when an admin overrides another user's lock.
-			$this->logger->info(
+			$this->locks->logger->info(
 				message: sprintf(
 					'launchpad.dashboard_lock.admin_override_release admin=%s dashboard=%s previous_owner=%s',
 					$userId,
@@ -298,7 +336,7 @@ class DashboardLockService {
 			);
 		}
 
-		$this->lockMapper->delete(entity: $existing);
+		$this->locks->lockMapper->delete(entity: $existing);
 	}//end releaseLock()
 
 	/**
@@ -317,11 +355,11 @@ class DashboardLockService {
 		// Inline cleanup so the next read is never polluted by a stale
 		// row. Cheap on the indexed `(dashboard_uuid, updated_at)`
 		// path even when the row is fresh (no-op delete).
-		$this->lockMapper->deleteExpiredForDashboard(
+		$this->locks->lockMapper->deleteExpiredForDashboard(
 			dashboardUuid: $dashboardUuid
 		);
 
-		return $this->lockMapper->findActive(
+		return $this->locks->lockMapper->findActive(
 			dashboardUuid: $dashboardUuid
 		);
 	}//end getLockState()
@@ -349,22 +387,22 @@ class DashboardLockService {
 		string $dashboardUuid,
 		string $adminUserId,
 	): void {
-		if ($this->groupManager->isAdmin(userId: $adminUserId) === false) {
+		if ($this->directory->groupManager->isAdmin(userId: $adminUserId) === false) {
 			throw new LockForbiddenException(
 				message: 'Only an administrator may force-release a lock'
 			);
 		}
 
-		$existing = $this->lockMapper->findActive(
+		$existing = $this->locks->lockMapper->findActive(
 			dashboardUuid: $dashboardUuid
 		);
 		$previousOwner = null;
 		if ($existing !== null) {
 			$previousOwner = (string)$existing->getUserId();
-			$this->lockMapper->delete(entity: $existing);
+			$this->locks->lockMapper->delete(entity: $existing);
 		}
 
-		$this->logger->info(
+		$this->locks->logger->info(
 			message: sprintf(
 				'launchpad.dashboard_lock.force_release admin=%s dashboard=%s previous_owner=%s',
 				$adminUserId,
@@ -388,7 +426,7 @@ class DashboardLockService {
 	 * @spec openspec/specs/dashboard-locking/spec.md
 	 */
 	public function cascadeDelete(string $dashboardUuid): int {
-		return $this->lockMapper->deleteByDashboardUuid(
+		return $this->locks->lockMapper->deleteByDashboardUuid(
 			dashboardUuid: $dashboardUuid
 		);
 	}//end cascadeDelete()
@@ -405,7 +443,7 @@ class DashboardLockService {
 	 * @return string The display name.
 	 */
 	private function resolveDisplayName(string $userId): string {
-		$user = $this->userManager->get(uid: $userId);
+		$user = $this->directory->userManager->get(uid: $userId);
 		if ($user === null) {
 			return $userId;
 		}

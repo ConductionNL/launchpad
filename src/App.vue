@@ -14,12 +14,15 @@
 
 <template>
 	<CnAppRoot
+		ref="appRoot"
 		:manifest="liveManifest"
 		:registry="registry"
 		:pageTypes="pageTypes"
 		:customComponents="customComponents"
 		:permissions="permissions"
 		:supportDialog="supportNoteForThisAccount"
+		:userSettingsSections="userSettingsSections"
+		:translate="translateForApp"
 		appId="launchpad">
 		<!--
 		  runtime-shell REQ-SHELL-009: the start page without the navigation
@@ -31,6 +34,19 @@
 		  own. The panel's destinations are in `StartPageMenu`, fed by the
 		  `launchpadChrome` provide below.
 		-->
+		<!--
+			The user settings dialog. Every per-person setting lives here;
+			LaunchPad adds nothing to Nextcloud's personal settings (Ruben,
+			11 Oct 2026). The app's own section (My profile) goes in
+			#user-settings-sections; the library keeps drawing credentials,
+			notifications, the walkthrough replay and integrations, in the order
+			of the userSettingsSections prop (board LpPersoonlijk: Mijn profiel,
+			Inloggegevens first).
+		-->
+		<template #user-settings-sections>
+			<ProfileFieldsSettings />
+			<AnalyticsOptOutSettings />
+		</template>
 		<template v-if="railSuppressed" #menu>
 			<span
 				class="launchpad-rail-suppressed"
@@ -42,7 +58,11 @@
 
 <script>
 import { CnAppRoot } from '@conduction/nextcloud-vue'
+import { translate as ncTranslate } from '@nextcloud/l10n'
 import { computed } from 'vue'
+import AnalyticsOptOutSettings from './views/settings/AnalyticsOptOutSettings.vue'
+import ProfileFieldsSettings from './views/settings/ProfileFieldsSettings.vue'
+import { REQUIRED_OBJECT_PROP } from './constants/propDefinitions.js'
 import customComponents from './customComponents.js'
 import { ICON_CATALOGUE } from './services/iconCatalogue.js'
 import { permits } from './utils/permissions.js'
@@ -111,6 +131,8 @@ export default {
 	name: 'App',
 	components: {
 		CnAppRoot,
+		AnalyticsOptOutSettings,
+		ProfileFieldsSettings,
 	},
 
 	inject: {
@@ -170,27 +192,18 @@ export default {
 		 * Bundled (stub) manifest from the bootstrap. `liveManifest` prefers
 		 * the runtime one once it arrives.
 		 */
-		manifest: {
-			type: Object,
-			required: true,
-		},
+		manifest: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * V2 kind-tagged registry (ADR-036). `CnPageRenderer` resolves every
 		 * `type: "custom"` page's `component` string against it.
 		 */
-		registry: {
-			type: Object,
-			required: true,
-		},
+		registry: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * Declarative page-type components, from the library's defaults.
 		 */
-		pageTypes: {
-			type: Object,
-			required: true,
-		},
+		pageTypes: REQUIRED_OBJECT_PROP,
 
 		/**
 		 * The permission strings this account holds, built by
@@ -237,6 +250,18 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The sections of the user settings dialog, in board LpPersoonlijk's
+		 * order: the app's own (My profile), then the credentials, and the
+		 * library's notifications, walkthrough replay and integrations.
+		 *
+		 * @return {string[]} Section keys for CnAppRoot.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		userSettingsSections() {
+			return ['app', 'credentials', 'notifications', 'walkthrough', 'integrations']
+		},
+
 		/**
 		 * Whether the navigation panel is left out of this route: the admin
 		 * option is on AND the route is the dashboard view (`/` or
@@ -364,6 +389,60 @@ export default {
 				]),
 
 				menu: byId([...(this.manifest.menu ?? []), ...(runtime.menu ?? [])]),
+			}
+		},
+	},
+
+	/** @spec openspec/specs/people-widget/spec.md */
+	mounted() {
+		window.addEventListener('hashchange', this.openUserSettingsFromHash)
+		this.openUserSettingsFromHash()
+	},
+
+	/** @spec openspec/specs/people-widget/spec.md */
+	beforeUnmount() {
+		window.removeEventListener('hashchange', this.openUserSettingsFromHash)
+	},
+
+	methods: {
+		/**
+		 * Translate a string the manifest carries (menu labels, page titles
+		 * and descriptions, setup and walkthrough copy) in LaunchPad's own
+		 * catalogue. `CnAppRoot` never imports an app's `t()`; without this
+		 * its default is the identity, and every manifest string stayed
+		 * English for a Dutch reader although `l10n/nl.js` has them all.
+		 *
+		 * @param {string} key The text as the manifest writes it.
+		 * @param {object} [vars] Placeholder values.
+		 * @return {string} The translation, or the key when there is none.
+		 * @spec exclude wiring only: hands the library the app's translator. Which strings exist and what they say is specified where the manifest declares them.
+		 */
+		translateForApp(key, vars) {
+			return ncTranslate('launchpad', key, vars)
+		},
+
+		/**
+		 * The mounted CnAppRoot, or null before it mounts.
+		 *
+		 * @return {object|null} The CnAppRoot instance.
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		appRoot() {
+			return this.$refs.appRoot || null
+		},
+
+		/**
+		 * Open the user settings dialog when the location hash is
+		 * `#user-settings`, the deep link that replaces the old forms in
+		 * Nextcloud's personal settings.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/people-widget/spec.md
+		 */
+		openUserSettingsFromHash() {
+			const root = this.appRoot()
+			if (root && window.location.hash === '#user-settings') {
+				root.userSettingsOpen = true
 			}
 		},
 	},

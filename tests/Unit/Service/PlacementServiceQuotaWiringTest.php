@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\PlacementUpdaters;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -60,10 +61,12 @@ class PlacementServiceQuotaWiringTest extends TestCase {
 
 		$this->service = new PlacementService(
 			placementMapper: $this->placementMapper,
-			tileUpdater: $this->createMock(TileUpdater::class),
-			placementUpdater: $this->createMock(PlacementUpdater::class),
+			updaters: new PlacementUpdaters(
+				tileUpdater: $this->createMock(TileUpdater::class),
+				placementUpdater: $this->createMock(PlacementUpdater::class)
+			),
 			publicShareContext: null,
-			quotaService: $quotaService,
+			quotaService: $quotaService
 		);
 	}//end setUp()
 

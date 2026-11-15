@@ -109,8 +109,10 @@ class ActionSeedCoverageTest extends TestCase {
 
 		$missing = [];
 		foreach ($seedKeys as $key) {
-			// Match requireAction($user, 'key') - single or double quotes.
-			$pattern = '/requireAction\s*\([^,]+,\s*[\'"]' . preg_quote($key, '/') . '[\'"]\s*\)/';
+			// Match requireAction($user, 'key') or RequestGuard's
+			// actionRefusal(action: 'key') - single or double quotes.
+			$quoted = '[\'"]' . preg_quote($key, '/') . '[\'"]\s*\)';
+			$pattern = '/(?:requireAction\s*\([^,]+,\s*|actionRefusal\s*\(\s*(?:action:\s*)?)' . $quoted . '/';
 			if (preg_match($pattern, $combinedSource) !== 1) {
 				$missing[] = $key;
 			}
@@ -137,9 +139,10 @@ class ActionSeedCoverageTest extends TestCase {
 		$seedKeys = array_flip($this->loadSeedKeys());
 		$combinedSource = $this->buildCombinedControllerSource();
 
-		// Extract every key string passed to requireAction($user, '<key>').
+		// Extract every key string passed to requireAction($user, '<key>')
+		// or actionRefusal(action: '<key>').
 		preg_match_all(
-			'/requireAction\s*\([^,]+,\s*[\'"]([^\'"]+)[\'"]\s*\)/',
+			'/(?:requireAction\s*\([^,]+,\s*|actionRefusal\s*\(\s*(?:action:\s*)?)[\'"]([^\'"]+)[\'"]\s*\)/',
 			$combinedSource,
 			$matches
 		);

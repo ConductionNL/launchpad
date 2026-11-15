@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -90,16 +93,22 @@ class DashboardApiControllerQuotaTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->createMock(IRequest::class),
-			dashboardService: $this->dashboardService,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService,
+				quotaService: $this->quotaService
+			),
 			permissionService: $this->createMock(PermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			userId: $userId,
-			quotaService: $this->quotaService,
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			),
+			userId: $userId
 		);
 	}//end makeController()
 

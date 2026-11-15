@@ -46,10 +46,7 @@ class AdminWidgetRulesController extends Controller {
 		IRequest $request,
 		private readonly ConditionalService $conditionalService,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

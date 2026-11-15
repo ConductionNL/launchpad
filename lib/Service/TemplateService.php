@@ -196,7 +196,7 @@ class TemplateService {
 	): Dashboard {
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$dashboard = new Dashboard();
-		$dashboard->setUuid($this->generateUuid());
+		$dashboard->setUuid(UuidV4::generate());
 		$dashboard->setName($template->getName());
 		$dashboard->setDescription(
 			$template->getDescription()
@@ -218,21 +218,6 @@ class TemplateService {
 
 		return $dashboard;
 	}//end buildDashboardFromTemplate()
-
-	/**
-	 * Generate a v4 UUID using random_bytes (no external dependency).
-	 *
-	 * @return string A v4 UUID.
-	 */
-	private function generateUuid(): string {
-		$data = random_bytes(length: 16);
-		$data[6] = chr((ord($data[6]) & 0x0F) | 0x40);
-		$data[8] = chr((ord($data[8]) & 0x3F) | 0x80);
-		return vsprintf(
-			format: '%s%s-%s-%s-%s-%s%s%s',
-			values: str_split(string: bin2hex(string: $data), length: 4)
-		);
-	}//end generateUuid()
 
 	/**
 	 * Copy widget placements from a template to a new dashboard.

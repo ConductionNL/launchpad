@@ -24,7 +24,6 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
-use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -33,6 +32,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<RoleLayoutDefault>
  */
 class RoleLayoutDefaultMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -56,18 +57,7 @@ class RoleLayoutDefaultMapper extends QBMapper {
 	 * @throws DoesNotExistException When no row with that id exists.
 	 */
 	public function find(int $id): RoleLayoutDefault {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -96,16 +86,8 @@ class RoleLayoutDefaultMapper extends QBMapper {
 	 * @return RoleLayoutDefault[] Ordered rows; empty array when nothing seeded.
 	 */
 	public function findByGroupId(string $groupId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			)
-			->orderBy(sort: 'sort_order', order: 'ASC');
+		$qb = $this->selectWhere(match: ['group_id' => $groupId]);
+		$qb->orderBy(sort: 'sort_order', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByGroupId()
@@ -122,21 +104,7 @@ class RoleLayoutDefaultMapper extends QBMapper {
 	 * @throws DoesNotExistException When no row exists for the combination.
 	 */
 	public function findByGroupAndWidget(string $groupId, string $widgetId): RoleLayoutDefault {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'group_id',
-					y: $qb->createNamedParameter(value: $groupId)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'widget_id',
-					y: $qb->createNamedParameter(value: $widgetId)
-				)
-			);
+		$qb = $this->selectWhere(match: ['group_id' => $groupId, 'widget_id' => $widgetId]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByGroupAndWidget()

@@ -46,17 +46,25 @@
 				</NcButton>
 			</div>
 		</NcPopover>
-		<ResetPersonalViewDialog
-			:open="resetOpen"
-			@update:open="resetOpen = $event"
-			@confirm="confirmReset" />
+		<CnConfirmDialog
+			v-if="resetOpen"
+			:dialogTitle="t('launchpad', 'Reset your view?')"
+			:message="
+				t(
+					'launchpad',
+					'Every widget you hid comes back, and the dashboard looks the way its owner set it up.',
+				)
+			"
+			:confirmLabel="t('launchpad', 'Reset my view')"
+			@confirm="confirmReset"
+			@close="resetOpen = false" />
 	</div>
 </template>
 
 <script>
-import { NcButton, NcPopover } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton, NcPopover } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
-import ResetPersonalViewDialog from '../../dialogs/ResetPersonalViewDialog.vue'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { resolveWidgetTitle } from '../../utils/widgetTitle.js'
 
 /**
@@ -72,21 +80,15 @@ export default {
 	components: {
 		NcButton,
 		NcPopover,
-		ResetPersonalViewDialog,
+		CnConfirmDialog,
 	},
 
 	props: {
 		/** Hidden placements (WidgetPlacement::jsonSerialize rows). */
-		hiddenPlacements: {
-			type: Array,
-			default: () => [],
-		},
+		hiddenPlacements: LIST_PROP,
 
 		/** Widget catalog, for naming Nextcloud dashboard widgets. */
-		availableWidgets: {
-			type: Array,
-			default: () => [],
-		},
+		availableWidgets: LIST_PROP,
 	},
 
 	emits: ['showAgain', 'reset'],

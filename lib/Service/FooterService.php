@@ -66,6 +66,14 @@ use OCA\LaunchPad\Db\Dashboard;
  */
 class FooterService {
 	/**
+	 * Colour fields of the settings patch and the setting each is stored in.
+	 */
+	private const COLOUR_SETTINGS = [
+		'footerBackgroundColor' => AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,
+		'footerTextColor' => AdminSetting::KEY_FOOTER_TEXT_COLOR,
+	];
+
+	/**
 	 * Maximum allowed footer HTML length (REQ-FTR-002 — 8 KB cap).
 	 * Inputs that exceed this MUST be rejected with HTTP 413 by the
 	 * controller — `sanitiseHtml()` throws
@@ -159,55 +167,71 @@ class FooterService {
 	 * @spec openspec/specs/footer-customization/spec.md
 	 */
 	public function getGlobalSettings(): array {
-		$enabled = (bool)$this->settingMapper->getValue(
-			key: AdminSetting::KEY_FOOTER_ENABLED,
-			default: false
-		);
+		return [
+			'footerEnabled' => (bool)$this->settingMapper->getValue(
+				key: AdminSetting::KEY_FOOTER_ENABLED,
+				default: false
+			),
+			'footerHtml' => $this->storedFooterHtml(),
+			'footerConfig' => $this->storedFooterConfig(),
+			'footerBackgroundColor' => $this->storedColour(key: AdminSetting::KEY_FOOTER_BACKGROUND_COLOR),
+			'footerTextColor' => $this->storedColour(key: AdminSetting::KEY_FOOTER_TEXT_COLOR),
+		];
+	}//end getGlobalSettings()
 
+	/**
+	 * Read the stored footer HTML; anything but a string or a variant map
+	 * reads as the empty string.
+	 *
+	 * @return string|array<string, string> The stored footer HTML.
+	 */
+	private function storedFooterHtml(): string|array {
 		$html = $this->settingMapper->getValue(
 			key: AdminSetting::KEY_FOOTER_HTML,
 			default: ''
 		);
 
 		if (is_string($html) === false && is_array($html) === false) {
-			$html = '';
+			return '';
 		}
 
+		return $html;
+	}//end storedFooterHtml()
+
+	/**
+	 * Read the stored structured footer config; a non-array reads as empty.
+	 *
+	 * @return array<string, mixed> The stored config.
+	 */
+	private function storedFooterConfig(): array {
 		$config = $this->settingMapper->getValue(
 			key: AdminSetting::KEY_FOOTER_CONFIG,
 			default: []
 		);
 
 		if (is_array($config) === false) {
-			$config = [];
+			return [];
 		}
 
-		$backgroundColor = $this->settingMapper->getValue(
-			key: AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,
-			default: null
-		);
+		return $config;
+	}//end storedFooterConfig()
 
-		if ($backgroundColor !== null && is_string($backgroundColor) === false) {
-			$backgroundColor = null;
+	/**
+	 * Read one stored footer colour; a non-string reads as NULL.
+	 *
+	 * @param string $key The AdminSetting key of the colour.
+	 *
+	 * @return string|null The stored colour.
+	 */
+	private function storedColour(string $key): ?string {
+		$colour = $this->settingMapper->getValue(key: $key, default: null);
+
+		if (is_string($colour) === false) {
+			return null;
 		}
 
-		$textColor = $this->settingMapper->getValue(
-			key: AdminSetting::KEY_FOOTER_TEXT_COLOR,
-			default: null
-		);
-
-		if ($textColor !== null && is_string($textColor) === false) {
-			$textColor = null;
-		}
-
-		return [
-			'footerEnabled' => $enabled,
-			'footerHtml' => $html,
-			'footerConfig' => $config,
-			'footerBackgroundColor' => $backgroundColor,
-			'footerTextColor' => $textColor,
-		];
-	}//end getGlobalSettings()
+		return $colour;
+	}//end storedColour()
 
 	/**
 	 * Patch one or more global footer settings (REQ-FTR-001..003,
@@ -242,88 +266,147 @@ class FooterService {
 			);
 		}
 
+		$this->storeFooterContent(patch: $patch);
+		$this->storeFooterColours(patch: $patch);
+	}//end updateGlobalSettings()
+
+	/**
+	 * Store the footerHtml and footerConfig values of a patch, when present.
+	 *
+	 * @param array<string, mixed> $patch Partial payload from the HTTP body.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a value fails validation.
+	 */
+	private function storeFooterContent(array $patch): void {
 		if (array_key_exists(key: 'footerHtml', array: $patch) === true) {
-			$raw = $patch['footerHtml'];
-			$sanitised = '';
-			if ($raw !== null && is_array($raw) === false && is_string($raw) === false) {
-				throw new InvalidArgumentException(
-					message: 'footerHtml must be a string, NULL, or a variant map'
-				);
-			}
-
-			if ($raw === null) {
-				$sanitised = '';
-			}
-
-			if (is_array($raw) === true) {
-				// Language-tagged variant map (REQ-FTR-007). Sanitise
-				// each variant independently.
-				$sanitised = [];
-				foreach ($raw as $locale => $variant) {
-					if (is_string($locale) === false || is_string($variant) === false) {
-						throw new InvalidArgumentException(
-							message: 'footerHtml language variants must be string→string'
-						);
-					}
-
-					$sanitised[$locale] = $this->sanitiseHtml(html: $variant);
-				}
-			}
-
-			if (is_string($raw) === true) {
-				$sanitised = $this->sanitiseHtml(html: $raw);
-			}//end if
-
 			$this->settingMapper->setSetting(
 				key: AdminSetting::KEY_FOOTER_HTML,
-				value: $sanitised
+				value: $this->sanitiseFooterHtml(raw: $patch['footerHtml'])
 			);
-		}//end if
+		}
 
 		if (array_key_exists(key: 'footerConfig', array: $patch) === true) {
-			$rawConfig = $patch['footerConfig'];
-			if ($rawConfig === null) {
-				$rawConfig = [];
-			}
+			$this->settingMapper->setSetting(
+				key: AdminSetting::KEY_FOOTER_CONFIG,
+				value: $this->validatedFooterConfig(rawConfig: $patch['footerConfig'])
+			);
+		}
+	}//end storeFooterContent()
 
-			if (is_array($rawConfig) === false) {
+	/**
+	 * Store the colour values of a patch, when present; NULL clears one.
+	 *
+	 * @param array<string, mixed> $patch Partial payload from the HTTP body.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When a colour is not a hex string.
+	 */
+	private function storeFooterColours(array $patch): void {
+		foreach (self::COLOUR_SETTINGS as $field => $key) {
+			if (array_key_exists(key: $field, array: $patch) === true) {
+				$colour = $patch[$field];
+				if ($colour !== null) {
+					$this->assertHexColour(value: $colour, fieldName: $field);
+				}
+
+				$this->settingMapper->setSetting(key: $key, value: $colour);
+			}
+		}
+	}//end storeFooterColours()
+
+	/**
+	 * Sanitise the footerHtml value of a patch: NULL clears it, a string is
+	 * sanitised, a language-tagged variant map (REQ-FTR-007) is sanitised
+	 * per variant.
+	 *
+	 * @param mixed $raw The footerHtml value.
+	 *
+	 * @return string|array<string, string> The value to store.
+	 *
+	 * @throws InvalidArgumentException When the value has the wrong shape.
+	 */
+	private function sanitiseFooterHtml(mixed $raw): string|array {
+		$this->assertFooterHtmlShape(raw: $raw);
+
+		if (is_string($raw) === true) {
+			return $this->sanitiseHtml(html: $raw);
+		}
+
+		if (is_array($raw) === true) {
+			return $this->sanitiseHtmlVariants(variants: $raw);
+		}
+
+		return '';
+	}//end sanitiseFooterHtml()
+
+	/**
+	 * Refuse a footerHtml value that is neither NULL, a string nor a map.
+	 *
+	 * @param mixed $raw The footerHtml value.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value has the wrong shape.
+	 */
+	private function assertFooterHtmlShape(mixed $raw): void {
+		if ($raw !== null && is_array($raw) === false && is_string($raw) === false) {
+			throw new InvalidArgumentException(
+				message: 'footerHtml must be a string, NULL, or a variant map'
+			);
+		}
+	}//end assertFooterHtmlShape()
+
+	/**
+	 * Sanitise each variant of a language-tagged footer HTML map.
+	 *
+	 * @param array<mixed, mixed> $variants The locale => HTML map.
+	 *
+	 * @return array<string, string> The sanitised map.
+	 *
+	 * @throws InvalidArgumentException When a locale or variant is not a string.
+	 */
+	private function sanitiseHtmlVariants(array $variants): array {
+		$sanitised = [];
+		foreach ($variants as $locale => $variant) {
+			if (is_string($locale) === false || is_string($variant) === false) {
 				throw new InvalidArgumentException(
-					message: 'footerConfig must be a JSON object'
+					message: 'footerHtml language variants must be string→string'
 				);
 			}
 
-			$this->validateStructuredConfig(config: $rawConfig);
+			$sanitised[$locale] = $this->sanitiseHtml(html: $variant);
+		}
 
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_FOOTER_CONFIG,
-				value: $rawConfig
+		return $sanitised;
+	}//end sanitiseHtmlVariants()
+
+	/**
+	 * Validate the footerConfig value of a patch; NULL stores an empty config.
+	 *
+	 * @param mixed $rawConfig The footerConfig value.
+	 *
+	 * @return array<string, mixed> The config to store.
+	 *
+	 * @throws InvalidArgumentException When it is not a valid config object.
+	 */
+	private function validatedFooterConfig(mixed $rawConfig): array {
+		if ($rawConfig === null) {
+			$rawConfig = [];
+		}
+
+		if (is_array($rawConfig) === false) {
+			throw new InvalidArgumentException(
+				message: 'footerConfig must be a JSON object'
 			);
 		}
 
-		if (array_key_exists(key: 'footerBackgroundColor', array: $patch) === true) {
-			$colour = $patch['footerBackgroundColor'];
-			if ($colour !== null) {
-				$this->assertHexColour(value: $colour, fieldName: 'footerBackgroundColor');
-			}
+		$this->validateStructuredConfig(config: $rawConfig);
 
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_FOOTER_BACKGROUND_COLOR,
-				value: $colour
-			);
-		}
-
-		if (array_key_exists(key: 'footerTextColor', array: $patch) === true) {
-			$colour = $patch['footerTextColor'];
-			if ($colour !== null) {
-				$this->assertHexColour(value: $colour, fieldName: 'footerTextColor');
-			}
-
-			$this->settingMapper->setSetting(
-				key: AdminSetting::KEY_FOOTER_TEXT_COLOR,
-				value: $colour
-			);
-		}
-	}//end updateGlobalSettings()
+		return $rawConfig;
+	}//end validatedFooterConfig()
 
 	/**
 	 * Sanitise raw footer HTML against the allow-list (REQ-FTR-002,
@@ -356,25 +439,44 @@ class FooterService {
 			return '';
 		}
 
-		// Strip <script>...</script> bodies entirely (content + tags).
-		$stripped = preg_replace(
-			pattern: '#<script\b[^>]*>.*?</script>#is',
-			replacement: '',
-			subject: $html
-		);
-
+		$stripped = $this->stripScriptElements(html: $html);
 		if ($stripped === null) {
 			return '';
 		}
 
-		// Replace any tag with a sanitised version or empty string. The
-		// callback inspects each match, validates the tag name, drops
-		// disallowed attributes, and force-tags external <a> elements
-		// with rel/target.
+		return $this->sanitiseTags(html: $stripped);
+	}//end sanitiseHtml()
+
+	/**
+	 * Strip <script>...</script> bodies entirely (content + tags).
+	 *
+	 * @param string $html The raw HTML input.
+	 *
+	 * @return string|null The HTML without script elements, NULL on a regex failure.
+	 */
+	private function stripScriptElements(string $html): ?string {
+		return preg_replace(
+			pattern: '#<script\b[^>]*>.*?</script>#is',
+			replacement: '',
+			subject: $html
+		);
+	}//end stripScriptElements()
+
+	/**
+	 * Replace any tag with a sanitised version or empty string. The
+	 * callback inspects each match, validates the tag name, drops
+	 * disallowed attributes, and force-tags external <a> elements
+	 * with rel/target.
+	 *
+	 * @param string $html HTML without script elements.
+	 *
+	 * @return string The sanitised HTML, '' on a regex failure.
+	 */
+	private function sanitiseTags(string $html): string {
 		$result = preg_replace_callback(
 			pattern: '#<(/?)\s*([a-zA-Z0-9]+)\b([^>]*)>#s',
 			callback: fn (array $matches): string => $this->sanitiseTag(matches: $matches),
-			subject: $stripped
+			subject: $html
 		);
 
 		if ($result === null) {
@@ -382,7 +484,7 @@ class FooterService {
 		}
 
 		return $result;
-	}//end sanitiseHtml()
+	}//end sanitiseTags()
 
 	/**
 	 * Rebuild one matched tag in its sanitised form (REQ-FTR-002).
@@ -398,27 +500,47 @@ class FooterService {
 	 * @return string The sanitised tag, or '' when the tag is disallowed.
 	 */
 	private function sanitiseTag(array $matches): string {
-		$closing = ($matches[1] === '/');
 		$tag = strtolower(string: $matches[2]);
-		$attrs = $matches[3];
 
 		if (in_array(needle: $tag, haystack: self::ALLOWED_TAGS, strict: true) === false) {
 			return '';
 		}
 
-		if ($closing === true) {
+		if ($matches[1] === '/') {
 			return '</' . $tag . '>';
 		}
 
-		$kept = $this->sanitiseTagAttributes(tag: $tag, attrs: $attrs);
+		$kept = $this->sanitiseTagAttributes(tag: $tag, attrs: $matches[3]);
 
-		$rendered = '<' . $tag;
+		return '<' . $tag . $this->renderAttributes(kept: $kept) . $this->externalLinkAttributes(tag: $tag, kept: $kept) . $this->tagEnd(tag: $tag);
+	}//end sanitiseTag()
+
+	/**
+	 * Render kept attributes as ` name="value"` pairs.
+	 *
+	 * @param array<string, string> $kept The escaped name => value pairs.
+	 *
+	 * @return string The rendered attributes.
+	 */
+	private function renderAttributes(array $kept): string {
+		$rendered = '';
 		foreach ($kept as $name => $value) {
 			$rendered .= ' ' . $name . '="' . $value . '"';
 		}
 
-		// External <a> elements get rel + target automatically
-		// (REQ-FTR-002 external-link scenario).
+		return $rendered;
+	}//end renderAttributes()
+
+	/**
+	 * External <a> elements get rel + target automatically
+	 * (REQ-FTR-002 external-link scenario).
+	 *
+	 * @param string                $tag  The lower-cased tag name.
+	 * @param array<string, string> $kept The kept attributes.
+	 *
+	 * @return string The extra attributes, or ''.
+	 */
+	private function externalLinkAttributes(string $tag, array $kept): string {
 		if ($tag === 'a'
 			&& isset($kept['href']) === true
 			&& preg_match(
@@ -426,18 +548,26 @@ class FooterService {
 				subject: $kept['href']
 			) === 1
 		) {
-			$rendered .= ' rel="noopener noreferrer" target="_blank"';
+			return ' rel="noopener noreferrer" target="_blank"';
 		}
 
-		$closingTag = '>';
+		return '';
+	}//end externalLinkAttributes()
+
+	/**
+	 * The end of an opening tag: self-closing for void elements.
+	 *
+	 * @param string $tag The lower-cased tag name.
+	 *
+	 * @return string The tag end.
+	 */
+	private function tagEnd(string $tag): string {
 		if (in_array(needle: $tag, haystack: ['br', 'img'], strict: true) === true) {
-			$closingTag = ' />';
+			return ' />';
 		}
 
-		$rendered .= $closingTag;
-
-		return $rendered;
-	}//end sanitiseTag()
+		return '>';
+	}//end tagEnd()
 
 	/**
 	 * Extract the attributes of one opening tag that survive the
@@ -454,12 +584,41 @@ class FooterService {
 	 * @return array<string, string> The escaped name => value pairs to keep.
 	 */
 	private function sanitiseTagAttributes(string $tag, string $attrs): array {
-		$allowedAttrs = (self::ALLOWED_ATTRIBUTES[$tag] ?? []);
+		$allowedAttrs = $this->allowedAttributesFor(tag: $tag);
 		$kept = [];
 		if ($allowedAttrs === [] || trim(string: $attrs) === '') {
 			return $kept;
 		}
 
+		foreach ($this->parseAttributes(attrs: $attrs) as $attr) {
+			$value = $this->keptAttributeValue(attr: $attr, allowedAttrs: $allowedAttrs);
+			if ($value !== null) {
+				$kept[strtolower(string: $attr[1])] = $value;
+			}
+		}
+
+		return $kept;
+	}//end sanitiseTagAttributes()
+
+	/**
+	 * The attribute names allow-listed for a tag.
+	 *
+	 * @param string $tag The lower-cased tag name.
+	 *
+	 * @return array<int, string> The allowed attribute names.
+	 */
+	private function allowedAttributesFor(string $tag): array {
+		return (self::ALLOWED_ATTRIBUTES[$tag] ?? []);
+	}//end allowedAttributesFor()
+
+	/**
+	 * Split a raw attribute blob into name/value matches.
+	 *
+	 * @param string $attrs The raw attribute blob from the source tag.
+	 *
+	 * @return array<int, array<int, string>> The matches, in source order.
+	 */
+	private function parseAttributes(string $attrs): array {
 		if (preg_match_all(
 			pattern: '#([a-zA-Z][a-zA-Z0-9_-]*)\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))#',
 			subject: $attrs,
@@ -467,38 +626,53 @@ class FooterService {
 			flags: PREG_SET_ORDER
 		) > 0
 		) {
-			foreach ($found as $attr) {
-				$name = strtolower(string: $attr[1]);
-				if (in_array(needle: $name, haystack: $allowedAttrs, strict: true) === false) {
-					continue;
-				}
+			return $found;
+		}
 
-				$value = ($attr[3] ?? ($attr[4] ?? ($attr[5] ?? '')));
-				// Reject data: / javascript: schemes on URL
-				// attributes (href / src). The allow-list
-				// already restricted us to those names so a
-				// scheme check is enough.
-				if (preg_match(
-					pattern: '#^\s*(javascript|data|vbscript):#i',
-					subject: $value
-				) === 1
-				) {
-					continue;
-				}
+		return [];
+	}//end parseAttributes()
 
-				// Strip any control char or newline; keep
-				// simple value escaping for HTML context.
-				$cleanValue = htmlspecialchars(
-					string: $value,
-					flags: (ENT_QUOTES | ENT_HTML5),
-					encoding: 'UTF-8'
-				);
-				$kept[$name] = $cleanValue;
-			}//end foreach
-		}//end if
+	/**
+	 * The escaped value of one attribute match, or NULL when the attribute
+	 * is not allow-listed or carries a `javascript:` / `data:` /
+	 * `vbscript:` scheme.
+	 *
+	 * @param array<int, string> $attr         One attribute match.
+	 * @param array<int, string> $allowedAttrs The names allowed on this tag.
+	 *
+	 * @return string|null The escaped value, or NULL to drop it.
+	 */
+	private function keptAttributeValue(array $attr, array $allowedAttrs): ?string {
+		if (in_array(needle: strtolower(string: $attr[1]), haystack: $allowedAttrs, strict: true) === false) {
+			return null;
+		}
 
-		return $kept;
-	}//end sanitiseTagAttributes()
+		$value = $this->attributeValue(attr: $attr);
+		// Reject data: / javascript: schemes on URL attributes (href / src).
+		// The allow-list already restricted us to those names so a scheme
+		// check is enough.
+		if (preg_match(pattern: '#^\s*(javascript|data|vbscript):#i', subject: $value) === 1) {
+			return null;
+		}
+
+		// Keep simple value escaping for HTML context.
+		return htmlspecialchars(
+			string: $value,
+			flags: (ENT_QUOTES | ENT_HTML5),
+			encoding: 'UTF-8'
+		);
+	}//end keptAttributeValue()
+
+	/**
+	 * The raw value of one attribute match, whichever quoting it used.
+	 *
+	 * @param array<int, string> $attr One attribute match.
+	 *
+	 * @return string The raw value.
+	 */
+	private function attributeValue(array $attr): string {
+		return ($attr[3] ?? ($attr[4] ?? ($attr[5] ?? '')));
+	}//end attributeValue()
 
 	/**
 	 * Validate a structured-mode config payload against the documented
@@ -514,6 +688,27 @@ class FooterService {
 	 * @spec openspec/specs/footer-customization/spec.md
 	 */
 	public function validateStructuredConfig(array $config): void {
+		$this->assertKnownConfigKeys(config: $config);
+
+		if (array_key_exists(key: 'layoutMode', array: $config) === true) {
+			$this->assertLayoutMode(mode: $config['layoutMode']);
+		}
+
+		if (array_key_exists(key: 'links', array: $config) === true) {
+			$this->assertFooterLinks(links: $config['links']);
+		}
+	}//end validateStructuredConfig()
+
+	/**
+	 * Refuse a structured config that carries a key outside the schema.
+	 *
+	 * @param array<string, mixed> $config The structured config.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException On an unknown key.
+	 */
+	private function assertKnownConfigKeys(array $config): void {
 		foreach (array_keys(array: $config) as $key) {
 			if (in_array(needle: $key, haystack: self::STRUCTURED_CONFIG_KEYS, strict: true) === false) {
 				throw new InvalidArgumentException(
@@ -521,40 +716,69 @@ class FooterService {
 				);
 			}
 		}
+	}//end assertKnownConfigKeys()
 
-		if (array_key_exists(key: 'layoutMode', array: $config) === true) {
-			$mode = $config['layoutMode'];
-			if (is_string($mode) === false
-				|| in_array(needle: $mode, haystack: self::LAYOUT_MODES, strict: true) === false
-			) {
+	/**
+	 * Refuse a layoutMode outside {@see self::LAYOUT_MODES}.
+	 *
+	 * @param mixed $mode The layoutMode value.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException On an unknown layout mode.
+	 */
+	private function assertLayoutMode(mixed $mode): void {
+		if (is_string($mode) === false
+			|| in_array(needle: $mode, haystack: self::LAYOUT_MODES, strict: true) === false
+		) {
+			throw new InvalidArgumentException(
+				message: 'footerConfig.layoutMode must be one of: ' . implode(separator: ', ', array: self::LAYOUT_MODES)
+			);
+		}
+	}//end assertLayoutMode()
+
+	/**
+	 * Refuse a links value that is not a list of {label, url} string pairs.
+	 *
+	 * @param mixed $links The links value.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException On a malformed links value.
+	 */
+	private function assertFooterLinks(mixed $links): void {
+		if (is_array($links) === false) {
+			throw new InvalidArgumentException(
+				message: 'footerConfig.links must be an array'
+			);
+		}
+
+		foreach ($links as $entry) {
+			if ($this->isFooterLink(entry: $entry) === false) {
 				throw new InvalidArgumentException(
-					message: 'footerConfig.layoutMode must be one of: ' . implode(separator: ', ', array: self::LAYOUT_MODES)
+					message: 'footerConfig.links entries must be {label, url} string pairs'
 				);
 			}
 		}
+	}//end assertFooterLinks()
 
-		if (array_key_exists(key: 'links', array: $config) === true) {
-			$links = $config['links'];
-			if (is_array($links) === false) {
-				throw new InvalidArgumentException(
-					message: 'footerConfig.links must be an array'
-				);
-			}
+	/**
+	 * Whether a links entry is a {label, url} string pair.
+	 *
+	 * @param mixed $entry One links entry.
+	 *
+	 * @return bool TRUE for a well-formed entry.
+	 */
+	private function isFooterLink(mixed $entry): bool {
+		if (is_array($entry) === false) {
+			return false;
+		}
 
-			foreach ($links as $entry) {
-				if (is_array($entry) === false
-					|| isset($entry['label']) === false
-					|| isset($entry['url']) === false
-					|| is_string($entry['label']) === false
-					|| is_string($entry['url']) === false
-				) {
-					throw new InvalidArgumentException(
-						message: 'footerConfig.links entries must be {label, url} string pairs'
-					);
-				}
-			}
-		}//end if
-	}//end validateStructuredConfig()
+		return isset($entry['label']) === true
+			&& isset($entry['url']) === true
+			&& is_string($entry['label']) === true
+			&& is_string($entry['url']) === true;
+	}//end isFooterLink()
 
 	/**
 	 * Resolve the effective footer payload for a single dashboard
@@ -579,12 +803,7 @@ class FooterService {
 	 * @spec openspec/specs/footer-customization/spec.md
 	 */
 	public function resolveFooterForDashboard(Dashboard $dashboard): ?array {
-		$rawMode = $dashboard->getDashboardFooterMode();
-		$mode = $rawMode;
-		if ($rawMode === '') {
-			$mode = Dashboard::FOOTER_MODE_INHERIT;
-		}
-
+		$mode = $this->effectiveFooterMode(dashboard: $dashboard);
 		if ($mode === Dashboard::FOOTER_MODE_HIDDEN) {
 			return null;
 		}
@@ -592,53 +811,124 @@ class FooterService {
 		$globals = $this->getGlobalSettings();
 
 		if ($mode === Dashboard::FOOTER_MODE_CUSTOM) {
-			$html = $dashboard->getDashboardFooterHtml();
-			if ($html === null || trim(string: $html) === '') {
-				return null;
-			}
-
-			return [
-				'mode' => Dashboard::FOOTER_MODE_CUSTOM,
-				'html' => $html,
-				'config' => null,
-				'backgroundColor' => $globals['footerBackgroundColor'],
-				'textColor' => $globals['footerTextColor'],
-			];
+			return $this->customFooter(dashboard: $dashboard, globals: $globals);
 		}
 
-		// Inherit branch — must consult the global toggle.
+		return $this->inheritedFooter(globals: $globals);
+	}//end resolveFooterForDashboard()
+
+	/**
+	 * The dashboard's footer mode; an empty mode means inherit.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return string The footer mode.
+	 */
+	private function effectiveFooterMode(Dashboard $dashboard): string {
+		$mode = $dashboard->getDashboardFooterMode();
+		if ($mode === '') {
+			return Dashboard::FOOTER_MODE_INHERIT;
+		}
+
+		return $mode;
+	}//end effectiveFooterMode()
+
+	/**
+	 * The payload for a dashboard with its own footer HTML; NULL when the
+	 * HTML is blank.
+	 *
+	 * @param Dashboard            $dashboard The dashboard.
+	 * @param array<string, mixed> $globals   The global footer settings.
+	 *
+	 * @return array<string, mixed>|null The effective footer payload.
+	 */
+	private function customFooter(Dashboard $dashboard, array $globals): ?array {
+		$html = $dashboard->getDashboardFooterHtml();
+		if ($html === null || trim(string: $html) === '') {
+			return null;
+		}
+
+		return $this->withFooterColours(
+			payload: ['mode' => Dashboard::FOOTER_MODE_CUSTOM, 'html' => $html, 'config' => null],
+			globals: $globals
+		);
+	}//end customFooter()
+
+	/**
+	 * The payload for a dashboard that inherits the global footer; NULL
+	 * when the global footer is off or has no content.
+	 *
+	 * @param array<string, mixed> $globals The global footer settings.
+	 *
+	 * @return array<string, mixed>|null The effective footer payload.
+	 */
+	private function inheritedFooter(array $globals): ?array {
 		if ($globals['footerEnabled'] !== true) {
 			return null;
 		}
 
-		$html = $globals['footerHtml'];
-		$htmlValue = null;
-		if (is_string($html) === true && $html !== '') {
-			$htmlValue = $html;
-		} elseif (is_array($html) === true && $html !== []) {
-			// Language-variant map — the frontend selects the locale.
-			$htmlValue = $html;
-		}
-
-		$config = $globals['footerConfig'];
-		$configValue = null;
-		if (is_array($config) === true && $config !== []) {
-			$configValue = $config;
-		}
-
+		$htmlValue = $this->nonEmptyFooterHtml(html: $globals['footerHtml']);
+		$configValue = $this->nonEmptyFooterConfig(config: $globals['footerConfig']);
 		if ($htmlValue === null && $configValue === null) {
 			// Footer enabled but nothing configured — skip rendering.
 			return null;
 		}
 
-		return [
-			'mode' => 'global',
-			'html' => $htmlValue,
-			'config' => $configValue,
-			'backgroundColor' => $globals['footerBackgroundColor'],
-			'textColor' => $globals['footerTextColor'],
-		];
-	}//end resolveFooterForDashboard()
+		return $this->withFooterColours(
+			payload: ['mode' => 'global', 'html' => $htmlValue, 'config' => $configValue],
+			globals: $globals
+		);
+	}//end inheritedFooter()
+
+	/**
+	 * The global footer HTML when it is a non-empty string or a non-empty
+	 * language-variant map (the frontend selects the locale), else NULL.
+	 *
+	 * @param mixed $html The global footer HTML.
+	 *
+	 * @return string|array<string, string>|null The HTML to render.
+	 */
+	private function nonEmptyFooterHtml(mixed $html): string|array|null {
+		if (is_string($html) === true && $html !== '') {
+			return $html;
+		}
+
+		if (is_array($html) === true && $html !== []) {
+			return $html;
+		}
+
+		return null;
+	}//end nonEmptyFooterHtml()
+
+	/**
+	 * The global structured config when it is a non-empty array, else NULL.
+	 *
+	 * @param mixed $config The global structured config.
+	 *
+	 * @return array<string, mixed>|null The config to render.
+	 */
+	private function nonEmptyFooterConfig(mixed $config): ?array {
+		if (is_array($config) === true && $config !== []) {
+			return $config;
+		}
+
+		return null;
+	}//end nonEmptyFooterConfig()
+
+	/**
+	 * Append the global background and text colours to a footer payload.
+	 *
+	 * @param array<string, mixed> $payload The mode, html and config.
+	 * @param array<string, mixed> $globals The global footer settings.
+	 *
+	 * @return array<string, mixed> The complete footer payload.
+	 */
+	private function withFooterColours(array $payload, array $globals): array {
+		$payload['backgroundColor'] = $globals['footerBackgroundColor'];
+		$payload['textColor'] = $globals['footerTextColor'];
+
+		return $payload;
+	}//end withFooterColours()
 
 	/**
 	 * Validate that a value is a `#rgb` / `#rrggbb` hex colour string

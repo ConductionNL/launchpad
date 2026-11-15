@@ -29,6 +29,12 @@ vi.mock('@conduction/nextcloud-vue', () => ({
 		template: '<button @click="$emit(\'click\')"><slot /></button>',
 	},
 	NcDialog: { name: 'NcDialog', template: '<div />' },
+	CnConfirmDialog: {
+		name: 'CnConfirmDialog',
+		props: ['dialogTitle', 'message', 'confirmLabel', 'variant'],
+		emits: ['confirm', 'close'],
+		template: '<div class="revoke-stub">{{ message }}</div>',
+	},
 	NcSelect: { name: 'NcSelect', template: '<div />' },
 	NcTextField: { name: 'NcTextField', template: '<div />' },
 }))
@@ -54,12 +60,6 @@ function mountTab() {
 					props: ['open', 'playlist', 'dashboards'],
 					emits: ['save', 'update:open'],
 					template: '<div class="form-stub" />',
-				},
-				RevokeKioskPlaylistDialog: {
-					name: 'RevokeKioskPlaylistDialog',
-					props: ['open', 'name'],
-					emits: ['confirm', 'update:open'],
-					template: '<div class="revoke-stub" />',
 				},
 			},
 		},
@@ -117,14 +117,11 @@ describe('KioskTab', () => {
 		const wrapper = mountTab()
 		await flushPromises()
 		await wrapper.find('[data-testid="kiosk-revoke"]').trigger('click')
-		expect(
-			wrapper
-				.findComponent({ name: 'RevokeKioskPlaylistDialog' })
-				.props('open'),
-		).toBe(true)
-		wrapper
-			.findComponent({ name: 'RevokeKioskPlaylistDialog' })
-			.vm.$emit('confirm')
+		const confirm = wrapper.findComponent({ name: 'CnConfirmDialog' })
+		expect(confirm.exists()).toBe(true)
+		expect(confirm.props('message')).toContain('Lobby')
+		expect(confirm.props('variant')).toBe('error')
+		confirm.vm.$emit('confirm')
 		await flushPromises()
 		expect(axios.delete).toHaveBeenCalledWith(
 			'/index.php/apps/launchpad/api/kiosk/playlists/1',

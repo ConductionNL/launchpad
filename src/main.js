@@ -36,6 +36,7 @@ import {
 	registerBuiltinDashboardWidgets,
 	registerDashboardWidget,
 	registerIcons,
+	registerTranslations,
 	useAppManifest,
 } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
@@ -57,8 +58,18 @@ import { currentPermissions } from './utils/permissions.js'
 import './publicPath.js'
 import './services/widgetBridge.js'
 import 'gridstack/dist/gridstack.min.css'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
 import './styles/workspace.css'
+import './styles/modals.css'
 registerBuiltinDashboardWidgets()
+
+// The library's own strings ("Good afternoon, {name}" in the greeting header,
+// its dialogs and empty states) live in the `nextcloud-vue` translation
+// domain, which only exists once the app registers it. Without this call a
+// Dutch start page greeted in English.
+registerTranslations()
 
 // Populate the shared CnIcon registry with the MDI icons LaunchPad's
 // manifests name (ADR-077 rule 3).

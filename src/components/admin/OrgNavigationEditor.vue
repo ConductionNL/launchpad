@@ -116,6 +116,7 @@
 import { translate as t } from '@nextcloud/l10n'
 import draggable from 'vuedraggable'
 import OrgNavigationEditorRow from './OrgNavigationEditorRow.vue'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import {
 	ORG_NAV_POSITIONS,
 	useOrgNavigationStore,
@@ -154,10 +155,7 @@ export default {
 		 * editor still functions, but the visibility selector falls
 		 * back to a free-text input.
 		 */
-		groups: {
-			type: Array,
-			default: () => [],
-		},
+		groups: LIST_PROP,
 	},
 
 	data() {

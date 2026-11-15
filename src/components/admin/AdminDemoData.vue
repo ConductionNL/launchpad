@@ -105,19 +105,27 @@
 			</div>
 		</template>
 
-		<DemoShowcaseUninstallDialog
-			:open="uninstallTarget !== null"
-			:showcaseName="uninstallTarget ? uninstallTarget.name : ''"
-			@update:open="uninstallTarget = null"
-			@confirm="onUninstallConfirm" />
+		<CnConfirmDialog
+			v-if="uninstallTarget !== null"
+			:dialogTitle="t('launchpad', 'Remove showcase dashboard')"
+			:message="
+				t(
+					'launchpad',
+					'Remove the {name} showcase dashboard for all users? You can reinstall it later.',
+					{ name: uninstallTarget.name },
+				)
+			"
+			:confirmLabel="t('launchpad', 'Remove')"
+			variant="error"
+			@confirm="onUninstallConfirm"
+			@close="uninstallTarget = null" />
 	</div>
 </template>
 
 <script>
-import { NcButton } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton } from '@conduction/nextcloud-vue'
 import { NcNoteCard } from '@nextcloud/vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
-import DemoShowcaseUninstallDialog from '../../dialogs/DemoShowcaseUninstallDialog.vue'
 import { api } from '../../services/api.js'
 
 export default {
@@ -125,7 +133,7 @@ export default {
 
 	components: {
 		NcButton,
-		DemoShowcaseUninstallDialog,
+		CnConfirmDialog,
 		NcNoteCard,
 		ViewDashboard,
 	},

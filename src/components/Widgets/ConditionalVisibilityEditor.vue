@@ -202,8 +202,58 @@ import EyeOff from 'vue-material-design-icons/EyeOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import VisibilityRuleRow from './VisibilityRuleRow.vue'
 import { useVisibilityPreview } from '../../composables/useVisibilityPreview.js'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { logger } from '../../utils/logger.js'
+
+/**
+ * A response body's `data` envelope when present, else the body itself.
+ *
+ * @param {object|null} data The response body.
+ * @return {object|null} the rule.
+ */
+function unwrapData(data) {
+	return data && data.data ? data.data : data
+}
+
+/**
+ * The rule list of a rules response: `{rules}`, `{data: {rules}}` or a bare
+ * array; anything else reads as no rules.
+ *
+ * @param {object|Array|null} data The response body.
+ * @return {Array<object>} the rules.
+ */
+function rulesFromResponse(data) {
+	const payload = rulesPayload(data)
+	if (Array.isArray(payload.rules)) {
+		return payload.rules
+	}
+	return Array.isArray(data) ? data : []
+}
+
+/**
+ * The object of a rules response that carries the `rules` key.
+ *
+ * @param {object|Array|null} data The response body.
+ * @return {object} the payload, `{}` when there is none.
+ */
+function rulesPayload(data) {
+	return data && data.rules ? data : data && data.data ? data.data : {}
+}
+
+/**
+ * Rules as editor rows: persisted, so without a local draft key.
+ *
+ * @param {Array<object>} list The rules.
+ * @return {Array<object>} the rows.
+ */
+function editableRules(list) {
+	return list.map((r) => ({
+		...r,
+		id: r.id,
+		_localKey: undefined,
+	}))
+}
 
 export default {
 	name: 'ConditionalVisibilityEditor',
@@ -227,10 +277,7 @@ export default {
 		},
 
 		/** Group-id options for the group-rule / preview-audience pickers. */
-		availableGroups: {
-			type: Array,
-			default: () => [],
-		},
+		availableGroups: LIST_PROP,
 	},
 
 	emits: ['ruleAdded', 'ruleUpdated', 'ruleRemoved'],
@@ -327,22 +374,16 @@ export default {
 				this.rules = []
 				return
 			}
+			await this.loadRules()
+		},
+
+		/** Fetch the placement's rules, clearing them when the fetch fails. */
+		async loadRules() {
 			this.loading = true
 			this.preview.reset()
 			try {
 				const { data } = await api.getWidgetRules(this.placementId)
-				const payload =
-					data && data.rules ? data : data && data.data ? data.data : {}
-				const list = Array.isArray(payload.rules)
-					? payload.rules
-					: Array.isArray(data)
-						? data
-						: []
-				this.rules = list.map((r) => ({
-					...r,
-					id: r.id,
-					_localKey: undefined,
-				}))
+				this.rules = editableRules(rulesFromResponse(data))
 			} catch (error) {
 				logger.error('Failed to load visibility rules:', error)
 				this.rules = []
@@ -403,32 +444,53 @@ export default {
 			this.setRowBusy(row, true)
 			try {
 				if (row.id !== null && row.id !== undefined) {
-					const { data } = await api.updateRule(row.id, payload)
-					const updated = data && data.data ? data.data : data
-					const index = this.rules.indexOf(row)
-					if (index !== -1) {
-						this.rules[index] = { ...row, ...updated }
-					}
-					this.$emit('ruleUpdated')
+					await this.updateSavedRule(row, payload)
 				} else {
-					const { data } = await api.addWidgetRule(
-						this.placementId,
-						payload,
-					)
-					const created = data && data.data ? data.data : data
-					const index = this.rules.indexOf(row)
-					if (index !== -1 && created && created.id) {
-						this.rules[index] = { ...created, _localKey: undefined }
-					} else {
-						await this.load()
-					}
-					this.$emit('ruleAdded')
+					await this.createDraftRule(row, payload)
 				}
 			} catch (error) {
 				logger.error('Failed to save visibility rule:', error)
 			} finally {
 				this.setRowBusy(row, false)
 			}
+		},
+
+		/**
+		 * Write a persisted rule and merge the server's copy into its row.
+		 *
+		 * @param {object} row The persisted rule row.
+		 * @param {object} payload Rule fields to write.
+		 */
+		async updateSavedRule(row, payload) {
+			const { data } = await api.updateRule(row.id, payload)
+			const updated = unwrapData(data)
+			const index = this.rules.indexOf(row)
+			if (index !== -1) {
+				this.rules[index] = { ...row, ...updated }
+			}
+			this.$emit('ruleUpdated')
+		},
+
+		/**
+		 * Create a draft rule and swap the draft row for the created rule;
+		 * reload the list when the response carries no id.
+		 *
+		 * @param {object} row The draft rule row.
+		 * @param {object} payload Rule fields to write.
+		 */
+		async createDraftRule(row, payload) {
+			const { data } = await api.addWidgetRule(
+				this.placementId,
+				payload,
+			)
+			const created = unwrapData(data)
+			const index = this.rules.indexOf(row)
+			if (index !== -1 && created && created.id) {
+				this.rules[index] = { ...created, _localKey: undefined }
+			} else {
+				await this.load()
+			}
+			this.$emit('ruleAdded')
 		},
 
 		/**

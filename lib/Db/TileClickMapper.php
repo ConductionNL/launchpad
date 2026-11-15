@@ -29,6 +29,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
@@ -37,6 +38,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<TileClick>
  */
 class TileClickMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -62,22 +65,8 @@ class TileClickMapper extends QBMapper {
 		string $placementUuid,
 		string $clickBucket,
 	): ?TileClick {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'placement_uuid',
-					y: $qb->createNamedParameter(value: $placementUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $clickBucket)
-				)
-			)
-			->setMaxResults(maxResults: 1);
+		$qb = $this->selectWhere(match: ['placement_uuid' => $placementUuid, 'click_bucket' => $clickBucket]);
+		$qb->setMaxResults(maxResults: 1);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -120,21 +109,26 @@ class TileClickMapper extends QBMapper {
 			)
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->groupBy('placement_uuid')
 			->orderBy(sort: 'click_count_sum', order: 'DESC')
 			->setMaxResults(maxResults: $limit);
 
+		return $this->fetchTopTileRows(qb: $qb);
+	}//end findTopTilesInRange()
+
+	/**
+	 * Run the top-tiles query and map its aggregate rows.
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchTopTileRows(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$rows = [];
 		while (($row = $cursor->fetch()) !== false) {
@@ -149,7 +143,7 @@ class TileClickMapper extends QBMapper {
 		$cursor->closeCursor();
 
 		return $rows;
-	}//end findTopTilesInRange()
+	}//end fetchTopTileRows()
 
 	/**
 	 * Find every aggregate row for one dashboard's tiles within an
@@ -188,20 +182,25 @@ class TileClickMapper extends QBMapper {
 				)
 			)
 			->andWhere(
-				$qb->expr()->gte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->groupBy('placement_uuid')
 			->orderBy(sort: 'click_count_sum', order: 'DESC');
 
+		return $this->fetchDashboardTileRows(qb: $qb);
+	}//end findByDashboardInRange()
+
+	/**
+	 * Run a dashboard's per-tile query and map its aggregate rows.
+	 *
+	 * @param IQueryBuilder $qb The built query.
+	 *
+	 * @return array<mixed>
+	 */
+	private function fetchDashboardTileRows(IQueryBuilder $qb): array {
 		$cursor = $qb->executeQuery();
 		$rows = [];
 		while (($row = $cursor->fetch()) !== false) {
@@ -215,7 +214,7 @@ class TileClickMapper extends QBMapper {
 		$cursor->closeCursor();
 
 		return $rows;
-	}//end findByDashboardInRange()
+	}//end fetchDashboardTileRows()
 
 	/**
 	 * Find every aggregate row in an inclusive date range, ordered
@@ -235,16 +234,10 @@ class TileClickMapper extends QBMapper {
 		$qb->select('*')
 			->from(from: $this->getTableName())
 			->where(
-				$qb->expr()->gte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $startDate)
-				)
+				$this->bucketFrom(qb: $qb, startDate: $startDate)
 			)
 			->andWhere(
-				$qb->expr()->lte(
-					x: 'click_bucket',
-					y: $qb->createNamedParameter(value: $endDate)
-				)
+				$this->bucketUntil(qb: $qb, endDate: $endDate)
 			)
 			->orderBy(sort: 'placement_uuid', order: 'ASC')
 			->addOrderBy(sort: 'click_bucket', order: 'ASC');
@@ -258,22 +251,19 @@ class TileClickMapper extends QBMapper {
 	 * "one row per tile per day"). No per-event row is ever created —
 	 * this is the ONLY write path into the table.
 	 *
-	 * @param string $placementUuid The placement UUID.
-	 * @param string $dashboardUuid The owning dashboard UUID.
-	 * @param string $clickBucket The UTC date `YYYY-MM-DD`.
-	 * @param int $clickCountDelta Increment for `click_count`.
-	 * @param int $uniqueCountDelta Increment for
-	 *                              `unique_actor_count`.
+	 * @param array<string, mixed> $click `placementUuid`, `dashboardUuid` (the owning
+	 *                                    dashboard), `clickBucket` (the UTC date `YYYY-MM-DD`),
+	 *                                    `clickCountDelta` (increment for `click_count`) and
+	 *                                    `uniqueCountDelta` (increment for `unique_actor_count`).
 	 *
 	 * @return TileClick The persisted row after the update.
 	 */
-	public function upsertClick(
-		string $placementUuid,
-		string $dashboardUuid,
-		string $clickBucket,
-		int $clickCountDelta,
-		int $uniqueCountDelta,
-	): TileClick {
+	public function upsertClick(array $click): TileClick {
+		$placementUuid    = (string)$click['placementUuid'];
+		$dashboardUuid    = (string)$click['dashboardUuid'];
+		$clickBucket      = (string)$click['clickBucket'];
+		$clickCountDelta  = (int)$click['clickCountDelta'];
+		$uniqueCountDelta = (int)$click['uniqueCountDelta'];
 		$existing = $this->findByPlacementAndBucket(
 			placementUuid: $placementUuid,
 			clickBucket: $clickBucket
@@ -332,15 +322,38 @@ class TileClickMapper extends QBMapper {
 	 * @return int The number of rows deleted.
 	 */
 	public function deleteByPlacement(string $placementUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'placement_uuid',
-					y: $qb->createNamedParameter(value: $placementUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['placement_uuid' => $placementUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByPlacement()
+
+	/**
+	 * The `click_bucket >= startDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb        The query being built.
+	 * @param string        $startDate Inclusive lower bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketFrom(IQueryBuilder $qb, string $startDate): string {
+		return $qb->expr()->gte(
+			x: 'click_bucket',
+			y: $qb->createNamedParameter(value: $startDate)
+		);
+	}//end bucketFrom()
+
+	/**
+	 * The `click_bucket <= endDate` condition of a date-range query.
+	 *
+	 * @param IQueryBuilder $qb      The query being built.
+	 * @param string        $endDate Inclusive upper bound (`YYYY-MM-DD`).
+	 *
+	 * @return string The condition.
+	 */
+	private function bucketUntil(IQueryBuilder $qb, string $endDate): string {
+		return $qb->expr()->lte(
+			x: 'click_bucket',
+			y: $qb->createNamedParameter(value: $endDate)
+		);
+	}//end bucketUntil()
 }//end class

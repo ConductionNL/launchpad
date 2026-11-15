@@ -1,0 +1,559 @@
+{
+    "list / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "list / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "list / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.list"
+        ],
+        "reached": []
+    },
+    "list / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.list"
+        ],
+        "reached": []
+    },
+    "list / not the owner": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "asked": [
+            "dashboard-translation.list"
+        ],
+        "reached": []
+    },
+    "list / owner": {
+        "status": 200,
+        "body": {
+            "translations": [
+                {
+                    "id": null,
+                    "dashboardUuid": null,
+                    "languageCode": "nl",
+                    "name": null,
+                    "description": null,
+                    "widgetTreeJson": null,
+                    "isPrimary": 0,
+                    "createdAt": null,
+                    "updatedAt": null
+                }
+            ]
+        },
+        "asked": [
+            "dashboard-translation.list"
+        ],
+        "reached": [
+            "listVariants"
+        ]
+    },
+    "create / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "create / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "create / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": []
+    },
+    "create / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": []
+    },
+    "create / not the owner": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": []
+    },
+    "create / owner": {
+        "status": 201,
+        "body": {
+            "translation": {
+                "id": null,
+                "dashboardUuid": null,
+                "languageCode": "nl",
+                "name": null,
+                "description": null,
+                "widgetTreeJson": null,
+                "isPrimary": 0,
+                "createdAt": null,
+                "updatedAt": null
+            }
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": [
+            "createVariant"
+        ]
+    },
+    "createBlankLanguage / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "createBlankLanguage / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "createBlankLanguage / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": []
+    },
+    "createBlankLanguage / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": []
+    },
+    "createBlankLanguage / not the owner": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": []
+    },
+    "createBlankLanguage / owner": {
+        "status": 201,
+        "body": {
+            "translation": {
+                "id": null,
+                "dashboardUuid": null,
+                "languageCode": "nl",
+                "name": null,
+                "description": null,
+                "widgetTreeJson": null,
+                "isPrimary": 0,
+                "createdAt": null,
+                "updatedAt": null
+            }
+        },
+        "asked": [
+            "dashboard-translation.create"
+        ],
+        "reached": [
+            "createVariant"
+        ]
+    },
+    "update / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "update / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "update / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.update"
+        ],
+        "reached": []
+    },
+    "update / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.update"
+        ],
+        "reached": []
+    },
+    "update / not the owner": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "asked": [
+            "dashboard-translation.update"
+        ],
+        "reached": []
+    },
+    "update / owner": {
+        "status": 200,
+        "body": {
+            "translation": {
+                "id": null,
+                "dashboardUuid": null,
+                "languageCode": "nl",
+                "name": null,
+                "description": null,
+                "widgetTreeJson": null,
+                "isPrimary": 0,
+                "createdAt": null,
+                "updatedAt": null
+            }
+        },
+        "asked": [
+            "dashboard-translation.update"
+        ],
+        "reached": [
+            "updateVariant"
+        ]
+    },
+    "destroy / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "destroy / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "destroy / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.destroy"
+        ],
+        "reached": []
+    },
+    "destroy / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.destroy"
+        ],
+        "reached": []
+    },
+    "destroy / not the owner": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "asked": [
+            "dashboard-translation.destroy"
+        ],
+        "reached": []
+    },
+    "destroy / owner": {
+        "status": 200,
+        "body": {
+            "status": "ok"
+        },
+        "asked": [
+            "dashboard-translation.destroy"
+        ],
+        "reached": [
+            "deleteVariant"
+        ]
+    },
+    "setPrimary / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "setPrimary / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "setPrimary / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.set-primary"
+        ],
+        "reached": []
+    },
+    "setPrimary / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.set-primary"
+        ],
+        "reached": []
+    },
+    "setPrimary / not the owner": {
+        "status": 403,
+        "body": {
+            "error": "Access denied"
+        },
+        "asked": [
+            "dashboard-translation.set-primary"
+        ],
+        "reached": []
+    },
+    "setPrimary / owner": {
+        "status": 200,
+        "body": {
+            "translation": {
+                "id": null,
+                "dashboardUuid": null,
+                "languageCode": "nl",
+                "name": null,
+                "description": null,
+                "widgetTreeJson": null,
+                "isPrimary": 0,
+                "createdAt": null,
+                "updatedAt": null
+            }
+        },
+        "asked": [
+            "dashboard-translation.set-primary"
+        ],
+        "reached": [
+            "promoteVariantToPrimary"
+        ]
+    },
+    "resolved / anonymous": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "resolved / no session user": {
+        "status": 401,
+        "body": {
+            "error": "Not authenticated"
+        },
+        "asked": [],
+        "reached": []
+    },
+    "resolved / action denied": {
+        "status": 403,
+        "body": {
+            "error": "Forbidden"
+        },
+        "asked": [
+            "dashboard-translation.resolved"
+        ],
+        "reached": []
+    },
+    "resolved / unknown dashboard": {
+        "status": 404,
+        "body": {
+            "status": "error",
+            "error": "not_found"
+        },
+        "asked": [
+            "dashboard-translation.resolved"
+        ],
+        "reached": []
+    },
+    "resolved / not the owner": {
+        "status": 200,
+        "body": {
+            "dashboard": {
+                "id": 7,
+                "uuid": "uuid-a",
+                "name": "Board",
+                "description": null,
+                "icon": null,
+                "type": "user",
+                "userId": "alice",
+                "groupId": null,
+                "basedOnTemplate": null,
+                "gridColumns": 12,
+                "permissionLevel": "full",
+                "targetGroups": [],
+                "isDefault": 0,
+                "isActive": 0,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "createdAt": null,
+                "updatedAt": null,
+                "parentUuid": null,
+                "slug": null,
+                "sortOrder": 0,
+                "publicationStatus": "published",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            },
+            "translation": {
+                "id": null,
+                "dashboardUuid": null,
+                "languageCode": "nl",
+                "name": null,
+                "description": null,
+                "widgetTreeJson": null,
+                "isPrimary": 0,
+                "createdAt": null,
+                "updatedAt": null
+            },
+            "availableLanguages": [
+                "nl"
+            ],
+            "currentLanguage": "nl",
+            "isFallback": false
+        },
+        "asked": [
+            "dashboard-translation.resolved"
+        ],
+        "reached": []
+    },
+    "resolved / owner": {
+        "status": 200,
+        "body": {
+            "dashboard": {
+                "id": 7,
+                "uuid": "uuid-a",
+                "name": "Board",
+                "description": null,
+                "icon": null,
+                "type": "user",
+                "userId": "alice",
+                "groupId": null,
+                "basedOnTemplate": null,
+                "gridColumns": 12,
+                "permissionLevel": "full",
+                "targetGroups": [],
+                "isDefault": 0,
+                "isActive": 0,
+                "commentsEnabled": null,
+                "reactionsEnabled": null,
+                "createdAt": null,
+                "updatedAt": null,
+                "parentUuid": null,
+                "slug": null,
+                "sortOrder": 0,
+                "publicationStatus": "published",
+                "publishAt": null,
+                "publishedAt": null,
+                "unpublishAt": null,
+                "dashboardFooterMode": "inherit",
+                "dashboardFooterHtml": null,
+                "templateCategory": null,
+                "templateDescription": null,
+                "templatePreviewImage": null
+            },
+            "translation": {
+                "id": null,
+                "dashboardUuid": null,
+                "languageCode": "nl",
+                "name": null,
+                "description": null,
+                "widgetTreeJson": null,
+                "isPrimary": 0,
+                "createdAt": null,
+                "updatedAt": null
+            },
+            "availableLanguages": [
+                "nl"
+            ],
+            "currentLanguage": "nl",
+            "isFallback": false
+        },
+        "asked": [
+            "dashboard-translation.resolved"
+        ],
+        "reached": []
+    }
+}

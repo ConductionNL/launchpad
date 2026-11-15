@@ -135,4 +135,33 @@ class StoreWiringTest extends TestCase {
 		$this->assertStringNotContainsString('—', $description);
 		$this->assertStringNotContainsString('–', $description);
 	}//end testTheStorePageCopyHasNoEmDash()
+
+	/**
+	 * The board-look store page draws kind filters only from `kindLenses`.
+	 *
+	 * The app manifest sets `look: board`, where the store page shows lens
+	 * chips instead of the kind chips, so every store kind is declared as a lens.
+	 *
+	 * @return void
+	 */
+	public function testTheStorePageOffersAKindLensPerStoreKind(): void {
+		$manifest = $this->manifest();
+		$this->assertSame(expected: 'board', actual: $manifest['look'] ?? null);
+
+		$page = array_values(
+			array: array_filter(
+				array: $manifest['pages'],
+				callback: static fn (array $candidate): bool => (($candidate['type'] ?? '') === 'store')
+			)
+		)[0];
+
+		$kinds = array_column(array: ($page['config']['kindLenses'] ?? []), column_key: 'kind');
+		$this->assertSame(
+			expected: ['app-template', 'adapter', 'source-template', 'configuration-template', 'agent-template'],
+			actual: $kinds
+		);
+		foreach ($page['config']['kindLenses'] as $lens) {
+			$this->assertNotSame(expected: '', actual: (string)($lens['label'] ?? ''));
+		}
+	}//end testTheStorePageOffersAKindLensPerStoreKind()
 }//end class

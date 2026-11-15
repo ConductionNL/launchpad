@@ -61,19 +61,13 @@ class DashboardResolver {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
 	 */
-	public function tryGetActiveDashboard(string $userId): ?array {
+	public function tryGetActiveDashboard(string $userId): array|null {
 		try {
 			$dashboard = $this->dashboardMapper->findActiveByUserId(
 				userId: $userId
 			);
-			$placements = $this->placementMapper->findByDashboardId(
-				dashboardId: $dashboard->getId()
-			);
 
-			return $this->buildResult(
-				dashboard: $dashboard,
-				placements: $placements
-			);
+			return $this->resultWithPlacements(dashboard: $dashboard);
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -88,7 +82,7 @@ class DashboardResolver {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-18
 	 */
-	public function tryActivateExistingDashboard(string $userId): ?array {
+	public function tryActivateExistingDashboard(string $userId): array|null {
 		$userDashboards = $this->dashboardMapper->findByUserId(
 			userId: $userId
 		);
@@ -103,14 +97,7 @@ class DashboardResolver {
 		);
 		$dashboard->setIsActive(1);
 
-		$placements = $this->placementMapper->findByDashboardId(
-			dashboardId: $dashboard->getId()
-		);
-
-		return $this->buildResult(
-			dashboard: $dashboard,
-			placements: $placements
-		);
+		return $this->resultWithPlacements(dashboard: $dashboard);
 	}//end tryActivateExistingDashboard()
 
 	/**
@@ -171,25 +158,40 @@ class DashboardResolver {
 		$entries = [];
 
 		foreach (array_keys($levels) as $dashboardId) {
-			try {
-				$dashboard = $this->dashboardMapper->find(id: (int)$dashboardId);
-			} catch (DoesNotExistException) {
-				// Orphaned share row — the cleanup job reaps these.
-				continue;
+			$dashboard = $this->sharedDashboard(dashboardId: (int)$dashboardId, userId: $userId);
+			if ($dashboard !== null) {
+				$entries[] = [
+					'dashboard' => $dashboard,
+					'source' => Dashboard::SOURCE_SHARED,
+				];
 			}
-
-			if ($dashboard->getUserId() === $userId) {
-				continue;
-			}
-
-			$entries[] = [
-				'dashboard' => $dashboard,
-				'source' => Dashboard::SOURCE_SHARED,
-			];
 		}
 
 		return $entries;
 	}//end findSharedDashboards()
+
+	/**
+	 * A dashboard shared with the user; null for an orphaned share row
+	 * (the cleanup job reaps these) or a dashboard the user owns.
+	 *
+	 * @param int    $dashboardId The shared dashboard ID.
+	 * @param string $userId      The user ID.
+	 *
+	 * @return Dashboard|null The dashboard, or null.
+	 */
+	private function sharedDashboard(int $dashboardId, string $userId): Dashboard|null {
+		try {
+			$dashboard = $this->dashboardMapper->find(id: $dashboardId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		if ($dashboard->getUserId() === $userId) {
+			return null;
+		}
+
+		return $dashboard;
+	}//end sharedDashboard()
 
 	/**
 	 * Try to resolve a dashboard shared with the user as their active one.
@@ -220,33 +222,22 @@ class DashboardResolver {
 	 *
 	 * @spec openspec/specs/dashboard-sharing/spec.md
 	 */
-	public function tryGetSharedDashboard(string $userId, array $userGroupIds): ?array {
+	public function tryGetSharedDashboard(string $userId, array $userGroupIds): array|null {
 		$levels = $this->findSharedLevels(
 			userId: $userId,
 			userGroupIds: $userGroupIds
 		);
 
 		foreach ($levels as $dashboardId => $level) {
-			try {
-				$dashboard = $this->dashboardMapper->find(id: (int)$dashboardId);
-			} catch (DoesNotExistException) {
-				continue;
+			$dashboard = $this->sharedDashboard(dashboardId: (int)$dashboardId, userId: $userId);
+			if ($dashboard !== null) {
+				return [
+					'dashboard' => $dashboard,
+					'placements' => $this->placementsOf(dashboard: $dashboard),
+					'permissionLevel' => $level,
+				];
 			}
-
-			if ($dashboard->getUserId() === $userId) {
-				continue;
-			}
-
-			$placements = $this->placementMapper->findByDashboardId(
-				dashboardId: $dashboard->getId()
-			);
-
-			return [
-				'dashboard' => $dashboard,
-				'placements' => $placements,
-				'permissionLevel' => $level,
-			];
-		}//end foreach
+		}
 
 		return null;
 	}//end tryGetSharedDashboard()
@@ -272,22 +263,13 @@ class DashboardResolver {
 				userId: $userId,
 				template: $template
 			);
-			$placements = $this->placementMapper->findByDashboardId(
-				dashboardId: $dashboard->getId()
-			);
 
-			return $this->buildResult(
-				dashboard: $dashboard,
-				placements: $placements
-			);
+			return $this->resultWithPlacements(dashboard: $dashboard);
 		}
 
-		$placements = $this->placementMapper->findByDashboardId(
-			dashboardId: $template->getId()
-		);
 		return [
 			'dashboard' => $template,
-			'placements' => $placements,
+			'placements' => $this->placementsOf(dashboard: $template),
 			'permissionLevel' => Dashboard::PERMISSION_VIEW_ONLY,
 		];
 	}//end handleTemplateResult()
@@ -316,6 +298,34 @@ class DashboardResolver {
 			'permissionLevel' => $permissionLevel,
 		];
 	}//end buildResult()
+
+	/**
+	 * The result for a dashboard with its placements and its effective
+	 * permission level.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return array{dashboard: Dashboard, placements: array, permissionLevel: string}
+	 */
+	private function resultWithPlacements(Dashboard $dashboard): array {
+		return $this->buildResult(
+			dashboard: $dashboard,
+			placements: $this->placementsOf(dashboard: $dashboard)
+		);
+	}//end resultWithPlacements()
+
+	/**
+	 * The widget placements of a dashboard.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return array The placements.
+	 */
+	private function placementsOf(Dashboard $dashboard): array {
+		return $this->placementMapper->findByDashboardId(
+			dashboardId: $dashboard->getId()
+		);
+	}//end placementsOf()
 
 	/**
 	 * Get the effective permission level for a dashboard.

@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\WidgetPlatform;
+use OCA\LaunchPad\Service\WidgetRendering;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Service\MenuService;
@@ -60,12 +62,16 @@ class WidgetServiceUpdateValidationTest extends TestCase {
 		$this->placementService = $this->createMock(PlacementService::class);
 
 		$this->service = new WidgetService(
-			dashboardManager: $this->createMock(IManager::class),
+			platform: new WidgetPlatform(
+				dashboardManager: $this->createMock(IManager::class),
+				userSession: $this->createMock(IUserSession::class)
+			),
 			placementService: $this->placementService,
-			widgetFormatter: $this->createMock(WidgetFormatter::class),
-			widgetItemLoader: $this->createMock(WidgetItemLoader::class),
-			userSession: $this->createMock(IUserSession::class),
-			menuService: new MenuService(),
+			rendering: new WidgetRendering(
+				widgetFormatter: $this->createMock(WidgetFormatter::class),
+				widgetItemLoader: $this->createMock(WidgetItemLoader::class)
+			),
+			menuService: new MenuService()
 		);
 	}//end setUp()
 

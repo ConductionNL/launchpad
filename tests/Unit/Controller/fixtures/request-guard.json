@@ -1,0 +1,874 @@
+{
+    "AdminBulkController::bulkDelete / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkDelete / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkDelete / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkMove / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkMove / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkMove / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkReindex / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkReindex / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkReindex / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkStatus / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkStatus / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminBulkController::bulkStatus / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::purge / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminCleanupController::purge / anonymous": {
+        "status": 403,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::purge / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::scan / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminCleanupController::scan / anonymous": {
+        "status": 403,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminCleanupController::scan / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminDemoShowcasesController::destroy / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminDemoShowcasesController::destroy / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminDemoShowcasesController::destroy / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminDemoShowcasesController::index / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminDemoShowcasesController::index / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminDemoShowcasesController::index / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminDemoShowcasesController::install / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminDemoShowcasesController::install / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminDemoShowcasesController::install / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::getOrgNavigation / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "admin-org-navigation.get-org-navigation"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "AdminOrgNavigationController::getOrgNavigation / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::getOrgNavigation / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "admin-org-navigation.get-org-navigation"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::getPosition / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "admin-org-navigation.get-position"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "AdminOrgNavigationController::getPosition / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::getPosition / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "admin-org-navigation.get-position"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::updateOrgNavigation / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::updateOrgNavigation / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::updateOrgNavigation / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::updatePosition / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::updatePosition / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminOrgNavigationController::updatePosition / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::listGroups / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminSettingsController::listGroups / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::listGroups / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateGroupOrder / alice (admin)": {
+        "status": 400,
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateGroupOrder / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminSettingsController::updateGroupOrder / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Access denied"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminShippedTemplateController::index / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminShippedTemplateController::index / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminShippedTemplateController::index / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminShippedTemplateController::install / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminShippedTemplateController::install / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminShippedTemplateController::install / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminShippedTemplateController::update / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AdminShippedTemplateController::update / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AdminShippedTemplateController::update / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AttentionController::sources / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": true
+    },
+    "AttentionController::sources / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "AttentionController::sources / bob (signed in)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": true
+    },
+    "DashboardLockApiController::acquire / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "dashboard-lock.acquire"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "DashboardLockApiController::acquire / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::acquire / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "dashboard-lock.acquire"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::forceRelease / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "dashboard-lock.force-release"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "DashboardLockApiController::forceRelease / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::forceRelease / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "dashboard-lock.force-release"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::get / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "dashboard-lock.get"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "DashboardLockApiController::get / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::get / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "dashboard-lock.get"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::heartbeat / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "dashboard-lock.heartbeat"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "DashboardLockApiController::heartbeat / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::heartbeat / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "dashboard-lock.heartbeat"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::release / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [],
+        "actions": [
+            [
+                "alice",
+                "dashboard-lock.release"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "DashboardLockApiController::release / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "DashboardLockApiController::release / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Forbidden"
+        },
+        "isAdmin": [],
+        "actions": [
+            [
+                "bob",
+                "dashboard-lock.release"
+            ]
+        ],
+        "reachedServices": false
+    },
+    "MetadataAdminController::createField / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "metadata-admin.create-field"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "MetadataAdminController::createField / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::createField / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::deleteField / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "metadata-admin.delete-field"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "MetadataAdminController::deleteField / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::deleteField / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::getField / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "metadata-admin.get-field"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "MetadataAdminController::getField / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::getField / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::listFields / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "metadata-admin.list-fields"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "MetadataAdminController::listFields / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::listFields / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::updateField / alice (admin)": {
+        "threw": "RuntimeException",
+        "isAdmin": [
+            "alice"
+        ],
+        "actions": [
+            [
+                "alice",
+                "metadata-admin.update-field"
+            ]
+        ],
+        "reachedServices": true
+    },
+    "MetadataAdminController::updateField / anonymous": {
+        "status": 401,
+        "data": {
+            "error": "Not authenticated"
+        },
+        "isAdmin": [],
+        "actions": [],
+        "reachedServices": false
+    },
+    "MetadataAdminController::updateField / bob (signed in)": {
+        "status": 403,
+        "data": {
+            "error": "Admin required"
+        },
+        "isAdmin": [
+            "bob"
+        ],
+        "actions": [],
+        "reachedServices": false
+    }
+}

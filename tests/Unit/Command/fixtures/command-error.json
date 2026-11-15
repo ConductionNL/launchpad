@@ -1,0 +1,67 @@
+{
+    "probe with context plain": {
+        "exit": 4,
+        "stdout": "",
+        "stderr": "Dashboard not found\n"
+    },
+    "probe with context json": {
+        "exit": 4,
+        "stdout": "{\"success\":false,\"exitCode\":4,\"data\":null,\"errors\":[{\"code\":\"NOT_FOUND\",\"message\":\"Dashboard not found\",\"context\":{\"uuid\":\"u-1\"}}]}\n",
+        "stderr": ""
+    },
+    "probe with context quiet": {
+        "exit": 4,
+        "stdout": "",
+        "stderr": "Dashboard not found\n"
+    },
+    "probe without context plain": {
+        "exit": 2,
+        "stdout": "",
+        "stderr": "Deletion aborted by user.\n"
+    },
+    "probe without context json": {
+        "exit": 2,
+        "stdout": "{\"success\":false,\"exitCode\":2,\"data\":null,\"errors\":[{\"code\":\"ABORTED\",\"message\":\"Deletion aborted by user.\"}]}\n",
+        "stderr": ""
+    },
+    "probe without context quiet": {
+        "exit": 2,
+        "stdout": "",
+        "stderr": "Deletion aborted by user.\n"
+    },
+    "probe null context plain": {
+        "exit": 3,
+        "stdout": "",
+        "stderr": "m\n"
+    },
+    "probe null context json": {
+        "exit": 3,
+        "stdout": "{\"success\":false,\"exitCode\":3,\"data\":null,\"errors\":[{\"code\":\"X\",\"message\":\"m\"}]}\n",
+        "stderr": ""
+    },
+    "probe null context quiet": {
+        "exit": 3,
+        "stdout": "",
+        "stderr": "m\n"
+    },
+    "delete missing plain": {
+        "exit": 4,
+        "stdout": "",
+        "stderr": "Dashboard not found\n"
+    },
+    "delete missing json": {
+        "exit": 4,
+        "stdout": "{\"success\":false,\"exitCode\":4,\"data\":null,\"errors\":[{\"code\":\"NOT_FOUND\",\"message\":\"Dashboard not found\",\"context\":{\"uuid\":\"missing\"}}]}\n",
+        "stderr": ""
+    },
+    "delete parent plain": {
+        "exit": 2,
+        "stdout": "",
+        "stderr": "Use --cascade to also delete child dashboards\n"
+    },
+    "delete parent json": {
+        "exit": 2,
+        "stdout": "{\"success\":false,\"exitCode\":2,\"data\":null,\"errors\":[{\"code\":\"CHILDREN_EXIST\",\"message\":\"Use --cascade to also delete child dashboards\",\"context\":{\"uuid\":\"parent\",\"childCount\":2}}]}\n",
+        "stderr": ""
+    }
+}

@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\SessionLog;
 use OCA\LaunchPad\Controller\LiveTileController;
 use OCA\LaunchPad\Service\LiveTileService;
 use OCA\LaunchPad\Service\PermissionService;
@@ -81,8 +82,10 @@ class LiveTileControllerTest extends TestCase {
 			request: $this->request,
 			liveTileService: $this->liveTileService,
 			permissionService: $this->permissionService,
-			userSession: $this->userSession,
-			logger: $this->logger,
+			session: new SessionLog(
+				userSession: $this->userSession,
+				logger: $this->logger
+			)
 		);
 	}//end setUp()
 

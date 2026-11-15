@@ -93,23 +93,13 @@ class DashboardDebugShareCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$uuid = (string)$input->getArgument(name: 'uuid');
 
 		try {
 			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
-			);
+			return $this->emitDashboardNotFound(input: $input, output: $output, uuid: $uuid);
 		}
 
 		$shares = array_map(
@@ -119,10 +109,26 @@ class DashboardDebugShareCommand extends CommandBase {
 			array: $this->shareMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
 		);
 
-		// Lock / version / view capabilities live in sibling specs that
-		// may or may not have shipped yet; absence is reported as the
-		// documented sentinel values rather than a hard failure.
-		$payload = [
+		return $this->emitPrettyPayload(
+			streams: new CommandStreams(input: $input, output: $output),
+			payload: self::diagnostics(uuid: $uuid, shares: $shares)
+		);
+	}//end handle()
+
+	/**
+	 * The diagnostics payload of a dashboard.
+	 *
+	 * Lock / version / view capabilities live in sibling specs that may
+	 * or may not have shipped yet; absence is reported as the documented
+	 * sentinel values rather than a hard failure.
+	 *
+	 * @param string                     $uuid   The dashboard UUID.
+	 * @param list<array<string, mixed>> $shares The serialised shares.
+	 *
+	 * @return array<string, mixed> The payload.
+	 */
+	private static function diagnostics(string $uuid, array $shares): array {
+		return [
 			'uuid' => $uuid,
 			'shares' => $shares,
 			'locked' => false,
@@ -131,21 +137,5 @@ class DashboardDebugShareCommand extends CommandBase {
 			'versionCount' => 0,
 			'viewCount' => 0,
 		];
-
-		if ($this->isJson(input: $input) === true) {
-			$this->emitSuccess(input: $input, output: $output, data: $payload);
-			return CommandService::EXIT_SUCCESS;
-		}
-
-		if ($this->isQuiet(input: $input) === false) {
-			$output->writeln(
-				messages: (string)json_encode(
-					value: $payload,
-					flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-				)
-			);
-		}
-
-		return CommandService::EXIT_SUCCESS;
-	}//end handle()
+	}//end diagnostics()
 }//end class

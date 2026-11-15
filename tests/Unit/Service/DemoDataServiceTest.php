@@ -2,6 +2,7 @@
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\DemoAnnouncements;
 use OCA\LaunchPad\Service\DemoDataService;
 use OCP\App\IAppManager;
 use PHPUnit\Framework\TestCase;
@@ -50,12 +51,13 @@ class DemoDataServiceTest extends TestCase {
 		return $this->appPath . '/lib/Settings/launchpad_mock_register.json';
 	}
 
-	private function service(): DemoDataService {
+	private function service(?DemoAnnouncements $announcements = null): DemoDataService {
 		return new DemoDataService(
 			$this->appManager,
 			$this->container,
 			$this->createMock(LoggerInterface::class),
-			$this->profileFields
+			$this->profileFields,
+			$announcements
 		);
 	}
 
@@ -186,8 +188,11 @@ class DemoDataServiceTest extends TestCase {
 
 		// widgets-people-expertise-and-fields: the demo profile fields come with it.
 		$this->profileFields->expects($this->once())->method('seedDemoDefinitions')->willReturn(true);
+		// engagement-announcements task 11: and the demo announcements.
+		$announcements = $this->createMock(DemoAnnouncements::class);
+		$announcements->expects($this->once())->method('seed')->willReturn(3);
 
-		$result = $this->service()->install();
+		$result = $this->service(announcements: $announcements)->install();
 
 		$this->assertSame(3, $result['objects']);
 		$this->assertSame(1, $result['registers']);

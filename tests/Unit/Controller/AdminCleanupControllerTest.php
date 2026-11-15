@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\CleanupSources;
 use OCA\LaunchPad\Controller\AdminCleanupController;
 use OCA\LaunchPad\Db\CleanupResult;
 use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
@@ -33,6 +34,8 @@ use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use OCA\LaunchPad\Service\RequestGuard;
+use OCA\LaunchPad\Service\ActionAuthService;
 
 /**
  * Unit tests for AdminCleanupController.
@@ -94,10 +97,11 @@ class AdminCleanupControllerTest extends TestCase {
 	private function makeController(): AdminCleanupController {
 		return new AdminCleanupController(
 			request: $this->request,
-			cleanupService: $this->cleanupService,
-			registry: $this->registry,
-			groupManager: $this->groupManager,
-			userSession: $this->userSession,
+			cleanup: new CleanupSources(
+				cleanupService: $this->cleanupService,
+				registry: $this->registry
+			),
+			guard: new RequestGuard(userSession: $this->userSession, groupManager: $this->groupManager, actionAuth: $this->createMock(ActionAuthService::class))
 		);
 	}
 

@@ -65,43 +65,17 @@ class TileAnalyticsService {
 	/**
 	 * Constructor.
 	 *
-	 * @param TileClickMapper $tileClickMapper Aggregate-row mapper.
-	 * @param WidgetPlacementMapper $placementMapper Resolves the placement
-	 *                                               (tile) that was
-	 *                                               clicked to its owning
-	 *                                               dashboard.
-	 * @param DashboardMapper $dashboardMapper Resolves the owning
-	 *                                         dashboard's UUID.
-	 * @param UniqueViewerDedup $dedup Reused unique-actor
-	 *                                 dedup service
-	 *                                 (REQ-TANLT-002).
-	 * @param AnalyticsService $analyticsService Reused for
-	 *                                           `analytics_enabled`
-	 *                                           /
-	 *                                           `analytics_optout`
-	 *                                           /
-	 *                                           retention
-	 *                                           (REQ-TANLT-003,
-	 *                                           REQ-TANLT-005)
-	 *                                           — this
-	 *                                           service
-	 *                                           never
-	 *                                           reads
-	 *                                           `IAppConfig`/`IConfig`
-	 *                                           directly
-	 *                                           so there
-	 *                                           is exactly
-	 *                                           one place
-	 *                                           those
-	 *                                           gates
-	 *                                           live.
+	 * @param TileClickMapper       $tileClickMapper Aggregate-row mapper.
+	 * @param WidgetPlacementMapper $placementMapper Resolves the placement (tile) that was clicked to its
+	 *                                               owning dashboard.
+	 * @param DashboardMapper       $dashboardMapper Resolves the owning dashboard's UUID.
+	 * @param TileViewTools         $views The viewer dedup and analytics service.
 	 */
 	public function __construct(
 		private readonly TileClickMapper $tileClickMapper,
 		private readonly WidgetPlacementMapper $placementMapper,
 		private readonly DashboardMapper $dashboardMapper,
-		private readonly UniqueViewerDedup $dedup,
-		private readonly AnalyticsService $analyticsService,
+		private readonly TileViewTools $views,
 	) {
 	}//end __construct()
 
@@ -119,11 +93,11 @@ class TileAnalyticsService {
 	 * @spec openspec/specs/dashboard-view-analytics/spec.md
 	 */
 	public function isTrackingActiveFor(string $userId): bool {
-		if ($this->analyticsService->isGloballyEnabled() === false) {
+		if ($this->views->analyticsService->isGloballyEnabled() === false) {
 			return false;
 		}
 
-		return ($this->analyticsService->isUserOptedOut(userId: $userId) === false);
+		return ($this->views->analyticsService->isUserOptedOut(userId: $userId) === false);
 	}//end isTrackingActiveFor()
 
 	/**
@@ -156,11 +130,11 @@ class TileAnalyticsService {
 		$placement = $this->placementMapper->find(id: $placementId);
 		$placementUuid = (string)$placementId;
 
-		if ($this->analyticsService->isGloballyEnabled() === false) {
+		if ($this->views->analyticsService->isGloballyEnabled() === false) {
 			return false;
 		}
 
-		if ($this->analyticsService->isUserOptedOut(userId: $userId) === true) {
+		if ($this->views->analyticsService->isUserOptedOut(userId: $userId) === true) {
 			return false;
 		}
 
@@ -176,7 +150,7 @@ class TileAnalyticsService {
 		}
 
 		$today = UniqueViewerDedup::utcDateFor();
-		$isNewActor = $this->dedup->isNewUniqueViewer(
+		$isNewActor = $this->views->dedup->isNewUniqueViewer(
 			userId: $userId,
 			viewBucketDate: $today,
 			dashboardUuid: $placementUuid
@@ -187,11 +161,13 @@ class TileAnalyticsService {
 		}
 
 		$this->tileClickMapper->upsertClick(
-			placementUuid: $placementUuid,
-			dashboardUuid: $dashboardUuid,
-			clickBucket: $today,
-			clickCountDelta: 1,
-			uniqueCountDelta: $uniqueDelta
+			click: [
+				'placementUuid'    => $placementUuid,
+				'dashboardUuid'    => $dashboardUuid,
+				'clickBucket'      => $today,
+				'clickCountDelta'  => 1,
+				'uniqueCountDelta' => $uniqueDelta,
+			]
 		);
 
 		return true;

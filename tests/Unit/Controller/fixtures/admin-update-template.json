@@ -1,0 +1,14 @@
+{
+"nothing": {"status":200,"patch":{"id":4,"data":[]},"name":"kept"},
+"name": {"status":200,"patch":{"id":4,"data":{"name":"T"}},"name":"T"},
+"empty name": {"status":200,"patch":{"id":4,"data":{"name":""}},"name":""},
+"description": {"status":200,"patch":{"id":4,"data":{"description":"d"}},"name":"kept"},
+"groups": {"status":200,"patch":{"id":4,"data":{"targetGroups":["staff","hr"]}},"name":"kept"},
+"no groups": {"status":200,"patch":{"id":4,"data":{"targetGroups":[]}},"name":"kept"},
+"level": {"status":200,"patch":{"id":4,"data":{"permissionLevel":"view_only"}},"name":"kept"},
+"default": {"status":200,"patch":{"id":4,"data":{"isDefault":true}},"name":"kept"},
+"not default": {"status":200,"patch":{"id":4,"data":{"isDefault":false}},"name":"kept"},
+"grid": {"status":200,"patch":{"id":4,"data":{"gridColumns":6}},"name":"kept"},
+"everything": {"status":200,"patch":{"id":4,"data":{"name":"y","description":"x","targetGroups":["a"],"permissionLevel":"full","isDefault":false,"gridColumns":8}},"name":"y"},
+"failure": {"status":400,"patch":{"id":4,"data":{"name":"boom"}},"name":null}
+}

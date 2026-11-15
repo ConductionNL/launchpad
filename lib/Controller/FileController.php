@@ -63,10 +63,7 @@ class FileController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -85,19 +82,15 @@ class FileController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function createFile(
-		?string $filename = null,
-		?string $dir = '/',
-		?string $content = '',
+		string|null $filename = null,
+		string|null $dir = '/',
+		string|null $content = '',
 	): JSONResponse {
 		try {
-			$userId = $this->resolveUserId();
-
 			$result = $this->fileService->createFile(
-				userId: $userId,
+				userId: $this->resolveUserId(),
 				filename: ($filename ?? ''),
-				dir: ($dir ?? '/'),
-				content: ($content ?? ''),
-				onExisting: $this->onExisting()
+				write: $this->writeOptions(dir: $dir, content: $content)
 			);
 
 			return new JSONResponse(
@@ -105,38 +98,82 @@ class FileController extends Controller {
 				statusCode: Http::STATUS_OK
 			);
 		} catch (ForbiddenException $e) {
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'forbidden',
-					'message' => 'Authentication required',
-				],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+			return $this->unauthenticated();
 		} catch (ResourceException $e) {
-			if ($e instanceof StorageFailureException) {
-				$this->logger->error(
-					message: 'File create storage failure',
-					context: ['exception' => $e->getMessage()]
-				);
-			}
-
-			return $this->errorResponse(exception: $e);
+			return $this->resourceFailure(exception: $e);
 		} catch (Throwable $e) {
 			// Defence in depth — never leak raw messages on
 			// truly unexpected paths.
-			$this->logger->error(
-				message: 'Unexpected file create failure',
-				context: ['exception' => $e->getMessage()]
-			);
+			$this->logFailure(message: 'Unexpected file create failure', exception: $e);
 
-			$fallback = new StorageFailureException(
-				message: 'Failed to create file'
+			return $this->errorResponse(
+				exception: new StorageFailureException(message: 'Failed to create file')
 			);
-
-			return $this->errorResponse(exception: $fallback);
 		}//end try
 	}//end createFile()
+
+	/**
+	 * The write options passed to the file service.
+	 *
+	 * @param string|null $dir     The target directory (default `/`).
+	 * @param string|null $content The file content (default empty).
+	 *
+	 * @return array{dir: string, content: string, onExisting: string}
+	 */
+	private function writeOptions(string|null $dir, string|null $content): array {
+		return [
+			'dir'        => ($dir ?? '/'),
+			'content'    => ($content ?? ''),
+			'onExisting' => $this->onExisting(),
+		];
+	}//end writeOptions()
+
+	/**
+	 * Answer a typed failure, logging it when it is a storage failure
+	 * (these usually indicate an operational problem).
+	 *
+	 * @param ResourceException $exception The typed failure.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function resourceFailure(ResourceException $exception): JSONResponse {
+		if ($exception instanceof StorageFailureException) {
+			$this->logFailure(message: 'File create storage failure', exception: $exception);
+		}
+
+		return $this->errorResponse(exception: $exception);
+	}//end resourceFailure()
+
+	/**
+	 * The 401 envelope for a request without a session user.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function unauthenticated(): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'error',
+				'error' => 'forbidden',
+				'message' => 'Authentication required',
+			],
+			statusCode: Http::STATUS_UNAUTHORIZED
+		);
+	}//end unauthenticated()
+
+	/**
+	 * Log one file-create failure with its exception message.
+	 *
+	 * @param string    $message   The log message.
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return void
+	 */
+	private function logFailure(string $message, Throwable $exception): void {
+		$this->logger->error(
+			message: $message,
+			context: ['exception' => $exception->getMessage()]
+		);
+	}//end logFailure()
 
 	/**
 	 * How to treat an existing file of the same name, from the request.

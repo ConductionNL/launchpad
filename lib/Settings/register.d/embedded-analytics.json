@@ -348,6 +348,10 @@
             "type": "object",
             "title": "Public key (JWK)"
           },
+          "publicKeyPem": {
+            "type": "string",
+            "title": "Public key (PEM)"
+          },
           "privateKeyEncrypted": {
             "type": "string",
             "title": "Private key (encrypted)",

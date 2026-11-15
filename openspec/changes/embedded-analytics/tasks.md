@@ -16,7 +16,7 @@
   - `EmbedUsageEvent.php` (OpenRegister mapper)
   - `SigningKey.php` (OpenRegister mapper)
   Plus exception classes: `EmbedTokenException`, `InvalidTokenException`, `TokenExpiredException`, `TokenRevokedException`
-  > Partly built: the four exception classes exist under `lib/Exception/` (`InvalidTokenException`, `TokenExpiredException` and `TokenRevokedException` extend `EmbedTokenException`). The mapper classes wait for the Task 1 schemas.
+  > Partly built: the four exception classes exist under `lib/Exception/` (`InvalidTokenException`, `TokenExpiredException` and `TokenRevokedException` extend `EmbedTokenException`). `lib/Entity/EmbedToken.php` and `lib/Entity/SigningKey.php` are built over `Service/Embed/EmbedObjectStore` (OpenRegister's published object service, looked up by name so LaunchPad boots without it). `TenantTheme` and `EmbedUsageEvent` still to do.
 
 - [x] Task 3: Create `lib/Service/JwtSigningService.php` for JWT lifecycle:
   - Generate RS256 and ES256 key pairs (minimum 2048-bit RSA, P-256 for ECDSA)
@@ -26,13 +26,14 @@
   - Unit tests: signature verification, key rotation, algorithm selection
   > Built as `lib/Service/Embed/JwtSigningService.php` (beside the other embed services), with the JWS byte encodings in `Embed/JoseEncoding`. RS256 (2048-bit) and ES256 (P-256, JOSE R||S signatures) key pairs with a public JWK; signs with the newest active key under its `kid`; verifies only against an active or retiring key of the algorithm the header names (`none`, HS256 and algorithm swaps refused), then `exp`/`nbf`; `rotate()` turns active keys retiring and adds a new active one. Keys are plain `signing_key`-shaped records: storing them and encrypting the private key belong to Task 1/4. Tests: `JwtSigningServiceTest` (12).
 
-- [ ] Task 4: Create `lib/Service/EmbedTokenService.php` for token persistence:
+- [x] Task 4: Create `lib/Service/EmbedTokenService.php` for token persistence:
   - `createToken(name, description, subject, scope, hostOrigins, tenantThemeId, tokenExpiresAt, rateLimitPolicy)`: Generate JWT + persist token record + return token (shown once)
   - `getToken(id)`: Return token metadata (no JWT)
   - `validateToken(jwt)`: Verify signature + expiry + revocation status
   - `revokeToken(id, reason, notes)`: Set revokedAt, send notification
   - `unrevokeToken(id)`: Clear revokedAt (soft revocation)
   - Unit tests: token creation, validation, revocation, expiry
+  > Built as `lib/Service/Embed/EmbedTokenService.php` with `SigningKeyService` (keys stored as `signing_key` objects, private key encrypted with `ICrypto`; the first RS256 key is created on first issue). The token is stored first, signed with `jti` = its id, then its sha256 hash and `kid` are stored; validation checks signature and claims, the stored hash (constant-time, also for a missing row), revocation through `RevocationCache`, then expiry. Also `listTokens`, `updateToken` (name, description, rate limit only), `reissueToken` and `purgeCache`. Revocation notifies the creator (`embed_token_revoked`, Notifier copy, nl). Tests: `EmbedTokenServiceTest` (11), `EmbedObjectStoreTest` (4).
 
 - [x] Task 5: Create `lib/Service/RateLimitService.php` (token-bucket algorithm):
   - `checkRateLimit(tokenId, timestamp)`: Query token's `rateLimitPolicy`, check bucket state, return remaining quota or 429 error
@@ -200,12 +201,13 @@
 
 ## Rate Limiting & Revocation
 
-- [ ] Task 25: Implement revocation cache + propagation:
+- [x] Task 25: Implement revocation cache + propagation:
   - Store revocation status in Redis (or in-memory cache with 60s TTL)
   - On token revocation, immediately set cache entry `revoked:<tokenId> = true`
   - Render route checks cache first; if miss, queries database
   - Implement purge-cache action: Broadcast cache-clear message to all workers (Redis pub/sub)
   - Unit tests: cache hits, TTL expiry, database fallback
+  > Built as `lib/Service/Embed/RevocationCache.php` over Nextcloud's distributed cache, which every worker shares, so a revocation or a purge reaches all workers at once without a separate broadcast; a miss reads the stored token and is cached for 60 s. Tested in `EmbedTokenServiceTest`.
 
 - [ ] Task 26: Integrate RateLimitService into render route:
   - In EmbedController, call `RateLimitService.checkRateLimit(tokenId, now)`
@@ -246,20 +248,21 @@
 
 ## Testing & Documentation
 
-- [ ] Task 31: PHPUnit tests for JWT signing:
+- [x] Task 31: PHPUnit tests for JWT signing:
   - Sign a JWT with RS256, verify signature
   - Verify JWT with wrong key fails
   - Verify expired JWT rejected
   - Verify revoked token rejected
   - Key rotation: old key still verifies old tokens, new key signs new tokens
-  > Partly built in `JwtSigningServiceTest`: RS256 sign/verify, wrong key, expired, key rotation. "Revoked token rejected" is the token store's check (Task 4), still to do.
+  > `JwtSigningServiceTest`: RS256 sign/verify, wrong key, expired, key rotation; revoked token rejected in `EmbedTokenServiceTest`.
 
-- [ ] Task 32: PHPUnit tests for token lifecycle:
+- [x] Task 32: PHPUnit tests for token lifecycle:
   - Create token → retrieve JWT (once)
   - Re-retrieve → no JWT
   - Update token (name, rateLimitPolicy)
   - Revoke token → subsequent requests rejected
   - Un-revoke token → requests accepted again
+  > `EmbedTokenServiceTest`.
 
 - [ ] Task 33: PHPUnit tests for scope enforcement:
   - Read-only token rejects POST/PUT/PATCH/DELETE

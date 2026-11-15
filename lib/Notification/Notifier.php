@@ -140,6 +140,10 @@ class Notifier implements INotifier {
 			return $this->buildDashboardUrlFromUuid(uuid: $notification->getObjectId());
 		}
 
+		if ($notification->getSubject() === 'embed_token_revoked') {
+			return $this->urlGenerator->linkToRouteAbsolute(routeName: 'settings.AdminSettings.index', arguments: ['section' => 'launchpad']);
+		}
+
 		return $this->buildDashboardUrl(objectId: $notification->getObjectId());
 	}//end linkFor()
 
@@ -161,6 +165,7 @@ class Notifier implements INotifier {
 			'dashboard_shared' => $this->sharedCopy(params: $params, l: $l),
 			'dashboard_ownership_transferred' => $this->transferredCopy(params: $params, l: $l),
 			'dashboard_template_resynced' => $this->resyncedCopy(params: $params, l: $l),
+			'embed_token_revoked' => $this->embedRevokedCopy(params: $params, l: $l),
 			default => throw new UnknownNotificationException(
 				message: 'Unknown subject: ' . $notification->getSubject()
 			),
@@ -256,6 +261,32 @@ class Notifier implements INotifier {
 
 		return $copy;
 	}//end resyncedCopy()
+
+	/**
+	 * Copy for an embed token that was revoked: who, why and when (REQ-EMB-009 9.2).
+	 *
+	 * @param array<int|string, mixed> $params [name, revokedBy, reason, notes, revokedAt].
+	 * @param IL10N                    $l      Translations.
+	 *
+	 * @return NotificationCopy
+	 *
+	 * @spec openspec/changes/embedded-analytics/specs/embedded-analytics/spec.md#requirement-req-emb-009--token-revocation-takes-effect-within-60-seconds
+	 */
+	private function embedRevokedCopy(array $params, IL10N $l): NotificationCopy {
+		$names = [(string)($params[0] ?? ''), (string)($params[1] ?? '')];
+
+		$copy = new NotificationCopy();
+		$copy->richSubject   = $l->t('Token **%1$s** has been revoked by %2$s', $names);
+		$copy->parsedSubject = $l->t('Token %1$s has been revoked by %2$s', $names);
+		$copy->message       = $l->t('Reason: %1$s', [(string)($params[2] ?? '')]);
+		if ((string)($params[3] ?? '') !== '') {
+			$copy->message .= "\n" . $l->t('Notes: %1$s', [(string)$params[3]]);
+		}
+
+		$copy->message .= "\n" . $l->t('Revocation timestamp: %1$s', [(string)($params[4] ?? '')]);
+
+		return $copy;
+	}//end embedRevokedCopy()
 
 	/**
 	 * Build the deep-link URL for a dashboard.

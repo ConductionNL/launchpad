@@ -20,6 +20,8 @@ parameters:
         - tests/phpstan/apphost-symbols.php
         # OpenRegister ships IMcpToolProvider at runtime only (mcp-tool-surface).
         - tests/Stubs/Mcp/IMcpToolProvider.php
+        # OpenRegister's published object service contract (embedded-analytics store).
+        - tests/Stubs/OpenRegister/ObjectServiceInterface.php
 
     # Prevents false-positive "always true/false" errors caused by defensive runtime
     # checks on values whose PHPDoc type is narrower than what callers may pass.

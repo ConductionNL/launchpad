@@ -21,12 +21,14 @@ Every row in `openspec/parity/capabilities.json` records the requirement that co
 - `prometheus-metrics`: the admin page shows the health check result.
 - `dashboard-sharing`: administrators limit who may share and with whom. Not built yet.
 - `runtime-shell`: the admin area gets its own first-visit tour. Not built yet.
+- `widgets`: another app's widget shows that app's items for the viewer (rows int-mail and int-tasks, which only had the generic `nc-widget` requirement).
+- `platform-baseline`: outbound requests use the server's proxy setting (row d-proxy, whose requirement covered the feed refresh job only).
 
 ## Capabilities
 
 ### Modified capabilities
 
-- `widgets`, `prometheus-metrics`, `dashboard-sharing`, `runtime-shell`
+- `widgets`, `prometheus-metrics`, `dashboard-sharing`, `runtime-shell`, `platform-baseline`
 
 ## Impact
 

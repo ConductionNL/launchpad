@@ -50,6 +50,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\LaunchPad\Controller\RespondsWithErrors
  * @uses   \OCA\LaunchPad\Service\PeopleQuery
  * @uses   \OCA\LaunchPad\Service\PeoplePage
+ * @uses   \OCA\LaunchPad\Service\DisplayNamePageCollector
  */
 class PeopleDirectoryGoldenTest extends TestCase {
 

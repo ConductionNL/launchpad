@@ -34,6 +34,13 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Spec example: the same truncated sample JWT in the embedded-analytics SDK scenarios, not a credential."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)openspec/changes/embedded\-analytics/specs/embedded\-analytics/spec\.md$''',
+]
+
+[[allowlists]]
 description = "Design note: a curl example with a user:app-password placeholder."
 targetRules = ["curl-auth-user"]
 paths = [

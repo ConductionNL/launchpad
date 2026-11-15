@@ -116,12 +116,6 @@ class PublicShareService {
 	 * @throws RuntimeException When the share cannot be stored.
 	 *
 	 * @spec openspec/changes/dashboard-public-share/tasks.md#task-5
-	 *
-	 * @SuppressWarnings(PHPMD.StaticAccess)
-	 *      `DateTime::createFromFormat()` is a PHP built-in named constructor,
-	 *      called three times here to try the ATOM, `Y-m-d\TH:i:s\Z` and
-	 *      `Y-m-d H:i:s` expiry formats in turn. There is no instance-method
-	 *      equivalent and no collaborator to inject in its place.
 	 */
 	public function createPublicShare(
 		string $dashboardUuid,
@@ -133,6 +127,23 @@ class PublicShareService {
 		$dashboard = $this->dashMapper->findByUuid(uuid: $dashboardUuid);
 		$this->authorizeShareMutation(dashboard: $dashboard, userId: $callerId);
 
+		$share = $this->newShare(dashboardUuid: $dashboardUuid, callerId: $callerId);
+		$this->applyPassword(share: $share, password: $password);
+		$this->applyExpiry(share: $share, expiresAt: $expiresAt);
+
+		return $this->storeShare(share: $share, dashboardUuid: $dashboardUuid);
+	}//end createPublicShare()
+
+	/**
+	 * A new, unsaved share for a dashboard with a fresh token, its creator,
+	 * its creation time and no views.
+	 *
+	 * @param string $dashboardUuid Dashboard UUID.
+	 * @param string $callerId      User ID of the creating user.
+	 *
+	 * @return PublicShare The share.
+	 */
+	private function newShare(string $dashboardUuid, string $callerId): PublicShare {
 		$share = new PublicShare();
 		// phpcs:disable CustomSn.Functions.NamedParameters -- Entity magic __call breaks with named args.
 		$share->setDashboardUuid($dashboardUuid);
@@ -147,33 +158,110 @@ class PublicShareService {
 		$share->setViewCount(0);
 		// phpcs:enable CustomSn.Functions.NamedParameters
 
+		return $share;
+	}//end newShare()
+
+	/**
+	 * Store the hash of a non-empty password on the share.
+	 *
+	 * @param PublicShare $share    The new share.
+	 * @param string|null $password Optional plaintext password.
+	 *
+	 * @return void
+	 */
+	private function applyPassword(
+		PublicShare $share,
+		#[\SensitiveParameter]
+		?string $password,
+	): void {
 		if ($password !== null && $password !== '') {
 			// phpcs:disable CustomSn.Functions.NamedParameters
 			$share->setPasswordHash($this->hasher->hash(message: $password));
 			// phpcs:enable CustomSn.Functions.NamedParameters
 		}
+	}//end applyPassword()
 
-		if ($expiresAt !== null && $expiresAt !== '') {
-			$parsed = DateTime::createFromFormat(DateTime::ATOM, $expiresAt);
-			if ($parsed === false) {
-				$parsed = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $expiresAt);
-			}
-
-			if ($parsed === false) {
-				$parsed = DateTime::createFromFormat('Y-m-d H:i:s', $expiresAt);
-			}
-
-			if ($parsed === false) {
-				throw new InvalidArgumentException(message: 'expiresAt is not a valid date');
-			}
-
-			// phpcs:disable CustomSn.Functions.NamedParameters
-			$share->setExpiresAt($parsed->format('Y-m-d H:i:s'));
-			// phpcs:enable CustomSn.Functions.NamedParameters
+	/**
+	 * Store a non-empty expiry on the share in the database format.
+	 *
+	 * @param PublicShare $share     The new share.
+	 * @param string|null $expiresAt Optional expiry timestamp.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When expiresAt is given but is not a date.
+	 */
+	private function applyExpiry(PublicShare $share, ?string $expiresAt): void {
+		if ($expiresAt === null || $expiresAt === '') {
+			return;
 		}
 
+		$parsed = self::parseExpiry(expiresAt: $expiresAt);
+		// phpcs:disable CustomSn.Functions.NamedParameters
+		$share->setExpiresAt($parsed->format('Y-m-d H:i:s'));
+		// phpcs:enable CustomSn.Functions.NamedParameters
+	}//end applyExpiry()
+
+	/**
+	 * Parse an expiry in the ATOM, `Y-m-d\TH:i:s\Z` or `Y-m-d H:i:s`
+	 * format, tried in that order.
+	 *
+	 * @param string $expiresAt The expiry timestamp.
+	 *
+	 * @return DateTime The parsed expiry.
+	 *
+	 * @throws InvalidArgumentException When no format fits.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess)
+	 *      `DateTime::createFromFormat()` is a PHP built-in named constructor,
+	 *      called once per accepted expiry format. There is no
+	 *      instance-method equivalent and no collaborator to inject in its
+	 *      place.
+	 */
+	private static function parseExpiry(string $expiresAt): DateTime {
+		foreach ([DateTime::ATOM, 'Y-m-d\TH:i:s\Z', 'Y-m-d H:i:s'] as $format) {
+			$parsed = DateTime::createFromFormat($format, $expiresAt);
+			if ($parsed !== false) {
+				return $parsed;
+			}
+		}
+
+		throw new InvalidArgumentException(message: 'expiresAt is not a valid date');
+	}//end parseExpiry()
+
+	/**
+	 * Insert the new share and log its creation.
+	 *
+	 * @param PublicShare $share         The new share.
+	 * @param string      $dashboardUuid Dashboard UUID.
+	 *
+	 * @return PublicShare The stored share.
+	 *
+	 * @throws RuntimeException When the share cannot be stored.
+	 */
+	private function storeShare(PublicShare $share, string $dashboardUuid): PublicShare {
+		$saved = $this->insertShare(share: $share);
+
+		$this->logger->debug(
+			message: sprintf('launchpad: public share created for dashboard %s', $dashboardUuid),
+			context: ['app' => 'launchpad']
+		);
+
+		return $saved;
+	}//end storeShare()
+
+	/**
+	 * Insert a share; a storage failure is logged by exception class only.
+	 *
+	 * @param PublicShare $share The new share.
+	 *
+	 * @return PublicShare The stored share.
+	 *
+	 * @throws RuntimeException When the share cannot be stored.
+	 */
+	private function insertShare(PublicShare $share): PublicShare {
 		try {
-			$saved = $this->shareMapper->insert(entity: $share);
+			return $this->shareMapper->insert(entity: $share);
 		} catch (Exception $e) {
 			// The database error carries the token and password hash; only its class is kept.
 			$this->logger->error(
@@ -182,14 +270,7 @@ class PublicShareService {
 			);
 			throw new RuntimeException(message: 'The public share could not be stored');
 		}
-
-		$this->logger->debug(
-			message: sprintf('launchpad: public share created for dashboard %s', $dashboardUuid),
-			context: ['app' => 'launchpad']
-		);
-
-		return $saved;
-	}//end createPublicShare()
+	}//end insertShare()
 
 	/**
 	 * List all active (non-revoked, non-expired) shares for a dashboard.
@@ -282,42 +363,91 @@ class PublicShareService {
 		$share = $this->resolveActiveShare(token: $token, ipAddress: $ipAddress);
 
 		// Password gate.
-		if ($share->getPasswordHash() !== null) {
-			if ($password === null || $password === '') {
-				throw new SharePasswordRequiredException();
-			}
-
-			if ($this->hasher->verify(
-				message: $password,
-				hash: (string)$share->getPasswordHash()
-			) === false
-			) {
-				$this->throttler->registerAttempt(
-					action: self::ACTION_SHARE_PASSWORD,
-					ip: $ipAddress
-				);
-				throw new SharePasswordRequiredException();
-			}
+		if ($this->lacksPassword(share: $share, password: $password) === true) {
+			throw new SharePasswordRequiredException();
 		}
 
+		if ($this->rejectsPassword(share: $share, password: $password) === true) {
+			$this->registerPasswordFailure(ipAddress: $ipAddress);
+			throw new SharePasswordRequiredException();
+		}
+
+		return $this->shareContent(share: $share, visit: new PublicShareVisit(token: $token, ipAddress: $ipAddress));
+	}//end renderShareContent()
+
+	/**
+	 * Whether a password-protected share was opened without a password.
+	 *
+	 * @param PublicShare $share    The active share.
+	 * @param string|null $password The supplied password.
+	 *
+	 * @return bool True when a password is needed but missing.
+	 */
+	private function lacksPassword(
+		PublicShare $share,
+		#[\SensitiveParameter]
+		?string $password,
+	): bool {
+		return $share->getPasswordHash() !== null && ($password === null || $password === '');
+	}//end lacksPassword()
+
+	/**
+	 * Whether a password-protected share was opened with a wrong password.
+	 *
+	 * @param PublicShare $share    The active share.
+	 * @param string|null $password The supplied, non-empty password.
+	 *
+	 * @return bool True when the password does not match.
+	 */
+	private function rejectsPassword(
+		PublicShare $share,
+		#[\SensitiveParameter]
+		?string $password,
+	): bool {
+		return $share->getPasswordHash() !== null
+			&& $this->hasher->verify(
+				message: (string)$password,
+				hash: (string)$share->getPasswordHash()
+			) === false;
+	}//end rejectsPassword()
+
+	/**
+	 * Record a failed password attempt for throttling.
+	 *
+	 * @param string $ipAddress Client IP address.
+	 *
+	 * @return void
+	 */
+	private function registerPasswordFailure(string $ipAddress): void {
+		$this->throttler->registerAttempt(
+			action: self::ACTION_SHARE_PASSWORD,
+			ip: $ipAddress
+		);
+	}//end registerPasswordFailure()
+
+	/**
+	 * Count the visit and answer with the share's dashboard and placements.
+	 *
+	 * @param PublicShare      $share The opened share.
+	 * @param PublicShareVisit $visit The visit's token and IP address.
+	 *
+	 * @return array{share: PublicShare, dashboard: Dashboard, placements: WidgetPlacement[]}
+	 */
+	private function shareContent(PublicShare $share, PublicShareVisit $visit): array {
 		$dashboard = $this->dashMapper->findByUuid(uuid: (string)$share->getDashboardUuid());
 
 		$this->shareMapper->incrementViewCount(
 			id: (int)$share->getId(),
-			token: $token,
-			ipAddress: $ipAddress
+			token: $visit->token,
+			ipAddress: $visit->ipAddress
 		);
 
 		$placements = $this->placementMapper->findByDashboardId(
 			dashboardId: (int)$dashboard->getId()
 		);
 
-		return [
-			'share' => $share,
-			'dashboard' => $dashboard,
-			'placements' => $placements,
-		];
-	}//end renderShareContent()
+		return ['share' => $share, 'dashboard' => $dashboard, 'placements' => $placements];
+	}//end shareContent()
 
 	/**
 	 * Verify a password for a password-protected share (unlock endpoint).
@@ -360,10 +490,7 @@ class PublicShareService {
 		);
 
 		if ($isValid === false) {
-			$this->throttler->registerAttempt(
-				action: self::ACTION_SHARE_PASSWORD,
-				ip: $ipAddress
-			);
+			$this->registerPasswordFailure(ipAddress: $ipAddress);
 		}
 
 		return $isValid;
@@ -387,41 +514,88 @@ class PublicShareService {
 	 *      to inject in its place.
 	 */
 	private function resolveActiveShare(string $token, string $ipAddress): PublicShare {
-		try {
-			$share = $this->shareMapper->findByToken(token: $token);
-		} catch (DoesNotExistException) {
-			$this->throttler->registerAttempt(
-				action: self::ACTION_SHARE_ACCESS,
-				ip: $ipAddress
-			);
-			throw new ShareNotFoundException();
-		}
+		$share = $this->findShareByToken(token: $token, ipAddress: $ipAddress);
 
-		if ($share->getRevokedAt() !== null) {
-			$this->throttler->registerAttempt(
-				action: self::ACTION_SHARE_ACCESS,
-				ip: $ipAddress
-			);
-			throw new ShareNotFoundException();
-		}
-
-		if ($share->getExpiresAt() !== null) {
-			$expiry = DateTime::createFromFormat('Y-m-d H:i:s', (string)$share->getExpiresAt());
-			if ($expiry === false) {
-				$expiry = new DateTime((string)$share->getExpiresAt());
-			}
-
-			if ($expiry < new DateTime()) {
-				$this->throttler->registerAttempt(
-					action: self::ACTION_SHARE_ACCESS,
-					ip: $ipAddress
-				);
-				throw new ShareNotFoundException();
-			}
+		if ($share->getRevokedAt() !== null || $this->isExpired(share: $share) === true) {
+			$this->refuseAccess(ipAddress: $ipAddress);
 		}
 
 		return $share;
 	}//end resolveActiveShare()
+
+	/**
+	 * The share with a token; an unknown token is recorded and refused.
+	 *
+	 * @param string $token     The share token.
+	 * @param string $ipAddress Client IP address.
+	 *
+	 * @return PublicShare The share.
+	 *
+	 * @throws ShareNotFoundException When no share has the token.
+	 */
+	private function findShareByToken(string $token, string $ipAddress): PublicShare {
+		try {
+			return $this->shareMapper->findByToken(token: $token);
+		} catch (DoesNotExistException) {
+			$this->refuseAccess(ipAddress: $ipAddress);
+		}
+	}//end findShareByToken()
+
+	/**
+	 * Record a failed share access for throttling and refuse it.
+	 *
+	 * @param string $ipAddress Client IP address.
+	 *
+	 * @return never
+	 *
+	 * @throws ShareNotFoundException Always.
+	 */
+	private function refuseAccess(string $ipAddress): never {
+		$this->throttler->registerAttempt(
+			action: self::ACTION_SHARE_ACCESS,
+			ip: $ipAddress
+		);
+		throw new ShareNotFoundException();
+	}//end refuseAccess()
+
+	/**
+	 * Whether a share's expiry has passed.
+	 *
+	 * @param PublicShare $share The share.
+	 *
+	 * @return bool True when it has an expiry in the past.
+	 */
+	private function isExpired(PublicShare $share): bool {
+		if ($share->getExpiresAt() === null) {
+			return false;
+		}
+
+		$expiry = self::parseStoredExpiry(expiresAt: (string)$share->getExpiresAt());
+
+		return $expiry < new DateTime();
+	}//end isExpired()
+
+	/**
+	 * Parse a stored expiry: the database format, else any format
+	 * `DateTime` understands.
+	 *
+	 * @param string $expiresAt The stored expiry.
+	 *
+	 * @return DateTime The expiry.
+	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess)
+	 *      `DateTime::createFromFormat()` is a PHP built-in named constructor;
+	 *      there is no instance-method equivalent to call and no collaborator
+	 *      to inject in its place.
+	 */
+	private static function parseStoredExpiry(string $expiresAt): DateTime {
+		$expiry = DateTime::createFromFormat('Y-m-d H:i:s', $expiresAt);
+		if ($expiry === false) {
+			return new DateTime($expiresAt);
+		}
+
+		return $expiry;
+	}//end parseStoredExpiry()
 
 	/**
 	 * Assert that the calling user may create/revoke shares for a dashboard.

@@ -81,6 +81,25 @@ class AnalyticsServiceTest extends TestCase {
 		$this->assertFalse($this->service->isGloballyEnabled());
 	}
 
+	public function testSetUserOptedOutStoresTrueAndFalse(): void {
+		$stored = [];
+		$this->config->expects($this->exactly(2))->method('setUserValue')->willReturnCallback(
+			static function (string $userId, string $app, string $key, string $value) use (&$stored): void {
+				$stored[] = [$userId, $app, $key, $value];
+			}
+		);
+
+		$this->assertTrue($this->service->setUserOptedOut('eva', true));
+		$this->assertFalse($this->service->setUserOptedOut('eva', false));
+		$this->assertSame(
+			[
+				['eva', 'launchpad', AnalyticsService::USER_PREF_KEY_OPTOUT, 'true'],
+				['eva', 'launchpad', AnalyticsService::USER_PREF_KEY_OPTOUT, 'false'],
+			],
+			$stored
+		);
+	}
+
 	public function testIsUserOptedOutDefaultsFalse(): void {
 		$this->config->method('getUserValue')->willReturn('false');
 

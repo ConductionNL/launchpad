@@ -143,6 +143,33 @@ class AnalyticsService {
 	}//end isUserOptedOut()
 
 	/**
+	 * Store whether the supplied user is opted out of analytics tracking
+	 * (REQ-ANLT-004, set from the person's own settings, REQ-ANLT-UI-001).
+	 *
+	 * @param string $userId   The user identifier.
+	 * @param bool   $optedOut `true` to stop counting this user's visits.
+	 *
+	 * @return bool The stored value.
+	 *
+	 * @spec openspec/changes/analytics-personal-opt-out/specs/dashboard-view-analytics/spec.md#requirement-a-person-turns-view-counting-off-in-their-own-settings-req-anlt-ui-001
+	 */
+	public function setUserOptedOut(string $userId, bool $optedOut): bool {
+		$value = 'false';
+		if ($optedOut === true) {
+			$value = 'true';
+		}
+
+		$this->settings->config->setUserValue(
+			$userId,
+			'launchpad',
+			self::USER_PREF_KEY_OPTOUT,
+			$value
+		);
+
+		return $optedOut;
+	}//end setUserOptedOut()
+
+	/**
 	 * Resolve the retention window in days, clamped to the
 	 * `[MIN_RETENTION_DAYS, MAX_RETENTION_DAYS]` range
 	 * (REQ-ANLT-009).

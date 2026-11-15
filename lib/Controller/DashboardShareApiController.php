@@ -260,8 +260,24 @@ class DashboardShareApiController extends Controller {
 			return new DataResponse(data: ['users' => [], 'groups' => []]);
 		}
 
+		// REQ-SHARE-014: a user who may not share is offered nobody, and under
+		// the shared-groups scope only recipients the share service would accept.
+		$limits = $this->tools->limits;
+		if ($limits !== null && $limits->mayShare(userId: $this->userId) === false) {
+			return new DataResponse(data: ['users' => [], 'groups' => []]);
+		}
+
 		$users = $this->matchingUsers(pattern: $trimmed);
 		$groups = $this->matchingGroups(pattern: $trimmed);
+		if ($limits !== null) {
+			$sharer = (string)$this->userId;
+			$users = array_values(
+				array_filter($users, fn (array $user): bool => $limits->mayReceive(sharerId: $sharer, shareType: 'user', shareWith: $user['id']))
+			);
+			$groups = array_values(
+				array_filter($groups, fn (array $group): bool => $limits->mayReceive(sharerId: $sharer, shareType: 'group', shareWith: $group['id']))
+			);
+		}
 
 		return new DataResponse(
 			data: ['users' => $users, 'groups' => $groups]

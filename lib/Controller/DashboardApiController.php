@@ -359,23 +359,48 @@ class DashboardApiController extends Controller {
 			return [];
 		}
 
+		$visible = $this->visibleUuids(userId: $userId);
+
+		$crumbs = [];
+		foreach ($this->history->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
+			$crumbs[] = self::crumbFor(crumb: $crumb, visible: $visible);
+		}
+
+		return $crumbs;
+	}//end visibleBreadcrumbs()
+
+	/**
+	 * The UUIDs of every dashboard visible to a user, keyed for `isset()`.
+	 *
+	 * @param string $userId The viewing user.
+	 *
+	 * @return array<string, true> The visible UUIDs.
+	 */
+	private function visibleUuids(string $userId): array {
 		$visible = [];
 		foreach ($this->services->dashboardService->getVisibleToUser(userId: $userId) as $entry) {
 			$visible[(string)$entry['dashboard']->getUuid()] = true;
 		}
 
-		$crumbs = [];
-		foreach ($this->history->treeService->computeBreadcrumbs(uuid: (string)$dashboard->getUuid()) as $crumb) {
-			if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
-				$crumbs[] = $crumb + ['hidden' => false];
-				continue;
-			}
+		return $visible;
+	}//end visibleUuids()
 
-			$crumbs[] = ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+	/**
+	 * One breadcrumb as the viewer may see it: as is when its dashboard is
+	 * visible, otherwise a hidden placeholder.
+	 *
+	 * @param array<string, mixed> $crumb   The breadcrumb.
+	 * @param array<string, true>  $visible The visible UUIDs.
+	 *
+	 * @return array<string, mixed> The breadcrumb to answer with.
+	 */
+	private static function crumbFor(array $crumb, array $visible): array {
+		if (isset($visible[(string)($crumb['uuid'] ?? '')]) === true) {
+			return $crumb + ['hidden' => false];
 		}
 
-		return $crumbs;
-	}//end visibleBreadcrumbs()
+		return ['uuid' => null, 'name' => null, 'slug' => null, 'hidden' => true];
+	}//end crumbFor()
 
 	/**
 	 * Create a new dashboard.
@@ -404,7 +429,7 @@ class DashboardApiController extends Controller {
 		?string $slug = null,
 		?int $sortOrder = null,
 	): JSONResponse {
-		$denial = $this->denyCreate();
+		$denial = $this->denyCreateRequest();
 		if ($denial !== null) {
 			return $denial;
 		}
@@ -420,38 +445,37 @@ class DashboardApiController extends Controller {
 			]
 		);
 
-		$permError = $this->checkCreatePermissions(
-			userId: $this->userId
-		);
-		if ($permError !== null) {
-			return $permError;
+		return $this->createFromParams(resolved: $resolved);
+	}//end create()
+
+	/**
+	 * The refusal of a create request: the guard chain of
+	 * {@see self::denyCreate()}, then the create permissions.
+	 *
+	 * @return JSONResponse|null The refusal, or null to proceed.
+	 */
+	private function denyCreateRequest(): ?JSONResponse {
+		$denial = $this->denyCreate();
+		if ($denial !== null) {
+			return $denial;
 		}
 
+		return $this->checkCreatePermissions(
+			userId: $this->userId
+		);
+	}//end denyCreateRequest()
+
+	/**
+	 * Create the dashboard from resolved parameters and answer 201, or map
+	 * the service's refusal to its response.
+	 *
+	 * @param array<string, mixed> $resolved The resolved create parameters.
+	 *
+	 * @return JSONResponse The created dashboard, or the error.
+	 */
+	private function createFromParams(array $resolved): JSONResponse {
 		try {
-			$dashboard = $this->services->dashboardService->createDashboard(
-				userId: $this->userId,
-				name: $resolved['name'],
-				options: ['seedDefaults' => true] + array_diff_key($resolved, ['name' => true])
-			);
-
-			// The newly-created dashboard ships with a default widget
-			// bundle (Conduction + Sendent + Nextcloud tiles + a Files
-			// widget) seeded by the service. Returning the placements
-			// here matches the `getActive()` envelope so the store can
-			// populate `widgetPlacements` without an extra round-trip.
-			$placements = $this->services->dashboardService->findPlacements(
-				dashboardId: $dashboard->getId()
-			);
-
-			return ResponseHelper::success(
-				data: [
-					'dashboard' => $dashboard->jsonSerialize(),
-					'placements' => ResponseHelper::serializeList(
-						entities: $placements
-					),
-				],
-				statusCode: Http::STATUS_CREATED
-			);
+			return $this->createdResponse(dashboard: $this->createDashboardFrom(resolved: $resolved));
 		} catch (QuotaExceededException $e) {
 			// Dashboard-quota-limits REQ-QUOTA-002: the user is at their
 			// dashboard limit — HTTP 409 with the structured body.
@@ -463,7 +487,52 @@ class DashboardApiController extends Controller {
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
-	}//end create()
+	}//end createFromParams()
+
+	/**
+	 * Create the signed-in user's dashboard, seeded with the default
+	 * widgets, from resolved parameters.
+	 *
+	 * @param array<string, mixed> $resolved The resolved create parameters.
+	 *
+	 * @return Dashboard The created dashboard.
+	 */
+	private function createDashboardFrom(array $resolved): Dashboard {
+		return $this->services->dashboardService->createDashboard(
+			userId: $this->userId,
+			name: $resolved['name'],
+			options: ['seedDefaults' => true] + array_diff_key($resolved, ['name' => true])
+		);
+	}//end createDashboardFrom()
+
+	/**
+	 * Answer 201 with a newly-created dashboard and its placements.
+	 *
+	 * The newly-created dashboard ships with a default widget
+	 * bundle (Conduction + Sendent + Nextcloud tiles + a Files
+	 * widget) seeded by the service. Returning the placements
+	 * here matches the `getActive()` envelope so the store can
+	 * populate `widgetPlacements` without an extra round-trip.
+	 *
+	 * @param Dashboard $dashboard The created dashboard.
+	 *
+	 * @return JSONResponse The 201 response.
+	 */
+	private function createdResponse(Dashboard $dashboard): JSONResponse {
+		$placements = $this->services->dashboardService->findPlacements(
+			dashboardId: $dashboard->getId()
+		);
+
+		return ResponseHelper::success(
+			data: [
+				'dashboard' => $dashboard->jsonSerialize(),
+				'placements' => ResponseHelper::serializeList(
+					entities: $placements
+				),
+			],
+			statusCode: Http::STATUS_CREATED
+		);
+	}//end createdResponse()
 
 	/**
 	 * Resolve the authentication / authorisation guard chain for
@@ -560,29 +629,38 @@ class DashboardApiController extends Controller {
 			return $refusal;
 		}
 
-		// REQ-PERM-007: Metadata-only updates (name, description, icon) are
-		// allowed for all permission levels. Widget/tile/layout changes
-		// require add_only or full permission.
-		if ($metadataOnly === true
-			&& $this->permissionService->canEditDashboardMetadata(
-				userId: $this->userId,
-				dashboardId: $dashboardId
-			) === false
-		) {
-			return ResponseHelper::forbidden();
-		}
-
-		if ($metadataOnly === false
-			&& $this->permissionService->canEditDashboard(
-				userId: $this->userId,
-				dashboardId: $dashboardId
-			) === false
-		) {
+		if ($this->mayUpdate(dashboardId: $dashboardId, metadataOnly: $metadataOnly) === false) {
 			return ResponseHelper::forbidden();
 		}
 
 		return null;
 	}//end denyUpdate()
+
+	/**
+	 * Whether the user may make this kind of update.
+	 *
+	 * REQ-PERM-007: Metadata-only updates (name, description, icon) are
+	 * allowed for all permission levels. Widget/tile/layout changes
+	 * require add_only or full permission.
+	 *
+	 * @param int  $dashboardId  The dashboard ID.
+	 * @param bool $metadataOnly Whether the update leaves the placements alone.
+	 *
+	 * @return bool True when the update is allowed.
+	 */
+	private function mayUpdate(int $dashboardId, bool $metadataOnly): bool {
+		if ($metadataOnly === true) {
+			return $this->permissionService->canEditDashboardMetadata(
+				userId: $this->userId,
+				dashboardId: $dashboardId
+			) !== false;
+		}
+
+		return $this->permissionService->canEditDashboard(
+			userId: $this->userId,
+			dashboardId: $dashboardId
+		) !== false;
+	}//end mayUpdate()
 
 	/**
 	 * Apply an allowed update and answer with the saved dashboard.
@@ -1016,35 +1094,67 @@ class DashboardApiController extends Controller {
 		?int $gridColumns = null,
 		?array $placements = null,
 	): JSONResponse {
+		$patch = $this->buildGroupUpdateData(name: $name, description: $description, gridColumns: $gridColumns, placements: $placements);
+
+		return $this->updateGroupDashboard(target: new GroupDashboardTarget(groupId: $groupId, uuid: $uuid), patch: $patch);
+	}//end updateGroup()
+
+	/**
+	 * Apply a group-shared patch for the signed-in user.
+	 *
+	 * @param GroupDashboardTarget $target The group and dashboard UUID.
+	 * @param array<string, mixed> $patch  The non-null patch fields.
+	 *
+	 * @return JSONResponse The updated dashboard, or the error.
+	 */
+	private function updateGroupDashboard(GroupDashboardTarget $target, array $patch): JSONResponse {
 		if ($this->userId === null) {
 			return ResponseHelper::unauthorized();
 		}
 
-		$patch = $this->buildGroupUpdateData(
-			name: $name,
-			description: $description,
-			gridColumns: $gridColumns,
-			placements: $placements
+		return $this->runGroupMutation(
+			mutation: fn (): JSONResponse => $this->dashboardResponse(
+				dashboard: $this->services->dashboardService->updateGroupShared(
+					actorUserId: $this->userId,
+					groupId: $target->groupId,
+					uuid: $target->uuid,
+					patch: $patch
+				)
+			)
 		);
+	}//end updateGroupDashboard()
 
+	/**
+	 * Run a group-shared mutation, answering an unknown dashboard with 404
+	 * and any other failure with the generic error.
+	 *
+	 * @param callable(): JSONResponse $mutation The mutation and its answer.
+	 *
+	 * @return JSONResponse The mutation's answer, or the error.
+	 */
+	private function runGroupMutation(callable $mutation): JSONResponse {
 		try {
-			$dashboard = $this->services->dashboardService->updateGroupShared(
-				actorUserId: $this->userId,
-				groupId: $groupId,
-				uuid: $uuid,
-				patch: $patch
-			);
-
-			return ResponseHelper::success(
-				data: ['dashboard' => $dashboard->jsonSerialize()]
-			);
+			return $mutation();
 		} catch (DoesNotExistException) {
 			// ADR-005: do not leak raw exception messages to clients.
 			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			return ResponseHelper::error(exception: $e);
 		}//end try
-	}//end updateGroup()
+	}//end runGroupMutation()
+
+	/**
+	 * Answer 200 with one dashboard.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private function dashboardResponse(Dashboard $dashboard): JSONResponse {
+		return ResponseHelper::success(
+			data: ['dashboard' => $dashboard->jsonSerialize()]
+		);
+	}//end dashboardResponse()
 
 	/**
 	 * Delete a group-shared dashboard. Admin-only.
@@ -1108,35 +1218,50 @@ class DashboardApiController extends Controller {
 		}
 
 		if ($uuid === null || $uuid === '') {
-			return ResponseHelper::error(
-				exception: new InvalidArgumentException(
-					'Missing required field: uuid'
-				),
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
+			return self::missingUuid();
 		}
 
-		try {
-			$this->services->dashboardService->setGroupDefault(
-				actorUserId: $this->userId,
-				groupId: $groupId,
-				uuid: $uuid
-			);
-
-			return ResponseHelper::success(
-				data: [
-					'status' => 'ok',
-					'groupId' => $groupId,
-					'uuid' => $uuid,
-				]
-			);
-		} catch (DoesNotExistException) {
-			// ADR-005: do not leak raw exception messages to clients.
-			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
-		} catch (\Exception $e) {
-			return ResponseHelper::error(exception: $e);
-		}//end try
+		return $this->runGroupMutation(
+			mutation: fn (): JSONResponse => $this->markGroupDefault(target: new GroupDashboardTarget(groupId: $groupId, uuid: $uuid))
+		);
 	}//end setGroupDefault()
+
+	/**
+	 * The 400 answer for a group-default request without a UUID.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private static function missingUuid(): JSONResponse {
+		return ResponseHelper::error(
+			exception: new InvalidArgumentException(
+				'Missing required field: uuid'
+			),
+			statusCode: Http::STATUS_BAD_REQUEST
+		);
+	}//end missingUuid()
+
+	/**
+	 * Make a group-shared dashboard its group's default and answer 200.
+	 *
+	 * @param GroupDashboardTarget $target The group and dashboard UUID.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private function markGroupDefault(GroupDashboardTarget $target): JSONResponse {
+		$this->services->dashboardService->setGroupDefault(
+			actorUserId: $this->userId,
+			groupId: $target->groupId,
+			uuid: $target->uuid
+		);
+
+		return ResponseHelper::success(
+			data: [
+				'status' => 'ok',
+				'groupId' => $target->groupId,
+				'uuid' => $target->uuid,
+			]
+		);
+	}//end markGroupDefault()
 
 	/**
 	 * Persist the user's active-dashboard preference.
@@ -1265,6 +1390,19 @@ class DashboardApiController extends Controller {
 			return ResponseHelper::unauthorized();
 		}
 
+		return $this->forkFor(uuid: $uuid, name: $name);
+	}//end fork()
+
+	/**
+	 * Fork a dashboard for the signed-in user and answer 201, or map the
+	 * failure to its response.
+	 *
+	 * @param string      $uuid The source dashboard UUID.
+	 * @param string|null $name Optional name for the copy.
+	 *
+	 * @return JSONResponse The fork, or the error.
+	 */
+	private function forkFor(string $uuid, ?string $name): JSONResponse {
 		try {
 			$fork = $this->services->dashboardService->forkAsPersonal(
 				userId: $this->userId,
@@ -1272,44 +1410,75 @@ class DashboardApiController extends Controller {
 				name: $name
 			);
 
-			return new JSONResponse(
-				data: [
-					'status' => 'success',
-					'dashboard' => $fork->jsonSerialize(),
-				],
-				statusCode: Http::STATUS_CREATED
-			);
-		} catch (PersonalDashboardsDisabledException $e) {
-			return $this->personalDashboardsDisabled(exception: $e);
-		} catch (QuotaExceededException $e) {
-			// Dashboard-quota-limits REQ-QUOTA-002: a fork is bound by the
-			// per-user dashboard quota — HTTP 409 with the structured body.
-			return ResponseHelper::quotaExceeded(exception: $e);
-		} catch (DoesNotExistException) {
-			// REQ-DASH-020: source not visible — 404 without leaking
-			// existence (use the canonical message rather than echoing
-			// the exception detail).
-			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
+			return self::forkCreated(fork: $fork);
 		} catch (\Throwable $t) {
-			// REQ-DASH-021 + ADR-005: log the real cause, return a
-			// stable, generic envelope to the client.
-			$this->history->logger->error(
-				message: 'launchpad: fork failed for user {user}: {message}',
-				context: [
-					'user' => $this->userId,
-					'message' => $t->getMessage(),
-				]
-			);
-			return new JSONResponse(
-				data: [
-					'status' => 'error',
-					'error' => 'internal_error',
-					'message' => 'An unexpected error occurred',
-				],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
-	}//end fork()
+			return $this->forkFailure(throwable: $t);
+		}
+	}//end forkFor()
+
+	/**
+	 * Answer 201 with a fork.
+	 *
+	 * @param Dashboard $fork The personal copy.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private static function forkCreated(Dashboard $fork): JSONResponse {
+		return new JSONResponse(
+			data: [
+				'status' => 'success',
+				'dashboard' => $fork->jsonSerialize(),
+			],
+			statusCode: Http::STATUS_CREATED
+		);
+	}//end forkCreated()
+
+	/**
+	 * Map a failed fork to its response.
+	 *
+	 * Personal dashboards switched off answer 403; dashboard-quota-limits
+	 * REQ-QUOTA-002: a fork is bound by the per-user dashboard quota —
+	 * HTTP 409 with the structured body; REQ-DASH-020: a source that is
+	 * not visible answers 404 without leaking existence (the canonical
+	 * message rather than the exception detail); anything else is
+	 * logged and answered with a stable, generic envelope (REQ-DASH-021
+	 * + ADR-005).
+	 *
+	 * @param \Throwable $throwable What the fork threw.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function forkFailure(\Throwable $throwable): JSONResponse {
+		return match (true) {
+			$throwable instanceof PersonalDashboardsDisabledException => $this->personalDashboardsDisabled(exception: $throwable),
+			$throwable instanceof QuotaExceededException => ResponseHelper::quotaExceeded(exception: $throwable),
+			$throwable instanceof DoesNotExistException => $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND),
+			default => $this->internalForkError(throwable: $throwable),
+		};
+	}//end forkFailure()
+
+	/**
+	 * Log the real cause of a failed fork and answer 500 with the generic
+	 * envelope.
+	 *
+	 * @param \Throwable $throwable What the fork threw.
+	 *
+	 * @return JSONResponse The 500 response.
+	 */
+	private function internalForkError(\Throwable $throwable): JSONResponse {
+		$this->history->logger->error(
+			message: 'launchpad: fork failed for user {user}: {message}',
+			context: [
+				'user' => $this->userId,
+				'message' => $throwable->getMessage(),
+			]
+		);
+
+		return new JSONResponse(
+			data: ['status' => 'error', 'error' => 'internal_error', 'message' => 'An unexpected error occurred'],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
+		);
+	}//end internalForkError()
 
 	/**
 	 * Publish a dashboard. REQ-DASH-032.
@@ -1471,22 +1640,38 @@ class DashboardApiController extends Controller {
 			return $refusal;
 		}
 
+		return $this->scheduleDated(
+			request: new DashboardScheduleRequest(uuid: $uuid, publishAt: $publishAt, unpublishAt: $unpublishAt)
+		);
+	}//end schedule()
+
+	/**
+	 * Refuse a schedule without any time, then schedule.
+	 *
+	 * @param DashboardScheduleRequest $request The dashboard and its times.
+	 *
+	 * @return JSONResponse The updated dashboard payload, or the refusal.
+	 */
+	private function scheduleDated(DashboardScheduleRequest $request): JSONResponse {
 		// A take-down time alone is a valid schedule (REQ-SCHEDUI-002).
-		if ($this->isBlank(value: $publishAt) === true && $this->isBlank(value: $unpublishAt) === true) {
+		if ($this->isBlank(value: $request->publishAt) === true && $this->isBlank(value: $request->unpublishAt) === true) {
 			return ResponseHelper::invalidArgument(message: DashboardService::ERR_SCHEDULE_PAST_DATE);
 		}
 
-		try {
-			$dashboard = $this->services->dashboardService->schedule(
-				uuid: $uuid,
-				publishAt: $publishAt,
-				userId: $this->userId,
-				unpublishAt: $unpublishAt
-			);
+		return $this->scheduled(request: $request);
+	}//end scheduleDated()
 
-			return ResponseHelper::success(
-				data: ['dashboard' => $dashboard->jsonSerialize()]
-			);
+	/**
+	 * Schedule the dashboard and answer with it, mapping the service's
+	 * refusals to their responses.
+	 *
+	 * @param DashboardScheduleRequest $request The dashboard and its times.
+	 *
+	 * @return JSONResponse The updated dashboard payload, or the error.
+	 */
+	private function scheduled(DashboardScheduleRequest $request): JSONResponse {
+		try {
+			return $this->dashboardResponse(dashboard: $this->scheduleFor(request: $request));
 		} catch (DoesNotExistException) {
 			return $this->errorCode(code: 'not_found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (InvalidArgumentException $e) {
@@ -1494,7 +1679,23 @@ class DashboardApiController extends Controller {
 		} catch (\Exception $e) {
 			return $this->mapPublicationError(exception: $e);
 		}//end try
-	}//end schedule()
+	}//end scheduled()
+
+	/**
+	 * Schedule the dashboard on behalf of the signed-in user.
+	 *
+	 * @param DashboardScheduleRequest $request The dashboard and its times.
+	 *
+	 * @return Dashboard The scheduled dashboard.
+	 */
+	private function scheduleFor(DashboardScheduleRequest $request): Dashboard {
+		return $this->services->dashboardService->schedule(
+			uuid: $request->uuid,
+			publishAt: $request->publishAt,
+			userId: $this->userId,
+			unpublishAt: $request->unpublishAt
+		);
+	}//end scheduleFor()
 
 	/**
 	 * Whether a request value is missing or empty.
@@ -1606,39 +1807,8 @@ class DashboardApiController extends Controller {
 	 */
 	private function resolveCreateParams($name, array $flat=[]): array {
 		if (is_array($name) === true) {
-			$bodyIcon = ($name['icon'] ?? null);
-			$resolvedIcon = null;
-			if (is_string($bodyIcon) === true) {
-				$resolvedIcon = $bodyIcon;
-			}
-
-			$bodyParent = ($name['parentUuid'] ?? null);
-			$bodySlug = ($name['slug'] ?? null);
-			$bodySort = ($name['sortOrder'] ?? null);
-			$resolvedParent = null;
-			if (is_string($bodyParent) === true) {
-				$resolvedParent = $bodyParent;
-			}
-
-			$resolvedSlug = null;
-			if (is_string($bodySlug) === true) {
-				$resolvedSlug = $bodySlug;
-			}
-
-			$resolvedSort = 0;
-			if (is_numeric($bodySort) === true) {
-				$resolvedSort = (int)$bodySort;
-			}
-
-			return [
-				'name' => $name['name'] ?? 'My Dashboard',
-				'description' => $name['description'] ?? null,
-				'icon' => $resolvedIcon,
-				'parentUuid' => $resolvedParent,
-				'slug' => $resolvedSlug,
-				'sortOrder' => $resolvedSort,
-			];
-		}//end if
+			return self::resolveCreateBody(body: $name);
+		}
 
 		return [
 			'name' => $name ?? 'My Dashboard',
@@ -1649,6 +1819,55 @@ class DashboardApiController extends Controller {
 			'sortOrder' => ($flat['sortOrder'] ?? 0),
 		];
 	}//end resolveCreateParams()
+
+	/**
+	 * Resolve create parameters from a JSON body: string fields keep only
+	 * strings, the sort order only numbers.
+	 *
+	 * @param array<string, mixed> $body The decoded request body.
+	 *
+	 * @return array<string, mixed> The resolved parameters.
+	 */
+	private static function resolveCreateBody(array $body): array {
+		return [
+			'name' => $body['name'] ?? 'My Dashboard',
+			'description' => $body['description'] ?? null,
+			'icon' => self::stringOrNull(value: ($body['icon'] ?? null)),
+			'parentUuid' => self::stringOrNull(value: ($body['parentUuid'] ?? null)),
+			'slug' => self::stringOrNull(value: ($body['slug'] ?? null)),
+			'sortOrder' => self::intOrZero(value: ($body['sortOrder'] ?? null)),
+		];
+	}//end resolveCreateBody()
+
+	/**
+	 * A string value as is, anything else as null.
+	 *
+	 * @param mixed $value The body value.
+	 *
+	 * @return string|null The string, or null.
+	 */
+	private static function stringOrNull(mixed $value): ?string {
+		if (is_string($value) === true) {
+			return $value;
+		}
+
+		return null;
+	}//end stringOrNull()
+
+	/**
+	 * A numeric value as an integer, anything else as 0.
+	 *
+	 * @param mixed $value The body value.
+	 *
+	 * @return int The integer.
+	 */
+	private static function intOrZero(mixed $value): int {
+		if (is_numeric($value) === true) {
+			return (int)$value;
+		}
+
+		return 0;
+	}//end intOrZero()
 
 	/**
 	 * Read the case-insensitive `cascade` query param (REQ-DASH-030).

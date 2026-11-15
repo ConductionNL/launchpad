@@ -47,3 +47,27 @@ When a Nextcloud dashboard widget declares a reload interval above zero, LaunchP
 - **GIVEN** a widget with a reload interval is on the page
 - **WHEN** Pieter switches to another dashboard
 - **THEN** the widget's refresh timer stops
+
+### Requirement: Another app's widget shows that app's items for the viewer (REQ-WDG-030)
+
+When a person places a widget that another Nextcloud app registers, such as the Mail app's mailbox widget or Deck's upcoming cards, LaunchPad MUST ask that app for the items it holds for the viewer and list them with their title, subtitle and icon. Each item MUST link to the item in its own app. When the app returns no items, the widget MUST show the app's own empty message.
+
+#### Scenario: A mailbox preview
+
+- **GIVEN** the Mail app is enabled and Pieter placed its mailbox widget on "Mijn werkplek"
+- **WHEN** he opens the Workspace page
+- **THEN** the widget lists his latest messages with sender and subject
+- **AND** clicking a message opens it in Mail
+
+#### Scenario: Open tasks from a planning app
+
+- **GIVEN** Deck is enabled and Sanne placed its upcoming cards widget on her dashboard
+- **WHEN** she opens the Workspace page
+- **THEN** the widget lists the cards assigned to her with their due dates
+- **AND** clicking a card opens it in Deck
+
+#### Scenario: Nothing to show
+
+- **GIVEN** Pieter's mailbox has no messages the Mail widget returns
+- **WHEN** he opens the Workspace page
+- **THEN** the widget shows the empty message the Mail app supplies

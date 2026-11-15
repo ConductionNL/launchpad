@@ -56,6 +56,8 @@ class RequestDataExtractor {
 	 * @var list<string>
 	 */
 	private const PLACEMENT_FIELDS = [
+		// The widget version the change was made on (building-edit-a-dashboard-together, task 1.2).
+		'version',
 		'gridX',
 		'gridY',
 		'gridWidth',

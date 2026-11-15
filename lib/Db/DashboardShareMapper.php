@@ -24,6 +24,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\ICompositeExpression;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -34,6 +35,14 @@ use OCP\IDBConnection;
  * @spec    openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
  */
 class DashboardShareMapper extends QBMapper {
+	use ColumnMatchQueries;
+	use OrphanRowQueries;
+
+	/**
+	 * Parent link for the orphan queries: alias, parent table, parent alias, foreign key.
+	 */
+	private const ORPHAN_LINK = ['s', 'launchpad_dashboards', 'd', 'dashboard_id'];
+
 	/**
 	 * Constructor
 	 *
@@ -58,18 +67,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function find(int $id): DashboardShare {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $id,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['id' => $id]);
 
 		return $this->findEntity(query: $qb);
 	}//end find()
@@ -83,19 +81,8 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function findByDashboardId(int $dashboardId): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboardId()
@@ -113,25 +100,8 @@ class DashboardShareMapper extends QBMapper {
 		int $dashboardId,
 		string $permissionLevel,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'permission_level',
-					y: $qb->createNamedParameter(value: $permissionLevel)
-				)
-			)
-			->orderBy(sort: 'created_at', order: 'ASC');
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId, 'permission_level' => $permissionLevel]);
+		$qb->orderBy(sort: 'created_at', order: 'ASC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboardAndLevel()
@@ -153,30 +123,7 @@ class DashboardShareMapper extends QBMapper {
 		string $shareType,
 		string $shareWith,
 	): ?DashboardShare {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'share_type',
-					y: $qb->createNamedParameter(value: $shareType)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'share_with',
-					y: $qb->createNamedParameter(value: $shareWith)
-				)
-			);
+		$qb = $this->selectWhere(match: ['dashboard_id' => $dashboardId, 'share_type' => $shareType, 'share_with' => $shareWith]);
 
 		try {
 			return $this->findEntity(query: $qb);
@@ -200,7 +147,27 @@ class DashboardShareMapper extends QBMapper {
 		$qb->select('*')
 			->from(from: $this->getTableName());
 
-		$userClause = $qb->expr()->andX(
+		$userClause = self::userRecipientClause(qb: $qb, userId: $userId);
+
+		$qb->where($userClause);
+		if (count($groupIds) > 0) {
+			$groupClause = self::groupRecipientClause(qb: $qb, groupIds: $groupIds);
+			$qb->where($qb->expr()->orX($userClause, $groupClause));
+		}
+
+		return $this->findEntities(query: $qb);
+	}//end findForRecipient()
+
+	/**
+	 * The condition of a share with one user.
+	 *
+	 * @param IQueryBuilder $qb     The query.
+	 * @param string        $userId The recipient user.
+	 *
+	 * @return ICompositeExpression The condition.
+	 */
+	private static function userRecipientClause(IQueryBuilder $qb, string $userId): ICompositeExpression {
+		return $qb->expr()->andX(
 			$qb->expr()->eq(
 				x: 'share_type',
 				y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_USER)
@@ -210,27 +177,31 @@ class DashboardShareMapper extends QBMapper {
 				y: $qb->createNamedParameter(value: $userId)
 			)
 		);
+	}//end userRecipientClause()
 
-		$qb->where($userClause);
-		if (count($groupIds) > 0) {
-			$groupClause = $qb->expr()->andX(
-				$qb->expr()->eq(
-					x: 'share_type',
-					y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_GROUP)
-				),
-				$qb->expr()->in(
-					x: 'share_with',
-					y: $qb->createNamedParameter(
-						value: $groupIds,
-						type: IQueryBuilder::PARAM_STR_ARRAY
-					)
+	/**
+	 * The condition of a share with one of the groups.
+	 *
+	 * @param IQueryBuilder $qb       The query.
+	 * @param string[]      $groupIds The recipient's groups.
+	 *
+	 * @return ICompositeExpression The condition.
+	 */
+	private static function groupRecipientClause(IQueryBuilder $qb, array $groupIds): ICompositeExpression {
+		return $qb->expr()->andX(
+			$qb->expr()->eq(
+				x: 'share_type',
+				y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_GROUP)
+			),
+			$qb->expr()->in(
+				x: 'share_with',
+				y: $qb->createNamedParameter(
+					value: $groupIds,
+					type: IQueryBuilder::PARAM_STR_ARRAY
 				)
-			);
-			$qb->where($qb->expr()->orX($userClause, $groupClause));
-		}
-
-		return $this->findEntities(query: $qb);
-	}//end findForRecipient()
+			)
+		);
+	}//end groupRecipientClause()
 
 	/**
 	 * Delete all shares for a dashboard.
@@ -244,17 +215,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByDashboardId(int $dashboardId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_id',
-					y: $qb->createNamedParameter(
-						value: $dashboardId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_id' => $dashboardId]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboardId()
@@ -271,20 +232,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteByRecipientUser(string $userId): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'share_type',
-					y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_USER)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'share_with',
-					y: $qb->createNamedParameter(value: $userId)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['share_type' => DashboardShare::SHARE_TYPE_USER, 'share_with' => $userId]);
 
 		return $qb->executeStatement();
 	}//end deleteByRecipientUser()
@@ -331,22 +279,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function countOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select($qb->func()->count('s.id'))
-			->from(from: $this->getTableName(), alias: 's')
-			->leftJoin(
-				fromAlias: 's',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = s.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$count = $result->fetchOne();
-		$result->closeCursor();
-
-		return (int)($count ?? 0);
+		return $this->countOrphanRows(link: self::ORPHAN_LINK);
 	}//end countOrphaned()
 
 	/**
@@ -362,42 +295,7 @@ class DashboardShareMapper extends QBMapper {
 	 * @spec   openspec/changes/launchpad-legacy-quality-cleanup/tasks.md#task-1
 	 */
 	public function deleteOrphaned(): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('s.id')
-			->from(from: $this->getTableName(), alias: 's')
-			->leftJoin(
-				fromAlias: 's',
-				join: 'launchpad_dashboards',
-				alias: 'd',
-				condition: 'd.id = s.dashboard_id'
-			)
-			->where($qb->expr()->isNull(x: 'd.id'));
-
-		$result = $qb->executeQuery();
-		$ids = [];
-		while (($row = $result->fetch()) !== false) {
-			$ids[] = (int)$row['id'];
-		}
-
-		$result->closeCursor();
-
-		if (count(value: $ids) === 0) {
-			return 0;
-		}
-
-		$delete = $this->db->getQueryBuilder();
-		$delete->delete(delete: $this->getTableName())
-			->where(
-				$delete->expr()->in(
-					x: 'id',
-					y: $delete->createNamedParameter(
-						value: $ids,
-						type: IQueryBuilder::PARAM_INT_ARRAY
-					)
-				)
-			);
-
-		return $delete->executeStatement();
+		return $this->deleteOrphanRows(link: self::ORPHAN_LINK);
 	}//end deleteOrphaned()
 
 	/**
@@ -418,16 +316,7 @@ class DashboardShareMapper extends QBMapper {
 		string $shareWith,
 		string $ownerId,
 	): int {
-		// Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
-		$sub = $this->db->getQueryBuilder();
-		$sub->select('id')
-			->from(from: 'launchpad_dashboards')
-			->where(
-				$sub->expr()->eq(
-					x: 'user_id',
-					y: $sub->createNamedParameter(value: $ownerId)
-				)
-			);
+		$sub = $this->ownedDashboardIds(ownerId: $ownerId);
 
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete(delete: $this->getTableName())
@@ -459,6 +348,27 @@ class DashboardShareMapper extends QBMapper {
 
 		return $qb->executeStatement();
 	}//end deleteByOwnerAndRecipient()
+
+	/**
+	 * Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
+	 *
+	 * @param string $ownerId The owner's user id.
+	 *
+	 * @return IQueryBuilder The subquery.
+	 */
+	private function ownedDashboardIds(string $ownerId): IQueryBuilder {
+		$sub = $this->db->getQueryBuilder();
+		$sub->select('id')
+			->from(from: 'launchpad_dashboards')
+			->where(
+				$sub->expr()->eq(
+					x: 'user_id',
+					y: $sub->createNamedParameter(value: $ownerId)
+				)
+			);
+
+		return $sub;
+	}//end ownedDashboardIds()
 
 	/**
 	 * Delete all shares for a dashboard identified by UUID.

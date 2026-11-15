@@ -100,62 +100,59 @@ class DashboardShowCommand extends CommandBase {
 	 *
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
-	protected function handle(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
+	protected function handle(InputInterface $input, OutputInterface $output): int {
 		$uuid = (string)$input->getArgument(name: 'uuid');
 
 		if (preg_match(pattern: self::UUID_REGEX, subject: $uuid) !== 1) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_INVALID_ARGS,
-				code: 'INVALID_ARGUMENT',
-				message: "Invalid UUID format: '" . $uuid . "'",
-				context: ['field' => 'uuid', 'providedValue' => $uuid]
-			);
+			return $this->emitError(input: $input, output: $output, error: self::invalidUuidError(uuid: $uuid));
 		}
 
 		try {
 			$dashboard = $this->dashboardMapper->findByUuid(uuid: $uuid);
 		} catch (DoesNotExistException) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				exitCode: CommandService::EXIT_NOT_FOUND,
-				code: 'NOT_FOUND',
-				message: 'Dashboard not found',
-				context: ['uuid' => $uuid]
-			);
+			return $this->emitDashboardNotFound(input: $input, output: $output, uuid: $uuid);
 		}
-
-		$placements = array_map(
-			callback: static function (WidgetPlacement $placement): array {
-				return $placement->jsonSerialize();
-			},
-			array: $this->placementMapper->findByDashboardId(dashboardId: (int)$dashboard->getId())
-		);
 
 		$payload = [
 			'dashboard' => $dashboard->jsonSerialize(),
-			'widgets' => $placements,
+			'widgets' => $this->placementRows(dashboardId: (int)$dashboard->getId()),
 		];
 
-		if ($this->isJson(input: $input) === true) {
-			$this->emitSuccess(input: $input, output: $output, data: $payload);
-			return CommandService::EXIT_SUCCESS;
-		}
-
-		if ($this->isQuiet(input: $input) === false) {
-			$output->writeln(
-				messages: (string)json_encode(
-					value: $payload,
-					flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-				)
-			);
-		}
-
-		return CommandService::EXIT_SUCCESS;
+		return $this->emitPrettyPayload(
+			streams: new CommandStreams(input: $input, output: $output),
+			payload: $payload
+		);
 	}//end handle()
+
+	/**
+	 * The error of a UUID argument that is not a canonical UUID.
+	 *
+	 * @param string $uuid The provided value.
+	 *
+	 * @return array<string, mixed> The exit code, code, message and context.
+	 */
+	private static function invalidUuidError(string $uuid): array {
+		return [
+			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'code'     => 'INVALID_ARGUMENT',
+			'message'  => "Invalid UUID format: '" . $uuid . "'",
+			'context'  => ['field' => 'uuid', 'providedValue' => $uuid],
+		];
+	}//end invalidUuidError()
+
+	/**
+	 * The serialised widget placements of a dashboard.
+	 *
+	 * @param int $dashboardId The dashboard ID.
+	 *
+	 * @return list<array<string, mixed>> One row per placement.
+	 */
+	private function placementRows(int $dashboardId): array {
+		return array_map(
+			callback: static function (WidgetPlacement $placement): array {
+				return $placement->jsonSerialize();
+			},
+			array: $this->placementMapper->findByDashboardId(dashboardId: $dashboardId)
+		);
+	}//end placementRows()
 }//end class

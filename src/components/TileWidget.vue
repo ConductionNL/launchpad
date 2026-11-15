@@ -38,7 +38,7 @@
 		<a
 			:href="tileUrl"
 			class="tile-widget__link"
-			:target="tile.linkType === 'url' ? '_blank' : '_self'"
+			:target="tileTarget"
 			rel="noopener noreferrer"
 			@click="handleActivate">
 			<!-- SVG icon -->
@@ -81,15 +81,41 @@
 				{{ tile.title }}
 			</div>
 		</a>
+		<!-- launcher-tile-launch-types D2: the browser cannot tell whether a
+		     program started, so say what to check after the click. -->
+		<p
+			v-if="showProgramHint"
+			class="tile-widget__hint"
+			role="status">
+			{{ t('launchpad', 'Nothing happened? The program may not be installed on this computer.') }}
+		</p>
+
+		<!-- integrations-office-tiles REQ-OFT-002: a `create` tile asks for a
+		     name and folder, then creates the file from the office app's own
+		     blank template and opens it. -->
+		<OfficeFileDialog
+			v-if="isCreateTile"
+			:open="createDialogOpen"
+			:title="tile.title"
+			:defaultName="tile.title"
+			:busy="creating"
+			@update:open="createDialogOpen = $event"
+			@confirm="createFile" />
 	</div>
 </template>
 
 <script>
 import { CnDashboardIcon, CnWidgetEditCog } from '@conduction/nextcloud-vue'
+import { showError } from '@nextcloud/dialogs'
+import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { defineAsyncComponent } from 'vue'
 import HealthPingBadge from './HealthPingBadge.vue'
 import { useTileClickTracking } from '../composables/useTileClickTracking.js'
+import { FLAG_PROP, REQUIRED_OBJECT_PROP } from '../constants/propDefinitions.js'
+import { api } from '../services/api.js'
 import { logger } from '../utils/logger.js'
+import { launchHref, launchTarget, LINK_PROGRAM } from '../utils/tileLaunch.js'
 
 const { recordTileClick } = useTileClickTracking()
 
@@ -100,18 +126,14 @@ export default {
 		CnWidgetEditCog,
 		CnDashboardIcon,
 		HealthPingBadge,
+		// Loaded on first use: only a `create` office tile renders it.
+		OfficeFileDialog: defineAsyncComponent(() => import('../dialogs/OfficeFileDialog.vue').then((module) => module.default)),
 	},
 
 	props: {
-		tile: {
-			type: Object,
-			required: true,
-		},
+		tile: REQUIRED_OBJECT_PROP,
 
-		editMode: {
-			type: Boolean,
-			default: false,
-		},
+		editMode: FLAG_PROP,
 
 		/**
 		 * The widget placement id — forwarded to {@link HealthPingBadge}
@@ -125,15 +147,23 @@ export default {
 		},
 
 		/**
+		 * The placement's content blob; a remote-desktop tile keeps its
+		 * gateway or RDP settings there (launcher-tile-launch-types).
+		 *
+		 * @type {object|null}
+		 */
+		content: {
+			type: Object,
+			default: null,
+		},
+
+		/**
 		 * Whether this tile has a health ping configured
 		 * (REQ-HPING-004 "Ping disabled shows no badge").
 		 *
 		 * @type {boolean}
 		 */
-		healthPingEnabled: {
-			type: Boolean,
-			default: false,
-		},
+		healthPingEnabled: FLAG_PROP,
 
 		/**
 		 * The tile's configured ping interval in seconds.
@@ -148,10 +178,38 @@ export default {
 
 	emits: ['edit', 'remove'],
 
+	data() {
+		return {
+			showProgramHint: false,
+			createDialogOpen: false,
+			creating: false,
+		}
+	},
+
 	computed: {
-		/** @spec openspec/specs/tiles/spec.md */
+		/**
+		 * Whether the tile creates a file instead of opening a link (REQ-OFT-002).
+		 *
+		 * @return {boolean} True for a `create` tile.
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+		 */
+		isCreateTile() {
+			return this.tile.linkType === 'create'
+		},
+
+		/**
+		 * @spec openspec/specs/tiles/spec.md
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+		 */
 		tileUrl() {
+			const launch = launchHref(this.tile, this.content, this.placementId, generateUrl)
+			if (launch !== null) {
+				return launch
+			}
 			const value = this.tile.linkValue
+			if (this.isCreateTile) {
+				return '#'
+			}
 			if (this.tile.linkType === 'app') {
 				return generateUrl('/apps/' + value)
 			}
@@ -167,6 +225,17 @@ export default {
 				return generateUrl(value)
 			}
 			return value
+		},
+
+		/**
+		 * Where the link opens: a web address in a new tab, a Nextcloud page
+		 * in place, and per launch type as design D2 says.
+		 *
+		 * @return {string}
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-5
+		 */
+		tileTarget() {
+			return launchTarget(this.tile, this.content) ?? (this.tile.linkType === 'url' ? '_blank' : '_self')
 		},
 	},
 
@@ -214,13 +283,51 @@ export default {
 		 * whether the tracking call succeeds, fails, or is suppressed). A
 		 * single `@click` handler covers both mouse clicks and keyboard
 		 * (Enter) activation — native `<a>` elements fire a `click` event
-		 * for both.
+		 * for both. A `create` tile opens its name dialog instead of
+		 * following the link (REQ-OFT-002).
 		 *
+		 * @param {MouseEvent} [event] The click.
 		 * @return {void}
 		 * @spec openspec/specs/dashboard-view-analytics/spec.md
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
 		 */
-		handleActivate() {
+		handleActivate(event) {
 			recordTileClick(this.tile?.id)
+			if (this.tile?.linkType === LINK_PROGRAM) {
+				this.showProgramHint = true
+			}
+			if (this.isCreateTile) {
+				event?.preventDefault()
+				if (!this.editMode) {
+					this.createDialogOpen = true
+				}
+			}
+		},
+
+		/**
+		 * Create the file the dialog asked for and open it in its editor. A
+		 * refusal keeps the dialog open with the server's message.
+		 *
+		 * @param {{name: string, folder: string}} choice The name and folder.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+		 */
+		async createFile(choice) {
+			this.creating = true
+			try {
+				const response = await api.createOfficeFile({
+					creatorId: this.tile.linkValue,
+					name: choice.name,
+					folder: choice.folder,
+				})
+				this.createDialogOpen = false
+				window.location.assign(response.data.url)
+			} catch (error) {
+				logger.warn('[TileWidget] The office file could not be created:', error)
+				showError(error?.response?.data?.message || t('launchpad', 'The file could not be created.'))
+			} finally {
+				this.creating = false
+			}
 		},
 	},
 }
@@ -237,6 +344,18 @@ export default {
 	border: none;
 	overflow: hidden;
 	background-color: var(--tile-bg-color) !important;
+}
+
+.tile-widget__hint {
+	position: absolute;
+	inset-inline: 0;
+	bottom: 0;
+	margin: 0;
+	padding: 4px 8px;
+	font-size: 0.85em;
+	color: var(--color-main-text);
+	background-color: var(--color-main-background);
+	text-align: center;
 }
 
 .tile-widget__link {

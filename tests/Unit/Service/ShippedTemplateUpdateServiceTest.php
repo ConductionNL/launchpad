@@ -9,6 +9,11 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Tests\Unit\Service;
 
+use OCA\LaunchPad\Service\ShippedTemplateStore;
+use OCA\LaunchPad\Service\ShippedTemplatePlatform;
+use OCA\LaunchPad\Service\AdminTemplateStores;
+use OCA\LaunchPad\Service\ResyncStores;
+use OCA\LaunchPad\Service\ShippedTemplateStores;
 use OCA\LaunchPad\Activity\ActivityPublisher;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -112,11 +117,13 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 		$userManager = $this->createMock(IUserManager::class);
 		$userManager->method('get')->willReturn($this->createMock(IUser::class));
 		$adminTemplates = new AdminTemplateService(
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
+			stores: new AdminTemplateStores(
+				dashboardMapper: $this->dashboardMapper,
+				placementMapper: $this->placementMapper
+			),
 			settingsService: $this->createMock(AdminSettingsService::class),
 			groupManager: $groupManager,
-			userManager: $userManager,
+			userManager: $userManager
 		);
 
 		$this->shipped = new ShippedTemplateService(
@@ -127,10 +134,14 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 				logger: new NullLogger(),
 			),
 			templateService: $adminTemplates,
-			dashboardMapper: $this->dashboardMapper,
-			appConfig: $appConfig,
-			dashboardMgr: $this->createMock(IManager::class),
-			groupManager: $groupManager,
+			store: new ShippedTemplateStore(
+				dashboardMapper: $this->dashboardMapper,
+				appConfig: $appConfig
+			),
+			platform: new ShippedTemplatePlatform(
+				dashboardMgr: $this->createMock(IManager::class),
+				groupManager: $groupManager
+			)
 		);
 		$this->shipped->setDataDirForTesting(path: $this->dataDir);
 
@@ -143,20 +154,24 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 
 		$this->updates = new ShippedTemplateUpdateService(
 			shipped: $this->shipped,
-			dashboardMapper: $this->dashboardMapper,
-			placementMapper: $this->placementMapper,
-			hydrator: new PlacementPayloadHydrator(),
-			resyncService: new TemplateResyncService(
+			stores: new ShippedTemplateStores(
 				dashboardMapper: $this->dashboardMapper,
 				placementMapper: $this->placementMapper,
-				db: $this->db,
+				appConfig: $appConfig,
+				db: $this->db
+			),
+			hydrator: new PlacementPayloadHydrator(),
+			resyncService: new TemplateResyncService(
+				stores: new ResyncStores(
+					dashboardMapper: $this->dashboardMapper,
+					placementMapper: $this->placementMapper,
+					db: $this->db,
+					jobList: $this->createMock(IJobList::class)
+				),
 				activityPublisher: $this->createMock(ActivityPublisher::class),
 				notificationManager: $this->createMock(INotificationManager::class),
-				jobList: $this->createMock(IJobList::class),
-				logger: new NullLogger(),
-			),
-			appConfig: $appConfig,
-			db: $this->db,
+				logger: new NullLogger()
+			)
 		);
 	}
 
@@ -341,7 +356,7 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 	 */
 	public function testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate(): void {
 		$this->ship(1, self::versionOne());
-		$installed = $this->shipped->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers'], makeDefault: true);
+		$installed = $this->shipped->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers'], 'makeDefault' => true]);
 		$before = $this->byTitle($installed['id']);
 		$this->ship(2, self::versionTwo());
 
@@ -387,7 +402,7 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 	 */
 	public function testAMembersCopyFollowsAndKeepsTheirOwnWidget(): void {
 		$this->ship(1, self::versionOne());
-		$installed = $this->shipped->install(templateId: 'mijn-werkdag', targetGroups: ['medewerkers']);
+		$installed = $this->shipped->install(templateId: 'mijn-werkdag', options: ['targetGroups' => ['medewerkers']]);
 		$template = $this->templateService->getApplicableTemplate(userId: 'pieter');
 		self::assertNotNull($template);
 		self::assertSame($installed['id'], $template->getId());
@@ -522,5 +537,36 @@ class ShippedTemplateUpdateServiceTest extends TestCase {
 		}
 
 		self::assertSame(1, $this->config['shipped_template_version_mijn-werkdag']);
+	}
+
+	/**
+	 * The result keys, in order, and the scalar fields of every path: up to
+	 * date, dry run and applied (pinned before update() was split).
+	 */
+	public function testTheResultShapeOfEveryPath(): void {
+		$keys = ['templateId', 'uuid', 'id', 'name', 'installedVersion', 'version', 'upToDate', 'dryRun', 'applied', 'added', 'removed', 'changed', 'unchanged', 'copies', 'resync'];
+		$this->ship(1, self::versionOne());
+		$installed = $this->shipped->install(templateId: 'mijn-werkdag');
+
+		$current = $this->updates->update(templateId: 'mijn-werkdag');
+		self::assertSame($keys, array_keys($current));
+		self::assertSame(
+			['mijn-werkdag', $installed['id'], 1, 1, true, false, false, [], [], [], 0, 0, null],
+			[$current['templateId'], $current['id'], $current['installedVersion'], $current['version'], $current['upToDate'], $current['dryRun'], $current['applied'], $current['added'], $current['removed'], $current['changed'], $current['unchanged'], $current['copies'], $current['resync']]
+		);
+		self::assertIsString($current['uuid']);
+		self::assertIsString($current['name']);
+
+		$this->ship(2, self::versionTwo());
+		$dry = $this->updates->update(templateId: 'mijn-werkdag', dryRun: true, userId: 'admin');
+		self::assertSame($keys, array_keys($dry));
+		self::assertSame([1, 2, false, true, false, null], [$dry['installedVersion'], $dry['version'], $dry['upToDate'], $dry['dryRun'], $dry['applied'], $dry['resync']]);
+
+		$applied = $this->updates->update(templateId: 'mijn-werkdag', userId: 'admin');
+		self::assertSame($keys, array_keys($applied));
+		self::assertSame([1, 2, false, false, true], [$applied['installedVersion'], $applied['version'], $applied['upToDate'], $applied['dryRun'], $applied['applied']]);
+		self::assertSame(['async', 'affectedCount', 'totalCopies'], array_keys($applied['resync']));
+		self::assertSame(2, $this->config['shipped_template_version_mijn-werkdag']);
+		self::assertSame([$dry['added'], $dry['removed'], $dry['changed'], $dry['unchanged']], [$applied['added'], $applied['removed'], $applied['changed'], $applied['unchanged']]);
 	}
 }

@@ -154,6 +154,16 @@ export function actionPath(source) {
 	return query === '' ? source.action.path : `${source.action.path}?${query}`
 }
 
+/** The rule operators a source may declare, each comparing count to value. */
+const OPERATORS = {
+	gt: (count, value) => count > value,
+	gte: (count, value) => count >= value,
+	lt: (count, value) => value > count,
+	lte: (count, value) => value >= count,
+	eq: (count, value) => count === value,
+	neq: (count, value) => count !== value,
+}
+
 /**
  * Whether a count needs attention under the source's rule.
  *
@@ -164,22 +174,10 @@ export function actionPath(source) {
  * @spec openspec/specs/attention-feed/spec.md#req-att-004
  */
 export function needsAttention(count, op, value) {
-	switch (op) {
-		case 'gt':
-			return count > value
-		case 'gte':
-			return count >= value
-		case 'lt':
-			return count < value
-		case 'lte':
-			return count <= value
-		case 'eq':
-			return count === value
-		case 'neq':
-			return count !== value
-		default:
-			throw new Error(`unknown operator ${op}`)
+	if (!Object.hasOwn(OPERATORS, op)) {
+		throw new Error(`unknown operator ${op}`)
 	}
+	return OPERATORS[op](count, value)
 }
 
 /**

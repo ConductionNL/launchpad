@@ -96,69 +96,110 @@ class ImportConfluenceCommand extends Command {
 	 *
 	 * @spec openspec/specs/confluence-html-import/spec.md
 	 */
-	protected function execute(
-		InputInterface $input,
-		OutputInterface $output,
-	): int {
-		$file = (string)($input->getOption(name: 'file') ?? '');
-		$parentPath = (string)($input->getOption(name: 'parent-path') ?? '');
-		$userId = (string)($input->getOption(name: 'user') ?? 'cli');
-		$isDryRun = (bool)$input->getOption(name: 'dry-run');
+	protected function execute(InputInterface $input, OutputInterface $output): int {
+		$request = new ConfluenceImportRequest(input: $input);
 
-		if ($file === '') {
-			$output->writeln(messages: '<error>--file parameter is required</error>');
+		$fileError = (new FileOptionCheck())->error(option: 'file', path: $request->file);
+		if ($fileError !== null) {
+			$output->writeln(messages: $fileError);
 			return self::FAILURE;
 		}
 
-		if (file_exists(filename: $file) === false) {
-			$output->writeln(messages: '<error>File not found: ' . $file . '</error>');
-			return self::FAILURE;
-		}
-
-		$parentUuid = null;
-		if ($parentPath !== '') {
-			$parent = $this->treeService->resolvePath(path: $parentPath);
-			if ($parent === null) {
-				$output->writeln(
-					messages: '<error>Parent path not found: ' . $parentPath . '</error>'
-				);
-				return self::FAILURE;
-			}
-
-			$parentUuid = $parent->getUuid();
-		}
-
-		try {
-			if ($isDryRun === true) {
-				return $this->runDryRun(file: $file, output: $output);
-			}
-
-			return $this->runImport(
-				file: $file,
-				userId: $userId,
-				parentUuid: $parentUuid,
-				output: $output
-			);
-		} catch (InvalidArgumentException $e) {
-			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
-			return self::FAILURE;
-		} catch (Throwable $e) {
-			$output->writeln(messages: '<error>Import failed: ' . $e->getMessage() . '</error>');
-			return self::FAILURE;
-		}
+		return $this->importArchive(request: $request, output: $output);
 	}//end execute()
 
 	/**
-	 * Run a dry-run preview.
+	 * Resolve the parent, then preview or import the archive and print
+	 * the outcome.
 	 *
-	 * @param string $file ZIP path.
-	 * @param OutputInterface $output CLI output.
+	 * @param ConfluenceImportRequest $request The run's options.
+	 * @param OutputInterface         $output  CLI output.
+	 *
+	 * @return int Exit code (0 success, 1 failure).
+	 */
+	private function importArchive(ConfluenceImportRequest $request, OutputInterface $output): int {
+		$parentUuid = $this->parentUuid(parentPath: $request->parentPath, output: $output);
+		if ($parentUuid === false) {
+			return self::FAILURE;
+		}
+
+		try {
+			if ($request->isDryRun === true) {
+				return $this->reportDryRun(result: $this->importService->dryRun(zipPath: $request->file), output: $output);
+			}
+
+			return $this->reportImport(result: $this->importPages(request: $request, parentUuid: $parentUuid), output: $output);
+		} catch (Throwable $e) {
+			$output->writeln(messages: self::failureLine(exception: $e));
+			return self::FAILURE;
+		}
+	}//end importArchive()
+
+	/**
+	 * The UUID of the parent dashboard; null without `--parent-path`,
+	 * false (after printing why) when the path resolves to nothing.
+	 *
+	 * @param string          $parentPath The `--parent-path` value.
+	 * @param OutputInterface $output     CLI output.
+	 *
+	 * @return string|null|false The parent UUID, null, or false.
+	 */
+	private function parentUuid(string $parentPath, OutputInterface $output): string|null|false {
+		if ($parentPath === '') {
+			return null;
+		}
+
+		$parent = $this->treeService->resolvePath(path: $parentPath);
+		if ($parent === null) {
+			$output->writeln(
+				messages: '<error>Parent path not found: ' . $parentPath . '</error>'
+			);
+			return false;
+		}
+
+		return $parent->getUuid();
+	}//end parentUuid()
+
+	/**
+	 * The error line for a refused (invalid archive) or failed import.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return string The error line.
+	 */
+	private static function failureLine(Throwable $exception): string {
+		if ($exception instanceof InvalidArgumentException) {
+			return '<error>' . $exception->getMessage() . '</error>';
+		}
+
+		return '<error>Import failed: ' . $exception->getMessage() . '</error>';
+	}//end failureLine()
+
+	/**
+	 * Import the archive's pages under the parent.
+	 *
+	 * @param ConfluenceImportRequest $request    The run's options.
+	 * @param string|null             $parentUuid The parent dashboard UUID, or null for the root.
+	 *
+	 * @return array<string, mixed> The import result.
+	 */
+	private function importPages(ConfluenceImportRequest $request, string|null $parentUuid): array {
+		return $this->importService->import(
+			zipPath: $request->file,
+			currentUserId: $request->userId,
+			parentUuid: $parentUuid
+		);
+	}//end importPages()
+
+	/**
+	 * Print a dry-run preview.
+	 *
+	 * @param array<string, mixed> $result The dry-run result.
+	 * @param OutputInterface      $output CLI output.
 	 *
 	 * @return int Exit code.
 	 */
-	private function runDryRun(string $file, OutputInterface $output): int {
-		$result = $this->importService->dryRun(zipPath: $file);
-
+	private function reportDryRun(array $result, OutputInterface $output): int {
 		$summary = sprintf(
 			'Pages: %d, attachments: %d, estimated dashboards: %d, asset folder: %s',
 			(int)$result['pageCount'],
@@ -168,36 +209,20 @@ class ImportConfluenceCommand extends Command {
 		);
 
 		$output->writeln(messages: $summary);
-
-		foreach ($result['warnings'] as $warning) {
-			$output->writeln(messages: '<comment>warning: ' . $warning . '</comment>');
-		}
+		$this->writeWarnings(warnings: $result['warnings'], output: $output);
 
 		return self::SUCCESS;
-	}//end runDryRun()
+	}//end reportDryRun()
 
 	/**
-	 * Run a full import.
+	 * Print the outcome of a full import.
 	 *
-	 * @param string $file ZIP path.
-	 * @param string $userId Importing user UID.
-	 * @param string|null $parentUuid Optional parent dashboard UUID.
-	 * @param OutputInterface $output CLI output.
+	 * @param array<string, mixed> $result The import result.
+	 * @param OutputInterface      $output CLI output.
 	 *
 	 * @return int Exit code.
 	 */
-	private function runImport(
-		string $file,
-		string $userId,
-		?string $parentUuid,
-		OutputInterface $output,
-	): int {
-		$result = $this->importService->import(
-			zipPath: $file,
-			currentUserId: $userId,
-			parentUuid: $parentUuid
-		);
-
+	private function reportImport(array $result, OutputInterface $output): int {
 		$summary = sprintf(
 			'Imported %d dashboards, skipped %d, errors: %d, asset folder: %s',
 			(int)$result['createdDashboardCount'],
@@ -214,10 +239,22 @@ class ImportConfluenceCommand extends Command {
 			);
 		}
 
-		foreach ($result['warnings'] as $warning) {
-			$output->writeln(messages: '<comment>warning: ' . $warning . '</comment>');
-		}
+		$this->writeWarnings(warnings: $result['warnings'], output: $output);
 
 		return self::SUCCESS;
-	}//end runImport()
+	}//end reportImport()
+
+	/**
+	 * Print the import's warnings as comments.
+	 *
+	 * @param list<string>    $warnings The warnings.
+	 * @param OutputInterface $output   CLI output.
+	 *
+	 * @return void
+	 */
+	private function writeWarnings(array $warnings, OutputInterface $output): void {
+		foreach ($warnings as $warning) {
+			$output->writeln(messages: '<comment>warning: ' . $warning . '</comment>');
+		}
+	}//end writeWarnings()
 }//end class

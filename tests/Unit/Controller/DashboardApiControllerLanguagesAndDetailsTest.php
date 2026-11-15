@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardTranslation;
@@ -62,17 +65,23 @@ class DashboardApiControllerLanguagesAndDetailsTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->dashboardService,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService,
+				translationService: $this->translations,
+				metadataService: $this->metadata
+			),
 			permissionService: $this->createMock(PermissionService::class),
-			treeService: $this->createMock(DashboardTreeService::class),
-			versionService: $this->createMock(DashboardVersionService::class),
-			analyticsService: $this->createMock(AnalyticsService::class),
-			logger: $this->createMock(LoggerInterface::class),
-			userSession: $session,
-			actionAuth: $this->createMock(ActionAuthService::class),
-			userId: 'jan',
-			translationService: $this->translations,
-			metadataService: $this->metadata,
+			history: new DashboardApiHistory(
+				treeService: $this->createMock(DashboardTreeService::class),
+				versionService: $this->createMock(DashboardVersionService::class),
+				analyticsService: $this->createMock(AnalyticsService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			),
+			actor: new RequestActor(
+				userSession: $session,
+				actionAuth: $this->createMock(ActionAuthService::class)
+			),
+			userId: 'jan'
 		);
 	}
 

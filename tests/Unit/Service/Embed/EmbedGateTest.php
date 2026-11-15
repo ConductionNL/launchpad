@@ -160,6 +160,8 @@ class EmbedGateTest extends TestCase {
 		$this->assertNull($gate->originRefusal(request: $this->request(headers: ['Referer' => 'https://evil.example.com/']), token: $token, form: 'query'));
 		$this->assertNull($gate->originRefusal(request: $this->request(headers: ['Referer' => 'https://WWW.Zeist.nl/woo/', 'Sec-Fetch-Site' => 'cross-site']), token: $token, form: 'query'));
 		$this->assertNull($gate->originRefusal(request: $this->request(headers: ['Sec-Fetch-Site' => 'same-site']), token: $token, form: 'bearer'));
+		// The embed page loading its own subject is same-origin: its Referer is LaunchPad itself.
+		$this->assertNull($gate->originRefusal(request: $this->request(headers: ['Referer' => 'https://cloud.example.nl/apps/launchpad/embed/widget/42', 'Sec-Fetch-Site' => 'same-origin']), token: $token, form: 'bearer'));
 		$this->assertNotNull($gate->originRefusal(request: $this->request(headers: ['Referer' => 'https://www.zeist.nl:8443/', 'Sec-Fetch-Site' => 'cross-site']), token: $token, form: 'query'));
 	}//end testAFramingPageOutsideTheHostOriginsIsRefused()
 

@@ -15,6 +15,8 @@ webpackConfig.entry = {
 	'start-redirect': path.join(__dirname, 'src', 'startRedirect.js'),
 	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
 	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
+	// Public embed page shown in a host site's iframe (/apps/launchpad/embed/{subjectType}/{subjectId}).
+	embed: path.join(__dirname, 'src', 'embed-entry.js'),
 	// Personal settings: the person's own profile fields (REQ-PEX-002).
 }
 

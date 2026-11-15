@@ -192,7 +192,8 @@ class EmbedGate {
 	/**
 	 * The 403 for a page that frames the embed from an origin the token does
 	 * not list, or null. The Referer's origin is checked when the browser says
-	 * the request is cross-site, and always for a Bearer token; without a
+	 * the request is cross-site, and for a Bearer token unless the browser says
+	 * it is same-origin (the embed page loading its own subject); without a
 	 * Referer (a privacy-preserving browser) the request passes and CSP
 	 * frame-ancestors still holds.
 	 *
@@ -210,8 +211,8 @@ class EmbedGate {
 			return null;
 		}
 
-		$crossSite = strtolower(trim((string)$request->getHeader('Sec-Fetch-Site'))) === 'cross-site';
-		if ($crossSite === false && $form !== self::FORM_BEARER) {
+		$site = strtolower(trim((string)$request->getHeader('Sec-Fetch-Site')));
+		if ($site === 'same-origin' || ($site !== 'cross-site' && $form !== self::FORM_BEARER)) {
 			return null;
 		}
 

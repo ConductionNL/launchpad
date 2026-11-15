@@ -1,0 +1,19 @@
+{
+	"name": "@launchpad/embed-sdk",
+	"version": "1.1.7",
+	"description": "Embed LaunchPad widgets and dashboards in any web page.",
+	"license": "EUPL-1.2",
+	"type": "module",
+	"main": "dist/embed-sdk.umd.js",
+	"module": "dist/embed-sdk.esm.js",
+	"types": "src/types.ts",
+	"exports": {
+		".": {
+			"types": "./src/types.ts",
+			"import": "./dist/embed-sdk.esm.js",
+			"require": "./dist/embed-sdk.umd.js"
+		}
+	},
+	"files": ["dist", "src", "README.md"],
+	"sideEffects": false
+}

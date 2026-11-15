@@ -108,11 +108,12 @@
   - If `embedContext` present, apply theme CSS variables, scope restrictions, filter pinning
   - Maintain backward compatibility (no context = normal in-app rendering)
 
-- [ ] Task 14: Create `src/composables/useEmbedContext.js`:
+- [x] Task 14: Create `src/composables/useEmbedContext.js`:
   - Detect if the current render is in embed mode (check for token in parent postMessage or in render context)
   - Provide theme CSS variables to Vue components
   - Apply scope restrictions (hide disallowed actions, disable exports, etc.)
   - Relay events back to parent via postMessage (REQ-EMB-006)
+  > Built as `src/composables/useEmbedContext.js`: the subject from the `/embed/{type}/{id}` path, the token from `?token=` or the SDK's `init` message, the subject's data (scope, filters in force, theme block, placements) loaded with the token as a Bearer credential, `canRun(action)` for the scope, `relay()` of events to the parent and the resize answer. A message is answered only from the parent window at an origin the token lists. Tests: `useEmbedContext.spec.js` (9).
 
 ## Admin UI — Token Management
 
@@ -168,8 +169,9 @@
   - `dist/embed-sdk.esm.js` (ESM build)
   - `dist/embed-sdk.umd.js` (UMD build)
   - `package.json` with exports, version matching app version
+  > Built under `src/embed-sdk/`: `package.json` (`@launchpad/embed-sdk`, version of the app), `src/LaunchPadEmbed.js`, `src/postMessage.js`, `src/types.ts`, `README.md`. Left: the `dist/` ESM and UMD builds, which belong to the publish workflow of Task 24.
 
-- [ ] Task 20: Implement `LaunchPadEmbed.render(container, config)` (REQ-EMB-006):
+- [x] Task 20: Implement `LaunchPadEmbed.render(container, config)` (REQ-EMB-006):
   - Accept: `{token, subjectType, subjectId, tenantThemeId (optional)}`
   - Create iframe with `src="/apps/launchpad/embed/{subjectType}/{subjectId}"`
   - Insert iframe into container
@@ -177,27 +179,31 @@
   - Perform postMessage handshake: POST token to iframe (origin verification on both sides)
   - Return promise that resolves when 'embed-ready' message received
   - Reject promise if errors occur
+  > `LaunchPadEmbed.render()`: validates the config, creates the iframe (`/embed/{type}/{id}?token=`; the page needs the token to load), waits for `load`, posts `init` with the token and a nonce to the LaunchPad origin only, resolves on the matching `ready`, rejects (and removes the iframe) on a refusal or a timeout.
 
-- [ ] Task 21: Implement event relay in SDK (REQ-EMB-006):
+- [x] Task 21: Implement event relay in SDK (REQ-EMB-006):
   - `.on(eventType, handler)` registers listener for filterApplied, drillDown, export, error, etc.
   - Listen for postMessage from iframe
   - Invoke registered handlers with event payload
   - `.off(eventType, handler)` unregisters listener
   - Support multiple listeners per event
+  > `on()`/`off()` with any number of listeners per event; messages are accepted only from the embed's own window at the LaunchPad origin; an unsolicited refusal arrives as an `error` event; one failing handler does not stop the others.
 
-- [ ] Task 22: Implement `.resize()` method (REQ-EMB-006):
+- [x] Task 22: Implement `.resize()` method (REQ-EMB-006):
   - Read iframe's container dimensions
   - Post resize message to iframe with new width/height
   - Wait for 'embed-resized' message
   - Return promise that resolves when resize complete
+  > `resize()` posts the container size with a nonce and resolves with the size the embed answers in `resized`; `destroy()` rejects what is pending and removes the iframe.
 
-- [ ] Task 23: Create iframe-side entry point for SDK (`src/embed-entry.js`):
+- [x] Task 23: Create iframe-side entry point for SDK (`src/embed-entry.js`):
   - Listen for postMessage from parent (token injection)
   - Verify parent origin against allowed hostOrigins (decoded from token)
   - Store token in secure context
   - Render widget/dashboard using EmbedRenderService
   - Relay interaction events back to parent via postMessage
   - Listen for resize messages and re-measure
+  > Built as `src/embed-entry.js` (webpack entry `embed`, the `launchpad-embed` script `templates/embed.php` loads) mounting `src/views/EmbedView.vue`, which renders the subject through the public share's `PublicDashboardGrid` (no fork) with loading and refusal states. The data request is same-origin, which the server's origin check lets through (`Sec-Fetch-Site: same-origin`).
 
 - [ ] Task 24: Build and publish SDK:
   - Create `.github/workflows/publish-sdk.yml` to build + publish @launchpad/embed-sdk to npm on release
@@ -280,12 +286,13 @@
   - Filter scope: filter dimensions restricted to allowedFilters
   > `ScopeEnforcementServiceTest` (read refuses writes, interactions run only allowed actions, filter dimensions restricted to `allowedFilters`, actions from the path), `EmbedGateTest` and `EmbedTokenMiddlewareTest` (a write under a read token refused before the controller, reads pass).
 
-- [ ] Task 34: Vitest tests for JS-SDK:
+- [x] Task 34: Vitest tests for JS-SDK:
   - Render method creates iframe, performs postMessage handshake
   - Event listeners registered + invoked on iframe messages
   - Resize method posts message + resolves promise
   - Origin verification prevents cross-origin leaks
   - Multiple embeds on same page are independent
+  > `src/embed-sdk/__tests__/LaunchPadEmbed.spec.js` (13): iframe and handshake, refusal and timeout, config checks, listeners added and removed, foreign origin, window and message kind ignored, resize, two embeds kept apart, destroy.
 
 - [ ] Task 35: Playwright integration tests:
   - Create embed token via admin UI

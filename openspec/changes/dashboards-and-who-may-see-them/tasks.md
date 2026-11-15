@@ -55,11 +55,11 @@
 
 ## 8. Storage reporting
 
-- [ ] 8.1 Read use per workspace and per service from the platform figures and register counts.
-- [ ] 8.2 Keep a daily series and report twelve months.
-- [ ] 8.3 Name the removable total: past retention, orphaned uploads.
-- [ ] 8.4 Export as CSV, administrator-only, and refuse others with 403.
-- [ ] 8.5 PHPUnit on the admin guard and on the removable calculation.
+- [x] 8.1 Read use per workspace and per service from the platform figures and register counts. — built: `StorageReport\StorageFigures` reads the folder sizes the file cache keeps (the figure Nextcloud's quota uses) and the object count per register, never walking files or objects. A workspace is a Nextcloud group (its members' files; a person in two groups counts in both, so the total in use comes from the services); a service is files, trash or versions over every home, or one app's app data. `GET /api/admin/storage-report`.
+- [x] 8.2 Keep a daily series and report twelve months. — built: `StorageSnapshotJob` keeps one snapshot a day (totals only) in launchpad's app data (`StorageSeries`, at most 400 days, no table); the report gives the total, every workspace and every service per month for the last twelve months, the month's last snapshot, empty for a month without one.
+- [x] 8.3 Name the removable total: past retention, orphaned uploads. — built: apart from the total in use, trash entries older than Nextcloud's `trashbin_retention_obligation` (`auto` is 30 days, `disabled` expires nothing) and launchpad uploads older than a day that no launchpad row names; when the rows cannot be read, no upload counts as orphaned.
+- [x] 8.4 Export as CSV, administrator-only, and refuse others with 403. — built: `GET /api/admin/storage-report/export`, the same numbers as CSV; both routes carry the admin-setting attribute and the service refuses anybody who is not an administrator with 403 again.
+- [x] 8.5 PHPUnit on the admin guard and on the removable calculation. — built: `StorageReportServiceTest` (10), `StorageFiguresTest` (7), `StorageSeriesTest` (4), `StorageReportControllerTest` (4), `StorageSnapshotJobTest` (2).
 
 ## 9. Handover
 

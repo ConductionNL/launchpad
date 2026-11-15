@@ -451,6 +451,10 @@ return \OCA\LaunchPad\Middleware\Support\ApiPathAliases::withVersionedAliases([
 		// Recent colleague activity (dashboards-and-who-may-see-them REQ-DWMS-007): the caller's
 		// own activity stream, minus their own actions and what they may no longer see.
 		['name' => 'colleagueActivity#index', 'url' => '/api/colleague-activity', 'verb' => 'GET'],
+		// Storage use per workspace and service (dashboards-and-who-may-see-them REQ-DWMS-010):
+		// administrators only, with a twelve-month series and the removable total.
+		['name' => 'storageReport#report', 'url' => '/api/admin/storage-report', 'verb' => 'GET'],
+		['name' => 'storageReport#export', 'url' => '/api/admin/storage-report/export', 'verb' => 'GET'],
 		['name' => 'admin#getSettings', 'url' => '/api/admin/settings', 'verb' => 'GET'],
 		['name' => 'admin#updateSettings', 'url' => '/api/admin/settings', 'verb' => 'PUT'],
 

@@ -9180,6 +9180,70 @@
                     }
                 }
             }
+        },
+        "/admin/storage-report": {
+            "get": {
+                "operationId": "storage-report-report",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the storage report",
+                "description": "GET storage use per workspace (a Nextcloud group: the files of its members) and per service (files, trash, versions, each app's app data), now and as a twelve-month series of daily snapshots, the object count per register, and the removable total named apart: trash past its retention and launchpad uploads no row names. Read from the platform's own figures, never by walking files or objects. Administrators only; anybody else gets 403.",
+                "tags": [
+                    "storage-report"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
+        "/admin/storage-report/export": {
+            "get": {
+                "operationId": "storage-report-export",
+                "x-launchpad-stability": "internal",
+                "summary": "GET the storage report as CSV",
+                "description": "GET the storage report as CSV: the total, each workspace and service with its twelve months, and the removable total. Administrators only; anybody else gets 403.",
+                "tags": [
+                    "storage-report"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
         }
     },
     "components": {

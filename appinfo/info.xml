@@ -97,6 +97,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
 		<job>OCA\LaunchPad\BackgroundJob\HealthPingRefreshJob</job>
 		<!-- widgets-people-expertise-and-fields REQ-PEX-001/004: daily LDAP and profile mirror sync. -->
 		<job>OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob</job>
+		<!-- dashboards-and-who-may-see-them REQ-DWMS-010: the storage report's daily snapshot. -->
+		<job>OCA\LaunchPad\BackgroundJob\StorageSnapshotJob</job>
 	</background-jobs>
 
 	<repair-steps>

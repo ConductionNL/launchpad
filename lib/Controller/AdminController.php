@@ -439,6 +439,7 @@ class AdminController extends Controller {
 	 * @param string|null $sharingRecipientScope `everyone` or `shared-groups` (REQ-SHARE-014).
 	 * @param array|null $tileAllowedSchemes URL schemes a program tile may use (launcher-tile-launch-types).
 	 * @param array|null $ssoLaunchTemplates Identity-provider launch templates `{key, name, urlTemplate}` (launcher-tile-launch-types).
+	 * @param array|null $announcementEditorGroups Groups whose members may write announcements (engagement-announcements D6).
 	 *
 	 * @return JSONResponse The update confirmation.
 	 *
@@ -466,6 +467,7 @@ class AdminController extends Controller {
 		string|null $sharingRecipientScope = null,
 		array|null $tileAllowedSchemes = null,
 		array|null $ssoLaunchTemplates = null,
+		array|null $announcementEditorGroups = null,
 	): JSONResponse {
 		// Read-side aliases, see the docblock. Short form wins.
 		$defaultPermLevel ??= $defaultPermissionLevel;
@@ -493,6 +495,7 @@ class AdminController extends Controller {
 					'sharingRecipientScope'       => $sharingRecipientScope,
 					'tileAllowedSchemes'          => $tileAllowedSchemes,
 					'ssoLaunchTemplates'          => $ssoLaunchTemplates,
+					'announcementEditorGroups'    => $announcementEditorGroups,
 				]
 			);
 

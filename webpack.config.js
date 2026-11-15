@@ -11,6 +11,8 @@ webpackConfig.entry = {
 	admin: path.join(__dirname, 'src', 'admin.js'),
 	// Anonymous read-only public-share page (/apps/launchpad/s/{token}).
 	public: path.join(__dirname, 'src', 'public.js'),
+	// Login-page redirect to the public start page (sharing-public-start-page D2).
+	'start-redirect': path.join(__dirname, 'src', 'startRedirect.js'),
 	// Anonymous full-screen kiosk player (/apps/launchpad/kiosk/{token}).
 	kiosk: path.join(__dirname, 'src', 'kiosk.js'),
 	// Personal settings: the person's own profile fields (REQ-PEX-002).

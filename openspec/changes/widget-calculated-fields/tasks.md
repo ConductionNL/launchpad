@@ -2,31 +2,33 @@
 
 ## 1. Parser and Type Checking (TypeScript)
 
-- [ ] Task 1: Define AST node types as TypeScript interfaces: `Literal`, `FieldRef`, `CalculatedRef`, `Binary`, `Unary`, `If`, `Call` with complete type definitions and JSON-serializable structure
-- [ ] Task 2: Implement `CalculatedFieldParser.ts` with `parse(expression: string): AST` that produces deterministic canonical AST; on syntax error throw `ParseError` with column position (REQ-CALC-001)
-- [ ] Task 3: Implement `TypeChecker.ts` with `inferType(ast: AST, fieldSchema): Type` that validates all operators and function calls at the AST level; on type mismatch throw `TypeError` with operand names (REQ-CALC-002)
-- [ ] Task 4: Define the allowlist of built-in functions with signatures: `math` (abs, round, ceil, floor, min, max, pow, sqrt, log, sum, avg), `aggregate` (count, countIf, sumIf, avgIf), `date/time` (now, today, dateDiff, dateAdd, formatDate, parseDate), `duration` (durationBetween, durationFormat), `string` (concat, upper, lower, trim, contains, startsWith, endsWith, replace, format), `conditional` (coalesce, ifNull, case), `type coercion` (toNumber, toString, toBool, toDate)
-- [ ] Task 5: Add allowlist to `config.ts` with per-instance configurability (default: all functions); parser rejects unknown functions at parse time (REQ-CALC-009)
-- [ ] Task 6: Vitest coverage: 100+ test cases covering all AST node types, all operators, all built-in functions, error cases (REQ-CALC-001, REQ-CALC-002)
+- [x] Task 1: Define AST node types as TypeScript interfaces (built as JSDoc typedefs plus `isAstNode()` in `src/utils/calculatedFields/ast.js`; the app is JavaScript): `Literal`, `FieldRef`, `CalculatedRef`, `Binary`, `Unary`, `If`, `Call` with complete type definitions and JSON-serializable structure
+- [x] Task 2: Implement `CalculatedFieldParser.ts` with `parse(expression: string): AST` that produces deterministic canonical AST; on syntax error throw `ParseError` with column position (REQ-CALC-001)
+- [x] Task 3: Implement `TypeChecker.ts` with `inferType(ast: AST, fieldSchema): Type` that validates all operators and function calls at the AST level; on type mismatch throw `TypeError` with operand names (REQ-CALC-002)
+- [x] Task 4: Define the allowlist of built-in functions with signatures: `math` (abs, round, ceil, floor, min, max, pow, sqrt, log, sum, avg), `aggregate` (count, countIf, sumIf, avgIf), `date/time` (now, today, dateDiff, dateAdd, formatDate, parseDate), `duration` (durationBetween, durationFormat), `string` (concat, upper, lower, trim, contains, startsWith, endsWith, replace, format), `conditional` (coalesce, ifNull, case), `type coercion` (toNumber, toString, toBool, toDate)
+- [x] Task 5: Add allowlist to `config.ts` with per-instance configurability (default: all functions); parser rejects unknown functions at parse time (REQ-CALC-009)
+- [x] Task 6: Vitest coverage: 100+ test cases covering all AST node types, all operators, all built-in functions, error cases (REQ-CALC-001, REQ-CALC-002)
 
 ## 2. Cycle Detection
 
-- [ ] Task 7: Implement `CycleDetector.ts` that builds a dependency graph of all calculated fields on a widget + cross-widget references; run topological sort; throw `CycleError` if cycle detected, naming the cycle (REQ-CALC-006)
-- [ ] Task 8: Wire cycle detection into the parser so `parseAndValidate(widget)` calls both type-checker and cycle-detector before returning validated AST (REQ-CALC-006)
-- [ ] Task 9: Vitest: cycle detection rejects self-references, mutual references, and longer cycles; accepts acyclic graphs (REQ-CALC-006)
+- [x] Task 7: Implement `CycleDetector.ts` that builds a dependency graph of all calculated fields on a widget + cross-widget references; run topological sort; throw `CycleError` if cycle detected, naming the cycle (REQ-CALC-006)
+- [x] Task 8: Wire cycle detection into the parser so `parseAndValidate(widget)` calls both type-checker and cycle-detector before returning validated AST (REQ-CALC-006)
+- [x] Task 9: Vitest: cycle detection rejects self-references, mutual references, and longer cycles; accepts acyclic graphs (REQ-CALC-006)
 
 ## 3. TypeScript Evaluator (Client-side)
 
-- [ ] Task 10: Implement `CalculatedFieldEvaluator.ts` that takes an AST and a row context (field values from source widget) and evaluates deterministically (REQ-CALC-003, REQ-CALC-005)
-- [ ] Task 11: Handle all AST node types: literals, field refs (with `source='self'` and `source='widget:<id>'`), binary/unary ops, conditionals, function calls; return typed result or `null` on null propagation (REQ-CALC-005)
-- [ ] Task 12: Error handling: catch runtime errors (divide by zero, null dereference, function error) and return `{error: message, expression, inputs}` so the widget can display an inline error (REQ-CALC-008)
+- [x] Task 10: Implement `CalculatedFieldEvaluator.ts` that takes an AST and a row context (field values from source widget) and evaluates deterministically (REQ-CALC-003, REQ-CALC-005)
+- [x] Task 11: Handle all AST node types: literals, field refs (with `source='self'` and `source='widget:<id>'`), binary/unary ops, conditionals, function calls; return typed result or `null` on null propagation (REQ-CALC-005)
+- [x] Task 12: Error handling: catch runtime errors (divide by zero, null dereference, function error) and return `{error: message, expression, inputs}` so the widget can display an inline error (REQ-CALC-008)
 - [ ] Task 13: Cross-widget field refs resolved via the dashboard store's widget data at evaluation time (REQ-CALC-003)
-- [ ] Task 14: Numeric precision: all math follows IEEE 754 (JavaScript Number), test suite validates equivalence with PHP to within 1e-9 (REQ-CALC-005)
+- [x] Task 14: Numeric precision: all math follows IEEE 754 (JavaScript Number), test suite validates equivalence with PHP to within 1e-9 (REQ-CALC-005)
+  - Validated: the shared suite holds both evaluators to its expected numbers within 1e-9 (Vitest `evaluator.spec.js`, PHPUnit `CalculatedFieldEvaluatorTest`).
 
 ## 4. Shared Test Suite
 
-- [ ] Task 15: Create `test/shared-evaluator-test-suite.json` containing 50+ test cases: each case specifies an AST, input data (field values), expected output, and error conditions; suite is language-agnostic JSON
-- [ ] Task 16: Import and run the shared suite in Vitest (TypeScript evaluator) and PHPUnit (PHP evaluator); both must pass 100% of tests (REQ-CALC-005)
+- [x] Task 15: Create `test/shared-evaluator-test-suite.json` containing 50+ test cases: each case specifies an AST, input data (field values), expected output, and error conditions; suite is language-agnostic JSON
+- [x] Task 16: Import and run the shared suite in Vitest (TypeScript evaluator) and PHPUnit (PHP evaluator); both must pass 100% of tests (REQ-CALC-005)
+  - Vitest half built: `src/utils/calculatedFields/__tests__/evaluator.spec.js` runs every case of `tests/fixtures/calculated-fields/shared-evaluator-test-suite.json` (98 cases, parse and evaluate); the PHPUnit half is `tests/Unit/Service/CalculatedFields/CalculatedFieldEvaluatorTest.php`, one data-provider case per suite case, all 98 passing.
 
 ## 5. Frontend Integration (Vue/Store)
 
@@ -52,10 +54,14 @@
 
 ## 8. PHP Evaluator (Server-side)
 
-- [ ] Task 30: Implement `CalculatedFieldEvaluator.php` that deserialises the AST (JSON) and evaluates it on a row context (REQ-CALC-005)
-- [ ] Task 31: Mirror the TypeScript evaluator exactly: all AST node types, all operators, all functions; numeric precision via IEEE 754 floats; null propagation (REQ-CALC-005)
+- [x] Task 30: Implement `CalculatedFieldEvaluator.php` that deserialises the AST (JSON) and evaluates it on a row context (REQ-CALC-005)
+  - Built: `lib/Service/CalculatedFields/CalculatedFieldEvaluator.php` evaluates the parser's JSON AST on a row context (`row`, `calculated`, `widgets`, `widgetCalculated`), with `now` injectable.
+- [x] Task 31: Mirror the TypeScript evaluator exactly: all AST node types, all operators, all functions; numeric precision via IEEE 754 floats; null propagation (REQ-CALC-005)
+  - Built: node for node and function for function as `src/utils/calculatedFields/evaluator.js`: `CalculatedFieldFunctions` (the allowlist, the same failures and messages), `CalculatedFieldValues` (JavaScript's number text, `===` over int and float, path reading across lists, UTC dates and calendar months), null propagation and the null-aware functions.
 - [ ] Task 32: Error handling: catch runtime errors and store them in OpenRegister's computed-field error log (not thrown to the widget caller); return `null` for the materialised value (REQ-CALC-008)
-- [ ] Task 33: Run the shared test suite (Task 16) against the PHP evaluator; all tests must pass (REQ-CALC-005)
+  - Partly built: `CalculatedFieldEvaluator::evaluateField()` catches a run-time failure and answers `{value: null, error, expression}` instead of throwing. Left: writing the failure to OpenRegister's computed-field error log, which belongs with the materialisation (tasks 26-28).
+- [x] Task 33: Run the shared test suite (Task 16) against the PHP evaluator; all tests must pass (REQ-CALC-005)
+  - All 98 cases of `tests/fixtures/calculated-fields/shared-evaluator-test-suite.json` pass against the PHP evaluator.
 
 ## 9. Format Options and Rendering
 
@@ -66,15 +72,16 @@
 ## 10. Testing — Backend
 
 - [ ] Task 37: PHPUnit — `CalculatedFieldValidationTest.php`: parse errors, type errors, cycle detection, unknownFunction errors all return correct 400 envelope (REQ-CALC-001, REQ-CALC-002, REQ-CALC-006, REQ-CALC-009)
-- [ ] Task 38: PHPUnit — `CalculatedFieldEvaluatorTest.php`: shared test suite (Task 16) runs against PHP evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
+- [x] Task 38: PHPUnit — `CalculatedFieldEvaluatorTest.php`: shared test suite (Task 16) runs against PHP evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
+  - `CalculatedFieldEvaluatorTest` (102 tests): the shared suite, `evaluateField()` catching a failure with its expression, cross-widget reads, unknown nodes and functions, wrong kinds.
 - [ ] Task 39: PHPUnit — `CalculatedFieldServerModeTest.php`: verify `computed-fields` entries created/updated/deleted correctly; downgrade logic works (REQ-CALC-004, REQ-CALC-007)
 - [ ] Task 40: PHPUnit — `CrossWidgetReferenceTest.php`: parse/evaluate cross-widget refs (`widget:id.field`); cycle detection (REQ-CALC-006)
 
 ## 11. Testing — Frontend
 
 - [ ] Task 41: Vitest — `parser.test.ts`: 100+ cases covering all AST node types, operators, functions, error cases (REQ-CALC-001, REQ-CALC-002, REQ-CALC-009)
-- [ ] Task 42: Vitest — `evaluator.test.ts`: shared test suite runs against TypeScript evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
-- [ ] Task 43: Vitest — `cycleDetector.test.ts`: cycle detection rejects self-refs, mutual refs, longer cycles; accepts acyclic (REQ-CALC-006)
+- [x] Task 42: Vitest — `evaluator.test.ts`: shared test suite runs against TypeScript evaluator; all operators, functions, null handling, numeric precision (REQ-CALC-005)
+- [x] Task 43: Vitest — `cycleDetector.test.ts`: cycle detection rejects self-refs, mutual refs, longer cycles; accepts acyclic (REQ-CALC-006)
 - [ ] Task 44: Playwright — render a widget with calculated fields; verify values appear in the table/chart; verify inline errors show on evaluation failure; verify other widgets still render (REQ-CALC-003, REQ-CALC-008)
 - [ ] Task 45: Playwright — cross-widget reference: change filter on source widget, verify dependent widget's calculated field re-evaluates (REQ-CALC-003)
 - [ ] Task 46: Playwright — server-mode field: materialised value is queryable via OpenRegister API; client-mode field is not (REQ-CALC-004)

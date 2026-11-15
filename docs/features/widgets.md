@@ -36,6 +36,7 @@ This page documents the **registry-driven** catalog. For the full shared catalog
 | 23 | [`object-list`](#object-list) | Object list | `ClipboardList` | A filtered page of OpenRegister objects as a table |
 | 24 | [`table`](#table) | Table | `ClipboardList` | Compact data table (external rows or self-fetch) |
 | 25 | [`spend-analytics`](#spend-analytics) | Spend analytics | `ChartBar` | Procurement/finance spend (financeq + procest) |
+| 26 | [`map`](#map) | Map | `Map` | OpenRegister objects with a location, on a map |
 
 ## How widgets are persisted
 
@@ -513,6 +514,42 @@ and renders them as a compact column table. **Use it for**: "latest 10 leads".
 | `dataSource.register` / `schema` | Source collection. |
 | `dataSource.filter` / `sort` / `limit` | Query controls. |
 | `columns` | Which schema fields to show. |
+
+## map
+
+Plots OpenRegister objects that carry a location on a Leaflet map, with an
+OpenStreetMap background, optional clustering for dense point sets and a popup
+per object. The map frames the objects when it loads (`autoFit`); `center` and
+`zoom` only show until then. **Use it for**: "open reports on a map", "locations
+of our sites".
+
+**Renderer**: `CnMapWidget` (nc-vue) · **Form**: `CnMapWidgetForm`
+
+The type is registered in nc-vue's communal widget registry, so it reaches the
+LaunchPad widget picker without a LaunchPad change, like `chart`.
+
+| Field | Notes |
+|---|---|
+| `markers.dataSource` | Either `{ register, schema }` (OpenRegister objects) or `{ url }` (a GeoJSON or JSON endpoint). Exactly one of the two. |
+| `markers.latField` / `lngField` | The object properties holding the coordinates, when they are not a GeoJSON geometry. |
+| `markers.popupField` | The property shown in a marker's popup. |
+| `markers.clustering` / `clustering` | Group nearby markers. |
+| `center` / `zoom` | The starting view, `[lat, lng]`; the Netherlands by default. |
+| `autoFit` | Frame the markers on load (default on). |
+| `basemaps` | Background layers; OpenStreetMap by default. |
+| `layers` | Extra `tile`, `wms`, `wfs` or `geojson` layers. |
+| `height` | The map's height, `400px` by default. |
+
+Example `content` for reports on a map:
+
+```json
+{ "center": [52.13, 5.29], "zoom": 7, "autoFit": true,
+  "markers": { "dataSource": { "register": "meldingen", "schema": "melding" },
+    "popupField": "title", "clustering": true } }
+```
+
+The coordinates come from OpenRegister: objects whose schema stores a location
+(see OpenRegister's geo metadata on schemas) are what this widget can show.
 
 ## table
 

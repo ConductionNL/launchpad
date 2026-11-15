@@ -70,7 +70,8 @@
   previously-English "Health"/"Healthy"/"Degraded" and "Visibility
   rules…" strings now render in Dutch. (not run: needs the live instance; the
   `nl` catalogue carries "Health", "Healthy", "Degraded" and "Visibility rules…")
-- [ ] Task 8: Re-run the Vitest suite (`npm run test`) — component tests
+- [x] Task 8: Re-run the Vitest suite (`npm run test`) — component tests
   that snapshot or assert on rendered English text for these components
   must still pass since the English fallback text is unchanged for the
   `en` locale; only non-English locales change behaviour.
+  14 Nov 2026 on development: `npm run test` 238 files, 2208 tests passed; `node scripts/lint-translation-domain.js` OK; no `t('mydash'`/`n('mydash'` call left in `src/`.

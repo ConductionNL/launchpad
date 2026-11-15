@@ -37,7 +37,7 @@ class WidgetPlacementSerializeGoldenTest extends TestCase {
 			. '"isCompulsory":0,"isVisible":1,"styleConfig":{},"customTitle":null,"customIcon":null,"content":{},'
 			. '"showTitle":1,"sortOrder":0,"requiresAcknowledgement":0,"acknowledgementPrompt":null,'
 			. '"acknowledgementDeadline":null,"reacknowledgeOnChange":0,"acknowledgementContentVersion":1,'
-			. '"announcementKey":null,"templatePlacementId":null,"createdAt":null,"updatedAt":null}',
+			. '"announcementKey":null,"templatePlacementId":null,"version":0,"createdAt":null,"updatedAt":null}',
 			json_encode($placement->jsonSerialize())
 		);
 	}
@@ -61,12 +61,12 @@ class WidgetPlacementSerializeGoldenTest extends TestCase {
 		$this->assertSame(['widgetId' => 'x'], $data['content']);
 		$this->assertSame(
 			['tileType', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor', 'tileTextColor', 'tileLinkType', 'tileLinkValue'],
-			array_slice(array_keys($data), 24)
+			array_slice(array_keys($data), 25)
 		);
 		$this->assertSame(
 			['custom', 'Mail', 'mail', 'class', '#000', '#fff', 'app', 'mail'],
-			array_slice(array_values($data), 24)
+			array_slice(array_values($data), 25)
 		);
-		$this->assertCount(32, $data);
+		$this->assertCount(33, $data);
 	}
 }

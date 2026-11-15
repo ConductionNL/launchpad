@@ -87,6 +87,7 @@
 
 <script>
 import { CnDashboardIcon } from '@conduction/nextcloud-vue'
+import { REQUIRED_OBJECT_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 import { normaliseIconValue } from '../services/iconCatalogue.js'
 
 /**
@@ -115,20 +116,14 @@ export default {
 	},
 
 	props: {
-		node: {
-			type: Object,
-			required: true,
-		},
+		node: REQUIRED_OBJECT_PROP,
 
 		level: {
 			type: Number,
 			default: 1,
 		},
 
-		currentUrl: {
-			type: String,
-			default: '',
-		},
+		currentUrl: TEXT_PROP,
 	},
 
 	emits: ['navigate'],

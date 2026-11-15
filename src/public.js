@@ -12,39 +12,47 @@
 // Widget types self-register via import-time side effects that `sideEffects`
 // tree-shaking (ADR-061) would otherwise drop; calling this no-op forces the
 // aggregator — and every widget registration — into the bundle. See main.js.
-import { registerBuiltinDashboardWidgets } from '@conduction/nextcloud-vue'
+import {
+	registerBuiltinDashboardWidgets,
+	registerTranslations,
+} from '@conduction/nextcloud-vue'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { createPinia } from 'pinia'
 import { createApp, h } from 'vue'
 import DashboardPublicShareView from './views/DashboardPublicShareView.vue'
+import { loadInitialState } from './utils/loadInitialState.js'
+import { publicPageToken } from './utils/publicStart.js'
 
 import './publicPath.js'
 import 'gridstack/dist/gridstack.min.css'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
 registerBuiltinDashboardWidgets()
+// The library's own strings (the greeting header among them) in the
+// viewer's language. See main.js.
+registerTranslations()
 
 // Vue 3 has no global Vue constructor — pinia and t/n are installed on the
 // app instance created below (`Vue.prototype.x` becomes an app-level mixin).
 const pinia = createPinia()
 
-// The token is the last path segment of /apps/launchpad/s/{token}.
-//
-// This previously read a `public-share-token` initial-state key first,
-// described as the primary source. That read was dead: no PHP ever provides
-// that key (PageController::publicShare renders the template without any
-// provideInitialState call), so it always returned the fallback and the path
-// parse below did the real work — as templates/public.php already documents.
-// It also broke REQ-INIT-003, which routes every initial-state read through
-// src/utils/loadInitialState.js. The page is served anonymously, so adding a
-// key to that contract would be a server change with no consumer; reading the
-// URL is the correct source here.
-const pathSegments = window.location.pathname.replace(/\/+$/, '').split('/')
-const token = pathSegments[pathSegments.length - 1] || ''
+// The token is the last path segment of /apps/launchpad/s/{token}, read from
+// the URL: the share page is rendered without initial state. The public start
+// page at /apps/launchpad/start is the exception (sharing-public-start-page
+// D3): the server hands over the chosen link's token as `publicStartToken`,
+// read through the initial-state contract (REQ-INIT-003), and the view adds
+// its sign-in bar.
+const { token, startPage } = publicPageToken(
+	window.location.pathname,
+	loadInitialState('public-start').publicStartToken,
+)
 
 // Props are flat in Vue 3 — the Vue-2 `{ props: { … } }` createElement data
 // object is gone.
 const app = createApp({
 	name: 'LaunchpadPublicShareRoot',
-	render: () => h(DashboardPublicShareView, { token }),
+	render: () => h(DashboardPublicShareView, { token, startPage }),
 })
 
 app.mixin({ methods: { t, n } })

@@ -93,25 +93,29 @@
 			@update:open="formOpen = $event"
 			@save="savePlaylist" />
 
-		<RevokeKioskPlaylistDialog
-			:open="revokeTarget !== null"
-			:name="revokeTarget?.name ?? ''"
-			@update:open="
-				(v) => {
-					if (!v) revokeTarget = null
-				}
+		<CnConfirmDialog
+			v-if="revokeTarget !== null"
+			:dialogTitle="t('launchpad', 'Revoke this playlist?')"
+			:message="
+				t(
+					'launchpad',
+					'Screens showing {name} stop at their next check, and the link stops working for good.',
+					{ name: revokeTarget.name ?? '' },
+				)
 			"
-			@confirm="revoke" />
+			:confirmLabel="t('launchpad', 'Revoke')"
+			variant="error"
+			@confirm="revoke"
+			@close="revokeTarget = null" />
 	</div>
 </template>
 
 <script>
-import { NcButton } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton } from '@conduction/nextcloud-vue'
 import { showSuccess } from '@nextcloud/dialogs'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import KioskPlaylistDialog from '../../../dialogs/KioskPlaylistDialog.vue'
-import RevokeKioskPlaylistDialog from '../../../dialogs/RevokeKioskPlaylistDialog.vue'
 import { api } from '../../../services/api.js'
 import { useKioskPlaylistStore } from '../../../stores/kioskPlaylists.js'
 
@@ -128,7 +132,7 @@ export default {
 	components: {
 		KioskPlaylistDialog,
 		NcButton,
-		RevokeKioskPlaylistDialog,
+		CnConfirmDialog,
 	},
 
 	/** @spec openspec/specs/dashboard-kiosk-mode/spec.md */

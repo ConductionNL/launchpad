@@ -103,6 +103,10 @@
 <script>
 import { NcButton, NcDialog } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import {
+	NULLABLE_OBJECT_PROP,
+	REQUIRED_FLAG_PROP,
+} from '../constants/propDefinitions.js'
 import { api } from '../services/api.js'
 import { logger } from '../utils/logger.js'
 
@@ -126,16 +130,10 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
 		/** The shipped template row, as the listing returns it. */
-		shipped: {
-			type: Object,
-			default: null,
-		},
+		shipped: NULLABLE_OBJECT_PROP,
 	},
 
 	emits: ['update:open', 'updated'],

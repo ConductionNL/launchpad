@@ -25,11 +25,14 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ProfileFieldTools;
+use OCA\LaunchPad\Service\ProfileSources;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\ProfileFieldService;
+use OCA\LaunchPad\Service\PeopleQuery;
 use OCA\LaunchPad\Service\PeopleWidgetService;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
@@ -125,10 +128,14 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->profileFields = new ProfileFieldService(
 			settingMapper: $settingMapper,
 			valueMapper: $this->profileValues,
-			accountManager: $this->accountManager,
-			adminTemplateService: $this->adminTemplateService,
-			ldapProviderFactory: $this->createMock(originalClassName: ILDAPProviderFactory::class),
-			logger: $this->createMock(originalClassName: LoggerInterface::class),
+			sources: new ProfileSources(
+				accountManager: $this->accountManager,
+				ldapProviderFactory: $this->createMock(originalClassName: ILDAPProviderFactory::class)
+			),
+			tools: new ProfileFieldTools(
+				adminTemplateService: $this->adminTemplateService,
+				logger: $this->createMock(originalClassName: LoggerInterface::class)
+			)
 		);
 
 		$this->service = new PeopleWidgetService(
@@ -140,6 +147,41 @@ class PeopleWidgetServiceTest extends TestCase {
 			profileFields: $this->profileFields,
 		);
 	}//end setUp()
+
+	/**
+	 * List users through the service with the request spelled out field by field.
+	 *
+	 * @param array       $filters         Filter predicates.
+	 * @param bool        $excludeDisabled Whether disabled users are left out.
+	 * @param bool        $showBirthdays   Whether birthdates show.
+	 * @param string      $sortBy          Sort key.
+	 * @param int         $limit           Page size.
+	 * @param int         $offset          Page offset.
+	 * @param string|null $query           Search text.
+	 * @param string|null $viewerId        The signed-in viewer.
+	 *
+	 * @return array
+	 */
+	private function listUsers(
+		array $filters=[],
+		bool $excludeDisabled=true,
+		bool $showBirthdays=true,
+		string $sortBy='displayName',
+		int $limit=PeopleWidgetService::DEFAULT_LIMIT,
+		int $offset=0,
+		?string $query=null,
+		?string $viewerId=null,
+	): array {
+		return $this->service->listUsers(
+			request: new PeopleQuery(
+				filters: $filters,
+				sortBy: $sortBy,
+				search: $query,
+				page: PeopleQuery::window(excludeDisabled: $excludeDisabled, showBirthdays: $showBirthdays, limit: $limit, offset: $offset)
+			),
+			viewerId: $viewerId
+		);
+	}//end listUsers()
 
 	// ---------------------------------------------------------------
 	// computeDaysToBirthday — pure helper (REQ-PPL-005)
@@ -216,7 +258,7 @@ class PeopleWidgetServiceTest extends TestCase {
 	 */
 	public function testListUsersRejectsLimitOverMax(): void {
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service->listUsers(limit: PeopleWidgetService::MAX_LIMIT + 1);
+		$this->listUsers(limit: PeopleWidgetService::MAX_LIMIT + 1);
 	}//end testListUsersRejectsLimitOverMax()
 
 	/**
@@ -224,7 +266,7 @@ class PeopleWidgetServiceTest extends TestCase {
 	 */
 	public function testListUsersRejectsZeroLimit(): void {
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service->listUsers(limit: 0);
+		$this->listUsers(limit: 0);
 	}//end testListUsersRejectsZeroLimit()
 
 	/**
@@ -232,7 +274,7 @@ class PeopleWidgetServiceTest extends TestCase {
 	 */
 	public function testListUsersRejectsNegativeOffset(): void {
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service->listUsers(offset: -1);
+		$this->listUsers(offset: -1);
 	}//end testListUsersRejectsNegativeOffset()
 
 	/**
@@ -240,7 +282,7 @@ class PeopleWidgetServiceTest extends TestCase {
 	 */
 	public function testListUsersRejectsRecentActivitySort(): void {
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service->listUsers(sortBy: 'recent-activity');
+		$this->listUsers(sortBy: 'recent-activity');
 	}//end testListUsersRejectsRecentActivitySort()
 
 	// ---------------------------------------------------------------
@@ -262,7 +304,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		// Empty account so the optional fields are omitted.
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers(limit: 2, offset: 0);
+		$result = $this->listUsers(limit: 2, offset: 0);
 
 		$this->assertSame(expected: 3, actual: $result['total']);
 		$this->assertTrue(condition: $result['hasMore']);
@@ -299,7 +341,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->groupManager->method('getUserGroupIds')->willReturn([]);
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers(limit: 50, offset: 0);
+		$result = $this->listUsers(limit: 50, offset: 0);
 
 		$this->assertFalse(condition: $result['hasMore']);
 		$this->assertSame(expected: 2, actual: $result['total']);
@@ -320,7 +362,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->groupManager->method('getUserGroupIds')->willReturn([]);
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers();
+		$result = $this->listUsers();
 
 		$this->assertSame(expected: 1, actual: $result['total']);
 		$this->assertSame(expected: 'alice', actual: $result['users'][0]['uid']);
@@ -363,7 +405,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->groupManager->method('getUserGroupIds')->willReturn([]);
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers(
+		$result = $this->listUsers(
 			filters: [
 				[
 					'fieldName' => 'group',
@@ -389,7 +431,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->groupManager->method('get')->willReturn(null);
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers(
+		$result = $this->listUsers(
 			filters: [
 				[
 					'fieldName' => 'group',
@@ -424,7 +466,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		);
 		$this->accountManager->method('getAccount')->willReturn($account);
 
-		$result = $this->service->listUsers(viewerId: 'viewer');
+		$result = $this->listUsers(viewerId: 'viewer');
 
 		$this->assertSame(
 			expected: '1990-06-10',
@@ -446,7 +488,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		);
 		$this->accountManager->method('getAccount')->willReturn($account);
 
-		$result = $this->service->listUsers(showBirthdays: false);
+		$result = $this->listUsers(showBirthdays: false);
 
 		$this->assertArrayNotHasKey(
 			key: 'birthdate',
@@ -487,7 +529,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->groupManager->method('getUserGroupIds')->willReturn([]);
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers(limit: 10, offset: 0);
+		$result = $this->listUsers(limit: 10, offset: 0);
 
 		// The backend was asked for a bounded, non-null limit.
 		$this->assertNotEmpty($captured);
@@ -529,7 +571,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->profileFields->saveDefinitions(raw: [['key' => 'expertise', 'label' => 'Expertise', 'type' => 'tags', 'searchable' => true]]);
 		$this->profileFields->saveOwnValues(userId: 'pieter', values: ['expertise' => ['subsidies', 'Omgevingswet']]);
 
-		$result = $this->service->listUsers(query: 'subsidie', viewerId: 'sanne');
+		$result = $this->listUsers(query: 'subsidie', viewerId: 'sanne');
 
 		$uids = array_column(array: $result['users'], column_key: 'uid');
 		$this->assertSame(expected: ['anna', 'pieter'], actual: $uids);
@@ -543,7 +585,7 @@ class PeopleWidgetServiceTest extends TestCase {
 
 	public function testAOneCharacterQueryIsRefused(): void {
 		$this->expectException(exception: InvalidArgumentException::class);
-		$this->service->listUsers(query: 's', viewerId: 'sanne');
+		$this->listUsers(query: 's', viewerId: 'sanne');
 	}//end testAOneCharacterQueryIsRefused()
 
 	public function testSearchStaysInsideTheWidgetsGroups(): void {
@@ -555,7 +597,7 @@ class PeopleWidgetServiceTest extends TestCase {
 		$this->groupManager->method('get')->willReturn($group);
 		$this->accountManager->method('getAccount')->willReturn($this->emptyAccount());
 
-		$result = $this->service->listUsers(
+		$result = $this->listUsers(
 			filters: [['fieldName' => 'group', 'operator' => 'in', 'values' => ['kcc']]],
 			query: 'ie',
 			viewerId: 'sanne'
@@ -584,15 +626,15 @@ class PeopleWidgetServiceTest extends TestCase {
 
 		$this->userManager->method('search')->willReturn([]);
 		$this->userManager->method('get')->willReturnMap([['karin', $karin]]);
-		$searched = $this->service->listUsers(query: 'subsidies', viewerId: 'sanne');
+		$searched = $this->listUsers(query: 'subsidies', viewerId: 'sanne');
 		$this->assertSame(expected: [], actual: $searched['users'], message: 'Karin matched on her private biography');
 
 		$this->wireDirectory(orderedUsers: [$karin]);
-		$card = $this->service->listUsers(viewerId: 'sanne')['users'][0];
+		$card = $this->listUsers(viewerId: 'sanne')['users'][0];
 		$this->assertArrayNotHasKey(key: 'biography', array: $card);
 		$this->assertSame(expected: 'Beleidsmedewerker', actual: $card['role'], message: 'CONTROL: a local field still shows');
 
-		$own = $this->service->listUsers(viewerId: 'karin')['users'][0];
+		$own = $this->listUsers(viewerId: 'karin')['users'][0];
 		$this->assertSame(expected: 'Ik weet alles van subsidies', actual: $own['biography'], message: 'CONTROL: Karin sees her own biography');
 	}//end testAPrivateBiographyNeitherMatchesNorShows()
 

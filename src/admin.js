@@ -11,6 +11,7 @@
  * Provided values are plain (non-reactive) snapshots (REQ-INIT-005).
  */
 
+import { registerTranslations } from '@conduction/nextcloud-vue'
 import { translatePlural as n, translate as t } from '@nextcloud/l10n'
 import { createPinia } from 'pinia'
 import { createApp, h } from 'vue'
@@ -27,11 +28,19 @@ import { widgetBridge } from './services/widgetBridge.js'
 import { loadInitialState } from './utils/loadInitialState.js'
 
 import './publicPath.js'
+// The library's own stylesheet (board look, widgets, dialogs). Without it
+// the page only had the library CSS another app's bundle happened to load.
+import '@conduction/nextcloud-vue/css/index.css'
+import './styles/modals.css'
 
 // Reference the imported singleton so its side-effecting construction is not
 // tree-shaken / flagged as an unused import.
 
 void widgetBridge
+
+// The library's own catalogue (admin shell chrome). main.js registers it for
+// the app pages; this entry is a separate bundle.
+registerTranslations()
 
 // Vue 3 has no global Vue constructor — t/n are installed as an app-level
 // mixin on the instance created below.

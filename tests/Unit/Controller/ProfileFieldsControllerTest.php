@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ActionCaller;
+use OCA\LaunchPad\Service\ProfileFieldTools;
+use OCA\LaunchPad\Service\ProfileSources;
 use OCA\LaunchPad\Controller\ProfileFieldsController;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
@@ -64,10 +67,14 @@ class ProfileFieldsControllerTest extends TestCase {
 		$service = new ProfileFieldService(
 			settingMapper: $settingMapper,
 			valueMapper: $this->values,
-			accountManager: $this->createMock(IAccountManager::class),
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			ldapProviderFactory: $this->createMock(ILDAPProviderFactory::class),
-			logger: $this->createMock(LoggerInterface::class),
+			sources: new ProfileSources(
+				accountManager: $this->createMock(IAccountManager::class),
+				ldapProviderFactory: $this->createMock(ILDAPProviderFactory::class)
+			),
+			tools: new ProfileFieldTools(
+				adminTemplateService: $this->createMock(AdminTemplateService::class),
+				logger: $this->createMock(LoggerInterface::class)
+			)
 		);
 
 		$user = $this->createMock(IUser::class);
@@ -80,9 +87,11 @@ class ProfileFieldsControllerTest extends TestCase {
 		return new ProfileFieldsController(
 			request: $this->createMock(IRequest::class),
 			profileFields: $service,
-			actionAuth: $this->createMock(ActionAuthService::class),
-			userSession: $session,
-			groupManager: $groups,
+			caller: new ActionCaller(
+				actionAuth: $this->createMock(ActionAuthService::class),
+				userSession: $session
+			),
+			groupManager: $groups
 		);
 	}//end controller()
 

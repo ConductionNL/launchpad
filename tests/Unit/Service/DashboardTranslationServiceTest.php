@@ -163,7 +163,9 @@ class DashboardTranslationServiceTest extends TestCase {
 		$this->service->createVariant(
 			dashboardUuid: 'uuid-x',
 			languageCode: 'nl_NL',
-			name: 'Mijn',
+			content: [
+				'name' => 'Mijn',
+			]
 		);
 	}
 

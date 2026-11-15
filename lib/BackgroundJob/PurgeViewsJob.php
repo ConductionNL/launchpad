@@ -34,8 +34,6 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\BackgroundJob;
 
-use OCA\LaunchPad\Db\DashboardViewMapper;
-use OCA\LaunchPad\Db\TileClickMapper;
 use OCA\LaunchPad\Service\AnalyticsService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -51,28 +49,15 @@ class PurgeViewsJob extends TimedJob {
 	/**
 	 * Constructor.
 	 *
-	 * @param ITimeFactory $time Time factory used by
-	 *                           the parent
-	 *                           `TimedJob` to gate
-	 *                           the next-run
-	 *                           decision.
-	 * @param AnalyticsService $analyticsService Analytics service
-	 *                                           (cutoff date + log
-	 *                                           context).
-	 * @param DashboardViewMapper $viewMapper Aggregate-row
-	 *                                        mapper.
-	 * @param TileClickMapper $tileClickMapper Tile-click
-	 *                                         aggregate-row
-	 *                                         mapper — reuses
-	 *                                         the same cutoff
-	 *                                         date (REQ-TANLT-005).
-	 * @param LoggerInterface $logger PSR logger.
+	 * @param ITimeFactory     $time Time factory used by the parent `TimedJob` to gate the next-run decision.
+	 * @param AnalyticsService $analyticsService Analytics service (cutoff date + log context).
+	 * @param PurgeMappers     $mappers The view and tile click mappers.
+	 * @param LoggerInterface  $logger PSR logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
 		private readonly AnalyticsService $analyticsService,
-		private readonly DashboardViewMapper $viewMapper,
-		private readonly TileClickMapper $tileClickMapper,
+		private readonly PurgeMappers $mappers,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);
@@ -94,8 +79,8 @@ class PurgeViewsJob extends TimedJob {
 	 */
 	protected function run($argument): void {
 		$cutoff = $this->analyticsService->getPurgeCutoffDate();
-		$deletedViews = $this->viewMapper->deleteOlderThan(beforeDate: $cutoff);
-		$deletedClicks = $this->tileClickMapper->deleteOlderThan(beforeDate: $cutoff);
+		$deletedViews = $this->mappers->viewMapper->deleteOlderThan(beforeDate: $cutoff);
+		$deletedClicks = $this->mappers->tileClickMapper->deleteOlderThan(beforeDate: $cutoff);
 
 		$this->logger->info(
 			message: 'launchpad analytics purge: deleted ' . $deletedViews . ' view rows and '

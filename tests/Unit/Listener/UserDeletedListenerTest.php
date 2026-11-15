@@ -487,4 +487,117 @@ class UserDeletedListenerTest extends TestCase {
 
 		$this->listener->handle($event);
 	}//end testNonUserDeletedEventIsIgnored()
+	/**
+	 * The order of writes, commits, notifications and rollbacks for one owned
+	 * dashboard: transferred, deleted (with the cascade event), and failing
+	 * before and after the commit.
+	 *
+	 * @return void
+	 */
+	public function testOwnedDashboardStepsRunInOrder(): void {
+		$actual = [];
+		foreach (['transfer', 'delete', 'transfer fails', 'notify fails', 'delete fails'] as $case) {
+			$log = [];
+			$db  = $this->createMock(IDBConnection::class);
+			foreach (['beginTransaction', 'commit', 'rollBack'] as $method) {
+				$db->method($method)->willReturnCallback(
+					function () use (&$log, $method): void {
+						$log[] = $method;
+					}
+				);
+			}
+
+			$dashboard = new Dashboard();
+			$dashboard->setId(5);
+			$dashboard->setUuid('d-5');
+			$dashboard->setUserId('alice');
+			$dashboard->setName('Q3 Plan');
+			$dashboard->setType(Dashboard::TYPE_USER);
+
+			$shares = $this->createMock(DashboardShareMapper::class);
+			$shares->method('findByDashboardAndLevel')->willReturn(str_starts_with($case, 'delete') ? [] : [$this->makeShare(dashboardId: 5, shareType: 'user', shareWith: 'bob')]);
+			$shares->method('deleteByDashboardId')->willReturnCallback(
+				function (int $id) use (&$log): int {
+					$log[] = 'delete shares '.$id;
+					return 1;
+				}
+			);
+			$users = $this->createMock(IUserManager::class);
+			$users->method('get')->willReturn($this->makeUser('bob'));
+			$dashboards = $this->createMock(DashboardMapper::class);
+			$dashboards->method('findByUserId')->willReturn([$dashboard]);
+			$dashboards->method('delete')->willReturnCallback(
+				function (Dashboard $d) use (&$log, $case): Dashboard {
+					$log[] = 'delete dashboard '.$d->getId();
+					if ($case === 'delete fails') {
+						throw new \RuntimeException('locked');
+					}
+					return $d;
+				}
+			);
+			$placements = $this->createMock(WidgetPlacementMapper::class);
+			$placements->method('deleteByDashboardId')->willReturnCallback(
+				function (int $id) use (&$log): int {
+					$log[] = 'delete placements '.$id;
+					return 1;
+				}
+			);
+			$service = $this->createMock(DashboardShareService::class);
+			$service->method('transferOwnership')->willReturnCallback(
+				function (int $dashboardId, string $newUserId) use (&$log, $case): void {
+					$log[] = 'transfer '.$dashboardId.' to '.$newUserId;
+					if ($case === 'transfer fails') {
+						throw new \RuntimeException('constraint');
+					}
+				}
+			);
+			$service->method('notifyOwnershipTransferred')->willReturnCallback(
+				function (string $newOwnerId, int $dashboardId, string $dashboardName) use (&$log, $case): void {
+					$log[] = 'notify '.$newOwnerId.' '.$dashboardId.' '.$dashboardName;
+					if ($case === 'notify fails') {
+						throw new \RuntimeException('mail down');
+					}
+				}
+			);
+			$events = $this->createMock(\OCP\EventDispatcher\IEventDispatcher::class);
+			$events->method('dispatchTyped')->willReturnCallback(
+				function ($event) use (&$log): void {
+					$log[] = 'event '.$event->getDashboardUuid().' '.$event->getOwnerUserId().' '.$event->getType().' '.$event->getDashboardId();
+				}
+			);
+			$logger = $this->createMock(LoggerInterface::class);
+			$logger->method('error')->willReturnCallback(
+				function (string $message) use (&$log): void {
+					$log[] = 'log '.$message;
+				}
+			);
+
+			$listener = new UserDeletedListener(
+				shareMapper: $shares,
+				dashboardMapper: $dashboards,
+				placementMapper: $placements,
+				shareService: $service,
+				groupManager: $this->groupManager,
+				userManager: $users,
+				db: $db,
+				logger: $logger,
+				roleService: $this->roleService,
+				eventDispatcher: $events,
+			);
+			$listener->handle($this->makeEvent('alice'));
+			$actual[$case] = $log;
+		}
+
+		$this->assertSame(
+			[
+				'transfer' => ['beginTransaction', 'transfer 5 to bob', 'commit', 'notify bob 5 Q3 Plan'],
+				'delete' => ['beginTransaction', 'delete placements 5', 'delete shares 5', 'delete dashboard 5', 'commit', 'event d-5 alice user 5'],
+				'transfer fails' => ['beginTransaction', 'transfer 5 to bob', 'rollBack', 'log launchpad UserDeletedListener: failed to handle dashboard 5: constraint'],
+				'notify fails' => ['beginTransaction', 'transfer 5 to bob', 'commit', 'notify bob 5 Q3 Plan', 'rollBack', 'log launchpad UserDeletedListener: failed to handle dashboard 5: mail down'],
+				'delete fails' => ['beginTransaction', 'delete placements 5', 'delete shares 5', 'delete dashboard 5', 'rollBack', 'log launchpad UserDeletedListener: failed to handle dashboard 5: locked'],
+			],
+			$actual
+		);
+	}//end testOwnedDashboardStepsRunInOrder()
+
 }//end class

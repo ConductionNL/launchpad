@@ -33,9 +33,11 @@ use OCA\LaunchPad\Service\PublicShareService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
+use OCP\DB\Exception as DbException;
 use OCP\IRequest;
 use OCP\Security\Bruteforce\MaxDelayReached;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -264,4 +266,45 @@ class PublicShareControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 		$this->assertFalse($response->getData()['access']);
 	}
-}//end class
+
+	// -------------------------------------------------------------------------
+	// unexpected failures on the owner endpoints
+	// -------------------------------------------------------------------------
+
+	/**
+	 * The owner endpoints with the service method each one reaches.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>}>
+	 */
+	public static function ownerEndpoints(): array {
+		return [
+			'create' => ['create', 'createPublicShare', ['uuid' => 'some-uuid']],
+			'index' => ['index', 'listActiveShares', ['uuid' => 'some-uuid']],
+			'destroy' => ['destroy', 'revokeShare', ['uuid' => 'some-uuid', 'id' => 1]],
+		];
+	}
+
+	/**
+	 * A database failure answers a neutral 500 and logs the exception.
+	 *
+	 * @param string               $endpoint The controller method.
+	 * @param string               $service  The service method that fails.
+	 * @param array<string, mixed> $args     The endpoint arguments.
+	 *
+	 * @return void
+	 */
+	#[DataProvider('ownerEndpoints')]
+	public function testUnexpectedFailureAnswersNeutrally(string $endpoint, string $service, array $args): void {
+		$failure = new DbException('insert failed: secret column');
+		$this->shareService->method($service)->willThrowException($failure);
+		$this->logger->expects($this->once())->method('error')->with(
+			'Public share request failed: ' . DbException::class,
+			$this->callback(static fn (array $context): bool => $context['exception'] === $failure && $context['exceptionClass'] === DbException::class)
+		);
+
+		$response = $this->makeController()->$endpoint(...$args);
+
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
+		$this->assertSame(['error' => 'Internal error'], $response->getData());
+	}
+}

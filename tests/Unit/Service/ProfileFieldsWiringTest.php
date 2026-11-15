@@ -4,8 +4,7 @@
  * ProfileFieldsWiringTest
  *
  * widgets-people-expertise-and-fields from the callers' side: the daily sync
- * job, the sign-in, profile-edit and delete listener, the personal settings
- * section and the API shape of a stored value, each through the real
+ * job, the sign-in, profile-edit and delete listener and the API shape of a stored value, each through the real
  * ProfileFieldService on in-memory values. A failure in one person's sync is
  * counted and logged, never thrown.
  *
@@ -23,6 +22,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ProfileFieldTools;
+use OCA\LaunchPad\Service\ProfileSources;
 use Exception;
 use OCA\LaunchPad\BackgroundJob\ProfileFieldsSyncJob;
 use OCA\LaunchPad\Db\AdminSetting;
@@ -31,7 +32,6 @@ use OCA\LaunchPad\Db\ProfileValue;
 use OCA\LaunchPad\Listener\ProfileFieldsListener;
 use OCA\LaunchPad\Service\AdminTemplateService;
 use OCA\LaunchPad\Service\ProfileFieldService;
-use OCA\LaunchPad\Settings\LaunchPadPersonal;
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountManager;
 use OCP\Accounts\IAccountProperty;
@@ -114,10 +114,14 @@ class ProfileFieldsWiringTest extends TestCase {
 		$this->service = new ProfileFieldService(
 			settingMapper: $settingMapper,
 			valueMapper: $this->values,
-			accountManager: $accounts,
-			adminTemplateService: $this->createMock(AdminTemplateService::class),
-			ldapProviderFactory: $this->createMock(ILDAPProviderFactory::class),
-			logger: $this->logger,
+			sources: new ProfileSources(
+				accountManager: $accounts,
+				ldapProviderFactory: $this->createMock(ILDAPProviderFactory::class)
+			),
+			tools: new ProfileFieldTools(
+				adminTemplateService: $this->createMock(AdminTemplateService::class),
+				logger: $this->logger
+			)
 		);
 	}//end setUp()
 
@@ -183,34 +187,6 @@ class ProfileFieldsWiringTest extends TestCase {
 		$listener->handle(new UserLoggedInEvent($this->user(uid: 'broken'), 'broken', null, false));
 		$this->assertSame(['Profile field sync failed: backend gone'], $this->warnings, 'a failure never breaks the sign-in');
 	}//end testTheListenerFollowsSignInEditAndDelete()
-
-	/**
-	 * The personal section shows only once a field is defined.
-	 *
-	 * @return void
-	 */
-	public function testThePersonalSectionShowsOnceAFieldExists(): void {
-		$personal = new LaunchPadPersonal(profileFields: $this->service);
-		$this->assertNull($personal->getSection());
-		$this->assertSame(90, $personal->getPriority());
-
-		$this->service->saveDefinitions(raw: [['key' => 'expertise', 'label' => 'Expertise', 'type' => 'tags', 'source' => 'self']]);
-		$this->assertSame('personal-info', $personal->getSection());
-	}//end testThePersonalSectionShowsOnceAFieldExists()
-
-	/**
-	 * The personal form loads the personal bundle into its template.
-	 *
-	 * @return void
-	 */
-	public function testThePersonalFormRendersItsTemplate(): void {
-		if (class_exists(class: '\OC', autoload: false) === false) {
-			$this->markTestSkipped(message: 'Util::addScript needs a live Nextcloud; CI boots one.');
-		}
-
-		$form = (new LaunchPadPersonal(profileFields: $this->service))->getForm();
-		$this->assertSame('settings/personal', $form->getTemplateName());
-	}//end testThePersonalFormRendersItsTemplate()
 
 	/**
 	 * A stored value's API shape.

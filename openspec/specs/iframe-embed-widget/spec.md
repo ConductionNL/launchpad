@@ -1,7 +1,7 @@
 # iframe-embed-widget Specification
 
 ## Purpose
-TBD - created by archiving change iframe-embed-widget. Update Purpose after archive.
+Show a page from another system, such as a business-intelligence report, as a live tile on a dashboard. Only hosts an administrator put on the allow-list can be embedded, the frame is always sandboxed, and a page that refuses framing gets a clear fallback with a link to open it in a new tab.
 ## Requirements
 ### Requirement: REQ-IFRAME-001 Register iframe-embed widget
 
@@ -24,6 +24,14 @@ The system MUST register a `launchpad_iframe` widget with the Nextcloud Dashboar
 - WHEN the author saves its configuration
 - THEN the config MUST persist in the placement `widgetContent` JSON as `{ "url": "https://…", "title": "…", "height": 400, "aspect": "16:9", "sandbox": ["allow-scripts","allow-same-origin"], "allowListChecked": true }`
 - AND NO database migration or schema change MUST be required
+
+#### Scenario: A Power BI report as a live tile
+- GIVEN an administrator added `app.powerbi.com` to the embed allow-list (REQ-IFRAME-002)
+- AND an author places the iframe-embed widget on dashboard "Management" with the report's embed URL on `https://app.powerbi.com/` and title "Rapport Sociaal domein"
+- WHEN a manager signed in to Power BI opens the dashboard
+- THEN the report MUST render inside the sandboxed frame, titled "Rapport Sociaal domein" (REQ-IFRAME-004)
+- AND `https://app.powerbi.com` MUST be in the page's `frame-src` (REQ-IFRAME-003)
+- AND when Power BI refuses framing, the tile MUST show the fallback with "Open in new tab" instead of an empty frame
 
 ### Requirement: REQ-IFRAME-002 Admin allow-list of embeddable hosts, fail-closed
 

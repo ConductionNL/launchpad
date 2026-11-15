@@ -1,0 +1,379 @@
+{
+  "components": {
+    "registers": {
+      "launchpad": {
+        "schemas": [
+          "embed_token",
+          "tenant_theme",
+          "embed_usage_event",
+          "signing_key"
+        ]
+      }
+    },
+    "schemas": {
+      "embed_token": {
+        "slug": "embed_token",
+        "icon": "KeyOutline",
+        "version": "1.0.0",
+        "title": "Embed token",
+        "description": "A signed token that lets one widget or dashboard render on a named external website. Only the sha256 hash of the token is stored; the token itself is shown once.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "tokenHash",
+          "subject",
+          "scope",
+          "hostOrigins"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "tokenHash": {
+            "type": "string",
+            "title": "Token hash",
+            "description": "The sha256 hash of the issued token, hex encoded. The token itself is never stored.",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "subject": {
+            "type": "object",
+            "title": "Subject",
+            "description": "What the token renders: {type: widget|dashboard, id, filterContext}.",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "widget",
+                  "dashboard"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "filterContext": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "type",
+              "id"
+            ]
+          },
+          "scope": {
+            "type": "object",
+            "title": "Scope",
+            "description": "What the token may do: {mode: read|read-with-interactions, allowedFilters, allowedActions}.",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "read",
+                  "read-with-interactions"
+                ]
+              },
+              "allowedFilters": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "allowedActions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "interact",
+                    "export",
+                    "drillDown"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "hostOrigins": {
+            "type": "array",
+            "title": "Host origins",
+            "items": {
+              "type": "string"
+            },
+            "description": "The origins allowed to frame the embed, scheme and host, never a wildcard."
+          },
+          "tenantThemeId": {
+            "type": "string",
+            "title": "Tenant theme"
+          },
+          "tokenExpiresAt": {
+            "type": "string",
+            "title": "Expires at",
+            "description": "Empty for a token that does not expire.",
+            "format": "date-time"
+          },
+          "revokedAt": {
+            "type": "string",
+            "title": "Revoked at",
+            "format": "date-time"
+          },
+          "revocationReason": {
+            "type": "string",
+            "title": "Revocation reason",
+            "enum": [
+              "compromised",
+              "no_longer_needed",
+              "host_decommissioned",
+              "re-issued",
+              "other"
+            ]
+          },
+          "revocationNotes": {
+            "type": "string",
+            "title": "Revocation notes"
+          },
+          "revokedBy": {
+            "type": "string",
+            "title": "Revoked by"
+          },
+          "rateLimitPolicy": {
+            "type": "object",
+            "title": "Rate limit policy",
+            "description": "{requestsPerMinute, burstSize}.",
+            "properties": {
+              "requestsPerMinute": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "burstSize": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "keyId": {
+            "type": "string",
+            "title": "Signing key id",
+            "description": "The kid the token was signed with."
+          },
+          "createdBy": {
+            "type": "string",
+            "title": "Created by"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Created at",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "title": "Updated at",
+            "format": "date-time"
+          }
+        }
+      },
+      "tenant_theme": {
+        "slug": "tenant_theme",
+        "icon": "PaletteOutline",
+        "version": "1.0.0",
+        "title": "Tenant theme",
+        "description": "CSS variables, a logo and :root-only custom CSS that make an embed match the host website.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "cssVariables"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "cssVariables": {
+            "type": "object",
+            "title": "CSS variables",
+            "description": "Custom property names (starting with --) and their values."
+          },
+          "logoUrl": {
+            "type": "string",
+            "title": "Logo URL",
+            "format": "uri"
+          },
+          "customCss": {
+            "type": "string",
+            "title": "Custom CSS",
+            "description": "Only :root rules are accepted."
+          },
+          "createdBy": {
+            "type": "string",
+            "title": "Created by"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Created at",
+            "format": "date-time"
+          }
+        }
+      },
+      "embed_usage_event": {
+        "slug": "embed_usage_event",
+        "icon": "ChartLine",
+        "version": "1.0.0",
+        "title": "Embed usage event",
+        "description": "One request to an embed, without personal data: no IP address, no full user agent, no end-user identifier.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "tokenId",
+          "eventType",
+          "timestamp",
+          "responseStatusCode"
+        ],
+        "properties": {
+          "tokenId": {
+            "type": "string",
+            "title": "Token"
+          },
+          "eventType": {
+            "type": "string",
+            "title": "Event type",
+            "enum": [
+              "pageView",
+              "widgetRendered",
+              "filterApplied",
+              "drillDown",
+              "export",
+              "rateLimited"
+            ]
+          },
+          "hostOrigin": {
+            "type": "string",
+            "title": "Host origin"
+          },
+          "userAgent": {
+            "type": "string",
+            "title": "Browser",
+            "description": "Browser family and major version only, for example Firefox 125."
+          },
+          "userAgentHash": {
+            "type": "string",
+            "title": "User agent hash",
+            "description": "sha256 of the full user agent string; the string itself is not kept.",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "viewportSize": {
+            "type": "string",
+            "title": "Viewport",
+            "enum": [
+              "small",
+              "medium",
+              "large",
+              "unknown"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "format": "date-time"
+          },
+          "responseStatusCode": {
+            "type": "integer",
+            "title": "Status code",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "responseLatencyMs": {
+            "type": "integer",
+            "title": "Latency (ms)",
+            "minimum": 0
+          },
+          "correlationId": {
+            "type": "string",
+            "title": "Correlation id"
+          }
+        }
+      },
+      "signing_key": {
+        "slug": "signing_key",
+        "icon": "ShieldKeyOutline",
+        "version": "1.0.0",
+        "title": "Signing key",
+        "description": "A key pair that signs embed tokens. The private key is stored encrypted; a retiring key still verifies the tokens it signed.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "algorithm",
+          "publicKeyJwk",
+          "status"
+        ],
+        "properties": {
+          "kid": {
+            "type": "string",
+            "title": "Key id"
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm",
+            "enum": [
+              "RS256",
+              "ES256"
+            ]
+          },
+          "publicKeyJwk": {
+            "type": "object",
+            "title": "Public key (JWK)"
+          },
+          "privateKeyEncrypted": {
+            "type": "string",
+            "title": "Private key (encrypted)",
+            "description": "The PEM private key, encrypted with the instance secret."
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "enum": [
+              "active",
+              "retiring",
+              "revoked"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Created at",
+            "format": "date-time"
+          },
+          "retiredAt": {
+            "type": "string",
+            "title": "Retired at",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

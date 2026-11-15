@@ -87,7 +87,9 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 * fragment changes something the importer does not compare by content:
 	 * 1.0.2 brought the Dashboard schema's `configuration.linkedTypes` from
 	 * `register.d/dashboard-talk-leaf.json` (openregister-leaf-integrations),
-	 * which existing installs only take on a version change. The import is also
+	 * which existing installs only take on a version change; 1.0.3 lists the
+	 * four embed schemas of `register.d/embedded-analytics.json` on the
+	 * register (embedded-analytics). The import is also
 	 * content-authoritative for schemas — OpenRegister's
 	 * `ImportHandler::schemaContentDiffers()` compares properties, required and
 	 * authorization — so a schema edit still applies even when this version has
@@ -95,7 +97,7 @@ class ImportLaunchpadRegister implements IRepairStep {
 	 *
 	 * @var string
 	 */
-	private const REGISTER_VERSION = '1.0.2';
+	private const REGISTER_VERSION = '1.0.3';
 
 	/**
 	 * Constructor.

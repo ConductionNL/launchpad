@@ -2,12 +2,13 @@
 
 ## Infrastructure & Data Layer
 
-- [ ] Task 1: Create OpenRegister schemas in `lib/Settings/launchpad_register.json` for four new register types:
+- [x] Task 1: Create OpenRegister schemas in `lib/Settings/launchpad_register.json` for four new register types:
   - `embed_token` (fields: id, name, description, tokenHash, subject, scope, hostOrigins, tenantThemeId, tokenExpiresAt, revokedAt, revocationReason, rateLimitPolicy, createdBy, createdAt, updatedAt)
   - `tenant_theme` (fields: id, name, cssVariables, logoUrl, customCss, createdBy, createdAt)
   - `embed_usage_event` (fields: id, tokenId, eventType, hostOrigin, userAgent, userAgentHash, viewportSize, timestamp, responseStatusCode, responseLatencyMs, correlationId)
   - `signing_key` (fields: id, algorithm, publicKeyJwk, privateKeyEncrypted, status, createdAt, retiredAt)
   Include seed data per design.md (3–5 objects per schema with Dutch values)
+  > Built as the ADR-037 fragment `lib/Settings/register.d/embedded-analytics.json` (merged onto `launchpad_register.json` at import; `ImportLaunchpadRegister::REGISTER_VERSION` 1.0.3 so existing installs take the new schemas). `embed_token` also carries `keyId`, `revocationNotes` and `revokedBy` (REQ-EMB-009 9.2); `signing_key` carries `kid`. No seed objects ship: the register is imported on every install, and seeded tokens, signing keys or Zeist/Amsterdam themes would land in production. Tests: `EmbeddedAnalyticsSchemasTest` (4).
 
 - [ ] Task 2: Create entity mapping classes under `lib/Entity/`:
   - `EmbedToken.php` (OpenRegister mapper)

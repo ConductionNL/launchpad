@@ -42,6 +42,15 @@ placement MUST be unchanged.
 - **THEN** the placement MUST no longer force delivery
 - **AND** existing acknowledgement receipts MUST be retained as history (not deleted)
 
+#### Scenario: A recipient cannot change the requirement on their copy
+
+@e2e exclude Asserted in PermissionServiceAcknowledgementTest; a template copy for a second user is set up outside the dashboard UI.
+
+- **GIVEN** user "bob" holds a copy of announcement `ak-1` from a template owned by "tom"
+- **WHEN** bob updates his copy's placement with `requiresAcknowledgement = 0`, `reacknowledgeOnChange = 0` or another `acknowledgementContentVersion`
+- **THEN** the system MUST return `403` and the placement MUST be unchanged
+- **AND** without a template the author is the owner of the first placement that carried the key, never a later copy or fork
+
 ### Requirement: REQ-ACK-002 Forced delivery of unacknowledged mandatory items
 
 The system MUST apply forced delivery to a widget placement with
@@ -79,6 +88,15 @@ outstanding (unacknowledged) mandatory items.
 - **THEN** the prompt MUST still require an explicit sign-off (a passed deadline MUST NOT auto-acknowledge)
 - **AND** the item MUST be reportable as overdue in the read-receipt report (REQ-ACK-004)
 
+#### Scenario: A copy kept after leaving the audience is not pending
+
+@e2e exclude Asserted in AcknowledgementServiceTest::testPendingListsOnlyAnnouncementsStillAddressedToTheUser; group membership changes are set up outside the dashboard UI.
+
+- **GIVEN** user "alice" holds a copy of announcement `ak-1`, whose template routes to group "sociaal-domein", and she is no longer a member of that group
+- **WHEN** her outstanding items are listed
+- **THEN** `ak-1` MUST NOT be listed and MUST NOT count toward the outstanding-acknowledgements count
+- **AND** no blocking prompt MUST be shown for it, since she can no longer acknowledge it (REQ-ACK-003)
+
 ### Requirement: REQ-ACK-003 Record an idempotent acknowledgement receipt
 
 When a recipient acknowledges, the system MUST persist a receipt
@@ -113,6 +131,16 @@ behalf of another user MUST be rejected with `403` (ADR-005, no IDOR).
 - **WHEN** she `POST`s an acknowledgement whose body names `userId = "bob"`
 - **THEN** the system MUST return `403`
 - **AND** MUST NOT write any receipt for bob
+
+#### Scenario: Only the announcement's audience can acknowledge it
+
+@e2e exclude The audience refusal is asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAUserOutsideTheAudience and AcknowledgementServiceTest::testIsInAudienceFollowsTheGroupRouting, a server-side auth contract, not a UI flow.
+
+- **GIVEN** an announcement whose template routes to group "sociaal-domein", and authenticated user "mallory" who is not a member
+- **WHEN** she `POST`s an acknowledgement for that announcement, or for an announcement key that no placement carries
+- **THEN** the system MUST return `403`
+- **AND** MUST NOT write any receipt
+- **AND** the audience MUST be resolved for the session user, never for a user named in the request
 
 ### Requirement: REQ-ACK-004 Admin read-receipt report scoped to the audience
 
@@ -176,6 +204,23 @@ re-force delivery for users who already acknowledged a prior version.
 - **THEN** alice's item MUST NOT re-force delivery
 - **AND** the read-receipt report MAY report her against the latest version she acknowledged
 
+#### Scenario: A version that is not published yet cannot be acknowledged
+
+@e2e exclude Asserted in AcknowledgementControllerTest::testAcknowledgeRefusesAFutureContentVersion and its accept cases; the UI only ever sends the version its copy shows, so a future version is not reachable from it.
+
+- **GIVEN** announcement `ak-1` at `acknowledgementContentVersion = 2`
+- **WHEN** user "alice" `POST`s an acknowledgement for `ak-1` with `contentVersion = 3`
+- **THEN** the system MUST return `400` and MUST NOT write any receipt
+- **AND** a `contentVersion` at or below `2` MUST still be accepted, so a copy that was not re-synced yet can be signed off
+
+#### Scenario: Without a template the user's own copy sets the current version
+
+@e2e exclude Asserted in AcknowledgementServiceTest::testCurrentContentVersionWithoutATemplateIsTheUsersCopy; deleting a template under live copies is not a UI flow.
+
+- **GIVEN** announcement `ak-1` whose template was deleted, and user "alice" whose copy is at version `2` while another copy is at version `1`
+- **WHEN** alice acknowledges `ak-1` at version `2`
+- **THEN** the system MUST accept it, so her prompt can be cleared
+
 ### Requirement: REQ-ACK-006 Acknowledgement events feed activity and export
 
 Each successful acknowledgement MUST raise one entry in the existing Activity
@@ -202,6 +247,15 @@ evidence.
 - **AND** alice's and carol's rows MUST carry status `acknowledged` and their timestamps
 - **AND** bob's row MUST carry status `pending` with an empty timestamp
 
+
+#### Scenario: The activity line names the acknowledged version
+
+@e2e exclude Asserted in ExtensionTest::testParseNamesTheAcknowledgedVersion; the Activity row is not UI-observable on the dashboard.
+
+- **GIVEN** user "alice" acknowledges `ak-1` at version `2`
+- **WHEN** the activity line is rendered
+- **THEN** it MUST read "You acknowledged version 2 of {dashboard}" (or "{actor} acknowledged version 2 of {dashboard}")
+- **AND** a line stored before versions were recorded MUST keep its old text
 ### Requirement: An editor can ask for confirmation from the widget form (REQ-ACK-007)
 
 @e2e exclude asking and confirming need two people on a live dashboard; asserted in src/dialogs/__tests__/ReadConfirmationDialog.spec.js, src/views/__tests__/ViewsReadConfirmation.spec.js and tests/Unit/Service/PlacementUpdaterReadConfirmationTest.php

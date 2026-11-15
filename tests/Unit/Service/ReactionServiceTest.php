@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\ReactionDirectory;
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Db\DashboardMapper;
@@ -59,8 +60,10 @@ class ReactionServiceTest extends TestCase {
 			reactionMapper: $this->reactionMapper,
 			dashboardMapper: $this->dashboardMapper,
 			permissionService: $this->permissionService,
-			appConfig: $this->appConfig,
-			userManager: $this->userManager,
+			directory: new ReactionDirectory(
+				appConfig: $this->appConfig,
+				userManager: $this->userManager
+			)
 		);
 	}
 
@@ -84,6 +87,21 @@ class ReactionServiceTest extends TestCase {
 		$this->assertTrue($this->service->isReactionsEnabled(dashboard: $this->makeDashboard(perDashFlag: 1)));
 		$this->assertFalse($this->service->isReactionsEnabled(dashboard: $this->makeDashboard(perDashFlag: 0)));
 		$this->assertTrue($this->service->isReactionsEnabled(dashboard: $this->makeDashboard(perDashFlag: null)));
+	}
+
+	/**
+	 * REQ-RXN-005: reactions are off until an administrator turns them on,
+	 * so the global toggle is read with a false default.
+	 *
+	 * @return void
+	 */
+	public function testReactionsAreOffByDefault(): void {
+		$this->appConfig->expects($this->once())
+			->method('getValueBool')
+			->with('launchpad', ReactionService::KEY_ENABLED_DEFAULT, false)
+			->willReturn(false);
+
+		$this->assertFalse(condition: $this->service->isReactionsEnabled(dashboard: $this->makeDashboard(perDashFlag: null)));
 	}
 
 	/**

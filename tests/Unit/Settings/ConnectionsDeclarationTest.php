@@ -256,8 +256,9 @@ class ConnectionsDeclarationTest extends TestCase {
 	/**
 	 * The registry link opens the tab that renders its anchor.
 	 *
-	 * BeheerTabs renders only the active tab, so an anchor on the Sharing tab
-	 * does not exist in the page while another tab is open.
+	 * The admin page mounts a tab's content only while that tab is open, so an
+	 * anchor on the Sharing tab does not exist in the page while another tab
+	 * is open. The admin shell opens the tab named by its `tab` query key.
 	 *
 	 * @return void
 	 */
@@ -268,13 +269,11 @@ class ConnectionsDeclarationTest extends TestCase {
 		$registry = (string) file_get_contents($this->root() . '/src/components/admin/DashboardRegistrySettings.vue');
 
 		$this->assertSame(expected: '/settings/admin/launchpad?tab=sharing#section-dashboard-registry', actual: $url);
-		$this->assertStringContainsString(needle: "slug: 'sharing'", haystack: $admin);
+		$this->assertStringContainsString(needle: "id: 'sharing'", haystack: $admin);
+		$this->assertStringContainsString(needle: '<template #tab-sharing>', haystack: $admin);
 		$this->assertStringContainsString(needle: '<DashboardRegistrySettings />', haystack: $sharing);
 		$this->assertStringContainsString(needle: 'id="section-dashboard-registry"', haystack: $registry);
-		$this->assertStringContainsString(
-			needle: "params.get('tab')",
-			haystack: (string) file_get_contents($this->root() . '/src/components/admin/BeheerTabs.vue')
-		);
+		$this->assertStringNotContainsString(needle: 'tabQueryKey', haystack: $admin);
 	}//end testTheRegistryLinkOpensTheSharingTab()
 
 	/**

@@ -39,6 +39,10 @@
  *  - linkCreateFileExtensions — admin-configurable allow-list for the
  *                                link-button-widget createFile flow (REQ-LBN-004)
  *
+ * Public start page (`#public-share-vue` at `/start`) keys, version 3:
+ *  - publicStartToken — token of the public link the start page shows
+ *                       (sharing-public-start-page D3)
+ *
  * Both payloads always carry `_schemaVersion`.
  *
  * @category  Service
@@ -77,7 +81,7 @@ class InitialStateBuilder {
 	 *
 	 * @var integer
 	 */
-	public const INITIAL_STATE_SCHEMA_VERSION = 2;
+	public const INITIAL_STATE_SCHEMA_VERSION = 3;
 
 	/**
 	 * Reserved payload key carrying the schema version.
@@ -114,6 +118,10 @@ class InitialStateBuilder {
 			'widgets',
 			'allowUserDashboards',
 			'linkCreateFileExtensions',
+		],
+		// Sharing-public-start-page D3: the link the start page shows.
+		Page::PUBLIC_START->value => [
+			'publicStartToken',
 		],
 	];
 
@@ -339,6 +347,56 @@ class InitialStateBuilder {
 	}//end setQuicksearchFallbackTarget()
 
 	/**
+	 * Set whether the dashboard view renders without the left navigation
+	 * panel (workspace).
+	 *
+	 * Optional key, like {@see self::setQuicksearchFallbackTarget()}: NOT
+	 * in {@see self::REQUIRED_KEYS}, so a server that has not called this
+	 * setter still passes {@see self::apply()}, and the JS reader's `false`
+	 * default keeps the rail for an older deploy (runtime-shell
+	 * REQ-SHELL-009).
+	 *
+	 * @param bool $withoutNavigation True to leave the panel out of the dashboard view.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/specs/runtime-shell/spec.md#req-shell-009
+	 */
+	public function setStartPageWithoutNavigation(bool $withoutNavigation): self {
+		$this->values['startPageWithoutNavigation'] = $withoutNavigation;
+		return $this;
+	}//end setStartPageWithoutNavigation()
+
+	/**
+	 * Set what the tile editor offers for program and single sign-on tiles
+	 * (workspace): the schemes the administrator allowed, and the key and
+	 * name of each launch template. The template addresses stay on the
+	 * server, which resolves an sso tile's address itself.
+	 *
+	 * Optional keys, like {@see self::setQuicksearchFallbackTarget()}: the
+	 * JS reader defaults both to an empty list.
+	 *
+	 * @param array<int, string> $schemes   The allowed program schemes.
+	 * @param array<int, mixed>  $templates The launch templates (`key`, `name`, `urlTemplate`).
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+	 */
+	public function setTileLaunchOptions(array $schemes, array $templates): self {
+		$this->values['tileAllowedSchemes'] = array_values($schemes);
+		$names = [];
+		foreach ($templates as $template) {
+			if (is_array($template) === true && isset($template['key'], $template['name']) === true) {
+				$names[] = ['key' => (string)$template['key'], 'name' => (string)$template['name']];
+			}
+		}
+
+		$this->values['ssoLaunchTemplates'] = $names;
+		return $this;
+	}//end setTileLaunchOptions()
+
+	/**
 	 * Set every Nextcloud group (admin).
 	 *
 	 * @param array $allGroups List of `{id, displayName}` pairs.
@@ -385,6 +443,20 @@ class InitialStateBuilder {
 		$this->values['linkCreateFileExtensions'] = $extensions;
 		return $this;
 	}//end setLinkCreateFileExtensions()
+
+	/**
+	 * Set the token of the public link the start page shows (public-start page).
+	 *
+	 * @param string $token The public link's token.
+	 *
+	 * @return self Fluent.
+	 *
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-signed-out-visitors-land-on-the-start-page-req-psp-002
+	 */
+	public function setPublicStartToken(string $token): self {
+		$this->values['publicStartToken'] = $token;
+		return $this;
+	}//end setPublicStartToken()
 
 	/**
 	 * Validate required keys then push every buffered pair plus the

@@ -1,0 +1,424 @@
+{
+    "create / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "create / ok": [
+        201,
+        {
+            "id": null,
+            "name": "Wall",
+            "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "url": null,
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": null,
+            "createdAt": null,
+            "revokedAt": null
+        },
+        [
+            [
+                "createPlaylist",
+                [
+                    [
+                        "Wall",
+                        [
+                            {
+                                "dashboardUuid": "d1",
+                                "dwellSeconds": 30
+                            }
+                        ],
+                        120
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "create / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "createPlaylist",
+                [
+                    [
+                        "Wall",
+                        [
+                            {
+                                "dashboardUuid": "d1",
+                                "dwellSeconds": 30
+                            }
+                        ],
+                        120
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "create / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "createPlaylist",
+                [
+                    [
+                        "Wall",
+                        [
+                            {
+                                "dashboardUuid": "d1",
+                                "dwellSeconds": 30
+                            }
+                        ],
+                        120
+                    ],
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "KioskController error: db down",
+                {
+                    "app": "launchpad"
+                }
+            ]
+        ]
+    ],
+    "create defaults / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "create defaults / ok": [
+        201,
+        {
+            "id": null,
+            "name": "Wall",
+            "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "url": null,
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": null,
+            "createdAt": null,
+            "revokedAt": null
+        },
+        [
+            [
+                "createPlaylist",
+                [
+                    [
+                        "",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "create defaults / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "createPlaylist",
+                [
+                    [
+                        "",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "create defaults / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "createPlaylist",
+                [
+                    [
+                        "",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "KioskController error: db down",
+                {
+                    "app": "launchpad"
+                }
+            ]
+        ]
+    ],
+    "index / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "index / ok": [
+        200,
+        [
+            {
+                "id": null,
+                "name": "Wall",
+                "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "url": null,
+                "entries": [],
+                "refreshSeconds": 300,
+                "createdBy": null,
+                "createdAt": null,
+                "revokedAt": null
+            },
+            {
+                "id": null,
+                "name": "Wall",
+                "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "url": null,
+                "entries": [],
+                "refreshSeconds": 300,
+                "createdBy": null,
+                "createdAt": null,
+                "revokedAt": null
+            }
+        ],
+        [
+            [
+                "listPlaylists",
+                [
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "index / not found": {
+        "thrown": "OCA\\LaunchPad\\Exception\\PlaylistNotFoundException",
+        "0": [
+            [
+                "listPlaylists",
+                [
+                    "alice"
+                ]
+            ]
+        ]
+    },
+    "index / not authorized": {
+        "thrown": "OCP\\AppFramework\\OCS\\OCSForbiddenException",
+        "0": [
+            [
+                "listPlaylists",
+                [
+                    "alice"
+                ]
+            ]
+        ]
+    },
+    "index / crash": {
+        "thrown": "RuntimeException",
+        "0": [
+            [
+                "listPlaylists",
+                [
+                    "alice"
+                ]
+            ]
+        ]
+    },
+    "update / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "update / ok": [
+        200,
+        {
+            "id": null,
+            "name": "Wall",
+            "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "url": null,
+            "entries": [],
+            "refreshSeconds": 300,
+            "createdBy": null,
+            "createdAt": null,
+            "revokedAt": null
+        },
+        [
+            [
+                "updatePlaylist",
+                [
+                    7,
+                    [
+                        "Hall",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "update / not found": [
+        404,
+        {
+            "error": "Not found"
+        },
+        [
+            [
+                "updatePlaylist",
+                [
+                    7,
+                    [
+                        "Hall",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "update / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "updatePlaylist",
+                [
+                    7,
+                    [
+                        "Hall",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "update / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "updatePlaylist",
+                [
+                    7,
+                    [
+                        "Hall",
+                        [],
+                        300
+                    ],
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "KioskController error: db down",
+                {
+                    "app": "launchpad"
+                }
+            ]
+        ]
+    ],
+    "destroy / anonymous": [
+        401,
+        {
+            "error": "Not logged in"
+        },
+        []
+    ],
+    "destroy / ok": [
+        204,
+        [],
+        [
+            [
+                "revokePlaylist",
+                [
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "destroy / not found": [
+        404,
+        {
+            "error": "Not found"
+        },
+        [
+            [
+                "revokePlaylist",
+                [
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "destroy / not authorized": [
+        403,
+        {
+            "error": "Not authorized"
+        },
+        [
+            [
+                "revokePlaylist",
+                [
+                    7,
+                    "alice"
+                ]
+            ]
+        ]
+    ],
+    "destroy / crash": [
+        500,
+        {
+            "error": "Internal error"
+        },
+        [
+            [
+                "revokePlaylist",
+                [
+                    7,
+                    "alice"
+                ]
+            ],
+            [
+                "log",
+                "KioskController error: db down",
+                {
+                    "app": "launchpad"
+                }
+            ]
+        ]
+    ]
+}

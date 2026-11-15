@@ -193,15 +193,8 @@ class ArchiveParser {
 	 * @return array{indexHtml: string|null, htmlFiles: array<string, string>, attachments: string[], images: string[]}
 	 */
 	private function collectEntries(ZipArchive $zip): array {
-		$collected = [
-			'indexHtml' => null,
-			'htmlFiles' => [],
-			'attachments' => [],
-			'images' => [],
-		];
-
-		// M4: track cumulative uncompressed size to abort on zip-bomb.
-		$totalBytes = 0;
+		// M4: the walk tracks cumulative uncompressed size to abort on zip-bomb.
+		$entries = new ArchiveEntries();
 
 		for ($i = 0; $i < $zip->numFiles; $i++) {
 			$name = (string)$zip->getNameIndex(index: $i);
@@ -220,15 +213,14 @@ class ArchiveParser {
 				zip: $zip,
 				index: $i,
 				name: $name,
-				collected: $collected,
-				totalBytes: $totalBytes
+				entries: $entries
 			);
 			if ($withinCap === false) {
 				break;
 			}
 		}//end for
 
-		return $collected;
+		return $entries->collected;
 	}//end collectEntries()
 
 	/**
@@ -242,8 +234,7 @@ class ArchiveParser {
 	 * @param ZipArchive $zip The open archive.
 	 * @param int $index The entry index.
 	 * @param string $name The entry name.
-	 * @param array<string, mixed> $collected The four buckets, filled in place.
-	 * @param int $totalBytes Running uncompressed total, updated in place.
+	 * @param ArchiveEntries $entries The buckets and running size, updated in place.
 	 *
 	 * @return boolean False when the cumulative size cap was breached and
 	 *                 the caller must stop walking the archive.
@@ -252,8 +243,7 @@ class ArchiveParser {
 		ZipArchive $zip,
 		int $index,
 		string $name,
-		array &$collected,
-		int &$totalBytes,
+		ArchiveEntries $entries,
 	): bool {
 		$lower = strtolower(string: $name);
 
@@ -261,8 +251,7 @@ class ArchiveParser {
 			return $this->collectIndexHtml(
 				zip: $zip,
 				index: $index,
-				collected: $collected,
-				totalBytes: $totalBytes
+				entries: $entries
 			);
 		}
 
@@ -271,18 +260,17 @@ class ArchiveParser {
 				zip: $zip,
 				index: $index,
 				name: $name,
-				collected: $collected,
-				totalBytes: $totalBytes
+				entries: $entries
 			);
 		}
 
 		if (str_starts_with(haystack: $lower, needle: 'attachments/') === true) {
-			$collected['attachments'][] = $name;
+			$entries->collected['attachments'][] = $name;
 			return true;
 		}
 
 		if (str_starts_with(haystack: $lower, needle: 'images/') === true) {
-			$collected['images'][] = $name;
+			$entries->collected['images'][] = $name;
 			return true;
 		}
 
@@ -294,28 +282,26 @@ class ArchiveParser {
 	 *
 	 * @param ZipArchive $zip The open archive.
 	 * @param int $index The entry index.
-	 * @param array<string, mixed> $collected The four buckets, filled in place.
-	 * @param int $totalBytes Running uncompressed total, updated in place.
+	 * @param ArchiveEntries $entries The buckets and running size, updated in place.
 	 *
 	 * @return boolean False when the cumulative size cap was breached.
 	 */
 	private function collectIndexHtml(
 		ZipArchive $zip,
 		int $index,
-		array &$collected,
-		int &$totalBytes,
+		ArchiveEntries $entries,
 	): bool {
 		$raw = $this->readCappedEntry(zip: $zip, index: $index);
 		if ($raw === null) {
 			return true;
 		}
 
-		$totalBytes += strlen(string: $raw);
-		if ($totalBytes > self::MAX_TOTAL_BYTES) {
+		$entries->totalBytes += strlen(string: $raw);
+		if ($entries->totalBytes > self::MAX_TOTAL_BYTES) {
 			return false;
 		}
 
-		$collected['indexHtml'] = $raw;
+		$entries->collected['indexHtml'] = $raw;
 		return true;
 	}//end collectIndexHtml()
 
@@ -329,8 +315,7 @@ class ArchiveParser {
 	 * @param ZipArchive $zip The open archive.
 	 * @param int $index The entry index.
 	 * @param string $name The entry name (the map key).
-	 * @param array<string, mixed> $collected The four buckets, filled in place.
-	 * @param int $totalBytes Running uncompressed total, updated in place.
+	 * @param ArchiveEntries $entries The buckets and running size, updated in place.
 	 *
 	 * @return boolean False when the cumulative size cap was breached.
 	 */
@@ -338,8 +323,7 @@ class ArchiveParser {
 		ZipArchive $zip,
 		int $index,
 		string $name,
-		array &$collected,
-		int &$totalBytes,
+		ArchiveEntries $entries,
 	): bool {
 		$base = strtolower(string: basename(path: $name));
 		if ($base === 'index.html' || $base === 'overview.html' || $base === 'toc.html') {
@@ -351,12 +335,12 @@ class ArchiveParser {
 			return true;
 		}
 
-		$totalBytes += strlen(string: $raw);
-		if ($totalBytes > self::MAX_TOTAL_BYTES) {
+		$entries->totalBytes += strlen(string: $raw);
+		if ($entries->totalBytes > self::MAX_TOTAL_BYTES) {
 			return false;
 		}
 
-		$collected['htmlFiles'][$name] = $raw;
+		$entries->collected['htmlFiles'][$name] = $raw;
 		return true;
 	}//end collectPageHtml()
 

@@ -36,6 +36,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<DashboardVersion>
  */
 class DashboardVersionMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 
 	/**
 	 * Default per-dashboard retention limit (REQ-VERS-006).
@@ -65,16 +67,8 @@ class DashboardVersionMapper extends QBMapper {
 	 * @return DashboardVersion[] The version rows ordered by versionNumber DESC.
 	 */
 	public function findByDashboardUuid(string $dashboardUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->orderBy(sort: 'version_number', order: 'DESC');
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->orderBy(sort: 'version_number', order: 'DESC');
 
 		return $this->findEntities(query: $qb);
 	}//end findByDashboardUuid()
@@ -91,16 +85,8 @@ class DashboardVersionMapper extends QBMapper {
 		string $dashboardUuid,
 		int $limit,
 	): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->orderBy(sort: 'version_number', order: 'DESC')
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->orderBy(sort: 'version_number', order: 'DESC')
 			->setMaxResults(maxResults: $limit);
 
 		return $this->findEntities(query: $qb);
@@ -120,24 +106,7 @@ class DashboardVersionMapper extends QBMapper {
 		string $dashboardUuid,
 		int $versionNumber,
 	): DashboardVersion {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
-				$qb->expr()->eq(
-					x: 'version_number',
-					y: $qb->createNamedParameter(
-						value: $versionNumber,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+		$qb = $this->selectWhere(match: ['dashboard_uuid' => $dashboardUuid, 'version_number' => $versionNumber]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByDashboardAndVersion()
@@ -157,23 +126,10 @@ class DashboardVersionMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$qb->select($qb->func()->max('version_number'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+			->from(from: $this->getTableName());
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid);
 
-		$result = $qb->executeQuery();
-		$value = $result->fetchOne();
-		$result->closeCursor();
-
-		if ($value === false || $value === null) {
-			return 0;
-		}
-
-		return (int)$value;
+		return self::fetchScalar(qb: $qb);
 	}//end findMaxVersionNumber()
 
 	/**
@@ -187,14 +143,21 @@ class DashboardVersionMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 		$qb->select($qb->func()->count('*'))
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+			->from(from: $this->getTableName());
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid);
 
+		return self::fetchScalar(qb: $qb);
+	}//end countByDashboard()
+
+	/**
+	 * Run a single-value aggregate query and return its value as an
+	 * integer; 0 when it yields nothing.
+	 *
+	 * @param IQueryBuilder $qb The aggregate query.
+	 *
+	 * @return int The value.
+	 */
+	private static function fetchScalar(IQueryBuilder $qb): int {
 		$result = $qb->executeQuery();
 		$value = $result->fetchOne();
 		$result->closeCursor();
@@ -204,7 +167,7 @@ class DashboardVersionMapper extends QBMapper {
 		}
 
 		return (int)$value;
-	}//end countByDashboard()
+	}//end fetchScalar()
 
 	/**
 	 * Delete the oldest rows for a dashboard until at most `$keepCount`
@@ -241,15 +204,8 @@ class DashboardVersionMapper extends QBMapper {
 			return 0;
 		}
 
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
-			->andWhere(
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
+		$qb->andWhere(
 				$qb->expr()->lt(
 					x: 'version_number',
 					y: $qb->createNamedParameter(
@@ -273,14 +229,7 @@ class DashboardVersionMapper extends QBMapper {
 	 * @return integer The number of rows deleted.
 	 */
 	public function deleteByDashboardUuid(string $dashboardUuid): int {
-		$qb = $this->db->getQueryBuilder();
-		$qb->delete(delete: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			);
+		$qb = $this->deleteWhere(match: ['dashboard_uuid' => $dashboardUuid]);
 
 		return $qb->executeStatement();
 	}//end deleteByDashboardUuid()
@@ -302,13 +251,8 @@ class DashboardVersionMapper extends QBMapper {
 	): ?int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('version_number')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'dashboard_uuid',
-					y: $qb->createNamedParameter(value: $dashboardUuid)
-				)
-			)
+			->from(from: $this->getTableName());
+		(new DashboardUuidCondition())->restrict(qb: $qb, dashboardUuid: $dashboardUuid)
 			->orderBy(sort: 'version_number', order: 'DESC')
 			->setMaxResults(maxResults: $keepCount);
 

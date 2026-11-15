@@ -228,4 +228,51 @@ class AdminBulkControllerTest extends TestCase {
 
 		self::assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
 	}//end testBulkReindexNonAdminForbidden()
-}//end class
+
+	/**
+	 * Every endpoint maps invalid UUIDs, a denied dashboard and a refused request the same way.
+	 *
+	 * @return void
+	 */
+	public function testEveryEndpointMapsItsFailuresTheSameWay(): void {
+		$this->loginAsAdmin();
+		$failures = [
+			'denied' => new PermissionDeniedException(message: 'denied', deniedUuids: ['uuid-9']),
+			'refused' => new InvalidArgumentException(message: 'maximum is 500'),
+		];
+		$this->bulkService->method('bulkDelete')->willReturnCallback(function () use (&$failure) { throw $failure; });
+		$this->bulkService->method('bulkMove')->willReturnCallback(function () use (&$failure) { throw $failure; });
+		$this->bulkService->method('bulkStatus')->willReturnCallback(function () use (&$failure) { throw $failure; });
+		$this->bulkService->method('bulkReindex')->willReturnCallback(function () use (&$failure) { throw $failure; });
+
+		$calls = [
+			'delete' => fn (mixed $uuids): JSONResponse => $this->controller->bulkDelete(dashboardUuids: $uuids),
+			'move' => fn (mixed $uuids): JSONResponse => $this->controller->bulkMove(dashboardUuids: $uuids, parentUuid: 'p'),
+			'status' => fn (mixed $uuids): JSONResponse => $this->controller->bulkStatus(dashboardUuids: $uuids, publicationStatus: 'published'),
+			'reindex' => fn (mixed $uuids): JSONResponse => $this->controller->bulkReindex(dashboardUuids: $uuids),
+		];
+
+		$actual = [];
+		foreach ($calls as $name => $call) {
+			foreach ([['a', 5], ['a', ' '], 'x'] as $i => $bad) {
+				$response = $call($bad);
+				$actual[$name.' bad '.$i] = [$response->getStatus(), $response->getData()];
+			}
+			foreach ($failures as $label => $failure) {
+				$response = $call([' uuid-9 ']);
+				$actual[$name.' '.$label] = [$response->getStatus(), $response->getData()];
+			}
+		}
+
+		$expected = [];
+		foreach (array_keys($calls) as $name) {
+			for ($i = 0; $i < 3; $i++) {
+				$expected[$name.' bad '.$i] = [400, ['error' => 'dashboardUuids must be an array of strings']];
+			}
+			$expected[$name.' denied'] = [403, ['error' => 'denied', 'deniedUuids' => ['uuid-9']]];
+			$expected[$name.' refused'] = [400, ['error' => 'maximum is 500']];
+		}
+
+		self::assertSame($expected, $actual);
+	}//end testEveryEndpointMapsItsFailuresTheSameWay()
+}

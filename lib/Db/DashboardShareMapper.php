@@ -24,6 +24,7 @@ namespace OCA\LaunchPad\Db;
 
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
+use OCP\DB\QueryBuilder\ICompositeExpression;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
@@ -146,7 +147,27 @@ class DashboardShareMapper extends QBMapper {
 		$qb->select('*')
 			->from(from: $this->getTableName());
 
-		$userClause = $qb->expr()->andX(
+		$userClause = self::userRecipientClause(qb: $qb, userId: $userId);
+
+		$qb->where($userClause);
+		if (count($groupIds) > 0) {
+			$groupClause = self::groupRecipientClause(qb: $qb, groupIds: $groupIds);
+			$qb->where($qb->expr()->orX($userClause, $groupClause));
+		}
+
+		return $this->findEntities(query: $qb);
+	}//end findForRecipient()
+
+	/**
+	 * The condition of a share with one user.
+	 *
+	 * @param IQueryBuilder $qb     The query.
+	 * @param string        $userId The recipient user.
+	 *
+	 * @return ICompositeExpression The condition.
+	 */
+	private static function userRecipientClause(IQueryBuilder $qb, string $userId): ICompositeExpression {
+		return $qb->expr()->andX(
 			$qb->expr()->eq(
 				x: 'share_type',
 				y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_USER)
@@ -156,27 +177,31 @@ class DashboardShareMapper extends QBMapper {
 				y: $qb->createNamedParameter(value: $userId)
 			)
 		);
+	}//end userRecipientClause()
 
-		$qb->where($userClause);
-		if (count($groupIds) > 0) {
-			$groupClause = $qb->expr()->andX(
-				$qb->expr()->eq(
-					x: 'share_type',
-					y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_GROUP)
-				),
-				$qb->expr()->in(
-					x: 'share_with',
-					y: $qb->createNamedParameter(
-						value: $groupIds,
-						type: IQueryBuilder::PARAM_STR_ARRAY
-					)
+	/**
+	 * The condition of a share with one of the groups.
+	 *
+	 * @param IQueryBuilder $qb       The query.
+	 * @param string[]      $groupIds The recipient's groups.
+	 *
+	 * @return ICompositeExpression The condition.
+	 */
+	private static function groupRecipientClause(IQueryBuilder $qb, array $groupIds): ICompositeExpression {
+		return $qb->expr()->andX(
+			$qb->expr()->eq(
+				x: 'share_type',
+				y: $qb->createNamedParameter(value: DashboardShare::SHARE_TYPE_GROUP)
+			),
+			$qb->expr()->in(
+				x: 'share_with',
+				y: $qb->createNamedParameter(
+					value: $groupIds,
+					type: IQueryBuilder::PARAM_STR_ARRAY
 				)
-			);
-			$qb->where($qb->expr()->orX($userClause, $groupClause));
-		}
-
-		return $this->findEntities(query: $qb);
-	}//end findForRecipient()
+			)
+		);
+	}//end groupRecipientClause()
 
 	/**
 	 * Delete all shares for a dashboard.
@@ -291,16 +316,7 @@ class DashboardShareMapper extends QBMapper {
 		string $shareWith,
 		string $ownerId,
 	): int {
-		// Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
-		$sub = $this->db->getQueryBuilder();
-		$sub->select('id')
-			->from(from: 'launchpad_dashboards')
-			->where(
-				$sub->expr()->eq(
-					x: 'user_id',
-					y: $sub->createNamedParameter(value: $ownerId)
-				)
-			);
+		$sub = $this->ownedDashboardIds(ownerId: $ownerId);
 
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete(delete: $this->getTableName())
@@ -332,6 +348,27 @@ class DashboardShareMapper extends QBMapper {
 
 		return $qb->executeStatement();
 	}//end deleteByOwnerAndRecipient()
+
+	/**
+	 * Subquery: SELECT id FROM launchpad_dashboards WHERE user_id = ownerId.
+	 *
+	 * @param string $ownerId The owner's user id.
+	 *
+	 * @return IQueryBuilder The subquery.
+	 */
+	private function ownedDashboardIds(string $ownerId): IQueryBuilder {
+		$sub = $this->db->getQueryBuilder();
+		$sub->select('id')
+			->from(from: 'launchpad_dashboards')
+			->where(
+				$sub->expr()->eq(
+					x: 'user_id',
+					y: $sub->createNamedParameter(value: $ownerId)
+				)
+			);
+
+		return $sub;
+	}//end ownedDashboardIds()
 
 	/**
 	 * Delete all shares for a dashboard identified by UUID.

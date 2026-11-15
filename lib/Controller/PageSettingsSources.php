@@ -25,7 +25,9 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\AdminSettingsService;
 use OCA\LaunchPad\Service\DashboardTreeService;
+use OCA\LaunchPad\Service\PublicStartPage;
 use OCA\LaunchPad\Service\RoleFeaturePermissionService;
+use OCP\IURLGenerator;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -44,12 +46,16 @@ class PageSettingsSources {
 	 * @param AdminSettingsService         $adminSettingsService Source of the quick-search no-match
 	 *                                                           fallback-target admin setting (tile-quick-search
 	 *                                                           REQ-QSEARCH-004).
+	 * @param PublicStartPage              $publicStartPage The public start page's link (sharing-public-start-page D3).
+	 * @param IURLGenerator                $urlGenerator The login form address the start page falls back to.
 	 */
 	public function __construct(
 		public readonly RoleFeaturePermissionService $roleFeaturePerm,
 		public readonly DashboardTreeService $treeService,
 		public readonly LoggerInterface $logger,
 		public readonly AdminSettingsService $adminSettingsService,
+		public readonly PublicStartPage $publicStartPage,
+		public readonly IURLGenerator $urlGenerator,
 	) {
 	}//end __construct()
 }//end class

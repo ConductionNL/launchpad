@@ -327,4 +327,29 @@ class WeatherServiceTest extends TestCase {
 
 		$this->assertSame('imperial', $result['units'], 'author override must beat the nl_NL locale default');
 	}//end testAuthorUnitsOverrideWinsOverLocale()
+
+	/**
+	 * The provider fetch is one GET with the service's timeouts, no
+	 * redirects and no throwing on an error status.
+	 *
+	 * @return void
+	 */
+	public function testProviderRequestOptions(): void {
+		$this->placementMapper->method('find')->willReturn(
+			$this->placementWith(['location' => 'Utrecht'])
+		);
+		$this->appConfig->method('getValueInt')->willReturn(900);
+		$this->appConfig->method('getValueString')->willReturn('https://example.invalid/w?q={location}');
+		$this->config->method('getUserValue')->willReturn('');
+		$this->cache->method('get')->willReturn(null);
+
+		$client = $this->createMock(originalClassName: IClient::class);
+		$client->expects($this->once())->method('get')->with(
+			$this->stringStartsWith('https://example.invalid/w?q='),
+			['connect_timeout' => 10, 'timeout' => 15, 'http_errors' => false, 'allow_redirects' => false]
+		)->willThrowException(new RuntimeException('upstream down'));
+		$this->clientService->method('newClient')->willReturn($client);
+
+		$this->service()->resolveForPlacement(placementId: 1, userId: 'alice');
+	}//end testProviderRequestOptions()
 }//end class

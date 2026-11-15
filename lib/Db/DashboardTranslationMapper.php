@@ -221,7 +221,7 @@ class DashboardTranslationMapper extends QBMapper {
 	 */
 	public function clearPrimary(
 		string $dashboardUuid,
-		?int $exceptId = null,
+		int|null $exceptId = null,
 	): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->update(update: $this->getTableName())
@@ -240,19 +240,31 @@ class DashboardTranslationMapper extends QBMapper {
 			);
 
 		if ($exceptId !== null) {
-			$qb->andWhere(
-				$qb->expr()->neq(
-					x: 'id',
-					y: $qb->createNamedParameter(
-						value: $exceptId,
-						type: IQueryBuilder::PARAM_INT
-					)
-				)
-			);
+			self::excludeRow(qb: $qb, rowId: $exceptId);
 		}
 
 		return $qb->executeStatement();
 	}//end clearPrimary()
+
+	/**
+	 * Leave one row out of the statement.
+	 *
+	 * @param IQueryBuilder $qb    The statement being built.
+	 * @param int           $rowId The row ID to leave untouched.
+	 *
+	 * @return void
+	 */
+	private static function excludeRow(IQueryBuilder $qb, int $rowId): void {
+		$qb->andWhere(
+			$qb->expr()->neq(
+				x: 'id',
+				y: $qb->createNamedParameter(
+					value: $rowId,
+					type: IQueryBuilder::PARAM_INT
+				)
+			)
+		);
+	}//end excludeRow()
 
 	/**
 	 * Count translation variants for a dashboard.

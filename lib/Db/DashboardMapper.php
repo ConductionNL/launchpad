@@ -457,22 +457,7 @@ class DashboardMapper extends QBMapper {
 	 * @spec   openspec/specs/dashboards/spec.md
 	 */
 	public function findByParent(?string $parentUuid): array {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName());
-
-		if ($parentUuid === null) {
-			$qb->where($qb->expr()->isNull(x: 'parent_uuid'));
-		}
-
-		if ($parentUuid !== null) {
-			$qb->where(
-				$qb->expr()->eq(
-					x: 'parent_uuid',
-					y: $qb->createNamedParameter(value: $parentUuid)
-				)
-			);
-		}
+		$qb = $this->selectUnderParent(parentUuid: $parentUuid);
 
 		$qb->orderBy(sort: 'sort_order', order: 'ASC')
 			->addOrderBy(sort: 'name', order: 'ASC');
@@ -501,22 +486,7 @@ class DashboardMapper extends QBMapper {
 		?string $parentUuid,
 		string $slug,
 	): ?Dashboard {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName());
-
-		if ($parentUuid === null) {
-			$qb->where($qb->expr()->isNull(x: 'parent_uuid'));
-		}
-
-		if ($parentUuid !== null) {
-			$qb->where(
-				$qb->expr()->eq(
-					x: 'parent_uuid',
-					y: $qb->createNamedParameter(value: $parentUuid)
-				)
-			);
-		}
+		$qb = $this->selectUnderParent(parentUuid: $parentUuid);
 
 		$qb->andWhere(
 			$qb->expr()->eq(
@@ -535,6 +505,34 @@ class DashboardMapper extends QBMapper {
 
 		return Dashboard::fromRow($row);
 	}//end findChildBySlug()
+
+	/**
+	 * `SELECT *` limited to the children of a parent (or the roots for NULL).
+	 *
+	 * @param string|null $parentUuid The parent UUID, or null for root.
+	 *
+	 * @return IQueryBuilder The query, ready for more conditions.
+	 */
+	private function selectUnderParent(?string $parentUuid): IQueryBuilder {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from(from: $this->getTableName());
+
+		if ($parentUuid === null) {
+			$qb->where($qb->expr()->isNull(x: 'parent_uuid'));
+		}
+
+		if ($parentUuid !== null) {
+			$qb->where(
+				$qb->expr()->eq(
+					x: 'parent_uuid',
+					y: $qb->createNamedParameter(value: $parentUuid)
+				)
+			);
+		}
+
+		return $qb;
+	}//end selectUnderParent()
 
 	/**
 	 * Count direct children of a parent dashboard.

@@ -1,0 +1,347 @@
+{
+    "acquire / anonymous": [
+        401,
+        {
+            "error": "Not authenticated"
+        }
+    ],
+    "acquire / action denied": [
+        403,
+        {
+            "error": "Forbidden"
+        }
+    ],
+    "acquire / granted": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "acquire / not found": {
+        "thrown": "OCA\\LaunchPad\\Exception\\LockNotFoundException",
+        "message": "No active lock"
+    },
+    "acquire / forbidden": [
+        403,
+        {
+            "error": "Not yours",
+            "code": "lock_forbidden"
+        }
+    ],
+    "acquire / conflict": [
+        409,
+        {
+            "error": "Locked by Bob",
+            "code": "lock_conflict",
+            "lock": {
+                "id": null,
+                "dashboardUuid": "d-1",
+                "displayName": "Alice",
+                "acquiredAt": null,
+                "lastHeartbeat": null,
+                "expiresAt": null,
+                "expiresIn": 0,
+                "lockTimeoutSec": 900
+            }
+        }
+    ],
+    "acquire / unknown dashboard": [
+        404,
+        {
+            "error": "Dashboard not found"
+        }
+    ],
+    "acquire / cannot view": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "acquire / no lock": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "heartbeat / anonymous": [
+        401,
+        {
+            "error": "Not authenticated"
+        }
+    ],
+    "heartbeat / action denied": [
+        403,
+        {
+            "error": "Forbidden"
+        }
+    ],
+    "heartbeat / granted": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "heartbeat / not found": [
+        404,
+        {
+            "error": "No active lock",
+            "code": "lock_not_found"
+        }
+    ],
+    "heartbeat / forbidden": [
+        403,
+        {
+            "error": "Not yours",
+            "code": "lock_forbidden"
+        }
+    ],
+    "heartbeat / conflict": {
+        "thrown": "OCA\\LaunchPad\\Exception\\LockConflictException",
+        "message": "Locked by Bob"
+    },
+    "heartbeat / unknown dashboard": {
+        "thrown": "OCP\\AppFramework\\Db\\DoesNotExistException",
+        "message": "gone"
+    },
+    "heartbeat / cannot view": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "heartbeat / no lock": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "release / anonymous": [
+        401,
+        {
+            "error": "Not authenticated"
+        }
+    ],
+    "release / action denied": [
+        403,
+        {
+            "error": "Forbidden"
+        }
+    ],
+    "release / granted": [
+        204,
+        []
+    ],
+    "release / not found": {
+        "thrown": "OCA\\LaunchPad\\Exception\\LockNotFoundException",
+        "message": "No active lock"
+    },
+    "release / forbidden": [
+        403,
+        {
+            "error": "Not yours",
+            "code": "lock_forbidden"
+        }
+    ],
+    "release / conflict": {
+        "thrown": "OCA\\LaunchPad\\Exception\\LockConflictException",
+        "message": "Locked by Bob"
+    },
+    "release / unknown dashboard": {
+        "thrown": "OCP\\AppFramework\\Db\\DoesNotExistException",
+        "message": "gone"
+    },
+    "release / cannot view": [
+        204,
+        []
+    ],
+    "release / no lock": [
+        204,
+        []
+    ],
+    "get / anonymous": [
+        401,
+        {
+            "error": "Not authenticated"
+        }
+    ],
+    "get / action denied": [
+        403,
+        {
+            "error": "Forbidden"
+        }
+    ],
+    "get / granted": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "get / not found": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "get / forbidden": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "get / conflict": [
+        200,
+        {
+            "id": null,
+            "dashboardUuid": "d-1",
+            "userId": "alice",
+            "displayName": "Alice",
+            "acquiredAt": null,
+            "lastHeartbeat": null,
+            "expiresAt": null,
+            "expiresIn": 0,
+            "lockTimeoutSec": 900
+        }
+    ],
+    "get / unknown dashboard": [
+        404,
+        {
+            "error": "Lock not found",
+            "code": "lock_not_found"
+        }
+    ],
+    "get / cannot view": [
+        404,
+        {
+            "error": "Lock not found",
+            "code": "lock_not_found"
+        }
+    ],
+    "get / no lock": [
+        404,
+        {
+            "error": "Lock not found",
+            "code": "lock_not_found"
+        }
+    ],
+    "forceRelease / anonymous": [
+        401,
+        {
+            "error": "Not authenticated"
+        }
+    ],
+    "forceRelease / action denied": [
+        403,
+        {
+            "error": "Forbidden"
+        }
+    ],
+    "forceRelease / granted": [
+        200,
+        {
+            "status": "ok"
+        }
+    ],
+    "forceRelease / not found": {
+        "thrown": "OCA\\LaunchPad\\Exception\\LockNotFoundException",
+        "message": "No active lock"
+    },
+    "forceRelease / forbidden": [
+        403,
+        {
+            "error": "Not yours",
+            "code": "lock_forbidden"
+        }
+    ],
+    "forceRelease / conflict": {
+        "thrown": "OCA\\LaunchPad\\Exception\\LockConflictException",
+        "message": "Locked by Bob"
+    },
+    "forceRelease / unknown dashboard": {
+        "thrown": "OCP\\AppFramework\\Db\\DoesNotExistException",
+        "message": "gone"
+    },
+    "forceRelease / cannot view": [
+        200,
+        {
+            "status": "ok"
+        }
+    ],
+    "forceRelease / no lock": [
+        200,
+        {
+            "status": "ok"
+        }
+    ]
+}

@@ -49,6 +49,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\LaunchPad\Db\DashboardTranslationMapper
  * @uses   \OCA\LaunchPad\Controller\ActionCaller
  * @uses   \OCA\LaunchPad\Controller\TranslationSources
+ * @uses   \OCA\LaunchPad\Controller\TranslationVariantDraft
  */
 class DashboardTranslationCreateGoldenTest extends TestCase {
 

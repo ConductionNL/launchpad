@@ -94,37 +94,54 @@ class ExportCommand extends Command {
 	 * @spec openspec/specs/dashboard-export-import/spec.md
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$scope = (string)$input->getOption(name: 'scope');
-		$outputPath = (string)($input->getOption(name: 'output') ?? '');
-		$dashboardUid = (string)($input->getOption(name: 'dashboard-uuid') ?? '');
+		$target = new ExportTarget(input: $input);
 
-		if ($outputPath === '') {
-			$output->writeln(messages: '<error>--output parameter is required</error>');
+		$optionError = self::optionError(target: $target);
+		if ($optionError !== null) {
+			$output->writeln(messages: $optionError);
 			return self::FAILURE;
 		}
 
-		if (in_array(needle: $scope, haystack: ['site', 'dashboard'], strict: true) === false) {
-			$output->writeln(
-				messages: '<error>Unsupported scope: ' . $scope . '. Use "site" or "dashboard".</error>'
-			);
-			return self::FAILURE;
+		return $this->exportTo(target: $target, output: $output);
+	}//end execute()
+
+	/**
+	 * The error line for a missing `--output`, an unsupported scope or a
+	 * dashboard export without `--dashboard-uuid`.
+	 *
+	 * @param ExportTarget $target The requested export.
+	 *
+	 * @return string|null The error line, or null when the options are complete.
+	 */
+	private static function optionError(ExportTarget $target): string|null {
+		if ($target->outputPath === '') {
+			return '<error>--output parameter is required</error>';
 		}
 
-		if ($scope === 'dashboard' && $dashboardUid === '') {
-			$output->writeln(
-				messages: '<error>--dashboard-uuid is required when --scope=dashboard</error>'
-			);
-			return self::FAILURE;
+		if (in_array(needle: $target->scope, haystack: ['site', 'dashboard'], strict: true) === false) {
+			return '<error>Unsupported scope: ' . $target->scope . '. Use "site" or "dashboard".</error>';
 		}
 
+		if ($target->scope === 'dashboard' && $target->dashboardUuid === '') {
+			return '<error>--dashboard-uuid is required when --scope=dashboard</error>';
+		}
+
+		return null;
+	}//end optionError()
+
+	/**
+	 * Write the archive and print the outcome.
+	 *
+	 * @param ExportTarget    $target The requested export.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return int Exit code (0 success, 1 error).
+	 */
+	private function exportTo(ExportTarget $target, OutputInterface $output): int {
 		try {
-			$count = $this->writeArchive(
-				scope: $scope,
-				dashboardUuid: $dashboardUid,
-				outputPath: $outputPath
-			);
+			$count = $this->writeArchive(target: $target);
 		} catch (DoesNotExistException) {
-			$output->writeln(messages: '<error>Dashboard not found: ' . $dashboardUid . '</error>');
+			$output->writeln(messages: '<error>Dashboard not found: ' . $target->dashboardUuid . '</error>');
 			return self::FAILURE;
 		} catch (Throwable $e) {
 			$output->writeln(messages: '<error>Export failed: ' . $e->getMessage() . '</error>');
@@ -137,10 +154,10 @@ class ExportCommand extends Command {
 		}
 
 		$output->writeln(
-			messages: 'Exported ' . (string)$count . ' ' . $noun . ' to ' . $outputPath
+			messages: 'Exported ' . (string)$count . ' ' . $noun . ' to ' . $target->outputPath
 		);
 		return self::SUCCESS;
-	}//end execute()
+	}//end exportTo()
 
 	/**
 	 * Write the archive to disk by reusing the export service helpers.
@@ -148,54 +165,29 @@ class ExportCommand extends Command {
 	 * The CLI uses the same serializer the HTTP path uses; we copy the
 	 * temporary stream back to the requested on-disk location.
 	 *
-	 * @param string $scope The export scope.
-	 * @param string $dashboardUuid Dashboard UUID (when scope=dashboard).
-	 * @param string $outputPath Destination file path.
+	 * @param ExportTarget $target The requested export.
 	 *
 	 * @return int The dashboard count written.
 	 *
 	 * @throws DoesNotExistException When the dashboard is not found.
 	 */
-	private function writeArchive(
-		string $scope,
-		string $dashboardUuid,
-		string $outputPath,
-	): int {
-		$dashboards = $this->collectDashboards(
-			scope: $scope,
-			dashboardUuid: $dashboardUuid
-		);
+	private function writeArchive(ExportTarget $target): int {
+		$dashboards = $this->collectDashboards(target: $target);
 
 		$zip = new ZipArchive();
-		if ($zip->open(filename: $outputPath, flags: ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-			throw new RuntimeException(message: 'Could not open ZIP archive at ' . $outputPath);
+		if ($zip->open(filename: $target->outputPath, flags: ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+			throw new RuntimeException(message: 'Could not open ZIP archive at ' . $target->outputPath);
 		}
 
 		$manifest = $this->exportService->buildManifest(
-			scope: $scope,
+			scope: $target->scope,
 			dashboardCount: count($dashboards),
 			currentUserId: 'cli'
 		);
-		$zip->addFromString(
-			name: 'manifest.json',
-			content: (string)json_encode(
-				value: $manifest,
-				flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-			)
-		);
+		$zip->addFromString(name: 'manifest.json', content: self::prettyJson(value: $manifest));
 
 		foreach ($dashboards as $dashboard) {
-			$payload = $this->exportService->serializeDashboard(dashboard: $dashboard);
-			$uuid = (string)$dashboard->getUuid();
-			if ($uuid === '') {
-				continue;
-			}
-
-			$zip->addFromString(
-				name: 'dashboards/' . $uuid . '.json',
-				content: (string)json_encode(value: $payload, flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))
-			);
-			$zip->addEmptyDir(dirname: 'assets/widgets/' . $uuid . '/');
+			$this->addDashboard(zip: $zip, dashboard: $dashboard);
 		}
 
 		$zip->addFromString(name: 'metadata-fields.json', content: '[]');
@@ -207,21 +199,54 @@ class ExportCommand extends Command {
 	}//end writeArchive()
 
 	/**
+	 * Add one dashboard's JSON and its widget asset directory to the
+	 * archive; a dashboard without a UUID is serialised but not written.
+	 *
+	 * @param ZipArchive $zip       The open archive.
+	 * @param Dashboard  $dashboard The dashboard.
+	 *
+	 * @return void
+	 */
+	private function addDashboard(ZipArchive $zip, Dashboard $dashboard): void {
+		$payload = $this->exportService->serializeDashboard(dashboard: $dashboard);
+		$uuid = (string)$dashboard->getUuid();
+		if ($uuid === '') {
+			return;
+		}
+
+		$zip->addFromString(
+			name: 'dashboards/' . $uuid . '.json',
+			content: self::prettyJson(value: $payload)
+		);
+		$zip->addEmptyDir(dirname: 'assets/widgets/' . $uuid . '/');
+	}//end addDashboard()
+
+	/**
+	 * Pretty-printed JSON with unescaped slashes.
+	 *
+	 * @param array<string, mixed> $value The value.
+	 *
+	 * @return string The JSON text.
+	 */
+	private static function prettyJson(array $value): string {
+		return (string)json_encode(
+			value: $value,
+			flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+		);
+	}//end prettyJson()
+
+	/**
 	 * Resolve the dashboard collection for the requested scope.
 	 *
-	 * @param string $scope The export scope.
-	 * @param string $dashboardUuid Dashboard UUID (when scope=dashboard).
+	 * @param ExportTarget $target The requested export.
 	 *
 	 * @return Dashboard[] The dashboards to export.
 	 *
 	 * @throws DoesNotExistException When the dashboard is not found.
 	 */
-	private function collectDashboards(
-		string $scope,
-		string $dashboardUuid,
-	): array {
-		if ($scope === 'dashboard') {
-			return [$this->dashboardMapper->findByUuid(uuid: $dashboardUuid)];
+	private function collectDashboards(ExportTarget $target): array {
+		if ($target->scope === 'dashboard') {
+			return [$this->dashboardMapper->findByUuid(uuid: $target->dashboardUuid)];
 		}
 
 		$all = [];
@@ -231,16 +256,25 @@ class ExportCommand extends Command {
 
 		foreach ($this->dashboardMapper->findByParent(parentUuid: null) as $root) {
 			$all[] = $root;
-			$uuid = (string)$root->getUuid();
-			if ($uuid === '') {
-				continue;
-			}
-
-			foreach ($this->dashboardMapper->findDescendants(ancestorUuid: $uuid) as $child) {
-				$all[] = $child;
-			}
+			array_push($all, ...$this->descendantsOf(root: $root));
 		}
 
 		return $all;
 	}//end collectDashboards()
+
+	/**
+	 * The descendants of a root dashboard; none when it has no UUID.
+	 *
+	 * @param Dashboard $root The root dashboard.
+	 *
+	 * @return Dashboard[] The descendants.
+	 */
+	private function descendantsOf(Dashboard $root): array {
+		$uuid = (string)$root->getUuid();
+		if ($uuid === '') {
+			return [];
+		}
+
+		return $this->dashboardMapper->findDescendants(ancestorUuid: $uuid);
+	}//end descendantsOf()
 }//end class

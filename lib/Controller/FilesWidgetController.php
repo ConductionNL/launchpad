@@ -34,6 +34,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Exception\FolderNotFoundException;
 use OCA\LaunchPad\Exception\NoAccessException;
 use OCA\LaunchPad\Service\FilesWidgetService;
@@ -102,52 +103,19 @@ class FilesWidgetController extends Controller {
 		int $limit = FilesWidgetService::DEFAULT_LIMIT,
 		string $cursor = '',
 	): JSONResponse {
-		$userId = $this->resolveUserId();
-		if ($userId === null) {
-			return $this->unauthorised();
+		$access = $this->grantedPlacement(placementId: $placementId);
+		if ($access instanceof JSONResponse) {
+			return $access;
 		}
 
-		$config = $this->loadConfig(placementId: $placementId, userId: $userId);
-		if ($config === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'forbidden'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		try {
-			$page = $this->sources->service->getContentsForPlacement(
-				userId: $userId,
-				config: $config,
+		return $this->respond(
+			operation: fn (): array => $this->sources->service->getContentsForPlacement(
+				userId: $access->userId,
+				config: $access->config,
 				page: ['currentSubPath' => $currentPath, 'limit' => $limit, 'cursor' => $cursor]
-			);
-
-			return new JSONResponse(
-				data: $page,
-				statusCode: Http::STATUS_OK
-			);
-		} catch (FolderNotFoundException $e) {
-			return $this->errorResponse(
-				error: 'folder_not_found',
-				status: Http::STATUS_NOT_FOUND,
-				message: $e->getDisplayMessage()
-			);
-		} catch (NoAccessException $e) {
-			return $this->errorResponse(
-				error: 'no_access',
-				status: Http::STATUS_FORBIDDEN,
-				message: $e->getDisplayMessage()
-			);
-		} catch (Throwable $e) {
-			$this->sources->logger->error(
-				message: 'Unexpected files widget contents failure',
-				context: ['exception' => $e->getMessage()]
-			);
-			return $this->errorResponse(
-				error: 'unknown_error',
-				status: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			),
+			action: 'contents'
+		);
 	}//end contents()
 
 	/**
@@ -166,55 +134,22 @@ class FilesWidgetController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function upload(int $placementId, string $currentPath = '/'): JSONResponse {
-		$userId = $this->resolveUserId();
-		if ($userId === null) {
-			return $this->unauthorised();
-		}
-
-		$config = $this->loadConfig(placementId: $placementId, userId: $userId);
-		if ($config === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'forbidden'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+		$access = $this->grantedPlacement(placementId: $placementId);
+		if ($access instanceof JSONResponse) {
+			return $access;
 		}
 
 		$files = $this->normaliseUploadedFiles();
 
-		try {
-			$result = $this->sources->service->uploadFiles(
-				userId: $userId,
-				config: $config,
+		return $this->respond(
+			operation: fn (): array => $this->sources->service->uploadFiles(
+				userId: $access->userId,
+				config: $access->config,
 				currentSubPath: $currentPath,
 				uploadedFiles: $files
-			);
-
-			return new JSONResponse(
-				data: $result,
-				statusCode: Http::STATUS_OK
-			);
-		} catch (FolderNotFoundException $e) {
-			return $this->errorResponse(
-				error: 'folder_not_found',
-				status: Http::STATUS_NOT_FOUND,
-				message: $e->getDisplayMessage()
-			);
-		} catch (NoAccessException $e) {
-			return $this->errorResponse(
-				error: 'no_access',
-				status: Http::STATUS_FORBIDDEN,
-				message: $e->getDisplayMessage()
-			);
-		} catch (Throwable $e) {
-			$this->sources->logger->error(
-				message: 'Unexpected files widget upload failure',
-				context: ['exception' => $e->getMessage()]
-			);
-			return $this->errorResponse(
-				error: 'unknown_error',
-				status: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			),
+			action: 'upload'
+		);
 	}//end upload()
 
 	/**
@@ -232,6 +167,32 @@ class FilesWidgetController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function destroy(int $placementId, int $fileId): JSONResponse {
+		$access = $this->grantedPlacement(placementId: $placementId);
+		if ($access instanceof JSONResponse) {
+			return $access;
+		}
+
+		return $this->respond(
+			operation: fn (): array => $this->sources->service->deleteFile(
+				userId: $access->userId,
+				config: $access->config,
+				fileId: $fileId
+			),
+			action: 'delete'
+		);
+	}//end destroy()
+
+	/**
+	 * The signed-in user and the placement's folder config, else the 401 or 403 refusal.
+	 *
+	 * A missing placement and one the user may not write to both answer 403,
+	 * so missing-vs-no-access is indistinguishable to the client.
+	 *
+	 * @param integer $placementId Widget placement id.
+	 *
+	 * @return FilesWidgetAccess|JSONResponse The grant, or the refusal.
+	 */
+	private function grantedPlacement(int $placementId): FilesWidgetAccess|JSONResponse {
 		$userId = $this->resolveUserId();
 		if ($userId === null) {
 			return $this->unauthorised();
@@ -245,15 +206,22 @@ class FilesWidgetController extends Controller {
 			);
 		}
 
-		try {
-			$result = $this->sources->service->deleteFile(
-				userId: $userId,
-				config: $config,
-				fileId: $fileId
-			);
+		return new FilesWidgetAccess(userId: $userId, config: $config);
+	}//end grantedPlacement()
 
+	/**
+	 * Run a files operation: its result as HTTP 200, a missing folder as 404,
+	 * a refused folder as 403, anything else logged and 500.
+	 *
+	 * @param \Closure $operation Runs the service call and returns its result.
+	 * @param string   $action    The operation's name in the log line.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private function respond(\Closure $operation, string $action): JSONResponse {
+		try {
 			return new JSONResponse(
-				data: $result,
+				data: $operation(),
 				statusCode: Http::STATUS_OK
 			);
 		} catch (FolderNotFoundException $e) {
@@ -270,7 +238,7 @@ class FilesWidgetController extends Controller {
 			);
 		} catch (Throwable $e) {
 			$this->sources->logger->error(
-				message: 'Unexpected files widget delete failure',
+				message: 'Unexpected files widget ' . $action . ' failure',
 				context: ['exception' => $e->getMessage()]
 			);
 			return $this->errorResponse(
@@ -278,7 +246,7 @@ class FilesWidgetController extends Controller {
 				status: Http::STATUS_INTERNAL_SERVER_ERROR
 			);
 		}//end try
-	}//end destroy()
+	}//end respond()
 
 	/**
 	 * Resolve the active user's UID, or `null` for anonymous.
@@ -325,11 +293,23 @@ class FilesWidgetController extends Controller {
 			return null;
 		}
 
-		// Registry-driven custom widgets persist their per-type config
-		// in the `content` column (added in Version001025). Older rows
-		// that pre-date the column may still carry the blob inside the
-		// legacy `style_config.content` slot, so we fall back to that
-		// shape when the dedicated column is empty.
+		return $this->placementConfig(placement: $placement);
+	}//end loadConfig()
+
+	/**
+	 * The placement's parsed folder config.
+	 *
+	 * Registry-driven custom widgets persist their per-type config
+	 * in the `content` column (added in Version001025). Older rows
+	 * that pre-date the column may still carry the blob inside the
+	 * legacy `style_config.content` slot, so we fall back to that
+	 * shape when the dedicated column is empty.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function placementConfig(WidgetPlacement $placement): array {
 		$content = $placement->getContentArray();
 		if ($content !== []) {
 			return $content;
@@ -341,7 +321,7 @@ class FilesWidgetController extends Controller {
 		}
 
 		return $legacy;
-	}//end loadConfig()
+	}//end placementConfig()
 
 	/**
 	 * Convert PHP's `$_FILES` super-global into a flat list of
@@ -360,44 +340,74 @@ class FilesWidgetController extends Controller {
 		}
 
 		$names = ($raw['name'] ?? null);
-		$tmps = ($raw['tmp_name'] ?? null);
-		$sizes = ($raw['size'] ?? null);
-		$errors = ($raw['error'] ?? null);
+		if (is_array($names) === true) {
+			return $this->multipleUploads(raw: $raw);
+		}
+
+		if ($names !== null) {
+			return [$this->singleUpload(raw: $raw)];
+		}
+
+		return [];
+	}//end normaliseUploadedFiles()
+
+	/**
+	 * The entries of a `files[]` upload, where every field is a list.
+	 *
+	 * @param array<string,mixed> $raw The `$_FILES['files']` entry; its `name` is a list.
+	 *
+	 * @return array<int, array{name:string, tmp_name:string, size:int, error:int}>
+	 */
+	private function multipleUploads(array $raw): array {
+		$names = $raw['name'];
+		$tmps = $this->listOrEmpty(value: ($raw['tmp_name'] ?? null));
+		$sizes = $this->listOrEmpty(value: ($raw['size'] ?? null));
+		$errors = $this->listOrEmpty(value: ($raw['error'] ?? null));
 
 		$entries = [];
-		if (is_array($names) === true) {
-			$count = count($names);
-			if (is_array($tmps) === false) {
-				$tmps = [];
-			}
-
-			if (is_array($sizes) === false) {
-				$sizes = [];
-			}
-
-			if (is_array($errors) === false) {
-				$errors = [];
-			}
-
-			for ($i = 0; $i < $count; $i++) {
-				$entries[] = [
-					'name' => (string)($names[$i] ?? ''),
-					'tmp_name' => (string)($tmps[$i] ?? ''),
-					'size' => (int)($sizes[$i] ?? 0),
-					'error' => (int)($errors[$i] ?? UPLOAD_ERR_NO_FILE),
-				];
-			}
-		} elseif ($names !== null) {
+		$count = count($names);
+		for ($i = 0; $i < $count; $i++) {
 			$entries[] = [
-				'name' => (string)$names,
-				'tmp_name' => (string)($tmps ?? ''),
-				'size' => (int)($sizes ?? 0),
-				'error' => (int)($errors ?? UPLOAD_ERR_NO_FILE),
+				'name' => (string)($names[$i] ?? ''),
+				'tmp_name' => (string)($tmps[$i] ?? ''),
+				'size' => (int)($sizes[$i] ?? 0),
+				'error' => (int)($errors[$i] ?? UPLOAD_ERR_NO_FILE),
 			];
-		}//end if
+		}
 
 		return $entries;
-	}//end normaliseUploadedFiles()
+	}//end multipleUploads()
+
+	/**
+	 * The entry of a single-file upload.
+	 *
+	 * @param array<string,mixed> $raw The `$_FILES['files']` entry; its `name` is set and not a list.
+	 *
+	 * @return array{name:string, tmp_name:string, size:int, error:int}
+	 */
+	private function singleUpload(array $raw): array {
+		return [
+			'name' => (string)$raw['name'],
+			'tmp_name' => (string)($raw['tmp_name'] ?? ''),
+			'size' => (int)($raw['size'] ?? 0),
+			'error' => (int)($raw['error'] ?? UPLOAD_ERR_NO_FILE),
+		];
+	}//end singleUpload()
+
+	/**
+	 * The value when it is a list, else an empty list.
+	 *
+	 * @param mixed $value An upload field.
+	 *
+	 * @return array<int|string, mixed>
+	 */
+	private function listOrEmpty(mixed $value): array {
+		if (is_array($value) === false) {
+			return [];
+		}
+
+		return $value;
+	}//end listOrEmpty()
 
 	/**
 	 * Build a 401 envelope for the anonymous case.

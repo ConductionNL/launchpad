@@ -1,0 +1,81 @@
+{
+ "update:open": [
+  [
+   false
+  ],
+  [
+   false
+  ],
+  [
+   false
+  ]
+ ],
+ "switch": [
+  [
+   3,
+   "default"
+  ],
+  [
+   3,
+   "default"
+  ],
+  [
+   3,
+   "default"
+  ]
+ ],
+ "toggleEdit": [
+  [
+   {
+    "id": 3,
+    "uuid": "ud",
+    "name": "Org Default",
+    "icon": "Home",
+    "source": "default"
+   },
+   "default"
+  ]
+ ],
+ "openConfig": [
+  [
+   {
+    "id": 3,
+    "uuid": "ud",
+    "name": "Org Default",
+    "icon": "Home",
+    "source": "default"
+   },
+   "default"
+  ]
+ ],
+ "addCustomWidget": [
+  [
+   {
+    "id": 3,
+    "uuid": "ud",
+    "name": "Org Default",
+    "icon": "Home",
+    "source": "default"
+   },
+   "default"
+  ]
+ ],
+ "deleteDashboard": [
+  [
+   3,
+   "default"
+  ]
+ ],
+ "setDefault": [
+  [
+   {
+    "id": 3,
+    "uuid": "ud",
+    "name": "Org Default",
+    "icon": "Home",
+    "source": "default"
+   },
+   "default"
+  ]
+ ]
+}

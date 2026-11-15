@@ -143,6 +143,33 @@ class AnalyticsService {
 	}//end isUserOptedOut()
 
 	/**
+	 * Store whether the supplied user is opted out of analytics tracking
+	 * (REQ-ANLT-004, set from the person's own settings, REQ-ANLT-UI-001).
+	 *
+	 * @param string $userId   The user identifier.
+	 * @param bool   $optedOut `true` to stop counting this user's visits.
+	 *
+	 * @return bool The stored value.
+	 *
+	 * @spec openspec/changes/analytics-personal-opt-out/specs/dashboard-view-analytics/spec.md#requirement-a-person-turns-view-counting-off-in-their-own-settings-req-anlt-ui-001
+	 */
+	public function setUserOptedOut(string $userId, bool $optedOut): bool {
+		$value = 'false';
+		if ($optedOut === true) {
+			$value = 'true';
+		}
+
+		$this->settings->config->setUserValue(
+			$userId,
+			'launchpad',
+			self::USER_PREF_KEY_OPTOUT,
+			$value
+		);
+
+		return $optedOut;
+	}//end setUserOptedOut()
+
+	/**
 	 * Resolve the retention window in days, clamped to the
 	 * `[MIN_RETENTION_DAYS, MAX_RETENTION_DAYS]` range
 	 * (REQ-ANLT-009).
@@ -417,19 +444,7 @@ class AnalyticsService {
 
 		foreach ($rows as $row) {
 			$uuid = (string)$row->getDashboardUuid();
-			if (array_key_exists(key: $uuid, array: $nameByUuid) === false) {
-				$name = '';
-				try {
-					$dashboard = $this->dashboardMapper->findByUuid(
-						uuid: $uuid
-					);
-					$name = (string)$dashboard->getName();
-				} catch (DoesNotExistException) {
-					$name = '';
-				}
-
-				$nameByUuid[$uuid] = $name;
-			}
+			$nameByUuid[$uuid] ??= $this->dashboardName(uuid: $uuid);
 
 			$output[] = self::csvLine(
 				cells: [
@@ -440,10 +455,28 @@ class AnalyticsService {
 					(string)$row->getUniqueViewerCount(),
 				]
 			);
-		}//end foreach
+		}
 
 		return implode(separator: "\r\n", array: $output) . "\r\n";
 	}//end generateCsvExport()
+
+	/**
+	 * The name of a dashboard; empty when it no longer exists.
+	 *
+	 * @param string $uuid The dashboard UUID.
+	 *
+	 * @return string The name.
+	 */
+	private function dashboardName(string $uuid): string {
+		try {
+			$dashboard = $this->dashboardMapper->findByUuid(
+				uuid: $uuid
+			);
+			return (string)$dashboard->getName();
+		} catch (DoesNotExistException) {
+			return '';
+		}
+	}//end dashboardName()
 
 	/**
 	 * Compute a filename suitable for the CSV export attachment

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\Service\ActionAuthService;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\IUserSession;
 
 /**
@@ -44,4 +46,33 @@ class RequestActor {
 		public readonly ActionAuthService $actionAuth,
 	) {
 	}//end __construct()
+
+	/**
+	 * The refusal for a caller who may not perform the action, or NULL to proceed.
+	 *
+	 * No session user is a 401; a denied ADR-023 action throws
+	 * {@see \OCP\AppFramework\OCS\OCSForbiddenException} (the framework answers
+	 * 403); a session without a controller user ID is a 401 after the action check.
+	 *
+	 * @param string|null $userId The controller's user ID.
+	 * @param string      $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	public function refusal(string|null $userId, string $action): ?JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$this->actionAuth->requireAction($user, $action);
+
+		if ($userId === null) {
+			return new JSONResponse(['error' => 'Not logged in'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		return null;
+	}//end refusal()
 }//end class

@@ -1,0 +1,81 @@
+{
+ "update:open": [
+  [
+   false
+  ],
+  [
+   false
+  ],
+  [
+   false
+  ]
+ ],
+ "switch": [
+  [
+   4,
+   "user"
+  ],
+  [
+   4,
+   "user"
+  ],
+  [
+   4,
+   "user"
+  ]
+ ],
+ "toggleEdit": [
+  [
+   {
+    "id": 4,
+    "uuid": "uu",
+    "name": "My Notes",
+    "icon": null,
+    "source": "user"
+   },
+   "user"
+  ]
+ ],
+ "openConfig": [
+  [
+   {
+    "id": 4,
+    "uuid": "uu",
+    "name": "My Notes",
+    "icon": null,
+    "source": "user"
+   },
+   "user"
+  ]
+ ],
+ "addCustomWidget": [
+  [
+   {
+    "id": 4,
+    "uuid": "uu",
+    "name": "My Notes",
+    "icon": null,
+    "source": "user"
+   },
+   "user"
+  ]
+ ],
+ "deleteDashboard": [
+  [
+   4,
+   "user"
+  ]
+ ],
+ "setDefault": [
+  [
+   {
+    "id": 4,
+    "uuid": "uu",
+    "name": "My Notes",
+    "icon": null,
+    "source": "user"
+   },
+   "user"
+  ]
+ ]
+}

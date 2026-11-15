@@ -38,6 +38,7 @@ use OCA\LaunchPad\Service\CommandService;
 use OCP\IUserSession;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -131,17 +132,7 @@ class I18nExportStringsCommand extends CommandBase {
 			);
 		}
 
-		$strings = [];
-		foreach (['lib', 'src'] as $sub) {
-			$path = $appRoot . '/' . $sub;
-			if (is_dir(filename: $path) === false) {
-				continue;
-			}
-
-			$this->collectFromDir(directory: $path, sink: $strings);
-		}
-
-		ksort(array: $strings);
+		$strings = $this->collectStrings(appRoot: $appRoot);
 		$pot = $this->buildPot(strings: array_keys(array: $strings));
 		$target = $input->getOption(name: 'output');
 		if ($target === '-') {
@@ -151,16 +142,7 @@ class I18nExportStringsCommand extends CommandBase {
 
 		$target = $this->targetPath(target: $target, appRoot: $appRoot);
 		if ($target === null) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				error: [
-					'exitCode' => CommandService::EXIT_INVALID_ARGS,
-					'code'     => 'SIGNED_RELEASE',
-					'message'  => 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
-						. 'the new file as a code integrity problem. Pass --output=<path> outside it, or --output=- to print the file.',
-				]
-			);
+			return $this->emitError(input: $input, output: $output, error: self::signedReleaseError());
 		}
 
 		$this->writePot(pot: $pot, outPath: $target);
@@ -174,6 +156,43 @@ class I18nExportStringsCommand extends CommandBase {
 
 		return CommandService::EXIT_SUCCESS;
 	}//end handle()
+
+	/**
+	 * The error of a run that would write into a signed release.
+	 *
+	 * @return array<string, mixed> The exit code, code and message.
+	 */
+	private static function signedReleaseError(): array {
+		return [
+			'exitCode' => CommandService::EXIT_INVALID_ARGS,
+			'code'     => 'SIGNED_RELEASE',
+			'message'  => 'This is a signed release, so nothing is written into the app folder: Nextcloud would report '
+				. 'the new file as a code integrity problem. Pass --output=<path> outside it, or --output=- to print the file.',
+		];
+	}//end signedReleaseError()
+
+	/**
+	 * Every marked string under the app's `lib` and `src` folders, as a
+	 * sorted string => true map.
+	 *
+	 * @param string $appRoot The app root directory.
+	 *
+	 * @return array<string, bool> The strings.
+	 */
+	private function collectStrings(string $appRoot): array {
+		$strings = [];
+		foreach (['lib', 'src'] as $sub) {
+			$path = $appRoot . '/' . $sub;
+			if (is_dir(filename: $path) === false) {
+				continue;
+			}
+
+			$this->collectFromDir(directory: $path, sink: $strings);
+		}
+
+		ksort(array: $strings);
+		return $strings;
+	}//end collectStrings()
 
 	/**
 	 * Recursively scan `$directory` for translatable markers and
@@ -194,29 +213,57 @@ class I18nExportStringsCommand extends CommandBase {
 		);
 
 		foreach ($iterator as $file) {
-			if ($file->isFile() === false) {
-				continue;
-			}
-
-			$ext = strtolower(string: $file->getExtension());
-			if (in_array(needle: $ext, haystack: ['php', 'vue', 'js', 'ts'], strict: true) === false) {
+			if (self::isSourceFile(file: $file) === false) {
 				continue;
 			}
 
 			$contents = (string)file_get_contents(filename: $file->getPathname());
-			foreach (self::MARKER_PATTERNS as $pattern) {
-				$matches = [];
-				$found = preg_match_all(pattern: $pattern, subject: $contents, matches: $matches);
-				if ($found === false || $found === 0) {
-					continue;
-				}
-
-				foreach ($matches[1] as $string) {
-					$sink[(string)$string] = true;
-				}
+			foreach (self::markedStrings(contents: $contents) as $string) {
+				$sink[$string] = true;
 			}
-		}//end foreach
+		}
 	}//end collectFromDir()
+
+	/**
+	 * Whether a directory entry is a PHP, Vue, JavaScript or TypeScript file.
+	 *
+	 * @param SplFileInfo $file The entry.
+	 *
+	 * @return bool True for a source file.
+	 */
+	private static function isSourceFile(SplFileInfo $file): bool {
+		if ($file->isFile() === false) {
+			return false;
+		}
+
+		$ext = strtolower(string: $file->getExtension());
+		return in_array(needle: $ext, haystack: ['php', 'vue', 'js', 'ts'], strict: true);
+	}//end isSourceFile()
+
+	/**
+	 * The strings the marker patterns capture in a file's contents, in
+	 * pattern order.
+	 *
+	 * @param string $contents The file contents.
+	 *
+	 * @return list<string> The captured strings.
+	 */
+	private static function markedStrings(string $contents): array {
+		$strings = [];
+		foreach (self::MARKER_PATTERNS as $pattern) {
+			$matches = [];
+			$found = preg_match_all(pattern: $pattern, subject: $contents, matches: $matches);
+			if ($found === false || $found === 0) {
+				continue;
+			}
+
+			foreach ($matches[1] as $string) {
+				$strings[] = (string)$string;
+			}
+		}
+
+		return $strings;
+	}//end markedStrings()
 
 	/**
 	 * The POT file content for a list of strings.

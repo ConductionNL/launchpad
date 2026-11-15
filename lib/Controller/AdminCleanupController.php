@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
+use OCA\LaunchPad\Db\CleanupResult;
 use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
@@ -93,31 +94,40 @@ class AdminCleanupController extends Controller {
 
 		$cached = $this->cleanup->cleanupService->getCachedScanResult();
 		if ($cached !== null) {
-			return new JSONResponse(
-				data: array_merge(
-					$cached->jsonSerialize(),
-					[
-						'cached' => true,
-						'cachedAt' => $cached->getScannedAt(),
-					]
-				),
-				statusCode: Http::STATUS_OK
+			return self::scanEnvelope(
+				result: $cached,
+				cache: [
+					'cached' => true,
+					'cachedAt' => $cached->getScannedAt(),
+				]
 			);
 		}
 
 		$result = $this->cleanup->cleanupService->scan();
 
-		return new JSONResponse(
-			data: array_merge(
-				$result->jsonSerialize(),
-				[
-					'cached' => false,
-					'cachedAt' => null,
-				]
-			),
-			statusCode: Http::STATUS_OK
+		return self::scanEnvelope(
+			result: $result,
+			cache: [
+				'cached' => false,
+				'cachedAt' => null,
+			]
 		);
 	}//end scan()
+
+	/**
+	 * The 200 envelope of a scan: the result plus where it came from.
+	 *
+	 * @param CleanupResult        $result The scan result.
+	 * @param array<string, mixed> $cache  The `cached` flag and `cachedAt` time.
+	 *
+	 * @return JSONResponse The envelope.
+	 */
+	private static function scanEnvelope(CleanupResult $result, array $cache): JSONResponse {
+		return new JSONResponse(
+			data: array_merge($result->jsonSerialize(), $cache),
+			statusCode: Http::STATUS_OK
+		);
+	}//end scanEnvelope()
 
 	/**
 	 * `POST /api/admin/cleanup/purge` — REQ-CLN-005.
@@ -140,7 +150,7 @@ class AdminCleanupController extends Controller {
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function purge(?array $categories = null, ?bool $dryRun = null): JSONResponse {
+	public function purge(array|null $categories = null, bool|null $dryRun = null): JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
 			return $guard;
@@ -157,16 +167,10 @@ class AdminCleanupController extends Controller {
 			);
 		}
 
-		$userId = '';
-		$user = $this->guard->userSession->getUser();
-		if ($user !== null) {
-			$userId = $user->getUID();
-		}
-
 		$result = $this->cleanup->cleanupService->purge(
 			categoryNames: $names,
 			dryRun: ($dryRun ?? false),
-			userId: $userId,
+			userId: $this->actingUserId(),
 			source: 'api',
 		);
 
@@ -183,6 +187,20 @@ class AdminCleanupController extends Controller {
 	}//end purge()
 
 	/**
+	 * The UID of the signed-in admin, or an empty string without a session user.
+	 *
+	 * @return string The acting admin's UID.
+	 */
+	private function actingUserId(): string {
+		$user = $this->guard->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end actingUserId()
+
+	/**
 	 * Normalise the API-supplied categories list.
 	 *
 	 * Filters non-string entries silently (defence in depth — the
@@ -195,7 +213,7 @@ class AdminCleanupController extends Controller {
 	 *
 	 * @return array<int, string>|null The validated names or null.
 	 */
-	private function normaliseCategories(array $input): ?array {
+	private function normaliseCategories(array $input): array|null {
 		$known = $this->cleanup->registry->getCategoryNames();
 		$normalised = [];
 

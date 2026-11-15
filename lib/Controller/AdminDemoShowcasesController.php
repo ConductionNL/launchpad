@@ -117,19 +117,46 @@ class AdminDemoShowcasesController extends Controller {
 				lang: $lang,
 				force: $force
 			);
-		} catch (ShowcaseNotFoundException $e) {
-			return $this->failure(message: 'Showcase not found', statusCode: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
-			$this->showcases->logger->error(
-				message: 'Showcase install failed',
-				context: [
-					'showcaseId' => $id,
-					'exception' => $e,
-				]
-			);
-			return $this->failure(message: 'Showcase installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
-		}//end try
+			return $this->installFailure(exception: $e, showcaseId: $id);
+		}
 
+		return self::installedResponse(result: $result);
+	}//end install()
+
+	/**
+	 * Answer a failed install: 404 for an unknown showcase, otherwise a
+	 * logged 500.
+	 *
+	 * @param Throwable $exception  The failure.
+	 * @param string    $showcaseId The showcase id.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function installFailure(Throwable $exception, string $showcaseId): JSONResponse {
+		if ($exception instanceof ShowcaseNotFoundException) {
+			return $this->failure(message: 'Showcase not found', statusCode: Http::STATUS_NOT_FOUND);
+		}
+
+		$this->showcases->logger->error(
+			message: 'Showcase install failed',
+			context: [
+				'showcaseId' => $showcaseId,
+				'exception' => $exception,
+			]
+		);
+		return $this->failure(message: 'Showcase installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end installFailure()
+
+	/**
+	 * The answer of an install: 201 for a fresh install, 200 when it was
+	 * already installed.
+	 *
+	 * @param array<string, mixed> $result The install result.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private static function installedResponse(array $result): JSONResponse {
 		$statusCode = Http::STATUS_CREATED;
 		if ($result['alreadyInstalled'] === true) {
 			$statusCode = Http::STATUS_OK;
@@ -143,7 +170,7 @@ class AdminDemoShowcasesController extends Controller {
 			],
 			statusCode: $statusCode
 		);
-	}//end install()
+	}//end installedResponse()
 
 	/**
 	 * Uninstall a previously-installed showcase (REQ-DEMO-006).

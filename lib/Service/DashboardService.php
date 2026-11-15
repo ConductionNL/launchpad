@@ -153,6 +153,77 @@ class DashboardService {
 	public const ERR_UNPUBLISH_BEFORE_PUBLISH = 'unpublishAt must be after publishAt';
 
 	/**
+	 * The default widget set of a brand-new dashboard.
+	 *
+	 * A tile with `iconType` `url` names a bundled image under
+	 * `launchpad/img/`; {@see self::defaultWidgetSeeds()} resolves it.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private const DEFAULT_WIDGET_SEEDS = [
+		[
+			'widgetId' => 'tile',
+			'gridX' => 0,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 0,
+			'tile' => [
+				'title' => 'Conduction',
+				'icon' => 'conduction-logo.png',
+				'iconType' => 'url',
+				'backgroundColor' => '#ffffff',
+				'textColor' => '#000000',
+				'linkType' => 'url',
+				'linkValue' => 'https://conduction.nl',
+			],
+		],
+		[
+			'widgetId' => 'tile',
+			'gridX' => 4,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 1,
+			'tile' => [
+				'title' => 'Sendent',
+				'icon' => 'sendent-logo.png',
+				'iconType' => 'url',
+				'backgroundColor' => '#ffffff',
+				'textColor' => '#000000',
+				'linkType' => 'url',
+				'linkValue' => 'https://sendent.com',
+			],
+		],
+		[
+			'widgetId' => 'tile',
+			'gridX' => 8,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 3,
+			'sortOrder' => 2,
+			'tile' => [
+				'title' => 'Nextcloud',
+				'icon' => 'icon-nextcloud',
+				'iconType' => 'class',
+				'backgroundColor' => '#0082c9',
+				'textColor' => '#ffffff',
+				'linkType' => 'url',
+				'linkValue' => 'https://nextcloud.com',
+			],
+		],
+		[
+			'widgetId' => 'files',
+			'gridX' => 0,
+			'gridY' => 3,
+			'gridWidth' => 12,
+			'gridHeight' => 5,
+			'sortOrder' => 3,
+			'tile' => null,
+		],
+	];
+
+	/**
 	 * Constructor
 	 *
 	 * @param DashboardStores    $stores The dashboard, placement, admin-setting and lock mappers.
@@ -236,22 +307,15 @@ class DashboardService {
 		// entity — calling `getId()` on the wrapper triggers the
 		// "member function on array" fatal that broke the switch flow
 		// when this method first shipped.
-		$visible = $this->getVisibleToUser(userId: $userId);
-		$dashboard = null;
-		$source = '';
-		foreach ($visible as $entry) {
-			$candidate = $entry['dashboard'];
-			if ($candidate->getId() === $dashboardId) {
-				$dashboard = $candidate;
-				$source = (string)$entry['source'];
-				break;
-			}
-		}
-
-		if ($dashboard === null) {
+		$entry = $this->findVisibleEntryById(
+			visible: $this->getVisibleToUser(userId: $userId),
+			dashboardId: $dashboardId
+		);
+		if ($entry === null) {
 			return null;
 		}
 
+		$dashboard = $entry['dashboard'];
 		$placements = $this->stores->placementMapper->findByDashboardId(
 			dashboardId: $dashboard->getId()
 		);
@@ -262,35 +326,71 @@ class DashboardService {
 		// rights to a view-only recipient. Server-side enforcement already
 		// goes through PermissionService::resolveAccessLevel(); this keeps
 		// the envelope the frontend renders from agreeing with it.
-		if ($source === Dashboard::SOURCE_SHARED) {
-			$levels = $this->builders->dashResolver->findSharedLevels(
-				userId: $userId,
-				userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
-					userId: $userId
-				)
-			);
-			if (isset($levels[$dashboard->getId()]) === true) {
-				return [
-					'dashboard' => $dashboard,
-					'placements' => $this->withPersonalLayer(
-						placements: $placements,
-						dashboard: $dashboard,
-						userId: $userId
-					),
-					'permissionLevel' => $levels[$dashboard->getId()],
-				];
-			}
+		$sharedLevel = null;
+		if ((string)$entry['source'] === Dashboard::SOURCE_SHARED) {
+			$sharedLevel = $this->sharedPermissionLevel(dashboard: $dashboard, userId: $userId);
+		}
+
+		$layered = $this->withPersonalLayer(
+			placements: $placements,
+			dashboard: $dashboard,
+			userId: $userId
+		);
+
+		if ($sharedLevel !== null) {
+			return [
+				'dashboard' => $dashboard,
+				'placements' => $layered,
+				'permissionLevel' => $sharedLevel,
+			];
 		}
 
 		return $this->builders->dashResolver->buildResult(
 			dashboard: $dashboard,
-			placements: $this->withPersonalLayer(
-				placements: $placements,
-				dashboard: $dashboard,
+			placements: $layered
+		);
+	}//end getDashboardForUser()
+
+	/**
+	 * The first visible entry for the dashboard ID.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible     The user's visible set.
+	 * @param int                                                     $dashboardId The dashboard ID.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|null
+	 */
+	private function findVisibleEntryById(array $visible, int $dashboardId): ?array {
+		foreach ($visible as $entry) {
+			if ($entry['dashboard']->getId() === $dashboardId) {
+				return $entry;
+			}
+		}
+
+		return null;
+	}//end findVisibleEntryById()
+
+	/**
+	 * The permission level a share grants the user on the dashboard, or NULL when none does.
+	 *
+	 * @param Dashboard $dashboard The shared dashboard.
+	 * @param string    $userId    The recipient.
+	 *
+	 * @return string|null
+	 */
+	private function sharedPermissionLevel(Dashboard $dashboard, string $userId): ?string {
+		$levels = $this->builders->dashResolver->findSharedLevels(
+			userId: $userId,
+			userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
 				userId: $userId
 			)
 		);
-	}//end getDashboardForUser()
+
+		if (isset($levels[$dashboard->getId()]) === true) {
+			return $levels[$dashboard->getId()];
+		}
+
+		return null;
+	}//end sharedPermissionLevel()
 
 	/**
 	 * Lay the caller's own arrangement over a dashboard somebody else owns.
@@ -371,55 +471,12 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function resolveEffectiveDashboard(string $userId): ?array {
-		// Steps 0-1 — resolve the explicit default-dashboard pin (wave3.7),
-		// then the auto-overwriting last-used preference (REQ-DASH-019),
-		// both against the user's full visible set. This honours a
-		// group/default (showcase) dashboard whose `user_id` is NULL —
-		// not just personal `is_active` rows — so the API-driven view
-		// matches the server-rendered landing URL, which
-		// resolveActiveDashboard() resolves the same way. A stale pref
-		// (UUID no longer visible) falls through to the legacy chain.
-		$defaultUuid = $this->getDefaultPreference(userId: $userId);
-		$activeUuid = (string)$this->platform->config->getUserValue(
-			userId: $userId,
-			appName: Application::APP_ID,
-			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
-			default: ''
-		);
-		if ($defaultUuid !== '' || $activeUuid !== '') {
-			$visible = $this->getVisibleToUser(userId: $userId);
-			// Default pin wins over last-used — same precedence as
-			// resolveActiveDashboard() steps 0 then 1.
-			foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
-				if ($prefUuid === '') {
-					continue;
-				}
-
-				foreach ($visible as $entry) {
-					$candidate = $entry['dashboard'];
-					if ((string)$candidate->getUuid() === $prefUuid) {
-						$placements = $this->stores->placementMapper->findByDashboardId(
-							dashboardId: $candidate->getId()
-						);
-						return $this->builders->dashResolver->buildResult(
-							dashboard: $candidate,
-							placements: $placements
-						);
-					}
-				}
-			}
-		}//end if
-
-		$result = $this->builders->dashResolver->tryGetActiveDashboard(
-			userId: $userId
-		);
+		$result = $this->resolvePreferredEffectiveDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
 
-		$result = $this->builders->dashResolver->tryActivateExistingDashboard(
-			userId: $userId
-		);
+		$result = $this->resolveOwnedEffectiveDashboard(userId: $userId);
 		if ($result !== null) {
 			return $result;
 		}
@@ -429,12 +486,138 @@ class DashboardService {
 			return $result;
 		}
 
-		// REQ-SHARE-002: a dashboard someone deliberately shared with this
-		// user beats auto-provisioning a brand-new one from a template.
-		// Placed AFTER both owned-dashboard steps (same precedence as
-		// resolveActiveDashboard step 6b) and BEFORE the template step
-		// because tryCreateFromTemplate WRITES — it would otherwise mint an
-		// empty personal dashboard and permanently bury the share.
+		return $this->resolveSharedOrTemplateDashboard(userId: $userId);
+	}//end resolveEffectiveDashboard()
+
+	/**
+	 * Steps 0-1 of {@see self::resolveEffectiveDashboard()}: the pinned
+	 * default, then the last-used preference.
+	 *
+	 * Both resolve against the user's full visible set. This honours a
+	 * group/default (showcase) dashboard whose `user_id` is NULL — not
+	 * just personal `is_active` rows — so the API-driven view matches the
+	 * server-rendered landing URL, which resolveActiveDashboard() resolves
+	 * the same way. A stale pref (UUID no longer visible) falls through to
+	 * the legacy chain.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The built result, or null when neither preference is visible.
+	 *
+	 * @spec openspec/specs/dashboards/spec.md
+	 */
+	private function resolvePreferredEffectiveDashboard(string $userId): array|null {
+		$defaultUuid = $this->getDefaultPreference(userId: $userId);
+		$activeUuid = $this->getLastUsedPreference(userId: $userId);
+		if ($defaultUuid === '' && $activeUuid === '') {
+			return null;
+		}
+
+		$visible = $this->getVisibleToUser(userId: $userId);
+		// Default pin wins over last-used — same precedence as
+		// resolveActiveDashboard() steps 0 then 1.
+		foreach ([$defaultUuid, $activeUuid] as $prefUuid) {
+			$candidate = $this->findVisibleByUuid(visible: $visible, uuid: $prefUuid);
+			if ($candidate !== null) {
+				return $this->buildResultWithPlacements(dashboard: $candidate);
+			}
+		}
+
+		return null;
+	}//end resolvePreferredEffectiveDashboard()
+
+	/**
+	 * The auto-overwriting last-used dashboard preference (REQ-DASH-019).
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return string The stored UUID, or '' when unset.
+	 */
+	private function getLastUsedPreference(string $userId): string {
+		return (string)$this->platform->config->getUserValue(
+			userId: $userId,
+			appName: Application::APP_ID,
+			key: self::ACTIVE_DASHBOARD_UUID_PREF_KEY,
+			default: ''
+		);
+	}//end getLastUsedPreference()
+
+	/**
+	 * The visible dashboard with this UUID; null for an empty UUID or no match.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
+	 * @param string                                                  $uuid    The preferred UUID.
+	 *
+	 * @return Dashboard|null The first match.
+	 */
+	private function findVisibleByUuid(array $visible, string $uuid): ?Dashboard {
+		if ($uuid === '') {
+			return null;
+		}
+
+		foreach ($visible as $entry) {
+			$candidate = $entry['dashboard'];
+			if ((string)$candidate->getUuid() === $uuid) {
+				return $candidate;
+			}
+		}
+
+		return null;
+	}//end findVisibleByUuid()
+
+	/**
+	 * The resolver result for a dashboard with its placements loaded.
+	 *
+	 * @param Dashboard $dashboard The resolved dashboard.
+	 *
+	 * @return array The built result.
+	 */
+	private function buildResultWithPlacements(Dashboard $dashboard): array {
+		$placements = $this->stores->placementMapper->findByDashboardId(
+			dashboardId: $dashboard->getId()
+		);
+		return $this->builders->dashResolver->buildResult(
+			dashboard: $dashboard,
+			placements: $placements
+		);
+	}//end buildResultWithPlacements()
+
+	/**
+	 * The user's legacy `is_active` personal dashboard, else the first
+	 * existing one, activated.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The result, or null when the user owns none.
+	 */
+	private function resolveOwnedEffectiveDashboard(string $userId): ?array {
+		$result = $this->builders->dashResolver->tryGetActiveDashboard(
+			userId: $userId
+		);
+		if ($result !== null) {
+			return $result;
+		}
+
+		return $this->builders->dashResolver->tryActivateExistingDashboard(
+			userId: $userId
+		);
+	}//end resolveOwnedEffectiveDashboard()
+
+	/**
+	 * A dashboard shared with the user, else a new one from a template.
+	 *
+	 * REQ-SHARE-002: a dashboard someone deliberately shared with this
+	 * user beats auto-provisioning a brand-new one from a template.
+	 * Placed AFTER both owned-dashboard steps (same precedence as
+	 * resolveActiveDashboard step 6b) and BEFORE the template step
+	 * because tryCreateFromTemplate WRITES — it would otherwise mint an
+	 * empty personal dashboard and permanently bury the share.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array|null The result.
+	 */
+	private function resolveSharedOrTemplateDashboard(string $userId): ?array {
 		$result = $this->builders->dashResolver->tryGetSharedDashboard(
 			userId: $userId,
 			userGroupIds: $this->builders->adminTemplateService->getUserGroupIdsFor(
@@ -446,7 +629,7 @@ class DashboardService {
 		}
 
 		return $this->tryCreateFromTemplate(userId: $userId);
-	}//end resolveEffectiveDashboard()
+	}//end resolveSharedOrTemplateDashboard()
 
 	/**
 	 * The user's role layout when their groups carry one, else the instance default.
@@ -569,49 +752,101 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	public function createDashboard(string $userId, string $name, array $options=[]): Dashboard {
-		$options   += self::CREATE_DEFAULTS;
-		$parentUuid = $options['parentUuid'];
-		// Task-7 of dashboard-public-share — public-share bearer cannot mutate.
-		$this->limits->publicShareContext?->requireMutable();
-		// Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
-		// dashboard quota at the single creation choke point so every
-		// user-initiated surface (REST create, CLI, template
-		// instantiation) is bound. Admin provisioning paths wrap their
-		// calls in QuotaService::runProvisioning() to bypass this
-		// (REQ-QUOTA-004). Runs before any DB write.
-		$this->limits->quotaService?->assertCanCreateDashboard(userId: $userId);
-		// REQ-DASH-023, REQ-DASH-028: parent existence + cycle +
-		// depth checks BEFORE the entity is built so the request is
-		// rejected without a partial row in memory.
-		$this->structure->treeService->validateParent(
-			movingUuid: null,
-			newParentUuid: $parentUuid
-		);
+		$options += self::CREATE_DEFAULTS;
+		$this->assertMayCreate(userId: $userId, parentUuid: $options['parentUuid']);
 
 		$dashboard = $this->builders->dashboardFactory->create(
 			userId: $userId,
 			name: $name,
-			options: [
-				'description' => $options['description'],
-				'parentUuid'  => $parentUuid,
-				'slug'        => $options['slug'],
-				'sortOrder'   => $options['sortOrder'],
-			]
+			options: self::factoryOptions(options: $options)
 		);
+		$this->applyNewIcon(dashboard: $dashboard, icon: $options['icon']);
+		$this->assertNewSlugUnique(dashboard: $dashboard, parentUuid: $options['parentUuid']);
 
-		// Icon is an opaque string (registry key or URL) — see the
-		// `dashboard-icons` capability. NULL/empty means "use the
-		// frontend default glyph".
-		if ($options['icon'] !== null && $options['icon'] !== '') {
+		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
+
+		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
+		$this->completeNewDashboard(persisted: $persisted, options: $options);
+
+		return $persisted;
+	}//end createDashboard()
+
+	/**
+	 * The checks every dashboard creation passes first, before any DB
+	 * write or entity is built.
+	 *
+	 * Task-7 of dashboard-public-share — public-share bearer cannot mutate.
+	 * Dashboard-quota-limits REQ-QUOTA-002: enforce the per-user
+	 * dashboard quota at the single creation choke point so every
+	 * user-initiated surface (REST create, CLI, template
+	 * instantiation) is bound. Admin provisioning paths wrap their
+	 * calls in QuotaService::runProvisioning() to bypass this
+	 * (REQ-QUOTA-004). REQ-DASH-023, REQ-DASH-028: parent existence +
+	 * cycle + depth checks BEFORE the entity is built so the request is
+	 * rejected without a partial row in memory.
+	 *
+	 * @param string      $userId     The user ID.
+	 * @param string|null $parentUuid The requested parent, or null for a root.
+	 *
+	 * @return void
+	 */
+	private function assertMayCreate(string $userId, ?string $parentUuid): void {
+		$this->limits->publicShareContext?->requireMutable();
+		$this->limits->quotaService?->assertCanCreateDashboard(userId: $userId);
+		$this->structure->treeService->validateParent(
+			movingUuid: null,
+			newParentUuid: $parentUuid
+		);
+	}//end assertMayCreate()
+
+	/**
+	 * The options the dashboard factory takes from the create options.
+	 *
+	 * @param array<string, mixed> $options The create options with defaults.
+	 *
+	 * @return array<string, mixed> The factory options.
+	 */
+	private static function factoryOptions(array $options): array {
+		return [
+			'description' => $options['description'],
+			'parentUuid'  => $options['parentUuid'],
+			'slug'        => $options['slug'],
+			'sortOrder'   => $options['sortOrder'],
+		];
+	}//end factoryOptions()
+
+	/**
+	 * Set a new dashboard's icon when one was given.
+	 *
+	 * Icon is an opaque string (registry key or URL) — see the
+	 * `dashboard-icons` capability. NULL/empty means "use the
+	 * frontend default glyph".
+	 *
+	 * @param Dashboard   $dashboard The new dashboard.
+	 * @param string|null $icon      The requested icon.
+	 *
+	 * @return void
+	 */
+	private function applyNewIcon(Dashboard $dashboard, ?string $icon): void {
+		if ($icon !== null && $icon !== '') {
 			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setIcon($options['icon']);
+			$dashboard->setIcon($icon);
 		}
+	}//end applyNewIcon()
 
-		// REQ-DASH-024: slug uniqueness within parent scope. The
-		// factory may have emitted NULL when the name yields no legal
-		// characters and the caller did not supply an explicit slug —
-		// skip the unique check in that case (NULL slugs are simply
-		// unaddressable by path).
+	/**
+	 * REQ-DASH-024: slug uniqueness within parent scope. The
+	 * factory may have emitted NULL when the name yields no legal
+	 * characters and the caller did not supply an explicit slug —
+	 * skip the unique check in that case (NULL slugs are simply
+	 * unaddressable by path).
+	 *
+	 * @param Dashboard   $dashboard  The new dashboard.
+	 * @param string|null $parentUuid The parent, or null for a root.
+	 *
+	 * @return void
+	 */
+	private function assertNewSlugUnique(Dashboard $dashboard, ?string $parentUuid): void {
 		$resolvedSlug = $dashboard->getSlug();
 		if ($resolvedSlug !== null && $resolvedSlug !== '') {
 			$this->structure->treeService->validateSlugUnique(
@@ -619,42 +854,60 @@ class DashboardService {
 				slug: $resolvedSlug
 			);
 		}
+	}//end assertNewSlugUnique()
 
-		$this->stores->dashboardMapper->deactivateAllForUser(userId: $userId);
+	/**
+	 * Seed a stored dashboard's primary translation and, when asked, its
+	 * default widgets.
+	 *
+	 * User-initiated dashboards (the "+" affordance in the sidebar)
+	 * arrive here with $seedDefaults=true and are bootstrapped with
+	 * the standard tile + files bundle. The bootstrap path
+	 * (tryCreateFromTemplate) keeps $seedDefaults=false because it
+	 * runs its own role-default-driven seed afterwards and would
+	 * otherwise double-seed.
+	 *
+	 * @param Dashboard            $persisted The stored dashboard.
+	 * @param array<string, mixed> $options   The create options with defaults.
+	 *
+	 * @return void
+	 */
+	private function completeNewDashboard(Dashboard $persisted, array $options): void {
+		$this->seedPrimaryTranslation(dashboard: $persisted);
 
-		$persisted = $this->stores->dashboardMapper->insert(entity: $dashboard);
-
-		// REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
-		// a primary translation row in the owner's Nextcloud locale (or
-		// the default fallback when no preference is set). The seed is
-		// best-effort — failure here does not abort dashboard creation,
-		// because the legacy materialiser keeps reads working until the
-		// seed retries via a subsequent translation API call.
-		if ($this->structure->translationService !== null) {
-			try {
-				$this->structure->translationService->seedPrimaryFor(
-					dashboard: $persisted
-				);
-			} catch (Throwable $t) {
-				$this->outlets->logger->warning(
-					message: 'launchpad: failed to seed primary translation: {message}',
-					context: ['message' => $t->getMessage()]
-				);
-			}
-		}
-
-		// User-initiated dashboards (the "+" affordance in the sidebar)
-		// arrive here with $seedDefaults=true and are bootstrapped with
-		// the standard tile + files bundle. The bootstrap path
-		// (tryCreateFromTemplate) keeps $seedDefaults=false because it
-		// runs its own role-default-driven seed afterwards and would
-		// otherwise double-seed.
 		if ($options['seedDefaults'] === true) {
 			$this->seedDefaultWidgets(dashboardId: $persisted->getId());
 		}
+	}//end completeNewDashboard()
 
-		return $persisted;
-	}//end createDashboard()
+	/**
+	 * REQ-DASH-038, REQ-DASH-044: every newly created dashboard gets
+	 * a primary translation row in the owner's Nextcloud locale (or
+	 * the default fallback when no preference is set). The seed is
+	 * best-effort — failure here does not abort dashboard creation,
+	 * because the legacy materialiser keeps reads working until the
+	 * seed retries via a subsequent translation API call.
+	 *
+	 * @param Dashboard $dashboard The stored dashboard.
+	 *
+	 * @return void
+	 */
+	private function seedPrimaryTranslation(Dashboard $dashboard): void {
+		if ($this->structure->translationService === null) {
+			return;
+		}
+
+		try {
+			$this->structure->translationService->seedPrimaryFor(
+				dashboard: $dashboard
+			);
+		} catch (Throwable $t) {
+			$this->outlets->logger->warning(
+				message: 'launchpad: failed to seed primary translation: {message}',
+				context: ['message' => $t->getMessage()]
+			);
+		}
+	}//end seedPrimaryTranslation()
 
 	/**
 	 * Update a dashboard.
@@ -1142,31 +1395,80 @@ class DashboardService {
 		string $groupId,
 		string $uuid,
 	): void {
-		if ($this->isAdmin(userId: $actorUserId) === false) {
-			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
-		}
+		$this->assertAdmin(userId: $actorUserId);
 
 		$dashboard = $this->findGroupDashboard(
 			groupId: $groupId,
 			uuid: $uuid
 		);
 
-		if ($groupId !== Dashboard::DEFAULT_GROUP_ID) {
-			$count = $this->stores->dashboardMapper->countByGroup(
-				groupId: $groupId
-			);
-			if ($count <= 1) {
-				throw new Exception(message: self::ERR_LAST_IN_GROUP);
-			}
+		$this->assertNotLastInGroup(groupId: $groupId);
+		$this->deleteWithPlacements(dashboard: $dashboard);
+		$this->dispatchGroupSharedDeleted(dashboard: $dashboard, actorUserId: $actorUserId);
+	}//end deleteGroupShared()
+
+	/**
+	 * Refuse an admin-only mutation for a non-admin actor.
+	 *
+	 * @param string $userId The acting user ID.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When the actor is not an admin.
+	 */
+	private function assertAdmin(string $userId): void {
+		if ($this->isAdmin(userId: $userId) === false) {
+			throw new Exception(message: self::ERR_FORBIDDEN_NOT_ADMIN);
+		}
+	}//end assertAdmin()
+
+	/**
+	 * Refuse removing the only group-shared dashboard of a group; the
+	 * `default` group is exempt (REQ-DASH-014).
+	 *
+	 * @param string $groupId The group ID.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception When the group has one dashboard or fewer.
+	 */
+	private function assertNotLastInGroup(string $groupId): void {
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+			return;
 		}
 
+		$count = $this->stores->dashboardMapper->countByGroup(
+			groupId: $groupId
+		);
+		if ($count <= 1) {
+			throw new Exception(message: self::ERR_LAST_IN_GROUP);
+		}
+	}//end assertNotLastInGroup()
+
+	/**
+	 * Delete a dashboard's placements, then the dashboard itself.
+	 *
+	 * @param Dashboard $dashboard The dashboard to delete.
+	 *
+	 * @return void
+	 */
+	private function deleteWithPlacements(Dashboard $dashboard): void {
 		$this->stores->placementMapper->deleteByDashboardId(
 			dashboardId: $dashboard->getId()
 		);
 		$this->stores->dashboardMapper->delete(entity: $dashboard);
+	}//end deleteWithPlacements()
 
-		// SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
-		// (REQ-CSC-001). Actor is the admin who performed the delete.
+	/**
+	 * SB1 fix: dispatch DashboardDeletedEvent for cascade cleanup
+	 * (REQ-CSC-001). Actor is the admin who performed the delete.
+	 *
+	 * @param Dashboard $dashboard   The deleted group-shared dashboard.
+	 * @param string    $actorUserId The admin who deleted it.
+	 *
+	 * @return void
+	 */
+	private function dispatchGroupSharedDeleted(Dashboard $dashboard, string $actorUserId): void {
 		$deletedUuid = (string)$dashboard->getUuid();
 		if ($this->outlets->eventDispatcher !== null && $deletedUuid !== '') {
 			$this->outlets->eventDispatcher->dispatchTyped(
@@ -1179,7 +1481,7 @@ class DashboardService {
 				)
 			);
 		}
-	}//end deleteGroupShared()
+	}//end dispatchGroupSharedDeleted()
 
 	/**
 	 * Promote a single group-shared dashboard to the group's default.
@@ -1353,19 +1655,33 @@ class DashboardService {
 			return;
 		}
 
+		if ($this->isDue(dashboard: $dashboard, now: new DateTime()) === true) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
+		}
+	}//end materialiseDueSchedule()
+
+	/**
+	 * Whether a dashboard's `publishAt` has passed. A missing or
+	 * malformed timestamp is never due (the row stays scheduled).
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param DateTime  $now       The moment to compare against.
+	 *
+	 * @return bool True when the scheduled publication is due.
+	 */
+	private function isDue(Dashboard $dashboard, DateTime $now): bool {
 		$publishAt = $dashboard->getPublishAt();
 		if ($publishAt === null || $publishAt === '') {
-			return;
+			return false;
 		}
 
 		try {
-			if (new DateTime($publishAt) <= new DateTime()) {
-				$dashboard->setPublicationStatus(Dashboard::STATUS_PUBLISHED);
-			}
+			return new DateTime($publishAt) <= $now;
 		} catch (Exception) {
 			// Malformed timestamp — leave the row as scheduled.
+			return false;
 		}
-	}//end materialiseDueSchedule()
+	}//end isDue()
 
 	/**
 	 * Defensive admin check for the visibility filter.
@@ -1414,27 +1730,31 @@ class DashboardService {
 	): array {
 		$now = new DateTime();
 		$filtered = [];
-
 		foreach ($entries as $entry) {
-			$dashboard = $entry['dashboard'];
-			$status = $this->effectivePublicationStatus(dashboard: $dashboard, now: $now);
-
-			if ($status === Dashboard::STATUS_PUBLISHED) {
-				$filtered[] = $entry;
-				continue;
-			}
-
-			// Status is now draft or (still) scheduled — hide from
+			$published = $this->effectivePublicationStatus(dashboard: $entry['dashboard'], now: $now) === Dashboard::STATUS_PUBLISHED;
+			// A draft or (still) scheduled dashboard is hidden from
 			// non-owner non-admin viewers.
-			$ownerId = $dashboard->getUserId();
-			$isOwner = ($ownerId !== null && $ownerId === $actorUserId);
-			if ($isOwner === true || $actorIsAdmin === true) {
+			if ($published === true || $this->isOwnedBy(dashboard: $entry['dashboard'], userId: $actorUserId) === true || $actorIsAdmin === true) {
 				$filtered[] = $entry;
 			}
-		}//end foreach
+		}
 
 		return $filtered;
 	}//end filterByPublicationState()
+
+	/**
+	 * Whether a dashboard has an owner and it is the given user.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param string    $userId    The viewing user.
+	 *
+	 * @return bool True for the owner.
+	 */
+	private function isOwnedBy(Dashboard $dashboard, string $userId): bool {
+		$ownerId = $dashboard->getUserId();
+
+		return $ownerId !== null && $ownerId === $userId;
+	}//end isOwnedBy()
 
 	/**
 	 * The publication state a dashboard has at read time, applied to the
@@ -1451,44 +1771,48 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function effectivePublicationStatus(Dashboard $dashboard, DateTime $now): string {
-		$status = $dashboard->getPublicationStatus();
-		// Pre-migration / legacy rows that never set the column
-		// semantically remain visible (REQ-DASH-035): treat an
-		// empty string as `'published'` so backwards compatibility
-		// holds even if an entity is hydrated without the column.
-		if ($status === '') {
-			$status = Dashboard::STATUS_PUBLISHED;
-		}
-
-		// REQ-DASH-034: lazy materialisation of due scheduled rows.
-		if ($status === Dashboard::STATUS_SCHEDULED) {
-			$publishAt = $dashboard->getPublishAt();
-			if ($publishAt !== null && $publishAt !== '') {
-				try {
-					$when = new DateTime($publishAt);
-					if ($when <= $now) {
-						$dashboard->setPublicationStatus(
-							Dashboard::STATUS_PUBLISHED
-						);
-						$status = Dashboard::STATUS_PUBLISHED;
-					}
-				} catch (Exception) {
-					// Malformed timestamp — leave as scheduled and
-					// fall through to the visibility check below.
-				}
-			}
-		}
+		$status = $this->materialisedStatus(dashboard: $dashboard, now: $now);
 
 		// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): a published
 		// dashboard whose take-down time has passed reads as a draft, so
 		// only its owner and administrators keep seeing it.
 		if ($status === Dashboard::STATUS_PUBLISHED && $this->isTakenDown(dashboard: $dashboard, now: $now) === true) {
 			$dashboard->setPublicationStatus(Dashboard::STATUS_DRAFT);
-			$status = Dashboard::STATUS_DRAFT;
+			return Dashboard::STATUS_DRAFT;
 		}
 
 		return $status;
 	}//end effectivePublicationStatus()
+
+	/**
+	 * The stored publication status, with legacy empty rows read as
+	 * published and due scheduled rows published in place.
+	 *
+	 * @param Dashboard $dashboard The dashboard (mutated when due).
+	 * @param DateTime  $now       The moment to compare against.
+	 *
+	 * @return string The status before the take-down check.
+	 */
+	private function materialisedStatus(Dashboard $dashboard, DateTime $now): string {
+		$status = $dashboard->getPublicationStatus();
+		// Pre-migration / legacy rows that never set the column
+		// semantically remain visible (REQ-DASH-035): treat an
+		// empty string as `'published'` so backwards compatibility
+		// holds even if an entity is hydrated without the column.
+		if ($status === '') {
+			return Dashboard::STATUS_PUBLISHED;
+		}
+
+		// REQ-DASH-034: lazy materialisation of due scheduled rows.
+		if ($status === Dashboard::STATUS_SCHEDULED && $this->isDue(dashboard: $dashboard, now: $now) === true) {
+			$dashboard->setPublicationStatus(
+				Dashboard::STATUS_PUBLISHED
+			);
+			return Dashboard::STATUS_PUBLISHED;
+		}
+
+		return $status;
+	}//end materialisedStatus()
 
 	/**
 	 * Resolve the active dashboard for a user using the 7-step precedence
@@ -1527,47 +1851,19 @@ class DashboardService {
 		?string $primaryGroupId,
 	): ?array {
 		// Normalise the sentinel so steps 2-5 can rely on it.
-		$groupId = $primaryGroupId;
-		if ($primaryGroupId === null || $primaryGroupId === '') {
-			$groupId = Dashboard::DEFAULT_GROUP_ID;
-		}
+		$groupId = $this->normalisedGroupId(primaryGroupId: $primaryGroupId);
 
 		// Pre-fetch all visible dashboards once — used for the pref lookup
 		// and to avoid redundant DB round-trips.
 		$visible = $this->getVisibleToUser(userId: $userId);
 
-		// Build a UUID-keyed index for O(1) pref lookup.
-		// @var array<string, array{dashboard: Dashboard, source: string}> $byUuid.
-		$byUuid = [];
-		foreach ($visible as $entry) {
-			$uuid = (string)$entry['dashboard']->getUuid();
-			if ($uuid !== '') {
-				$byUuid[$uuid] = $entry;
-			}
-		}
-
-		// Step 0 (wave3.7): explicit default — if the user has pinned
-		// a default dashboard via the per-row "Set as default" action,
-		// it always wins over the auto-overwriting `active_dashboard_uuid`
-		// pref so visiting `/apps/launchpad/` consistently opens the same
-		// dashboard regardless of where the user navigated last.
-		$pinned = $this->resolvePreferredDashboard(
+		// Steps 0-1: the pinned default, then the saved preference.
+		$preferred = $this->resolvePreferredActiveDashboard(
 			userId: $userId,
-			byUuid: $byUuid,
-			prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
+			byUuid: $this->indexVisibleByUuid(visible: $visible)
 		);
-		if ($pinned !== null) {
-			return $pinned;
-		}
-
-		// Step 1: saved preference.
-		$saved = $this->resolvePreferredDashboard(
-			userId: $userId,
-			byUuid: $byUuid,
-			prefKey: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
-		);
-		if ($saved !== null) {
-			return $saved;
+		if ($preferred !== null) {
+			return $preferred;
 		}
 
 		// Steps 2-3: group-shared with isDefault = 1.
@@ -1583,7 +1879,90 @@ class DashboardService {
 			return $groupShared;
 		}
 
-		// Step 6: first personal dashboard.
+		return $this->findFirstPersonalOrShared(visible: $visible);
+	}//end resolveActiveDashboard()
+
+	/**
+	 * The primary group, or {@see Dashboard::DEFAULT_GROUP_ID} for none.
+	 *
+	 * @param string|null $primaryGroupId The user's primary group ID.
+	 *
+	 * @return string The group ID steps 2-5 resolve against.
+	 */
+	private function normalisedGroupId(string|null $primaryGroupId): string {
+		if ($primaryGroupId === null || $primaryGroupId === '') {
+			return Dashboard::DEFAULT_GROUP_ID;
+		}
+
+		return $primaryGroupId;
+	}//end normalisedGroupId()
+
+	/**
+	 * A UUID-keyed index of the visible set for O(1) pref lookup.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
+	 *
+	 * @return array<string, array{dashboard: Dashboard, source: string}> The index; empty UUIDs left out.
+	 */
+	private function indexVisibleByUuid(array $visible): array {
+		$byUuid = [];
+		foreach ($visible as $entry) {
+			$uuid = (string)$entry['dashboard']->getUuid();
+			if ($uuid !== '') {
+				$byUuid[$uuid] = $entry;
+			}
+		}
+
+		return $byUuid;
+	}//end indexVisibleByUuid()
+
+	/**
+	 * Steps 0-1 of {@see self::resolveActiveDashboard()}.
+	 *
+	 * Step 0 (wave3.7): explicit default — if the user has pinned a
+	 * default dashboard via the per-row "Set as default" action, it always
+	 * wins over the auto-overwriting `active_dashboard_uuid` pref so
+	 * visiting `/apps/launchpad/` consistently opens the same dashboard
+	 * regardless of where the user navigated last. Step 1: saved preference.
+	 *
+	 * @param string                                                     $userId The user ID.
+	 * @param array<string, array{dashboard: Dashboard, source: string}> $byUuid UUID-keyed visible index.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|null The hit, or null to fall through.
+	 */
+	private function resolvePreferredActiveDashboard(string $userId, array $byUuid): ?array {
+		$pinned = $this->resolvePreferredDashboard(
+			userId: $userId,
+			byUuid: $byUuid,
+			prefKey: self::DEFAULT_DASHBOARD_UUID_PREF_KEY
+		);
+		if ($pinned !== null) {
+			return $pinned;
+		}
+
+		return $this->resolvePreferredDashboard(
+			userId: $userId,
+			byUuid: $byUuid,
+			prefKey: self::ACTIVE_DASHBOARD_UUID_PREF_KEY
+		);
+	}//end resolvePreferredActiveDashboard()
+
+	/**
+	 * Steps 6-7 of {@see self::resolveActiveDashboard()}.
+	 *
+	 * Step 6: first personal dashboard. Step 6b (REQ-SHARE-002): first
+	 * dashboard shared WITH the user. Deliberately the LAST resort — after
+	 * the saved preference, every group-shared candidate and every personal
+	 * dashboard — so a share can never hijack a selection the user or their
+	 * admin already made. It only ever fires for a user who would otherwise
+	 * land on the empty state, which is exactly the case that made sharing
+	 * inert. Step 7: nothing found ⇒ NULL.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The user's visible set.
+	 *
+	 * @return array{dashboard: Dashboard, source: string}|null The hit, or null.
+	 */
+	private function findFirstPersonalOrShared(array $visible): ?array {
 		$personal = $this->findFirstBySource(
 			visible: $visible,
 			source: Dashboard::SOURCE_USER
@@ -1592,18 +1971,11 @@ class DashboardService {
 			return $personal;
 		}
 
-		// Step 6b (REQ-SHARE-002): first dashboard shared WITH the user.
-		// Deliberately the LAST resort — after the saved preference, every
-		// group-shared candidate and every personal dashboard — so a share
-		// can never hijack a selection the user or their admin already made.
-		// It only ever fires for a user who would otherwise land on the
-		// empty state, which is exactly the case that made sharing inert.
-		// Step 7: nothing found ⇒ NULL.
 		return $this->findFirstBySource(
 			visible: $visible,
 			source: Dashboard::SOURCE_SHARED
 		);
-	}//end resolveActiveDashboard()
+	}//end findFirstPersonalOrShared()
 
 	/**
 	 * Resolve a user-preference dashboard pointer, self-healing a stale
@@ -1714,19 +2086,7 @@ class DashboardService {
 	 */
 	private function resolveTemplateRung(string $userId): ?array {
 		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
-		if ($template === null) {
-			return null;
-		}
-
-		// "First time" means: owns nothing yet. Whoever has a personal
-		// dashboard already made, or was given, their start.
-		if ($this->stores->dashboardMapper->findByUserId(userId: $userId) !== []) {
-			return null;
-		}
-
-		if ($template->getTargetGroupsArray() === []
-			&& $this->hasPrimaryGroupDefault(userId: $userId) === true
-		) {
+		if ($template === null || $this->templateStepsAside(userId: $userId, template: $template) === true) {
 			return null;
 		}
 
@@ -1734,6 +2094,38 @@ class DashboardService {
 			return ['dashboard' => $template, 'viewOnly' => true];
 		}
 
+		return ['dashboard' => $this->copyTemplateFor(userId: $userId, template: $template), 'viewOnly' => false];
+	}//end resolveTemplateRung()
+
+	/**
+	 * Whether the applicable template is not this user's start: they own
+	 * a dashboard already, or the template targets no group and their
+	 * primary group has a default of its own.
+	 *
+	 * "First time" means: owns nothing yet. Whoever has a personal
+	 * dashboard already made, or was given, their start.
+	 *
+	 * @param string    $userId   The user.
+	 * @param Dashboard $template The applicable template.
+	 *
+	 * @return bool True when the template is not shown.
+	 */
+	private function templateStepsAside(string $userId, Dashboard $template): bool {
+		return $this->stores->dashboardMapper->findByUserId(userId: $userId) !== []
+			|| ($template->getTargetGroupsArray() === []
+			&& $this->hasPrimaryGroupDefault(userId: $userId) === true);
+	}//end templateStepsAside()
+
+	/**
+	 * Copy the template for the user and make the copy their active
+	 * dashboard.
+	 *
+	 * @param string    $userId   The user.
+	 * @param Dashboard $template The applicable template.
+	 *
+	 * @return Dashboard The copy.
+	 */
+	private function copyTemplateFor(string $userId, Dashboard $template): Dashboard {
 		$copy = $this->builders->templateService->createDashboardFromTemplate(
 			userId: $userId,
 			template: $template
@@ -1745,8 +2137,8 @@ class DashboardService {
 			value: (string)$copy->getUuid()
 		);
 
-		return ['dashboard' => $copy, 'viewOnly' => false];
-	}//end resolveTemplateRung()
+		return $copy;
+	}//end copyTemplateFor()
 
 	/**
 	 * Whether the user's primary group has a default group dashboard.
@@ -1811,26 +2203,7 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function resolveGroupSharedDashboard(array $visible, string $groupId): ?array {
-		$hasPrimaryGroup = ($groupId !== Dashboard::DEFAULT_GROUP_ID);
-
-		$rungs = [];
-		if ($hasPrimaryGroup === true) {
-			// Step 2: primary group default.
-			$rungs[] = [$groupId, Dashboard::SOURCE_GROUP, true];
-		}
-
-		// Step 3: default-group default.
-		$rungs[] = [Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true];
-
-		if ($hasPrimaryGroup === true) {
-			// Step 4: primary group first.
-			$rungs[] = [$groupId, Dashboard::SOURCE_GROUP, false];
-		}
-
-		// Step 5: default-group first.
-		$rungs[] = [Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false];
-
-		foreach ($rungs as $rung) {
+		foreach (self::groupSharedRungs(groupId: $groupId) as $rung) {
 			$result = $this->findFirstGroupSharedWhere(
 				visible: $visible,
 				groupId: $rung[0],
@@ -1844,6 +2217,32 @@ class DashboardService {
 
 		return null;
 	}//end resolveGroupSharedDashboard()
+
+	/**
+	 * The group-shared fallback rungs in order, each `[groupId, source,
+	 * requireDefault]`. Steps 2 and 4 (the primary group's default, then
+	 * its first dashboard) only exist for a viewer whose primary group is
+	 * not the default group; steps 3 and 5 are the default group's.
+	 *
+	 * @param string $groupId The viewer's primary group.
+	 *
+	 * @return list<array{0:string,1:string,2:bool}> The rungs.
+	 */
+	private static function groupSharedRungs(string $groupId): array {
+		if ($groupId === Dashboard::DEFAULT_GROUP_ID) {
+			return [
+				[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true],
+				[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false],
+			];
+		}
+
+		return [
+			[$groupId, Dashboard::SOURCE_GROUP, true],
+			[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, true],
+			[$groupId, Dashboard::SOURCE_GROUP, false],
+			[Dashboard::DEFAULT_GROUP_ID, Dashboard::SOURCE_DEFAULT, false],
+		];
+	}//end groupSharedRungs()
 
 	/**
 	 * Return the first visible entry carrying the given source, in
@@ -2112,8 +2511,35 @@ class DashboardService {
 			actorUserId: $userId
 		);
 
-		$hasPublishAt = ($publishAt !== null && trim($publishAt) !== '');
-		$hasUnpublishAt = ($unpublishAt !== null && trim($unpublishAt) !== '');
+		$window = $this->parsePublicationWindow(publishAt: $publishAt, unpublishAt: $unpublishAt);
+
+		if ($window->publishAt !== null) {
+			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
+			$dashboard->setPublishAt($window->publishAt);
+		}
+
+		$dashboard->setUnpublishAt($window->unpublishAt);
+		$dashboard->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+
+		return $this->stores->dashboardMapper->update(entity: $dashboard);
+	}//end schedule()
+
+	/**
+	 * Validate and parse the go-live and take-down times of a schedule request.
+	 *
+	 * @param string|null $publishAt   The requested go-live time.
+	 * @param string|null $unpublishAt The requested take-down time.
+	 *
+	 * @return PublicationWindow The parsed times; null where none was given.
+	 *
+	 * @throws InvalidArgumentException When neither is given, either is unparseable
+	 *                                  or past, or the take-down is not after the go-live.
+	 */
+	private function parsePublicationWindow(string|null $publishAt, string|null $unpublishAt): PublicationWindow {
+		$hasPublishAt = $this->isFilledTime(value: $publishAt);
+		$hasUnpublishAt = $this->isFilledTime(value: $unpublishAt);
 		if ($hasPublishAt === false && $hasUnpublishAt === false) {
 			throw new InvalidArgumentException(message: self::ERR_SCHEDULE_PAST_DATE);
 		}
@@ -2125,26 +2551,44 @@ class DashboardService {
 
 		$parsedUnpublish = null;
 		if ($hasUnpublishAt === true) {
-			// REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
-			// time is also in the future, and after the go-live time.
-			$parsedUnpublish = $this->parseFuturePublishAt(publishAt: (string)$unpublishAt);
-			if ($parsedPublish !== null && $parsedUnpublish <= $parsedPublish) {
-				throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
-			}
+			$parsedUnpublish = $this->parseTakeDownAfter(unpublishAt: (string)$unpublishAt, publishAt: $parsedPublish);
 		}
 
-		if ($parsedPublish !== null) {
-			$dashboard->setPublicationStatus(Dashboard::STATUS_SCHEDULED);
-			$dashboard->setPublishAt($parsedPublish);
+		return new PublicationWindow(publishAt: $parsedPublish, unpublishAt: $parsedUnpublish);
+	}//end parsePublicationWindow()
+
+	/**
+	 * Whether a requested time is given (not null, not blank).
+	 *
+	 * @param string|null $value The requested time.
+	 *
+	 * @return bool
+	 */
+	private function isFilledTime(string|null $value): bool {
+		return $value !== null && trim($value) !== '';
+	}//end isFilledTime()
+
+	/**
+	 * Parse a take-down time that is in the future and after the go-live time.
+	 *
+	 * REQ-SCHEDUI-002 (sharing-dashboard-schedule-screen): the take-down
+	 * time is also in the future, and after the go-live time.
+	 *
+	 * @param string      $unpublishAt The requested take-down time.
+	 * @param string|null $publishAt   The parsed go-live time, or null.
+	 *
+	 * @return string The parsed take-down time.
+	 *
+	 * @throws InvalidArgumentException When it is unparseable, past, or not after the go-live.
+	 */
+	private function parseTakeDownAfter(string $unpublishAt, string|null $publishAt): string {
+		$parsedUnpublish = $this->parseFuturePublishAt(publishAt: $unpublishAt);
+		if ($publishAt !== null && $parsedUnpublish <= $publishAt) {
+			throw new InvalidArgumentException(message: self::ERR_UNPUBLISH_BEFORE_PUBLISH);
 		}
 
-		$dashboard->setUnpublishAt($parsedUnpublish);
-		$dashboard->setUpdatedAt(
-			(new DateTime())->format(format: 'Y-m-d H:i:s')
-		);
-
-		return $this->stores->dashboardMapper->update(entity: $dashboard);
-	}//end schedule()
+		return $parsedUnpublish;
+	}//end parseTakeDownAfter()
 
 	/**
 	 * Eagerly materialise scheduled dashboards whose `publishAt` is
@@ -2685,31 +3129,56 @@ class DashboardService {
 		string $source,
 		bool $requireDefault,
 	): ?array {
-		foreach ($visible as $entry) {
-			if ($entry['source'] !== $source) {
-				continue;
-			}
-
-			$dashboard = $entry['dashboard'];
-			if ($dashboard->getType() !== Dashboard::TYPE_GROUP_SHARED) {
-				continue;
-			}
-
-			if ($dashboard->getGroupId() !== $groupId) {
-				continue;
-			}
-
-			if ($requireDefault === true
-				&& (int)$dashboard->getIsDefault() !== 1
+		foreach (self::entriesFromSource(visible: $visible, source: $source) as $entry) {
+			if (self::isGroupSharedIn(dashboard: $entry['dashboard'], groupId: $groupId) === true
+				&& self::meetsDefaultRequirement(dashboard: $entry['dashboard'], requireDefault: $requireDefault) === true
 			) {
-				continue;
+				return $entry;
 			}
-
-			return $entry;
-		}//end foreach
+		}
 
 		return null;
 	}//end findFirstGroupSharedWhere()
+
+	/**
+	 * The visible entries resolved through the given source, in order.
+	 *
+	 * @param array<int, array{dashboard: Dashboard, source: string}> $visible The visible entries.
+	 * @param string                                                  $source  The source.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> The matching entries.
+	 */
+	private static function entriesFromSource(array $visible, string $source): array {
+		return array_filter(
+			array: $visible,
+			callback: static fn (array $entry): bool => $entry['source'] === $source
+		);
+	}//end entriesFromSource()
+
+	/**
+	 * Whether a dashboard is a group-shared dashboard of the given group.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 * @param string    $groupId   The group ID.
+	 *
+	 * @return bool True when it is.
+	 */
+	private static function isGroupSharedIn(Dashboard $dashboard, string $groupId): bool {
+		return $dashboard->getType() === Dashboard::TYPE_GROUP_SHARED
+			&& $dashboard->getGroupId() === $groupId;
+	}//end isGroupSharedIn()
+
+	/**
+	 * Whether a dashboard satisfies the rung's default requirement.
+	 *
+	 * @param Dashboard $dashboard      The dashboard.
+	 * @param bool      $requireDefault Whether only a default dashboard qualifies.
+	 *
+	 * @return bool True when it qualifies.
+	 */
+	private static function meetsDefaultRequirement(Dashboard $dashboard, bool $requireDefault): bool {
+		return $requireDefault === false || (int)$dashboard->getIsDefault() === 1;
+	}//end meetsDefaultRequirement()
 
 	/**
 	 * A root slug for this user's auto-provisioned dashboard that no sibling holds.
@@ -2754,10 +3223,7 @@ class DashboardService {
 	 */
 	private function tryCreateFromTemplate(string $userId): ?array {
 		$allowUserDashboards = $this->getAllowUserDashboards();
-
-		$template = $this->builders->templateService->getApplicableTemplate(
-			userId: $userId
-		);
+		$template = $this->builders->templateService->getApplicableTemplate(userId: $userId);
 
 		if ($template !== null) {
 			return $this->builders->dashResolver->handleTemplateResult(
@@ -2768,59 +3234,95 @@ class DashboardService {
 		}
 
 		if ($allowUserDashboards === true) {
-			// 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
-			// `validateSlugUnique()` looks for any root dashboard with this
-			// slug, whoever owns it, and every auto-provisioned dashboard is
-			// named 'My Dashboard'. So the SECOND user ever to reach this
-			// branch got `Slug must be unique among siblings` and the request
-			// answered HTTP 500 with no dashboard at all. Measured on a fresh
-			// instance: the first user provisioned, the next one 500'd.
-			$dashboard = $this->createDashboard(
-				userId: $userId,
-				name: 'My Dashboard',
-				options: ['slug' => $this->uniqueRootSlugFor(userId: $userId)]
-			);
-
-			// REQ-RFP-002: when no admin template applies, prefer seeding
-			// from the user's RoleLayoutDefault rows. Only fall back to the
-			// hardcoded recommendations + activity pair when no role-defaults
-			// exist for any of the user's groups (or the user is in no group).
-			// The dependency is nullable to keep legacy PHPUnit doubles (built
-			// before role-based-content shipped) working — when null we treat
-			// it as "no defaults seeded" so the legacy hardcoded fallback runs.
-			$seeded = 0;
-			if ($this->limits->roleFeaturePerm !== null) {
-				$seeded = $this->limits->roleFeaturePerm->seedLayoutFromRoleDefaults(
-					userId: $userId,
-					dashboard: $dashboard
-				);
-			}
-
-			// The comment above says the hardcoded pair is a FALLBACK, and it
-			// was not: it was created on every path, so a role-seeded layout
-			// came out carrying the role defaults AND tile/tile/tile/files.
-			$placements = [];
-			if ($seeded > 0) {
-				$placements = $this->stores->placementMapper->findByDashboardId(
-					dashboardId: $dashboard->getId()
-				);
-			}
-
-			if ($seeded === 0) {
-				$placements = $this->createDefaultPlacements(
-					dashboardId: $dashboard->getId()
-				);
-			}
-
-			return [
-				'dashboard' => $dashboard,
-				'placements' => $placements,
-				'permissionLevel' => Dashboard::PERMISSION_FULL,
-			];
-		}//end if
+			return $this->provisionPersonalDashboard(userId: $userId);
+		}
 
 		return null;
 	}//end tryCreateFromTemplate()
+
+	/**
+	 * Provision a user's first personal dashboard, laid out from their
+	 * role defaults or, without any, the default bundle.
+	 *
+	 * 🔴 THE SLUG IS PER USER, BECAUSE THE ROOT SLUG NAMESPACE IS NOT.
+	 * `validateSlugUnique()` looks for any root dashboard with this
+	 * slug, whoever owns it, and every auto-provisioned dashboard is
+	 * named 'My Dashboard'. So the SECOND user ever to reach this
+	 * branch got `Slug must be unique among siblings` and the request
+	 * answered HTTP 500 with no dashboard at all. Measured on a fresh
+	 * instance: the first user provisioned, the next one 500'd.
+	 *
+	 * @param string $userId The user ID.
+	 *
+	 * @return array{dashboard: Dashboard, placements: array, permissionLevel: string}
+	 */
+	private function provisionPersonalDashboard(string $userId): array {
+		$dashboard = $this->createDashboard(
+			userId: $userId,
+			name: 'My Dashboard',
+			options: ['slug' => $this->uniqueRootSlugFor(userId: $userId)]
+		);
+
+		$seeded = $this->seedFromRoleDefaults(userId: $userId, dashboard: $dashboard);
+
+		return [
+			'dashboard' => $dashboard,
+			'placements' => $this->provisionedPlacements(dashboard: $dashboard, seeded: $seeded),
+			'permissionLevel' => Dashboard::PERMISSION_FULL,
+		];
+	}//end provisionPersonalDashboard()
+
+	/**
+	 * REQ-RFP-002: when no admin template applies, prefer seeding
+	 * from the user's RoleLayoutDefault rows. The dependency is nullable
+	 * to keep legacy PHPUnit doubles (built before role-based-content
+	 * shipped) working — when null we treat it as "no defaults seeded" so
+	 * the legacy hardcoded fallback runs.
+	 *
+	 * @param string    $userId    The user ID.
+	 * @param Dashboard $dashboard The provisioned dashboard.
+	 *
+	 * @return int The number of placements seeded from role defaults.
+	 */
+	private function seedFromRoleDefaults(string $userId, Dashboard $dashboard): int {
+		if ($this->limits->roleFeaturePerm === null) {
+			return 0;
+		}
+
+		return $this->limits->roleFeaturePerm->seedLayoutFromRoleDefaults(
+			userId: $userId,
+			dashboard: $dashboard
+		);
+	}//end seedFromRoleDefaults()
+
+	/**
+	 * The provisioned dashboard's placements: the role-seeded ones, or —
+	 * only when nothing was seeded — the hardcoded default bundle.
+	 *
+	 * The hardcoded pair is a FALLBACK: it used to be created on every
+	 * path, so a role-seeded layout came out carrying the role defaults
+	 * AND tile/tile/tile/files.
+	 *
+	 * @param Dashboard $dashboard The provisioned dashboard.
+	 * @param int       $seeded    The number of role-seeded placements.
+	 *
+	 * @return array The placements.
+	 */
+	private function provisionedPlacements(Dashboard $dashboard, int $seeded): array {
+		if ($seeded > 0) {
+			return $this->stores->placementMapper->findByDashboardId(
+				dashboardId: $dashboard->getId()
+			);
+		}
+
+		if ($seeded === 0) {
+			return $this->createDefaultPlacements(
+				dashboardId: $dashboard->getId()
+			);
+		}
+
+		return [];
+	}//end provisionedPlacements()
 
 	/**
 	 * Create default widget placements for a new dashboard.
@@ -2990,68 +3492,15 @@ class DashboardService {
 	 * @spec openspec/specs/dashboards/spec.md
 	 */
 	private function defaultWidgetSeeds(): array {
-		return [
-			[
-				'widgetId' => 'tile',
-				'gridX' => 0,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 0,
-				'tile' => [
-					'title' => 'Conduction',
-					'icon' => $this->appImagePath(image: 'conduction-logo.png'),
-					'iconType' => 'url',
-					'backgroundColor' => '#ffffff',
-					'textColor' => '#000000',
-					'linkType' => 'url',
-					'linkValue' => 'https://conduction.nl',
-				],
-			],
-			[
-				'widgetId' => 'tile',
-				'gridX' => 4,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 1,
-				'tile' => [
-					'title' => 'Sendent',
-					'icon' => $this->appImagePath(image: 'sendent-logo.png'),
-					'iconType' => 'url',
-					'backgroundColor' => '#ffffff',
-					'textColor' => '#000000',
-					'linkType' => 'url',
-					'linkValue' => 'https://sendent.com',
-				],
-			],
-			[
-				'widgetId' => 'tile',
-				'gridX' => 8,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 3,
-				'sortOrder' => 2,
-				'tile' => [
-					'title' => 'Nextcloud',
-					'icon' => 'icon-nextcloud',
-					'iconType' => 'class',
-					'backgroundColor' => '#0082c9',
-					'textColor' => '#ffffff',
-					'linkType' => 'url',
-					'linkValue' => 'https://nextcloud.com',
-				],
-			],
-			[
-				'widgetId' => 'files',
-				'gridX' => 0,
-				'gridY' => 3,
-				'gridWidth' => 12,
-				'gridHeight' => 5,
-				'sortOrder' => 3,
-				'tile' => null,
-			],
-		];
+		$seeds = self::DEFAULT_WIDGET_SEEDS;
+		foreach ($seeds as $index => $seed) {
+			// A `url` icon names a bundled image; resolve it to the app's real web root.
+			if (($seed['tile']['iconType'] ?? null) === 'url') {
+				$seeds[$index]['tile']['icon'] = $this->appImagePath(image: $seed['tile']['icon']);
+			}
+		}
+
+		return $seeds;
 	}//end defaultWidgetSeeds()
 
 	/**
@@ -3115,6 +3564,43 @@ class DashboardService {
 		Dashboard $dashboard,
 		array $data,
 	): void {
+		$this->applyFieldUpdates(dashboard: $dashboard, data: $data);
+		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
+		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
+
+		$dashboard->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+
+		$this->applyPlacementUpdates(data: $data);
+	}//end applyDashboardUpdates()
+
+	/**
+	 * Apply a patched placement position list, when the payload has one.
+	 *
+	 * @param array<string, mixed> $data The update payload.
+	 *
+	 * @return void
+	 */
+	private function applyPlacementUpdates(array $data): void {
+		if (isset($data['placements']) === true
+			&& is_array($data['placements']) === true
+		) {
+			$this->stores->placementMapper->updatePositions(
+				updates: $data['placements']
+			);
+		}
+	}//end applyPlacementUpdates()
+
+	/**
+	 * Apply the patched name, description, icon and grid columns.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 */
+	private function applyFieldUpdates(Dashboard $dashboard, array $data): void {
 		if (isset($data['name']) === true) {
 			$dashboard->setName($data['name']);
 		}
@@ -3123,39 +3609,39 @@ class DashboardService {
 			$dashboard->setDescription($data['description']);
 		}
 
-		// Icon may be NULL/empty (use default), a registry key, or a URL.
-		// The discriminator + lookup live frontend-side in the
-		// `dashboard-icons` capability — we just store the opaque string.
-		if (array_key_exists(key: 'icon', array: $data) === true) {
-			$iconValue = $data['icon'];
-			$iconToStore = null;
-			if (is_string($iconValue) === true) {
-				$iconToStore = $iconValue;
-			}
-
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setIcon($iconToStore);
-		}
+		$this->applyIconUpdate(dashboard: $dashboard, data: $data);
 
 		if (isset($data['gridColumns']) === true) {
 			$dashboard->setGridColumns($data['gridColumns']);
 		}
+	}//end applyFieldUpdates()
 
-		$this->applyTreeUpdates(dashboard: $dashboard, data: $data);
-		$this->applyFooterUpdates(dashboard: $dashboard, data: $data);
-
-		$dashboard->setUpdatedAt(
-			(new DateTime())->format(format: 'Y-m-d H:i:s')
-		);
-
-		if (isset($data['placements']) === true
-			&& is_array($data['placements']) === true
-		) {
-			$this->stores->placementMapper->updatePositions(
-				updates: $data['placements']
-			);
+	/**
+	 * Apply a patched icon: a string is stored as given, anything else
+	 * clears it.
+	 *
+	 * Icon may be NULL/empty (use default), a registry key, or a URL.
+	 * The discriminator + lookup live frontend-side in the
+	 * `dashboard-icons` capability — we just store the opaque string.
+	 *
+	 * @param Dashboard            $dashboard The dashboard being updated.
+	 * @param array<string, mixed> $data      The update payload.
+	 *
+	 * @return void
+	 */
+	private function applyIconUpdate(Dashboard $dashboard, array $data): void {
+		if (array_key_exists(key: 'icon', array: $data) === false) {
+			return;
 		}
-	}//end applyDashboardUpdates()
+
+		$iconToStore = null;
+		if (is_string($data['icon']) === true) {
+			$iconToStore = $data['icon'];
+		}
+
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setIcon($iconToStore);
+	}//end applyIconUpdate()
 
 	/**
 	 * Apply per-dashboard footer override updates (REQ-FTR-006).
@@ -3240,20 +3726,34 @@ class DashboardService {
 			$newMode = $data['dashboardFooterMode'];
 		}
 
-		if ($newMode === null || $newMode === '') {
-			$newMode = Dashboard::FOOTER_MODE_INHERIT;
+		return self::validFooterMode(mode: $newMode);
+	}//end resolveFooterMode()
+
+	/**
+	 * A footer mode with null / empty read as `inherit`, refused unless it
+	 * is one of the known modes.
+	 *
+	 * @param mixed $mode The candidate mode.
+	 *
+	 * @return string The mode.
+	 *
+	 * @throws InvalidArgumentException When the mode is unknown.
+	 */
+	private static function validFooterMode(mixed $mode): string {
+		if ($mode === null || $mode === '') {
+			$mode = Dashboard::FOOTER_MODE_INHERIT;
 		}
 
-		if (is_string($newMode) === false
-			|| in_array(needle: $newMode, haystack: Dashboard::FOOTER_MODES, strict: true) === false
+		if (is_string($mode) === false
+			|| in_array(needle: $mode, haystack: Dashboard::FOOTER_MODES, strict: true) === false
 		) {
 			throw new InvalidArgumentException(
 				message: 'dashboardFooterMode must be one of: ' . implode(separator: ', ', array: Dashboard::FOOTER_MODES)
 			);
 		}
 
-		return $newMode;
-	}//end resolveFooterMode()
+		return $mode;
+	}//end validFooterMode()
 
 	/**
 	 * Resolve the raw custom-footer HTML an update is asking to store.
@@ -3332,57 +3832,100 @@ class DashboardService {
 		Dashboard $dashboard,
 		array $data,
 	): void {
-		$movingUuid = $dashboard->getUuid();
-
-		// Track the parent the slug uniqueness check should fire against.
-		$effectiveParent = $dashboard->getParentUuid();
-
 		if (array_key_exists(key: 'parentUuid', array: $data) === true) {
-			$newParent = $data['parentUuid'];
-			if ($newParent !== null && is_string($newParent) === false) {
-				$newParent = (string)$newParent;
-			}
-
-			// REQ-DASH-028: cycle + depth before applying.
-			$this->structure->treeService->validateParent(
-				movingUuid: $movingUuid,
-				newParentUuid: $newParent
-			);
-
-			$dashboard->setParentUuid($newParent);
-			$effectiveParent = $newParent;
+			$this->applyParentUpdate(dashboard: $dashboard, newParent: $data['parentUuid']);
 		}
 
+		// The slug uniqueness check fires against the parent as it stands
+		// after any re-parenting above.
 		if (array_key_exists(key: 'slug', array: $data) === true) {
-			$newSlug = $data['slug'];
-			if ($newSlug !== null && is_string($newSlug) === false) {
-				$newSlug = (string)$newSlug;
-			}
-
-			if ($newSlug !== null && $newSlug !== '') {
-				if (SlugGenerator::isValid(slug: $newSlug) === false) {
-					throw new InvalidArgumentException(
-						message: 'Slug must match [a-z0-9_-]+ and be at most 128 characters'
-					);
-				}
-
-				// REQ-DASH-024: per-parent uniqueness — exclude the row
-				// being updated so no-op writes succeed.
-				$this->structure->treeService->validateSlugUnique(
-					parentUuid: $effectiveParent,
-					slug: $newSlug,
-					excludeUuid: $movingUuid
-				);
-			}
-
-			$dashboard->setSlug($newSlug);
-		}//end if
+			$this->applySlugUpdate(dashboard: $dashboard, newSlug: $data['slug']);
+		}
 
 		if (array_key_exists(key: 'sortOrder', array: $data) === true) {
 			$sortOrder = $data['sortOrder'];
 			$dashboard->setSortOrder((int)$sortOrder);
 		}
 	}//end applyTreeUpdates()
+
+	/**
+	 * Re-parent the dashboard after the REQ-DASH-028 cycle + depth check.
+	 *
+	 * @param Dashboard $dashboard The dashboard being updated.
+	 * @param mixed     $newParent The requested parent UUID (NULL for root).
+	 *
+	 * @return void
+	 */
+	private function applyParentUpdate(Dashboard $dashboard, mixed $newParent): void {
+		$newParent = $this->stringOrNull(value: $newParent);
+
+		$this->structure->treeService->validateParent(
+			movingUuid: $dashboard->getUuid(),
+			newParentUuid: $newParent
+		);
+
+		$dashboard->setParentUuid($newParent);
+	}//end applyParentUpdate()
+
+	/**
+	 * Set the slug; a non-empty one must be well-formed and unique under the dashboard's parent.
+	 *
+	 * @param Dashboard $dashboard The dashboard being updated.
+	 * @param mixed     $newSlug   The requested slug.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the slug is malformed or taken.
+	 */
+	private function applySlugUpdate(Dashboard $dashboard, mixed $newSlug): void {
+		$newSlug = $this->stringOrNull(value: $newSlug);
+		if ($newSlug !== null && $newSlug !== '') {
+			$this->assertSlugAllowed(dashboard: $dashboard, slug: $newSlug);
+		}
+
+		$dashboard->setSlug($newSlug);
+	}//end applySlugUpdate()
+
+	/**
+	 * Refuse a malformed slug, then one a sibling already owns.
+	 *
+	 * @param Dashboard $dashboard The dashboard being updated.
+	 * @param string    $slug      The non-empty requested slug.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the slug is malformed or taken.
+	 */
+	private function assertSlugAllowed(Dashboard $dashboard, string $slug): void {
+		if (SlugGenerator::isValid(slug: $slug) === false) {
+			throw new InvalidArgumentException(
+				message: 'Slug must match [a-z0-9_-]+ and be at most 128 characters'
+			);
+		}
+
+		// REQ-DASH-024: per-parent uniqueness — exclude the row
+		// being updated so no-op writes succeed.
+		$this->structure->treeService->validateSlugUnique(
+			parentUuid: $dashboard->getParentUuid(),
+			slug: $slug,
+			excludeUuid: $dashboard->getUuid()
+		);
+	}//end assertSlugAllowed()
+
+	/**
+	 * The value as a string, NULL kept as NULL.
+	 *
+	 * @param mixed $value A payload value.
+	 *
+	 * @return string|null The cast value.
+	 */
+	private function stringOrNull(mixed $value): string|null {
+		if ($value !== null && is_string($value) === false) {
+			return (string)$value;
+		}
+
+		return $value;
+	}//end stringOrNull()
 
 	/**
 	 * Assert the actor is allowed to mutate the dashboard's publication

@@ -88,44 +88,20 @@ class HealthPingController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function show(int $placementId): JSONResponse {
-		$userId = $this->resolveUserId();
-		if ($userId === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unauthorized'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
 		// REQ-HPING-003 "Caller authorization" — the auth guard runs
 		// BEFORE any resolution/ping is attempted.
-		if ($this->permissionService->canViewPlacement(userId: $userId, placementId: $placementId) === false) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'forbidden'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+		$userId = $this->session->placementViewer(permissions: $this->permissionService, placementId: $placementId);
+		if ($userId instanceof JSONResponse) {
+			return $userId;
 		}
 
 		try {
 			$badge = $this->healthPingService->resolveForPlacement(placementId: $placementId);
 		} catch (Throwable $exception) {
-			$this->session->logger->error(
-				message: 'Unexpected health-ping resolution failure',
-				context: ['app' => Application::APP_ID, 'exception' => $exception->getMessage()]
-			);
-			return $this->errorCode(code: 'unknown_error', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->session->resolutionFailure(message: 'Unexpected health-ping resolution failure', exception: $exception);
 		}
 
-		if (isset($badge['error']) === true) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => $badge['error']],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		}
-
-		return new JSONResponse(
-			data: $badge,
-			statusCode: Http::STATUS_OK
-		);
+		return $this->session->readingResponse(reading: $badge, errorStatus: Http::STATUS_NOT_FOUND);
 	}//end show()
 
 	/**
@@ -142,11 +118,8 @@ class HealthPingController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function validate(): JSONResponse {
-		if ($this->resolveUserId() === null) {
-			return new JSONResponse(
-				data: ['status' => 'error', 'error' => 'unauthorized'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
+		if ($this->session->userId() === null) {
+			return $this->session->unauthorized();
 		}
 
 		$config = $this->request->getParam(key: 'config');
@@ -156,23 +129,6 @@ class HealthPingController extends Controller {
 
 		$errors = $this->healthPingService->validateConfig(config: $config);
 
-		return new JSONResponse(
-			data: ['valid' => ($errors === []), 'errors' => $errors],
-			statusCode: Http::STATUS_OK
-		);
+		return $this->session->validationResponse(errors: $errors);
 	}//end validate()
-
-	/**
-	 * Resolve the active user's UID, or `null` for anonymous.
-	 *
-	 * @return string|null
-	 */
-	private function resolveUserId(): ?string {
-		$user = $this->session->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		return $user->getUID();
-	}//end resolveUserId()
 }//end class

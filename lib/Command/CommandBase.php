@@ -238,6 +238,35 @@ abstract class CommandBase extends Command {
 	}//end emitSuccess()
 
 	/**
+	 * Emit a payload as the JSON envelope (when `--json`) or as
+	 * pretty-printed JSON (skipped when `--quiet`), and answer success.
+	 *
+	 * @param CommandStreams      $streams The input and output of the run.
+	 * @param array<string,mixed> $payload The payload.
+	 *
+	 * @return int The success exit code.
+	 *
+	 * @spec openspec/specs/cli-commands/spec.md
+	 */
+	final protected function emitPrettyPayload(CommandStreams $streams, array $payload): int {
+		if ($this->isJson(input: $streams->input) === true) {
+			$this->emitSuccess(input: $streams->input, output: $streams->output, data: $payload);
+			return CommandService::EXIT_SUCCESS;
+		}
+
+		if ($this->isQuiet(input: $streams->input) === false) {
+			$streams->output->writeln(
+				messages: (string)json_encode(
+					value: $payload,
+					flags: (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+				)
+			);
+		}
+
+		return CommandService::EXIT_SUCCESS;
+	}//end emitPrettyPayload()
+
+	/**
 	 * Emit an error envelope to stdout (when `--json`) or a `<error>`
 	 * line on stderr (always; `--quiet` does NOT mute errors per
 	 * REQ-CLI-002).

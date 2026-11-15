@@ -54,6 +54,7 @@ use OCA\LaunchPad\Service\ActionAuthService;
  * @uses   \OCA\LaunchPad\Service\BulkOperationAccess
  * @uses   \OCA\LaunchPad\Service\BulkStatusRequest
  * @uses   \OCA\LaunchPad\Service\BulkStatusChange
+ * @uses   \OCA\LaunchPad\Service\BulkOutcome
  * @uses   \OCA\LaunchPad\Service\RequestGuard
  * @uses   \OCA\LaunchPad\Service\PermissionDeniedException
  * @uses   \OCA\LaunchPad\Activity\ActivityRow

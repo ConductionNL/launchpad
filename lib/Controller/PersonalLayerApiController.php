@@ -92,22 +92,7 @@ class PersonalLayerApiController extends Controller {
 
 		$layer = $this->mapper->findForUser(userId: (string)$this->userId, dashboardId: $dashboardId);
 		if ($layer === null) {
-			// No layer means this person sees what the owner composed, which
-			// is a state worth answering plainly rather than with a 404. The
-			// answer carries the same keys and the same JSON types as a saved
-			// layer, so a client can read `overrides.<placementId>` and
-			// `hidden` without first branching on `hasLayer`.
-			return new JSONResponse(
-				[
-					'id' => null,
-					'dashboardId' => $dashboardId,
-					'overrides' => new stdClass(),
-					'hidden' => [],
-					'updatedAt' => null,
-					'hasLayer' => false,
-					'hiddenPlacements' => [],
-				]
-			);
+			return self::noLayer(dashboardId: $dashboardId);
 		}
 
 		return new JSONResponse(
@@ -120,6 +105,33 @@ class PersonalLayerApiController extends Controller {
 			]
 		);
 	}//end show()
+
+	/**
+	 * The answer for a person without a layer on the dashboard.
+	 *
+	 * No layer means this person sees what the owner composed, which is a
+	 * state worth answering plainly rather than with a 404. The answer
+	 * carries the same keys and the same JSON types as a saved layer, so a
+	 * client can read `overrides.<placementId>` and `hidden` without first
+	 * branching on `hasLayer`.
+	 *
+	 * @param int $dashboardId The dashboard id.
+	 *
+	 * @return JSONResponse The empty layer.
+	 */
+	private static function noLayer(int $dashboardId): JSONResponse {
+		return new JSONResponse(
+			[
+				'id' => null,
+				'dashboardId' => $dashboardId,
+				'overrides' => new stdClass(),
+				'hidden' => [],
+				'updatedAt' => null,
+				'hasLayer' => false,
+				'hiddenPlacements' => [],
+			]
+		);
+	}//end noLayer()
 
 	/**
 	 * The placements this person hid, so the "Hidden (n)" list can name

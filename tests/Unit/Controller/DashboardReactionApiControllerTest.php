@@ -230,4 +230,85 @@ class DashboardReactionApiControllerTest extends TestCase {
 
 		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 	}//end testGetReactionsReturns401WhenUnauthenticated()
+
+	/**
+	 * Every failure answer of the four endpoints, with the logged message,
+	 * and the 401 of each without a session user.
+	 *
+	 * @return void
+	 */
+	public function testFailureAnswersOfEveryEndpoint(): void {
+		$failures = [
+			new \OCP\AppFramework\Db\DoesNotExistException('gone'),
+			new \OCA\LaunchPad\Service\PermissionDeniedException('no view'),
+			new \OCA\LaunchPad\Service\ReactionsDisabledException('disabled'),
+			new \InvalidArgumentException('bad emoji'),
+			new \RuntimeException('db down'),
+		];
+		$calls = [
+			'getReactions' => ['getReactionsSummary', fn ($c) => $c->getReactions('u')],
+			'addReaction' => ['addReaction', fn ($c) => $c->addReaction('u', 'x')],
+			'removeReaction' => ['removeReaction', fn ($c) => $c->removeReaction('u', 'x')],
+			'getReactorsByEmoji' => ['getReactorsByEmoji', fn ($c) => $c->getReactorsByEmoji('u', 'x', null)],
+		];
+		$logged = [];
+		$this->logger->method('error')->willReturnCallback(function (string $message) use (&$logged): void {
+			$logged[] = $message;
+		});
+
+		$answers = [];
+		foreach ($calls as $endpoint => [$method, $call]) {
+			foreach ($failures as $failure) {
+				$service = $this->createMock(ReactionService::class);
+				$service->method($method)->willThrowException($failure);
+				$this->reactionService = $service;
+				$response = $call($this->makeController());
+				$answers[] = $endpoint . ' ' . $response->getStatus() . ' ' . json_encode($response->getData());
+			}
+		}
+
+		$this->assertSame(
+			[
+				'getReactions 404 {"error":"Dashboard not found"}',
+				'getReactions 403 {"error":"no view"}',
+				'getReactions 500 {"error":"Operation failed"}',
+				'getReactions 500 {"error":"Operation failed"}',
+				'getReactions 500 {"error":"Operation failed"}',
+				'addReaction 404 {"error":"Dashboard not found"}',
+				'addReaction 403 {"error":"no view"}',
+				'addReaction 403 {"error":"disabled"}',
+				'addReaction 400 {"error":"bad emoji"}',
+				'addReaction 500 {"error":"Operation failed"}',
+				'removeReaction 404 {"error":"Dashboard not found"}',
+				'removeReaction 403 {"error":"no view"}',
+				'removeReaction 500 {"error":"Operation failed"}',
+				'removeReaction 500 {"error":"Operation failed"}',
+				'removeReaction 500 {"error":"Operation failed"}',
+				'getReactorsByEmoji 404 {"error":"Dashboard not found"}',
+				'getReactorsByEmoji 403 {"error":"no view"}',
+				'getReactorsByEmoji 500 {"error":"Operation failed"}',
+				'getReactorsByEmoji 500 {"error":"Operation failed"}',
+				'getReactorsByEmoji 500 {"error":"Operation failed"}',
+			],
+			$answers
+		);
+		$this->assertSame(
+			[
+				'getReactions failed: disabled', 'getReactions failed: bad emoji', 'getReactions failed: db down',
+				'addReaction failed: db down',
+				'removeReaction failed: disabled', 'removeReaction failed: bad emoji', 'removeReaction failed: db down',
+				'getReactorsByEmoji failed: disabled', 'getReactorsByEmoji failed: bad emoji', 'getReactorsByEmoji failed: db down',
+			],
+			$logged
+		);
+
+		$anonymous = $this->createMock(IUserSession::class);
+		$anonymous->method('getUser')->willReturn(null);
+		$this->userSession = $anonymous;
+		$this->actionAuth->expects($this->never())->method('requireAction');
+		foreach ($calls as [$method, $call]) {
+			$response = $call($this->makeController());
+			$this->assertSame([401, ['error' => 'Not authenticated']], [$response->getStatus(), $response->getData()]);
+		}
+	}//end testFailureAnswersOfEveryEndpoint()
 }//end class

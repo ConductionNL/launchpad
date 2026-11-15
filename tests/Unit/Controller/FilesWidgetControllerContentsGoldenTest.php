@@ -46,6 +46,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\LaunchPad\Controller\FilesWidgetController
  * @uses   \OCA\LaunchPad\Controller\FilesWidgetSources
+ * @uses   \OCA\LaunchPad\Controller\FilesWidgetAccess
  * @uses   \OCA\LaunchPad\Service\FilesWidgetService
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
  * @uses   \OCA\LaunchPad\Exception\FolderNotFoundException

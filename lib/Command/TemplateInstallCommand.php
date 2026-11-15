@@ -138,11 +138,7 @@ class TemplateInstallCommand extends Command {
 		try {
 			$result = $this->templates->install(
 				templateId: $id,
-				options: [
-					'targetGroups' => array_map(callback: 'strval', array: (array)$input->getOption(name: 'group')),
-					'makeDefault'  => (bool)$input->getOption(name: 'default'),
-					'force'        => (bool)$input->getOption(name: 'force'),
-				]
+				options: self::installOptions(input: $input)
 			);
 		} catch (InvalidArgumentException $e) {
 			$output->writeln(messages: '<error>' . $e->getMessage() . '</error>');
@@ -158,6 +154,21 @@ class TemplateInstallCommand extends Command {
 	}//end execute()
 
 	/**
+	 * The install options from the command options.
+	 *
+	 * @param InputInterface $input CLI input.
+	 *
+	 * @return array{targetGroups: list<string>, makeDefault: bool, force: bool}
+	 */
+	private static function installOptions(InputInterface $input): array {
+		return [
+			'targetGroups' => array_map(callback: 'strval', array: (array)$input->getOption(name: 'group')),
+			'makeDefault'  => (bool)$input->getOption(name: 'default'),
+			'force'        => (bool)$input->getOption(name: 'force'),
+		];
+	}//end installOptions()
+
+	/**
 	 * Print what an install did: the template, its groups, and the two
 	 * things an administrator has to know before the members do.
 	 *
@@ -168,16 +179,37 @@ class TemplateInstallCommand extends Command {
 	 * @return void
 	 */
 	private function writeInstalled(OutputInterface $output, string $id, array $result): void {
+		$output->writeln(messages: self::installedLine(id: $id, result: $result));
+		$output->writeln(messages: self::audienceLine(result: $result));
+		$this->writeInstallNotes(output: $output, result: $result);
+	}//end writeInstalled()
+
+	/**
+	 * The headline of an install: new or already there, version and UUID.
+	 *
+	 * @param string               $id     The shipped template id.
+	 * @param array<string, mixed> $result The install result.
+	 *
+	 * @return string The line.
+	 */
+	private static function installedLine(string $id, array $result): string {
 		$verb = 'Installed';
 		if ($result['alreadyInstalled'] === true) {
 			$verb = 'Already installed:';
 		}
 
-		$output->writeln(
-			messages: $verb . ' template ' . $id . ' version ' . (string)$result['version']
-				. ' (UUID: ' . $result['uuid'] . ').'
-		);
+		return $verb . ' template ' . $id . ' version ' . (string)$result['version']
+			. ' (UUID: ' . $result['uuid'] . ').';
+	}//end installedLine()
 
+	/**
+	 * Who gets the installed template: its groups and the default flag.
+	 *
+	 * @param array<string, mixed> $result The install result.
+	 *
+	 * @return string The line.
+	 */
+	private static function audienceLine(array $result): string {
 		$groups = '(none)';
 		if ($result['targetGroups'] !== []) {
 			$groups = implode(separator: ', ', array: $result['targetGroups']);
@@ -188,8 +220,20 @@ class TemplateInstallCommand extends Command {
 			$default = 'yes';
 		}
 
-		$output->writeln(messages: 'Groups: ' . $groups . '. Default for everyone: ' . $default . '.');
+		return 'Groups: ' . $groups . '. Default for everyone: ' . $default . '.';
+	}//end audienceLine()
 
+	/**
+	 * Print the notes an administrator has to know before the members do:
+	 * widgets nobody registers, the registers its lists read, and personal
+	 * dashboards being off.
+	 *
+	 * @param OutputInterface      $output CLI output.
+	 * @param array<string, mixed> $result The install result.
+	 *
+	 * @return void
+	 */
+	private function writeInstallNotes(OutputInterface $output, array $result): void {
 		if ($result['missingWidgets'] !== []) {
 			$output->writeln(
 				messages: '<comment>No app on this instance registers these widgets, so they will show empty: '
@@ -214,7 +258,7 @@ class TemplateInstallCommand extends Command {
 					. ' admin settings to give each member their own copy.</comment>'
 			);
 		}
-	}//end writeInstalled()
+	}//end writeInstallNotes()
 
 	/**
 	 * `--update`: bring the installed template to the shipped version and
@@ -232,10 +276,7 @@ class TemplateInstallCommand extends Command {
 	private function executeUpdate(InputInterface $input, OutputInterface $output, string $id): int {
 		// An update keeps the groups and the default flag. Taking these
 		// options along would change them in the same breath, unseen.
-		if ($input->getOption(name: 'group') !== []
-			|| (bool)$input->getOption(name: 'default') === true
-			|| (bool)$input->getOption(name: 'force') === true
-		) {
+		if (self::changesAudience(input: $input) === true) {
 			$output->writeln(
 				messages: '<error>--update keeps the groups and the default flag, so it cannot be combined with'
 					. ' --group, --default or --force. Run the command without --update to change those.</error>'
@@ -253,12 +294,40 @@ class TemplateInstallCommand extends Command {
 			return self::FAILURE;
 		}
 
+		$output->writeln(messages: self::updatedLine(id: $id, result: $result));
+		if ($result['upToDate'] === false) {
+			$this->writeChanges(output: $output, result: $result);
+		}
+
+		return self::SUCCESS;
+	}//end executeUpdate()
+
+	/**
+	 * Whether the options would change who gets the template, which an
+	 * update keeps: `--group`, `--default` or `--force`.
+	 *
+	 * @param InputInterface $input CLI input.
+	 *
+	 * @return bool True when one of them is given.
+	 */
+	private static function changesAudience(InputInterface $input): bool {
+		return $input->getOption(name: 'group') !== []
+			|| (bool)$input->getOption(name: 'default') === true
+			|| (bool)$input->getOption(name: 'force') === true;
+	}//end changesAudience()
+
+	/**
+	 * The headline of an update: up to date, a dry run, or applied.
+	 *
+	 * @param string               $id     The shipped template id.
+	 * @param array<string, mixed> $result The update result.
+	 *
+	 * @return string The line.
+	 */
+	private static function updatedLine(string $id, array $result): string {
 		if ($result['upToDate'] === true) {
-			$output->writeln(
-				messages: 'Template ' . $id . ' is at version ' . (string)$result['installedVersion']
-					. ', the version LaunchPad ships. Nothing changed.'
-			);
-			return self::SUCCESS;
+			return 'Template ' . $id . ' is at version ' . (string)$result['installedVersion']
+				. ', the version LaunchPad ships. Nothing changed.';
 		}
 
 		$verb = 'Updated';
@@ -266,14 +335,9 @@ class TemplateInstallCommand extends Command {
 			$verb = 'Dry run, nothing written. Would update';
 		}
 
-		$output->writeln(
-			messages: $verb . ' template ' . $id . ' from version ' . (string)$result['installedVersion']
-				. ' to version ' . (string)$result['version'] . ' (UUID: ' . $result['uuid'] . ').'
-		);
-		$this->writeChanges(output: $output, result: $result);
-
-		return self::SUCCESS;
-	}//end executeUpdate()
+		return $verb . ' template ' . $id . ' from version ' . (string)$result['installedVersion']
+			. ' to version ' . (string)$result['version'] . ' (UUID: ' . $result['uuid'] . ').';
+	}//end updatedLine()
 
 	/**
 	 * Print the widgets an update adds, removes and changes, and what
@@ -300,27 +364,30 @@ class TemplateInstallCommand extends Command {
 		}
 
 		$output->writeln(messages: '  = unchanged: ' . (string)$result['unchanged'] . ' widgets');
+		$output->writeln(messages: self::copiesLine(result: $result));
+	}//end writeChanges()
 
+	/**
+	 * What happens to the members' copies: they would follow (dry run),
+	 * follow in the background, or how many changed.
+	 *
+	 * @param array<string, mixed> $result The update result.
+	 *
+	 * @return string The line.
+	 */
+	private static function copiesLine(array $result): string {
 		$copies = (string)$result['copies'];
 		if ($result['dryRun'] === true) {
-			$output->writeln(
-				messages: 'Members with a copy of this template: ' . $copies
-					. '. Their copies would follow. A widget a member added stays.'
-			);
-			return;
+			return 'Members with a copy of this template: ' . $copies
+				. '. Their copies would follow. A widget a member added stays.';
 		}
 
 		if (($result['resync']['async'] ?? false) === true) {
-			$output->writeln(
-				messages: 'Members with a copy of this template: ' . $copies
-					. '. Their copies are updated in the background. A widget a member added stays.'
-			);
-			return;
+			return 'Members with a copy of this template: ' . $copies
+				. '. Their copies are updated in the background. A widget a member added stays.';
 		}
 
-		$output->writeln(
-			messages: 'Members with a copy of this template: ' . $copies . '. Copies changed: '
-				. (string)($result['resync']['affectedCount'] ?? 0) . '. A widget a member added stays.'
-		);
-	}//end writeChanges()
+		return 'Members with a copy of this template: ' . $copies . '. Copies changed: '
+			. (string)($result['resync']['affectedCount'] ?? 0) . '. A widget a member added stays.';
+	}//end copiesLine()
 }//end class

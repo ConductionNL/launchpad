@@ -118,6 +118,99 @@ const DEFAULT_CONTENT = Object.freeze({
 })
 
 /**
+ * A number from stored content, or the fallback when it is not one.
+ *
+ * @param {unknown} value The stored value.
+ * @param {number} fallback The default.
+ * @return {number} the number to edit.
+ */
+function numberOr(value, fallback) {
+	return typeof value === 'number' ? value : fallback
+}
+
+/**
+ * A toggle from stored content: unset reads as the fallback, anything but
+ * `true` as off.
+ *
+ * @param {unknown} value The stored value.
+ * @param {boolean} fallback The default.
+ * @return {boolean} the toggle to edit.
+ */
+function toggleOr(value, fallback) {
+	if (value === undefined) {
+		return fallback
+	}
+	return value === true
+}
+
+/**
+ * The feed, layout and display fields of the form, read from stored content.
+ *
+ * @param {object} initial The stored content.
+ * @return {object} the display part of the form state.
+ */
+function displayFields(initial) {
+	return {
+		feedUrls: Array.isArray(initial.feedUrls) ? [...initial.feedUrls] : [],
+		layout: ALLOWED_LAYOUTS.includes(initial.layout)
+			? initial.layout
+			: DEFAULT_CONTENT.layout,
+
+		itemLimit: numberOr(initial.itemLimit, DEFAULT_CONTENT.itemLimit),
+		showThumbnails: toggleOr(initial.showThumbnails, DEFAULT_CONTENT.showThumbnails),
+		showSummary: toggleOr(initial.showSummary, DEFAULT_CONTENT.showSummary),
+		summaryMaxChars: numberOr(initial.summaryMaxChars, DEFAULT_CONTENT.summaryMaxChars),
+		dateFormat: initial.dateFormat === 'absolute' ? 'absolute' : 'relative',
+	}
+}
+
+/**
+ * The validation error of one feed URL row, or null when it is valid.
+ *
+ * @param {unknown} url The feed URL row.
+ * @return {string|null} the error.
+ */
+function feedUrlError(url) {
+	if (typeof url !== 'string' || url.trim() === '') {
+		return t('launchpad', 'Empty feed URL — remove it or fill it in')
+	}
+	if (!/^https?:\/\//i.test(url.trim())) {
+		return t(
+			'launchpad',
+			'Feed URL must start with http:// or https://',
+		)
+	}
+	return null
+}
+
+/**
+ * A string from a stored metadata filter, or '' when it is not one.
+ *
+ * @param {unknown} value The stored value.
+ * @return {string} the string to edit.
+ */
+function stringOrEmpty(value) {
+	return typeof value === 'string' ? value : ''
+}
+
+/**
+ * The metadata-filter fields of the form, read from a stored filter.
+ *
+ * @param {unknown} filter The stored `{fieldKey, value}` filter, or null.
+ * @return {{enabled: boolean, fieldKey: string, value: string}} the filter fields.
+ */
+function metadataFilterFields(filter) {
+	if (filter === null || typeof filter !== 'object') {
+		return { enabled: false, fieldKey: '', value: '' }
+	}
+	return {
+		enabled: true,
+		fieldKey: stringOrEmpty(filter.fieldKey),
+		value: stringOrEmpty(filter.value),
+	}
+}
+
+/**
  * NewsWidgetForm — sub-form for creating or editing a `news` placement.
  *
  * Manages the feed URL list, layout, item limit, thumbnail/summary toggles,
@@ -161,43 +254,12 @@ export default {
 
 	data() {
 		const initial = this.editingWidget?.content || this.value || {}
-		const filter = initial.metadataFilter
-		const hasFilter = filter !== null && typeof filter === 'object'
+		const filter = metadataFilterFields(initial.metadataFilter)
 		return {
-			feedUrls: Array.isArray(initial.feedUrls) ? [...initial.feedUrls] : [],
-			layout: ALLOWED_LAYOUTS.includes(initial.layout)
-				? initial.layout
-				: DEFAULT_CONTENT.layout,
-
-			itemLimit:
-				typeof initial.itemLimit === 'number'
-					? initial.itemLimit
-					: DEFAULT_CONTENT.itemLimit,
-
-			showThumbnails:
-				initial.showThumbnails === undefined
-					? DEFAULT_CONTENT.showThumbnails
-					: initial.showThumbnails === true,
-
-			showSummary:
-				initial.showSummary === undefined
-					? DEFAULT_CONTENT.showSummary
-					: initial.showSummary === true,
-
-			summaryMaxChars:
-				typeof initial.summaryMaxChars === 'number'
-					? initial.summaryMaxChars
-					: DEFAULT_CONTENT.summaryMaxChars,
-
-			dateFormat: initial.dateFormat === 'absolute' ? 'absolute' : 'relative',
-			metadataFilterEnabled: hasFilter,
-			metadataFieldKey:
-				hasFilter && typeof filter.fieldKey === 'string'
-					? filter.fieldKey
-					: '',
-
-			metadataValue:
-				hasFilter && typeof filter.value === 'string' ? filter.value : '',
+			...displayFields(initial),
+			metadataFilterEnabled: filter.enabled,
+			metadataFieldKey: filter.fieldKey,
+			metadataValue: filter.value,
 		}
 	},
 
@@ -374,32 +436,14 @@ export default {
 		 * @spec openspec/specs/news-widget/spec.md
 		 */
 		validate() {
-			const errors = []
-			for (const url of this.feedUrls) {
-				if (typeof url !== 'string' || url.trim() === '') {
-					errors.push(
-						t('launchpad', 'Empty feed URL — remove it or fill it in'),
-					)
-					continue
-				}
-				if (!/^https?:\/\//i.test(url.trim())) {
-					errors.push(
-						t(
-							'launchpad',
-							'Feed URL must start with http:// or https://',
-						),
-					)
-				}
-			}
-			if (this.metadataFilterEnabled) {
-				if (this.metadataFieldKey.trim() === '') {
-					errors.push(
-						t(
-							'launchpad',
-							'Metadata field key is required when filter is enabled',
-						),
-					)
-				}
+			const errors = this.feedUrls.map(feedUrlError).filter(Boolean)
+			if (this.metadataFilterEnabled && this.metadataFieldKey.trim() === '') {
+				errors.push(
+					t(
+						'launchpad',
+						'Metadata field key is required when filter is enabled',
+					),
+				)
 			}
 			return errors
 		},

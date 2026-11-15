@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Command;
 
+use OCA\LaunchPad\Db\CleanupResult;
 use OCA\LaunchPad\Service\OrphanedDataCleanupService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -75,6 +76,25 @@ class CleanupScanCommand extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$result = $this->cleanupService->scan();
 
+		self::renderCounts(result: $result, output: $output);
+		self::writeNotes(result: $result, output: $output);
+
+		if ($result->getTotalRows() === 0) {
+			return 0;
+		}
+
+		return 1;
+	}//end execute()
+
+	/**
+	 * Render the per-category counts and their total as a table.
+	 *
+	 * @param CleanupResult   $result The scan result.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return void
+	 */
+	private static function renderCounts(CleanupResult $result, OutputInterface $output): void {
 		$table = new Table(output: $output);
 		$table->setHeaders(headers: ['Category', 'Count']);
 
@@ -84,7 +104,17 @@ class CleanupScanCommand extends Command {
 
 		$table->addRow(row: ['<info>TOTAL</info>', (string)$result->getTotalRows()]);
 		$table->render();
+	}//end renderCounts()
 
+	/**
+	 * Print the skipped categories, if any, and the scan time.
+	 *
+	 * @param CleanupResult   $result The scan result.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return void
+	 */
+	private static function writeNotes(CleanupResult $result, OutputInterface $output): void {
 		$skipped = $result->getSkipped();
 		if (count(value: $skipped) > 0) {
 			$output->writeln(
@@ -101,11 +131,5 @@ class CleanupScanCommand extends Command {
 				$result->getDurationMs()
 			)
 		);
-
-		if ($result->getTotalRows() === 0) {
-			return 0;
-		}
-
-		return 1;
-	}//end execute()
+	}//end writeNotes()
 }//end class

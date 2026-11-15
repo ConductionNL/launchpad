@@ -433,4 +433,25 @@ class HealthPingServiceTest extends TestCase {
 
 		$this->assertSame('not_configured', $result['error']);
 	}//end testPingDisabledPlacementReturnsNotConfiguredError()
+
+	/**
+	 * The ping is one GET with the service's timeouts, no redirects and no
+	 * throwing on an error status.
+	 *
+	 * @return void
+	 */
+	public function testPingRequestOptions(): void {
+		$this->allowHost(host: 'example.com', thresholdMs: 2000);
+		$placement = $this->placementWithConfig(id: 1, config: $this->baseConfig());
+		$this->placementMapper->method('find')->willReturn($placement);
+
+		$client = $this->createMock(originalClassName: IClient::class);
+		$client->expects($this->once())->method('get')->with(
+			$this->isType('string'),
+			['connect_timeout' => 5, 'timeout' => 10, 'http_errors' => false, 'allow_redirects' => false]
+		)->willReturn($this->mockHttpResponse(status: 200));
+		$this->clientService->method('newClient')->willReturn($client);
+
+		$this->service->resolveForPlacement(placementId: 1);
+	}//end testPingRequestOptions()
 }//end class

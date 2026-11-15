@@ -593,6 +593,53 @@ class ExtensionTest extends TestCase {
 	}//end testParseThrowsForUnknownType()
 
 	/**
+	 * Every event type renders the recorded subject and icon, for self and
+	 * other, with every placeholder, and with the author / object name
+	 * fallbacks when the parameters lack them.
+	 *
+	 * @return void
+	 */
+	public function testParseRendersTheRecordedSubjects(): void {
+		$extension = $this->createExtension();
+		$actual    = [];
+		foreach (Extension::ALL_EVENTS as $type) {
+			foreach (['self' => true, 'other' => false] as $variant => $isSelf) {
+				$event = new RecordingEvent();
+				$event->setApp(app: Extension::APP_ID);
+				$event->setType(type: $type);
+				$event->setSubject(
+					subject: $type,
+					parameters: ['self' => $isSelf, 'actor' => 'alice', 'dashboard' => 'Dashboard A', 'recipient' => 'bob', 'role' => 'editor', 'target' => 'carol', 'version' => 3]
+				);
+				$extension->parse(language: 'en', event: $event);
+				$actual[$type.' / '.$variant] = [$event->getRichSubject(), $event->getParsedSubject(), $event->getIcon()];
+			}
+
+			$event = new RecordingEvent();
+			$event->setApp(app: Extension::APP_ID);
+			$event->setType(type: $type);
+			$event->setAuthor(author: 'dave');
+			$event->setObject(objectType: 'dashboard', objectId: 9, objectName: 'Board 9');
+			$event->setSubject(subject: $type, parameters: []);
+			$extension->parse(language: 'en', event: $event);
+			$actual[$type.' / fallbacks'] = [$event->getRichSubject(), $event->getParsedSubject(), $event->getIcon()];
+		}
+
+		$fixture = __DIR__.'/fixtures/extension-parse.json';
+		if (getenv('LAUNCHPAD_RECORD_GOLDEN') === '1') {
+			file_put_contents($fixture, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
+		}
+
+		$this->assertSame(json_decode((string) file_get_contents($fixture), true), $actual);
+
+		$foreign = new RecordingEvent();
+		$foreign->setApp(app: 'files');
+		$this->expectException(exception: UnknownActivityException::class);
+		$this->expectExceptionMessage('Unknown app: files');
+		$extension->parse(language: 'en', event: $foreign);
+	}//end testParseRendersTheRecordedSubjects()
+
+	/**
 	 * Build a publisher wired to the test mocks and clock.
 	 *
 	 * @return ActivityPublisher The publisher under test.

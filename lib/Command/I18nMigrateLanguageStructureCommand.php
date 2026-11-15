@@ -112,21 +112,12 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 			);
 		}
 
-		if ($this->isNoInteraction(input: $input) === false
-			&& $this->isJson(input: $input) === false
-		) {
-			$helper = new QuestionHelper();
-			$question = new ConfirmationQuestion(
-				question: 'Run the language-structure migration? [y/N] ',
-				default: false
+		if ($this->declined(input: $input, output: $output) === true) {
+			return $this->emitError(
+				input: $input,
+				output: $output,
+				error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Migration aborted by user.']
 			);
-			if ((bool)$helper->ask(input: $input, output: $output, question: $question) === false) {
-				return $this->emitError(
-					input: $input,
-					output: $output,
-					error: ['exitCode' => CommandService::EXIT_INVALID_ARGS, 'code' => 'ABORTED', 'message' => 'Migration aborted by user.']
-				);
-			}
 		}
 
 		// The migration body is owned by the language-content capability;
@@ -144,4 +135,28 @@ class I18nMigrateLanguageStructureCommand extends CommandBase {
 
 		return CommandService::EXIT_SUCCESS;
 	}//end handle()
+
+	/**
+	 * Whether an interactive, non-JSON run was declined at the
+	 * confirmation prompt. Runs with `--no-interaction` or `--json` are
+	 * never asked.
+	 *
+	 * @param InputInterface  $input  CLI input.
+	 * @param OutputInterface $output CLI output.
+	 *
+	 * @return bool True when the operator answered no.
+	 */
+	private function declined(InputInterface $input, OutputInterface $output): bool {
+		if ($this->isNoInteraction(input: $input) === true || $this->isJson(input: $input) === true) {
+			return false;
+		}
+
+		$helper = new QuestionHelper();
+		$question = new ConfirmationQuestion(
+			question: 'Run the language-structure migration? [y/N] ',
+			default: false
+		);
+
+		return (bool)$helper->ask(input: $input, output: $output, question: $question) === false;
+	}//end declined()
 }//end class

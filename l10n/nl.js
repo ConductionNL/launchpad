@@ -945,6 +945,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Stel het standaard rechtenniveau in voor nieuwe gedeelde items en de groepen waarmee elk dashboard automatisch wordt gedeeld.",
     "Default share permission level" : "Standaard rechtenniveau voor delen",
     "Forced share groups" : "Verplichte deelgroepen",
+    "Groups that may share" : "Groepen die mogen delen",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Alleen leden van deze groepen kunnen hun dashboards delen. Laat leeg om iedereen te laten delen.",
+    "Who can receive a share" : "Wie een gedeeld dashboard kan ontvangen",
+    "Only people who share a group with the sharer" : "Alleen mensen die een groep delen met wie deelt",
     "Select groups (leave empty for none)" : "Selecteer groepen (leeg laten voor geen)",
     "Members of these groups always receive every newly created dashboard." : "Leden van deze groepen ontvangen altijd elk nieuw aangemaakt dashboard.",
     "Prometheus metrics" : "Prometheus-metrieken",
@@ -1649,6 +1653,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "geldt voor de hele organisatie",
     "Discovered on this server" : "Gevonden op deze server",
     "Apps this server runs for you. One click places one as a tile." : "Apps die deze server voor u draait. Met één klik wordt er een tegel van.",
+    "Office tiles" : "Kantoortegels",
+    "Ready-made tiles" : "Kant-en-klare tegels",
+    "One container with a tile for each kind of new document and each office app on this server." : "Eén container met een tegel voor elk soort nieuw document en elke kantoorapp op deze server.",
+    "This server has no office apps to make tiles for." : "Deze server heeft geen kantoorapps om tegels voor te maken.",
+    "The office tiles could not be added." : "De kantoortegels konden niet worden toegevoegd.",
+    "File name" : "Bestandsnaam",
+    "The file could not be created." : "Het bestand kon niet worden aangemaakt.",
     "On this dashboard" : "Op dit dashboard",
     "App template" : "App-sjabloon",
     "Adapter" : "Adapter",
@@ -1669,7 +1680,11 @@ OC.L10N.register(
     "Sorted alphabetically" : "Alfabetisch gesorteerd",
     "Sorted by most used" : "Gesorteerd op meest gebruikt",
     "Sorted by last used" : "Gesorteerd op laatst gebruikt",
-    "Sorted at random" : "Willekeurig gesorteerd"
+    "Sorted at random" : "Willekeurig gesorteerd",
+    "Active filters" : "Actieve filters",
+    "Pinned filter" : "Vastgezet filter",
+    "Remove filter: {label}" : "Filter verwijderen: {label}",
+    "Reset filters" : "Filters wissen"
 },
 "nplurals=2; plural=(n != 1);"
 );

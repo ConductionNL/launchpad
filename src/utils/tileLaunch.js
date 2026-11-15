@@ -37,18 +37,29 @@ export function isLaunchType(linkType) {
  * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
  */
 export function launchFields(content) {
-	const remote = content?.remote || {}
-	const sso = content?.sso || {}
+	const port = stored(content, 'remote', 'port')
 	return {
-		remoteMode: remote.mode === 'rdp' ? 'rdp' : 'gateway',
-		remoteUrl: remote.url || '',
-		rdpHost: remote.host || '',
-		rdpPort: remote.port ? String(remote.port) : '',
-		rdpRemoteApp: remote.remoteApp || '',
-		rdpGateway: remote.gateway || '',
-		ssoTemplate: sso.template || '',
-		ssoAppId: sso.appId || '',
+		remoteMode: stored(content, 'remote', 'mode') === 'rdp' ? 'rdp' : 'gateway',
+		remoteUrl: stored(content, 'remote', 'url'),
+		rdpHost: stored(content, 'remote', 'host'),
+		rdpPort: port ? String(port) : '',
+		rdpRemoteApp: stored(content, 'remote', 'remoteApp'),
+		rdpGateway: stored(content, 'remote', 'gateway'),
+		ssoTemplate: stored(content, 'sso', 'template'),
+		ssoAppId: stored(content, 'sso', 'appId'),
 	}
+}
+
+/**
+ * One stored launch setting, or '' when it is not set.
+ *
+ * @param {object} content The placement's content blob.
+ * @param {string} group `remote` or `sso`.
+ * @param {string} key The setting.
+ * @return {string|number}
+ */
+function stored(content, group, key) {
+	return content?.[group]?.[key] || ''
 }
 
 /**
@@ -62,28 +73,40 @@ export function launchFields(content) {
  */
 export function launchContent(form) {
 	if (form.linkType === LINK_REMOTE) {
-		if (form.remoteMode === 'rdp') {
-			const remote = { mode: 'rdp', host: String(form.rdpHost || '').trim() }
-			const port = String(form.rdpPort || '').trim()
-			if (port !== '') {
-				remote.port = port
-			}
-			const remoteApp = String(form.rdpRemoteApp || '').trim()
-			if (remoteApp !== '') {
-				remote.remoteApp = remoteApp
-			}
-			const gateway = String(form.rdpGateway || '').trim()
-			if (gateway !== '') {
-				remote.gateway = gateway
-			}
-			return { remote }
-		}
-		return { remote: { mode: 'gateway', url: String(form.remoteUrl || '').trim() } }
+		return { remote: form.remoteMode === 'rdp' ? rdpRemote(form) : { mode: 'gateway', url: trimmed(form.remoteUrl) } }
 	}
 	if (form.linkType === LINK_SSO) {
-		return { sso: { template: form.ssoTemplate || '', appId: String(form.ssoAppId || '').trim() } }
+		return { sso: { template: form.ssoTemplate || '', appId: trimmed(form.ssoAppId) } }
 	}
 	return {}
+}
+
+/**
+ * The `remote` block of an RDP tile: its host, and its port, program and
+ * gateway only when they are filled in.
+ *
+ * @param {object} form The editor's form.
+ * @return {object}
+ */
+function rdpRemote(form) {
+	const remote = { mode: 'rdp', host: trimmed(form.rdpHost) }
+	for (const [key, field] of [['port', 'rdpPort'], ['remoteApp', 'rdpRemoteApp'], ['gateway', 'rdpGateway']]) {
+		const value = trimmed(form[field])
+		if (value !== '') {
+			remote[key] = value
+		}
+	}
+	return remote
+}
+
+/**
+ * A form value as trimmed text.
+ *
+ * @param {string|number|null|undefined} value The value.
+ * @return {string}
+ */
+function trimmed(value) {
+	return String(value || '').trim()
 }
 
 /**

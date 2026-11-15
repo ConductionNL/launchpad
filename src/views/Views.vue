@@ -2551,26 +2551,49 @@ export default {
 						content,
 					})
 				} else {
-					// A launch tile is checked on create, so it carries its content.
-					const newPlacement = await this.addTileToDashboard(
-						isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
-					)
-					// `addTile` has no `content` parameter (mirrors the
-					// `addWidget` create-then-patch pattern above) — persist
-					// the health-ping block with a follow-up patch only when
-					// the author actually enabled it.
-					if (newPlacement?.id && healthPingContent.healthPingEnabled) {
-						await this.updateWidgetPlacement(newPlacement.id, {
-							content,
-						})
-					}
+					await this.createTile(tileData, content)
 				}
 				this.closeTileEditor()
 			} catch (error) {
-				logger.error('[Views] Failed to save tile:', error)
-				if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {
-					showError(t('launchpad', 'The tile was not saved: check its address or settings.'))
-				}
+				this.reportTileSaveError(tileData, error)
+			}
+		},
+
+		/**
+		 * Create a launcher tile from the editor's form state.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {object} content The placement's content blob.
+		 * @spec openspec/specs/service-health-ping/spec.md
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		async createTile(tileData, content) {
+			// A launch tile is checked on create, so it carries its content.
+			const newPlacement = await this.addTileToDashboard(
+				isLaunchType(tileData.linkType) ? { ...tileData, content } : tileData,
+			)
+			// `addTile` has no `content` parameter (mirrors the
+			// `addWidget` create-then-patch pattern above) — persist
+			// the health-ping block with a follow-up patch only when
+			// the author actually enabled it.
+			if (newPlacement?.id && content.healthPingEnabled) {
+				await this.updateWidgetPlacement(newPlacement.id, {
+					content,
+				})
+			}
+		},
+
+		/**
+		 * Log a failed tile save, and tell the author when the server refused a launch tile's settings.
+		 *
+		 * @param {object} tileData Assembled tile fields.
+		 * @param {Error} error The failure.
+		 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-4
+		 */
+		reportTileSaveError(tileData, error) {
+			logger.error('[Views] Failed to save tile:', error)
+			if (isLaunchType(tileData.linkType) && error?.response?.status === 400) {
+				showError(t('launchpad', 'The tile was not saved: check its address or settings.'))
 			}
 		},
 

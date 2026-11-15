@@ -30,6 +30,8 @@ Settings are stored as key-value pairs:
 | `link_create_file_extensions` | `linkCreateFileExtensions` | `string[]` | `["txt","md","docx","xlsx","csv","odt"]` | Extensions the link-button widget's "create file" action may create (REQ-LBN-004). An empty stored list resolves to the default. |
 | `default_share_permission_level` | `defaultSharePermissionLevel` | string | `add_only` | Org-wide default permission for a new share (dashboard-sharing spec) |
 | `forced_share_groups` | `forcedShareGroups` | `string[]` | `[]` | Groups every new dashboard is force-shared with (dashboard-sharing spec) |
+| `sharing_allowed_groups` | `sharingAllowedGroups` | `string[]` | `[]` | Groups whose members may share a dashboard; empty means everyone may (dashboard-sharing REQ-SHARE-014) |
+| `sharing_recipient_scope` | `sharingRecipientScope` | string | `everyone` | Whom a dashboard may be shared with: `everyone`, or `shared-groups` (only people and groups the sharer shares a group with). Anything else reads as `everyone` (dashboard-sharing REQ-SHARE-014). |
 | `legacy_widget_bridge_enabled` | `legacyWidgetBridgeEnabled` | boolean | `false` | Whether the workspace reads Nextcloud's widget registry (legacy-widget-bridge spec) |
 | `max_dashboards_per_user` | `maxDashboardsPerUser` | integer | `0` | Personal dashboard quota per user, `0` = unlimited (REQ-QUOTA-001) |
 | `max_widgets_per_dashboard` | `maxWidgetsPerDashboard` | integer | `0` | Placement quota per dashboard, `0` = unlimited (REQ-QUOTA-001) |
@@ -41,12 +43,12 @@ NOTE: The DB stores settings with snake_case keys, but the API response returns 
 ## Requirements
 ### Requirement: Retrieve Admin Settings (REQ-ASET-001)
 
-Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the twelve settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
+Administrators MUST be able to retrieve all current admin settings via the API. The endpoint returns a flat JSON object with the fourteen settings listed under Defined Settings, each under its API response key. `group_order` is not among them; it has its own endpoints (REQ-ASET-012).
 
 #### Scenario: Get all settings with defaults
 - GIVEN no admin settings have been explicitly configured (fresh installation)
 - WHEN the admin sends GET /api/admin/settings
-- THEN the system MUST return HTTP 200 with all twelve settings at their default values:
+- THEN the system MUST return HTTP 200 with all fourteen settings at their default values:
   ```json
   {
     "defaultPermissionLevel": "add_only",
@@ -56,6 +58,8 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
     "linkCreateFileExtensions": ["txt", "md", "docx", "xlsx", "csv", "odt"],
     "defaultSharePermissionLevel": "add_only",
     "forcedShareGroups": [],
+    "sharingAllowedGroups": [],
+    "sharingRecipientScope": "everyone",
     "legacyWidgetBridgeEnabled": false,
     "maxDashboardsPerUser": 0,
     "maxWidgetsPerDashboard": 0,
@@ -69,7 +73,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 - GIVEN the admin has set `allowUserDashboards` to `false`
 - WHEN the admin sends GET /api/admin/settings
 - THEN the response MUST carry `"allowUserDashboards": false`
-- AND the other eleven keys MUST still be present with their current values
+- AND the other thirteen keys MUST still be present with their current values
 
 #### Scenario: Non-admin user retrieves settings
 - GIVEN a regular user "alice"
@@ -86,7 +90,7 @@ Administrators MUST be able to retrieve all current admin settings via the API. 
 #### Scenario: Settings response format consistency
 - GIVEN the admin has configured various settings at different times
 - WHEN GET /api/admin/settings is called
-- THEN the response MUST always return exactly the twelve keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`, `startPageWithoutNavigation`
+- THEN the response MUST always return exactly the fourteen keys listed under Defined Settings: `defaultPermissionLevel`, `allowUserDashboards`, `allowMultipleDashboards`, `defaultGridColumns`, `linkCreateFileExtensions`, `defaultSharePermissionLevel`, `forcedShareGroups`, `sharingAllowedGroups`, `sharingRecipientScope`, `legacyWidgetBridgeEnabled`, `maxDashboardsPerUser`, `maxWidgetsPerDashboard`, `quicksearchFallbackTarget`, `startPageWithoutNavigation`
 - AND no additional keys MUST be present in the response
 - NOTE: This scenario said "exactly four keys" long after the response had grown to twelve. The list above is taken from `AdminSettingsService::getSettings()`; a key added there MUST be added here and to the Defined Settings table.
 - AND the response MUST be a flat JSON object (no nesting)

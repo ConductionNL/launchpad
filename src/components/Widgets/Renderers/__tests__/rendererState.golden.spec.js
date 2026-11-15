@@ -315,7 +315,7 @@ describe('form validation order', () => {
 		vm.sourceMode = 'connector'
 		vm.connectorAvailable = false
 		expect(vm.validate()).toEqual([
-			'OpenConnector is not available.',
+			'Integriq is not available.',
 			'Source id is required',
 			'Value expression is required',
 		])

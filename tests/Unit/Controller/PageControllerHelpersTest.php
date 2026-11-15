@@ -78,7 +78,9 @@ class PageControllerHelpersTest extends TestCase {
 				roleFeaturePerm: $this->createMock(RoleFeaturePermissionService::class),
 				treeService: $this->tree,
 				logger: $this->logger,
-				adminSettingsService: $this->createMock(AdminSettingsService::class)
+				adminSettingsService: $this->createMock(AdminSettingsService::class),
+				publicStartPage: $this->createMock(\OCA\LaunchPad\Service\PublicStartPage::class),
+				urlGenerator: $this->createMock(\OCP\IURLGenerator::class)
 			)
 		);
 	}

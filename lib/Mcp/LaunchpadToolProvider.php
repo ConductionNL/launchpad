@@ -80,6 +80,15 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			],
 		],
 		[
+			'id' => 'launchpad.getActiveDashboard',
+			'name' => 'Get active dashboard',
+			'description' => 'Fetch the dashboard the app opens on for you, with its widget placements and your permission level.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
+		[
 			'id' => 'launchpad.listGroupDashboards',
 			'name' => 'List group dashboards',
 			'description' => 'List the shared dashboards of a group you are a member of.',
@@ -101,15 +110,26 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 			'annotations' => ['readOnlyHint' => true],
 			'inputSchema' => self::NO_ARGUMENTS,
 		],
+		[
+			'id' => 'launchpad.listTiles',
+			'name' => 'List tiles',
+			'description' => 'List your own tiles: the links and apps you can place on a dashboard.',
+			'scope' => 'read',
+			'reach' => 'self',
+			'annotations' => ['readOnlyHint' => true],
+			'inputSchema' => self::NO_ARGUMENTS,
+		],
 	];
 
 	/**
 	 * Constructor.
 	 *
 	 * @param McpDashboardTools $dashboardTools The dashboard and widget-type handlers.
+	 * @param McpTileTools      $tileTools      The tile handlers.
 	 */
 	public function __construct(
 		private readonly McpDashboardTools $dashboardTools,
+		private readonly McpTileTools $tileTools,
 	) {
 	}//end __construct()
 
@@ -149,8 +169,10 @@ class LaunchpadToolProvider implements IMcpToolProvider {
 		return match ($toolId) {
 			'launchpad.listDashboards' => $this->dashboardTools->listDashboards(args: $arguments),
 			'launchpad.getDashboard' => $this->dashboardTools->getDashboard(args: $arguments),
+			'launchpad.getActiveDashboard' => $this->dashboardTools->getActiveDashboard(args: $arguments),
 			'launchpad.listGroupDashboards' => $this->dashboardTools->listGroupDashboards(args: $arguments),
 			'launchpad.listWidgetTypes' => $this->dashboardTools->listWidgetTypes(args: $arguments),
+			'launchpad.listTiles' => $this->tileTools->listTiles(args: $arguments),
 			default => McpArgumentValidator::error(
 				code: 'unknown_tool',
 				message: "Unknown tool id '{$toolId}'. Available tools: "

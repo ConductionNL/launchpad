@@ -37,6 +37,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IRequest;
 use OCP\IUserSession;
@@ -190,6 +191,10 @@ class PageController extends Controller {
 			->setDeepLinkPath($activeState['deepLinkPath'])
 			->setQuicksearchFallbackTarget($quicksearchFallback)
 			->setStartPageWithoutNavigation(($settings['startPageWithoutNavigation'] ?? false) === true)
+			->setTileLaunchOptions(
+				schemes: (array)($settings['tileAllowedSchemes'] ?? []),
+				templates: (array)($settings['ssoLaunchTemplates'] ?? [])
+			)
 			->apply();
 
 		// 🔴 NO CHROME SLOT IDS. This used to pass
@@ -541,8 +546,53 @@ class PageController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function publicShare(): TemplateResponse {
-		Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
-		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+		return $this->publicPage();
+	}//end publicShare()
+
+	/**
+	 * Render the public start page, `/apps/launchpad/start` (sharing-public-start-page D3).
+	 *
+	 * Signed-out visitors on the plain login page are sent here by
+	 * {@see \OCA\LaunchPad\Listener\PublicStartRedirectListener}. The page is
+	 * the public-share page for the link an administrator chose, with its
+	 * token handed over as initial state and a "Sign in" bar on top; the data
+	 * still comes from `/s/{token}/data`, so the read-only guards of REQ-PSHR
+	 * apply unchanged. When the start page is off, or its link was revoked,
+	 * protected or has expired, the visitor goes to the login form with
+	 * `direct=1`, which never sends them back here.
+	 *
+	 * Rate limit: the same generous volume ceiling as {@see self::publicShare()}.
+	 *
+	 * @return TemplateResponse|RedirectResponse The start page, or the login form.
+	 *
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-signed-out-visitors-land-on-the-start-page-req-psp-002
+	 * @spec openspec/changes/sharing-public-start-page/specs/dashboard-public-share/spec.md#requirement-the-start-page-offers-a-way-in-for-staff-req-psp-003
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
+	public function start(): TemplateResponse|RedirectResponse {
+		$share = $this->settings->publicStartPage->active();
+		if ($share === null) {
+			return new RedirectResponse(
+				redirectURL: $this->settings->urlGenerator->linkToRoute(routeName: 'core.login.showLoginForm', arguments: ['direct' => 1])
+			);
+		}
+
+		(new InitialStateBuilder(initialState: $this->sources->initialState, page: Page::PUBLIC_START))
+			->setPublicStartToken((string)$share->getToken())
+			->apply();
+
+		return $this->publicPage();
+	}//end start()
+
+	/**
+	 * The anonymous read-only page that boots `launchpad-public`.
+	 *
+	 * @return TemplateResponse The public page response.
+	 */
+	private function publicPage(): TemplateResponse {
+		$this->addPublicAssets();
 
 		$response = new TemplateResponse(
 			appName: Application::APP_ID,
@@ -559,6 +609,16 @@ class PageController extends Controller {
 		$response->setContentSecurityPolicy(csp: $csp);
 
 		return $response;
-	}//end publicShare()
+	}//end publicPage()
+
+	/**
+	 * Add the `launchpad-public` script and the app stylesheet to the page.
+	 *
+	 * @return void
+	 */
+	protected function addPublicAssets(): void {
+		Util::addScript(application: Application::APP_ID, file: 'launchpad-public');
+		Util::addStyle(application: Application::APP_ID, file: 'launchpad');
+	}//end addPublicAssets()
 
 }//end class

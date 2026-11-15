@@ -187,6 +187,59 @@ class McpDashboardToolsTest extends TestCase {
 	}//end testGetDashboardReturnsTheEnvelope()
 
 	/**
+	 * The active dashboard is the service's effective one, and names its owner when that is someone else.
+	 *
+	 * @return void
+	 */
+	public function testGetActiveDashboardIsTheEffectiveOne(): void {
+		$this->gate->expects($this->once())->method('requireAction')->with('dashboard.get-active')->willReturn(null);
+		$dashboard = self::dashboard(7, 'bob');
+		$this->dashboards->expects($this->once())->method('getEffectiveDashboard')->with('alice')
+			->willReturn(['dashboard' => $dashboard, 'placements' => [], 'permissionLevel' => 'view_only']);
+
+		$result = $this->tools()->getActiveDashboard([]);
+
+		$this->assertSame(7, $result['dashboard']['id']);
+		$this->assertSame('view_only', $result['permissionLevel']);
+		$this->assertFalse($result['isOwner']);
+		$this->assertSame('bob', $result['sharedBy']);
+	}//end testGetActiveDashboardIsTheEffectiveOne()
+
+	/**
+	 * The caller's own active dashboard has no sharer; none at all is a not-found error.
+	 *
+	 * @return void
+	 */
+	public function testGetActiveDashboardOwnedOrMissing(): void {
+		$this->gate->method('requireAction')->willReturn(null);
+		$this->dashboards->method('getEffectiveDashboard')->willReturnOnConsecutiveCalls(
+			['dashboard' => self::dashboard(2, 'alice'), 'placements' => [], 'permissionLevel' => 'full'],
+			null
+		);
+
+		$own = $this->tools()->getActiveDashboard([]);
+		$this->assertTrue($own['isOwner']);
+		$this->assertNull($own['sharedBy']);
+
+		$none = $this->tools()->getActiveDashboard([]);
+		$this->assertTrue($none['isError']);
+		$this->assertSame('not_found', $none['error']);
+	}//end testGetActiveDashboardOwnedOrMissing()
+
+	/**
+	 * A refused action reads no dashboard.
+	 *
+	 * @return void
+	 */
+	public function testGetActiveDashboardRefusedReadsNothing(): void {
+		$refusal = McpArgumentValidator::error(code: 'forbidden', message: 'no');
+		$this->gate->method('requireAction')->willReturn($refusal);
+		$this->dashboards->expects($this->never())->method('getEffectiveDashboard');
+
+		$this->assertSame($refusal, $this->tools()->getActiveDashboard([]));
+	}//end testGetActiveDashboardRefusedReadsNothing()
+
+	/**
 	 * A caller outside the group is refused before the group's dashboards are read.
 	 *
 	 * @return void

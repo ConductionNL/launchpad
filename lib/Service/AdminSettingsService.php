@@ -20,6 +20,7 @@ namespace OCA\LaunchPad\Service;
 
 use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
+use OCA\LaunchPad\Db\AdminSettingKey;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Db\Dashboard;
 
@@ -138,6 +139,9 @@ class AdminSettingsService {
 			// dashboard default; forced-share groups default to none.
 			'defaultSharePermissionLevel' => $settings[$sharePermKey] ?? $permDef,
 			'forcedShareGroups' => array_values($forcedShareGroups),
+			// REQ-SHARE-014: who may share (empty = everyone) and with whom.
+			'sharingAllowedGroups' => $this->storedGroupList(value: $settings[AdminSettingKey::SHARING_ALLOWED_GROUPS->value] ?? null),
+			'sharingRecipientScope' => $this->storedRecipientScope(value: $settings[AdminSettingKey::SHARING_RECIPIENT_SCOPE->value] ?? null),
 			// Legacy-widget-bridge spec: the bridge defaults to OFF because
 			// turning it on makes the workspace read the Nextcloud widget
 			// registry, and IManager::getWidgets() injects the scripts of EVERY
@@ -162,8 +166,28 @@ class AdminSettingsService {
 			// them; a stored value that no longer validates reads as empty.
 			'tileAllowedSchemes' => $this->tileLaunch->stored(setting: 'schemes', stored: $settings[AdminSetting::KEY_TILE_ALLOWED_SCHEMES] ?? null),
 			'ssoLaunchTemplates' => $this->tileLaunch->stored(setting: 'templates', stored: $settings[AdminSetting::KEY_SSO_LAUNCH_TEMPLATES] ?? null),
+			// Engagement-announcements D6: the groups whose members may write
+			// announcements besides administrators; none until one is chosen.
+			'announcementEditorGroups' => self::groupList(stored: $settings[AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS] ?? null),
 		];
 	}//end getSettings()
+
+	/**
+	 * A stored group-id list as it is read back: a list, empty when unset or not a list.
+	 *
+	 * @param mixed $stored The stored value.
+	 *
+	 * @return list<mixed>
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private static function groupList(mixed $stored): array {
+		if (is_array($stored) === false) {
+			return [];
+		}
+
+		return array_values($stored);
+	}//end groupList()
 
 	/**
 	 * Lower bound for the numeric quota settings (dashboard-quota-limits
@@ -343,6 +367,11 @@ class AdminSettingsService {
 
 		$this->persistQuotaAndQuicksearchSettings(settings: $settings);
 
+		$this->persistSharingLimits(
+			allowedGroups: $settings['sharingAllowedGroups'] ?? null,
+			recipientScope: $settings['sharingRecipientScope'] ?? null
+		);
+
 		$this->persistSharingAndBridgeSettings(
 			defaultSharePermissionLevel: $settings['defaultSharePermissionLevel'] ?? null,
 			forcedShareGroups: $settings['forcedShareGroups'] ?? null,
@@ -351,7 +380,34 @@ class AdminSettingsService {
 
 		$this->persistIfGiven(key: AdminSetting::KEY_START_PAGE_WITHOUT_NAVIGATION, value: $settings['startPageWithoutNavigation'] ?? null);
 		$this->persistTileLaunchSettings(settings: $settings);
+		$this->persistAnnouncementEditorGroups(groups: $settings['announcementEditorGroups'] ?? null);
 	}//end updateSettings()
+
+	/**
+	 * Persist the announcement editor groups when given, normalised like the forced-share groups.
+	 *
+	 * @param mixed $groups The group ids, or null to leave the setting as it is.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the value is not a list.
+	 *
+	 * @spec openspec/changes/engagement-announcements/tasks.md#task-2
+	 */
+	private function persistAnnouncementEditorGroups(mixed $groups): void {
+		if ($groups === null) {
+			return;
+		}
+
+		if (is_array($groups) === false) {
+			throw new InvalidArgumentException(message: 'announcementEditorGroups must be a list of group ids.');
+		}
+
+		$this->settingMapper->setSetting(
+			key: AdminSetting::KEY_ANNOUNCEMENT_EDITOR_GROUPS,
+			value: $this->normaliseGroupList(input: $groups)
+		);
+	}//end persistAnnouncementEditorGroups()
 
 	/**
 	 * Persist the program schemes and the SSO launch templates, each checked whole first.
@@ -452,6 +508,67 @@ class AdminSettingsService {
 			value: $quicksearchFallbackTarget
 		);
 	}//end persistQuotaAndQuicksearchSettings()
+
+	/**
+	 * A stored group list as ids, empty for anything else.
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return list<string> The group ids.
+	 */
+	private function storedGroupList(mixed $value): array {
+		if (is_array($value) === false) {
+			return [];
+		}
+
+		return array_values(array_filter(array_map('strval', $value), static fn (string $id): bool => $id !== ''));
+	}//end storedGroupList()
+
+	/**
+	 * A stored recipient scope, `everyone` for anything unknown (today's behaviour).
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return string One of SharingLimits::SCOPES.
+	 */
+	private function storedRecipientScope(mixed $value): string {
+		if (in_array($value, SharingLimits::SCOPES, true) === false) {
+			return SharingLimits::SCOPE_EVERYONE;
+		}
+
+		return $value;
+	}//end storedRecipientScope()
+
+	/**
+	 * Persist who may share and with whom (REQ-SHARE-014). A null value is left as it is.
+	 *
+	 * @param array|null  $allowedGroups  The groups whose members may share; empty means everyone.
+	 * @param string|null $recipientScope `everyone` or `shared-groups`.
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the recipient scope is unknown.
+	 *
+	 * @spec openspec/changes/record-parity-requirements/specs/dashboard-sharing/spec.md#requirement-administrators-decide-who-may-share-and-with-whom-req-share-014
+	 */
+	private function persistSharingLimits(?array $allowedGroups, ?string $recipientScope): void {
+		if ($allowedGroups !== null) {
+			$this->settingMapper->setSetting(
+				key: AdminSettingKey::SHARING_ALLOWED_GROUPS->value,
+				value: $this->normaliseGroupList(input: $allowedGroups)
+			);
+		}
+
+		if ($recipientScope !== null) {
+			if (in_array(needle: $recipientScope, haystack: SharingLimits::SCOPES, strict: true) === false) {
+				throw new InvalidArgumentException(
+					message: "Invalid value for sharingRecipientScope. Must be 'everyone' or 'shared-groups'."
+				);
+			}
+
+			$this->settingMapper->setSetting(key: AdminSettingKey::SHARING_RECIPIENT_SCOPE->value, value: $recipientScope);
+		}
+	}//end persistSharingLimits()
 
 	/**
 	 * Persist the dashboard-sharing + legacy-widget-bridge admin settings.

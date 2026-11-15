@@ -34,6 +34,7 @@ import { expect, test } from '@playwright/test'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
+import { adminTab } from './support/adminTab.ts'
 import { BASE_URL as BASE } from './support/baseUrl.ts'
 import {
 	buildZip,
@@ -71,7 +72,7 @@ async function openOperationsTab(page: Page): Promise<void> {
 		waitUntil: 'domcontentloaded',
 		timeout: 60_000,
 	})
-	await page.locator('[data-test="tab-operations"]').click({ timeout: 30_000 })
+	await adminTab(page, 'operations').click({ timeout: 30_000 })
 	await expect(page.locator('[data-test="export-site-button"]')).toBeVisible({
 		timeout: 20_000,
 	})

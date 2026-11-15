@@ -98,6 +98,7 @@
 <script>
 import { NcButton, NcSelect, NcTextField } from '@conduction/nextcloud-vue'
 import { getLanguage, t } from '@nextcloud/l10n'
+import { REQUIRED_TEXT_PROP } from '../../../constants/propDefinitions.js'
 import { api } from '../../../services/api.js'
 
 /** The languages LaunchPad ships, offered for new versions. */
@@ -160,10 +161,7 @@ export default {
 	},
 
 	props: {
-		dashboardUuid: {
-			type: String,
-			required: true,
-		},
+		dashboardUuid: REQUIRED_TEXT_PROP,
 	},
 
 	/** @spec openspec/specs/dashboard-language-content/spec.md */

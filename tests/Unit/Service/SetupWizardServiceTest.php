@@ -3,9 +3,9 @@
 /**
  * SetupWizardService Test
  *
- * Covers REQ-WIZ-001 (state flag), REQ-WIZ-003 (storage backend
- * persistence + GroupFolder gate), REQ-WIZ-008 (wizard state heuristic),
- * and REQ-WIZ-009 (idempotent completion).
+ * Covers REQ-WIZ-001 (state flag), REQ-WIZ-008 (wizard state heuristic),
+ * REQ-WIZ-009 (idempotent completion) and the retired storage step
+ * (decision 131: six steps, a stored content_storage value stays unread).
  *
  * @category  Test
  * @package   OCA\LaunchPad\Tests\Unit\Service
@@ -21,11 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
-use InvalidArgumentException;
 use OCA\LaunchPad\Db\AdminSetting;
 use OCA\LaunchPad\Db\AdminSettingMapper;
 use OCA\LaunchPad\Service\SetupWizardService;
-use OCP\App\IAppManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -35,15 +33,10 @@ class SetupWizardServiceTest extends TestCase {
 	/** @var AdminSettingMapper&MockObject */
 	private $settingMapper;
 
-	/** @var IAppManager&MockObject */
-	private $appManager;
-
 	protected function setUp(): void {
 		$this->settingMapper = $this->createMock(AdminSettingMapper::class);
-		$this->appManager = $this->createMock(IAppManager::class);
 		$this->service = new SetupWizardService(
-			settingMapper: $this->settingMapper,
-			appManager: $this->appManager
+			settingMapper: $this->settingMapper
 		);
 	}
 
@@ -56,28 +49,59 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertFalse($state['complete']);
+		// Decision 131: the storage step is retired, so Step 2 is the
+		// group order and it is the first step left to do.
 		$this->assertSame(2, $state['currentRecommendedStep']);
-		$this->assertSame('done', $state['stepStatuses']['1']);
-		$this->assertSame('pending', $state['stepStatuses']['2']);
-		$this->assertSame('pending', $state['stepStatuses']['3']);
-		$this->assertSame('skipped', $state['stepStatuses']['4']);
-		$this->assertSame('skipped', $state['stepStatuses']['5']);
-		$this->assertSame('skipped', $state['stepStatuses']['6']);
-		$this->assertSame('pending', $state['stepStatuses']['7']);
+		$this->assertSame(
+			[
+				1 => 'done',
+				2 => 'pending',
+				3 => 'skipped',
+				4 => 'skipped',
+				5 => 'skipped',
+				6 => 'pending',
+			],
+			$state['stepStatuses']
+		);
 	}
 
-	public function testGetWizardStateAfterStorageWritten(): void {
+	public function testWizardHasSixStepsWithoutAStorageStep(): void {
+		$this->assertSame(6, SetupWizardService::STEP_COUNT);
+		$this->assertFalse(method_exists(SetupWizardService::class, 'setContentStorage'));
+		$this->assertFalse(method_exists(SetupWizardService::class, 'getContentStorage'));
+		$this->assertFalse(method_exists(SetupWizardService::class, 'hasGroupfolderApp'));
+	}
+
+	public function testAStoredContentStorageValueIsLeftUnread(): void {
+		$this->settingMapper->method('getValue')
+			->with(AdminSetting::KEY_SETUP_WIZARD_COMPLETE, false)
+			->willReturn(false);
+		// A row written by the retired step stays in the table; the state
+		// must not change because of it.
+		$this->settingMapper->method('getAllAsArray')->willReturn([
+			'content_storage' => 'groupfolder',
+		]);
+
+		$state = $this->service->getWizardState();
+
+		$this->assertSame(2, $state['currentRecommendedStep']);
+		$this->assertCount(6, $state['stepStatuses']);
+		$this->assertSame('pending', $state['stepStatuses']['2']);
+	}
+
+	public function testGetWizardStateAfterGroupOrderWritten(): void {
 		$this->settingMapper->method('getValue')
 			->with(AdminSetting::KEY_SETUP_WIZARD_COMPLETE, false)
 			->willReturn(false);
 		$this->settingMapper->method('getAllAsArray')->willReturn([
-			AdminSetting::KEY_CONTENT_STORAGE => 'database',
+			AdminSetting::KEY_GROUP_ORDER => ['engineering'],
 		]);
 
 		$state = $this->service->getWizardState();
 
 		$this->assertSame('done', $state['stepStatuses']['2']);
-		// Step 3 still pending so the recommended step jumps to 3.
+		// Steps 3 and 4 are 'skipped' (sibling capabilities pending), so
+		// the first non-'done' step is 3.
 		$this->assertSame(3, $state['currentRecommendedStep']);
 	}
 
@@ -86,7 +110,6 @@ class SetupWizardServiceTest extends TestCase {
 			->with(AdminSetting::KEY_SETUP_WIZARD_COMPLETE, false)
 			->willReturn(true);
 		$this->settingMapper->method('getAllAsArray')->willReturn([
-			AdminSetting::KEY_CONTENT_STORAGE => 'database',
 			AdminSetting::KEY_GROUP_ORDER => ['engineering'],
 			AdminSetting::KEY_FOOTER_CONFIG => ['layout' => 'structured'],
 		]);
@@ -94,13 +117,13 @@ class SetupWizardServiceTest extends TestCase {
 		$state = $this->service->getWizardState();
 
 		$this->assertTrue($state['complete']);
-		$this->assertSame('done', $state['stepStatuses']['7']);
 		$this->assertSame('done', $state['stepStatuses']['6']);
-		// Steps 4/5 are 'skipped' (sibling capabilities pending), so the
-		// first non-'done' status is Step 4. The wizard "complete" flag
+		$this->assertSame('done', $state['stepStatuses']['5']);
+		// Steps 3/4 are 'skipped' (sibling capabilities pending), so the
+		// first non-'done' status is Step 3. The wizard "complete" flag
 		// is the source of truth for hiding the banner; the recommended
 		// step is purely a UX hint per REQ-WIZ-008.
-		$this->assertSame(4, $state['currentRecommendedStep']);
+		$this->assertSame(3, $state['currentRecommendedStep']);
 	}
 
 	public function testMarkWizardCompleteSetsFlagAndReturnsState(): void {
@@ -131,47 +154,5 @@ class SetupWizardServiceTest extends TestCase {
 		$second = $this->service->markWizardComplete();
 
 		$this->assertSame($first, $second);
-	}
-
-	public function testGetGroupfolderAvailabilityDelegates(): void {
-		$this->appManager
-			->expects($this->once())
-			->method('isInstalled')
-			->with('groupfolders')
-			->willReturn(true);
-
-		$this->assertTrue($this->service->hasGroupfolderApp());
-	}
-
-	public function testSetContentStorageRejectsUnsupportedValue(): void {
-		$this->settingMapper->expects($this->never())->method('setSetting');
-		$this->expectException(InvalidArgumentException::class);
-
-		$this->service->setContentStorage(value: 'cassette-tape');
-	}
-
-	public function testSetContentStoragePersistsKnownValues(): void {
-		$this->settingMapper
-			->expects($this->once())
-			->method('setSetting')
-			->with(AdminSetting::KEY_CONTENT_STORAGE, 'groupfolder');
-
-		$this->service->setContentStorage(value: SetupWizardService::STORAGE_GROUPFOLDER);
-	}
-
-	public function testGetContentStorageDefaultsToDatabase(): void {
-		$this->settingMapper->method('getValue')
-			->with(AdminSetting::KEY_CONTENT_STORAGE, null)
-			->willReturn(null);
-
-		$this->assertSame('database', $this->service->getContentStorage());
-	}
-
-	public function testGetContentStorageReturnsPersisted(): void {
-		$this->settingMapper->method('getValue')
-			->with(AdminSetting::KEY_CONTENT_STORAGE, null)
-			->willReturn('groupfolder');
-
-		$this->assertSame('groupfolder', $this->service->getContentStorage());
 	}
 }

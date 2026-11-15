@@ -31,6 +31,7 @@
 
 <script>
 import { NcButton, NcDialog, NcTextField } from '@conduction/nextcloud-vue'
+import { REQUIRED_FLAG_PROP, TEXT_PROP } from '../constants/propDefinitions.js'
 
 /**
  * GroupDashboardRenameDialog — rename prompt extracted from
@@ -55,15 +56,9 @@ export default {
 	},
 
 	props: {
-		open: {
-			type: Boolean,
-			required: true,
-		},
+		open: REQUIRED_FLAG_PROP,
 
-		currentName: {
-			type: String,
-			default: '',
-		},
+		currentName: TEXT_PROP,
 	},
 
 	emits: ['update:open', 'confirm'],

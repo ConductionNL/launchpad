@@ -51,6 +51,8 @@ use OCP\IRequest;
  * @spec openspec/specs/conditional-visibility-editor/spec.md#requirement-req-cvui-005-preview-endpoint-reuses-the-render-time-evaluation-path-and-never-persists
  */
 class VisibilityPreviewController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
@@ -66,10 +68,7 @@ class VisibilityPreviewController extends Controller {
 		private readonly ConditionalService $conditionalService,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -100,8 +99,8 @@ class VisibilityPreviewController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function preview(
-		?array $rules = null,
-		?array $context = null,
+		array|null $rules = null,
+		array|null $context = null,
 	): JSONResponse {
 		// Nextcloud rejects unauthenticated requests to a #[NoAdminRequired]
 		// route before dispatch, but the DI-injected userId is still
@@ -119,10 +118,7 @@ class VisibilityPreviewController extends Controller {
 			$groups = $this->buildGroupsOverride(context: $context ?? []);
 			$now = $this->buildDatetimeOverride(context: $context ?? []);
 		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				['error' => $e->getMessage()],
-				Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: $e->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
 		try {
@@ -135,10 +131,7 @@ class VisibilityPreviewController extends Controller {
 
 			return new JSONResponse($result, Http::STATUS_OK);
 		} catch (Exception $e) {
-			return new JSONResponse(
-				['error' => 'Preview failed'],
-				Http::STATUS_BAD_REQUEST
-			);
+			return $this->failure(message: 'Preview failed', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 	}//end preview()
 
@@ -170,41 +163,55 @@ class VisibilityPreviewController extends Controller {
 				);
 			}
 
-			$ruleType = $entry['ruleType'] ?? null;
-			if (is_string($ruleType) === false
-				|| in_array(
-					$ruleType,
-					ConditionalRule::ALLOWED_TYPES,
-					true
-				) === false
-			) {
-				throw new InvalidArgumentException(
-					'Invalid ruleType: only group, time, date and attribute are accepted'
-				);
-			}
-
-			$ruleConfig = $entry['ruleConfig'] ?? null;
-			if (is_array($ruleConfig) === false) {
-				throw new InvalidArgumentException(
-					'ruleConfig must be an object'
-				);
-			}
-
-			$rule = new ConditionalRule();
-			// Preview rules are never persisted, so `id` here is purely a
-			// correlation token echoed back in matchedIncludeRuleIds /
-			// matchedExcludeRuleIds — it is NOT a database primary key.
-			$ruleId = $entry['id'] ?? $index;
-			$rule->setId((int)$ruleId);
-			$rule->setRuleType($ruleType);
-			$rule->setRuleConfigArray($ruleConfig);
-			$rule->setIsInclude((bool)($entry['isInclude'] ?? true));
-
-			$entities[] = $rule;
-		}//end foreach
+			$entities[] = self::ruleEntity(entry: $entry, index: $index);
+		}
 
 		return $entities;
 	}//end buildRuleEntities()
+
+	/**
+	 * An unsaved rule from one preview entry: its correlation id, type,
+	 * config and include flag (default include).
+	 *
+	 * @param array      $entry The preview entry.
+	 * @param int|string $index The entry's position, the id when it has none.
+	 *
+	 * @return ConditionalRule The rule.
+	 *
+	 * @throws InvalidArgumentException On an unknown type or a config that is not an object.
+	 */
+	private static function ruleEntity(array $entry, int|string $index): ConditionalRule {
+		$ruleType = $entry['ruleType'] ?? null;
+		if (is_string($ruleType) === false
+			|| in_array(
+				$ruleType,
+				ConditionalRule::ALLOWED_TYPES,
+				true
+			) === false
+		) {
+			throw new InvalidArgumentException(
+				'Invalid ruleType: only group, time, date and attribute are accepted'
+			);
+		}
+
+		$ruleConfig = $entry['ruleConfig'] ?? null;
+		if (is_array($ruleConfig) === false) {
+			throw new InvalidArgumentException(
+				'ruleConfig must be an object'
+			);
+		}
+
+		$rule = new ConditionalRule();
+		// Preview rules are never persisted, so `id` here is purely a
+		// correlation token echoed back in matchedIncludeRuleIds /
+		// matchedExcludeRuleIds — it is NOT a database primary key.
+		$ruleId = $entry['id'] ?? $index;
+		$rule->setId((int)$ruleId);
+		$rule->setRuleType($ruleType);
+		$rule->setRuleConfigArray($ruleConfig);
+		$rule->setIsInclude((bool)($entry['isInclude'] ?? true));
+		return $rule;
+	}//end ruleEntity()
 
 	/**
 	 * Build the group-membership override from the request's `context`.

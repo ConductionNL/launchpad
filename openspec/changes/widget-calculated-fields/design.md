@@ -201,7 +201,7 @@ The core design choice is **dual evaluation**: client-side for instant feedback 
           {"type": "literal", "valueType": "string", "value": "days"}
         ]
       },
-      "returnType": "duration",
+      "returnType": "number",
       "evaluationMode": "client",
       "formatOptions": {
         "pattern": "d 'dagen'"
@@ -317,3 +317,12 @@ Widget A (register: sales) tries to reference Widget B (register: crm) in a serv
 - Should calculated fields display in the widget's schema export (OpenAPI / Postman)? Current decision: yes, but marked as derived/read-only at export time.
 - Can calculated fields be used in widget filtering (as filter targets)? Current decision: no (v1 — filter.field must reference real data). Future: revisit for v2 if demand is high.
 - Should there be a formula function to query sibling calculated fields on the same widget? Current decision: no (use `CalculatedRef` only); forces you to inline formulas if you want to chain them. Future: revisit if complexity justifies it.
+
+## Build notes: value semantics
+
+Pinned by the shared evaluator suite (`tests/fixtures/calculated-fields/shared-evaluator-test-suite.json`), which the PHP evaluator must also pass:
+
+- Dates are UTC ISO strings `YYYY-MM-DDTHH:MM:SSZ`; durations are seconds. `dateDiff(end, start, unit)` answers a whole number of `unit` (default `days`; calendar months and years), so its type is `number`; `durationBetween` answers a duration.
+- Null propagates through every operator and function except `coalesce`, `ifNull`, `case` and the list aggregates; nulls inside a list are skipped.
+- `round` rounds half away from zero after trimming to 15 significant digits, as PHP does (`round(1.005, 2)` is `1.01`).
+- Runtime failures (division by zero, invalid dates, unknown units, failed coercions) are errors with a fixed message, never a partial value.

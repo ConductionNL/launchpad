@@ -152,6 +152,33 @@ class Extension implements IProvider {
 		IEvent $event,
 		?IEvent $previousEvent = null,
 	): IEvent {
+		$this->assertKnownEvent(event: $event);
+
+		$type = $event->getType();
+		$l = $this->l10nFactory->get(app: self::APP_ID, lang: $language);
+		$params = $event->getSubjectParameters();
+		$values = $this->subjectValues(event: $event, params: $params);
+		$template = $this->subjectTemplateFor(type: $type, params: $params);
+
+		$rendered = strtr($l->t($template), $values);
+
+		$event->setRichSubject(subject: $rendered);
+		$event->setParsedSubject(subject: $rendered);
+		$event->setIcon(icon: $this->getIcon(eventType: $type));
+
+		return $event;
+	}//end parse()
+
+	/**
+	 * Refuse an event from another app or of a type this app does not emit.
+	 *
+	 * @param IEvent $event The event to parse.
+	 *
+	 * @return void
+	 *
+	 * @throws UnknownActivityException So NC's provider chain can fall through.
+	 */
+	private function assertKnownEvent(IEvent $event): void {
 		if ($event->getApp() !== self::APP_ID) {
 			throw new UnknownActivityException(
 				message: 'Unknown app: ' . $event->getApp()
@@ -164,37 +191,49 @@ class Extension implements IProvider {
 				message: 'Unknown subject: ' . $type
 			);
 		}
+	}//end assertKnownEvent()
 
-		$l = $this->l10nFactory->get(app: self::APP_ID, lang: $language);
-		$params = $event->getSubjectParameters();
+	/**
+	 * The placeholder values of a subject; actor and dashboard fall back to
+	 * the event's author and object name.
+	 *
+	 * @param IEvent               $event  The event.
+	 * @param array<string, mixed> $params The event's subject parameters.
+	 *
+	 * @return array<string, string> Placeholder → value.
+	 */
+	private function subjectValues(IEvent $event, array $params): array {
+		return [
+			'{actor}' => (string)($params['actor'] ?? $event->getAuthor()),
+			'{dashboard}' => (string)($params['dashboard'] ?? $event->getObjectName()),
+			'{recipient}' => (string)($params['recipient'] ?? ''),
+			'{role}' => (string)($params['role'] ?? ''),
+			'{target}' => (string)($params['target'] ?? ''),
+			'{version}' => (string)($params['version'] ?? ''),
+		];
+	}//end subjectValues()
+
+	/**
+	 * The subject template for the event: the versioned one when a version is
+	 * named and the type has one, else the plain one.
+	 *
+	 * @param string               $type   The event-type constant value.
+	 * @param array<string, mixed> $params The event's subject parameters.
+	 *
+	 * @return string The template.
+	 */
+	private function subjectTemplateFor(string $type, array $params): string {
 		$isSelf = (bool)($params['self'] ?? false);
-		$actor = (string)($params['actor'] ?? $event->getAuthor());
-		$dashboard = (string)($params['dashboard'] ?? $event->getObjectName());
-		$recipient = (string)($params['recipient'] ?? '');
-		$role = (string)($params['role'] ?? '');
-		$target = (string)($params['target'] ?? '');
-
 		$template = $this->resolveSubjectTemplate(
 			type: $type,
 			isSelf: $isSelf
 		);
-		$rendered = strtr(
-			$l->t($template),
-			[
-				'{actor}' => $actor,
-				'{dashboard}' => $dashboard,
-				'{recipient}' => $recipient,
-				'{role}' => $role,
-				'{target}' => $target,
-			]
-		);
+		if ((string)($params['version'] ?? '') !== '') {
+			$template = $this->versionedTemplate(type: $type, isSelf: $isSelf) ?? $template;
+		}
 
-		$event->setRichSubject(subject: $rendered);
-		$event->setParsedSubject(subject: $rendered);
-		$event->setIcon(icon: $this->getIcon(eventType: $type));
-
-		return $event;
-	}//end parse()
+		return $template;
+	}//end subjectTemplateFor()
 
 	/**
 	 * Return an absolute URL to the per-type Activity icon.
@@ -309,11 +348,43 @@ class Extension implements IProvider {
 	 */
 	private function resolveSubjectTemplate(string $type, bool $isSelf): string {
 		$templates = $this->getSubjectTemplates();
-		$variant = 'other';
+
+		return ($templates[$type][$this->variantOf(isSelf: $isSelf)] ?? '');
+	}//end resolveSubjectTemplate()
+
+	/**
+	 * The subject template that names the content version, for event types
+	 * that have one (dashboard_acknowledged), or null.
+	 *
+	 * @param string $type   The event-type constant value.
+	 * @param bool   $isSelf True when the actor equals the recipient.
+	 *
+	 * @return string|null The template string.
+	 */
+	private function versionedTemplate(string $type, bool $isSelf): ?string {
+		$templates = [
+			self::EVENT_ACKNOWLEDGED => [
+				'self' => 'You acknowledged version {version} of {dashboard}',
+				'other' => '{actor} acknowledged version {version} of {dashboard}',
+			],
+		];
+
+		return ($templates[$type][$this->variantOf(isSelf: $isSelf)] ?? null);
+	}//end versionedTemplate()
+
+	/**
+	 * The template variant for a line: `self` when the actor is the
+	 * recipient, `other` otherwise.
+	 *
+	 * @param bool $isSelf True when the actor equals the recipient.
+	 *
+	 * @return string The variant key.
+	 */
+	private function variantOf(bool $isSelf): string {
 		if ($isSelf === true) {
-			$variant = 'self';
+			return 'self';
 		}
 
-		return ($templates[$type][$variant] ?? '');
-	}//end resolveSubjectTemplate()
+		return 'other';
+	}//end variantOf()
 }//end class

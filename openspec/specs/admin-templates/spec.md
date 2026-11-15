@@ -228,7 +228,7 @@ When a user accesses LaunchPad for the first time, the system MUST create person
 - AND bob has never opened LaunchPad
 - WHEN bob navigates to LaunchPad
 - THEN the system MUST create a personal copy of "Marketing Dashboard" for bob
-- NOTE: `TemplateService::getApplicableTemplate()` returns only ONE template (the first matching group-targeted template takes priority over the default). Multiple template distribution is NOT implemented.
+- NOTE: `TemplateService::getApplicableTemplate()` returns only ONE template (a group-targeted template takes priority over the default; REQ-TMPL-021 says which one when several target the user's groups). Multiple template distribution is NOT implemented.
 
 #### Scenario: First-time user not in any target group
 - GIVEN template "Marketing Dashboard" targets groups ["marketing"]
@@ -754,6 +754,300 @@ A real (non-dry-run) re-sync MUST be idempotent — applying the same plan twice
 - WHEN the admin triggers a real re-sync
 - THEN the system MUST enqueue `TemplateResyncJob` and return a prompt accepted response
 - AND the job MUST apply the plan per copy and notify each affected user on completion
+
+### Requirement: REQ-TMPL-018 Templates that ship with LaunchPad
+
+LaunchPad MUST ship ready-made admin templates as data, one file per template at `data/templates/<id>.json`. A definition holds `templateId`, an integer `templateVersion`, a `language`, and one `dashboard` in the shape an export writes to `dashboards/<uuid>.json` (REQ-EXIM-001). The list of shipped ids is fixed in `ShippedTemplateService::SHIPPED_IDS`.
+
+An administrator MUST be able to add a shipped template as an admin template from the Templates page (`POST /api/admin/templates/shipped/{id}/install`) and from the command line (REQ-CLI-012). Installing MUST go through the dashboard importer (REQ-EXIM-004), so a shipped template and an uploaded archive take one path. The installed template MUST keep every widget's configuration and its `isCompulsory` flag (REQ-EXIM-012).
+
+Installing MUST NOT hand the template to anybody on its own. The definition ships with no target groups and is not the default. The administrator chooses the groups, or makes it the default, with the install options or afterwards on the Templates page (REQ-TMPL-003).
+
+LaunchPad MUST remember the install per template: app config `shipped_template_<id>` holds the UUID and `shipped_template_version_<id>` the version. A second install MUST add nothing unless forced. A forced install MUST add a fresh copy and MUST leave the earlier one in place, because dashboards made from it point at it. Bringing an installed template to a newer shipped version is not a forced install: that is the update of REQ-TMPL-020, which keeps the template and its copies. When the recorded template was deleted, the shipped template MUST count as not installed.
+
+A definition that is missing or malformed MUST fail the install with an error. It MUST NOT install an empty template.
+
+The listing MUST name, per template, the Nextcloud dashboard widgets it shows that no app on the instance registers (`missingWidgets`). Those widgets are still placed, so the template has one shape on every instance.
+
+The first shipped template is `mijn-werkdag`, a start page for a municipal employee, in Dutch. A shipped template MUST render as installed, with no further setting: it MUST NOT proxy a Nextcloud dashboard widget that has no items API, because LaunchPad paints those only when the legacy widget bridge is switched on (off by default), and every field its lists name MUST exist in the schema they read. `mijn-werkdag` holds a header, the "First today" list across apps (`attention-feed`, since template version 2), the employee's dossiq cases past their deadline, the employee's open dossiq cases, the employee's open pipelinq tickets ("Mijn tickets": `assignee` is the employee, `status` one of `new`, `in_progress`, `awaiting_customer`, by `slaDeadline`; since version 3), the decidiq decisions open for voting ("Wacht op uw stem": `lifecycle` is `voting`, by `submittedAt`; since version 3) and recent activity. The header and the "First today" list are compulsory. Its permission level is `add_only`. Every list in it sets `hideWhenUnavailable` (REQ-TMPL-022), so on an instance without pipelinq or decidiq those lists are not shown. A filter value that is a list of values means any of them and is sent as `status[0]=..&status[1]=..`, which OpenRegister honours (measured on 5 October 2026); every such value MUST be one the schema's enum names (the renders-as-installed test holds them against `tests/fixtures/registers`).
+
+#### Scenario: An administrator adds the shipped template and gives it to a group
+- GIVEN LaunchPad ships the template `mijn-werkdag` and it is not installed
+- WHEN an administrator adds it from the Templates page, then edits it and picks the group "medewerkers"
+- THEN the template list MUST show "Mijn werkdag" with the group "medewerkers"
+- AND a member of "medewerkers" who opens LaunchPad for the first time MUST get a dashboard made from it, with the header and the "First today" list marked compulsory
+
+@e2e exclude No Playwright test was written for this. The install is pinned by ShippedTemplateServiceTest::testInstallAddsTheTemplateThroughTheImporter, the compulsory flags by ::testTheShippedTemplateSurvivesExportAndImport, and the page by TemplatesPage.shipped.spec.js. It has not been run in a browser.
+
+#### Scenario: Installing twice adds one template
+- GIVEN `mijn-werkdag` is installed
+- WHEN an administrator installs it again without forcing
+- THEN no second template MUST be added
+- AND the response MUST say it was already installed and name the same UUID
+
+@e2e exclude Service behaviour with no page of its own: pinned by ShippedTemplateServiceTest::testASecondInstallAddsNothing.
+
+#### Scenario: A template deleted by the administrator can be added again
+- GIVEN `mijn-werkdag` was installed and the administrator deleted that template
+- WHEN the administrator installs it again
+- THEN a new template MUST be added without forcing
+
+@e2e exclude Pinned by ShippedTemplateServiceTest::testADeletedTemplateCountsAsNotInstalled.
+
+#### Scenario: A broken definition fails loudly
+- GIVEN the file for a shipped template is missing or has no widgets
+- WHEN an administrator installs it
+- THEN the install MUST fail with an error that names the file
+- AND no template MUST be added
+
+@e2e exclude A packaging fault cannot be staged in a browser: pinned by ShippedTemplateServiceTest::testAMalformedDefinitionFails.
+
+#### Scenario: The listing names widgets no app registers here
+- GIVEN no app on the instance registers the `activity` widget
+- WHEN an administrator lists the shipped templates
+- THEN `mijn-werkdag` MUST list `activity` under `missingWidgets`
+
+@e2e exclude Needs an instance without the app: pinned by ShippedTemplateServiceTest::testTheListingNamesWidgetsNothingRegisters.
+
+#### Scenario: The shipped template renders as installed
+- GIVEN the shipped definition `data/templates/mijn-werkdag.json` and an instance with dossiq and default LaunchPad settings
+- WHEN a member opens the dashboard made from it
+- THEN no widget MUST show "This widget can only be shown on the Nextcloud dashboard itself." or a raw widget id as its heading
+- AND the "Termijn" column of both case lists MUST show each case's deadline
+
+@e2e exclude Needs dossiq with cases on the instance, which the e2e instance does not have. Pinned by ShippedTemplateServiceTest::testAShippedTemplateRendersAsInstalled, and seen in a browser on a test instance on 5 October 2026.
+
+#### Scenario: Every widget in the shipped template is one LaunchPad can place
+- GIVEN the shipped definition `data/templates/mijn-werkdag.json`
+- WHEN its widgets are read
+- THEN every `widgetId` MUST be on LaunchPad's own widget type list (`lib/widget-types.json`)
+- AND no two widgets MUST share a grid cell
+- AND every widget MUST fit inside the template's grid columns
+
+@e2e exclude A check on shipped data, not a browser behaviour: pinned by ShippedTemplateServiceTest::testTheShippedDefinitionIsWellFormed.
+
+#### Scenario: The version 3 lists name only fields and values their schemas have
+- GIVEN the shipped definition and the copies of pipelinq's `ticket` and decidiq's `decision` schemas in `tests/fixtures/registers`
+- WHEN the lists "Mijn tickets" and "Wacht op uw stem" are read
+- THEN every column, sort field and filter field MUST exist in its schema
+- AND every `status` and `lifecycle` value MUST be one the schema's enum names
+- AND both lists MUST set `hideWhenUnavailable`
+
+@e2e exclude A check on shipped data against copied schemas: pinned by ShippedTemplateServiceTest::testAShippedTemplateRendersAsInstalled. pipelinq and decidiq are not on the e2e instance.
+
+### Requirement: REQ-TMPL-019 A member is shown their template on the first visit
+
+A user who owns no personal dashboard and has no saved choice (no pinned default and no last-used dashboard that they can still see) MUST be shown the admin template that applies to them (REQ-TMPL-005: a template that targets one of their groups, else the default template). Both resolution chains MUST do this at the same place, directly after the saved-choice steps and before any group dashboard: the page shell's chain (REQ-DASH-018, step 1b) and `GET /api/dashboard` (REQ-DASH-009).
+
+Precedence:
+
+- A template that targets one of the user's groups MUST outrank every group dashboard, the user's own group's default included.
+- The default template MUST outrank the dashboards of the `default` group (everyone), including the one seeded on install. It MUST step aside for a default dashboard of the user's own primary group, which is the more specific of the two.
+
+What the user gets:
+
+- With personal dashboards allowed (`allowUserDashboards`), the user MUST receive a personal copy (REQ-TMPL-005), once. The copy MUST be stored as their last-used dashboard, so later visits resolve it through the saved-choice step.
+- With personal dashboards off, no copy MUST be made (REQ-ASET-003). The template itself MUST be shown, view only. Its compulsory flags have no effect then, because nothing can be removed.
+
+A user who owns a personal dashboard, or has a saved choice, MUST NOT be affected by this requirement.
+
+**Why this was written down.** Templates were only known to `GET /api/dashboard`, at the very end of its chain. The page decides what to show from the other chain, which did not know templates. So on an instance with the seeded dashboard for everyone, that dashboard always won; and without it the page said "No dashboards available" and never called the API that would have made the copy. Every unit test was green and no member of a targeted group had ever been shown a template. Found by a live check on 5 October 2026.
+
+**What changes on an instance that already has templates.** A user who owns nothing and has no saved choice now lands on their template (and, with personal dashboards on, receives a copy) where they used to land on a group dashboard. Nobody else is moved.
+
+**Known limit.** With personal dashboards off, the view-only template is not in the dashboard switcher. A member who opens another dashboard cannot switch back to it.
+
+#### Scenario: A new member sees the template, although a dashboard for everyone exists
+- GIVEN the instance has the seeded dashboard for everyone and personal dashboards are allowed
+- AND the template "Mijn werkdag" targets the group "behandelaars"
+- AND Sanne is in "behandelaars" and has never opened LaunchPad
+- WHEN Sanne opens LaunchPad
+- THEN she MUST see "Mijn werkdag", as a personal copy with the template's compulsory widgets
+- AND a second visit MUST show the same copy and MUST NOT make another
+
+#### Scenario: Without any other dashboard the page still shows the template
+- GIVEN no group dashboard exists and the template targets Sanne's group
+- WHEN Sanne opens LaunchPad for the first time
+- THEN she MUST see the template's dashboard and MUST NOT see "No dashboards available"
+
+@e2e exclude Needs an instance with no group dashboard at all, and the e2e instance is shared with other suites' fixtures. Pinned by DashboardServiceTemplateRungTest::testWithNoOtherDashboardThePageStillShowsTheTemplate.
+
+#### Scenario: Personal dashboards off
+- GIVEN personal dashboards are off and the template targets Sanne's group
+- WHEN Sanne opens LaunchPad for the first time
+- THEN she MUST see the template itself, view only
+- AND no personal dashboard MUST be created for her
+
+@e2e exclude Pinned by DashboardServiceTemplateRungTest::testWithPersonalDashboardsOffTheTemplateItselfIsShownViewOnly. Not run in a browser.
+
+#### Scenario: The default template replaces the dashboard for everyone
+- GIVEN the seeded dashboard for everyone exists and a default template exists
+- AND Mark is in no group that a template targets and his primary group has no default dashboard
+- WHEN Mark opens LaunchPad for the first time
+- THEN he MUST get the default template, not the seeded dashboard
+
+@e2e exclude Making a template the instance default changes what every other suite's fresh user lands on. Pinned by DashboardServiceTemplateRungTest::testTheDefaultTemplateReplacesTheSeededDashboard and ::testTheDefaultTemplateStepsAsideForTheUsersOwnGroupDefault.
+
+#### Scenario: People already using LaunchPad are left alone
+- GIVEN Pieter owns a personal dashboard, and Lotte has a last-used dashboard she can still see
+- AND a template now targets a group both are in
+- WHEN each opens LaunchPad
+- THEN neither MUST be moved to the template and no copy MUST be made for them
+
+@e2e exclude Pinned by DashboardServiceTemplateRungTest::testAUserWhoOwnsADashboardGetsNoTemplate and ::testASavedChoiceIsKept.
+
+### Requirement: REQ-TMPL-020 Updating an installed shipped template in place
+
+When LaunchPad ships a higher `templateVersion` of a template than the one installed (`shipped_template_version_<id>`), an administrator MUST be able to bring the installed template to that version with one action: the "Update to version N" button on the Templates page (`POST /api/admin/templates/shipped/{id}/update`) or `occ launchpad:template:install <id> --update` (REQ-CLI-012). The listing (REQ-TMPL-018) MUST say so per template with `updateAvailable`.
+
+The update MUST keep the installed template: its id, UUID, name, description, target groups, default flag and permission level stay as they are. It MUST replace the template's widgets with the shipped version's. A widget an administrator added to the installed template by hand, or changed there, is replaced with it.
+
+**A widget in both versions keeps its row.** A member's copy remembers, per widget, the id of the template widget it came from, and re-sync matches on that id (REQ-RESYNC-003). A definition carries no key per widget, so the update pairs the installed widgets with the new ones in three passes, each over what the pass before left:
+
+1. every field a definition sets is equal: the widget is unchanged and is not written;
+2. same widget type, same proxied Nextcloud widget and same title: the row is kept and changed;
+3. same widget type, when exactly one such widget is left on each side: the row is kept and changed.
+
+What is then left of the new version is added. What is left of the installed template is removed. Settings (`content`, `styleConfig`) are compared as data, so the same settings in another key order are unchanged.
+
+**Members' copies follow.** After the template is written, the update MUST re-sync the copies with the `merge` strategy (REQ-RESYNC-001, -003, -004). So a compulsory widget the new version adds arrives in every copy, a widget the new version drops leaves every copy, and a widget a member added to their own copy stays. As with every merge re-sync, a template widget a member moved or changed is set back to the template's, and a template widget a member removed comes back. More than 50 copies are re-synced in the background (REQ-RESYNC-005). With personal dashboards off there are no copies: members see the template itself (REQ-TMPL-019), so they see the new version at once.
+
+**Never silently.** The result MUST name every widget added, removed and changed, the number unchanged and the number of members' copies. A dry run (`dryRun=true`, `--dry-run`) MUST return the same lists and MUST write nothing: no widget, no version, no copy. The Templates page MUST show the dry run and ask for confirmation before it updates.
+
+The widgets of the template MUST be written in one transaction. When a write fails, nothing MUST be kept and the recorded version MUST stay, so the next run tries again. The recorded version MUST be raised only after the widgets are written.
+
+When the installed version is the shipped one or newer, the update MUST change nothing and MUST say so (`upToDate`). When the template is not installed, the endpoint MUST answer 409 and the command MUST exit 1; an unknown id answers 404.
+
+#### Scenario: An administrator updates the installed template from the Templates page
+- GIVEN `mijn-werkdag` is installed at version 2, targets the group "behandelaars", and LaunchPad ships version 3
+- WHEN the administrator presses "Update to version 3" on the Templates page
+- THEN a dialog MUST list the widgets that are added, removed and changed, and the number of members with a copy
+- AND nothing MUST be written until the administrator confirms
+- WHEN the administrator confirms
+- THEN the same template MUST hold version 3's widgets, still target "behandelaars", and the button MUST be gone
+
+@e2e exclude Staging "a newer version ships" needs a second definition file on the server, which a browser test cannot place. The page and the dialog are pinned by TemplatesPage.shippedUpdate.spec.js, the update by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate. On 5 October 2026 the command was run on a test instance and a member's page was seen in a browser afterwards; the button and the dialog were not opened in a browser.
+
+#### Scenario: A member's copy follows and keeps what the member added
+- GIVEN Pieter has a copy of the installed template and added a widget of his own to it
+- WHEN the administrator updates the template to a version that adds a compulsory widget and drops another widget
+- THEN Pieter's copy MUST hold the new compulsory widget
+- AND the dropped widget MUST be gone from his copy
+- AND the widget Pieter added MUST still be there
+
+@e2e exclude Same reason as above. Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget, which makes the copy with the service a first visit uses and re-syncs it with the real re-sync service.
+
+#### Scenario: A dry run writes nothing
+- GIVEN `mijn-werkdag` is installed at an older version
+- WHEN an administrator asks for the update with `dryRun`
+- THEN the answer MUST list the widgets added, removed and changed
+- AND the template, the recorded version and every copy MUST be as before
+
+Pinned by ShippedTemplateUpdateServiceTest::testADryRunWritesNothing and, on a real instance, by tests/e2e/shipped-template-update.spec.ts (the recorded version is lowered through the app-config API, so the dry run's lists are empty there).
+
+#### Scenario: A widget in both versions keeps its row
+- GIVEN the installed template and the new version both hold the list "Mijn zaken", with other settings
+- WHEN the template is updated
+- THEN the list's row MUST keep its id and carry the new settings
+
+@e2e exclude A database row id has no browser surface. Pinned by ShippedTemplateUpdateServiceTest::testTheUpdateReplacesTheWidgetsAndKeepsTheTemplate and ::testTheShippedDefinitionPairsWithItsOwnInstall.
+
+#### Scenario: Nothing to do
+- GIVEN the installed version is the version LaunchPad ships
+- WHEN an administrator asks for the update
+- THEN nothing MUST be written and the answer MUST say the template is up to date
+
+Pinned by ShippedTemplateUpdateServiceTest::testAMembersCopyFollowsAndKeepsTheirOwnWidget (second run), TemplateInstallCommandTest::testAnUpToDateTemplateSaysSoAndExitsZero and tests/e2e/shipped-template-update.spec.ts.
+
+#### Scenario: A failed write keeps the recorded version
+- GIVEN the database refuses a write halfway through the update
+- THEN the update MUST fail with an error, roll back, and leave the recorded version unchanged
+
+@e2e exclude A database fault cannot be staged in a browser. Pinned by ShippedTemplateUpdateServiceTest::testAFailedWriteKeepsTheRecordedVersion.
+
+### Requirement: REQ-TMPL-021 One rule picks the template when several target the same group
+
+When more than one admin template targets a group the user is in, `TemplateService::getApplicableTemplate()` MUST pick the same template on every instance and every visit, by this order:
+
+1. the installed copy of a shipped template (the template `shipped_template_<id>` names) goes before a template made by hand, and among shipped templates the higher recorded version goes first;
+2. then the lowest template id, which is the oldest template.
+
+A template that targets one of the user's groups still goes before the default template (REQ-TMPL-005).
+
+**Why.** The rule used to be "the first match", and the list was sorted by name, so two templates with the same name came out in the order the database happened to return them. After `occ launchpad:template:install <id> --force` an instance holds the old and the new copy of a shipped template for the same group, under the same name, and a new member could get either. The forced copy is the recorded one, so it now wins.
+
+**What changes on an existing instance.** Only where two or more templates target the same group. There, a user without a dashboard of their own used to get the template whose name sorts first; they now get the installed shipped template if one of them is that, else the oldest. With personal dashboards off, where members are shown the template itself on every visit (REQ-TMPL-019), such a member can see another template after the upgrade than before. A user who already has a copy keeps it. An instance where every group has one template is not affected.
+
+#### Scenario: The oldest hand-made template wins
+- GIVEN the templates "Aanvragen" (id 9) and "Zaken" (id 4) both target a group Pieter is in
+- WHEN Pieter opens LaunchPad for the first time
+- THEN he MUST get "Zaken"
+
+@e2e exclude Two templates for one group would change what every other suite's fresh user of that group lands on. Pinned by TemplateServiceApplicableTemplateTest::testTheLowestIdWinsAmongHandMadeTemplates.
+
+#### Scenario: After a forced install the recorded copy wins
+- GIVEN a forced install left the earlier "Mijn werkdag" (id 7) next to the recorded one (id 9), both for "behandelaars"
+- WHEN a new member of "behandelaars" opens LaunchPad
+- THEN they MUST get the template with id 9
+
+@e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testTheInstalledShippedTemplateGoesBeforeAnEarlierForcedCopy.
+
+#### Scenario: A shipped template goes before a hand-made one
+- GIVEN the hand-made template "Afdeling" (id 3) and the installed shipped template "Mijn werkdag" (id 9) both target a group Pieter is in
+- WHEN Pieter opens LaunchPad for the first time
+- THEN he MUST get "Mijn werkdag"
+
+@e2e exclude Pinned by TemplateServiceApplicableTemplateTest::testAShippedTemplateGoesBeforeAHandMadeOneWithALowerId.
+
+### Requirement: REQ-TMPL-022 A list on a register that is not here is hidden
+
+An object-list widget whose configuration sets `hideWhenUnavailable: true` MUST NOT be shown to a viewer when OpenRegister answers 404 for its register or schema (`GET /apps/openregister/api/objects/{register}/{schema}?_limit=1`): the app that owns the register is not installed, so the list has nothing to say and would otherwise show "Could not load these records" under its title to every employee. The page asks once per source and remembers the answer for the page's life.
+
+Only a 404 hides. Any other failure (403, 500, no network) MUST leave the list on the page with its own error line, because that is a fault someone has to see. In edit mode the list MUST stay on the page, so whoever edits the dashboard sees it is there.
+
+A list without the flag behaves as before. The flag is data in the widget's `content`, so a template written by hand can set it too. Every list in a shipped template MUST set it.
+
+LaunchPad does not know on the server which registers an instance has. So the listing of shipped templates and `occ launchpad:template:install` MUST name the registers a template's lists read (`registers`), and say that a list whose register is not here is hidden, instead of claiming which ones are missing.
+
+#### Scenario: An employee on an instance without pipelinq does not see the ticket list
+- GIVEN the instance has dossiq and not pipelinq, and the template `mijn-werkdag` version 3 reaches Pieter
+- WHEN Pieter opens LaunchPad
+- THEN he MUST see "Mijn zaken" and MUST NOT see "Mijn tickets" nor "Could not load these records"
+
+#### Scenario: A list whose source could not be asked still shows
+- GIVEN OpenRegister answers 500 for a list's register
+- WHEN the page is shown
+- THEN the list MUST be on the page, with its own error line
+
+@e2e exclude A 500 from OpenRegister cannot be staged on the e2e instance. Pinned by ViewsHideUnavailableSource.spec.js.
+
+#### Scenario: In edit mode the list is there
+- GIVEN a list is hidden for Pieter because its register is not here
+- WHEN Pieter enters edit mode
+- THEN the list MUST be on the page
+
+@e2e exclude Pinned by ViewsHideUnavailableSource.spec.js.
+
+### Requirement: REQ-TMPL-023 A refused delete of a compulsory widget says why
+
+When a member asks to delete a compulsory widget from a copy made from an admin template whose permission level is not `full`, the page MUST say that the widget is part of the start page the administrator set for their group and cannot be removed, naming the widget by its title. It MUST NOT send the delete (the server would answer 403, REQ-TMPL-006) and MUST NOT change the page. This holds for the widget's own menu ("Delete widget") and for the right-click menu ("Remove"), which both end in the page's `removeWidget`.
+
+**Why.** The entry was offered and did nothing: no request, no message, the widget stayed after a reload (#780). The shared edit cog has no way to withhold its delete entry, so the entry stays and explains itself.
+
+#### Scenario: Delete widget on a compulsory widget
+- GIVEN Pieter's copy of "Mijn werkdag" holds the compulsory list "Vandaag eerst"
+- WHEN he opens edit mode and chooses "Delete widget" on it
+- THEN a message MUST say "Vandaag eerst" is part of the start page his administrator set for his group and cannot be removed
+- AND no request MUST be sent and the widget MUST stay
+
+@e2e exclude Pinned by src/views/__tests__/ViewsCompulsoryRemove.spec.js from the page's own method, both menus end there. Not seen in a browser by this change.
+
+#### Scenario: A widget that is not compulsory is deleted as before
+- GIVEN Pieter's copy also holds "Mijn zaken", not compulsory
+- WHEN he chooses "Delete widget" on it
+- THEN it MUST be removed as before, with no message
+
+@e2e exclude Pinned by src/views/__tests__/ViewsCompulsoryRemove.spec.js.
 
 ## Non-Functional Requirements
 

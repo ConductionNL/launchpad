@@ -42,6 +42,118 @@ use Psr\Log\LoggerInterface;
  */
 class SeedRolePermissions implements IRepairStep {
 	/**
+	 * Default role-feature permissions, one per group.
+	 */
+	private const PERMISSION_SEEDS = [
+		[
+			'groupId' => 'medewerkers',
+			'name' => 'Medewerker widget-rechten',
+			'description' => 'Standaard widget-toegang voor alle medewerkers van de gemeente',
+			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar'],
+			'deniedWidgets' => [],
+			'priorityWeights' => ['activity' => 10, 'recommendations' => 8, 'calendar' => 6, 'notes' => 4],
+		],
+		[
+			'groupId' => 'managers',
+			'name' => 'Manager widget-rechten',
+			'description' => 'Uitgebreide widget-toegang voor teamleiders en afdelingshoofden',
+			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'analytics_dashboard', 'user_status'],
+			'deniedWidgets' => [],
+			'priorityWeights' => ['analytics_dashboard' => 10, 'activity' => 8, 'user_status' => 6, 'calendar' => 5],
+		],
+		[
+			'groupId' => 'ict-beheer',
+			'name' => 'ICT-beheer widget-rechten',
+			'description' => 'Widget-toegang voor de ICT-beheerdersgroep met systeemoverzicht',
+			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'system_monitor', 'user_status'],
+			'deniedWidgets' => [],
+			'priorityWeights' => ['system_monitor' => 10, 'activity' => 8, 'user_status' => 7],
+		],
+		[
+			'groupId' => 'hrm',
+			'name' => 'HRM widget-rechten',
+			'description' => 'Widget-toegang voor de afdeling Human Resource Management',
+			'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'user_status'],
+			'deniedWidgets' => ['system_monitor'],
+			'priorityWeights' => ['user_status' => 10, 'calendar' => 9, 'activity' => 7],
+		],
+		[
+			'groupId' => 'default',
+			'name' => 'Standaard widget-rechten',
+			'description' => 'Basistoegang voor gebruikers zonder specifieke groepsindeling',
+			'allowedWidgets' => ['activity', 'recommendations'],
+			'deniedWidgets' => [],
+			'priorityWeights' => ['recommendations' => 10, 'activity' => 8],
+		],
+	];
+
+	/**
+	 * Default widget layout per group.
+	 */
+	private const LAYOUT_DEFAULT_SEEDS = [
+		[
+			'groupId' => 'medewerkers',
+			'widgetId' => 'activity',
+			'name' => 'Medewerker — activiteiten',
+			'gridX' => 0,
+			'gridY' => 0,
+			'gridWidth' => 6,
+			'gridHeight' => 5,
+			'sortOrder' => 1,
+			'isCompulsory' => 0,
+			'description' => 'Activiteitenoverzicht linksboven voor medewerkers',
+		],
+		[
+			'groupId' => 'medewerkers',
+			'widgetId' => 'recommendations',
+			'name' => 'Medewerker — aanbevelingen',
+			'gridX' => 6,
+			'gridY' => 0,
+			'gridWidth' => 6,
+			'gridHeight' => 5,
+			'sortOrder' => 2,
+			'isCompulsory' => 0,
+			'description' => 'Persoonlijke aanbevelingen rechtsboven voor medewerkers',
+		],
+		[
+			'groupId' => 'managers',
+			'widgetId' => 'analytics_dashboard',
+			'name' => 'Manager — analysedashboard',
+			'gridX' => 0,
+			'gridY' => 0,
+			'gridWidth' => 8,
+			'gridHeight' => 6,
+			'sortOrder' => 1,
+			'isCompulsory' => 1,
+			'description' => 'Verplicht analysedashboard als eerste widget voor managers',
+		],
+		[
+			'groupId' => 'managers',
+			'widgetId' => 'activity',
+			'name' => 'Manager — activiteiten',
+			'gridX' => 8,
+			'gridY' => 0,
+			'gridWidth' => 4,
+			'gridHeight' => 6,
+			'sortOrder' => 2,
+			'isCompulsory' => 0,
+			'description' => 'Teamactiviteiten rechtsbovenhoek voor managers',
+		],
+		[
+			'groupId' => 'ict-beheer',
+			'widgetId' => 'system_monitor',
+			'name' => 'ICT-beheer — systeemmonitor',
+			'gridX' => 0,
+			'gridY' => 0,
+			'gridWidth' => 12,
+			'gridHeight' => 4,
+			'sortOrder' => 1,
+			'isCompulsory' => 1,
+			'description' => 'Verplicht systeemoverzicht als prominente balk voor ICT-beheer',
+		],
+	];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param RoleFeaturePermissionMapper $permMapper Permission mapper.
@@ -103,51 +215,8 @@ class SeedRolePermissions implements IRepairStep {
 	 * @spec openspec/changes/role-based-content/tasks.md#task-2
 	 */
 	private function seedPermissions(IOutput $output): void {
-		$seeds = [
-			[
-				'groupId' => 'medewerkers',
-				'name' => 'Medewerker widget-rechten',
-				'description' => 'Standaard widget-toegang voor alle medewerkers van de gemeente',
-				'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar'],
-				'deniedWidgets' => [],
-				'priorityWeights' => ['activity' => 10, 'recommendations' => 8, 'calendar' => 6, 'notes' => 4],
-			],
-			[
-				'groupId' => 'managers',
-				'name' => 'Manager widget-rechten',
-				'description' => 'Uitgebreide widget-toegang voor teamleiders en afdelingshoofden',
-				'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'analytics_dashboard', 'user_status'],
-				'deniedWidgets' => [],
-				'priorityWeights' => ['analytics_dashboard' => 10, 'activity' => 8, 'user_status' => 6, 'calendar' => 5],
-			],
-			[
-				'groupId' => 'ict-beheer',
-				'name' => 'ICT-beheer widget-rechten',
-				'description' => 'Widget-toegang voor de ICT-beheerdersgroep met systeemoverzicht',
-				'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'system_monitor', 'user_status'],
-				'deniedWidgets' => [],
-				'priorityWeights' => ['system_monitor' => 10, 'activity' => 8, 'user_status' => 7],
-			],
-			[
-				'groupId' => 'hrm',
-				'name' => 'HRM widget-rechten',
-				'description' => 'Widget-toegang voor de afdeling Human Resource Management',
-				'allowedWidgets' => ['activity', 'recommendations', 'notes', 'calendar', 'user_status'],
-				'deniedWidgets' => ['system_monitor'],
-				'priorityWeights' => ['user_status' => 10, 'calendar' => 9, 'activity' => 7],
-			],
-			[
-				'groupId' => 'default',
-				'name' => 'Standaard widget-rechten',
-				'description' => 'Basistoegang voor gebruikers zonder specifieke groepsindeling',
-				'allowedWidgets' => ['activity', 'recommendations'],
-				'deniedWidgets' => [],
-				'priorityWeights' => ['recommendations' => 10, 'activity' => 8],
-			],
-		];
-
 		$now = (new DateTime())->format(format: 'c');
-		foreach ($seeds as $seed) {
+		foreach (self::PERMISSION_SEEDS as $seed) {
 			$entity = new RoleFeaturePermission();
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$entity->setGroupId($seed['groupId']);
@@ -174,71 +243,8 @@ class SeedRolePermissions implements IRepairStep {
 	 * @spec openspec/changes/role-based-content/tasks.md#task-2
 	 */
 	private function seedLayoutDefaults(IOutput $output): void {
-		$seeds = [
-			[
-				'groupId' => 'medewerkers',
-				'widgetId' => 'activity',
-				'name' => 'Medewerker — activiteiten',
-				'gridX' => 0,
-				'gridY' => 0,
-				'gridWidth' => 6,
-				'gridHeight' => 5,
-				'sortOrder' => 1,
-				'isCompulsory' => 0,
-				'description' => 'Activiteitenoverzicht linksboven voor medewerkers',
-			],
-			[
-				'groupId' => 'medewerkers',
-				'widgetId' => 'recommendations',
-				'name' => 'Medewerker — aanbevelingen',
-				'gridX' => 6,
-				'gridY' => 0,
-				'gridWidth' => 6,
-				'gridHeight' => 5,
-				'sortOrder' => 2,
-				'isCompulsory' => 0,
-				'description' => 'Persoonlijke aanbevelingen rechtsboven voor medewerkers',
-			],
-			[
-				'groupId' => 'managers',
-				'widgetId' => 'analytics_dashboard',
-				'name' => 'Manager — analysedashboard',
-				'gridX' => 0,
-				'gridY' => 0,
-				'gridWidth' => 8,
-				'gridHeight' => 6,
-				'sortOrder' => 1,
-				'isCompulsory' => 1,
-				'description' => 'Verplicht analysedashboard als eerste widget voor managers',
-			],
-			[
-				'groupId' => 'managers',
-				'widgetId' => 'activity',
-				'name' => 'Manager — activiteiten',
-				'gridX' => 8,
-				'gridY' => 0,
-				'gridWidth' => 4,
-				'gridHeight' => 6,
-				'sortOrder' => 2,
-				'isCompulsory' => 0,
-				'description' => 'Teamactiviteiten rechtsbovenhoek voor managers',
-			],
-			[
-				'groupId' => 'ict-beheer',
-				'widgetId' => 'system_monitor',
-				'name' => 'ICT-beheer — systeemmonitor',
-				'gridX' => 0,
-				'gridY' => 0,
-				'gridWidth' => 12,
-				'gridHeight' => 4,
-				'sortOrder' => 1,
-				'isCompulsory' => 1,
-				'description' => 'Verplicht systeemoverzicht als prominente balk voor ICT-beheer',
-			],
-		];
-
 		$now = (new DateTime())->format(format: 'c');
-		foreach ($seeds as $seed) {
+		foreach (self::LAYOUT_DEFAULT_SEEDS as $seed) {
 			$entity = new RoleLayoutDefault();
 			// phpcs:disable CustomSniffs.Functions.NamedParameters.RequireNamedParameters
 			$entity->setGroupId($seed['groupId']);

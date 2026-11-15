@@ -661,6 +661,38 @@ export const api = {
 	},
 
 	/**
+	 * The apps this server runs for the current user, to place as tiles.
+	 *
+	 * @return {Promise} Axios response resolving to `{ apps: [{ appId, name, href, icon }] }`.
+	 * @spec openspec/changes/launcher-discover-server-services/specs/tiles/spec.md#requirement-the-add-flow-lists-the-apps-this-server-runs-for-the-user-req-disc-001
+	 */
+	discoverApps() {
+		return axios.get(`${baseUrl}/api/tiles/discover`)
+	},
+
+	/**
+	 * The office tile pack for the current user: a "New ..." tile per file
+	 * creator the server's office apps register, and the enabled office apps.
+	 *
+	 * @return {Promise} Axios response resolving to `{ tiles: [{ title, linkType, linkValue, icon, iconType }] }`.
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-the-add-flow-offers-an-office-tile-pack-built-from-what-the-server-has-req-oft-001
+	 */
+	officeTilePack() {
+		return axios.get(`${baseUrl}/api/office-tiles`)
+	},
+
+	/**
+	 * Create a file from an office app's blank template under a free name.
+	 *
+	 * @param {{creatorId: string, name: string, folder: string}} request The creator, the name without extension and the folder.
+	 * @return {Promise} Axios response resolving to `{ fileId, path, url }`.
+	 * @spec openspec/changes/integrations-office-tiles/specs/office-tiles/spec.md#requirement-a-new-tile-creates-a-real-document-and-never-overwrites-req-oft-002
+	 */
+	createOfficeFile(request) {
+		return axios.post(`${baseUrl}/api/office-tiles/create`, request)
+	},
+
+	/**
 	 * Update an existing widget placement.
 	 *
 	 * @param {number|string} placementId Id of the placement to update.
@@ -770,6 +802,44 @@ export const api = {
 	},
 
 	/**
+	 * List the templates LaunchPad ships with, and whether each is installed.
+	 *
+	 * @return {Promise} Axios response resolving to the shipped templates.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 */
+	getShippedTemplates() {
+		return axios.get(`${baseUrl}/api/admin/templates/shipped`)
+	},
+
+	/**
+	 * Add a shipped template as an admin template.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @return {Promise} Axios response resolving to the installed template.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-018
+	 */
+	installShippedTemplate(id) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/install`)
+	},
+
+	/**
+	 * Update an installed shipped template to the version LaunchPad ships
+	 * now, in place. With `dryRun` the server only reports what would change.
+	 *
+	 * @param {string} id Shipped template id, for example `mijn-werkdag`.
+	 * @param {object} [options] Call options.
+	 * @param {boolean} [options.dryRun] Report the changes, write nothing.
+	 * @return {Promise} Axios response resolving to the widgets added,
+	 *   removed and changed.
+	 * @spec openspec/specs/admin-templates/spec.md#req-tmpl-020
+	 */
+	updateShippedTemplate(id, { dryRun = false } = {}) {
+		return axios.post(`${baseUrl}/api/admin/templates/shipped/${id}/update`, {
+			dryRun,
+		})
+	},
+
+	/**
 	 * Create an admin dashboard template.
 	 *
 	 * @param {object} data Template attributes (name, layout, widgets, …).
@@ -824,6 +894,30 @@ export const api = {
 
 	getAdminSettings() {
 		return axios.get(`${baseUrl}/api/admin/settings`)
+	},
+
+	/**
+	 * Read the public start page: whether it is on, the chosen link, whether
+	 * it can be shown and why not, and the links that may be chosen.
+	 * Admin-only on the server (sharing-public-start-page REQ-PSP-001).
+	 *
+	 * @return {Promise} Axios response resolving to
+	 *   `{ enabled, token, active, reason, candidates }`.
+	 */
+	getPublicStart() {
+		return axios.get(`${baseUrl}/api/admin/public-start`)
+	},
+
+	/**
+	 * Choose the public start page's link and switch it on or off. Admin-only
+	 * on the server; a link with a password or a past expiry answers 400
+	 * (sharing-public-start-page REQ-PSP-001).
+	 *
+	 * @param {{enabled: boolean, token: string}} data The choice.
+	 * @return {Promise} The axios response, the new status.
+	 */
+	updatePublicStart(data) {
+		return axios.put(`${baseUrl}/api/admin/public-start`, data)
 	},
 
 	/**
@@ -912,17 +1006,6 @@ export const api = {
 	/** @spec openspec/specs/dashboards/spec.md */
 	completeSetupWizard() {
 		return axios.post(`${baseUrl}/api/admin/setup-wizard/complete`)
-	},
-
-	/**
-	 * Persist the setup wizard's content-storage choice (REQ-WIZ-003).
-	 *
-	 * @param {string} storage Backend to store widget content in —
-	 *   `database` or `groupfolder`.
-	 * @return {Promise} Axios response resolving to the updated wizard state.
-	 */
-	setSetupWizardStorage(storage) {
-		return axios.post(`${baseUrl}/api/admin/setup-wizard/storage`, { storage })
 	},
 
 	/**

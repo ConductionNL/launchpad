@@ -142,41 +142,23 @@ concurrency:
 # update-baseline / features-extract (contents write), and the Quality
 # Report PR comment (issues / pull-requests write).
 permissions:
-  contents: write
-  actions: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
   quality:
+    permissions:
+      contents: write
+      actions: write
+      issues: write
+      pull-requests: write
     if: (github.event_name != 'pull_request' || github.head_ref != 'development')
     uses: ConductionNL/.github/.github/workflows/quality.yml@main
     with:
       app-name: launchpad
       php-version: "8.3"
-      # Pinned, because the shared workflow's DEFAULT is '["stable31", "stable32"]'
-      # and stable31 CANNOT WORK here. `additional-apps` below installs
-      # openregister, which declares min-version="32" (its
-      # lib/ContextChat/ContentProvider.php implements
-      # OCP\ContextChat\IContentProvider, absent from core before NC32). On NC31
-      # `occ app:enable openregister` fails with
-      #   App "Open Register" cannot be installed because it is not compatible
-      #   with this version of the server.
-      # and the run continues anyway, because that failure is only a ::warning::.
-      # Every /apps/openregister/... call then returns Nextcloud's HTML 404 page.
-      #
-      # Order matters as much as membership: newman, playwright and
-      # journeydoc-capture all check out `fromJSON(nextcloud-test-refs)[0]` as
-      # their single server, so with the inherited default those three jobs ran
-      # entirely on the version openregister cannot load.
-      #
-      # THE LIST IS THE WHOLE DECLARED RANGE. This comment previously said
-      # "launchpad's own appinfo/info.xml floor stays at 29 … the NC32 constraint
-      # here is a property of the CI fixture, not of launchpad's code" — that is
-      # no longer true of the file it describes. info.xml on this branch declares
-      # <nextcloud min-version="32" max-version="34"/>, so 32 is the app's own
-      # floor, not a fixture artefact, and 32, 33 and 34 each get a leg.
-      nextcloud-test-refs: '["stable34", "stable32", "stable33"]'
+      # nextcloud-test-refs is deliberately not set: the shared quality.yml
+      # derives the Nextcloud matrix from appinfo/info.xml (min-version 32 to
+      # max-version 35), so the tested range follows the declared range.
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true
@@ -377,6 +359,15 @@ jobs:
       # deliberate). Floating both halves keeps caller and callee in step,
       # which is the only configuration in which a pinned path cannot expire.
       enable-hydra-gates: true
+      # Gate 122 (SIG unit ratchet) blocks: a unit this change adds or makes
+      # worse must stay at NLOC 60, McCabe 10 and at most 4 parameters, and a
+      # new duplicated fragment of 6+ lines fails. Units the change does not
+      # touch, or touches without making worse, are inherited and do not count.
+      hydra-gates-sig-blocking: true
+      # Maintainability floor: no rating in .maintainability-floor.json may drop
+      # more than 0.01 against the merge base (pull request) or below the
+      # committed floor (push). The floor is raised after improving merges.
+      enable-maintainability-floor: true
       # ── Cost controls (see ConductionNL/.github#596, #599) ───────────────
       # Run PHPUnit and Playwright only when the diff could change their
       # verdict. Fails safe TOWARDS running: an unreadable diff, a force-push,
@@ -408,8 +399,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - name: Every required locale carries every source key

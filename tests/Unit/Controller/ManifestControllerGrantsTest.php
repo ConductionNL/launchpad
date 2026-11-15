@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\ManifestTools;
+use OCA\LaunchPad\Controller\ActionCaller;
 use OCA\LaunchPad\Controller\ManifestController;
 use OCA\LaunchPad\Service\ActionAuthService;
 use OCP\AppFramework\Http;
@@ -192,10 +194,14 @@ class ManifestControllerGrantsTest extends TestCase {
 	private function makeController(): ManifestController {
 		return new ManifestController(
 			request: $this->request,
-			container: $this->container,
-			actionAuth: $this->actionAuth,
-			userSession: $this->userSession,
-			logger: $this->logger,
+			tools: new ManifestTools(
+				container: $this->container,
+				logger: $this->logger
+			),
+			caller: new ActionCaller(
+				actionAuth: $this->actionAuth,
+				userSession: $this->userSession
+			),
 			userId: 'alice'
 		);
 	}//end makeController()

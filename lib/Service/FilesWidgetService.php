@@ -104,27 +104,17 @@ class FilesWidgetService {
 	}//end __construct()
 
 	/**
-	 * List the contents of a folder for the given viewer.
-	 *
-	 * Resolves the configured folder (fileId preferred over path),
-	 * applies the optional MIME filter, sorts the result, and slices
-	 * out the requested page. Folders the viewer cannot read are
-	 * skipped silently.
+	 * List the visible contents of the placement's configured folder (or a
+	 * sub-path of it) for the viewing user (REQ-FLS-003, REQ-FLS-004).
 	 *
 	 * @param string $userId Viewing user's UID.
-	 * @param array $config Placement config —
-	 *                      supports `fileId`,
-	 *                      `folderPath`,
-	 *                      `mimeTypeFilter`, `sortBy`,
-	 *                      `sortDescending`.
-	 * @param string|null $currentSubPath Optional sub-path relative to
-	 *                                    the configured folder (set
-	 *                                    when the user navigates into
-	 *                                    a subfolder).
-	 * @param integer $limit Page size.
-	 * @param string $cursor Opaque cursor (offset string)
-	 *                       supplied by the previous
-	 *                       response.
+	 * @param array $config Placement config (`fileId`, `folderPath`,
+	 *                      `mimeTypeFilter`, `sortBy`, `sortDescending`).
+	 * @param array $page Optional `currentSubPath` (sub-path relative to the
+	 *                    configured folder, set when the user navigates into
+	 *                    a subfolder; null for the folder itself), `limit`
+	 *                    (page size) and `cursor` (opaque offset string
+	 *                    supplied by the previous response).
 	 *
 	 * @return array{items: list<array<string,mixed>>, nextCursor: ?string}
 	 *
@@ -135,49 +125,63 @@ class FilesWidgetService {
 	 *
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
-	public function getContentsForPlacement(
-		string $userId,
-		array $config,
-		?string $currentSubPath = null,
-		int $limit = self::DEFAULT_LIMIT,
-		string $cursor = '',
-	): array {
+	public function getContentsForPlacement(string $userId, array $config, array $page=[]): array {
+		$page          += ['currentSubPath' => null, 'limit' => self::DEFAULT_LIMIT, 'cursor' => ''];
+		$limit          = (int)$page['limit'];
+		$cursor         = (string)$page['cursor'];
 		$rootFolder = $this->resolveConfiguredFolder(userId: $userId, config: $config);
-
-		$target = $this->descendInto(
-			root: $rootFolder,
-			subPath: ($currentSubPath ?? '/')
-		);
+		$target     = $this->descendInto(root: $rootFolder, subPath: ($page['currentSubPath'] ?? '/'));
 
 		if ($target->isReadable() === false) {
 			throw new NoAccessException();
 		}
 
-		$children = $target->getDirectoryListing();
+		$items = $this->listVisibleItems(folder: $target, config: $config);
 
+		return $this->paginate(items: $items, limit: $this->clampLimit(limit: $limit), cursor: $cursor);
+	}//end getContentsForPlacement()
+
+	/**
+	 * The folder's children the viewer may read and the placement's MIME
+	 * filter lets through (folders always pass), as metadata, sorted per
+	 * the placement config.
+	 *
+	 * @param Folder $folder The readable folder being listed.
+	 * @param array  $config Placement config.
+	 *
+	 * @return list<array<string,mixed>> The sorted item metadata.
+	 */
+	private function listVisibleItems(Folder $folder, array $config): array {
+		$children = $folder->getDirectoryListing();
 		$mimeFilter = $this->normaliseMimeFilter(filter: ($config['mimeTypeFilter'] ?? []));
 
 		$items = [];
 		foreach ($children as $child) {
-			if ($child->isReadable() === false) {
-				continue;
+			if ($this->isListed(node: $child, mimeFilter: $mimeFilter) === true) {
+				$items[] = $this->buildFileMetadata(node: $child);
 			}
-
-			if ($child instanceof File && $this->matchesMimeFilter(node: $child, filter: $mimeFilter) === false) {
-				continue;
-			}
-
-			$items[] = $this->buildFileMetadata(node: $child);
 		}
 
-		$items = $this->sortItems(
+		return $this->sortItems(
 			items: $items,
 			sortBy: ($config['sortBy'] ?? 'name'),
 			sortDescending: (bool)($config['sortDescending'] ?? false)
 		);
+	}//end listVisibleItems()
 
-		return $this->paginate(items: $items, limit: $this->clampLimit(limit: $limit), cursor: $cursor);
-	}//end getContentsForPlacement()
+	/**
+	 * Whether a child is listed: the viewer can read it, and it is a
+	 * folder or a file that passes the MIME filter.
+	 *
+	 * @param Node         $node       The child node.
+	 * @param list<string> $mimeFilter Normalised filter list.
+	 *
+	 * @return bool True when the child is listed.
+	 */
+	private function isListed(Node $node, array $mimeFilter): bool {
+		return $node->isReadable() === true
+			&& (($node instanceof File) === false || $this->matchesMimeFilter(node: $node, filter: $mimeFilter) === true);
+	}//end isListed()
 
 	/**
 	 * Upload one or more files into the configured folder (or a
@@ -211,53 +215,115 @@ class FilesWidgetService {
 		}
 
 		$root = $this->resolveConfiguredFolder(userId: $userId, config: $config);
-		$target = $this->descendInto(root: $root, subPath: ($currentSubPath ?? '/'));
+		$target = $this->writableFolder(root: $root, subPath: $currentSubPath);
 
+		return $this->storeUploads(target: $this->uploadTarget(folder: $target, config: $config), uploadedFiles: $uploadedFiles);
+	}//end uploadFiles()
+
+	/**
+	 * The sub-path folder an upload writes into, refused when the viewer
+	 * may not write to it.
+	 *
+	 * @param Folder      $root    The configured root folder.
+	 * @param string|null $subPath Sub-path inside the configured folder.
+	 *
+	 * @return Folder The writable folder.
+	 *
+	 * @throws FolderNotFoundException When the sub-path does not resolve.
+	 * @throws NoAccessException When the folder is not writable.
+	 */
+	private function writableFolder(Folder $root, ?string $subPath): Folder {
+		$target = $this->descendInto(root: $root, subPath: ($subPath ?? '/'));
 		if ($target->isUpdateable() === false) {
 			throw new NoAccessException();
 		}
 
+		return $target;
+	}//end writableFolder()
+
+	/**
+	 * The upload destination with the placement's MIME filter.
+	 *
+	 * @param Folder $folder The writable destination folder.
+	 * @param array  $config Placement config.
+	 *
+	 * @return FilesWidgetUploadTarget The destination.
+	 */
+	private function uploadTarget(Folder $folder, array $config): FilesWidgetUploadTarget {
 		// M3: normalise the placement's MIME type filter so we can gate
 		// uploads against it (same filter already enforced on reads).
 		$mimeFilter = $this->normaliseMimeFilter(
 			filter: ($config['mimeTypeFilter'] ?? [])
 		);
 
+		return new FilesWidgetUploadTarget(folder: $folder, mimeFilter: $mimeFilter);
+	}//end uploadTarget()
+
+	/**
+	 * Store each uploaded entry, collecting the stored files' metadata and
+	 * the per-entry errors, in upload order.
+	 *
+	 * @param FilesWidgetUploadTarget $target        The destination.
+	 * @param array                   $uploadedFiles Normalised `$_FILES` entries.
+	 *
+	 * @return array{uploaded: list<array<string,mixed>>, errors: list<array<string,mixed>>}
+	 */
+	private function storeUploads(FilesWidgetUploadTarget $target, array $uploadedFiles): array {
 		$uploaded = [];
 		$errors = [];
 		foreach ($uploadedFiles as $entry) {
-			$name = (string)$entry['name'];
-
-			$rejection = $this->rejectUpload(entry: $entry, mimeFilter: $mimeFilter);
-			if ($rejection !== null) {
-				$errors[] = [
-					'name' => $name,
-					'error' => $rejection,
-				];
+			$outcome = $this->storeUpload(target: $target, entry: $entry);
+			if (is_string($outcome) === true) {
+				$errors[] = ['name' => (string)$entry['name'], 'error' => $outcome];
 				continue;
 			}
 
-			$safeName = $this->resolveAvailableName(folder: $target, desired: $name);
-			try {
-				$file = $this->streamToNewFile(
-					target: $target,
-					tmp: (string)$entry['tmp_name'],
-					safeName: $safeName
-				);
-				$uploaded[] = $this->buildFileMetadata(node: $file);
-			} catch (Throwable $e) {
-				$errors[] = [
-					'name' => $name,
-					'error' => 'storage_failed',
-				];
-			}//end try
-		}//end foreach
+			$uploaded[] = $outcome;
+		}
 
-		return [
-			'uploaded' => $uploaded,
-			'errors' => $errors,
-		];
-	}//end uploadFiles()
+		return ['uploaded' => $uploaded, 'errors' => $errors];
+	}//end storeUploads()
+
+	/**
+	 * Screen and store one uploaded entry under a collision-free name.
+	 *
+	 * @param FilesWidgetUploadTarget $target The destination.
+	 * @param array                   $entry  One normalised `$_FILES` entry.
+	 *
+	 * @return array<string,mixed>|string The stored file's metadata, or the
+	 *                                    client-facing error code.
+	 */
+	private function storeUpload(FilesWidgetUploadTarget $target, array $entry): array|string {
+		$rejection = $this->rejectUpload(entry: $entry, mimeFilter: $target->mimeFilter);
+		if ($rejection !== null) {
+			return $rejection;
+		}
+
+		return $this->writeUpload(target: $target, entry: $entry);
+	}//end storeUpload()
+
+	/**
+	 * Write a screened upload under a collision-free name.
+	 *
+	 * @param FilesWidgetUploadTarget $target The destination.
+	 * @param array                   $entry  One screened `$_FILES` entry.
+	 *
+	 * @return array<string,mixed>|string The stored file's metadata, or
+	 *                                    `storage_failed`.
+	 */
+	private function writeUpload(FilesWidgetUploadTarget $target, array $entry): array|string {
+		$safeName = (new UploadNamePicker())->availableName(folder: $target->folder, desired: (string)$entry['name']);
+		try {
+			$file = $this->streamToNewFile(
+				target: $target->folder,
+				tmp: (string)$entry['tmp_name'],
+				safeName: $safeName
+			);
+			return $this->buildFileMetadata(node: $file);
+		} catch (Throwable $e) {
+			return 'storage_failed';
+		}
+	}//end writeUpload()
 
 	/**
 	 * Screen one uploaded entry before it is written to storage.
@@ -277,27 +343,45 @@ class FilesWidgetService {
 	 * @spec openspec/specs/files-widget/spec.md
 	 */
 	private function rejectUpload(array $entry, array $mimeFilter): ?string {
-		$name = (string)$entry['name'];
-		$tmp = (string)$entry['tmp_name'];
-		$error = (int)$entry['error'];
-		$size = (int)$entry['size'];
-
-		if ($name === '' || $error !== UPLOAD_ERR_OK || $tmp === '') {
-			return 'upload_failed';
-		}
-
-		// M3: assert the temp file came through a real PHP upload to
-		// prevent local-file-inclusion via a crafted tmp_name.
-		if (is_uploaded_file(filename: $tmp) === false) {
+		if ($this->isGenuineUpload(entry: $entry) === false) {
 			return 'upload_failed';
 		}
 
 		// M3: reject files that exceed the hard size cap.
-		if ($size > self::MAX_UPLOAD_BYTES) {
+		if ((int)$entry['size'] > self::MAX_UPLOAD_BYTES) {
 			return 'file_too_large';
 		}
 
-		// M3: honour the placement MIME type filter on writes.
+		return $this->rejectUploadType(tmp: (string)$entry['tmp_name'], mimeFilter: $mimeFilter);
+	}//end rejectUpload()
+
+	/**
+	 * Whether an entry is a complete upload: named, without a transport
+	 * error, and with a temp file that came through a real PHP upload
+	 * (M3: prevents local-file inclusion via a crafted `tmp_name`).
+	 *
+	 * @param array $entry One normalised `$_FILES` entry.
+	 *
+	 * @return bool True when the entry may be screened further.
+	 */
+	private function isGenuineUpload(array $entry): bool {
+		$tmp = (string)$entry['tmp_name'];
+
+		return (string)$entry['name'] !== ''
+			&& (int)$entry['error'] === UPLOAD_ERR_OK
+			&& $tmp !== ''
+			&& is_uploaded_file(filename: $tmp) === true;
+	}//end isGenuineUpload()
+
+	/**
+	 * M3: honour the placement MIME type filter on writes.
+	 *
+	 * @param string $tmp        Path of the PHP temporary upload file.
+	 * @param array  $mimeFilter Normalised MIME filter; `[]` means allow all.
+	 *
+	 * @return string|null `file_type_not_allowed`, or null when allowed.
+	 */
+	private function rejectUploadType(string $tmp, array $mimeFilter): ?string {
 		if ($mimeFilter === []) {
 			return null;
 		}
@@ -308,7 +392,7 @@ class FilesWidgetService {
 		}
 
 		return null;
-	}//end rejectUpload()
+	}//end rejectUploadType()
 
 	/**
 	 * Stream a temporary upload into a new file under `$target`.
@@ -369,10 +453,29 @@ class FilesWidgetService {
 		}
 
 		$root = $this->resolveConfiguredFolder(userId: $userId, config: $config);
+		$node = $this->userNodeById(userId: $userId, fileId: $fileId);
+		$this->assertDeletableWithin(root: $root, node: $node);
+		$this->deleteNode(node: $node);
 
-		// Find the file inside the configured folder by id. The id
-		// search is scoped to the user folder so we do not have to
-		// worry about cross-storage leaks.
+		return [
+			'status' => 'success',
+			'fileId' => $fileId,
+		];
+	}//end deleteFile()
+
+	/**
+	 * Find a node by id inside the viewer's own Files area. The id
+	 * search is scoped to the user folder so we do not have to worry
+	 * about cross-storage leaks.
+	 *
+	 * @param string  $userId Viewing user's UID.
+	 * @param integer $fileId The file ID.
+	 *
+	 * @return Node The first match.
+	 *
+	 * @throws FolderNotFoundException When the lookup fails or finds nothing.
+	 */
+	private function userNodeById(string $userId, int $fileId): Node {
 		try {
 			$userFolder = $this->rootFolder->getUserFolder(userId: $userId);
 			$matches = $userFolder->getById(id: $fileId);
@@ -384,8 +487,21 @@ class FilesWidgetService {
 			throw new FolderNotFoundException();
 		}
 
-		$node = $matches[0];
+		return $matches[0];
+	}//end userNodeById()
 
+	/**
+	 * Refuse a delete of a node outside the configured root folder or one
+	 * the viewer may not delete.
+	 *
+	 * @param Folder $root The configured root folder.
+	 * @param Node   $node The node to delete.
+	 *
+	 * @return void
+	 *
+	 * @throws NoAccessException When the delete is not allowed.
+	 */
+	private function assertDeletableWithin(Folder $root, Node $node): void {
 		// Defence-in-depth: the resolved node must live inside the
 		// configured root folder. Otherwise a viewer with both
 		// placements could pass an arbitrary fileId from a different
@@ -397,18 +513,24 @@ class FilesWidgetService {
 		if ($node->isDeletable() === false) {
 			throw new NoAccessException();
 		}
+	}//end assertDeletableWithin()
 
+	/**
+	 * Delete a node, answering any storage failure as no access.
+	 *
+	 * @param Node $node The node to delete.
+	 *
+	 * @return void
+	 *
+	 * @throws NoAccessException When the storage refuses the delete.
+	 */
+	private function deleteNode(Node $node): void {
 		try {
 			$node->delete();
 		} catch (Throwable $e) {
 			throw new NoAccessException();
 		}
-
-		return [
-			'status' => 'success',
-			'fileId' => $fileId,
-		];
-	}//end deleteFile()
+	}//end deleteNode()
 
 	/**
 	 * Build the normalised JSON-friendly file metadata blob the
@@ -485,23 +607,7 @@ class FilesWidgetService {
 			throw new FolderNotFoundException();
 		}
 
-		$fileId = $this->extractFileId(config: $config);
-		$folderPath = (string)($config['folderPath'] ?? '');
-
-		$node = $this->resolveByFileId(userFolder: $userFolder, fileId: $fileId);
-		if ($node === null && $folderPath !== '') {
-			$node = $this->resolveByPath(userFolder: $userFolder, folderPath: $folderPath);
-		}
-
-		// Unconfigured placement (neither a fileId nor a folderPath set):
-		// default to the user's home folder rather than erroring, so a
-		// freshly-added or seeded files widget shows something usable until a
-		// folder is chosen. A configured-but-missing folder still falls
-		// through to the throw below.
-		if ($node === null && $fileId === null && $folderPath === '') {
-			$node = $userFolder;
-		}
-
+		$node = $this->configuredNode(userFolder: $userFolder, config: $config);
 		if ($node === null) {
 			throw new FolderNotFoundException();
 		}
@@ -512,6 +618,52 @@ class FilesWidgetService {
 
 		return $node;
 	}//end resolveConfiguredFolder()
+
+	/**
+	 * The folder a placement config names: by `fileId` first, else by
+	 * `folderPath`, else — for an unconfigured placement — the home folder.
+	 *
+	 * @param Folder $userFolder The viewer's home folder.
+	 * @param array  $config     Placement config.
+	 *
+	 * @return Folder|null The folder, or null when the configured one is gone.
+	 */
+	private function configuredNode(Folder $userFolder, array $config): ?Folder {
+		$fileId = $this->extractFileId(config: $config);
+		$folderPath = (string)($config['folderPath'] ?? '');
+
+		$node = $this->resolveByFileId(userFolder: $userFolder, fileId: $fileId);
+		if ($node !== null) {
+			return $node;
+		}
+
+		if ($folderPath !== '') {
+			return $this->resolveByPath(userFolder: $userFolder, folderPath: $folderPath);
+		}
+
+		// Unconfigured placement (neither a fileId nor a folderPath set):
+		// default to the user's home folder rather than erroring, so a
+		// freshly-added or seeded files widget shows something usable until a
+		// folder is chosen. A configured-but-missing folder still yields null.
+		return $this->homeWhenUnconfigured(userFolder: $userFolder, fileId: $fileId);
+	}//end configuredNode()
+
+	/**
+	 * The home folder for a placement without a `fileId`; null for one
+	 * whose `fileId` no longer resolves.
+	 *
+	 * @param Folder       $userFolder The viewer's home folder.
+	 * @param integer|null $fileId     Configured file id, or null.
+	 *
+	 * @return Folder|null The home folder, or null.
+	 */
+	private function homeWhenUnconfigured(Folder $userFolder, ?int $fileId): ?Folder {
+		if ($fileId === null) {
+			return $userFolder;
+		}
+
+		return null;
+	}//end homeWhenUnconfigured()
 
 	/**
 	 * Resolve the placement folder by its stable `fileId`.
@@ -531,13 +683,23 @@ class FilesWidgetService {
 			return null;
 		}
 
-		$matches = $userFolder->getById(id: $fileId);
+		return $this->firstFolder(matches: $userFolder->getById(id: $fileId));
+	}//end resolveByFileId()
+
+	/**
+	 * The first match when it is a folder.
+	 *
+	 * @param array<int, Node> $matches The id lookup's matches.
+	 *
+	 * @return Folder|null The folder, or null.
+	 */
+	private function firstFolder(array $matches): ?Folder {
 		if (count($matches) > 0 && $matches[0] instanceof Folder) {
 			return $matches[0];
 		}
 
 		return null;
-	}//end resolveByFileId()
+	}//end firstFolder()
 
 	/**
 	 * Resolve the placement folder by its configured path.
@@ -598,24 +760,34 @@ class FilesWidgetService {
 			throw new FolderNotFoundException();
 		}
 
-		try {
-			$node = $root->get(path: ltrim(string: $clean, characters: '/'));
-		} catch (NotFoundException $e) {
-			throw new FolderNotFoundException();
-		} catch (NotPermittedException $e) {
-			throw new FolderNotFoundException();
-		}
-
-		if (($node instanceof Folder) === false) {
-			throw new FolderNotFoundException();
-		}
-
-		if ($node->isReadable() === false) {
+		$node = $this->nodeBelow(root: $root, path: ltrim(string: $clean, characters: '/'));
+		if (($node instanceof Folder) === false || $node->isReadable() === false) {
 			throw new FolderNotFoundException();
 		}
 
 		return $node;
 	}//end descendInto()
+
+	/**
+	 * The node at a relative path below a folder; missing and not
+	 * permitted paths are both answered as not found.
+	 *
+	 * @param Folder $root The folder to look below.
+	 * @param string $path The relative path.
+	 *
+	 * @return Node The node.
+	 *
+	 * @throws FolderNotFoundException When the path is missing or not permitted.
+	 */
+	private function nodeBelow(Folder $root, string $path): Node {
+		try {
+			return $root->get(path: $path);
+		} catch (NotFoundException $e) {
+			throw new FolderNotFoundException();
+		} catch (NotPermittedException $e) {
+			throw new FolderNotFoundException();
+		}
+	}//end nodeBelow()
 
 	/**
 	 * Coerce the placement's `fileId` config value into a positive
@@ -635,15 +807,28 @@ class FilesWidgetService {
 			return $value;
 		}
 
-		if (is_string($value) === true && ctype_digit($value) === true) {
-			$coerced = (int)$value;
-			if ($coerced > 0) {
-				return $coerced;
-			}
+		return $this->positiveIntFromDigits(value: $value);
+	}//end extractFileId()
+
+	/**
+	 * A positive integer from a digit-only string; null for anything else.
+	 *
+	 * @param mixed $value The candidate value.
+	 *
+	 * @return integer|null The integer, or null.
+	 */
+	private function positiveIntFromDigits(mixed $value): ?int {
+		if (is_string($value) === false || ctype_digit($value) === false) {
+			return null;
+		}
+
+		$coerced = (int)$value;
+		if ($coerced > 0) {
+			return $coerced;
 		}
 
 		return null;
-	}//end extractFileId()
+	}//end positiveIntFromDigits()
 
 	/**
 	 * Normalise the MIME filter array — drops non-strings and empty
@@ -688,19 +873,7 @@ class FilesWidgetService {
 			return true;
 		}
 
-		$mime = strtolower(string: (string)$node->getMimetype());
-		foreach ($filter as $pattern) {
-			if (str_ends_with(haystack: $pattern, needle: '/*') === true) {
-				$prefix = substr(string: $pattern, offset: 0, length: -1);
-				if (str_starts_with(haystack: $mime, needle: $prefix) === true) {
-					return true;
-				}
-			} elseif ($pattern === $mime) {
-				return true;
-			}
-		}
-
-		return false;
+		return $this->mimeMatchesFilter(mime: strtolower(string: (string)$node->getMimetype()), filter: $filter);
 	}//end matchesMimeFilter()
 
 	/**
@@ -733,8 +906,8 @@ class FilesWidgetService {
 	 * Test a raw MIME type string against a normalised filter list.
 	 *
 	 * Accepts both exact matches (`image/png`) and wildcard prefixes
-	 * (`image/*`) — mirrors the read-path `matchesMimeFilter` but
-	 * operates on a raw string rather than a Node.
+	 * (`image/*`) — shared by the read-path `matchesMimeFilter` and the
+	 * upload screening.
 	 *
 	 * @param string $mime The detected MIME type.
 	 * @param list<string> $filter Normalised filter list.
@@ -747,18 +920,30 @@ class FilesWidgetService {
 		}
 
 		foreach ($filter as $pattern) {
-			if (str_ends_with(haystack: $pattern, needle: '/*') === true) {
-				$prefix = substr(string: $pattern, offset: 0, length: -1);
-				if (str_starts_with(haystack: $mime, needle: $prefix) === true) {
-					return true;
-				}
-			} elseif ($pattern === $mime) {
+			if (self::mimeMatchesPattern(mime: $mime, pattern: $pattern) === true) {
 				return true;
 			}
 		}
 
 		return false;
 	}//end mimeMatchesFilter()
+
+	/**
+	 * Test a MIME type against one filter entry: an exact type, or a
+	 * `type/*` wildcard prefix.
+	 *
+	 * @param string $mime    The MIME type.
+	 * @param string $pattern One normalised filter entry.
+	 *
+	 * @return bool True on a match.
+	 */
+	private static function mimeMatchesPattern(string $mime, string $pattern): bool {
+		if (str_ends_with(haystack: $pattern, needle: '/*') === true) {
+			return str_starts_with(haystack: $mime, needle: substr(string: $pattern, offset: 0, length: -1));
+		}
+
+		return $pattern === $mime;
+	}//end mimeMatchesPattern()
 
 	/**
 	 * Sort an item list according to the placement config.
@@ -770,29 +955,7 @@ class FilesWidgetService {
 	 * @return list<array<string,mixed>>
 	 */
 	private function sortItems(array $items, string $sortBy, bool $sortDescending): array {
-		$allowed = ['name', 'modified', 'size', 'type'];
-		if (in_array(needle: $sortBy, haystack: $allowed, strict: true) === false) {
-			$sortBy = 'name';
-		}
-
-		usort(
-			array: $items,
-			callback: function (array $a, array $b) use ($sortBy): int {
-				if ($sortBy === 'modified') {
-					return strcmp(string1: (string)($a['modifiedAt'] ?? ''), string2: (string)($b['modifiedAt'] ?? ''));
-				}
-
-				if ($sortBy === 'size') {
-					return ((int)($a['size'] ?? 0)) <=> ((int)($b['size'] ?? 0));
-				}
-
-				if ($sortBy === 'type') {
-					return strcmp(string1: (string)($a['mimeType'] ?? ''), string2: (string)($b['mimeType'] ?? ''));
-				}
-
-				return strnatcasecmp(string1: (string)($a['name'] ?? ''), string2: (string)($b['name'] ?? ''));
-			}
-		);
+		usort(array: $items, callback: self::itemComparator(sortBy: $sortBy));
 
 		if ($sortDescending === true) {
 			$items = array_reverse(array: $items);
@@ -800,6 +963,23 @@ class FilesWidgetService {
 
 		return array_values(array: $items);
 	}//end sortItems()
+
+	/**
+	 * The comparator for a sort field: `modified`, `size` or `type`, and
+	 * natural case-insensitive name order for `name` or any other value.
+	 *
+	 * @param string $sortBy Sort field.
+	 *
+	 * @return callable(array<string,mixed>, array<string,mixed>): int The comparator.
+	 */
+	private static function itemComparator(string $sortBy): callable {
+		return match ($sortBy) {
+			'modified' => static fn (array $a, array $b): int => strcmp(string1: (string)($a['modifiedAt'] ?? ''), string2: (string)($b['modifiedAt'] ?? '')),
+			'size' => static fn (array $a, array $b): int => ((int)($a['size'] ?? 0)) <=> ((int)($b['size'] ?? 0)),
+			'type' => static fn (array $a, array $b): int => strcmp(string1: (string)($a['mimeType'] ?? ''), string2: (string)($b['mimeType'] ?? '')),
+			default => static fn (array $a, array $b): int => strnatcasecmp(string1: (string)($a['name'] ?? ''), string2: (string)($b['name'] ?? '')),
+		};
+	}//end itemComparator()
 
 	/**
 	 * Slice the sorted item list into a single page using an opaque
@@ -865,43 +1045,6 @@ class FilesWidgetService {
 	}//end formatTimestamp()
 
 	/**
-	 * Find a free filename inside the target folder by appending
-	 * `(1)`, `(2)` etc. when the desired name is taken (REQ-FLS-007).
-	 *
-	 * @param Folder $folder Target folder.
-	 * @param string $desired Desired leaf name.
-	 *
-	 * @return string
-	 */
-	private function resolveAvailableName(Folder $folder, string $desired): string {
-		$sanitised = str_replace(search: ['/', '\\', "\0"], replace: '_', subject: $desired);
-		if ($sanitised === '' || $sanitised === '.' || $sanitised === '..') {
-			$sanitised = 'upload';
-		}
-
-		if ($folder->nodeExists(path: $sanitised) === false) {
-			return $sanitised;
-		}
-
-		$extPos = strrpos(haystack: $sanitised, needle: '.');
-		$base = $sanitised;
-		$ext = '';
-		if ($extPos !== false && $extPos !== 0) {
-			$base = substr(string: $sanitised, offset: 0, length: $extPos);
-			$ext = substr(string: $sanitised, offset: $extPos);
-		}
-
-		for ($i = 1; $i <= 999; $i++) {
-			$candidate = $base . ' (' . $i . ')' . $ext;
-			if ($folder->nodeExists(path: $candidate) === false) {
-				return $candidate;
-			}
-		}
-
-		return $base . ' (' . uniqid() . ')' . $ext;
-	}//end resolveAvailableName()
-
-	/**
 	 * Walk parents of `$candidate` and return true when `$parent` is
 	 * one of them (or the same node).
 	 *
@@ -916,21 +1059,28 @@ class FilesWidgetService {
 			return true;
 		}
 
-		$cursor = $candidate;
+		return $this->hasAncestorWithId(node: $candidate, ancestorId: $parentId);
+	}//end isDescendantOf()
+
+	/**
+	 * Walk at most 32 parents up from a node looking for an id; the walk
+	 * stops at the user-folder root or on a parent that cannot be read.
+	 *
+	 * @param Node  $node       The node to start from.
+	 * @param mixed $ancestorId The id to look for.
+	 *
+	 * @return bool True when a parent within reach has the id.
+	 */
+	private function hasAncestorWithId(Node $node, mixed $ancestorId): bool {
+		$cursor = $node;
 		for ($depth = 0; $depth < 32; $depth++) {
-			try {
-				$next = $cursor->getParent();
-			} catch (Throwable $e) {
-				return false;
+			$next = $this->parentOf(node: $cursor);
+			if ($next === null || $next->getId() === $ancestorId) {
+				return $next !== null;
 			}
 
-			if ($next->getId() === $parentId) {
-				return true;
-			}
-
-			// Reached the user-folder root without hitting `$parent`.
-			$nextPath = $next->getPath();
-			if ($nextPath === '/' || $nextPath === '') {
+			// Reached the user-folder root without hitting the ancestor.
+			if (in_array(needle: $next->getPath(), haystack: ['/', ''], strict: true) === true) {
 				return false;
 			}
 
@@ -938,5 +1088,20 @@ class FilesWidgetService {
 		}
 
 		return false;
-	}//end isDescendantOf()
+	}//end hasAncestorWithId()
+
+	/**
+	 * A node's parent, null when it cannot be read.
+	 *
+	 * @param Node $node The node.
+	 *
+	 * @return Node|null The parent, or null.
+	 */
+	private function parentOf(Node $node): ?Node {
+		try {
+			return $node->getParent();
+		} catch (Throwable $e) {
+			return null;
+		}
+	}//end parentOf()
 }//end class

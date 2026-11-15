@@ -60,41 +60,9 @@ export class ResourceUploadError extends Error {
  * @spec openspec/specs/resource-uploads/spec.md
  */
 export async function uploadDataUrl(dataUrl) {
-	const url = generateUrl('/apps/launchpad/api/resources')
-
-	let response
-	try {
-		response = await axios.post(url, { base64: dataUrl })
-	} catch (err) {
-		const data = err?.response?.data
-		if (data && data.status === 'error' && typeof data.error === 'string') {
-			throw new ResourceUploadError(
-				data.error,
-				typeof data.message === 'string' ? data.message : data.error,
-				err?.response?.status,
-			)
-		}
-		throw new ResourceUploadError(
-			'network_error',
-			err?.message || 'Network error',
-			err?.response?.status,
-		)
-	}
-
-	const body = response?.data
-	if (!body || body.status !== 'success' || typeof body.url !== 'string') {
-		throw new ResourceUploadError(
-			body?.error || 'unknown_error',
-			body?.message || 'Unexpected server response',
-			response?.status,
-		)
-	}
-
-	return {
-		url: body.url,
-		name: typeof body.name === 'string' ? body.name : '',
-		size: typeof body.size === 'number' ? body.size : 0,
-	}
+	return postResource(generateUrl('/apps/launchpad/api/resources'), {
+		base64: dataUrl,
+	})
 }
 
 /**
@@ -120,26 +88,59 @@ export async function uploadFile(file) {
 	const formData = new FormData()
 	formData.append('file', file)
 
+	// Let the browser/axios set the multipart boundary and CSRF token.
+	return postResource(url, formData)
+}
+
+/**
+ * Post an upload and read the resource envelope the server answers with.
+ *
+ * @param {string} url The upload endpoint.
+ * @param {object|FormData} payload The request body.
+ * @return {Promise<{url: string, name: string, size: number}>} The persisted resource info.
+ * @throws {ResourceUploadError} On a server-side rejection or a transport failure.
+ */
+async function postResource(url, payload) {
 	let response
 	try {
-		// Let the browser/axios set the multipart boundary and CSRF token.
-		response = await axios.post(url, formData)
+		response = await axios.post(url, payload)
 	} catch (err) {
-		const data = err?.response?.data
-		if (data && data.status === 'error' && typeof data.error === 'string') {
-			throw new ResourceUploadError(
-				data.error,
-				typeof data.message === 'string' ? data.message : data.error,
-				err?.response?.status,
-			)
-		}
-		throw new ResourceUploadError(
-			'network_error',
-			err?.message || 'Network error',
+		throw rejectionError(err)
+	}
+	return resourceOf(response)
+}
+
+/**
+ * The error for a failed upload request: the server's own error code and
+ * message when it answered with an error envelope, `network_error` otherwise.
+ *
+ * @param {unknown} err The caught request error.
+ * @return {ResourceUploadError} The error to throw.
+ */
+function rejectionError(err) {
+	const data = err?.response?.data
+	if (data && data.status === 'error' && typeof data.error === 'string') {
+		return new ResourceUploadError(
+			data.error,
+			typeof data.message === 'string' ? data.message : data.error,
 			err?.response?.status,
 		)
 	}
+	return new ResourceUploadError(
+		'network_error',
+		err?.message || 'Network error',
+		err?.response?.status,
+	)
+}
 
+/**
+ * The resource info of a successful upload response.
+ *
+ * @param {object} response The axios response.
+ * @return {{url: string, name: string, size: number}} The persisted resource info.
+ * @throws {ResourceUploadError} When the response is not a success envelope with a URL.
+ */
+function resourceOf(response) {
 	const body = response?.data
 	if (!body || body.status !== 'success' || typeof body.url !== 'string') {
 		throw new ResourceUploadError(

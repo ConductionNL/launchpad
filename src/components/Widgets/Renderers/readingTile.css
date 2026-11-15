@@ -1,0 +1,60 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V.
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * Styles shared by the widgets that show one server-side reading
+ * (WeatherWidget, LiveTileWidget): the centred root, the loading and error
+ * states with their retry button, the reading column and the badge that
+ * marks a stale reading. Each widget adds its own rules after this sheet.
+ */
+
+.weather-widget,
+.live-tile-widget {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.weather-widget__state,
+.live-tile-widget__state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	color: var(--color-text-maxcontrast, var(--color-main-text));
+	text-align: center;
+}
+
+.weather-widget__retry,
+.live-tile-widget__retry {
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	background: transparent;
+	padding: 4px 12px;
+	cursor: pointer;
+	color: var(--color-main-text);
+}
+
+.weather-widget__reading,
+.live-tile-widget__reading {
+	position: relative;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+}
+
+.weather-widget__badge,
+.live-tile-widget__stale-badge {
+	position: absolute;
+	top: -8px;
+	right: -8px;
+	font-size: 0.7rem;
+	padding: 2px 6px;
+	border-radius: var(--border-radius-pill, 8px);
+	background: var(--color-warning, #ffcc00);
+	color: var(--color-main-text);
+}

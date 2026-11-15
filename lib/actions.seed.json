@@ -9,6 +9,8 @@
     "analytics.instance-summary": ["admin"],
     "analytics.export-csv": ["admin"],
     "tile-analytics.record-click": ["admin", "@all"],
+    "office-tiles.list": ["admin", "@all"],
+    "office-tiles.create": ["admin", "@all"],
     "tile-analytics.top-tiles": ["admin"],
     "tile-analytics.dashboard-breakdown": ["admin"],
     "tile-analytics.export-csv": ["admin"],

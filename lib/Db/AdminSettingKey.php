@@ -57,6 +57,8 @@ enum AdminSettingKey: string {
 	case SETUP_WIZARD_COMPLETE = 'setup_wizard_complete';
 	case DEFAULT_SHARE_PERMISSION_LEVEL = 'default_share_permission_level';
 	case FORCED_SHARE_GROUPS = 'forced_share_groups';
+	case SHARING_ALLOWED_GROUPS = 'sharing_allowed_groups';
+	case SHARING_RECIPIENT_SCOPE = 'sharing_recipient_scope';
 	case LEGACY_WIDGET_BRIDGE_ENABLED = 'legacy_widget_bridge_enabled';
 	case MAX_DASHBOARDS_PER_USER = 'max_dashboards_per_user';
 	case MAX_WIDGETS_PER_DASHBOARD = 'max_widgets_per_dashboard';

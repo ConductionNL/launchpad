@@ -306,6 +306,18 @@
 			data-test="setup-wizard-modal"
 			@close="closeWizard"
 			@completed="onWizardCompleted" />
+
+		<!-- runtime-shell REQ-SHELL-011: the admin page's own first-visit
+		     tour. Mounted once the General tab has been open, so it starts on
+		     the general settings and keeps running when the tab changes. -->
+		<CnWalkthrough
+			v-if="adminTourMounted"
+			appId="launchpad"
+			:manifest="adminTour"
+			:seenVersion="adminTourSeen"
+			:translate="translateTour"
+			look="board"
+			@complete="onAdminTourComplete" />
 	</div>
 </template>
 
@@ -314,6 +326,7 @@ import {
 	CnAdminSettingsShell,
 	CnDashboardIcon,
 	CnSettingsSection,
+	CnWalkthrough,
 	NcButton,
 	NcCheckboxRadioSwitch,
 	NcSelect,
@@ -333,7 +346,9 @@ import SharingTab from './tabs/SharingTab.vue'
 import TemplatesPage from './tabs/TemplatesPage.vue'
 import VersioningAuditTab from './tabs/VersioningAuditTab.vue'
 import TileLaunchSettings from './TileLaunchSettings.vue'
+import manifest from '../../manifest.json'
 import { api } from '../../services/api.js'
+import { adminTourManifest, loadAdminTourSeen, persistAdminTourSeen } from '../../utils/adminWalkthrough.js'
 import { logger } from '../../utils/logger.js'
 
 export default {
@@ -342,6 +357,7 @@ export default {
 	components: {
 		CnAdminSettingsShell,
 		CnSettingsSection,
+		CnWalkthrough,
 		NcButton,
 		NcSelect,
 		NcCheckboxRadioSwitch,
@@ -413,10 +429,26 @@ export default {
 			wizardState: null,
 			showWizard: false,
 			activeTab: 'general',
+			// runtime-shell REQ-SHELL-011: the admin tour, its seen version
+			// (null until loaded) and whether it has been mounted.
+			adminTour: adminTourManifest(manifest),
+			adminTourSeen: null,
+			adminTourMounted: false,
 		}
 	},
 
 	computed: {
+		/**
+		 * Whether the admin tour may be mounted now: there is one, its seen
+		 * version is loaded, and the General tab is open (REQ-SHELL-011).
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		adminTourReady() {
+			return this.adminTour !== null && this.adminTourSeen !== null && this.activeTab === 'general'
+		},
+
 		/**
 		 * The page title names the open tab, as the boards do
 		 * ("Launchpad-beheer: algemeen").
@@ -510,7 +542,26 @@ export default {
 	},
 
 	/** @spec openspec/specs/admin-settings/spec.md */
+	watch: {
+		/**
+		 * Mount the admin tour once it is ready, and keep it mounted when the
+		 * tab changes so a running tour continues (REQ-SHELL-011).
+		 *
+		 * @param {boolean} ready Whether the tour may be mounted.
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		adminTourReady: {
+			immediate: true,
+			handler(ready) {
+				if (ready) {
+					this.adminTourMounted = true
+				}
+			},
+		},
+	},
+
 	async created() {
+		this.loadAdminTour()
 		await this.loadData()
 		await this.loadGroupSharedDashboards()
 		await this.loadWizardState()
@@ -525,6 +576,39 @@ export default {
 		 */
 		onTabChange(id) {
 			this.activeTab = id
+		},
+
+		/**
+		 * Read whether this administrator finished the admin tour (REQ-SHELL-011).
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		async loadAdminTour() {
+			if (this.adminTour) {
+				this.adminTourSeen = await loadAdminTourSeen('launchpad')
+			}
+		},
+
+		/**
+		 * Record the admin tour as finished, so it does not start again (REQ-SHELL-011).
+		 *
+		 * @return {void}
+		 * @spec openspec/changes/record-parity-requirements/specs/runtime-shell/spec.md#requirement-the-admin-area-has-its-own-first-visit-tour-req-shell-011
+		 */
+		onAdminTourComplete() {
+			this.adminTourSeen = String(this.adminTour.version || '')
+			persistAdminTourSeen('launchpad', this.adminTourSeen)
+		},
+
+		/**
+		 * Translate a tour title, body or task through LaunchPad's catalogue.
+		 *
+		 * @param {string} text The source string.
+		 * @return {string}
+		 */
+		translateTour(text) {
+			return this.t('launchpad', text)
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */

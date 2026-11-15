@@ -554,6 +554,26 @@
 		"default": {},
 		"fresh": true
 	},
+	"../../components/Widgets/Renderers/TileHost.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TileHost.vue | placement": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Widgets/Renderers/TileHost.vue | editMode": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
+	},
 	"../../components/Widgets/Renderers/WeatherWidget.vue | content": {
 		"type": "Object",
 		"required": false,
@@ -622,6 +642,27 @@
 		"required": false,
 		"validator": false,
 		"default": ""
+	},
+	"../../components/Workspace/ActiveFiltersPanel.vue | clauses": {
+		"type": "Array",
+		"required": false,
+		"validator": false,
+		"default": [],
+		"fresh": true
+	},
+	"../../components/Workspace/ActiveFiltersPanel.vue | labels": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
+	},
+	"../../components/Workspace/ActiveFiltersPanel.vue | widgetNames": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": {},
+		"fresh": true
 	},
 	"../../components/Workspace/DashboardBreadcrumb.vue | dashboard": {
 		"type": "Object",
@@ -972,6 +1013,29 @@
 		"type": "Object",
 		"required": true,
 		"validator": true
+	},
+	"../../dialogs/OfficeFileDialog.vue | open": {
+		"type": "Boolean",
+		"required": true,
+		"validator": false
+	},
+	"../../dialogs/OfficeFileDialog.vue | title": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/OfficeFileDialog.vue | defaultName": {
+		"type": "String",
+		"required": false,
+		"validator": false,
+		"default": ""
+	},
+	"../../dialogs/OfficeFileDialog.vue | busy": {
+		"type": "Boolean",
+		"required": false,
+		"validator": false,
+		"default": false
 	},
 	"../../dialogs/PublicSharePasswordDialog.vue | error": {
 		"type": "String",

@@ -204,4 +204,26 @@ class TileUpdaterTest extends TestCase {
 
 		$this->assertSame('https://wiki.example.org', $placement->getTileLinkValue());
 	}
+
+	/**
+	 * An office "New ..." tile keeps its `create` link type and creator id
+	 * (integrations-office-tiles REQ-OFT-002).
+	 */
+	public function testACreateTileKeepsItsLinkTypeAndCreator(): void {
+		$placement = new WidgetPlacement();
+		$updater   = new TileUpdater();
+
+		$updater->applyTileConfig(
+			placement: $placement,
+			tileData: ['title' => 'New document', 'linkType' => 'create', 'linkVal' => 'richdocuments:.docx']
+		);
+
+		$this->assertSame('create', $placement->getTileLinkType());
+		$this->assertSame('richdocuments:.docx', $placement->getTileLinkValue());
+
+		$updater->applyTileUpdates(placement: $placement, data: ['tileLinkValue' => 'onlyoffice:.xlsx']);
+
+		$this->assertSame('create', $placement->getTileLinkType());
+		$this->assertSame('onlyoffice:.xlsx', $placement->getTileLinkValue());
+	}
 }

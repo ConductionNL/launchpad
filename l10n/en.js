@@ -946,6 +946,10 @@ OC.L10N.register(
     "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with." : "Set the default permission level applied to new shares and the groups every dashboard is automatically shared with.",
     "Default share permission level" : "Default share permission level",
     "Forced share groups" : "Forced share groups",
+    "Groups that may share" : "Groups that may share",
+    "Only members of these groups can share their dashboards. Leave empty to let everyone share." : "Only members of these groups can share their dashboards. Leave empty to let everyone share.",
+    "Who can receive a share" : "Who can receive a share",
+    "Only people who share a group with the sharer" : "Only people who share a group with the sharer",
     "Select groups (leave empty for none)" : "Select groups (leave empty for none)",
     "Members of these groups always receive every newly created dashboard." : "Members of these groups always receive every newly created dashboard.",
     "Prometheus metrics" : "Prometheus metrics",
@@ -1349,6 +1353,13 @@ OC.L10N.register(
     "applies to the whole organisation" : "applies to the whole organisation",
     "Discovered on this server" : "Discovered on this server",
     "Apps this server runs for you. One click places one as a tile." : "Apps this server runs for you. One click places one as a tile.",
+    "Office tiles" : "Office tiles",
+    "Ready-made tiles" : "Ready-made tiles",
+    "One container with a tile for each kind of new document and each office app on this server." : "One container with a tile for each kind of new document and each office app on this server.",
+    "This server has no office apps to make tiles for." : "This server has no office apps to make tiles for.",
+    "The office tiles could not be added." : "The office tiles could not be added.",
+    "File name" : "File name",
+    "The file could not be created." : "The file could not be created.",
     "On this dashboard" : "On this dashboard",
     "Statistics" : "Statistics",
     "Count my visits" : "Count my visits",
@@ -1391,7 +1402,11 @@ OC.L10N.register(
     "Something went wrong" : "Something went wrong",
     "Announcements" : "Announcements",
     "_{count} comment_::_{count} comments_" : ["{count} comment", "{count} comments"],
-    "_Reaches {count} person_::_Reaches {count} people_" : ["Reaches {count} person", "Reaches {count} people"]
+    "_Reaches {count} person_::_Reaches {count} people_" : ["Reaches {count} person", "Reaches {count} people"],
+    "Active filters" : "Active filters",
+    "Pinned filter" : "Pinned filter",
+    "Remove filter: {label}" : "Remove filter: {label}",
+    "Reset filters" : "Reset filters"
 },
 "nplurals=2; plural=(n != 1);"
 );

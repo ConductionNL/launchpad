@@ -1685,6 +1685,14 @@
         "Sorted at random": "Willekeurig gesorteerd",
         "New announcement in %1$s: **%2$s**": "Nieuwe aankondiging in %1$s: **%2$s**",
         "New announcement in %1$s: %2$s": "Nieuwe aankondiging in %1$s: %2$s",
-        "Open LaunchPad to read the announcement": "Open LaunchPad om de aankondiging te lezen"
+        "Open LaunchPad to read the announcement": "Open LaunchPad om de aankondiging te lezen",
+        "Admin settings tour": "Rondleiding beheerinstellingen",
+        "General settings": "Algemene instellingen",
+        "Roles and permissions": "Rollen en rechten",
+        "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. Changes save as you make them.": "De standaardinstellingen waarmee elk dashboard begint: wie dashboards mag maken, het rechtenniveau en het raster. Wijzigingen worden direct opgeslagen.",
+        "Under Templates you build the dashboards that groups and new users get.": "Onder Sjablonen maak je de dashboards die groepen en nieuwe gebruikers krijgen.",
+        "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.": "Onder Rollen en rechten kies je wie LaunchPad mag beheren en wat elke rol mag wijzigen.",
+        "Under Sharing you set who may share dashboards and with whom.": "Onder Delen stel je in wie dashboards mag delen en met wie.",
+        "Under Operations you find the maintenance tasks, such as caches, imports and exports.": "Onder Bediening vind je de onderhoudstaken, zoals caches, imports en exports."
     }
 }

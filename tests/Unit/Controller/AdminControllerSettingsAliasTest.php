@@ -86,7 +86,7 @@ class AdminControllerSettingsAliasTest extends TestCase {
 	 */
 	private function settingsMatching(array $expected): Callback {
 		return $this->callback(
-			static fn (array $settings): bool => count($settings) === 16 && array_intersect_key($settings, $expected) === $expected
+			static fn (array $settings): bool => count($settings) === 17 && array_intersect_key($settings, $expected) === $expected
 		);
 	}//end settingsMatching()
 
@@ -241,4 +241,16 @@ class AdminControllerSettingsAliasTest extends TestCase {
 
 		$this->controller->updateSettings(tileAllowedSchemes: ['ms-word'], ssoLaunchTemplates: $templates);
 	}//end testTileLaunchSettingsArePassedThrough()
+	/**
+	 * Engagement-announcements D6: the announcement editor groups reach the service under their own name.
+	 *
+	 * @return void
+	 */
+	public function testAnnouncementEditorGroupsArePassedThrough(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->settingsMatching(['forcedShareGroups' => null, 'announcementEditorGroups' => ['communicatie']]));
+
+		$this->controller->updateSettings(announcementEditorGroups: ['communicatie']);
+	}//end testAnnouncementEditorGroupsArePassedThrough()
 }//end class

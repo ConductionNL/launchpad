@@ -177,6 +177,15 @@ class AdminSetting extends Entity implements JsonSerializable {
 	public const KEY_FORCED_SHARE_GROUPS = AdminSettingKey::FORCED_SHARE_GROUPS->value;
 
 	/**
+	 * BC alias for AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS.
+	 *
+	 * @var string
+	 *
+	 * @see AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS
+	 */
+	public const KEY_ANNOUNCEMENT_EDITOR_GROUPS = AdminSettingKey::ANNOUNCEMENT_EDITOR_GROUPS->value;
+
+	/**
 	 * BC alias for AdminSettingKey::LEGACY_WIDGET_BRIDGE_ENABLED.
 	 *
 	 * @var string

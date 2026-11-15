@@ -33,6 +33,8 @@ use OCP\IDBConnection;
  * @extends QBMapper<FeedCache>
  */
 class FeedCacheMapper extends QBMapper {
+	use ColumnMatchQueries;
+
 	/**
 	 * Constructor.
 	 *
@@ -56,15 +58,7 @@ class FeedCacheMapper extends QBMapper {
 	 * @throws DoesNotExistException When no row exists for this URL.
 	 */
 	public function findByUrl(string $feedUrl): FeedCache {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from(from: $this->getTableName())
-			->where(
-				$qb->expr()->eq(
-					x: 'feed_url',
-					y: $qb->createNamedParameter(value: $feedUrl)
-				)
-			);
+		$qb = $this->selectWhere(match: ['feed_url' => $feedUrl]);
 
 		return $this->findEntity(query: $qb);
 	}//end findByUrl()

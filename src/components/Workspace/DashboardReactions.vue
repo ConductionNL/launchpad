@@ -47,6 +47,7 @@
 <script>
 import { t } from '@nextcloud/l10n'
 import { mapActions, mapState } from 'pinia'
+import { TEXT_PROP } from '../../constants/propDefinitions.js'
 import { api } from '../../services/api.js'
 import { useDashboardStore } from '../../stores/dashboard.js'
 
@@ -64,10 +65,7 @@ export default {
 	name: 'DashboardReactions',
 
 	props: {
-		dashboardUuid: {
-			type: String,
-			default: '',
-		},
+		dashboardUuid: TEXT_PROP,
 	},
 
 	/** @spec openspec/specs/dashboard-reactions/spec.md */

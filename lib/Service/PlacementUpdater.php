@@ -240,23 +240,7 @@ class PlacementUpdater {
 			&& ($placement->getAnnouncementKey() === null
 			|| $placement->getAnnouncementKey() === '')
 		) {
-			$placement->setAnnouncementKey($this->generateUuid());
+			$placement->setAnnouncementKey(UuidV4::generate());
 		}
 	}//end mintAnnouncementKey()
-
-	/**
-	 * Generate a v4 UUID using random_bytes (no external dependency).
-	 * Mirrors `TemplateService::generateUuid()`.
-	 *
-	 * @return string A v4 UUID.
-	 */
-	private function generateUuid(): string {
-		$data = random_bytes(length: 16);
-		$data[6] = chr((ord($data[6]) & 0x0F) | 0x40);
-		$data[8] = chr((ord($data[8]) & 0x3F) | 0x80);
-		return vsprintf(
-			format: '%s%s-%s-%s-%s-%s%s%s',
-			values: str_split(string: bin2hex(string: $data), length: 4)
-		);
-	}//end generateUuid()
 }//end class

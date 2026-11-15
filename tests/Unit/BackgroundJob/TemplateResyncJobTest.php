@@ -111,4 +111,37 @@ class TemplateResyncJobTest extends TestCase {
 		$reflection->setAccessible(true);
 		$reflection->invoke($this->job, $argument);
 	}
+
+	/**
+	 * The exact log line of every outcome: skipped, completed and failed.
+	 *
+	 * @return void
+	 */
+	public function testTheLogLineOfEveryOutcome(): void {
+		$logged = [];
+		foreach (['warning', 'info', 'error'] as $level) {
+			$this->logger->method($level)->willReturnCallback(function (string $message, array $context = []) use ($level, &$logged): void {
+				$logged[] = [$level, $message, $context];
+			});
+		}
+
+		$failure = new \RuntimeException('boom');
+		$this->resyncService->method('applyResync')->willReturnOnConsecutiveCalls(
+			['affectedCount' => 3, 'totalCopies' => 5],
+			$this->throwException($failure)
+		);
+
+		$this->invokeRun(['templateId' => 2, 'strategy' => '', 'actingAdminId' => 'a']);
+		$this->invokeRun(['templateId' => 2, 'strategy' => 'merge', 'actingAdminId' => 'a']);
+		$this->invokeRun(['templateId' => '7', 'strategy' => 'overwrite', 'actingAdminId' => 'a']);
+
+		$this->assertSame(
+			[
+				['warning', 'launchpad.template_resync.job_skipped reason=invalid_arguments', ['argument' => ['templateId' => 2, 'strategy' => '', 'actingAdminId' => 'a']]],
+				['info', 'launchpad.template_resync.job_completed template=2 strategy=merge affected=3 total=5', []],
+				['error', 'launchpad.template_resync.job_failed', ['templateId' => 7, 'strategy' => 'overwrite', 'exception' => $failure]],
+			],
+			$logged
+		);
+	}
 }

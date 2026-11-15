@@ -127,7 +127,7 @@
     },
     {
       "id": "StoreMenu",
-      "label": "Store",
+      "label": "Marketplace",
       "icon": "StoreOutline",
       "route": "Store",
       "section": "footer",
@@ -163,11 +163,18 @@
       "id": "Store",
       "route": "/store",
       "type": "store",
-      "title": "Store",
+      "title": "Marketplace",
       "config": {
         "app": "launchpad",
-        "title": "Store",
-        "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers."
+        "title": "Marketplace",
+        "description": "Install a dashboard another organisation published. Point LaunchPad at a registry and browse what it offers.",
+        "kindLenses": [
+          { "kind": "app-template", "label": "App template" },
+          { "kind": "adapter", "label": "Adapter" },
+          { "kind": "source-template", "label": "Source template" },
+          { "kind": "configuration-template", "label": "Configuration template" },
+          { "kind": "agent-template", "label": "Agent template" }
+        ]
       },
       "_note": "ADR-080. Discovery is engine-owned: openregister's GenericStoreService owns the SSRF guard, the redirect refusal and the Bearer-only token. Install is LaunchPad's, in Controller\\StoreController, and runs through the existing ImportService. With no registry configured the page makes NO network call and reports not_configured. There is deliberately NO top-level `store` block: it configures the engine's GenericStoreController, which cannot write a LaunchPad dashboard, so the engine alias yields to the leaf controller. The block this replaced declared `openregister.configset` types, which would have offered configuration sets to somebody looking for a dashboard."
     },
@@ -211,9 +218,10 @@
       "title": "Flows",
       "config": {
         "entitySource": "flows",
-        "app": "launchpad"
+        "app": "launchpad",
+        "rowRoute": "FlowDetail"
       },
-      "_note": "ADR-110 Decision 4: a flow is app-specific, so the authoring surface lives here rather than behind a deep link to another app's list. An ordinary index over the named `flows` source (config.entitySource) rather than the deprecated `flows` page type, reading OpenRegister's one native flow store (ADR-065), scoped to this app by config.app."
+      "_note": "ADR-110 Decision 4: a flow is app-specific, so the authoring surface lives here rather than behind a deep link to another app's list. An ordinary index over the named `flows` source (config.entitySource) rather than the deprecated `flows` page type, reading OpenRegister's one native flow store (ADR-065), scoped to this app by config.app. rowRoute names the FlowDetail page (a route name, not a path): a named-source page has no register and schema, so without it a row click opens nothing and Edit falls back to the source's own /flows path."
     },
     {
       "id": "FlowDetail",
@@ -221,6 +229,8 @@
       "type": "flow",
       "title": "Flow",
       "config": {
+        "listMode": true,
+        "testPayload": true,
         "app": "launchpad"
       },
       "_note": "The shared CnFlowDetail canvas over the same single engine. Controls render in the NC app sidebar so the canvas keeps full width."
@@ -519,6 +529,78 @@
               "route": "Flows"
             },
             "allowManualNext": true
+          }
+        ]
+      },
+      {
+        "id": "launchpad:admin-getting-started",
+        "title": "Admin settings tour",
+        "trigger": "manual",
+        "steps": [
+          {
+            "id": "general",
+            "placement": "bottom",
+            "title": "General settings",
+            "body": "The defaults every dashboard starts from: who may create dashboards, the permission level and the grid. Changes save as you make them.",
+            "target": {
+              "kind": "element",
+              "ref": "admin-default-settings"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "templates",
+            "placement": "bottom",
+            "title": "Templates",
+            "body": "Under Templates you build the dashboards that groups and new users get.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "roles",
+            "placement": "bottom",
+            "title": "Roles and permissions",
+            "body": "Under Roles and permissions you choose who may manage LaunchPad and what each role may change.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "sharing",
+            "placement": "bottom",
+            "title": "Sharing",
+            "body": "Under Sharing you set who may share dashboards and with whom.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
+          },
+          {
+            "id": "operations",
+            "placement": "bottom",
+            "title": "Operations",
+            "body": "Under Operations you find the maintenance tasks, such as caches, imports and exports.",
+            "target": {
+              "kind": "element",
+              "ref": "cn-admin-settings-tabs"
+            },
+            "advanceOn": {
+              "type": "manual"
+            }
           }
         ]
       }

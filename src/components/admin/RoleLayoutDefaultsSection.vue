@@ -98,24 +98,26 @@
 			@update:row="editorRow = $event"
 			@save="save" />
 
-		<!-- Delete confirmation dialog (extracted per ADR-004) -->
-		<RoleLayoutDefaultDeleteDialog
+		<!-- Delete confirmation dialog -->
+		<CnConfirmDialog
 			v-if="showDeleteDialog"
-			:open="showDeleteDialog"
-			:groupId="deleteTarget ? deleteTarget.groupId : ''"
-			:widgetId="deleteTarget ? deleteTarget.widgetId : ''"
-			@update:open="showDeleteDialog = $event"
-			@confirm="confirmDelete" />
+			ref="deleteDialog"
+			:dialogTitle="t('launchpad', 'Delete layout default')"
+			:message="deleteMessage"
+			:confirmLabel="t('launchpad', 'Delete')"
+			variant="error"
+			@confirm="confirmDelete"
+			@close="showDeleteDialog = false" />
 	</div>
 </template>
 
 <script>
-import { NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { CnConfirmDialog, NcButton, NcEmptyContent } from '@conduction/nextcloud-vue'
+import { t } from '@nextcloud/l10n'
 import Delete from 'vue-material-design-icons/Delete.vue'
 import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import ViewDashboard from 'vue-material-design-icons/ViewDashboard.vue'
-import RoleLayoutDefaultDeleteDialog from '../../dialogs/RoleLayoutDefaultDeleteDialog.vue'
 import RoleLayoutDefaultEditorDialog from '../../dialogs/RoleLayoutDefaultEditorDialog.vue'
 import { useRoleFeaturePermissionStore } from '../../stores/roleFeaturePermissions.js'
 import { logger } from '../../utils/logger.js'
@@ -131,7 +133,7 @@ export default {
 		Pencil,
 		Delete,
 		RoleLayoutDefaultEditorDialog,
-		RoleLayoutDefaultDeleteDialog,
+		CnConfirmDialog,
 	},
 
 	/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
@@ -147,6 +149,25 @@ export default {
 			editorRow: this.emptyRow(),
 			deleteTarget: null,
 		}
+	},
+
+	computed: {
+		/**
+		 * The question in the delete confirmation.
+		 *
+		 * @return {string} The translated question.
+		 * @spec openspec/changes/role-based-content/tasks.md#task-6
+		 */
+		deleteMessage() {
+			return t(
+				'launchpad',
+				'Delete layout default for "{group}" / "{widget}"?',
+				{
+					group: this.deleteTarget ? this.deleteTarget.groupId : '',
+					widget: this.deleteTarget ? this.deleteTarget.widgetId : '',
+				},
+			)
+		},
 	},
 
 	/** @spec openspec/changes/role-based-content/tasks.md#task-6 */
@@ -226,83 +247,18 @@ export default {
 				this.deleteTarget = null
 			} catch (e) {
 				logger.error('Failed to delete layout default', e)
+				this.$refs.deleteDialog?.setResult({ error: this.store.error })
 			}
 		},
 	},
 }
 </script>
 
+<style scoped src="./roleSection.css"></style>
+
 <style scoped>
-.launchpad-admin__hint {
-	color: var(--color-text-maxcontrast);
-	margin: 0 0 var(--default-grid-baseline) 0;
-}
-
-.launchpad-admin__error {
-	background: var(--color-error);
-	color: var(--color-primary-element-text);
-	padding: var(--default-grid-baseline);
-	border-radius: var(--border-radius);
-	margin-bottom: var(--default-grid-baseline);
-}
-
-.launchpad-admin__role-list {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	margin-bottom: var(--default-grid-baseline);
-}
-
-.launchpad-admin__role-row {
-	display: flex;
-	align-items: center;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-}
-
-.launchpad-admin__role-meta {
-	display: flex;
-	flex-direction: column;
-	min-width: 200px;
-}
-
-.launchpad-admin__role-group {
-	color: var(--color-text-maxcontrast);
-	font-family: var(--font-face-monospace, monospace);
-	font-size: 0.85em;
-}
-
-.launchpad-admin__role-widgets {
-	flex: 1;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px;
-}
-
-.launchpad-admin__chip {
-	background: var(--color-background-hover);
-	padding: 2px 8px;
-	border-radius: var(--border-radius);
-	font-size: 0.85em;
-}
-
 .launchpad-admin__chip--compulsory {
 	background: var(--color-warning);
-}
-
-.launchpad-admin__role-actions {
-	display: flex;
-	gap: 4px;
-}
-
-.launchpad-admin__editor {
-	padding: calc(var(--default-grid-baseline) * 2);
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	min-width: 480px;
 }
 
 .launchpad-admin__editor-row {

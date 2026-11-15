@@ -1,0 +1,1368 @@
+{
+	"empty | none | full entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 2
+					}
+				],
+				"emptyContentMessage": "Empty",
+				"halfEmptyContentMessage": "Half",
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"empty | none | entry without fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"empty | none | entry with null fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"empty | none | unrequested id": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"other": {
+				"items": [
+					{
+						"id": 3
+					}
+				],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"empty | none | no entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"empty | none | null data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot convert undefined or null to object"
+			]
+		]
+	},
+	"empty | none | no response": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"empty | none | fails": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"Error: down"
+			]
+		]
+	},
+	"empty | one | full entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 2
+					}
+				],
+				"emptyContentMessage": "Empty",
+				"halfEmptyContentMessage": "Half",
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | one | entry without fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | one | entry with null fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": true
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | one | unrequested id": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": true
+			},
+			"other": {
+				"items": [
+					{
+						"id": 3
+					}
+				],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | one | no entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": true
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | one | null data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot convert undefined or null to object"
+			]
+		]
+	},
+	"empty | one | no response": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"empty | one | fails": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"Error: down"
+			]
+		]
+	},
+	"empty | two | full entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 2
+					}
+				],
+				"emptyContentMessage": "Empty",
+				"halfEmptyContentMessage": "Half",
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | two | entry without fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			},
+			"b": {
+				"loading": true
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | two | entry with null fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": true
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | two | unrequested id": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": true
+			},
+			"b": {
+				"loading": true
+			},
+			"other": {
+				"items": [
+					{
+						"id": 3
+					}
+				],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | two | no entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": true
+			},
+			"b": {
+				"loading": true
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"empty | two | null data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": false
+			},
+			"b": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot convert undefined or null to object"
+			]
+		]
+	},
+	"empty | two | no response": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": false
+			},
+			"b": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"empty | two | fails": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"loading": false
+			},
+			"b": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"Error: down"
+			]
+		]
+	},
+	"earlier items | none | full entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 2
+					}
+				],
+				"emptyContentMessage": "Empty",
+				"halfEmptyContentMessage": "Half",
+				"loading": false
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | none | entry without fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | none | entry with null fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | none | unrequested id": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"other": {
+				"items": [
+					{
+						"id": 3
+					}
+				],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | none | no entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | none | null data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot convert undefined or null to object"
+			]
+		]
+	},
+	"earlier items | none | no response": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"earlier items | none | fails": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"Error: down"
+			]
+		]
+	},
+	"earlier items | one | full entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 2
+					}
+				],
+				"emptyContentMessage": "Empty",
+				"halfEmptyContentMessage": "Half",
+				"loading": false
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | one | entry without fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | one | entry with null fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": true,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | one | unrequested id": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": true,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"other": {
+				"items": [
+					{
+						"id": 3
+					}
+				],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | one | no entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": true,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | one | null data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot convert undefined or null to object"
+			]
+		]
+	},
+	"earlier items | one | no response": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"earlier items | one | fails": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"Error: down"
+			]
+		]
+	},
+	"earlier items | two | full entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 2
+					}
+				],
+				"emptyContentMessage": "Empty",
+				"halfEmptyContentMessage": "Half",
+				"loading": false
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | two | entry without fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"loading": true
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | two | entry with null fields": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": true,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"items": [],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | two | unrequested id": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": true,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"loading": true
+			},
+			"other": {
+				"items": [
+					{
+						"id": 3
+					}
+				],
+				"emptyContentMessage": "",
+				"halfEmptyContentMessage": "",
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | two | no entries": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": true,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"loading": true
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": []
+	},
+	"earlier items | two | null data": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot convert undefined or null to object"
+			]
+		]
+	},
+	"earlier items | two | no response": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"TypeError: Cannot read properties of undefined (reading 'data')"
+			]
+		]
+	},
+	"earlier items | two | fails": {
+		"result": {
+			"value": "(undefined)"
+		},
+		"widgetItems": {
+			"a": {
+				"items": [
+					{
+						"id": 1
+					}
+				],
+				"emptyContentMessage": "none",
+				"loading": false,
+				"extra": "kept"
+			},
+			"z": {
+				"items": [],
+				"loading": false
+			},
+			"b": {
+				"loading": false
+			}
+		},
+		"calls": [
+			[
+				[
+					"a",
+					"b"
+				]
+			]
+		],
+		"errors": [
+			[
+				"Failed to load widget items:",
+				"Error: down"
+			]
+		]
+	}
+}

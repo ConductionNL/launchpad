@@ -28,6 +28,11 @@
 <script>
 import { NcButton, NcNoteCard } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import {
+	FLAG_PROP,
+	REQUIRED_TEXT_PROP,
+	TEXT_PROP,
+} from '../../constants/propDefinitions.js'
 
 /**
  * EditLockBanner: what the workspace page says when it cannot let the
@@ -46,15 +51,9 @@ export default {
 
 	props: {
 		/** Lock status from `useDashboardLock`. */
-		status: {
-			type: String,
-			required: true,
-		},
+		status: REQUIRED_TEXT_PROP,
 
-		holderName: {
-			type: String,
-			default: '',
-		},
+		holderName: TEXT_PROP,
 
 		/** Seconds until the colleague's lock ends if they stop refreshing it. */
 		expiresIn: {
@@ -62,10 +61,7 @@ export default {
 			default: null,
 		},
 
-		isAdmin: {
-			type: Boolean,
-			default: false,
-		},
+		isAdmin: FLAG_PROP,
 	},
 
 	emits: ['takeOver'],

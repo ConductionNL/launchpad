@@ -171,6 +171,11 @@ import Star from 'vue-material-design-icons/Star.vue'
 import StarCheck from 'vue-material-design-icons/StarCheck.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import Tune from 'vue-material-design-icons/Tune.vue'
+import {
+	FLAG_PROP,
+	REQUIRED_OBJECT_PROP,
+	TEXT_PROP,
+} from '../../constants/propDefinitions.js'
 
 /**
  * Whether the caller owns a dashboard: a row under "My dashboards" (the
@@ -211,10 +216,7 @@ export default {
 	},
 
 	props: {
-		dashboard: {
-			type: Object,
-			required: true,
-		},
+		dashboard: REQUIRED_OBJECT_PROP,
 
 		source: {
 			type: String,
@@ -222,10 +224,7 @@ export default {
 			validator: (v) => ['group', 'default', 'user', 'shared'].includes(v),
 		},
 
-		canEdit: {
-			type: Boolean,
-			default: false,
-		},
+		canEdit: FLAG_PROP,
 
 		/*
 		 * Wave3.7 — UUID of the user's pinned default dashboard, or
@@ -235,10 +234,7 @@ export default {
 		 * either a star (this row is NOT default) or a filled star
 		 * (this row IS the default).
 		 */
-		defaultUuid: {
-			type: String,
-			default: '',
-		},
+		defaultUuid: TEXT_PROP,
 
 		/*
 		 * Wave3.9 — when this row matches the currently active
@@ -248,10 +244,7 @@ export default {
 		 * (lives on Views.vue's `isEditMode` data field) and the
 		 * active id (`activeDashboard.id`) and forwards both down.
 		 */
-		isEditMode: {
-			type: Boolean,
-			default: false,
-		},
+		isEditMode: FLAG_PROP,
 
 		activeDashboardId: {
 			type: [String, Number],
@@ -264,20 +257,14 @@ export default {
 		 * sidebar rows don't expose sharing; the top-right active-dashboard
 		 * cog passes the host's `canShareActiveDashboard` gate.
 		 */
-		canShare: {
-			type: Boolean,
-			default: false,
-		},
+		canShare: FLAG_PROP,
 
 		/*
 		 * sharing-dashboard-schedule-screen REQ-SCHEDUI-001: the host allows
 		 * Publish / Unpublish / Schedule… (owner or administrator). Off by
 		 * default, so sidebar rows do not show them.
 		 */
-		canManagePublication: {
-			type: Boolean,
-			default: false,
-		},
+		canManagePublication: FLAG_PROP,
 
 		/*
 		 * When true the menu renders "Version history…" (REQ-VERSUI-001).
@@ -285,10 +272,7 @@ export default {
 		 * supported for this dashboard. Off by default, so sidebar rows
 		 * do not show it.
 		 */
-		canViewHistory: {
-			type: Boolean,
-			default: false,
-		},
+		canViewHistory: FLAG_PROP,
 
 		/*
 		 * NcActions toggle button style. Defaults to the subtle

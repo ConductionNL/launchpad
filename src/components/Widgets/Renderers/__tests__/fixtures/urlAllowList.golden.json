@@ -1,0 +1,1392 @@
+{
+	"iframe | check | empty | allowed": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | empty | host not allowed": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | empty | invalid url": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | empty | both errors": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | empty | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | empty | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | validate | empty | no allow-list error": [
+		"t:URL is required"
+	],
+	"iframe | validate | empty | Not allowed": [
+		"t:URL is required",
+		"Not allowed"
+	],
+	"iframe | check | blank | allowed": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | blank | host not allowed": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | blank | invalid url": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | blank | both errors": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | blank | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | check | blank | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 0,
+		"emitted": 0
+	},
+	"iframe | validate | blank | no allow-list error": [
+		"t:URL is required"
+	],
+	"iframe | validate | blank | Not allowed": [
+		"t:URL is required",
+		"Not allowed"
+	],
+	"iframe | check | https | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | https | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | https | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | https | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | https | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | https | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | https | no allow-list error": [],
+	"iframe | validate | https | Not allowed": [
+		"Not allowed"
+	],
+	"iframe | check | http upper case | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | http upper case | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | http upper case | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | http upper case | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | http upper case | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | http upper case | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | http upper case | no allow-list error": [],
+	"iframe | validate | http upper case | Not allowed": [
+		"Not allowed"
+	],
+	"iframe | check | padded | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | padded | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | padded | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | padded | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | padded | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | padded | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | padded | no allow-list error": [],
+	"iframe | validate | padded | Not allowed": [
+		"Not allowed"
+	],
+	"iframe | check | scheme only | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | scheme only | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | scheme only | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | scheme only | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | scheme only | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | scheme only | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | scheme only | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"iframe | validate | scheme only | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"iframe | check | no scheme | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | no scheme | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | no scheme | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | no scheme | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | no scheme | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | no scheme | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | no scheme | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"iframe | validate | no scheme | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"iframe | check | javascript | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | javascript | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | javascript | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | javascript | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | javascript | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | javascript | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | javascript | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"iframe | validate | javascript | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"iframe | check | data | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | data | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | data | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | data | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | data | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | data | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | data | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"iframe | validate | data | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"iframe | check | ftp | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | ftp | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | ftp | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | ftp | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | ftp | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | ftp | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | ftp | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"iframe | validate | ftp | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"iframe | check | protocol relative | allowed": {
+		"error": "",
+		"checked": true,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | protocol relative | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | protocol relative | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | protocol relative | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | protocol relative | other error": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | check | protocol relative | valid missing": {
+		"error": "",
+		"checked": false,
+		"calls": 1,
+		"emitted": 1
+	},
+	"iframe | validate | protocol relative | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"iframe | validate | protocol relative | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile url | check | empty | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | empty | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | empty | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | empty | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | empty | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | empty | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | validate | empty | no allow-list error": [
+		"t:URL is required"
+	],
+	"live tile url | validate | empty | Not allowed": [
+		"t:URL is required",
+		"Not allowed"
+	],
+	"live tile url | check | blank | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | blank | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | blank | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | blank | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | blank | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | check | blank | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile url | validate | blank | no allow-list error": [
+		"t:URL is required"
+	],
+	"live tile url | validate | blank | Not allowed": [
+		"t:URL is required",
+		"Not allowed"
+	],
+	"live tile url | check | https | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | https | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | https | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | https | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | https | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | https | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | https | no allow-list error": [],
+	"live tile url | validate | https | Not allowed": [
+		"Not allowed"
+	],
+	"live tile url | check | http upper case | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | http upper case | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | http upper case | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | http upper case | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | http upper case | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | http upper case | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | http upper case | no allow-list error": [],
+	"live tile url | validate | http upper case | Not allowed": [
+		"Not allowed"
+	],
+	"live tile url | check | padded | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | padded | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | padded | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | padded | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | padded | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | padded | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | padded | no allow-list error": [],
+	"live tile url | validate | padded | Not allowed": [
+		"Not allowed"
+	],
+	"live tile url | check | scheme only | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | scheme only | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | scheme only | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | scheme only | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | scheme only | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | scheme only | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | scheme only | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"live tile url | validate | scheme only | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile url | check | no scheme | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | no scheme | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | no scheme | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | no scheme | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | no scheme | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | no scheme | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | no scheme | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"live tile url | validate | no scheme | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile url | check | javascript | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | javascript | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | javascript | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | javascript | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | javascript | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | javascript | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | javascript | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"live tile url | validate | javascript | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile url | check | data | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | data | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | data | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | data | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | data | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | data | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | data | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"live tile url | validate | data | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile url | check | ftp | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | ftp | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | ftp | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | ftp | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | ftp | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | ftp | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | ftp | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"live tile url | validate | ftp | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile url | check | protocol relative | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | protocol relative | host not allowed": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | protocol relative | invalid url": {
+		"error": "t:Enter a valid http(s) URL.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | protocol relative | both errors": {
+		"error": "t:This host is not on the allow-list.",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | protocol relative | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | check | protocol relative | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 1,
+		"emitted": 0
+	},
+	"live tile url | validate | protocol relative | no allow-list error": [
+		"t:Enter a valid http(s) URL."
+	],
+	"live tile url | validate | protocol relative | Not allowed": [
+		"t:Enter a valid http(s) URL.",
+		"Not allowed"
+	],
+	"live tile connector | check | empty | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | empty | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | empty | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | empty | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | empty | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | empty | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | empty | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | empty | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | blank | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | blank | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | blank | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | blank | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | blank | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | blank | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | blank | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | blank | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | https | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | https | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | https | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | https | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | https | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | https | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | https | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | https | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | http upper case | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | http upper case | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | http upper case | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | http upper case | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | http upper case | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | http upper case | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | http upper case | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | http upper case | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | padded | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | padded | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | padded | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | padded | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | padded | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | padded | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | padded | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | padded | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | scheme only | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | scheme only | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | scheme only | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | scheme only | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | scheme only | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | scheme only | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | scheme only | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | scheme only | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | no scheme | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | no scheme | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | no scheme | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | no scheme | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | no scheme | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | no scheme | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | no scheme | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | no scheme | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | javascript | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | javascript | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | javascript | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | javascript | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | javascript | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | javascript | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | javascript | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | javascript | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | data | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | data | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | data | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | data | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | data | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | data | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | data | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | data | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | ftp | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | ftp | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | ftp | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | ftp | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | ftp | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | ftp | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | ftp | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | ftp | Not allowed": [
+		"t:Value expression is required"
+	],
+	"live tile connector | check | protocol relative | allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | protocol relative | host not allowed": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | protocol relative | invalid url": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | protocol relative | both errors": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | protocol relative | other error": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | check | protocol relative | valid missing": {
+		"error": "",
+		"checked": "(none)",
+		"calls": 0,
+		"emitted": 0
+	},
+	"live tile connector | validate | protocol relative | no allow-list error": [
+		"t:Value expression is required"
+	],
+	"live tile connector | validate | protocol relative | Not allowed": [
+		"t:Value expression is required"
+	]
+}

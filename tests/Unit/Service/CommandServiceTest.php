@@ -115,11 +115,13 @@ class CommandServiceTest extends TestCase {
 	public function testFormatAuditLineUsesContractFormat(): void {
 		$service = new CommandService(logger: $this->createMock(originalClassName: LoggerInterface::class));
 		$line = $service->formatAuditLine(
-			command: 'dashboard:list',
-			args: '--user=alice --status=published',
-			exitCode: 0,
-			durationMs: 42,
-			byUser: null
+			run: [
+				'command'    => 'dashboard:list',
+				'args'       => '--user=alice --status=published',
+				'exitCode'   => 0,
+				'durationMs' => 42,
+				'byUser'     => null,
+			]
 		);
 
 		$this->assertSame(
@@ -138,11 +140,13 @@ class CommandServiceTest extends TestCase {
 		$service = new CommandService(logger: $this->createMock(originalClassName: LoggerInterface::class));
 		$longArgs = str_repeat(string: 'x', times: 250);
 		$line = $service->formatAuditLine(
-			command: 'import',
-			args: $longArgs,
-			exitCode: 0,
-			durationMs: 1,
-			byUser: 'admin'
+			run: [
+				'command'    => 'import',
+				'args'       => $longArgs,
+				'exitCode'   => 0,
+				'durationMs' => 1,
+				'byUser'     => 'admin',
+			]
 		);
 
 		$this->assertStringContainsString(needle: '...', haystack: $line);
@@ -173,11 +177,13 @@ class CommandServiceTest extends TestCase {
 
 		$service = new CommandService(logger: $logger);
 		$service->audit(
-			command: 'dashboard:list',
-			args: '--user=alice',
-			exitCode: 0,
-			durationMs: 5,
-			byUser: 'admin'
+			run: [
+				'command'    => 'dashboard:list',
+				'args'       => '--user=alice',
+				'exitCode'   => 0,
+				'durationMs' => 5,
+				'byUser'     => 'admin',
+			]
 		);
 	}//end testAuditEmitsSingleInfoLine()
 }//end class

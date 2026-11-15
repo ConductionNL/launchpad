@@ -533,11 +533,19 @@ class WidgetApiController extends Controller {
 	 * @return object The created placement.
 	 */
 	private function addTileFromRequest(int $dashboardId): object {
+		$tileData = RequestDataExtractor::extractTileData(
+			request: $this->request
+		);
+		// A program, remote-desktop or sso tile carries its settings in
+		// content, checked with the link type on create (launcher-tile-launch-types).
+		$content = $this->request->getParam(key: 'content');
+		if (is_array($content) === true) {
+			$tileData['content'] = $content;
+		}
+
 		return $this->sources->widgetService->addTileFromArray(
 			dashboardId: $dashboardId,
-			tileData: RequestDataExtractor::extractTileData(
-				request: $this->request
-			)
+			tileData: $tileData
 		);
 	}//end addTileFromRequest()
 

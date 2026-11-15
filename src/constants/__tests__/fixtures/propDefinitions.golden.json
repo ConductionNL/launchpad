@@ -151,6 +151,12 @@
 		"validator": false,
 		"default": null
 	},
+	"../../components/TileWidget.vue | content": {
+		"type": "Object",
+		"required": false,
+		"validator": false,
+		"default": null
+	},
 	"../../components/TileWidget.vue | healthPingEnabled": {
 		"type": "Boolean",
 		"required": false,

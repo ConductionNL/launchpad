@@ -17,13 +17,16 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use InvalidArgumentException;
 use OCA\LaunchPad\Db\WidgetPlacement;
+use OCA\LaunchPad\Service\TileLinkValidator;
 use OCA\LaunchPad\Service\TileUpdater;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \OCA\LaunchPad\Service\TileUpdater
  * @uses   \OCA\LaunchPad\Db\WidgetPlacement
+ * @uses   \OCA\LaunchPad\Service\TileLinkValidator
  */
 class TileUpdaterTest extends TestCase {
 	public function testApplyTileConfigFillsDefaultsForAnEmptyPayload(): void {
@@ -117,6 +120,89 @@ class TileUpdaterTest extends TestCase {
 		$updater->applyTileUpdates(placement: $placement, data: ['tileTitle' => null]);
 
 		$this->assertSame('Keep', $placement->getTileTitle());
+	}
+	/**
+	 * A new sso tile stores the address the validator returns, from the content it was created with.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 */
+	public function testANewLaunchTileStoresTheCheckedLink(): void {
+		$content = ['sso' => ['template' => 'entra', 'appId' => 'a1b2c3']];
+		$links = $this->createMock(TileLinkValidator::class);
+		$links->expects($this->once())->method('check')
+			->with('sso', 'https://typed.example/', $content)
+			->willReturn('https://launcher.myapps.microsoft.com/api/signin/a1b2c3');
+		$placement = new WidgetPlacement();
+
+		(new TileUpdater(links: $links))->applyTileConfig(
+			placement: $placement,
+			tileData: ['linkType' => 'sso', 'linkVal' => 'https://typed.example/', 'content' => $content]
+		);
+
+		$this->assertSame('https://launcher.myapps.microsoft.com/api/signin/a1b2c3', $placement->getTileLinkValue());
+		$this->assertSame($content, $placement->getContentArray());
+	}
+
+	/**
+	 * A refused check leaves the save failing (HTTP 400 at the API).
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 */
+	public function testARefusedLaunchTileThrows(): void {
+		$links = $this->createMock(TileLinkValidator::class);
+		$links->method('check')->willThrowException(new InvalidArgumentException('The scheme "javascript" is never allowed on a tile.'));
+
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessage('javascript');
+		(new TileUpdater(links: $links))->applyTileConfig(
+			placement: new WidgetPlacement(),
+			tileData: ['linkType' => 'program', 'linkVal' => 'javascript:alert(1)']
+		);
+	}
+
+	/**
+	 * An update that changes only the content of a launch tile is checked too.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 */
+	public function testAnUpdateIsCheckedOnTheFinalState(): void {
+		$placement = new WidgetPlacement();
+		$placement->setTileLinkType('remote-desktop');
+		$placement->setTileLinkValue('');
+		$placement->setContentArray(['remote' => ['mode' => 'gateway', 'url' => 'https://desktop.gemeente.nl/']]);
+		$links = $this->createMock(TileLinkValidator::class);
+		$links->expects($this->once())->method('check')
+			->with('remote-desktop', '', ['remote' => ['mode' => 'gateway', 'url' => 'https://desktop.gemeente.nl/']])
+			->willReturn('https://desktop.gemeente.nl/');
+
+		(new TileUpdater(links: $links))->applyTileUpdates(placement: $placement, data: ['tileTitle' => 'Werkplek']);
+
+		$this->assertSame('https://desktop.gemeente.nl/', $placement->getTileLinkValue());
+	}
+
+	/**
+	 * Without a validator a launch type is refused rather than stored unchecked.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 */
+	public function testALaunchTypeWithoutAValidatorIsRefused(): void {
+		$this->expectException(InvalidArgumentException::class);
+		(new TileUpdater())->applyTileUpdates(placement: new WidgetPlacement(), data: ['tileLinkType' => 'program', 'tileLinkValue' => 'ms-word:x']);
+	}
+
+	/**
+	 * Other link types are not checked and keep their value.
+	 *
+	 * @spec openspec/changes/launcher-tile-launch-types/tasks.md#task-2
+	 */
+	public function testOtherLinkTypesAreNotChecked(): void {
+		$links = $this->createMock(TileLinkValidator::class);
+		$links->expects($this->never())->method('check');
+		$placement = new WidgetPlacement();
+
+		(new TileUpdater(links: $links))->applyTileConfig(placement: $placement, tileData: ['linkType' => 'url', 'linkVal' => 'https://wiki.example.org']);
+
+		$this->assertSame('https://wiki.example.org', $placement->getTileLinkValue());
 	}
 
 	/**

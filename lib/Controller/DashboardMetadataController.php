@@ -35,7 +35,6 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 
 /**
@@ -77,19 +76,9 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getMetadata(string $uuid): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-metadata.get-metadata');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'dashboard-metadata.get-metadata');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
@@ -151,19 +140,9 @@ class DashboardMetadataController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function setMetadata(string $uuid, array $metadata = []): JSONResponse {
-		if ($this->userId === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$user = $this->caller->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->caller->actionAuth->requireAction($user, 'dashboard-metadata.set-metadata');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'dashboard-metadata.set-metadata');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		$dashboard = $this->loadDashboard(uuid: $uuid);
@@ -215,4 +194,17 @@ class DashboardMetadataController extends Controller {
 			return null;
 		}
 	}//end loadDashboard()
+
+	/**
+	 * The caller guard: the 401/403 refusal for a caller who may not perform the action, or NULL.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL to proceed.
+	 *
+	 * @see ActionCaller::refusal()
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		return $this->caller->refusal(userId: $this->userId, action: $action);
+	}//end actionRefusal()
 }//end class

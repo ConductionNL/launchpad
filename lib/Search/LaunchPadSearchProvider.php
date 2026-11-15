@@ -175,85 +175,135 @@ class LaunchPadSearchProvider implements IProvider {
 			return SearchResult::complete(name: $providerName, entries: []);
 		}
 
-		try {
-			$visible = $this->dashboardService->getVisibleToUser(
-				userId: $user->getUID()
-			);
-		} catch (Throwable) {
-			// REQ-SRCH-005: fail safe — never leak when the permission
-			// boundary cannot resolve.
-			return SearchResult::complete(name: $providerName, entries: []);
-		}
-
+		$visible = $this->visibleDashboards(user: $user);
 		if (count($visible) === 0) {
 			return SearchResult::complete(name: $providerName, entries: []);
 		}
 
-		$needle = mb_strtolower(string: $term);
-		$l10n = $this->links->l10nFactory->get(app: Application::APP_ID);
-
-		$dashboardEntries = [];
-		$widgetEntries = [];
-		$metadataEntries = [];
+		$buckets = new SearchBuckets(
+			needle: mb_strtolower(string: $term),
+			l10n: $this->links->l10nFactory->get(app: Application::APP_ID)
+		);
 
 		foreach ($visible as $entry) {
-			$dashboard = $entry['dashboard'];
+			$this->collectMatches(dashboard: $entry['dashboard'], buckets: $buckets);
+		}
 
-			// --- Dashboard name + description (REQ-SRCH-002) ---
-			if (count($dashboardEntries) < self::PER_BUCKET_LIMIT) {
-				if ($this->matchesDashboard(dashboard: $dashboard, needle: $needle) === true) {
-					$dashboardEntries[] = $this->buildDashboardEntry(
-						dashboard: $dashboard
-					);
-				}
-			}
-
-			// --- Widget content (REQ-SRCH-003) ---
-			if (count($widgetEntries) < self::PER_BUCKET_LIMIT) {
-				$matchedPlacements = $this->findMatchingTextPlacements(
-					dashboard: $dashboard,
-					needle: $needle
-				);
-				foreach ($matchedPlacements as $placement) {
-					if (count($widgetEntries) >= self::PER_BUCKET_LIMIT) {
-						break;
-					}
-
-					$widgetEntries[] = $this->buildWidgetEntry(
-						dashboard: $dashboard,
-						placement: $placement,
-						l10n: $l10n
-					);
-				}
-			}
-
-			// --- Metadata-field values (REQ-SRCH-004) ---
-			if (count($metadataEntries) < self::PER_BUCKET_LIMIT) {
-				$matchedMetadata = $this->findMatchingMetadata(
-					dashboard: $dashboard,
-					needle: $needle
-				);
-				foreach ($matchedMetadata as $key => $value) {
-					if (count($metadataEntries) >= self::PER_BUCKET_LIMIT) {
-						break;
-					}
-
-					$metadataEntries[] = $this->buildMetadataEntry(
-						dashboard: $dashboard,
-						fieldKey: (string)$key,
-						fieldValue: $value,
-						l10n: $l10n
-					);
-				}
-			}
-		}//end foreach
-
-		// Rank tiers: title/description first, then widget body, then
-		// metadata. REQ-SRCH-006 / REQ-SRCH-011 (UI grouping).
-		$entries = array_merge($dashboardEntries, $widgetEntries, $metadataEntries);
-
-		return SearchResult::complete(name: $providerName, entries: $entries);
+		return SearchResult::complete(name: $providerName, entries: $buckets->rankedEntries());
 	}//end search()
+
+	/**
+	 * The dashboards the user may see; none when the permission boundary
+	 * cannot resolve (REQ-SRCH-005: fail safe, never leak).
+	 *
+	 * @param IUser $user The searching user.
+	 *
+	 * @return array<int, array{dashboard: Dashboard, source: string}> The visible dashboards.
+	 */
+	private function visibleDashboards(IUser $user): array {
+		try {
+			return $this->dashboardService->getVisibleToUser(
+				userId: $user->getUID()
+			);
+		} catch (Throwable) {
+			return [];
+		}
+	}//end visibleDashboards()
+
+	/**
+	 * Add one dashboard's matches to every bucket that still has room.
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
+		$this->collectDashboardMatch(dashboard: $dashboard, buckets: $buckets);
+		$this->collectWidgetMatches(dashboard: $dashboard, buckets: $buckets);
+		$this->collectMetadataMatches(dashboard: $dashboard, buckets: $buckets);
+	}//end collectMatches()
+
+	/**
+	 * Dashboard name + description (REQ-SRCH-002).
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectDashboardMatch(Dashboard $dashboard, SearchBuckets $buckets): void {
+		if (count($buckets->dashboardEntries) >= self::PER_BUCKET_LIMIT) {
+			return;
+		}
+
+		if ($this->matchesDashboard(dashboard: $dashboard, needle: $buckets->needle) === true) {
+			$buckets->dashboardEntries[] = $this->buildDashboardEntry(
+				dashboard: $dashboard
+			);
+		}
+	}//end collectDashboardMatch()
+
+	/**
+	 * Widget content (REQ-SRCH-003).
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectWidgetMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
+		if (count($buckets->widgetEntries) >= self::PER_BUCKET_LIMIT) {
+			return;
+		}
+
+		$matchedPlacements = $this->findMatchingTextPlacements(
+			dashboard: $dashboard,
+			needle: $buckets->needle
+		);
+		foreach ($matchedPlacements as $placement) {
+			if (count($buckets->widgetEntries) >= self::PER_BUCKET_LIMIT) {
+				break;
+			}
+
+			$buckets->widgetEntries[] = $this->buildWidgetEntry(
+				dashboard: $dashboard,
+				placement: $placement,
+				l10n: $buckets->l10n
+			);
+		}
+	}//end collectWidgetMatches()
+
+	/**
+	 * Metadata-field values (REQ-SRCH-004).
+	 *
+	 * @param Dashboard     $dashboard The visible dashboard.
+	 * @param SearchBuckets $buckets   The search pass.
+	 *
+	 * @return void
+	 */
+	private function collectMetadataMatches(Dashboard $dashboard, SearchBuckets $buckets): void {
+		if (count($buckets->metadataEntries) >= self::PER_BUCKET_LIMIT) {
+			return;
+		}
+
+		$matchedMetadata = $this->findMatchingMetadata(
+			dashboard: $dashboard,
+			needle: $buckets->needle
+		);
+		foreach ($matchedMetadata as $key => $value) {
+			if (count($buckets->metadataEntries) >= self::PER_BUCKET_LIMIT) {
+				break;
+			}
+
+			$buckets->metadataEntries[] = $this->buildMetadataEntry(
+				dashboard: $dashboard,
+				fieldKey: (string)$key,
+				fieldValue: $value,
+				l10n: $buckets->l10n
+			);
+		}
+	}//end collectMetadataMatches()
 
 	/**
 	 * Whether a dashboard's name or description contains the needle
@@ -298,29 +348,50 @@ class LaunchPadSearchProvider implements IProvider {
 			return [];
 		}
 
-		try {
-			$placements = $this->placementMapper->findByDashboardId(
-				dashboardId: $dashboardId
-			);
-		} catch (Throwable) {
-			return [];
-		}
-
 		$matches = [];
-		foreach ($placements as $placement) {
-			$text = $this->extractTextWidgetContent(placement: $placement);
-			if ($text === null) {
-				continue;
-			}
-
-			$haystack = mb_strtolower(string: $this->stripTags(html: $text));
-			if (str_contains(haystack: $haystack, needle: $needle) === true) {
+		foreach ($this->placementsOf(dashboardId: $dashboardId) as $placement) {
+			if ($this->textWidgetContains(placement: $placement, needle: $needle) === true) {
 				$matches[] = $placement;
 			}
 		}
 
 		return $matches;
 	}//end findMatchingTextPlacements()
+
+	/**
+	 * The dashboard's placements; none when the lookup fails.
+	 *
+	 * @param int $dashboardId The dashboard ID.
+	 *
+	 * @return WidgetPlacement[] The placements.
+	 */
+	private function placementsOf(int $dashboardId): array {
+		try {
+			return $this->placementMapper->findByDashboardId(
+				dashboardId: $dashboardId
+			);
+		} catch (Throwable) {
+			return [];
+		}
+	}//end placementsOf()
+
+	/**
+	 * Whether the placement is a text widget whose tag-stripped text contains the needle.
+	 *
+	 * @param WidgetPlacement $placement The placement.
+	 * @param string          $needle    The lower-cased search term.
+	 *
+	 * @return bool
+	 */
+	private function textWidgetContains(WidgetPlacement $placement, string $needle): bool {
+		$text = $this->extractTextWidgetContent(placement: $placement);
+		if ($text === null) {
+			return false;
+		}
+
+		$haystack = mb_strtolower(string: $this->stripTags(html: $text));
+		return str_contains(haystack: $haystack, needle: $needle);
+	}//end textWidgetContains()
 
 	/**
 	 * Decode the text-display content from a placement's `styleConfig`
@@ -332,23 +403,8 @@ class LaunchPadSearchProvider implements IProvider {
 	 * @return string|null The raw `content.text` value, or null.
 	 */
 	private function extractTextWidgetContent(WidgetPlacement $placement): ?string {
-		$rawConfig = $placement->getStyleConfig();
-		if ($rawConfig === null || $rawConfig === '') {
-			return null;
-		}
-
-		try {
-			$decoded = json_decode(
-				json: $rawConfig,
-				associative: true,
-				depth: 32,
-				flags: JSON_THROW_ON_ERROR
-			);
-		} catch (Throwable) {
-			return null;
-		}
-
-		if (is_array(value: $decoded) === false) {
+		$decoded = $this->decodeStyleConfig(placement: $placement);
+		if ($decoded === null) {
 			return null;
 		}
 
@@ -369,6 +425,37 @@ class LaunchPadSearchProvider implements IProvider {
 
 		return $text;
 	}//end extractTextWidgetContent()
+
+	/**
+	 * The placement's `styleConfig` JSON as an array; null when empty, malformed or not an object/list.
+	 *
+	 * @param WidgetPlacement $placement The placement entity.
+	 *
+	 * @return array<mixed>|null The decoded config.
+	 */
+	private function decodeStyleConfig(WidgetPlacement $placement): array|null {
+		$rawConfig = $placement->getStyleConfig();
+		if ($rawConfig === null || $rawConfig === '') {
+			return null;
+		}
+
+		try {
+			$decoded = json_decode(
+				json: $rawConfig,
+				associative: true,
+				depth: 32,
+				flags: JSON_THROW_ON_ERROR
+			);
+		} catch (Throwable) {
+			return null;
+		}
+
+		if (is_array(value: $decoded) === false) {
+			return null;
+		}
+
+		return $decoded;
+	}//end decodeStyleConfig()
 
 	/**
 	 * Strip HTML tags so search matches survive markup
@@ -408,16 +495,8 @@ class LaunchPadSearchProvider implements IProvider {
 			return [];
 		}
 
-		try {
-			$metadata = $this->metadataService->getMetadataForDashboard(
-				dashboardUuid: $uuid
-			);
-		} catch (Throwable) {
-			return [];
-		}
-
 		$matches = [];
-		foreach ($metadata as $key => $value) {
+		foreach ($this->metadataOf(dashboardUuid: $uuid) as $key => $value) {
 			$stringValue = (string)$value;
 			if ($stringValue === '') {
 				continue;
@@ -431,6 +510,23 @@ class LaunchPadSearchProvider implements IProvider {
 
 		return $matches;
 	}//end findMatchingMetadata()
+
+	/**
+	 * The dashboard's metadata values; none when the lookup fails.
+	 *
+	 * @param string $dashboardUuid The dashboard UUID.
+	 *
+	 * @return array<string, mixed> Field key to value.
+	 */
+	private function metadataOf(string $dashboardUuid): array {
+		try {
+			return $this->metadataService->getMetadataForDashboard(
+				dashboardUuid: $dashboardUuid
+			);
+		} catch (Throwable) {
+			return [];
+		}
+	}//end metadataOf()
 
 	/**
 	 * Build a search-result entry for a dashboard match.

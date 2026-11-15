@@ -47,6 +47,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\LaunchPad\Controller\RequestActor
  * @uses   \OCA\LaunchPad\Controller\DashboardApiHistory
  * @uses   \OCA\LaunchPad\Controller\DashboardApiServices
+ * @uses   \OCA\LaunchPad\Controller\DashboardScheduleRequest
  */
 class DashboardApiControllerUpdateDataTest extends TestCase {
 

@@ -409,11 +409,7 @@ class DashboardVersionService {
 			actorUserId: $restoringUser
 		);
 
-		if ($this->isGroupfolderBacked(dashboard: $dashboard) === true) {
-			throw new Exception(
-				message: self::ERR_VERSIONING_UNAVAILABLE
-			);
-		}
+		$this->assertVersioningAvailable(dashboard: $dashboard);
 
 		$uuid = (string)$dashboard->getUuid();
 
@@ -434,49 +430,47 @@ class DashboardVersionService {
 			];
 		}
 
-		// WF1 fix: wrap the wipe-and-reinsert in a DB transaction so a
-		// mid-loop insert failure never leaves the dashboard with zero or
-		// partial placements. When no db connection is wired (test doubles)
-		// the operations run without an explicit transaction envelope,
-		// preserving backwards-compat.
-		if ($this->stores->db !== null) {
-			$this->stores->db->beginTransaction();
-		}
+		$snapshotJson = $this->inRestoreTransaction(
+			restore: function () use ($dashboard, $target, $restoringUser): string {
+				// Capture pre-restore state as a new snapshot so the restore
+				// itself is reversible (REQ-VERS-005 design D3).
+				$preRestore = ['snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard), 'note' => 'pre-restore', 'explicit' => true];
+				$this->captureSnapshot(dashboard: $dashboard, createdBy: $restoringUser, options: $preRestore);
 
-		$snapshotJson = '';
+				return $this->applyVersion(dashboard: $dashboard, target: $target);
+			}
+		);
+
+		return [
+			'snapshot' => $snapshotJson,
+			'version' => $target,
+		];
+	}//end restoreVersion()
+
+	/**
+	 * Run a restore inside one DB transaction, rolled back and logged on failure.
+	 *
+	 * WF1 fix: wrap the wipe-and-reinsert in a DB transaction so a
+	 * mid-loop insert failure never leaves the dashboard with zero or
+	 * partial placements. When no db connection is wired (test doubles)
+	 * the operations run without an explicit transaction envelope,
+	 * preserving backwards-compat.
+	 *
+	 * @param \Closure $restore Runs the restore and returns the applied snapshot JSON.
+	 *
+	 * @return string The applied snapshot JSON.
+	 *
+	 * @throws Throwable The restore's failure, after the rollback.
+	 */
+	private function inRestoreTransaction(\Closure $restore): string {
+		$this->stores->db?->beginTransaction();
+
 		try {
-			// Capture pre-restore state as a new snapshot so the restore
-			// itself is reversible (REQ-VERS-005 design D3).
-			$preRestore = ['snapshotJson' => $this->buildDefaultSnapshot(dashboard: $dashboard), 'note' => 'pre-restore', 'explicit' => true];
-			$this->captureSnapshot(dashboard: $dashboard, createdBy: $restoringUser, options: $preRestore);
+			$snapshotJson = $restore();
 
-			// C3 fix: decode the target snapshot and apply it to the DB so
-			// the restore is a real state change, not a no-op.
-			$snapshotJson = (string)$target->getSnapshotJson();
-			$payload = json_decode($snapshotJson, associative: true);
-			if (is_array($payload) === true) {
-				$this->applySnapshotPayload(
-					dashboard: $dashboard,
-					payload: $payload
-				);
-			}
-
-			// Stamp the dashboard's updatedAt so callers that listen on
-			// metadata see the restore (REQ-VERS-005 scenario "restore
-			// updates the modified timestamp").
-			// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
-			$dashboard->setUpdatedAt(
-				(new DateTime())->format(format: 'Y-m-d H:i:s')
-			);
-			$this->stores->dashboardMapper->update(entity: $dashboard);
-
-			if ($this->stores->db !== null) {
-				$this->stores->db->commit();
-			}
+			$this->stores->db?->commit();
 		} catch (Throwable $t) {
-			if ($this->stores->db !== null) {
-				$this->stores->db->rollBack();
-			}
+			$this->stores->db?->rollBack();
 
 			$this->logger->error(
 				message: 'launchpad: restoreVersion failed, transaction rolled back',
@@ -485,11 +479,57 @@ class DashboardVersionService {
 			throw $t;
 		}//end try
 
-		return [
-			'snapshot' => $snapshotJson,
-			'version' => $target,
-		];
-	}//end restoreVersion()
+		return $snapshotJson;
+	}//end inRestoreTransaction()
+
+	/**
+	 * Refuse versioning for a dashboard backed by a group folder.
+	 *
+	 * @param Dashboard $dashboard The dashboard.
+	 *
+	 * @return void
+	 *
+	 * @throws Exception With {@see self::ERR_VERSIONING_UNAVAILABLE}.
+	 */
+	private function assertVersioningAvailable(Dashboard $dashboard): void {
+		if ($this->isGroupfolderBacked(dashboard: $dashboard) === true) {
+			throw new Exception(
+				message: self::ERR_VERSIONING_UNAVAILABLE
+			);
+		}
+	}//end assertVersioningAvailable()
+
+	/**
+	 * Apply a stored version to the dashboard and stamp its modification time.
+	 *
+	 * C3 fix: the target snapshot is decoded and applied to the DB so the
+	 * restore is a real state change, not a no-op. The dashboard's
+	 * updatedAt is stamped so callers that listen on metadata see the
+	 * restore (REQ-VERS-005 scenario "restore updates the modified timestamp").
+	 *
+	 * @param Dashboard        $dashboard The dashboard to restore.
+	 * @param DashboardVersion $target    The version to restore to.
+	 *
+	 * @return string The applied snapshot JSON.
+	 */
+	private function applyVersion(Dashboard $dashboard, DashboardVersion $target): string {
+		$snapshotJson = (string)$target->getSnapshotJson();
+		$payload = json_decode($snapshotJson, associative: true);
+		if (is_array($payload) === true) {
+			$this->applySnapshotPayload(
+				dashboard: $dashboard,
+				payload: $payload
+			);
+		}
+
+		// phpcs:ignore CustomSniffs.Functions.NamedParameters.RequireNamedParameters
+		$dashboard->setUpdatedAt(
+			(new DateTime())->format(format: 'Y-m-d H:i:s')
+		);
+		$this->stores->dashboardMapper->update(entity: $dashboard);
+
+		return $snapshotJson;
+	}//end applyVersion()
 
 	/*
 	 * NO CASCADE-DELETE WRAPPER HERE.

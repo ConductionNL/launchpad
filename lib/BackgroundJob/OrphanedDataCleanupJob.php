@@ -157,9 +157,21 @@ class OrphanedDataCleanupJob extends TimedJob {
 			return $this->registry->getAutoSafeCategoryNames();
 		}
 
+		return $this->knownCategories(configured: $decoded);
+	}//end resolveCategories()
+
+	/**
+	 * The configured entries that name a registered category, in order;
+	 * empty and non-string entries are dropped.
+	 *
+	 * @param array $configured The decoded configured list.
+	 *
+	 * @return list<string> The category names.
+	 */
+	private function knownCategories(array $configured): array {
 		$known = $this->registry->getCategoryNames();
 		$filtered = [];
-		foreach ($decoded as $entry) {
+		foreach ($configured as $entry) {
 			if (is_string(value: $entry) === false || $entry === '') {
 				continue;
 			}
@@ -170,5 +182,5 @@ class OrphanedDataCleanupJob extends TimedJob {
 		}
 
 		return $filtered;
-	}//end resolveCategories()
+	}//end knownCategories()
 }//end class

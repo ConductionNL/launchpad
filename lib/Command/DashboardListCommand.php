@@ -118,27 +118,14 @@ class DashboardListCommand extends CommandBase {
 	 * @spec openspec/specs/cli-commands/spec.md
 	 */
 	protected function handle(InputInterface $input, OutputInterface $output): int {
-		$user = $input->getOption(name: 'user');
-		$group = $input->getOption(name: 'group');
-		$status = $input->getOption(name: 'status');
+		$filters = new DashboardListFilters(input: $input);
 
-		$rejection = $this->validateFilters(
-			input: $input,
-			output: $output,
-			user: $user,
-			status: $status
-		);
+		$rejection = $this->filterError(filters: $filters);
 		if ($rejection !== null) {
-			return $rejection;
+			return $this->emitError(input: $input, output: $output, error: $rejection);
 		}
 
-		$dashboards = $this->collect(
-			user: $this->optionToString(value: $user),
-			group: $this->optionToString(value: $group),
-			status: $this->optionToString(value: $status)
-		);
-
-		$rows = $this->toRows(dashboards: $dashboards);
+		$rows = $this->toRows(dashboards: $this->collect(filters: $filters));
 
 		if ($this->isJson(input: $input) === true) {
 			$this->emitSuccess(
@@ -149,79 +136,44 @@ class DashboardListCommand extends CommandBase {
 			return CommandService::EXIT_SUCCESS;
 		}
 
-		$this->writeTable(input: $input, output: $output, rows: $rows);
+		if ($this->isQuiet(input: $input) === false) {
+			$this->writeTable(output: $output, rows: $rows);
+		}
 
 		return CommandService::EXIT_SUCCESS;
 	}//end handle()
 
 	/**
-	 * Validate the `--status` and `--user` filters.
+	 * The error of a filter that cannot be applied: an unknown status, or
+	 * a user that does not exist.
 	 *
-	 * Returns the exit code of the emitted error envelope when a filter
-	 * is rejected, or `null` when both filters are acceptable (including
-	 * when they were not supplied at all).
+	 * @param DashboardListFilters $filters The run's filters.
 	 *
-	 * @param InputInterface $input CLI input.
-	 * @param OutputInterface $output CLI output.
-	 * @param mixed $user Raw `--user` option value.
-	 * @param mixed $status Raw `--status` option value.
-	 *
-	 * @return int|null The error exit code, or null when valid.
+	 * @return array<string, mixed>|null The error, or null when the filters apply.
 	 */
-	private function validateFilters(
-		InputInterface $input,
-		OutputInterface $output,
-		mixed $user,
-		mixed $status,
-	): ?int {
-		if ($status !== null
-			&& in_array(needle: (string)$status, haystack: self::ALLOWED_STATUS, strict: true) === false
+	private function filterError(DashboardListFilters $filters): array|null {
+		if ($filters->status !== null
+			&& in_array(needle: $filters->status, haystack: self::ALLOWED_STATUS, strict: true) === false
 		) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				error: [
-					'exitCode' => CommandService::EXIT_INVALID_ARGS,
-					'code'     => 'INVALID_ARGUMENT',
-					'message'  => 'Invalid --status value: ' . (string)$status,
-					'context'  => ['allowed' => self::ALLOWED_STATUS],
-				]
-			);
+			return [
+				'exitCode' => CommandService::EXIT_INVALID_ARGS,
+				'code'     => 'INVALID_ARGUMENT',
+				'message'  => 'Invalid --status value: ' . $filters->status,
+				'context'  => ['allowed' => self::ALLOWED_STATUS],
+			];
 		}
 
-		if ($user !== null && $this->userManager->userExists(uid: (string)$user) === false) {
-			return $this->emitError(
-				input: $input,
-				output: $output,
-				error: [
-					'exitCode' => CommandService::EXIT_NOT_FOUND,
-					'code'     => 'NOT_FOUND',
-					'message'  => 'User not found: ' . (string)$user,
-					'context'  => ['userId' => (string)$user],
-				]
-			);
+		if ($filters->user !== null && $this->userManager->userExists(uid: $filters->user) === false) {
+			return [
+				'exitCode' => CommandService::EXIT_NOT_FOUND,
+				'code'     => 'NOT_FOUND',
+				'message'  => 'User not found: ' . $filters->user,
+				'context'  => ['userId' => $filters->user],
+			];
 		}
 
 		return null;
-	}//end validateFilters()
-
-	/**
-	 * Normalise a raw console option to a nullable string.
-	 *
-	 * An unset option arrives as `null` and must stay `null` so the
-	 * collector can tell "no filter" from "filter on the empty string".
-	 *
-	 * @param mixed $value The raw option value.
-	 *
-	 * @return string|null The cast value, or null when unset.
-	 */
-	private function optionToString(mixed $value): ?string {
-		if ($value === null) {
-			return null;
-		}
-
-		return (string)$value;
-	}//end optionToString()
+	}//end filterError()
 
 	/**
 	 * Flatten dashboards into the row shape shared by both output modes.
@@ -249,25 +201,16 @@ class DashboardListCommand extends CommandBase {
 	/**
 	 * Render the compact human-readable table.
 	 *
-	 * Writes nothing at all in quiet mode; writes the empty-result notice
+	 * The caller skips it in quiet mode. Writes the empty-result notice
 	 * when no dashboard matched; otherwise writes a header plus one line
 	 * per row.
 	 *
-	 * @param InputInterface $input CLI input.
-	 * @param OutputInterface $output CLI output.
-	 * @param list<array<string, string>> $rows The rows to render.
+	 * @param OutputInterface             $output CLI output.
+	 * @param list<array<string, string>> $rows   The rows to render.
 	 *
 	 * @return void
 	 */
-	private function writeTable(
-		InputInterface $input,
-		OutputInterface $output,
-		array $rows,
-	): void {
-		if ($this->isQuiet(input: $input) === true) {
-			return;
-		}
-
+	private function writeTable(OutputInterface $output, array $rows): void {
 		if (count(value: $rows) === 0) {
 			$output->writeln(messages: 'No dashboards match the supplied filters.');
 			return;
@@ -277,18 +220,27 @@ class DashboardListCommand extends CommandBase {
 			messages: sprintf('%-36s  %-20s  %-14s  %-12s  %s', 'UUID', 'NAME', 'TYPE', 'STATUS', 'OWNER')
 		);
 		foreach ($rows as $row) {
-			$output->writeln(
-				messages: sprintf(
-					'%-36s  %-20s  %-14s  %-12s  %s',
-					$row['uuid'],
-					mb_strimwidth(string: $row['name'], start: 0, width: 20, trim_marker: '..'),
-					$row['type'],
-					$row['publicationStatus'],
-					$row['owner']
-				)
-			);
+			$output->writeln(messages: self::tableLine(row: $row));
 		}
 	}//end writeTable()
+
+	/**
+	 * One table line: UUID, name (trimmed to 20), type, status and owner.
+	 *
+	 * @param array<string, string> $row The row.
+	 *
+	 * @return string The line.
+	 */
+	private static function tableLine(array $row): string {
+		return sprintf(
+			'%-36s  %-20s  %-14s  %-12s  %s',
+			$row['uuid'],
+			mb_strimwidth(string: $row['name'], start: 0, width: 20, trim_marker: '..'),
+			$row['type'],
+			$row['publicationStatus'],
+			$row['owner']
+		);
+	}//end tableLine()
 
 	/**
 	 * Collect dashboards across all relevant scopes for the supplied
@@ -296,18 +248,13 @@ class DashboardListCommand extends CommandBase {
 	 * and apply post-filters in PHP to keep the command non-invasive
 	 * (no schema or mapper changes).
 	 *
-	 * @param string|null $user Optional user filter.
-	 * @param string|null $group Optional group filter.
-	 * @param string|null $status Optional publication status filter.
+	 * @param DashboardListFilters $filters The user, group and publication status filters.
 	 *
 	 * @return list<Dashboard>
 	 */
-	private function collect(
-		?string $user,
-		?string $group,
-		?string $status,
-	): array {
-		$dashboards = $this->collectScope(user: $user, group: $group);
+	private function collect(DashboardListFilters $filters): array {
+		$dashboards = $this->collectScope(user: $filters->user, group: $filters->group);
+		$status = $filters->status;
 
 		if ($status === null) {
 			return $dashboards;
@@ -335,7 +282,7 @@ class DashboardListCommand extends CommandBase {
 	 *
 	 * @return list<Dashboard>
 	 */
-	private function collectScope(?string $user, ?string $group): array {
+	private function collectScope(string|null $user, string|null $group): array {
 		if ($user !== null) {
 			return array_values(array: $this->dashboardMapper->findByUserId(userId: $user));
 		}

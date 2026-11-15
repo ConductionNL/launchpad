@@ -142,56 +142,101 @@ class TemplateResyncService {
 	): array {
 		$this->assertValidStrategy(strategy: $strategy);
 		$this->getValidatedTemplate(templateId: $templateId);
+		$request = new TemplateResyncRequest(templateId: $templateId, strategy: $strategy);
 
 		if ($dryRun === true) {
-			$plan = $this->planResync(
-				templateId: $templateId,
-				strategy: $strategy
-			);
-			$plan['dryRun'] = true;
-			$plan['async'] = false;
-
-			return $plan;
+			return $this->dryRunPlan(request: $request);
 		}
 
+		return $this->resyncNow(request: $request, actingAdminId: $actingAdminId);
+	}//end resync()
+
+	/**
+	 * The plan of a dry run, marked as such.
+	 *
+	 * @param TemplateResyncRequest $request The resync.
+	 *
+	 * @return array<string, mixed> The plan.
+	 */
+	private function dryRunPlan(TemplateResyncRequest $request): array {
+		$plan = $this->planResync(
+			templateId: $request->templateId,
+			strategy: $request->strategy
+		);
+		$plan['dryRun'] = true;
+		$plan['async'] = false;
+
+		return $plan;
+	}//end dryRunPlan()
+
+	/**
+	 * Apply a resync inline, or queue it when the template has more copies
+	 * than {@see self::ASYNC_THRESHOLD} (REQ-RESYNC-005).
+	 *
+	 * @param TemplateResyncRequest $request       The resync.
+	 * @param string                $actingAdminId The admin triggering it.
+	 *
+	 * @return array<string, mixed> The applied or the accepted report.
+	 */
+	private function resyncNow(TemplateResyncRequest $request, string $actingAdminId): array {
 		$totalCopies = count(
 			$this->stores->dashboardMapper->findByBasedOnTemplate(
-				templateId: $templateId
+				templateId: $request->templateId
 			)
 		);
 
 		if ($totalCopies > self::ASYNC_THRESHOLD) {
-			$plan = $this->planResync(
-				templateId: $templateId,
-				strategy: $strategy
-			);
+			$affectedCount = $this->queueResync(request: $request, actingAdminId: $actingAdminId);
+			return $this->acceptedReport(request: $request, totalCopies: $totalCopies) + ['affectedCount' => $affectedCount];
+		}
 
-			$this->stores->jobList->add(
-				TemplateResyncJob::class,
-				[
-					'templateId' => $templateId,
-					'strategy' => $strategy,
-					'actingAdminId' => $actingAdminId,
-				]
-			);
+		return $this->applyResync(templateId: $request->templateId, strategy: $request->strategy, actingAdminId: $actingAdminId);
+	}//end resyncNow()
 
-			return [
-				'templateId' => $templateId,
-				'strategy' => $strategy,
-				'dryRun' => false,
-				'async' => true,
-				'accepted' => true,
-				'totalCopies' => $totalCopies,
-				'affectedCount' => $plan['affectedCount'],
-			];
-		}//end if
-
-		return $this->applyResync(
-			templateId: $templateId,
-			strategy: $strategy,
-			actingAdminId: $actingAdminId
+	/**
+	 * Plan a large resync and queue the background job that applies it.
+	 *
+	 * @param TemplateResyncRequest $request       The resync.
+	 * @param string                $actingAdminId The admin triggering it.
+	 *
+	 * @return mixed The planned affected-copy count.
+	 */
+	private function queueResync(TemplateResyncRequest $request, string $actingAdminId): mixed {
+		$plan = $this->planResync(
+			templateId: $request->templateId,
+			strategy: $request->strategy
 		);
-	}//end resync()
+
+		$this->stores->jobList->add(
+			TemplateResyncJob::class,
+			[
+				'templateId' => $request->templateId,
+				'strategy' => $request->strategy,
+				'actingAdminId' => $actingAdminId,
+			]
+		);
+
+		return $plan['affectedCount'];
+	}//end queueResync()
+
+	/**
+	 * The report of a queued resync, without its affected count.
+	 *
+	 * @param TemplateResyncRequest $request     The resync.
+	 * @param integer               $totalCopies The number of copies.
+	 *
+	 * @return array<string, mixed> The report.
+	 */
+	private function acceptedReport(TemplateResyncRequest $request, int $totalCopies): array {
+		return [
+			'templateId' => $request->templateId,
+			'strategy' => $request->strategy,
+			'dryRun' => false,
+			'async' => true,
+			'accepted' => true,
+			'totalCopies' => $totalCopies,
+		];
+	}//end acceptedReport()
 
 	/**
 	 * Compute the re-sync plan WITHOUT mutating anything (REQ-RESYNC-002).
@@ -281,72 +326,102 @@ class TemplateResyncService {
 		string $strategy,
 		string $actingAdminId,
 	): array {
+		$request = new TemplateResyncRequest(templateId: $templateId, strategy: $strategy);
 		$template = $this->getValidatedTemplate(templateId: $templateId);
-		$templatePlacements = $this->stores->placementMapper->findByDashboardId(
-			dashboardId: $template->getId()
-		);
-		$copies = $this->stores->dashboardMapper->findByBasedOnTemplate(
-			templateId: $templateId
-		);
-
-		$copyReports = [];
-		$affectedCount = 0;
-		$notifyDashboards = [];
-
-		foreach ($copies as $copy) {
-			$copyPlacements = $this->stores->placementMapper->findByDashboardId(
-				dashboardId: $copy->getId()
-			);
-			$diff = $this->diffCopy(
-				templatePlacements: $templatePlacements,
-				copyPlacements: $copyPlacements,
-				strategy: $strategy
-			);
-
-			if ($this->diffHasChanges(diff: $diff) === false) {
-				$copyReports[] = $this->summarizeCopy(
-					copy: $copy,
-					diff: $diff,
-					applied: true,
-					error: null
-				);
-				continue;
-			}
-
-			$error = $this->applyDiffToCopy(copy: $copy, diff: $diff);
-
-			$copyReports[] = $this->summarizeCopy(
-				copy: $copy,
-				diff: $diff,
-				applied: ($error === null),
-				error: $error
-			);
-
-			if ($error === null) {
-				$affectedCount++;
-				$notifyDashboards[] = $copy;
-			}
-		}//end foreach
+		$tally = $this->resyncCopiesOf(template: $template, request: $request);
 
 		$this->emitAuditEvent(
 			template: $template,
-			run: ['templateId' => $templateId, 'strategy' => $strategy, 'affectedCount' => $affectedCount, 'actingAdminId' => $actingAdminId]
+			run: ['templateId' => $templateId, 'strategy' => $strategy, 'affectedCount' => count($tally->affected), 'actingAdminId' => $actingAdminId]
 		);
 
-		foreach ($notifyDashboards as $dashboard) {
-			$this->notifyUserResync(dashboard: $dashboard);
+		$this->notifyAffected(tally: $tally);
+
+		return $this->appliedReport(request: $request, tally: $tally);
+	}//end applyResync()
+
+	/**
+	 * Diff and update every copy of a template.
+	 *
+	 * @param Dashboard             $template The validated template.
+	 * @param TemplateResyncRequest $request  The resync.
+	 *
+	 * @return TemplateResyncTally The per-copy outcome.
+	 */
+	private function resyncCopiesOf(Dashboard $template, TemplateResyncRequest $request): TemplateResyncTally {
+		$tally = new TemplateResyncTally(
+			templatePlacements: $this->stores->placementMapper->findByDashboardId(
+				dashboardId: $template->getId()
+			),
+			strategy: $request->strategy
+		);
+
+		foreach ($this->stores->dashboardMapper->findByBasedOnTemplate(templateId: $request->templateId) as $copy) {
+			$this->resyncCopy(tally: $tally, copy: $copy);
 		}
 
+		return $tally;
+	}//end resyncCopiesOf()
+
+	/**
+	 * Diff one copy, apply the diff when it has changes, and record the
+	 * copy's report; a copy whose change was written is affected.
+	 *
+	 * @param TemplateResyncTally $tally The run.
+	 * @param Dashboard           $copy  The copy.
+	 *
+	 * @return void
+	 */
+	private function resyncCopy(TemplateResyncTally $tally, Dashboard $copy): void {
+		$diff = $this->diffCopy(
+			templatePlacements: $tally->templatePlacements,
+			copyPlacements: $this->stores->placementMapper->findByDashboardId(dashboardId: $copy->getId()),
+			strategy: $tally->strategy
+		);
+		$changed = $this->diffHasChanges(diff: $diff);
+		$error = null;
+		if ($changed === true) {
+			$error = $this->applyDiffToCopy(copy: $copy, diff: $diff);
+		}
+
+		$tally->reports[] = $this->summarizeCopy(copy: $copy, diff: $diff, applied: ($error === null), error: $error);
+		if ($changed === true && $error === null) {
+			$tally->affected[] = $copy;
+		}
+	}//end resyncCopy()
+
+	/**
+	 * Notify the owner of every affected copy.
+	 *
+	 * @param TemplateResyncTally $tally The run.
+	 *
+	 * @return void
+	 */
+	private function notifyAffected(TemplateResyncTally $tally): void {
+		foreach ($tally->affected as $dashboard) {
+			$this->notifyUserResync(dashboard: $dashboard);
+		}
+	}//end notifyAffected()
+
+	/**
+	 * The report of an applied resync.
+	 *
+	 * @param TemplateResyncRequest $request The resync.
+	 * @param TemplateResyncTally   $tally   The per-copy outcome.
+	 *
+	 * @return array<string, mixed> The report.
+	 */
+	private function appliedReport(TemplateResyncRequest $request, TemplateResyncTally $tally): array {
 		return [
-			'templateId' => $templateId,
-			'strategy' => $strategy,
+			'templateId' => $request->templateId,
+			'strategy' => $request->strategy,
 			'dryRun' => false,
 			'async' => false,
-			'totalCopies' => count($copies),
-			'affectedCount' => $affectedCount,
-			'copies' => $copyReports,
+			'totalCopies' => count($tally->reports),
+			'affectedCount' => count($tally->affected),
+			'copies' => $tally->reports,
 		];
-	}//end applyResync()
+	}//end appliedReport()
 
 	/**
 	 * Apply one copy's diff inside its own DB transaction. Partial

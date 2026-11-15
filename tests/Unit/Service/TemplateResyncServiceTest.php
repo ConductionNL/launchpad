@@ -705,6 +705,99 @@ class TemplateResyncServiceTest extends TestCase {
 		$this->assertSame($copyCount, $result['totalCopies']);
 	}
 
+	/**
+	 * The applied report, the audit row and the notifications for a run
+	 * with an unchanged copy, a copy that takes the change and a copy whose
+	 * write fails (pinned before applyResync() was split).
+	 */
+	public function testAppliedReportAuditAndNotificationsOfAMixedRun(): void {
+		$template = $this->makeTemplate();
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$templatePlacement = $this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links');
+		$unchanged = $this->makeCopy(id: 101, userId: 'amy');
+		$changed = $this->makeCopy(id: 102, userId: 'bob');
+		$failing = $this->makeCopy(id: 103, userId: 'cas');
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn([$unchanged, $changed, $failing]);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap([
+			[1, [$templatePlacement]],
+			[101, [$this->makePlacement(id: 201, dashboardId: 101, widgetId: 'links', templatePlacementId: 10)]],
+			[102, []],
+			[103, []],
+		]);
+		$this->placementMapper->method('insert')->willReturnCallback(
+			static function (WidgetPlacement $placement): WidgetPlacement {
+				if ($placement->getDashboardId() === 103) {
+					throw new \RuntimeException('disk full');
+				}
+				return $placement;
+			}
+		);
+
+		$published = [];
+		$this->activityPublisher->method('publish')->willReturnCallback(
+			static function ($row, string $recipientUserId) use (&$published): void {
+				$published[] = [$row->dashboard->name, $row->extraParams, $recipientUserId];
+			}
+		);
+		$notified = [];
+		$this->notificationManager->method('createNotification')->willReturnCallback(function () use (&$notified) {
+			$notification = $this->createMock(INotification::class);
+			foreach (['setApp', 'setDateTime', 'setObject', 'setSubject'] as $method) {
+				$notification->method($method)->willReturnSelf();
+			}
+			$notification->method('setUser')->willReturnCallback(
+				function (string $user) use (&$notified, $notification) {
+					$notified[] = $user;
+					return $notification;
+				}
+			);
+			return $notification;
+		});
+
+		$result = $this->service->applyResync(templateId: 1, strategy: TemplateResyncService::STRATEGY_MERGE, actingAdminId: 'admin1');
+
+		$this->assertSame(['templateId', 'strategy', 'dryRun', 'async', 'totalCopies', 'affectedCount', 'copies'], array_keys($result));
+		$this->assertSame([1, TemplateResyncService::STRATEGY_MERGE, false, false, 3, 1], array_slice(array_values($result), 0, 6));
+		$this->assertSame([101, 102, 103], array_map(static fn (array $c) => $c['dashboardId'], $result['copies']));
+		$this->assertTrue($this->findCopyReport($result['copies'], 101)['applied']);
+		$this->assertTrue($this->findCopyReport($result['copies'], 102)['applied']);
+		$this->assertFalse($this->findCopyReport($result['copies'], 103)['applied']);
+		$this->assertNotNull($this->findCopyReport($result['copies'], 103)['error']);
+		$this->assertSame(
+			[['Template resync: ' . $template->getName() . ' (merge, 1 copies)', ['templateResync' => true, 'templateId' => 1, 'strategy' => 'merge', 'affectedCount' => 1], 'admin1']],
+			$published
+		);
+		$this->assertSame(['bob'], $notified);
+	}
+
+	/**
+	 * The dry-run and the accepted async report shapes.
+	 */
+	public function testDryRunAndAsyncReportShapes(): void {
+		$template = $this->makeTemplate();
+		$this->dashboardMapper->method('find')->willReturn($template);
+		$templatePlacement = $this->makePlacement(id: 10, dashboardId: 1, widgetId: 'links');
+		$copies = [];
+		$map = [[1, [$templatePlacement]]];
+		for ($i = 1; $i <= TemplateResyncService::ASYNC_THRESHOLD + 1; $i++) {
+			$copies[] = $this->makeCopy(id: 1000 + $i, userId: 'u' . $i);
+			$map[] = [1000 + $i, ($i % 2 === 0 ? [] : [$this->makePlacement(id: 5000 + $i, dashboardId: 1000 + $i, widgetId: 'links', templatePlacementId: 10)])];
+		}
+		$this->dashboardMapper->method('findByBasedOnTemplate')->willReturn($copies);
+		$this->placementMapper->method('findByDashboardId')->willReturnMap($map);
+
+		$dry = $this->service->resync(templateId: 1, strategy: TemplateResyncService::STRATEGY_MERGE, dryRun: true, actingAdminId: 'admin1');
+		$this->assertTrue($dry['dryRun']);
+		$this->assertFalse($dry['async']);
+		$this->assertSame(25, $dry['affectedCount']);
+
+		$async = $this->service->resync(templateId: 1, strategy: TemplateResyncService::STRATEGY_MERGE, dryRun: false, actingAdminId: 'admin1');
+		$this->assertSame(
+			['templateId' => 1, 'strategy' => 'merge', 'dryRun' => false, 'async' => true, 'accepted' => true, 'totalCopies' => 51, 'affectedCount' => 25],
+			$async
+		);
+	}
+
 	// ---------------------------------------------------------------
 	// Small helpers
 	// ---------------------------------------------------------------

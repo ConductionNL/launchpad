@@ -46,7 +46,6 @@ use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\DataDownloadResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use OCP\IUserSession;
 
@@ -90,15 +89,9 @@ class AnalyticsController extends Controller {
 		string $period = '30d',
 		int $limit = 10,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.top-dashboards');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.top-dashboards');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -129,15 +122,9 @@ class AnalyticsController extends Controller {
 		string $uuid,
 		string $period = '30d',
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.dashboard-detail');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.dashboard-detail');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -165,15 +152,9 @@ class AnalyticsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function instanceSummary(string $period = '30d'): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.instance-summary');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.instance-summary');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -202,15 +183,9 @@ class AnalyticsController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function exportCsv(string $period = '30d'): Response {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		try {
-			$this->actionAuth->requireAction($user, 'analytics.export-csv');
-		} catch (OCSForbiddenException) {
-			return new JSONResponse(['error' => 'Forbidden'], Http::STATUS_FORBIDDEN);
+		$refusal = $this->actionRefusal(action: 'analytics.export-csv');
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		try {
@@ -227,4 +202,16 @@ class AnalyticsController extends Controller {
 			contentType: 'text/csv'
 		);
 	}//end exportCsv()
+
+	/**
+	 * The caller guard: no session user → 401, a denied ADR-023 action → 403; NULL to proceed.
+	 *
+	 * @param string $action The action identifier to require.
+	 *
+	 * @return JSONResponse|null The refusal, or NULL.
+	 */
+	private function actionRefusal(string $action): ?JSONResponse {
+		$check = new SessionActionCheck(userSession: $this->userSession, actionAuth: $this->actionAuth);
+		return $check->refusal(action: $action);
+	}//end actionRefusal()
 }//end class

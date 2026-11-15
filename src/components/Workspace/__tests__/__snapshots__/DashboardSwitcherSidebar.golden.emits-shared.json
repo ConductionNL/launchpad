@@ -1,0 +1,81 @@
+{
+ "update:open": [
+  [
+   false
+  ],
+  [
+   false
+  ],
+  [
+   false
+  ]
+ ],
+ "switch": [
+  [
+   5,
+   "shared"
+  ],
+  [
+   5,
+   "shared"
+  ],
+  [
+   5,
+   "shared"
+  ]
+ ],
+ "toggleEdit": [
+  [
+   {
+    "id": 5,
+    "uuid": "us",
+    "name": "Shared One",
+    "icon": "Share",
+    "source": "shared"
+   },
+   "shared"
+  ]
+ ],
+ "openConfig": [
+  [
+   {
+    "id": 5,
+    "uuid": "us",
+    "name": "Shared One",
+    "icon": "Share",
+    "source": "shared"
+   },
+   "shared"
+  ]
+ ],
+ "addCustomWidget": [
+  [
+   {
+    "id": 5,
+    "uuid": "us",
+    "name": "Shared One",
+    "icon": "Share",
+    "source": "shared"
+   },
+   "shared"
+  ]
+ ],
+ "deleteDashboard": [
+  [
+   5,
+   "shared"
+  ]
+ ],
+ "setDefault": [
+  [
+   {
+    "id": 5,
+    "uuid": "us",
+    "name": "Shared One",
+    "icon": "Share",
+    "source": "shared"
+   },
+   "shared"
+  ]
+ ]
+}

@@ -307,4 +307,43 @@ class ResourceServeControllerTest extends TestCase {
 		$this->assertSame('success', $body['status']);
 		$this->assertSame([], $body['resources']);
 	}
+
+	/**
+	 * The 401, the 403 of a refused action and the 404 of an unreadable
+	 * file, for both endpoints where they apply.
+	 *
+	 * @return void
+	 */
+	public function testRefusalsAndUnreadableFile(): void {
+		$this->actionAuth->method('requireAction')->willReturnCallback(static function ($user, string $action): void {
+			if ($action === 'resource-serve.list-resources') {
+				throw new \OCP\AppFramework\OCS\OCSForbiddenException('no');
+			}
+		});
+		$file = $this->createMock(ISimpleFile::class);
+		$file->method('getSize')->willReturn(10);
+		$file->method('getContent')->willThrowException(new \RuntimeException('disk'));
+		$this->serve->method('findFile')->willReturn($file);
+		$warnings = [];
+		$this->logger->method('warning')->willReturnCallback(function (string $message, array $context) use (&$warnings): void {
+			$warnings[] = [$message, $context];
+		});
+
+		$unreadable = $this->controller->getResource(filename: 'a.png');
+		$this->assertSame(404, $unreadable->getStatus());
+		$this->assertSame([['Resource serve failed to read bytes', ['exception' => 'disk']]], $warnings);
+		$this->assertSame([403, ['error' => 'Forbidden']], [$this->controller->listResources()->getStatus(), $this->controller->listResources()->getData()]);
+
+		$anonymous = $this->createMock(IUserSession::class);
+		$anonymous->method('getUser')->willReturn(null);
+		$controller = new ResourceServeController(
+			request: $this->request,
+			serving: new ServeTools(serve: $this->serve, logger: $this->logger),
+			actionAuth: $this->actionAuth,
+			userSession: $anonymous
+		);
+		foreach ([$controller->getResource(filename: 'a.png'), $controller->listResources()] as $response) {
+			$this->assertSame([401, ['error' => 'Not authenticated']], [$response->getStatus(), $response->getData()]);
+		}
+	}
 }

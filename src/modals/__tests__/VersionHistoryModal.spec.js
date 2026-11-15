@@ -148,6 +148,79 @@ describe('VersionHistoryModal', () => {
 		)
 	})
 
+	it('emits close from the modal, and cancelling the confirmation restores nothing', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(1)], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.find('[data-testid="version-restore"]').trigger('click')
+		wrapper.findComponent({ name: 'CnConfirmDialog' }).vm.$emit('close')
+		await flushPromises()
+		expect(wrapper.vm.restoreTarget).toBeNull()
+		await wrapper.vm.confirmRestore()
+		expect(api.restoreVersion).not.toHaveBeenCalled()
+
+		wrapper.findComponent({ name: 'NcModal' }).vm.$emit('close')
+		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+
+	it('saves a blank note as none, and keeps the list when the answer has no version', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(1)], modeSupported: true } })
+		api.createVersion.mockResolvedValue({ data: {} })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.find('input').setValue('   ')
+		await wrapper.find('[data-testid="version-save"]').trigger('click')
+		await flushPromises()
+
+		expect(api.createVersion).toHaveBeenCalledWith('dash-uuid', null)
+		expect(wrapper.findAll('[data-testid="version-row"]')).toHaveLength(1)
+		expect(wrapper.vm.error).toBe('')
+	})
+
+	it('says so when a version cannot be saved, keeping the note', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [], modeSupported: true } })
+		api.createVersion.mockRejectedValue(new Error('500'))
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.find('input').setValue('before the move')
+		await wrapper.find('[data-testid="version-save"]').trigger('click')
+		await flushPromises()
+
+		expect(wrapper.vm.error).toBe('The version could not be saved.')
+		expect(wrapper.vm.note).toBe('before the move')
+		expect(wrapper.vm.saving).toBe(false)
+	})
+
+	it('says so when a restore fails, without telling the page or reloading', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [v(2), v(1)], modeSupported: true } })
+		api.restoreVersion.mockRejectedValue(new Error('409'))
+		const wrapper = mountModal()
+		await flushPromises()
+
+		await wrapper.findAll('[data-testid="version-restore"]')[1].trigger('click')
+		await wrapper.find('[data-testid="cn-confirm-dialog-confirm"]').trigger('click')
+		await flushPromises()
+
+		expect(api.restoreVersion).toHaveBeenCalledWith('dash-uuid', 1)
+		expect(wrapper.vm.error).toBe('The version could not be restored.')
+		expect(wrapper.emitted('restored')).toBeUndefined()
+		expect(api.listVersions).toHaveBeenCalledTimes(1)
+	})
+
+	it('formats no date as empty and an unreadable one as itself', async () => {
+		api.listVersions.mockResolvedValue({ data: { versions: [], modeSupported: true } })
+		const wrapper = mountModal()
+		await flushPromises()
+
+		expect(wrapper.vm.formatDate('')).toBe('')
+		expect(wrapper.vm.formatDate(null)).toBe('')
+		expect(wrapper.vm.formatDate('yesterday')).toBe('yesterday')
+		expect(wrapper.vm.formatDate('2026-09-21 10:00:00')).not.toBe('2026-09-21 10:00:00')
+	})
+
 	it('says so when versioning is not supported for the dashboard', async () => {
 		api.listVersions.mockResolvedValue({
 			data: { versions: [], modeSupported: false },

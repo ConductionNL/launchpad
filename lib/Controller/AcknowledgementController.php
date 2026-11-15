@@ -88,25 +88,12 @@ class AcknowledgementController extends Controller {
 			return $this->failure(message: 'announcementKey is required', statusCode: Http::STATUS_BAD_REQUEST);
 		}
 
-		// Reject any attempt to acknowledge on behalf of another user
-		// (REQ-ACK-003 scenario "A user cannot acknowledge on behalf of
-		// another user").
-		$bodyUserId = $this->request->getParam(key: 'userId');
-		if ($bodyUserId !== null && (string)$bodyUserId !== $this->userId) {
-			return ResponseHelper::forbidden(
-				message: 'Cannot acknowledge on behalf of another user'
-			);
+		$refusal = $this->refuseForeignUser() ?? $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->userId);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$denied = $this->denyOutsideAudience(announcementKey: $announcementKey, userId: $this->userId);
-		if ($denied !== null) {
-			return $denied;
-		}
-
-		$contentVersion = (int)$this->request->getParam(key: 'contentVersion', default: 1);
-		if ($contentVersion < 1) {
-			$contentVersion = 1;
-		}
+		$contentVersion = $this->requestedContentVersion();
 
 		$invalid = $this->rejectUnpublishedVersion(announcementKey: $announcementKey, contentVersion: $contentVersion);
 		if ($invalid !== null) {
@@ -120,15 +107,80 @@ class AcknowledgementController extends Controller {
 				contentVersion: $contentVersion
 			);
 		} catch (Throwable $e) {
-			$this->tools->logger->error(
-				message: 'acknowledge failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->loggedFailure(exception: $e, operation: 'acknowledge');
 		}
 
 		return ResponseHelper::success(data: $receipt->jsonSerialize());
 	}//end acknowledge()
+
+	/**
+	 * Reject any attempt to acknowledge on behalf of another user
+	 * (REQ-ACK-003 scenario "A user cannot acknowledge on behalf of
+	 * another user").
+	 *
+	 * @return JSONResponse|null The 403, or null when the body names no other user.
+	 */
+	private function refuseForeignUser(): JSONResponse|null {
+		$bodyUserId = $this->request->getParam(key: 'userId');
+		if ($bodyUserId !== null && (string)$bodyUserId !== $this->userId) {
+			return ResponseHelper::forbidden(
+				message: 'Cannot acknowledge on behalf of another user'
+			);
+		}
+
+		return null;
+	}//end refuseForeignUser()
+
+	/**
+	 * The content version the request acknowledges, at least 1.
+	 *
+	 * @return int The version.
+	 */
+	private function requestedContentVersion(): int {
+		$contentVersion = (int)$this->request->getParam(key: 'contentVersion', default: 1);
+		if ($contentVersion < 1) {
+			return 1;
+		}
+
+		return $contentVersion;
+	}//end requestedContentVersion()
+
+	/**
+	 * Log an unexpected failure and answer the generic 500.
+	 *
+	 * @param Throwable $exception The failure.
+	 * @param string    $operation The operation name for the log line.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function loggedFailure(Throwable $exception, string $operation): JSONResponse {
+		$this->tools->logger->error(
+			message: $operation . ' failed: ' . $exception->getMessage(),
+			context: ['exception' => $exception]
+		);
+		return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end loggedFailure()
+
+	/**
+	 * The acknowledgement report of an announcement, or the 404 / logged
+	 * 500 answer.
+	 *
+	 * @param string $announcementKey The announcement key.
+	 * @param string $operation       The operation name for the log line.
+	 *
+	 * @return array|JSONResponse The report, or the error response.
+	 */
+	private function fetchReport(string $announcementKey, string $operation): array|JSONResponse {
+		try {
+			return $this->tools->acknowledgements->report(
+				announcementKey: $announcementKey
+			);
+		} catch (DoesNotExistException) {
+			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
+		} catch (Throwable $e) {
+			return $this->loggedFailure(exception: $e, operation: $operation);
+		}
+	}//end fetchReport()
 
 	/**
 	 * Refuse a user outside the announcement's live audience (REQ-ACK-003,
@@ -190,11 +242,7 @@ class AcknowledgementController extends Controller {
 		try {
 			$result = $this->tools->acknowledgements->getPending(userId: $this->userId);
 		} catch (Throwable $e) {
-			$this->tools->logger->error(
-				message: 'pending failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $this->loggedFailure(exception: $e, operation: 'pending');
 		}
 
 		return ResponseHelper::success(data: $result);
@@ -223,18 +271,9 @@ class AcknowledgementController extends Controller {
 			);
 		}
 
-		try {
-			$report = $this->tools->acknowledgements->report(
-				announcementKey: $announcementKey
-			);
-		} catch (DoesNotExistException) {
-			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
-		} catch (Throwable $e) {
-			$this->tools->logger->error(
-				message: 'report failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+		$report = $this->fetchReport(announcementKey: $announcementKey, operation: 'report');
+		if ($report instanceof JSONResponse) {
+			return $report;
 		}
 
 		return ResponseHelper::success(data: $report);
@@ -264,18 +303,9 @@ class AcknowledgementController extends Controller {
 			);
 		}
 
-		try {
-			$report = $this->tools->acknowledgements->report(
-				announcementKey: $announcementKey
-			);
-		} catch (DoesNotExistException) {
-			return $this->failure(message: 'Unknown announcement', statusCode: Http::STATUS_NOT_FOUND);
-		} catch (Throwable $e) {
-			$this->tools->logger->error(
-				message: 'reportCsv failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+		$report = $this->fetchReport(announcementKey: $announcementKey, operation: 'reportCsv');
+		if ($report instanceof JSONResponse) {
+			return $report;
 		}
 
 		$csv = $this->buildCsv(report: $report);

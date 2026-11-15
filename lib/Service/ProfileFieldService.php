@@ -195,40 +195,96 @@ class ProfileFieldService {
 			throw new InvalidArgumentException(message: 'A profile field must be an object');
 		}
 
+		$definition = $this->definitionFrom(entry: $entry, key: self::validKey(entry: $entry));
+
+		return self::withCheckedLdapAttribute(definition: $definition);
+	}//end validateDefinition()
+
+	/**
+	 * The definition's key, checked: lower case letters, digits or `_`,
+	 * starting with a letter, at most 32 characters.
+	 *
+	 * @param array<string, mixed> $entry Raw definition.
+	 *
+	 * @return string The key.
+	 *
+	 * @throws InvalidArgumentException When the key is malformed.
+	 */
+	private static function validKey(array $entry): string {
 		$key = (string)($entry['key'] ?? '');
 		if (preg_match(pattern: '/^[a-z][a-z0-9_]{0,31}$/', subject: $key) !== 1) {
 			throw new InvalidArgumentException(message: 'Field key must be lower case letters, digits or _: ' . $key);
 		}
 
+		return $key;
+	}//end validKey()
+
+	/**
+	 * The definition's trimmed label, checked: 1 to 64 characters.
+	 *
+	 * @param array<string, mixed> $entry Raw definition.
+	 * @param string               $key   The checked key (for the message).
+	 *
+	 * @return string The label.
+	 *
+	 * @throws InvalidArgumentException When the label is empty or too long.
+	 */
+	private static function validLabel(array $entry, string $key): string {
 		$label = trim(string: (string)($entry['label'] ?? ''));
 		if ($label === '' || mb_strlen(string: $label) > 64) {
 			throw new InvalidArgumentException(message: 'Field label must be 1 to 64 characters: ' . $key);
 		}
 
-		$type = $this->oneOf(value: $entry['type'] ?? 'text', allowed: self::TYPES, name: 'type');
-		$source = $this->oneOf(value: $entry['source'] ?? 'self', allowed: self::SOURCES, name: 'source');
-		$visibility = $this->oneOf(value: $entry['visibility'] ?? 'everyone', allowed: self::VISIBILITIES, name: 'visibility');
+		return $label;
+	}//end validLabel()
 
-		$ldapAttribute = trim(string: (string)($entry['ldapAttribute'] ?? ''));
-		if ($source === 'ldap' && preg_match(pattern: '/^[A-Za-z][A-Za-z0-9-]{0,63}$/', subject: $ldapAttribute) !== 1) {
-			throw new InvalidArgumentException(message: 'An LDAP field needs an LDAP attribute name: ' . $key);
-		}
-
-		if ($source !== 'ldap') {
-			$ldapAttribute = '';
-		}
-
+	/**
+	 * The normalised definition: label, then type, source and visibility
+	 * checked in that order; flags default to not searchable and shown.
+	 *
+	 * @param array<string, mixed> $entry Raw definition.
+	 * @param string               $key   The checked key.
+	 *
+	 * @return array<string, mixed> The definition, LDAP attribute unchecked.
+	 *
+	 * @throws InvalidArgumentException When a field is invalid.
+	 */
+	private function definitionFrom(array $entry, string $key): array {
 		return [
 			'key' => $key,
-			'label' => $label,
-			'type' => $type,
-			'source' => $source,
-			'ldapAttribute' => $ldapAttribute,
+			'label' => self::validLabel(entry: $entry, key: $key),
+			'type' => $this->oneOf(value: $entry['type'] ?? 'text', allowed: self::TYPES, name: 'type'),
+			'source' => $this->oneOf(value: $entry['source'] ?? 'self', allowed: self::SOURCES, name: 'source'),
+			'ldapAttribute' => trim(string: (string)($entry['ldapAttribute'] ?? '')),
 			'searchable' => ($entry['searchable'] ?? false) === true,
 			'shownInWidget' => ($entry['shownInWidget'] ?? true) === true,
-			'visibility' => $visibility,
+			'visibility' => $this->oneOf(value: $entry['visibility'] ?? 'everyone', allowed: self::VISIBILITIES, name: 'visibility'),
 		];
-	}//end validateDefinition()
+	}//end definitionFrom()
+
+	/**
+	 * An LDAP field must name a valid LDAP attribute; any other field keeps
+	 * none.
+	 *
+	 * @param array<string, mixed> $definition The normalised definition.
+	 *
+	 * @return array<string, mixed> The definition.
+	 *
+	 * @throws InvalidArgumentException When an LDAP field has no valid attribute.
+	 */
+	private static function withCheckedLdapAttribute(array $definition): array {
+		if ($definition['source'] === 'ldap'
+			&& preg_match(pattern: '/^[A-Za-z][A-Za-z0-9-]{0,63}$/', subject: $definition['ldapAttribute']) !== 1
+		) {
+			throw new InvalidArgumentException(message: 'An LDAP field needs an LDAP attribute name: ' . $definition['key']);
+		}
+
+		if ($definition['source'] !== 'ldap') {
+			$definition['ldapAttribute'] = '';
+		}
+
+		return $definition;
+	}//end withCheckedLdapAttribute()
 
 	/**
 	 * Check that a value is one of the allowed strings.
@@ -289,24 +345,7 @@ class ProfileFieldService {
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function saveOwnValues(string $userId, array $values): array {
-		$definitions = [];
-		foreach ($this->getDefinitions() as $definition) {
-			$definitions[$definition['key']] = $definition;
-		}
-
-		$clean = [];
-		foreach ($values as $key => $value) {
-			$definition = $definitions[$key] ?? null;
-			if ($definition === null) {
-				throw new InvalidArgumentException(message: 'Unknown profile field: ' . $key);
-			}
-
-			if ($definition['source'] !== 'self') {
-				continue;
-			}
-
-			$clean[$key] = $this->cleanValues(definition: $definition, value: $value);
-		}
+		$clean = $this->cleanOwnValues(definitions: $this->definitionsByKey(), values: $values);
 
 		foreach ($clean as $key => $list) {
 			$this->valueMapper->replaceValues(userId: $userId, field: new ProfileFieldValues(fieldKey: (string)$key, values: $list, source: 'self'));
@@ -314,6 +353,47 @@ class ProfileFieldService {
 
 		return $this->getOwnFields(userId: $userId);
 	}//end saveOwnValues()
+
+	/**
+	 * The definitions keyed by field key.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function definitionsByKey(): array {
+		$definitions = [];
+		foreach ($this->getDefinitions() as $definition) {
+			$definitions[$definition['key']] = $definition;
+		}
+
+		return $definitions;
+	}//end definitionsByKey()
+
+	/**
+	 * Check every submitted value before anything is written; values of
+	 * fields the user does not own (LDAP, Nextcloud) are left out.
+	 *
+	 * @param array<string, array<string, mixed>> $definitions The definitions by key.
+	 * @param array<string, mixed>                $values      Key → value (string or list).
+	 *
+	 * @return array<string, string[]> The cleaned values by key.
+	 *
+	 * @throws InvalidArgumentException On an unknown field or invalid value.
+	 */
+	private function cleanOwnValues(array $definitions, array $values): array {
+		$clean = [];
+		foreach ($values as $key => $value) {
+			$definition = $definitions[$key] ?? null;
+			if ($definition === null) {
+				throw new InvalidArgumentException(message: 'Unknown profile field: ' . $key);
+			}
+
+			if ($definition['source'] === 'self') {
+				$clean[$key] = $this->cleanValues(definition: $definition, value: $value);
+			}
+		}
+
+		return $clean;
+	}//end cleanOwnValues()
 
 	/**
 	 * Turn a submitted value into a clean list of strings.
@@ -326,36 +406,13 @@ class ProfileFieldService {
 	 * @throws InvalidArgumentException When the value does not fit the type.
 	 */
 	private function cleanValues(array $definition, mixed $value): array {
-		$items = [$value];
-		if ($definition['type'] === 'tags') {
-			if (is_array(value: $value) === false) {
-				throw new InvalidArgumentException(message: 'Tags must be a list: ' . $definition['key']);
-			}
-
-			$items = $value;
-		}
-
 		$result = [];
-		foreach ($items as $item) {
-			if ($item === null) {
-				continue;
+		foreach (self::valueItems(definition: $definition, value: $value) as $item) {
+			$text = self::cleanItem(definition: $definition, item: $item);
+			if ($text !== null) {
+				// The first spelling of a tag wins.
+				$result[mb_strtolower(string: $text)] ??= $text;
 			}
-
-			if (is_string(value: $item) === false) {
-				throw new InvalidArgumentException(message: 'A value must be text: ' . $definition['key']);
-			}
-
-			$item = trim(string: $item);
-			if ($item === '') {
-				continue;
-			}
-
-			if (mb_strlen(string: $item) > self::MAX_VALUE_LENGTH) {
-				throw new InvalidArgumentException(message: 'A value is longer than ' . self::MAX_VALUE_LENGTH . ' characters: ' . $definition['key']);
-			}
-
-			// The first spelling of a tag wins.
-			$result[mb_strtolower(string: $item)] ??= $item;
 		}
 
 		if (count(value: $result) > self::MAX_TAGS) {
@@ -364,6 +421,74 @@ class ProfileFieldService {
 
 		return array_values(array: $result);
 	}//end cleanValues()
+
+	/**
+	 * The submitted items of a field: a tags field takes a list, any other
+	 * field one value.
+	 *
+	 * @param array<string, mixed> $definition The field definition.
+	 * @param mixed                $value      The submitted value.
+	 *
+	 * @return array<int|string, mixed> The items.
+	 *
+	 * @throws InvalidArgumentException When a tags field gets no list.
+	 */
+	private static function valueItems(array $definition, mixed $value): array {
+		if ($definition['type'] !== 'tags') {
+			return [$value];
+		}
+
+		if (is_array(value: $value) === false) {
+			throw new InvalidArgumentException(message: 'Tags must be a list: ' . $definition['key']);
+		}
+
+		return $value;
+	}//end valueItems()
+
+	/**
+	 * One submitted item, trimmed; null for a null or blank item.
+	 *
+	 * @param array<string, mixed> $definition The field definition.
+	 * @param mixed                $item       The submitted item.
+	 *
+	 * @return string|null The text, or null when the item is skipped.
+	 *
+	 * @throws InvalidArgumentException When the item is not text or too long.
+	 */
+	private static function cleanItem(array $definition, mixed $item): ?string {
+		if ($item === null) {
+			return null;
+		}
+
+		$text = self::itemText(definition: $definition, item: $item);
+		if ($text === '') {
+			return null;
+		}
+
+		if (mb_strlen(string: $text) > self::MAX_VALUE_LENGTH) {
+			throw new InvalidArgumentException(message: 'A value is longer than ' . self::MAX_VALUE_LENGTH . ' characters: ' . $definition['key']);
+		}
+
+		return $text;
+	}//end cleanItem()
+
+	/**
+	 * A submitted item as trimmed text.
+	 *
+	 * @param array<string, mixed> $definition The field definition.
+	 * @param mixed                $item       The submitted, non-null item.
+	 *
+	 * @return string The trimmed text.
+	 *
+	 * @throws InvalidArgumentException When the item is not text.
+	 */
+	private static function itemText(array $definition, mixed $item): string {
+		if (is_string(value: $item) === false) {
+			throw new InvalidArgumentException(message: 'A value must be text: ' . $definition['key']);
+		}
+
+		return trim(string: $item);
+	}//end itemText()
 
 	/**
 	 * Custom fields shown in the widget that the viewer may see (REQ-PEX-004).
@@ -384,26 +509,12 @@ class ProfileFieldService {
 			return [];
 		}
 
-		$grouped = $this->groupValues(rows: $this->valueMapper->findByUsers(userIds: $userIds));
+		$listing = new ProfileFieldListing(
+			definitions: $definitions,
+			canSee: fn (string $ownerId, array $definition): bool => $this->canSee(viewerId: $viewerId, ownerId: $ownerId, definition: $definition)
+		);
 
-		$result = [];
-		foreach ($grouped as $userId => $byKey) {
-			foreach ($definitions as $definition) {
-				$values = $byKey[$definition['key']] ?? [];
-				if ($values === [] || $this->canSee(viewerId: $viewerId, ownerId: (string)$userId, definition: $definition) === false) {
-					continue;
-				}
-
-				$result[$userId][] = [
-					'key' => $definition['key'],
-					'label' => $definition['label'],
-					'type' => $definition['type'],
-					'values' => $values,
-				];
-			}
-		}
-
-		return $result;
+		return $listing->fieldsByPerson(grouped: $this->groupValues(rows: $this->valueMapper->findByUsers(userIds: $userIds)));
 	}//end visibleFieldsFor()
 
 	/**
@@ -423,12 +534,7 @@ class ProfileFieldService {
 			return [];
 		}
 
-		$definitions = [];
-		foreach ($this->getDefinitions() as $definition) {
-			if ($definition['searchable'] === true) {
-				$definitions[$definition['key']] = $definition;
-			}
-		}
+		$definitions = $this->searchableDefinitions();
 
 		$matches = [];
 		foreach ($this->valueMapper->search(needle: $needle) as $row) {
@@ -440,6 +546,22 @@ class ProfileFieldService {
 
 		return array_keys(array: $matches);
 	}//end findMatchingUserIds()
+
+	/**
+	 * The searchable definitions keyed by field key.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function searchableDefinitions(): array {
+		$definitions = [];
+		foreach ($this->getDefinitions() as $definition) {
+			if ($definition['searchable'] === true) {
+				$definitions[$definition['key']] = $definition;
+			}
+		}
+
+		return $definitions;
+	}//end searchableDefinitions()
 
 	/**
 	 * Whether a matching row may count for this viewer.
@@ -480,15 +602,11 @@ class ProfileFieldService {
 	 * @spec openspec/specs/people-widget/spec.md
 	 */
 	public function scopeAllows(?string $scope, ?string $viewerId, string $ownerId): bool {
-		if ($viewerId !== null && $viewerId === $ownerId) {
-			return true;
-		}
-
 		if ($viewerId === null) {
 			return false;
 		}
 
-		return $scope !== IAccountManager::SCOPE_PRIVATE;
+		return $viewerId === $ownerId || $scope !== IAccountManager::SCOPE_PRIVATE;
 	}//end scopeAllows()
 
 	/**
@@ -613,16 +731,25 @@ class ProfileFieldService {
 			return 0;
 		}
 
+		return $this->syncFromLdap(user: $user, definitions: $definitions);
+	}//end syncLdapFields()
+
+	/**
+	 * Copy each LDAP field's attribute values from the directory; a
+	 * directory failure is logged and ends the sync.
+	 *
+	 * @param IUser                            $user        The LDAP user.
+	 * @param array<int, array<string, mixed>> $definitions The LDAP field definitions.
+	 *
+	 * @return int The number of fields synced before any failure.
+	 */
+	private function syncFromLdap(IUser $user, array $definitions): int {
 		$synced = 0;
 		try {
 			$provider = $this->sources->ldapProviderFactory->getLDAPProvider();
 			foreach ($definitions as $definition) {
 				$raw = $provider->getMultiValueUserAttribute(uid: $user->getUID(), attribute: $definition['ldapAttribute']);
-				$values = $this->cleanLdapValues(definition: $definition, raw: $raw);
-				$this->valueMapper->replaceValues(
-					userId: $user->getUID(),
-					field: new ProfileFieldValues(fieldKey: $definition['key'], values: $values, source: 'ldap')
-				);
+				$this->valueMapper->replaceValues(userId: $user->getUID(), field: $this->ldapFieldValues(definition: $definition, raw: $raw));
 				$synced++;
 			}
 		} catch (Exception $e) {
@@ -630,7 +757,21 @@ class ProfileFieldService {
 		}
 
 		return $synced;
-	}//end syncLdapFields()
+	}//end syncFromLdap()
+
+	/**
+	 * The cleaned LDAP values of one field, ready to replace the stored ones.
+	 *
+	 * @param array<string, mixed> $definition The LDAP field definition.
+	 * @param array                $raw        The directory's attribute values.
+	 *
+	 * @return ProfileFieldValues The field's new values.
+	 */
+	private function ldapFieldValues(array $definition, array $raw): ProfileFieldValues {
+		$values = $this->cleanLdapValues(definition: $definition, raw: $raw);
+
+		return new ProfileFieldValues(fieldKey: $definition['key'], values: $values, source: 'ldap');
+	}//end ldapFieldValues()
 
 	/**
 	 * Clean the values read from LDAP: a text field keeps its first value.

@@ -152,4 +152,45 @@ class WidgetPlacementMapperCloneTest extends TestCase {
 		$this->assertNotEmpty($clone->getCreatedAt());
 		$this->assertNotEmpty($clone->getUpdatedAt());
 	}//end testCloneIsByteForByteWithTargetDashboardId()
+	/**
+	 * The acknowledgement fields travel with the clone, and the clone marks
+	 * its fields updated in a fixed order (that order is the INSERT column list).
+	 *
+	 * @return void
+	 */
+	public function testCloneKeepsAcknowledgementAndFieldOrder(): void {
+		$inserted = [];
+		$source = $this->makeSourceRow();
+		$source->setRequiresAcknowledgement(1);
+		$source->setAcknowledgementPrompt('Read me');
+		$source->setAcknowledgementDeadline('2026-12-01');
+		$source->setReacknowledgeOnChange(1);
+		$source->setAcknowledgementContentVersion(3);
+		$source->setAnnouncementKey('ann-1');
+		$mapper = $this->makeMapper([$source, new WidgetPlacement()], $inserted);
+
+		$this->assertSame(2, $mapper->cloneToDashboard(sourceDashboardId: 4, targetDashboardId: 34));
+
+		$clone = $inserted[0];
+		$this->assertSame(1, $clone->getRequiresAcknowledgement());
+		$this->assertSame('Read me', $clone->getAcknowledgementPrompt());
+		$this->assertSame('2026-12-01', $clone->getAcknowledgementDeadline());
+		$this->assertSame(1, $clone->getReacknowledgeOnChange());
+		$this->assertSame(3, $clone->getAcknowledgementContentVersion());
+		$this->assertSame('ann-1', $clone->getAnnouncementKey());
+		$this->assertSame($clone->getCreatedAt(), $clone->getUpdatedAt());
+		$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string)$clone->getCreatedAt());
+		$this->assertSame(
+			[
+				'dashboardId', 'widgetId', 'gridY', 'gridHeight', 'styleConfig', 'customTitle', 'customIcon',
+				'sortOrder', 'tileType', 'tileTitle', 'tileIcon', 'tileIconType', 'tileBackgroundColor',
+				'tileTextColor', 'tileLinkType', 'tileLinkValue', 'content', 'requiresAcknowledgement',
+				'acknowledgementPrompt', 'acknowledgementDeadline', 'reacknowledgeOnChange',
+				'acknowledgementContentVersion', 'announcementKey', 'createdAt', 'updatedAt',
+			],
+			array_keys($clone->getUpdatedFields())
+		);
+		$this->assertSame(34, $inserted[1]->getDashboardId());
+		$this->assertSame(['dashboardId', 'createdAt', 'updatedAt'], array_keys($inserted[1]->getUpdatedFields()));
+	}//end testCloneKeepsAcknowledgementAndFieldOrder()
 }//end class

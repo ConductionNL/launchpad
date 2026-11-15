@@ -95,34 +95,56 @@ class AdminSettingsController extends Controller {
 			return $forbidden;
 		}
 
+		$allKnown = $this->knownGroups();
+		$active = $this->settingsService->getGroupOrder();
+
+		return ResponseHelper::success(
+			data: [
+				'active' => $active,
+				'inactive' => self::inactiveGroups(allKnown: $allKnown, active: $active),
+				'allKnown' => $allKnown,
+			]
+		);
+	}//end listGroups()
+
+	/**
+	 * Every Nextcloud group as `{id, displayName}`.
+	 *
+	 * @return list<array{id: string, displayName: string}> The groups.
+	 */
+	private function knownGroups(): array {
 		$allKnown = [];
-		$allKnownIds = [];
 		foreach ($this->groupManager->search(search: '') as $group) {
-			$id = $group->getGID();
-			$allKnownIds[] = $id;
 			$allKnown[] = [
-				'id' => $id,
+				'id' => $group->getGID(),
 				'displayName' => $group->getDisplayName(),
 			];
 		}
 
-		$active = $this->settingsService->getGroupOrder();
+		return $allKnown;
+	}//end knownGroups()
 
-		// `inactive` = allKnown - active (stale active IDs MUST NOT
-		// appear in inactive — REQ-ASET-013 disjoint scenario).
+	/**
+	 * The known group ids that are not in the active order, sorted by
+	 * display name (case-insensitive).
+	 *
+	 * `inactive` = allKnown - active (stale active IDs MUST NOT appear in
+	 * inactive — REQ-ASET-013 disjoint scenario).
+	 *
+	 * @param list<array{id: string, displayName: string}> $allKnown Every group.
+	 * @param list<string>                                 $active   The active group order.
+	 *
+	 * @return list<string> The inactive group ids.
+	 */
+	private static function inactiveGroups(array $allKnown, array $active): array {
 		$activeSet = array_flip(array: $active);
 		$inactive = [];
-		foreach ($allKnownIds as $id) {
-			if (array_key_exists(key: $id, array: $activeSet) === false) {
-				$inactive[] = $id;
-			}
-		}
-
-		// Sort `inactive` by displayName (case-insensitive). Build a
-		// lookup so stable sort by name is cheap.
 		$displayNameById = [];
 		foreach ($allKnown as $row) {
 			$displayNameById[$row['id']] = $row['displayName'];
+			if (array_key_exists(key: $row['id'], array: $activeSet) === false) {
+				$inactive[] = $row['id'];
+			}
 		}
 
 		usort(
@@ -134,14 +156,8 @@ class AdminSettingsController extends Controller {
 			}
 		);
 
-		return ResponseHelper::success(
-			data: [
-				'active' => $active,
-				'inactive' => $inactive,
-				'allKnown' => $allKnown,
-			]
-		);
-	}//end listGroups()
+		return $inactive;
+	}//end inactiveGroups()
 
 	/**
 	 * Handle `POST /api/admin/groups` — REQ-ASET-012, REQ-ASET-014.

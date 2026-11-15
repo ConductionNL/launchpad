@@ -120,21 +120,10 @@ class PurgeOrphanedCascadeData implements IRepairStep {
 	 * @return int Number of rows deleted.
 	 */
 	private function purgeOrphans(IOutput $output, array $target): int {
-		[$table, $fkCol, $parentColumn] = $target;
+		$table = $target[0];
 
 		try {
-			$qb = $this->db->getQueryBuilder();
-			$qb->delete($table)
-				->where(
-					$qb->expr()->notIn(
-						x: $fkCol,
-						y: $qb->createFunction(
-							call: '(SELECT `' . $parentColumn . '` FROM `*PREFIX*launchpad_dashboards`)'
-						)
-					)
-				);
-
-			$count = $qb->executeStatement();
+			$count = $this->deleteOrphanRows(target: $target);
 
 			if ($count > 0) {
 				$output->info(
@@ -148,18 +137,54 @@ class PurgeOrphanedCascadeData implements IRepairStep {
 
 			return $count;
 		} catch (Throwable $t) {
-			$this->logger->warning(
-				message: sprintf(
-					'launchpad PurgeOrphanedCascadeData: failed on %s: %s',
-					$table,
-					$t->getMessage()
-				),
-				context: ['app' => 'launchpad']
-			);
+			$this->logPurgeFailure(table: $table, failure: $t);
 			$output->warning(
 				sprintf('  %s: purge failed (%s) — skipped.', $table, $t->getMessage())
 			);
 			return 0;
 		}//end try
 	}//end purgeOrphans()
+
+	/**
+	 * Delete the target table's rows whose parent dashboard no longer exists.
+	 *
+	 * @param array{0: string, 1: string, 2: string} $target Table, foreign-key column, dashboard column.
+	 *
+	 * @return int The number of rows removed.
+	 */
+	private function deleteOrphanRows(array $target): int {
+		[$table, $fkCol, $parentColumn] = $target;
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($table)
+			->where(
+				$qb->expr()->notIn(
+					x: $fkCol,
+					y: $qb->createFunction(
+						call: '(SELECT `' . $parentColumn . '` FROM `*PREFIX*launchpad_dashboards`)'
+					)
+				)
+			);
+
+		return $qb->executeStatement();
+	}//end deleteOrphanRows()
+
+	/**
+	 * Log a table whose purge failed.
+	 *
+	 * @param string    $table   The table.
+	 * @param Throwable $failure The failure.
+	 *
+	 * @return void
+	 */
+	private function logPurgeFailure(string $table, Throwable $failure): void {
+		$this->logger->warning(
+			message: sprintf(
+				'launchpad PurgeOrphanedCascadeData: failed on %s: %s',
+				$table,
+				$failure->getMessage()
+			),
+			context: ['app' => 'launchpad']
+		);
+	}//end logPurgeFailure()
 }//end class

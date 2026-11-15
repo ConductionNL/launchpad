@@ -10,7 +10,7 @@
  *   - `POST   /api/admin/demo-showcases/{id}/install`
  *   - `DELETE /api/admin/demo-showcases/{id}`
  *
- * Admin enforcement uses the same {@see IGroupManager::isAdmin} runtime
+ * Admin enforcement uses the same {@see \OCP\IGroupManager::isAdmin} runtime
  * gate as the sibling `dashboard-export-import` controller — the
  * request-attribute alone is not sufficient (per Hydra semantic-auth
  * gate).
@@ -33,67 +33,35 @@ namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
 use OCA\LaunchPad\Exception\ShowcaseNotFoundException;
-use OCA\LaunchPad\Service\DemoShowcasesService;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 use Throwable;
 
 /**
  * Admin endpoints for managing bundled demo showcase dashboards.
  */
 class AdminDemoShowcasesController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The HTTP request.
-	 * @param DemoShowcasesService $showcasesSvc Showcase service.
-	 * @param IUserSession $userSession Active user session.
-	 * @param IGroupManager $groupManager Admin check.
-	 * @param LoggerInterface $logger PSR-3 logger.
+	 * @param IRequest      $request The HTTP request.
+	 * @param ShowcaseTools $showcases The showcase service and logger.
+	 * @param RequestGuard $guard The administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly DemoShowcasesService $showcasesSvc,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
-		private readonly LoggerInterface $logger,
+		private readonly ShowcaseTools $showcases,
+		private readonly RequestGuard $guard,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
-
-	/**
-	 * Inline admin guard.
-	 *
-	 * @return JSONResponse|null Non-null = caller must be rejected.
-	 */
-	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_UNAUTHORIZED
-			);
-		}
-
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
-	}//end assertAdmin()
 
 	/**
 	 * List bundled showcases with installation status (REQ-DEMO-002).
@@ -104,13 +72,13 @@ class AdminDemoShowcasesController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function index(): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
 		return ResponseHelper::success(
-			data: $this->showcasesSvc->getAvailableShowcases()
+			data: $this->showcases->showcasesSvc->getAvailableShowcases()
 		);
 	}//end index()
 
@@ -138,36 +106,57 @@ class AdminDemoShowcasesController extends Controller {
 		string $lang = 'nl',
 		bool $force = false,
 	): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
 		try {
-			$result = $this->showcasesSvc->installShowcase(
+			$result = $this->showcases->showcasesSvc->installShowcase(
 				showcaseId: $id,
 				lang: $lang,
 				force: $force
 			);
-		} catch (ShowcaseNotFoundException $e) {
-			return new JSONResponse(
-				data: ['error' => 'Showcase not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'Showcase install failed',
-				context: [
-					'showcaseId' => $id,
-					'exception' => $e,
-				]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Showcase installation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			return $this->installFailure(exception: $e, showcaseId: $id);
+		}
 
+		return self::installedResponse(result: $result);
+	}//end install()
+
+	/**
+	 * Answer a failed install: 404 for an unknown showcase, otherwise a
+	 * logged 500.
+	 *
+	 * @param Throwable $exception  The failure.
+	 * @param string    $showcaseId The showcase id.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function installFailure(Throwable $exception, string $showcaseId): JSONResponse {
+		if ($exception instanceof ShowcaseNotFoundException) {
+			return $this->failure(message: 'Showcase not found', statusCode: Http::STATUS_NOT_FOUND);
+		}
+
+		$this->showcases->logger->error(
+			message: 'Showcase install failed',
+			context: [
+				'showcaseId' => $showcaseId,
+				'exception' => $exception,
+			]
+		);
+		return $this->failure(message: 'Showcase installation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end installFailure()
+
+	/**
+	 * The answer of an install: 201 for a fresh install, 200 when it was
+	 * already installed.
+	 *
+	 * @param array<string, mixed> $result The install result.
+	 *
+	 * @return JSONResponse The response.
+	 */
+	private static function installedResponse(array $result): JSONResponse {
 		$statusCode = Http::STATUS_CREATED;
 		if ($result['alreadyInstalled'] === true) {
 			$statusCode = Http::STATUS_OK;
@@ -181,7 +170,7 @@ class AdminDemoShowcasesController extends Controller {
 			],
 			statusCode: $statusCode
 		);
-	}//end install()
+	}//end installedResponse()
 
 	/**
 	 * Uninstall a previously-installed showcase (REQ-DEMO-006).
@@ -197,25 +186,22 @@ class AdminDemoShowcasesController extends Controller {
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
 	public function destroy(string $id): JSONResponse {
-		$guard = $this->assertAdmin();
+		$guard = $this->guard->refusal();
 		if ($guard !== null) {
 			return $guard;
 		}
 
 		try {
-			$this->showcasesSvc->uninstallShowcase(showcaseId: $id);
+			$this->showcases->showcasesSvc->uninstallShowcase(showcaseId: $id);
 		} catch (Throwable $e) {
-			$this->logger->error(
+			$this->showcases->logger->error(
 				message: 'Showcase uninstall failed',
 				context: [
 					'showcaseId' => $id,
 					'exception' => $e,
 				]
 			);
-			return new JSONResponse(
-				data: ['error' => 'Showcase uninstall failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
+			return $this->failure(message: 'Showcase uninstall failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
 		return new JSONResponse(data: [], statusCode: Http::STATUS_NO_CONTENT);

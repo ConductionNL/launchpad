@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\DashboardApiServices;
+use OCA\LaunchPad\Controller\DashboardApiHistory;
+use OCA\LaunchPad\Controller\RequestActor;
 use OCA\LaunchPad\Controller\DashboardApiController;
 use OCA\LaunchPad\Db\Dashboard;
 use OCA\LaunchPad\Service\ActionAuthService;
@@ -122,15 +125,21 @@ class DashboardApiControllerGroupSharedTest extends TestCase {
 
 		return new DashboardApiController(
 			request: $this->request,
-			dashboardService: $this->dashboardService,
+			services: new DashboardApiServices(
+				dashboardService: $this->dashboardService
+			),
 			permissionService: $this->permissionService,
-			treeService: $this->treeService,
-			versionService: $this->versionService,
-			analyticsService: $this->analyticsService,
-			logger: $this->logger,
-			userSession: $this->userSession,
-			actionAuth: $this->actionAuth,
-			userId: $userId,
+			history: new DashboardApiHistory(
+				treeService: $this->treeService,
+				versionService: $this->versionService,
+				analyticsService: $this->analyticsService,
+				logger: $this->logger
+			),
+			actor: new RequestActor(
+				userSession: $this->userSession,
+				actionAuth: $this->actionAuth
+			),
+			userId: $userId
 		);
 	}//end makeController()
 

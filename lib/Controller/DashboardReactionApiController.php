@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\LaunchPad\Controller;
 
+use Closure;
 use InvalidArgumentException;
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\ActionAuthService;
 use OCA\LaunchPad\Service\PermissionDeniedException;
 use OCA\LaunchPad\Service\ReactionsDisabledException;
 use OCA\LaunchPad\Service\ReactionService;
@@ -38,8 +38,7 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
+use OCP\IUser;
 use Throwable;
 
 /**
@@ -57,28 +56,23 @@ use Throwable;
  *                                                  across four routes.
  */
 class DashboardReactionApiController extends Controller {
+	use RespondsWithErrors;
+
 	/**
 	 * Constructor
 	 *
-	 * @param IRequest $request The request.
-	 * @param ReactionService $reactionService The reaction service.
-	 * @param ActionAuthService $actionAuth ADR-023 action authorization.
-	 * @param IUserSession $userSession The current user session.
-	 * @param LoggerInterface $logger PSR logger.
-	 * @param string|null $userId The acting user ID.
+	 * @param IRequest      $request The request.
+	 * @param ReactionTools $reactions The reaction service and logger.
+	 * @param ActionCaller  $caller The session and the action check.
+	 * @param string|null   $userId The acting user ID.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ReactionService $reactionService,
-		private readonly ActionAuthService $actionAuth,
-		private readonly IUserSession $userSession,
-		private readonly LoggerInterface $logger,
+		private readonly ReactionTools $reactions,
+		private readonly ActionCaller $caller,
 		private readonly ?string $userId,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -93,35 +87,21 @@ class DashboardReactionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function getReactions(string $uuid): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.get-reactions')
+		);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard-reaction.get-reactions');
-
 		try {
-			$summary = $this->reactionService->getReactionsSummary(
+			$summary = $this->reactions->reactionService->getReactionsSummary(
 				dashboardUuid: $uuid,
 				userId: $this->userId
 			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (PermissionDeniedException $e) {
-			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'getReactions failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			return $this->reactionFailure(exception: $e, operation: 'getReactions');
+		}
 
 		return ResponseHelper::success(data: $summary);
 	}//end getReactions()
@@ -140,43 +120,22 @@ class DashboardReactionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function addReaction(string $uuid, string $emoji = ''): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.add-reaction')
+		);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard-reaction.add-reaction');
-
 		try {
-			$summary = $this->reactionService->addReaction(
+			$summary = $this->reactions->reactionService->addReaction(
 				dashboardUuid: $uuid,
 				userId: $this->userId,
 				emoji: $emoji
 			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (PermissionDeniedException $e) {
-			return ResponseHelper::forbidden(message: $e->getMessage());
-		} catch (ReactionsDisabledException $e) {
-			return ResponseHelper::forbidden(message: $e->getMessage());
-		} catch (InvalidArgumentException $e) {
-			return new JSONResponse(
-				data: ['error' => $e->getMessage()],
-				statusCode: Http::STATUS_BAD_REQUEST
-			);
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'addReaction failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			return $this->addFailure(exception: $e);
+		}
 
 		return ResponseHelper::success(data: $summary);
 	}//end addReaction()
@@ -194,36 +153,22 @@ class DashboardReactionApiController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function removeReaction(string $uuid, string $emoji): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.remove-reaction')
+		);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard-reaction.remove-reaction');
-
 		try {
-			$this->reactionService->removeReaction(
+			$this->reactions->reactionService->removeReaction(
 				dashboardUuid: $uuid,
 				userId: $this->userId,
 				emoji: $emoji
 			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (PermissionDeniedException $e) {
-			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'removeReaction failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			return $this->reactionFailure(exception: $e, operation: 'removeReaction');
+		}
 
 		// 204 No Content — JSONResponse with empty body and explicit
 		// status (the framework still emits headers/body shape, but
@@ -252,38 +197,92 @@ class DashboardReactionApiController extends Controller {
 		string $emoji,
 		?string $cursor = null,
 	): JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		$refusal = $this->refuseCaller(
+			check: fn (IUser $user) => $this->caller->actionAuth->requireAction($user, 'dashboard-reaction.get-reactors-by-emoji')
+		);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
-		$this->actionAuth->requireAction($user, 'dashboard-reaction.get-reactors-by-emoji');
-
 		try {
-			$page = $this->reactionService->getReactorsByEmoji(
+			$page = $this->reactions->reactionService->getReactorsByEmoji(
 				dashboardUuid: $uuid,
 				emoji: $emoji,
 				userId: $this->userId,
 				cursor: $cursor
 			);
-		} catch (DoesNotExistException) {
-			return new JSONResponse(
-				data: ['error' => 'Dashboard not found'],
-				statusCode: Http::STATUS_NOT_FOUND
-			);
-		} catch (PermissionDeniedException $e) {
-			return ResponseHelper::forbidden(message: $e->getMessage());
 		} catch (Throwable $e) {
-			$this->logger->error(
-				message: 'getReactorsByEmoji failed: ' . $e->getMessage(),
-				context: ['exception' => $e]
-			);
-			return new JSONResponse(
-				data: ['error' => 'Operation failed'],
-				statusCode: Http::STATUS_INTERNAL_SERVER_ERROR
-			);
-		}//end try
+			return $this->reactionFailure(exception: $e, operation: 'getReactorsByEmoji');
+		}
 
 		return ResponseHelper::success(data: $page);
 	}//end getReactorsByEmoji()
+
+	/**
+	 * The 401 for a request without a session user; otherwise the action
+	 * check, which throws when the caller's groups may not perform it.
+	 *
+	 * @param Closure(IUser): void $check Runs the action check for the session user.
+	 *
+	 * @return JSONResponse|null The 401, or null when the caller may go on.
+	 */
+	private function refuseCaller(Closure $check): JSONResponse|null {
+		$user = $this->caller->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['error' => 'Not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$check($user);
+		return null;
+	}//end refuseCaller()
+
+	/**
+	 * Answer a failed reaction operation: 404 for an unknown dashboard,
+	 * 403 when the caller may not see it, otherwise a logged 500.
+	 *
+	 * @param Throwable $exception The failure.
+	 * @param string    $operation The operation name for the log line.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function reactionFailure(Throwable $exception, string $operation): JSONResponse {
+		if ($exception instanceof DoesNotExistException) {
+			return $this->failure(message: 'Dashboard not found', statusCode: Http::STATUS_NOT_FOUND);
+		}
+
+		if ($exception instanceof PermissionDeniedException) {
+			return ResponseHelper::forbidden(message: $exception->getMessage());
+		}
+
+		$this->reactions->logger->error(
+			message: $operation . ' failed: ' . $exception->getMessage(),
+			context: ['exception' => $exception]
+		);
+		return $this->failure(message: 'Operation failed', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);
+	}//end reactionFailure()
+
+	/**
+	 * Answer a failed add: the shared answers for an unknown or hidden
+	 * dashboard, 403 when reactions are off, 400 for an invalid emoji,
+	 * otherwise a logged 500.
+	 *
+	 * @param Throwable $exception The failure.
+	 *
+	 * @return JSONResponse The error response.
+	 */
+	private function addFailure(Throwable $exception): JSONResponse {
+		if ($exception instanceof DoesNotExistException || $exception instanceof PermissionDeniedException) {
+			return $this->reactionFailure(exception: $exception, operation: 'addReaction');
+		}
+
+		if ($exception instanceof ReactionsDisabledException) {
+			return ResponseHelper::forbidden(message: $exception->getMessage());
+		}
+
+		if ($exception instanceof InvalidArgumentException) {
+			return $this->failure(message: $exception->getMessage(), statusCode: Http::STATUS_BAD_REQUEST);
+		}
+
+		return $this->reactionFailure(exception: $exception, operation: 'addReaction');
+	}//end addFailure()
 }//end class

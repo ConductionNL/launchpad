@@ -1,0 +1,8028 @@
+{
+	"resolveActive | no list": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": null,
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | empty list": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | active still visible by id": {
+		"result": {
+			"value": {
+				"id": 2,
+				"uuid": "g1",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 3,
+					"uuid": "g2",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": "1"
+				}
+			],
+			"activeDashboard": {
+				"id": 2
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | active still visible by uuid": {
+		"result": {
+			"value": {
+				"id": 2,
+				"uuid": "g1",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": {
+				"id": "g1"
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | active id zero": {
+		"result": {
+			"value": {
+				"id": 0,
+				"source": "user"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0,
+					"source": "user"
+				},
+				{
+					"id": 5,
+					"uuid": "d2",
+					"source": "default",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": {
+				"id": 0
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | active gone": {
+		"result": {
+			"value": {
+				"id": 4,
+				"uuid": "d1",
+				"source": "default",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": {
+				"id": 99
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | active null id": {
+		"result": {
+			"value": {
+				"id": 4,
+				"uuid": "d1",
+				"source": "default",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": {
+				"id": null
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | primary group default": {
+		"result": {
+			"value": {
+				"id": 3,
+				"uuid": "g2",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": "1"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 3,
+					"uuid": "g2",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": "1"
+				},
+				{
+					"id": 5,
+					"uuid": "d2",
+					"source": "default",
+					"isDefault": 1
+				},
+				{
+					"id": 6,
+					"uuid": "g3",
+					"source": "group",
+					"groupId": "hr",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | other group default only": {
+		"result": {
+			"value": {
+				"id": 1,
+				"uuid": "u1",
+				"source": "user",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 6,
+					"uuid": "g3",
+					"source": "group",
+					"groupId": "hr",
+					"isDefault": 1
+				},
+				{
+					"id": 7,
+					"uuid": "s1",
+					"source": "shared",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | default default without primary": {
+		"result": {
+			"value": {
+				"id": 5,
+				"uuid": "d2",
+				"source": "default",
+				"isDefault": 1
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 3,
+					"uuid": "g2",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": "1"
+				},
+				{
+					"id": 5,
+					"uuid": "d2",
+					"source": "default",
+					"isDefault": 1
+				},
+				{
+					"id": 6,
+					"uuid": "g3",
+					"source": "group",
+					"groupId": "hr",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | default default after another default-group": {
+		"result": {
+			"value": {
+				"id": 5,
+				"uuid": "d2",
+				"source": "default",
+				"isDefault": 1
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				},
+				{
+					"id": 5,
+					"uuid": "d2",
+					"source": "default",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | first in primary group": {
+		"result": {
+			"value": {
+				"id": 3,
+				"uuid": "g2",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": "1"
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 3,
+					"uuid": "g2",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": "1"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | first in primary group without defaults": {
+		"result": {
+			"value": {
+				"id": 2,
+				"uuid": "g1",
+				"source": "group",
+				"groupId": "sales",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | primary group without rows": {
+		"result": {
+			"value": {
+				"id": 4,
+				"uuid": "d1",
+				"source": "default",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				},
+				{
+					"id": 7,
+					"uuid": "s1",
+					"source": "shared",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | first default-group": {
+		"result": {
+			"value": {
+				"id": 4,
+				"uuid": "d1",
+				"source": "default",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				},
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 4,
+					"uuid": "d1",
+					"source": "default",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | first personal": {
+		"result": {
+			"value": {
+				"id": 1,
+				"uuid": "u1",
+				"source": "user",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 7,
+					"uuid": "s1",
+					"source": "shared",
+					"isDefault": 1
+				},
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | only shared": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 7,
+					"uuid": "s1",
+					"source": "shared",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | shared default only": {
+		"result": {
+			"value": null
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 7,
+					"uuid": "s1",
+					"source": "shared",
+					"isDefault": 1
+				},
+				{
+					"id": 7,
+					"uuid": "s1",
+					"source": "shared",
+					"isDefault": 1
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"resolveActive | primary group null": {
+		"result": {
+			"value": {
+				"id": 1,
+				"uuid": "u1",
+				"source": "user",
+				"isDefault": 0
+			}
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 2,
+					"uuid": "g1",
+					"source": "group",
+					"groupId": "sales",
+					"isDefault": 0
+				},
+				{
+					"id": 1,
+					"uuid": "u1",
+					"source": "user",
+					"isDefault": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"loadDashboards | visible list with quota": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"source": "user"
+				},
+				{
+					"id": 2,
+					"source": "group"
+				}
+			],
+			"activeDashboard": {
+				"id": 1,
+				"name": "Mine",
+				"isOwner": false,
+				"sharedBy": "bob",
+				"hasVariants": true
+			},
+			"widgetPlacements": [
+				{
+					"id": 10
+				}
+			],
+			"quota": {
+				"maxDashboards": 5,
+				"dashboardsUsed": 2,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "view",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"loadDashboards | visible bare array": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"source": "user"
+				},
+				{
+					"id": 3,
+					"source": "default"
+				}
+			],
+			"activeDashboard": {
+				"id": 3,
+				"isOwner": true,
+				"sharedBy": null,
+				"hasVariants": false
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 1
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"loadDashboards | visible object without items": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 9
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"loadDashboards | visible null payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"isOwner": true,
+				"sharedBy": null,
+				"hasVariants": false
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 1
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"loadDashboards | visible fails, fallback works": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 8,
+					"source": "user"
+				}
+			],
+			"activeDashboard": {
+				"id": 8,
+				"isOwner": true,
+				"sharedBy": null,
+				"hasVariants": false
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 1
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getDashboards": [
+				[]
+			],
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [
+			[
+				"Falling back to /api/dashboards (visible endpoint failed):",
+				"Error: visible down"
+			]
+		],
+		"errors": []
+	},
+	"loadDashboards | both fail": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": "old"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 1
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getDashboards": [
+				[]
+			],
+			"getVisibleDashboards": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [
+			[
+				"Falling back to /api/dashboards (visible endpoint failed):",
+				"Error: visible down"
+			]
+		],
+		"errors": [
+			[
+				"Failed to load dashboards:",
+				"Error: list down"
+			]
+		]
+	},
+	"loadDashboards | active fails": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 1,
+					"source": "user"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 1
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to load dashboards:",
+				"Error: active down"
+			]
+		]
+	},
+	"loadDashboards | items null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 1,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"createDashboard | string name": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				},
+				{
+					"id": 1,
+					"source": "user"
+				}
+			],
+			"activeDashboard": {
+				"id": 1
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "Team"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"createDashboard | default name": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				},
+				{
+					"id": 2,
+					"source": "group"
+				}
+			],
+			"activeDashboard": {
+				"id": 2,
+				"source": "group"
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "My Dashboard"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"createDashboard | object payload": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				},
+				{
+					"id": 3,
+					"source": "user"
+				}
+			],
+			"activeDashboard": {
+				"id": 3
+			},
+			"widgetPlacements": [
+				{
+					"id": 30
+				},
+				{
+					"id": 31
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "Board",
+						"description": "About",
+						"icon": "star"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"createDashboard | object without name or icon": {
+		"result": {},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				},
+				{
+					"id": 4,
+					"source": "user"
+				}
+			],
+			"activeDashboard": {
+				"id": 4,
+				"source": null
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "My Dashboard",
+						"description": null,
+						"icon": null
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"createDashboard | personal dashboards disabled": {
+		"result": {
+			"rejected": "Request failed with status 403"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "X"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"Personal dashboards are not enabled by your administrator"
+			]
+		],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to create dashboard:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"createDashboard | other 403": {
+		"result": {
+			"rejected": "Request failed with status 403"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "X"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to create dashboard:",
+				"Error: Request failed with status 403"
+			]
+		]
+	},
+	"createDashboard | quota exceeded": {
+		"result": {
+			"rejected": "Request failed with status 409"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": "reloaded",
+					"source": "user"
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"getVisibleDashboards": [
+				[]
+			],
+			"getActiveDashboard": [
+				[]
+			],
+			"createDashboard": [
+				[
+					{
+						"name": "X"
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"You have reached the limit of {limit} dashboards{\"limit\":3}"
+			]
+		],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to create dashboard:",
+				"Error: Request failed with status 409"
+			]
+		]
+	},
+	"createDashboard | other 409": {
+		"result": {
+			"rejected": "Request failed with status 409"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "X"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to create dashboard:",
+				"Error: Request failed with status 409"
+			]
+		]
+	},
+	"createDashboard | no response": {
+		"result": {
+			"rejected": "offline"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "X"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to create dashboard:",
+				"Error: offline"
+			]
+		]
+	},
+	"createDashboard | answer without dashboard": {
+		"result": {
+			"rejected": "Cannot read properties of undefined (reading 'source')"
+		},
+		"state": {
+			"dashboards": [
+				{
+					"id": 0
+				}
+			],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"createDashboard": [
+				[
+					{
+						"name": "X"
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to create dashboard:",
+				"Error: Cannot read properties of undefined (reading 'source')"
+			]
+		]
+	},
+	"addWidgetToDashboard | empty | none | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | none | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | none | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | none | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | none | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | none": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | explicit": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit without size | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit without size | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit without size | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit without size | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit without size | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | explicit without size": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit zero size | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit zero size | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit zero size | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit zero size | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | explicit zero size | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | explicit zero size": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | size only | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | size only | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | size only | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | size only | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | size only | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | size only": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | x only | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | x only | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | x only | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | x only | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | x only | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | x only": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | non-finite y | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | non-finite y | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | non-finite y | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | non-finite y | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | non-finite y | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | non-finite y": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | zero size only | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | zero size only | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | zero size only | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | zero size only | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | zero size only | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | empty | zero size only": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | empty | failure | widget quota": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"You have reached the limit of {limit} widgets on this dashboard{\"limit\":12}"
+			]
+		],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Request failed with status 409"
+			]
+		]
+	},
+	"addTileToDashboard | empty | failure | widget quota": {
+		"result": {
+			"rejected": "Request failed with status 409"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"You have reached the limit of {limit} widgets on this dashboard{\"limit\":12}"
+			]
+		],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Request failed with status 409"
+			]
+		]
+	},
+	"addWidgetToDashboard | empty | failure | other error": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: server down"
+			]
+		]
+	},
+	"addTileToDashboard | empty | failure | other error": {
+		"result": {
+			"rejected": "server down"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7
+			},
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: server down"
+			]
+		]
+	},
+	"addWidgetToDashboard | with placements | none | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | none | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | none | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | none | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | none | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | none": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | explicit": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 2,
+						"gridY": 3,
+						"gridWidth": 5,
+						"gridHeight": 6
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit without size | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit without size | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit without size | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit without size | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit without size | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | explicit without size": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit zero size | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit zero size | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit zero size | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit zero size | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | explicit zero size | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | explicit zero size": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 1,
+						"gridY": 1,
+						"gridWidth": 0,
+						"gridHeight": 0
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | size only | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | size only | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 3,
+						"gridHeight": 1,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | size only | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 3,
+						"gridHeight": 1,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | size only | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | size only | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | size only": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 3,
+						"gridHeight": 1
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | x only | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | x only | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | x only | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | x only | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | x only | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | x only": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | non-finite y | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | non-finite y | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | non-finite y | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | non-finite y | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | non-finite y | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | non-finite y": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | zero size only | widget id": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | zero size only | custom payload": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "label",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {
+							"text": "Hi"
+						}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | zero size only | custom without content": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "text",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"content": {}
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | zero size only | object without type": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": {
+							"kind": "x"
+						},
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | zero size only | null": {
+		"result": {
+			"value": {
+				"id": "new"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "new"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": null,
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addTileToDashboard | with placements | zero size only": {
+		"result": {
+			"value": {
+				"id": "tile"
+			}
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				},
+				{
+					"id": "tile"
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"icon": "i",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": []
+	},
+	"addWidgetToDashboard | with placements | failure | widget quota": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"You have reached the limit of {limit} widgets on this dashboard{\"limit\":12}"
+			]
+		],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Request failed with status 409"
+			]
+		]
+	},
+	"addTileToDashboard | with placements | failure | widget quota": {
+		"result": {
+			"rejected": "Request failed with status 409"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [
+			[
+				"You have reached the limit of {limit} widgets on this dashboard{\"limit\":12}"
+			]
+		],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Request failed with status 409"
+			]
+		]
+	},
+	"addWidgetToDashboard | with placements | failure | other error": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addWidget": [
+				[
+					7,
+					{
+						"widgetId": "calendar",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 4,
+						"gridHeight": 4
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: server down"
+			]
+		]
+	},
+	"addTileToDashboard | with placements | failure | other error": {
+		"result": {
+			"rejected": "server down"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": {
+				"id": 7,
+				"gridColumns": 6
+			},
+			"widgetPlacements": [
+				{
+					"id": 1,
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 4,
+					"gridHeight": 2
+				},
+				{
+					"id": 2,
+					"gridX": 4,
+					"gridY": 1,
+					"gridWidth": 2,
+					"gridHeight": 5
+				}
+			],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {
+			"addTile": [
+				[
+					7,
+					{
+						"title": "T",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 2,
+						"gridHeight": 2
+					}
+				]
+			]
+		},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: server down"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | none | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | none | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | none | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | none | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | none | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | none": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | explicit": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit without size | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit without size | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit without size | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit without size | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit without size | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | explicit without size": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit zero size | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit zero size | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit zero size | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit zero size | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | explicit zero size | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | explicit zero size": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | size only | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | size only | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | size only | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | size only | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | size only | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | size only": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | x only | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | x only | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | x only | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | x only | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | x only | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | x only": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | non-finite y | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | non-finite y | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | non-finite y | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | non-finite y | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | non-finite y | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | non-finite y": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | zero size only | widget id": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | zero size only | custom payload": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | zero size only | custom without content": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | zero size only | object without type": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | zero size only | null": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | zero size only": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | failure | widget quota": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | failure | widget quota": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addWidgetToDashboard | no active dashboard | failure | other error": {
+		"result": {},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add widget:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	},
+	"addTileToDashboard | no active dashboard | failure | other error": {
+		"result": {
+			"rejected": "Cannot read properties of null (reading 'id')"
+		},
+		"state": {
+			"dashboards": [],
+			"activeDashboard": null,
+			"widgetPlacements": [],
+			"quota": {
+				"maxDashboards": 0,
+				"dashboardsUsed": 0,
+				"maxWidgetsPerDashboard": 0
+			},
+			"permissionLevel": "full",
+			"loading": false
+		},
+		"calls": {},
+		"toasts": [],
+		"warnings": [],
+		"errors": [
+			[
+				"Failed to add tile:",
+				"Error: Cannot read properties of null (reading 'id')"
+			]
+		]
+	}
+}

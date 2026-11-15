@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Unit\Controller;
 
+use OCA\LaunchPad\Controller\SessionLog;
 use OCA\LaunchPad\Controller\WeatherController;
 use OCA\LaunchPad\Service\PermissionService;
 use OCA\LaunchPad\Service\WeatherService;
@@ -55,8 +56,7 @@ class WeatherControllerTest extends TestCase {
 			$this->request,
 			$this->weatherService,
 			$this->permissionService,
-			$this->userSession,
-			$this->logger,
+			new SessionLog($this->userSession, $this->logger),
 		);
 	}//end controller()
 

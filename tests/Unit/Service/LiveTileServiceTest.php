@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Unit\Service;
 
+use OCA\LaunchPad\Service\LiveTileSettings;
+use OCA\LaunchPad\Service\ReadingSources;
 use OCA\LaunchPad\Db\WidgetPlacement;
 use OCA\LaunchPad\Db\WidgetPlacementMapper;
 use OCA\LaunchPad\Service\LiveTileService;
@@ -107,13 +109,17 @@ class LiveTileServiceTest extends TestCase {
 		$this->logger = $this->createMock(originalClassName: LoggerInterface::class);
 
 		$this->service = new LiveTileService(
-			appManager: $this->appManager,
-			container: $this->container,
-			clientService: $this->clientService,
-			cacheFactory: $cacheFactory,
-			appConfig: $this->appConfig,
-			placementMapper: $this->placementMapper,
-			logger: $this->logger,
+			sources: new ReadingSources(
+				appManager: $this->appManager,
+				container: $this->container,
+				clientService: $this->clientService,
+				cacheFactory: $cacheFactory
+			),
+			settings: new LiveTileSettings(
+				appConfig: $this->appConfig,
+				logger: $this->logger
+			),
+			placementMapper: $this->placementMapper
 		);
 	}//end setUp()
 
@@ -599,4 +605,30 @@ class LiveTileServiceTest extends TestCase {
 
 		$this->assertSame('placement_not_found', $result['error']);
 	}//end testUnknownPlacementReturnsErrorShape()
+
+	/**
+	 * The direct-URL fetch is one GET with the service's timeouts, no
+	 * redirects and no throwing on an error status.
+	 *
+	 * @return void
+	 */
+	public function testFetchRequestOptions(): void {
+		$this->allowHost(host: 'example.com');
+		$placement = $this->placementWithConfig(id: 1, config: [
+			'sourceMode' => 'url',
+			'url' => 'https://example.com/api',
+			'valueExpr' => '$.data.count',
+			'refresh' => 300,
+		]);
+		$this->placementMapper->method('find')->willReturn($placement);
+
+		$client = $this->createMock(originalClassName: IClient::class);
+		$client->expects($this->once())->method('get')->with(
+			'https://example.com/api',
+			['connect_timeout' => 10, 'timeout' => 15, 'http_errors' => false, 'allow_redirects' => false]
+		)->willReturn($this->mockHttpResponse(status: 200, body: ['data' => ['count' => 42]]));
+		$this->clientService->method('newClient')->willReturn($client);
+
+		$this->service->resolveForPlacement(placementId: 1);
+	}//end testFetchRequestOptions()
 }//end class

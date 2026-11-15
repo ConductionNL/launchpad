@@ -28,6 +28,20 @@ use OCA\LaunchPad\Db\Dashboard;
  */
 class DashboardFactory {
 	/**
+	 * The optional create() fields and their defaults.
+	 */
+	private const DEFAULT_OPTIONS = [
+		'description'     => null,
+		'type'            => Dashboard::TYPE_USER,
+		'groupId'         => null,
+		'gridColumns'     => 12,
+		'permissionLevel' => Dashboard::PERMISSION_FULL,
+		'parentUuid'      => null,
+		'slug'            => null,
+		'sortOrder'       => 0,
+	];
+
+	/**
 	 * Create a new dashboard entity.
 	 *
 	 * Enforces the REQ-DASH-011 invariant: `type === TYPE_GROUP_SHARED`
@@ -40,38 +54,19 @@ class DashboardFactory {
 	 *                            `TYPE_GROUP_SHARED` /
 	 *                            `TYPE_ADMIN_TEMPLATE`.
 	 * @param string $name The dashboard name.
-	 * @param string|null $description The dashboard description.
-	 * @param string $type The dashboard type (default
-	 *                     {@see Dashboard::TYPE_USER}).
-	 * @param string|null $groupId The group ID — required when
-	 *                             `type === TYPE_GROUP_SHARED`,
-	 *                             forbidden otherwise.
-	 * @param int $gridColumns The grid column count.
-	 * @param string $permissionLevel The owner's permission level on
-	 *                                this dashboard. Defaults to
-	 *                                {@see Dashboard::PERMISSION_FULL};
-	 *                                callers may pass a more restrictive
-	 *                                level when forking a shared
-	 *                                dashboard or creating a read-only
-	 *                                template.
-	 * @param string|null $parentUuid Optional parent dashboard UUID
-	 *                                (REQ-DASH-023). NULL ⇒ root.
-	 *                                The factory does NOT verify the
-	 *                                parent exists or that the depth
-	 *                                constraint holds — that is the
-	 *                                service layer's job
-	 *                                (`DashboardTreeService`).
-	 * @param string|null $slug Optional caller-supplied slug
-	 *                          (REQ-DASH-024). When NULL the
-	 *                          factory derives one from the
-	 *                          `name` via `SlugGenerator`. The
-	 *                          factory rejects an explicit
-	 *                          slug that fails grammar
-	 *                          validation.
-	 * @param int $sortOrder Optional sibling sort order
-	 *                       (REQ-DASH-029). Defaults to 0;
-	 *                       ties broken alphabetically by
-	 *                       name in tree responses.
+	 * @param array $options Optional fields, each with its default:
+	 *                       `description` (null); `type`
+	 *                       ({@see Dashboard::TYPE_USER}); `groupId` (null,
+	 *                       required when `type === TYPE_GROUP_SHARED`,
+	 *                       forbidden otherwise); `gridColumns` (12);
+	 *                       `permissionLevel` (the owner's level,
+	 *                       {@see Dashboard::PERMISSION_FULL}); `parentUuid`
+	 *                       (null ⇒ root, REQ-DASH-023; the factory does
+	 *                       not verify the parent or the depth); `slug`
+	 *                       (null ⇒ derived from the name via
+	 *                       `SlugGenerator`, REQ-DASH-024; an explicit slug
+	 *                       that fails the grammar is rejected); `sortOrder`
+	 *                       (0, REQ-DASH-029).
 	 *
 	 * @return Dashboard The created dashboard entity (not yet persisted).
 	 *
@@ -81,32 +76,23 @@ class DashboardFactory {
 	 *
 	 * @spec openspec/changes/retrofit-2026-05-24-annotate-launchpad/tasks.md#task-16
 	 */
-	public function create(
-		?string $userId,
-		string $name,
-		?string $description = null,
-		string $type = Dashboard::TYPE_USER,
-		?string $groupId = null,
-		int $gridColumns = 12,
-		string $permissionLevel = Dashboard::PERMISSION_FULL,
-		?string $parentUuid = null,
-		?string $slug = null,
-		int $sortOrder = 0,
-	): Dashboard {
-		$this->assertTypeGroupInvariant(type: $type, groupId: $groupId);
+	public function create(?string $userId, string $name, array $options=[]): Dashboard {
+		$options += self::DEFAULT_OPTIONS;
+		$type     = $options['type'];
+		$this->assertTypeGroupInvariant(type: $type, groupId: $options['groupId']);
 
-		$resolvedSlug = $this->resolveSlug(name: $name, slug: $slug);
+		$resolvedSlug = $this->resolveSlug(name: $name, slug: $options['slug']);
 
 		$now = (new DateTime())->format(format: 'Y-m-d H:i:s');
 		$dashboard = new Dashboard();
 		$dashboard->setUuid($this->generateUuid());
 		$dashboard->setName($name);
-		$dashboard->setDescription($description);
+		$dashboard->setDescription($options['description']);
 		$dashboard->setType($type);
 		$dashboard->setUserId($userId);
-		$dashboard->setGroupId($groupId);
-		$dashboard->setGridColumns($gridColumns);
-		$dashboard->setPermissionLevel($permissionLevel);
+		$dashboard->setGroupId($options['groupId']);
+		$dashboard->setGridColumns($options['gridColumns']);
+		$dashboard->setPermissionLevel($options['permissionLevel']);
 		// Group-shared dashboards are not "active" per-user — activation
 		// is a personal-scope concept tied to the active-dashboard cookie.
 		$isActive = 0;
@@ -117,9 +103,9 @@ class DashboardFactory {
 		$dashboard->setIsActive($isActive);
 		$dashboard->setCreatedAt($now);
 		$dashboard->setUpdatedAt($now);
-		$dashboard->setParentUuid($parentUuid);
+		$dashboard->setParentUuid($options['parentUuid']);
 		$dashboard->setSlug($resolvedSlug);
-		$dashboard->setSortOrder($sortOrder);
+		$dashboard->setSortOrder($options['sortOrder']);
 
 		// REQ-DASH-031 / design D2: every newly created dashboard MUST
 		// default to publicationStatus = 'draft'. The database column

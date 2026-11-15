@@ -66,10 +66,7 @@ class StoreController extends Controller {
 		private readonly StoreService $storeService,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

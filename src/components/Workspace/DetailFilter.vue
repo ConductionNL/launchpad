@@ -28,6 +28,7 @@
 <script>
 import { NcSelect } from '@conduction/nextcloud-vue'
 import { t } from '@nextcloud/l10n'
+import { LIST_PROP } from '../../constants/propDefinitions.js'
 
 /**
  * DetailFilter: "Filter by detail" in the dashboard switcher. Offered only
@@ -45,10 +46,7 @@ export default {
 
 	props: {
 		/** Detail field definitions (`key`, `label`, `type`, `options`). */
-		fields: {
-			type: Array,
-			default: () => [],
-		},
+		fields: LIST_PROP,
 	},
 
 	emits: ['change'],

@@ -28,9 +28,9 @@ use OCA\LaunchPad\Db\KioskPlaylist;
 use OCA\LaunchPad\Exception\PlaylistNotFoundException;
 use OCA\LaunchPad\Service\KioskService;
 use OCA\LaunchPad\Service\PublicShareContext;
-use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -275,5 +275,43 @@ class KioskControllerTest extends TestCase {
 
 		$this->assertInstanceOf(DataResponse::class, $response);
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+	}
+
+	/**
+	 * A render that fails for any other reason answers a generic 500, logs the
+	 * cause, marks no bearer and does not count toward the brute-force bucket.
+	 */
+	public function testRenderFailureIsA500WithoutThrottle(): void {
+		$controller = $this->makeController(userId: null);
+		$this->kioskService->method('renderPlaylist')->willThrowException(new \RuntimeException('database gone'));
+		$this->shareContext->expects($this->never())->method('markBearer');
+		$this->logger->expects($this->once())->method('warning')
+			->with('KioskController error: database gone', ['app' => 'launchpad']);
+
+		$response = $controller->render(token: 'tok');
+
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
+		$this->assertSame(['error' => 'Internal error'], $response->getData());
+		$this->assertSame([], $response->getThrottleMetadata());
+	}
+
+	/**
+	 * A browser whose playlist cannot be loaded still gets the player page
+	 * with 200, the cause is logged, and nothing is throttled.
+	 */
+	public function testRenderPlayerFailureIsLoggedAndStillServesThePage(): void {
+		$controller = $this->makeController(userId: null);
+		$this->request->method('getHeader')->willReturnMap([
+			['Accept', 'text/html,*/*;q=0.8'],
+		]);
+		$this->kioskService->method('renderPlaylist')->willThrowException(new \RuntimeException('database gone'));
+		$this->logger->expects($this->once())->method('warning')
+			->with('KioskController error: database gone', ['app' => 'launchpad']);
+
+		$response = $controller->render(token: 'tok');
+
+		$this->assertInstanceOf(TemplateResponse::class, $response);
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame([], $response->getThrottleMetadata());
 	}
 }//end class

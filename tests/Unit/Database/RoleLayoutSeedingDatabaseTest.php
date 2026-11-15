@@ -81,7 +81,7 @@ class RoleLayoutSeedingDatabaseTest extends RealDatabaseTestCase {
 			$settings->setGroupOrder($previousOrder);
 		});
 
-		$settings->updateSettings(allowUserDash: true);
+		$settings->updateSettings(settings: ['allowUserDash' => true]);
 
 		return $groupId;
 	}//end groupWithLayoutDefault()

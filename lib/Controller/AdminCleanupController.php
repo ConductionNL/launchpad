@@ -9,12 +9,10 @@
  *  - `GET  /api/admin/cleanup/scan`  — REQ-CLN-004
  *  - `POST /api/admin/cleanup/purge` — REQ-CLN-005
  *
- * Admin enforcement is done at request time via `IGroupManager` and
- * `IUserSession` (mirroring the pattern in
- * {@see \OCA\LaunchPad\Controller\AdminController::requireAdmin()}). Both
- * unauthenticated and non-admin callers receive HTTP 403 — we
- * deliberately do not differentiate to keep the admin surface from
- * leaking which users exist.
+ * Admin enforcement is done at request time via
+ * {@see \OCA\LaunchPad\Service\RequestGuard}. Both unauthenticated and
+ * non-admin callers receive HTTP 403: the two are deliberately not told
+ * apart, so the admin surface does not leak which users exist.
  *
  * @category  Controller
  * @package   OCA\LaunchPad\Controller
@@ -33,16 +31,14 @@ declare(strict_types=1);
 namespace OCA\LaunchPad\Controller;
 
 use OCA\LaunchPad\AppInfo\Application;
-use OCA\LaunchPad\Service\Cleanup\CategoryRegistryService;
-use OCA\LaunchPad\Service\OrphanedDataCleanupService;
+use OCA\LaunchPad\Db\CleanupResult;
+use OCA\LaunchPad\Service\RequestGuard;
 use OCA\LaunchPad\Settings\LaunchPadAdmin;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IGroupManager;
 use OCP\IRequest;
-use OCP\IUserSession;
 
 /**
  * Admin endpoints for scan + purge.
@@ -51,25 +47,16 @@ class AdminCleanupController extends Controller {
 	/**
 	 * Constructor.
 	 *
-	 * @param IRequest $request The request.
-	 * @param OrphanedDataCleanupService $cleanupService The orchestrator.
-	 * @param CategoryRegistryService $registry Category registry
-	 *                                          (for unknown-name
-	 *                                          error messages).
-	 * @param IUserSession $userSession Current user.
-	 * @param IGroupManager $groupManager Admin check.
+	 * @param IRequest       $request The request.
+	 * @param CleanupSources $cleanup The cleanup service and category registry.
+	 * @param RequestGuard $guard The session and administrator check.
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly OrphanedDataCleanupService $cleanupService,
-		private readonly CategoryRegistryService $registry,
-		private readonly IUserSession $userSession,
-		private readonly IGroupManager $groupManager,
+		private readonly CleanupSources $cleanup,
+		private readonly RequestGuard $guard,
 	) {
-		parent::__construct(
-			appName: Application::APP_ID,
-			request: $request
-		);
+		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -78,22 +65,12 @@ class AdminCleanupController extends Controller {
 	 * @return JSONResponse|null Non-null = caller must be rejected.
 	 */
 	private function assertAdmin(): ?JSONResponse {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return new JSONResponse(
-				data: ['error' => 'Not authenticated'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
+		$refusal = $this->guard->refusal();
+		if ($refusal !== null) {
+			$refusal->setStatus(Http::STATUS_FORBIDDEN);
 		}
 
-		if ($this->groupManager->isAdmin(userId: $user->getUID()) === false) {
-			return new JSONResponse(
-				data: ['error' => 'Admin required'],
-				statusCode: Http::STATUS_FORBIDDEN
-			);
-		}
-
-		return null;
+		return $refusal;
 	}//end assertAdmin()
 
 	/**
@@ -115,33 +92,42 @@ class AdminCleanupController extends Controller {
 			return $guard;
 		}
 
-		$cached = $this->cleanupService->getCachedScanResult();
+		$cached = $this->cleanup->cleanupService->getCachedScanResult();
 		if ($cached !== null) {
-			return new JSONResponse(
-				data: array_merge(
-					$cached->jsonSerialize(),
-					[
-						'cached' => true,
-						'cachedAt' => $cached->getScannedAt(),
-					]
-				),
-				statusCode: Http::STATUS_OK
+			return self::scanEnvelope(
+				result: $cached,
+				cache: [
+					'cached' => true,
+					'cachedAt' => $cached->getScannedAt(),
+				]
 			);
 		}
 
-		$result = $this->cleanupService->scan();
+		$result = $this->cleanup->cleanupService->scan();
 
-		return new JSONResponse(
-			data: array_merge(
-				$result->jsonSerialize(),
-				[
-					'cached' => false,
-					'cachedAt' => null,
-				]
-			),
-			statusCode: Http::STATUS_OK
+		return self::scanEnvelope(
+			result: $result,
+			cache: [
+				'cached' => false,
+				'cachedAt' => null,
+			]
 		);
 	}//end scan()
+
+	/**
+	 * The 200 envelope of a scan: the result plus where it came from.
+	 *
+	 * @param CleanupResult        $result The scan result.
+	 * @param array<string, mixed> $cache  The `cached` flag and `cachedAt` time.
+	 *
+	 * @return JSONResponse The envelope.
+	 */
+	private static function scanEnvelope(CleanupResult $result, array $cache): JSONResponse {
+		return new JSONResponse(
+			data: array_merge($result->jsonSerialize(), $cache),
+			statusCode: Http::STATUS_OK
+		);
+	}//end scanEnvelope()
 
 	/**
 	 * `POST /api/admin/cleanup/purge` — REQ-CLN-005.
@@ -164,7 +150,7 @@ class AdminCleanupController extends Controller {
 	 * @spec openspec/specs/orphaned-data-cleanup/spec.md
 	 */
 	#[AuthorizedAdminSetting(LaunchPadAdmin::class)]
-	public function purge(?array $categories = null, ?bool $dryRun = null): JSONResponse {
+	public function purge(array|null $categories = null, bool|null $dryRun = null): JSONResponse {
 		$guard = $this->assertAdmin();
 		if ($guard !== null) {
 			return $guard;
@@ -175,22 +161,16 @@ class AdminCleanupController extends Controller {
 			return new JSONResponse(
 				data: [
 					'error' => 'Unknown cleanup category in request',
-					'validCategories' => $this->registry->getCategoryNames(),
+					'validCategories' => $this->cleanup->registry->getCategoryNames(),
 				],
 				statusCode: Http::STATUS_BAD_REQUEST
 			);
 		}
 
-		$userId = '';
-		$user = $this->userSession->getUser();
-		if ($user !== null) {
-			$userId = $user->getUID();
-		}
-
-		$result = $this->cleanupService->purge(
+		$result = $this->cleanup->cleanupService->purge(
 			categoryNames: $names,
 			dryRun: ($dryRun ?? false),
-			userId: $userId,
+			userId: $this->actingUserId(),
 			source: 'api',
 		);
 
@@ -207,6 +187,20 @@ class AdminCleanupController extends Controller {
 	}//end purge()
 
 	/**
+	 * The UID of the signed-in admin, or an empty string without a session user.
+	 *
+	 * @return string The acting admin's UID.
+	 */
+	private function actingUserId(): string {
+		$user = $this->guard->userSession->getUser();
+		if ($user === null) {
+			return '';
+		}
+
+		return $user->getUID();
+	}//end actingUserId()
+
+	/**
 	 * Normalise the API-supplied categories list.
 	 *
 	 * Filters non-string entries silently (defence in depth — the
@@ -219,8 +213,8 @@ class AdminCleanupController extends Controller {
 	 *
 	 * @return array<int, string>|null The validated names or null.
 	 */
-	private function normaliseCategories(array $input): ?array {
-		$known = $this->registry->getCategoryNames();
+	private function normaliseCategories(array $input): array|null {
+		$known = $this->cleanup->registry->getCategoryNames();
 		$normalised = [];
 
 		foreach ($input as $value) {

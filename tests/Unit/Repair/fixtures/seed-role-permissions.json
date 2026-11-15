@@ -1,0 +1,30 @@
+{
+    "fresh": [
+        "insert OCA\\LaunchPad\\Db\\RoleFeaturePermission {\"id\":null,\"name\":\"Medewerker widget-rechten\",\"description\":\"Standaard widget-toegang voor alle medewerkers van de gemeente\",\"groupId\":\"medewerkers\",\"allowedWidgets\":[\"activity\",\"recommendations\",\"notes\",\"calendar\"],\"deniedWidgets\":[],\"priorityWeights\":{\"activity\":10,\"recommendations\":8,\"calendar\":6,\"notes\":4}} stamped true",
+        "output Seeded RoleFeaturePermission for group: medewerkers",
+        "insert OCA\\LaunchPad\\Db\\RoleFeaturePermission {\"id\":null,\"name\":\"Manager widget-rechten\",\"description\":\"Uitgebreide widget-toegang voor teamleiders en afdelingshoofden\",\"groupId\":\"managers\",\"allowedWidgets\":[\"activity\",\"recommendations\",\"notes\",\"calendar\",\"analytics_dashboard\",\"user_status\"],\"deniedWidgets\":[],\"priorityWeights\":{\"analytics_dashboard\":10,\"activity\":8,\"user_status\":6,\"calendar\":5}} stamped true",
+        "output Seeded RoleFeaturePermission for group: managers",
+        "insert OCA\\LaunchPad\\Db\\RoleFeaturePermission {\"id\":null,\"name\":\"ICT-beheer widget-rechten\",\"description\":\"Widget-toegang voor de ICT-beheerdersgroep met systeemoverzicht\",\"groupId\":\"ict-beheer\",\"allowedWidgets\":[\"activity\",\"recommendations\",\"notes\",\"calendar\",\"system_monitor\",\"user_status\"],\"deniedWidgets\":[],\"priorityWeights\":{\"system_monitor\":10,\"activity\":8,\"user_status\":7}} stamped true",
+        "output Seeded RoleFeaturePermission for group: ict-beheer",
+        "insert OCA\\LaunchPad\\Db\\RoleFeaturePermission {\"id\":null,\"name\":\"HRM widget-rechten\",\"description\":\"Widget-toegang voor de afdeling Human Resource Management\",\"groupId\":\"hrm\",\"allowedWidgets\":[\"activity\",\"recommendations\",\"notes\",\"calendar\",\"user_status\"],\"deniedWidgets\":[\"system_monitor\"],\"priorityWeights\":{\"user_status\":10,\"calendar\":9,\"activity\":7}} stamped true",
+        "output Seeded RoleFeaturePermission for group: hrm",
+        "insert OCA\\LaunchPad\\Db\\RoleFeaturePermission {\"id\":null,\"name\":\"Standaard widget-rechten\",\"description\":\"Basistoegang voor gebruikers zonder specifieke groepsindeling\",\"groupId\":\"default\",\"allowedWidgets\":[\"activity\",\"recommendations\"],\"deniedWidgets\":[],\"priorityWeights\":{\"recommendations\":10,\"activity\":8}} stamped true",
+        "output Seeded RoleFeaturePermission for group: default",
+        "insert OCA\\LaunchPad\\Db\\RoleLayoutDefault {\"id\":null,\"name\":\"Medewerker \\u2014 activiteiten\",\"description\":\"Activiteitenoverzicht linksboven voor medewerkers\",\"groupId\":\"medewerkers\",\"widgetId\":\"activity\",\"gridX\":0,\"gridY\":0,\"gridWidth\":6,\"gridHeight\":5,\"sortOrder\":1,\"isCompulsory\":false} stamped true",
+        "output Seeded RoleLayoutDefault: medewerkers/activity",
+        "insert OCA\\LaunchPad\\Db\\RoleLayoutDefault {\"id\":null,\"name\":\"Medewerker \\u2014 aanbevelingen\",\"description\":\"Persoonlijke aanbevelingen rechtsboven voor medewerkers\",\"groupId\":\"medewerkers\",\"widgetId\":\"recommendations\",\"gridX\":6,\"gridY\":0,\"gridWidth\":6,\"gridHeight\":5,\"sortOrder\":2,\"isCompulsory\":false} stamped true",
+        "output Seeded RoleLayoutDefault: medewerkers/recommendations",
+        "insert OCA\\LaunchPad\\Db\\RoleLayoutDefault {\"id\":null,\"name\":\"Manager \\u2014 analysedashboard\",\"description\":\"Verplicht analysedashboard als eerste widget voor managers\",\"groupId\":\"managers\",\"widgetId\":\"analytics_dashboard\",\"gridX\":0,\"gridY\":0,\"gridWidth\":8,\"gridHeight\":6,\"sortOrder\":1,\"isCompulsory\":true} stamped true",
+        "output Seeded RoleLayoutDefault: managers/analytics_dashboard",
+        "insert OCA\\LaunchPad\\Db\\RoleLayoutDefault {\"id\":null,\"name\":\"Manager \\u2014 activiteiten\",\"description\":\"Teamactiviteiten rechtsbovenhoek voor managers\",\"groupId\":\"managers\",\"widgetId\":\"activity\",\"gridX\":8,\"gridY\":0,\"gridWidth\":4,\"gridHeight\":6,\"sortOrder\":2,\"isCompulsory\":false} stamped true",
+        "output Seeded RoleLayoutDefault: managers/activity",
+        "insert OCA\\LaunchPad\\Db\\RoleLayoutDefault {\"id\":null,\"name\":\"ICT-beheer \\u2014 systeemmonitor\",\"description\":\"Verplicht systeemoverzicht als prominente balk voor ICT-beheer\",\"groupId\":\"ict-beheer\",\"widgetId\":\"system_monitor\",\"gridX\":0,\"gridY\":0,\"gridWidth\":12,\"gridHeight\":4,\"sortOrder\":1,\"isCompulsory\":true} stamped true",
+        "output Seeded RoleLayoutDefault: ict-beheer/system_monitor",
+        "log info SeedRolePermissions: seeded default role-feature permissions and layout defaults.",
+        "output Role-feature permissions and layout defaults seeded successfully."
+    ],
+    "already seeded": [
+        "log debug SeedRolePermissions: rows already present, skipping seed.",
+        "output Role-feature permissions already seeded — skipping."
+    ]
+}

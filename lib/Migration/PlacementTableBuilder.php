@@ -54,7 +54,7 @@ class PlacementTableBuilder {
 	 * Delegates to one helper per column group; the call order below is
 	 * the physical column order of the created table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -69,7 +69,7 @@ class PlacementTableBuilder {
 	 * Add the identity / association columns (id, dashboard_id,
 	 * widget_id).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -105,7 +105,7 @@ class PlacementTableBuilder {
 	 * Add the grid-geometry columns (grid_x, grid_y, grid_width,
 	 * grid_height).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -148,7 +148,7 @@ class PlacementTableBuilder {
 	 * Add the visibility / presentation columns (is_compulsory,
 	 * is_visible, style_config, custom_title, show_title, sort_order).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -208,7 +208,7 @@ class PlacementTableBuilder {
 	/**
 	 * Add the audit-timestamp columns (created_at, updated_at).
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
@@ -232,7 +232,7 @@ class PlacementTableBuilder {
 	/**
 	 * Add indexes to the widget placements table.
 	 *
-	 * @param \Doctrine\DBAL\Schema\Table $table The table instance.
+	 * @param \OCP\DB\Schema\ITable $table The table instance.
 	 *
 	 * @return void
 	 */
